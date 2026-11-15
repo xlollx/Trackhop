@@ -105,4 +105,15 @@ class DiscoverV2StateKeptFlowTest : FlowTest() {
         click(s(R.string.save))
         waitFor("the alert saved") { store.data.settings.discogsWantAlerts["1810187"]?.below == 30.0 }
     }
+
+    @Test
+    fun theVenuesTabAndWhatIsTypedSurviveTheActivityMadeAnew() {
+        openConcerts()
+        click(s(R.string.venues_tab))
+        waitText(s(R.string.venues_empty))
+        compose.onNode(hasTestTag(com.xlollx.songport.ui.VENUE_SEARCH_TAG)).performTextReplacement("Alcatraz")
+        remade()
+        waitText(s(R.string.venues_empty))
+        waitNode("the search kept", androidx.compose.ui.test.hasSetTextAction() and androidx.compose.ui.test.hasText("Alcatraz"))
+    }
 }

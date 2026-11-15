@@ -2814,4 +2814,26 @@
     <string name="myrecords_notif_new_text">A partir de %1$s no Discogs. Toque para ver.</string>
     <string name="myrecords_market_some">Os preços aparecem para os primeiros %1$d discos e para os que têm alerta.</string>
     <string name="discogs_account_desc">Seu token pessoal: coleção, wantlist e preços.</string>
+    <string name="venues_tab">Casas de show</string>
+    <string name="venues_intro">Siga as casas de show da sua cidade e descubra quem toca lá, inclusive artistas que você ainda não segue.</string>
+    <string name="venues_search">Buscar uma casa de show ou cidade</string>
+    <string name="venues_search_go">Buscar</string>
+    <string name="venues_none_found">Nenhuma casa de show encontrada com esse nome.</string>
+    <string name="venues_follow">Seguir</string>
+    <string name="venues_city">Sua cidade</string>
+    <string name="venues_city_use">Shows em %1$s</string>
+    <string name="venues_no_location">Você digita a cidade: sem permissão de localização.</string>
+    <string name="venues_next_weeks">Nas próximas %1$d semanas</string>
+    <string name="venues_you_follow">você segue</string>
+    <string name="venues_not_followed">você não segue</string>
+    <string name="venues_no_events">Nada programado para as próximas semanas.</string>
+    <string name="venues_empty">Siga uma casa de show ou digite sua cidade para ver quem toca.</string>
+    <string name="venues_unanswered">As fontes de shows não responderam. Tente mais tarde.</string>
+    <string name="venues_some_unanswered">Algumas casas de show não responderam: as datas delas estão faltando por enquanto.</string>
+    <string name="venues_playlist">Playlist \"Shows perto de você\"</string>
+    <string name="venues_playlist_name">Shows perto de você</string>
+    <string name="venues_playlist_note">As músicas mais conhecidas de quem toca nas suas casas de show ou na sua cidade. Atualiza sozinha.</string>
+    <string name="venues_no_key">Sem a sua chave do Ticketmaster aparecem só as casas e datas do MusicBrainz: bem menos.</string>
+    <string name="venues_reading">Vendo o que está programado…</string>
+    <string name="venues_unfollow">Deixar de seguir %1$s</string>
 </resources>

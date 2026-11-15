@@ -2806,4 +2806,26 @@
     <string name="myrecords_notif_new_text">Ab %1$s auf Discogs. Tippe, um es anzusehen.</string>
     <string name="myrecords_market_some">Preise werden für die ersten %1$d Platten und für die mit Benachrichtigung angezeigt.</string>
     <string name="discogs_account_desc">Dein persönliches Token: Sammlung, Wantlist und Preise.</string>
+    <string name="venues_tab">Locations</string>
+    <string name="venues_intro">Folge den Locations deiner Stadt und sieh, wer dort spielt, auch Künstler, denen du noch nicht folgst.</string>
+    <string name="venues_search">Location oder Stadt suchen</string>
+    <string name="venues_search_go">Suchen</string>
+    <string name="venues_none_found">Keine Location mit diesem Namen gefunden.</string>
+    <string name="venues_follow">Folgen</string>
+    <string name="venues_city">Deine Stadt</string>
+    <string name="venues_city_use">Konzerte in %1$s</string>
+    <string name="venues_no_location">Die Stadt gibst du selbst ein: keine Standortberechtigung.</string>
+    <string name="venues_next_weeks">In den nächsten %1$d Wochen</string>
+    <string name="venues_you_follow">du folgst</string>
+    <string name="venues_not_followed">du folgst nicht</string>
+    <string name="venues_no_events">In den nächsten Wochen wurde dort nichts gefunden.</string>
+    <string name="venues_empty">Folge einer Location oder gib deine Stadt ein, um zu sehen, wer spielt.</string>
+    <string name="venues_unanswered">Die Konzertquellen haben nicht geantwortet. Versuch es später noch einmal.</string>
+    <string name="venues_some_unanswered">Einige Locations haben nicht geantwortet: Ihre Termine fehlen vorerst.</string>
+    <string name="venues_playlist">Playlist \"Konzerte in deiner Nähe\"</string>
+    <string name="venues_playlist_name">Konzerte in deiner Nähe</string>
+    <string name="venues_playlist_note">Die bekanntesten Songs derer, die in deinen Locations oder in deiner Stadt spielen. Sie aktualisiert sich von selbst.</string>
+    <string name="venues_no_key">Ohne deinen Ticketmaster-Schlüssel werden nur Locations und Termine von MusicBrainz angezeigt: deutlich weniger.</string>
+    <string name="venues_reading">Schaue, was läuft…</string>
+    <string name="venues_unfollow">%1$s nicht mehr folgen</string>
 </resources>

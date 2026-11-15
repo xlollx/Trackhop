@@ -1,0 +1,10 @@
+{
+  "_embedded": { "venues": [
+    { "name": "Alcatraz", "type": "venue", "id": "Z198xZG2Za7e", "url": "https://www.ticketmaster.it/venue/alcatraz-milano-biglietti/alcatraz/venue/123",
+      "locale": "it-it", "postalCode": "20159", "timezone": "Europe/Rome", "city": { "name": "Milano" }, "country": { "name": "Italy", "countryCode": "IT" },
+      "address": { "line1": "Via Valtellina 25" }, "upcomingEvents": { "_total": 12 } },
+    { "name": "Fabrique", "type": "venue", "id": "Z198xZG2ZaFk", "city": { "name": "Milano" }, "country": { "countryCode": "IT" } },
+    { "type": "venue", "id": "noname" }
+  ] },
+  "page": { "size": 20, "totalElements": 3, "totalPages": 1, "number": 0 }
+}

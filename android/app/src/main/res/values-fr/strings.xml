@@ -2814,4 +2814,26 @@
     <string name="myrecords_notif_new_text">Dès %1$s sur Discogs. Touche pour le voir.</string>
     <string name="myrecords_market_some">Les prix sont affichés pour les %1$d premiers disques et pour ceux avec une alerte.</string>
     <string name="discogs_account_desc">Ton jeton personnel : collection, wantlist et prix.</string>
+    <string name="venues_tab">Salles</string>
+    <string name="venues_intro">Suis les salles de ta ville et découvre qui y joue, même des artistes que tu ne suis pas encore.</string>
+    <string name="venues_search">Chercher une salle ou une ville</string>
+    <string name="venues_search_go">Chercher</string>
+    <string name="venues_none_found">Aucune salle trouvée avec ce nom.</string>
+    <string name="venues_follow">Suivre</string>
+    <string name="venues_city">Ta ville</string>
+    <string name="venues_city_use">Concerts à %1$s</string>
+    <string name="venues_no_location">C\'est toi qui écris la ville : aucune autorisation de localisation.</string>
+    <string name="venues_next_weeks">Dans les %1$d prochaines semaines</string>
+    <string name="venues_you_follow">tu le suis</string>
+    <string name="venues_not_followed">tu ne le suis pas</string>
+    <string name="venues_no_events">Rien de prévu dans les prochaines semaines.</string>
+    <string name="venues_empty">Suis une salle ou écris ta ville pour voir qui joue.</string>
+    <string name="venues_unanswered">Les sources de concerts n\'ont pas répondu. Réessaie plus tard.</string>
+    <string name="venues_some_unanswered">Certaines salles n\'ont pas répondu : leurs dates manquent pour l\'instant.</string>
+    <string name="venues_playlist">Playlist \"Concerts près de chez toi\"</string>
+    <string name="venues_playlist_name">Concerts près de chez toi</string>
+    <string name="venues_playlist_note">Les titres les plus connus de ceux qui jouent dans tes salles ou dans ta ville. Elle se met à jour toute seule.</string>
+    <string name="venues_no_key">Sans ta clé Ticketmaster, seules les salles et dates de MusicBrainz sont affichées : bien moins.</string>
+    <string name="venues_reading">Je regarde ce qui est prévu…</string>
+    <string name="venues_unfollow">Ne plus suivre %1$s</string>
 </resources>

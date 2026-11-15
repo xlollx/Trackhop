@@ -7,6 +7,7 @@ import com.xlollx.songport.platform.Env
 import com.xlollx.songport.sync.ConcertDiary
 import com.xlollx.songport.sync.Discogs
 import com.xlollx.songport.sync.Setlists
+import com.xlollx.songport.sync.Venues
 
 /**
  * The playlists Discover's pages make and keep updated: the source of a sync, read again at every
@@ -15,7 +16,8 @@ import com.xlollx.songport.sync.Setlists
  * - [HEARD]: every song heard live, the most heard first ([ConcertDiary.heard]);
  * - [SHOW]`<setlist id>`: one concert's setlist, in order;
  * - [MISSING]`<artist>`: the artist's best known songs never heard at their concerts;
- * - [RECORDS]: the songs of the records of the user's Discogs collection ([Discogs.collectionTracks]).
+ * - [RECORDS]: the songs of the records of the user's Discogs collection ([Discogs.collectionTracks]);
+ * - [NEARBY]: "Concerts near you", the best known songs of who plays at the venues followed ([Venues.nearbyTracks]).
  *
  * Never listed with the services: [Providers.byId] finds it by [SERVICE].
  */
@@ -25,6 +27,7 @@ object DiscoverSource : MusicProvider {
     const val SHOW = "show:"
     const val MISSING = "missing:"
     const val RECORDS = "records"
+    const val NEARBY = "nearby"
 
     override val serviceId = SERVICE
     override val displayName = "Discover"
@@ -48,7 +51,7 @@ object DiscoverSource : MusicProvider {
     /** Nothing to list: such a sync is made from the page that shows the playlist. */
     override suspend fun playlists(ctx: Env): List<Playlist> = emptyList()
 
-    private fun known(id: String) = id == HEARD || id == RECORDS || (id.startsWith(SHOW) && id.length > SHOW.length) || (id.startsWith(MISSING) && id.length > MISSING.length)
+    private fun known(id: String) = id == HEARD || id == RECORDS || id == NEARBY || (id.startsWith(SHOW) && id.length > SHOW.length) || (id.startsWith(MISSING) && id.length > MISSING.length)
 
     override fun canRead(ctx: Env, playlistId: String) = known(playlistId)
 
@@ -56,6 +59,7 @@ object DiscoverSource : MusicProvider {
     fun name(ctx: Env, playlistId: String): String = when {
         playlistId == HEARD -> ctx.text("diary_playlist_heard")
         playlistId == RECORDS -> ctx.text("discover_myrecords_title")
+        playlistId == NEARBY -> ctx.text("venues_playlist_name")
         playlistId.startsWith(MISSING) -> ctx.text("diary_playlist_missing", playlistId.removePrefix(MISSING))
         playlistId.startsWith(SHOW) -> ConcertDiary.kept(ctx)?.concerts?.firstOrNull { it.id == playlistId.removePrefix(SHOW) }?.let { Setlists.playlistName(it) } ?: ctx.text("diary_playlist_show")
         else -> throw ProviderException(ctx.text("discover_source_unknown"), code = 404)
@@ -67,6 +71,7 @@ object DiscoverSource : MusicProvider {
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> = when {
         playlistId == HEARD -> ConcertDiary.heard(ConcertDiary.read(ctx).concerts)
         playlistId == RECORDS -> Discogs.collectionTracks(ctx)
+        playlistId == NEARBY -> Venues.nearbyTracks(ctx)
         playlistId.startsWith(MISSING) -> ConcertDiary.notHeardYet(ctx, ConcertDiary.read(ctx).concerts, playlistId.removePrefix(MISSING))
         playlistId.startsWith(SHOW) -> {
             val id = playlistId.removePrefix(SHOW)

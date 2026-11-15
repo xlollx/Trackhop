@@ -2918,4 +2918,26 @@
     <string name="myrecords_notif_new_text">Od %1$s na Discogs. Dotknij, aby zobaczyć.</string>
     <string name="myrecords_market_some">Ceny są pokazywane dla pierwszych %1$d płyt i dla tych z powiadomieniem.</string>
     <string name="discogs_account_desc">Twój osobisty token: kolekcja, wantlista i ceny.</string>
+    <string name="venues_tab">Miejsca</string>
+    <string name="venues_intro">Obserwuj miejsca w swoim mieście i sprawdzaj, kto tam gra, także artystów, których jeszcze nie obserwujesz.</string>
+    <string name="venues_search">Szukaj miejsca lub miasta</string>
+    <string name="venues_search_go">Szukaj</string>
+    <string name="venues_none_found">Nie znaleziono miejsca o tej nazwie.</string>
+    <string name="venues_follow">Obserwuj</string>
+    <string name="venues_city">Twoje miasto</string>
+    <string name="venues_city_use">Koncerty w: %1$s</string>
+    <string name="venues_no_location">Miasto wpisujesz samodzielnie: bez uprawnienia do lokalizacji.</string>
+    <string name="venues_next_weeks">W najbliższych tygodniach: %1$d</string>
+    <string name="venues_you_follow">obserwujesz</string>
+    <string name="venues_not_followed">nie obserwujesz</string>
+    <string name="venues_no_events">Nic nie znaleziono w najbliższych tygodniach.</string>
+    <string name="venues_empty">Zaobserwuj miejsce lub wpisz swoje miasto, aby zobaczyć, kto gra.</string>
+    <string name="venues_unanswered">Źródła koncertów nie odpowiedziały. Spróbuj później.</string>
+    <string name="venues_some_unanswered">Niektóre miejsca nie odpowiedziały: ich terminów na razie brakuje.</string>
+    <string name="venues_playlist">Playlista \"Koncerty w pobliżu\"</string>
+    <string name="venues_playlist_name">Koncerty w pobliżu</string>
+    <string name="venues_playlist_note">Najbardziej znane utwory tych, którzy grają w twoich miejscach lub w twoim mieście. Aktualizuje się sama.</string>
+    <string name="venues_no_key">Bez twojego klucza Ticketmaster widać tylko miejsca i terminy z MusicBrainz: znacznie mniej.</string>
+    <string name="venues_reading">Sprawdzam, co jest w programie…</string>
+    <string name="venues_unfollow">Przestań obserwować %1$s</string>
 </resources>

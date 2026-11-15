@@ -2750,4 +2750,26 @@
     <string name="myrecords_notif_new_text">Discogs에서 %1$s부터. 눌러서 확인하세요.</string>
     <string name="myrecords_market_some">가격은 처음 %1$d장과 알림을 설정한 음반에 표시됩니다.</string>
     <string name="discogs_account_desc">개인 토큰: 컬렉션, 원트리스트, 가격.</string>
+    <string name="venues_tab">공연장</string>
+    <string name="venues_intro">내 도시의 공연장을 팔로우하고, 아직 팔로우하지 않은 아티스트까지 누가 공연하는지 확인하세요.</string>
+    <string name="venues_search">공연장 또는 도시 검색</string>
+    <string name="venues_search_go">검색</string>
+    <string name="venues_none_found">그 이름의 공연장을 찾지 못했습니다.</string>
+    <string name="venues_follow">팔로우</string>
+    <string name="venues_city">내 도시</string>
+    <string name="venues_city_use">%1$s의 공연</string>
+    <string name="venues_no_location">도시는 직접 입력합니다. 위치 권한이 필요 없습니다.</string>
+    <string name="venues_next_weeks">앞으로 %1$d주</string>
+    <string name="venues_you_follow">팔로우 중</string>
+    <string name="venues_not_followed">팔로우 안 함</string>
+    <string name="venues_no_events">앞으로 몇 주 동안 예정된 공연이 없습니다.</string>
+    <string name="venues_empty">공연장을 팔로우하거나 도시를 입력하면 누가 공연하는지 볼 수 있습니다.</string>
+    <string name="venues_unanswered">공연 정보 출처가 응답하지 않았습니다. 나중에 다시 시도하세요.</string>
+    <string name="venues_some_unanswered">일부 공연장이 응답하지 않아 일정이 아직 표시되지 않습니다.</string>
+    <string name="venues_playlist">\"내 주변 공연\" 플레이리스트</string>
+    <string name="venues_playlist_name">내 주변 공연</string>
+    <string name="venues_playlist_note">내 공연장이나 도시에서 공연하는 아티스트의 대표곡. 자동으로 업데이트됩니다.</string>
+    <string name="venues_no_key">Ticketmaster 키가 없으면 MusicBrainz의 공연장과 일정만 표시됩니다. 훨씬 적습니다.</string>
+    <string name="venues_reading">예정된 공연을 확인하는 중…</string>
+    <string name="venues_unfollow">%1$s 팔로우 취소</string>
 </resources>

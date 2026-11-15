@@ -2916,4 +2916,26 @@
     <string name="myrecords_notif_new_text">От %1$s на Discogs. Нажмите, чтобы посмотреть.</string>
     <string name="myrecords_market_some">Цены показаны для первых %1$d пластинок и для тех, где включено оповещение.</string>
     <string name="discogs_account_desc">Ваш личный токен: коллекция, вишлист и цены.</string>
+    <string name="venues_tab">Площадки</string>
+    <string name="venues_intro">Подпишитесь на площадки своего города и узнавайте, кто там выступает, включая артистов, на которых вы ещё не подписаны.</string>
+    <string name="venues_search">Найти площадку или город</string>
+    <string name="venues_search_go">Найти</string>
+    <string name="venues_none_found">Площадка с таким названием не найдена.</string>
+    <string name="venues_follow">Подписаться</string>
+    <string name="venues_city">Ваш город</string>
+    <string name="venues_city_use">Концерты: %1$s</string>
+    <string name="venues_no_location">Город вы вводите сами: разрешение на геолокацию не нужно.</string>
+    <string name="venues_next_weeks">В ближайшие недели: %1$d</string>
+    <string name="venues_you_follow">вы подписаны</string>
+    <string name="venues_not_followed">вы не подписаны</string>
+    <string name="venues_no_events">На ближайшие недели ничего не найдено.</string>
+    <string name="venues_empty">Подпишитесь на площадку или введите свой город, чтобы увидеть, кто выступает.</string>
+    <string name="venues_unanswered">Источники концертов не ответили. Попробуйте позже.</string>
+    <string name="venues_some_unanswered">Некоторые площадки не ответили: их дат пока нет.</string>
+    <string name="venues_playlist">Плейлист «Концерты рядом»</string>
+    <string name="venues_playlist_name">Концерты рядом</string>
+    <string name="venues_playlist_note">Самые известные песни тех, кто выступает на ваших площадках или в вашем городе. Обновляется сам.</string>
+    <string name="venues_no_key">Без вашего ключа Ticketmaster показаны только площадки и даты из MusicBrainz: их гораздо меньше.</string>
+    <string name="venues_reading">Смотрю, что в программе…</string>
+    <string name="venues_unfollow">Отписаться от %1$s</string>
 </resources>

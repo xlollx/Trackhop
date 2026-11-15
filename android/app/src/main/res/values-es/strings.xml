@@ -2814,4 +2814,26 @@
     <string name="myrecords_notif_new_text">Desde %1$s en Discogs. Toca para verla.</string>
     <string name="myrecords_market_some">Los precios se muestran para los primeros %1$d discos y para los que tienen aviso.</string>
     <string name="discogs_account_desc">Tu token personal: colección, wantlist y precios.</string>
+    <string name="venues_tab">Salas</string>
+    <string name="venues_intro">Sigue las salas de tu ciudad y descubre quién toca allí, también artistas que aún no sigues.</string>
+    <string name="venues_search">Busca una sala o una ciudad</string>
+    <string name="venues_search_go">Buscar</string>
+    <string name="venues_none_found">No se encontró ninguna sala con ese nombre.</string>
+    <string name="venues_follow">Seguir</string>
+    <string name="venues_city">Tu ciudad</string>
+    <string name="venues_city_use">Conciertos en %1$s</string>
+    <string name="venues_no_location">La ciudad la escribes tú: sin permiso de ubicación.</string>
+    <string name="venues_next_weeks">En las próximas %1$d semanas</string>
+    <string name="venues_you_follow">lo sigues</string>
+    <string name="venues_not_followed">no lo sigues</string>
+    <string name="venues_no_events">No hay nada programado en las próximas semanas.</string>
+    <string name="venues_empty">Sigue una sala o escribe tu ciudad para ver quién toca.</string>
+    <string name="venues_unanswered">Las fuentes de conciertos no respondieron. Inténtalo más tarde.</string>
+    <string name="venues_some_unanswered">Algunas salas no respondieron: sus fechas faltan por ahora.</string>
+    <string name="venues_playlist">Playlist \"Conciertos cerca de ti\"</string>
+    <string name="venues_playlist_name">Conciertos cerca de ti</string>
+    <string name="venues_playlist_note">Las canciones más conocidas de quienes tocan en tus salas o en tu ciudad. Se actualiza sola.</string>
+    <string name="venues_no_key">Sin tu clave de Ticketmaster solo se muestran las salas y fechas de MusicBrainz: muchas menos.</string>
+    <string name="venues_reading">Mirando qué hay programado…</string>
+    <string name="venues_unfollow">Dejar de seguir %1$s</string>
 </resources>

@@ -2808,4 +2808,26 @@
     <string name="myrecords_notif_new_text">From %1$s on Discogs. Tap to see it.</string>
     <string name="myrecords_market_some">Prices are shown for the first %1$d records and for those with an alert.</string>
     <string name="discogs_account_desc">Your personal token: collection, wantlist and prices.</string>
+    <string name="venues_tab">Venues</string>
+    <string name="venues_intro">Follow the venues of your city and see who plays there, also artists you don\'t follow yet.</string>
+    <string name="venues_search">Search a venue or a city</string>
+    <string name="venues_search_go">Search</string>
+    <string name="venues_none_found">No venue found with that name.</string>
+    <string name="venues_follow">Follow</string>
+    <string name="venues_city">Your city</string>
+    <string name="venues_city_use">Concerts in %1$s</string>
+    <string name="venues_no_location">You type the city: no location permission.</string>
+    <string name="venues_next_weeks">In the next %1$d weeks</string>
+    <string name="venues_you_follow">you follow them</string>
+    <string name="venues_not_followed">you don\'t follow them</string>
+    <string name="venues_no_events">Nothing found there in the next weeks.</string>
+    <string name="venues_empty">Follow a venue or type your city to see who plays.</string>
+    <string name="venues_unanswered">The concert sources did not answer. Try again later.</string>
+    <string name="venues_some_unanswered">Some venues did not answer: their dates are missing for now.</string>
+    <string name="venues_playlist">\"Concerts near you\" playlist</string>
+    <string name="venues_playlist_name">Concerts near you</string>
+    <string name="venues_playlist_note">The best known songs of who plays at your venues or in your city. It updates by itself.</string>
+    <string name="venues_no_key">Without your Ticketmaster key only MusicBrainz\'s venues and dates are shown: far fewer.</string>
+    <string name="venues_reading">Looking at what is on…</string>
+    <string name="venues_unfollow">Stop following %1$s</string>
 </resources>

@@ -2804,4 +2804,26 @@
     <string name="myrecords_notif_new_text">Discogs\'ta %1$s\'den başlayan fiyatla. Görmek için dokun.</string>
     <string name="myrecords_market_some">Fiyatlar ilk %1$d plak ve uyarısı olanlar için gösterilir.</string>
     <string name="discogs_account_desc">Kişisel jetonun: koleksiyon, istek listesi ve fiyatlar.</string>
+    <string name="venues_tab">Mekânlar</string>
+    <string name="venues_intro">Şehrindeki mekânları takip et ve orada kimin çaldığını gör; henüz takip etmediğin sanatçılar da dahil.</string>
+    <string name="venues_search">Mekân veya şehir ara</string>
+    <string name="venues_search_go">Ara</string>
+    <string name="venues_none_found">Bu adda bir mekân bulunamadı.</string>
+    <string name="venues_follow">Takip et</string>
+    <string name="venues_city">Şehrin</string>
+    <string name="venues_city_use">%1$s konserleri</string>
+    <string name="venues_no_location">Şehri sen yazarsın: konum izni gerekmez.</string>
+    <string name="venues_next_weeks">Önümüzdeki %1$d hafta</string>
+    <string name="venues_you_follow">takip ediyorsun</string>
+    <string name="venues_not_followed">takip etmiyorsun</string>
+    <string name="venues_no_events">Önümüzdeki haftalarda bir şey bulunamadı.</string>
+    <string name="venues_empty">Kimin çaldığını görmek için bir mekânı takip et ya da şehrini yaz.</string>
+    <string name="venues_unanswered">Konser kaynakları yanıt vermedi. Daha sonra yeniden dene.</string>
+    <string name="venues_some_unanswered">Bazı mekânlar yanıt vermedi: tarihleri şimdilik eksik.</string>
+    <string name="venues_playlist">\"Yakınındaki konserler\" çalma listesi</string>
+    <string name="venues_playlist_name">Yakınındaki konserler</string>
+    <string name="venues_playlist_note">Mekânlarında ya da şehrinde çalanların en bilinen şarkıları. Kendiliğinden güncellenir.</string>
+    <string name="venues_no_key">Ticketmaster anahtarın olmadan yalnızca MusicBrainz\'in mekânları ve tarihleri görünür: çok daha az.</string>
+    <string name="venues_reading">Programda ne olduğuna bakılıyor…</string>
+    <string name="venues_unfollow">%1$s takibini bırak</string>
 </resources>

@@ -86,11 +86,12 @@ internal fun defaultConcertCountry(ctx: Context): String {
 @Composable
 internal fun ConcertsPage(snackbar: SnackbarHostState, onNewSync: (com.xlollx.songport.model.SyncJob.() -> com.xlollx.songport.model.SyncJob) -> Unit = {}) {
     val ctx = LocalContext.current
-    // 1.18's tabs: the dates to come (the page as it was), the concert diary.
+    // 1.18's tabs: the dates to come (the page as it was), the concert diary, the venues followed.
     var tab by rememberSaveable { mutableStateOf(0) }
     if (com.xlollx.songport.Features.v2) {
-        ToolSegmented(listOf(stringResource(R.string.diary_tab_upcoming), stringResource(R.string.diary_tab_attended)), tab) { tab = it }
+        ToolSegmented(listOf(stringResource(R.string.diary_tab_upcoming), stringResource(R.string.diary_tab_attended), stringResource(R.string.venues_tab)), tab) { tab = it }
         if (tab == 1) { ConcertDiaryTab(snackbar, onNewSync); return }
+        if (tab == 2) { VenuesTab(snackbar, onNewSync); return }
     }
     val k = ConcertsKept.work
     var pick by remember { mutableStateOf<CardPick?>(null) }
@@ -178,7 +179,7 @@ internal fun ConcertsPage(snackbar: SnackbarHostState, onNewSync: (com.xlollx.so
 }
 
 @Composable
-private fun CountryPicker(country: String, onPick: (String) -> Unit) {
+internal fun CountryPicker(country: String, onPick: (String) -> Unit) {
     val ctx = LocalContext.current
     val here = ctx.resources.configuration.locales[0]
     val all = remember(here) { Locale.getISOCountries().map { it to Locale("", it).getDisplayCountry(here) }.sortedBy { it.second } }

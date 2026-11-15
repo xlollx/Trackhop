@@ -1,0 +1,10 @@
+{
+  "created": "2026-11-15T10:00:00.000Z", "count": 2, "offset": 0,
+  "events": [
+    { "id": "11111111-2222-3333-4444-555555555555", "type": "Concert", "score": 100, "name": "Arlo Parks at Circolo Magnolia", "life-span": { "begin": "2026-12-05", "end": "2026-12-05" }, "time": "21:30",
+      "relations": [
+        { "type": "main performer", "direction": "backward", "artist": { "id": "aaaaaaaa-0000-0000-0000-000000000001", "name": "Arlo Parks", "sort-name": "Parks, Arlo" } },
+        { "type": "held at", "direction": "backward", "place": { "id": "478558f9-a951-4067-ad91-e83f6ba63e74", "name": "Circolo Magnolia" } } ] },
+    { "id": "11111111-2222-3333-4444-555555555556", "type": "Concert", "name": "Called off", "cancelled": true, "life-span": { "begin": "2026-12-06" }, "relations": [] }
+  ]
+}

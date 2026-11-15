@@ -2806,4 +2806,26 @@
     <string name="myrecords_notif_new_text">Da %1$s su Discogs. Tocca per vederla.</string>
     <string name="myrecords_market_some">I prezzi si vedono per i primi %1$d dischi e per quelli con un avviso.</string>
     <string name="discogs_account_desc">Il tuo token personale: collezione, wantlist e prezzi.</string>
+    <string name="venues_tab">Locali</string>
+    <string name="venues_intro">Segui i locali della tua città e scopri chi ci suona, anche artisti che non segui ancora.</string>
+    <string name="venues_search">Cerca un locale o una città</string>
+    <string name="venues_search_go">Cerca</string>
+    <string name="venues_none_found">Nessun locale trovato con questo nome.</string>
+    <string name="venues_follow">Segui</string>
+    <string name="venues_city">La tua città</string>
+    <string name="venues_city_use">Concerti a %1$s</string>
+    <string name="venues_no_location">La città la scrivi tu: nessun permesso di posizione.</string>
+    <string name="venues_next_weeks">Nelle prossime %1$d settimane</string>
+    <string name="venues_you_follow">lo segui</string>
+    <string name="venues_not_followed">non lo segui</string>
+    <string name="venues_no_events">Niente in programma nelle prossime settimane.</string>
+    <string name="venues_empty">Segui un locale o scrivi la tua città per vedere chi suona.</string>
+    <string name="venues_unanswered">Le fonti dei concerti non hanno risposto. Riprova più tardi.</string>
+    <string name="venues_some_unanswered">Alcuni locali non hanno risposto: le loro date per ora mancano.</string>
+    <string name="venues_playlist">Playlist \"Concerti vicino a te\"</string>
+    <string name="venues_playlist_name">Concerti vicino a te</string>
+    <string name="venues_playlist_note">Le canzoni più famose di chi suona nei tuoi locali o nella tua città. Si aggiorna da sola.</string>
+    <string name="venues_no_key">Senza la tua chiave Ticketmaster si vedono solo i locali e le date di MusicBrainz: molti meno.</string>
+    <string name="venues_reading">Guardo cosa c\'è in programma…</string>
+    <string name="venues_unfollow">Smetti di seguire %1$s</string>
 </resources>

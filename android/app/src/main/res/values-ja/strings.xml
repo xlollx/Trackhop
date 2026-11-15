@@ -2751,4 +2751,26 @@
     <string name="myrecords_notif_new_text">Discogs で %1$s から。タップして確認。</string>
     <string name="myrecords_market_some">価格は最初の %1$d 枚とアラート設定済みのレコードに表示されます。</string>
     <string name="discogs_account_desc">個人トークン: コレクション、ウォントリスト、価格。</string>
+    <string name="venues_tab">会場</string>
+    <string name="venues_intro">街の会場をフォローして、まだフォローしていないアーティストも含め、誰が出演するかをチェック。</string>
+    <string name="venues_search">会場または都市を検索</string>
+    <string name="venues_search_go">検索</string>
+    <string name="venues_none_found">その名前の会場は見つかりませんでした。</string>
+    <string name="venues_follow">フォロー</string>
+    <string name="venues_city">あなたの都市</string>
+    <string name="venues_city_use">%1$s のライブ</string>
+    <string name="venues_no_location">都市は自分で入力します。位置情報の権限は不要です。</string>
+    <string name="venues_next_weeks">今後 %1$d 週間</string>
+    <string name="venues_you_follow">フォロー中</string>
+    <string name="venues_not_followed">未フォロー</string>
+    <string name="venues_no_events">今後数週間の予定は見つかりませんでした。</string>
+    <string name="venues_empty">会場をフォローするか都市を入力すると、出演者が表示されます。</string>
+    <string name="venues_unanswered">ライブ情報の取得元から応答がありません。後でもう一度お試しください。</string>
+    <string name="venues_some_unanswered">一部の会場から応答がなく、日程がまだ表示されていません。</string>
+    <string name="venues_playlist">「近くのライブ」プレイリスト</string>
+    <string name="venues_playlist_name">近くのライブ</string>
+    <string name="venues_playlist_note">フォロー中の会場や街に出演するアーティストの代表曲。自動で更新されます。</string>
+    <string name="venues_no_key">Ticketmaster のキーがない場合、MusicBrainz の会場と日程のみ表示されます（かなり少なくなります）。</string>
+    <string name="venues_reading">予定を確認中…</string>
+    <string name="venues_unfollow">%1$s のフォローを解除</string>
 </resources>

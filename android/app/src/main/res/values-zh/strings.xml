@@ -2751,4 +2751,26 @@
     <string name="myrecords_notif_new_text">Discogs 上 %1$s 起。点按查看。</string>
     <string name="myrecords_market_some">价格只显示前 %1$d 张唱片和设了提醒的唱片。</string>
     <string name="discogs_account_desc">你的个人令牌：收藏、心愿单和价格。</string>
+    <string name="venues_tab">场地</string>
+    <string name="venues_intro">关注你所在城市的场地，看看谁在那里演出，包括你还没关注的艺人。</string>
+    <string name="venues_search">搜索场地或城市</string>
+    <string name="venues_search_go">搜索</string>
+    <string name="venues_none_found">没有找到这个名字的场地。</string>
+    <string name="venues_follow">关注</string>
+    <string name="venues_city">你的城市</string>
+    <string name="venues_city_use">%1$s 的演出</string>
+    <string name="venues_no_location">城市由你自己输入：不需要定位权限。</string>
+    <string name="venues_next_weeks">未来 %1$d 周</string>
+    <string name="venues_you_follow">已关注</string>
+    <string name="venues_not_followed">未关注</string>
+    <string name="venues_no_events">未来几周没有找到演出。</string>
+    <string name="venues_empty">关注一个场地或输入你的城市，即可查看谁在演出。</string>
+    <string name="venues_unanswered">演出信息来源没有响应，请稍后再试。</string>
+    <string name="venues_some_unanswered">部分场地没有响应：暂时缺少它们的日期。</string>
+    <string name="venues_playlist">“你附近的演出”播放列表</string>
+    <string name="venues_playlist_name">你附近的演出</string>
+    <string name="venues_playlist_note">在你关注的场地或你的城市演出的艺人最知名的歌曲，自动更新。</string>
+    <string name="venues_no_key">没有你的 Ticketmaster 密钥时，只显示 MusicBrainz 的场地和日期：少得多。</string>
+    <string name="venues_reading">正在查看演出安排…</string>
+    <string name="venues_unfollow">取消关注 %1$s</string>
 </resources>

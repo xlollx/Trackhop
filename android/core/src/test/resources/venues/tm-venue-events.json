@@ -1,0 +1,19 @@
+{
+  "_embedded": { "events": [
+    { "name": "Wet Leg", "type": "event", "id": "Z698xZG2Z17a1", "url": "https://www.ticketmaster.it/event/wet-leg/1",
+      "sales": { "public": { "startDateTime": "2026-11-20T09:00:00Z", "startTBD": false, "endDateTime": "2026-11-22T19:00:00Z" },
+                 "presales": [ { "startDateTime": "2026-11-19T09:00:00Z", "endDateTime": "2026-11-20T08:00:00Z", "name": "My Ticketmaster presale" },
+                               { "startDateTime": "2026-11-18T09:00:00Z", "endDateTime": "2026-11-19T08:00:00Z", "name": "Fan presale" } ] },
+      "dates": { "start": { "localDate": "2026-11-22", "localTime": "21:00:00", "dateTime": "2026-11-22T20:00:00Z" }, "timezone": "Europe/Rome", "status": { "code": "onsale" } },
+      "classifications": [ { "primary": true, "segment": { "name": "Music" } } ],
+      "_embedded": { "venues": [ { "name": "Alcatraz", "id": "Z198xZG2Za7e", "city": { "name": "Milano" }, "country": { "countryCode": "IT" } } ],
+                     "attractions": [ { "name": "Wet Leg", "id": "K8vZ917_a1" }, { "name": "Faux Real", "id": "K8vZ917_a2" } ] } },
+    { "name": "Indie Night", "type": "event", "id": "Z698xZG2Z17a2",
+      "dates": { "start": { "localDate": "2026-11-29" }, "status": { "code": "onsale" } },
+      "_embedded": { "venues": [ { "name": "Alcatraz", "city": { "name": "Milano" }, "country": { "countryCode": "IT" } } ] } },
+    { "name": "Arlo Parks", "type": "event", "id": "Z698xZG2Z17a3",
+      "dates": { "start": { "localDate": "2026-12-05" }, "status": { "code": "cancelled" } },
+      "_embedded": { "venues": [ { "name": "Alcatraz", "city": { "name": "Milano" }, "country": { "countryCode": "IT" } } ],
+                     "attractions": [ { "name": "Arlo Parks", "id": "K8vZ917_a3" } ] } }
+  ] }
+}
