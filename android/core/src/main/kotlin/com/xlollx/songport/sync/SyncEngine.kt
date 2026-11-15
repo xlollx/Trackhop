@@ -622,7 +622,9 @@ class SyncEngine(
         // removal here could come first. Removals are never made in a pair.
         val paired = job.linkedJobId?.let { store.job(it) } != null
         // Another sync writes to this playlist too: what matches none of this source may be its.
-        val sharing = JobConflicts.sharingTarget(store.data.syncs, job)
+        // Not in an N-way group: every main member's sync writes to the group's list, and a two-way
+        // removal only ever takes what this member's own pair held (see shared/Nway).
+        val sharing = if (pairOn && com.xlollx.songport.shared.Nway.isHub(env, job.target)) emptyList() else JobConflicts.sharingTarget(store.data.syncs, job)
         // An archive keeps every track it was ever given: nothing goes, whatever the switches say.
         if ((job.mirrorRemovals || pairOn) && !job.archive) {
             // An entry the service lists by id alone cannot be told apart from one of the source's

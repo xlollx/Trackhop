@@ -113,6 +113,8 @@ data class Invite(
         const val FOLDER = "folder"
         const val NTFY = "ntfy"
         const val SERVER = "server"
+        /** No transport: a group of one user's own playlists, kept on this device (see [Nway]). Never in an invite. */
+        const val LOCAL = "local"
         const val BASE = "https://trackhop.org/join#"
         const val MAX_NAME = 60
         const val MAX_FOLDER = 40
@@ -488,7 +490,7 @@ object SharedGroups {
     private fun newGroupId(): String = ByteArray(8).also { SecureRandom().nextBytes(it) }.joinToString("") { "%02x".format(it) }
 
     /** The two halves of a member's sync: the group into [local], and [local] into the group. */
-    private fun jobsFor(group: SharedGroup, local: PlaylistRef): Pair<SyncJob, SyncJob> {
+    internal fun jobsFor(group: SharedGroup, local: PlaylistRef): Pair<SyncJob, SyncJob> {
         val shared = PlaylistRef(SharedProvider.ID, group.id, group.name)
         val down = SyncJob(id = group.jobId, name = group.name, source = shared, target = local, linkedJobId = group.twinId,
             twoWayRemovals = true, schedule = Schedule.EVERY_6H)

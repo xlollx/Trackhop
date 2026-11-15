@@ -93,7 +93,7 @@ group should call `Nway.run` (or walk `Nway.order` through the platform's own ru
 
 Same core, so the engine is there. Not exposed: the server has no group UI or API at all today
 (only mailboxes for other people's groups). Follow-up: `GET/POST/DELETE /api/v1/groups` and a web
-page; the server's token vault already holds what `SharedGroups.create` needs.
+page; `SharedGroups.create` only needs the Env's token vault and data folder, which the server has.
 
 ## What the UI must offer (no UI written yet)
 
