@@ -2723,4 +2723,43 @@
     <plurals name="twins_done">
         <item quantity="other">已删除 %1$d 个歌单；每个的副本都在文件中。</item>
     </plurals>
+    <string name="listened_title">标记为已收听</string>
+    <string name="tools_row_listened">Last.fm 或 ListenBrainz 没有记录的收听：黑胶、CD、离线旅途。</string>
+    <string name="listened_what">你听了什么</string>
+    <string name="listened_from_album">专辑</string>
+    <string name="listened_from_playlist">歌单</string>
+    <string name="listened_from_file">文件</string>
+    <string name="listened_from_text">文本</string>
+    <string name="listened_album_search">专辑和艺人</string>
+    <string name="listened_file_pick">选择文件</string>
+    <string name="listened_text_hint">每行一首：艺人 - 歌名</string>
+    <string name="listened_where">标记到哪里</string>
+    <string name="listened_none_connected">在“账户”中连接 Last.fm 或 ListenBrainz 以标记收听。</string>
+    <string name="listened_lastfm_needs_password">Last.fm：要标记收听，请在“账户”中连同密码重新连接。</string>
+    <string name="listened_listenbrainz_needs_token">ListenBrainz：要标记收听，请在“账户”中添加你的用户令牌（listenbrainz.org → Settings）。</string>
+    <string name="listened_when">时间</string>
+    <string name="listened_finished_at">%1$s，%2$s 结束</string>
+    <string name="listened_started_at">%1$s，%2$s 开始</string>
+    <string name="listened_mode_finished">在此时结束</string>
+    <string name="listened_mode_started">在此时开始</string>
+    <string name="listened_lastfm_14">Last.fm 只接受最近 14 天内的收听。更早的日期请使用 ListenBrainz。</string>
+    <string name="listened_review_hint">取消勾选你跳过的歌曲。时间按歌曲时长依次排列。</string>
+    <string name="listened_skipped">已跳过</string>
+    <string name="listened_album_note">在 Last.fm 上，专辑名称会保留这里写的样子。</string>
+    <string name="listened_future">有些歌曲会落在未来：请选择更早的时间。</string>
+    <string name="listened_done">已标记：%1$s</string>
+    <string name="listened_done_lastfm">Last.fm 上 %1$d 条</string>
+    <string name="listened_done_listenbrainz">ListenBrainz 上 %1$d 条</string>
+    <plurals name="listened_see">
+        <item quantity="other">查看 %1$d 首歌</item>
+    </plurals>
+    <plurals name="listened_review_title">
+        <item quantity="other">%1$d 次收听</item>
+    </plurals>
+    <plurals name="listened_send">
+        <item quantity="other">标记 %1$d 次收听</item>
+    </plurals>
+    <plurals name="listened_too_old">
+        <item quantity="other">%1$d 次收听早于 14 天：Last.fm 不接受。</item>
+    </plurals>
 </resources>

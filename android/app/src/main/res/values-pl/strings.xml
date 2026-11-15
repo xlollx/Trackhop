@@ -2917,4 +2917,55 @@
         <item quantity="many">Usunięto %1$d playlist; kopia każdej jest w Plikach.</item>
         <item quantity="other">Usunięto %1$d playlisty; kopia każdej jest w Plikach.</item>
     </plurals>
+    <string name="listened_title">Oznacz jako odsłuchane</string>
+    <string name="tools_row_listened">Odsłuchania, których Last.fm ani ListenBrainz nie widziały: winyl, CD, podróż offline.</string>
+    <string name="listened_what">Czego słuchałeś</string>
+    <string name="listened_from_album">Album</string>
+    <string name="listened_from_playlist">Playlista</string>
+    <string name="listened_from_file">Plik</string>
+    <string name="listened_from_text">Tekst</string>
+    <string name="listened_album_search">Album i wykonawca</string>
+    <string name="listened_file_pick">Wybierz plik</string>
+    <string name="listened_text_hint">Jeden utwór w wierszu: Wykonawca - Tytuł</string>
+    <string name="listened_where">Gdzie je oznaczyć</string>
+    <string name="listened_none_connected">Połącz Last.fm lub ListenBrainz w Kontach, aby oznaczać odsłuchania.</string>
+    <string name="listened_lastfm_needs_password">Last.fm: połącz je ponownie w Kontach, podając też hasło, aby oznaczać odsłuchania.</string>
+    <string name="listened_listenbrainz_needs_token">ListenBrainz: dodaj swój token użytkownika w Kontach (listenbrainz.org → Settings), aby oznaczać odsłuchania.</string>
+    <string name="listened_when">Kiedy</string>
+    <string name="listened_finished_at">%1$s, koniec o %2$s</string>
+    <string name="listened_started_at">%1$s, początek o %2$s</string>
+    <string name="listened_mode_finished">Koniec o tej godzinie</string>
+    <string name="listened_mode_started">Początek o tej godzinie</string>
+    <string name="listened_lastfm_14">Last.fm przyjmuje tylko odsłuchania z ostatnich 14 dni. Dla starszych dat użyj ListenBrainz.</string>
+    <string name="listened_review_hint">Odznacz te, które pominąłeś. Godziny wynikają z długości utworów.</string>
+    <string name="listened_skipped">pominięty</string>
+    <string name="listened_album_note">W Last.fm album zachowa nazwę zapisaną tutaj.</string>
+    <string name="listened_future">Niektóre utwory wypadłyby w przyszłości: wybierz wcześniejszą godzinę.</string>
+    <string name="listened_done">Oznaczono: %1$s</string>
+    <string name="listened_done_lastfm">%1$d w Last.fm</string>
+    <string name="listened_done_listenbrainz">%1$d w ListenBrainz</string>
+    <plurals name="listened_see">
+        <item quantity="one">Zobacz %1$d utwór</item>
+        <item quantity="few">Zobacz %1$d utwory</item>
+        <item quantity="many">Zobacz %1$d utworów</item>
+        <item quantity="other">Zobacz %1$d utworu</item>
+    </plurals>
+    <plurals name="listened_review_title">
+        <item quantity="one">%1$d odsłuchanie</item>
+        <item quantity="few">%1$d odsłuchania</item>
+        <item quantity="many">%1$d odsłuchań</item>
+        <item quantity="other">%1$d odsłuchania</item>
+    </plurals>
+    <plurals name="listened_send">
+        <item quantity="one">Oznacz %1$d odsłuchanie</item>
+        <item quantity="few">Oznacz %1$d odsłuchania</item>
+        <item quantity="many">Oznacz %1$d odsłuchań</item>
+        <item quantity="other">Oznacz %1$d odsłuchania</item>
+    </plurals>
+    <plurals name="listened_too_old">
+        <item quantity="one">%1$d odsłuchanie jest starsze niż 14 dni: Last.fm go nie przyjmie.</item>
+        <item quantity="few">%1$d odsłuchania są starsze niż 14 dni: Last.fm ich nie przyjmie.</item>
+        <item quantity="many">%1$d odsłuchań jest starszych niż 14 dni: Last.fm ich nie przyjmie.</item>
+        <item quantity="other">%1$d odsłuchania jest starsze niż 14 dni: Last.fm ich nie przyjmie.</item>
+    </plurals>
 </resources>

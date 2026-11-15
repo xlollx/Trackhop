@@ -2915,4 +2915,55 @@
         <item quantity="many">Удалено %1$d плейлистов; копия каждого есть в файлах.</item>
         <item quantity="other">Удалено %1$d плейлиста; копия каждого есть в файлах.</item>
     </plurals>
+    <string name="listened_title">Отметить как прослушанные</string>
+    <string name="tools_row_listened">Прослушивания, которых не видели Last.fm и ListenBrainz: пластинка, CD, поездка без сети.</string>
+    <string name="listened_what">Что вы слушали</string>
+    <string name="listened_from_album">Альбом</string>
+    <string name="listened_from_playlist">Плейлист</string>
+    <string name="listened_from_file">Файл</string>
+    <string name="listened_from_text">Текст</string>
+    <string name="listened_album_search">Альбом и исполнитель</string>
+    <string name="listened_file_pick">Выбрать файл</string>
+    <string name="listened_text_hint">Одна песня в строке: Исполнитель - Название</string>
+    <string name="listened_where">Где отметить</string>
+    <string name="listened_none_connected">Подключите Last.fm или ListenBrainz в разделе «Аккаунты», чтобы отмечать прослушивания.</string>
+    <string name="listened_lastfm_needs_password">Last.fm: подключите его снова в «Аккаунтах», указав и пароль, чтобы отмечать прослушивания.</string>
+    <string name="listened_listenbrainz_needs_token">ListenBrainz: добавьте токен пользователя в «Аккаунтах» (listenbrainz.org → Settings), чтобы отмечать прослушивания.</string>
+    <string name="listened_when">Когда</string>
+    <string name="listened_finished_at">%1$s, закончилось в %2$s</string>
+    <string name="listened_started_at">%1$s, началось в %2$s</string>
+    <string name="listened_mode_finished">Закончилось в это время</string>
+    <string name="listened_mode_started">Началось в это время</string>
+    <string name="listened_lastfm_14">Last.fm принимает только прослушивания за последние 14 дней. Для более ранних дат используйте ListenBrainz.</string>
+    <string name="listened_review_hint">Снимите отметку с пропущенных. Время идёт по длительности песен.</string>
+    <string name="listened_skipped">пропущена</string>
+    <string name="listened_album_note">На Last.fm у альбома останется название, написанное здесь.</string>
+    <string name="listened_future">Некоторые песни окажутся в будущем: выберите время пораньше.</string>
+    <string name="listened_done">Отмечено: %1$s</string>
+    <string name="listened_done_lastfm">%1$d на Last.fm</string>
+    <string name="listened_done_listenbrainz">%1$d на ListenBrainz</string>
+    <plurals name="listened_see">
+        <item quantity="one">Показать %1$d песню</item>
+        <item quantity="few">Показать %1$d песни</item>
+        <item quantity="many">Показать %1$d песен</item>
+        <item quantity="other">Показать %1$d песни</item>
+    </plurals>
+    <plurals name="listened_review_title">
+        <item quantity="one">%1$d прослушивание</item>
+        <item quantity="few">%1$d прослушивания</item>
+        <item quantity="many">%1$d прослушиваний</item>
+        <item quantity="other">%1$d прослушивания</item>
+    </plurals>
+    <plurals name="listened_send">
+        <item quantity="one">Отметить %1$d прослушивание</item>
+        <item quantity="few">Отметить %1$d прослушивания</item>
+        <item quantity="many">Отметить %1$d прослушиваний</item>
+        <item quantity="other">Отметить %1$d прослушивания</item>
+    </plurals>
+    <plurals name="listened_too_old">
+        <item quantity="one">%1$d прослушивание старше 14 дней: Last.fm его не примет.</item>
+        <item quantity="few">%1$d прослушивания старше 14 дней: Last.fm их не примет.</item>
+        <item quantity="many">%1$d прослушиваний старше 14 дней: Last.fm их не примет.</item>
+        <item quantity="other">%1$d прослушивания старше 14 дней: Last.fm их не примет.</item>
+    </plurals>
 </resources>

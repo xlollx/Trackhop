@@ -2795,4 +2795,47 @@
         <item quantity="one">%1$d playlist supprimée ; une copie est dans les Fichiers.</item>
         <item quantity="other">%1$d playlists supprimées ; une copie de chacune est dans les Fichiers.</item>
     </plurals>
+    <string name="listened_title">Marquer comme écoutés</string>
+    <string name="tools_row_listened">Les écoutes que Last.fm ou ListenBrainz n\'ont pas vues : un vinyle, un CD, un voyage hors ligne.</string>
+    <string name="listened_what">Ce que tu as écouté</string>
+    <string name="listened_from_album">Album</string>
+    <string name="listened_from_playlist">Playlist</string>
+    <string name="listened_from_file">Fichier</string>
+    <string name="listened_from_text">Texte</string>
+    <string name="listened_album_search">Album et artiste</string>
+    <string name="listened_file_pick">Choisir un fichier</string>
+    <string name="listened_text_hint">Un titre par ligne : Artiste - Titre</string>
+    <string name="listened_where">Où les marquer</string>
+    <string name="listened_none_connected">Connecte Last.fm ou ListenBrainz dans Comptes pour marquer des écoutes.</string>
+    <string name="listened_lastfm_needs_password">Last.fm : reconnecte-le dans Comptes avec ton mot de passe aussi pour marquer des écoutes.</string>
+    <string name="listened_listenbrainz_needs_token">ListenBrainz : ajoute ton jeton utilisateur dans Comptes (listenbrainz.org → Settings) pour marquer des écoutes.</string>
+    <string name="listened_when">Quand</string>
+    <string name="listened_finished_at">%1$s, fini à %2$s</string>
+    <string name="listened_started_at">%1$s, commencé à %2$s</string>
+    <string name="listened_mode_finished">Fini à cette heure</string>
+    <string name="listened_mode_started">Commencé à cette heure</string>
+    <string name="listened_lastfm_14">Last.fm n\'accepte que les écoutes des 14 derniers jours. Pour des dates plus anciennes, utilise ListenBrainz.</string>
+    <string name="listened_review_hint">Décoche ceux que tu as passés. Les heures suivent la durée des titres.</string>
+    <string name="listened_skipped">passé</string>
+    <string name="listened_album_note">Sur Last.fm, l\'album garde le nom écrit ici.</string>
+    <string name="listened_future">Certains titres seraient dans le futur : choisis une heure plus tôt.</string>
+    <string name="listened_done">Marqués : %1$s</string>
+    <string name="listened_done_lastfm">%1$d sur Last.fm</string>
+    <string name="listened_done_listenbrainz">%1$d sur ListenBrainz</string>
+    <plurals name="listened_see">
+        <item quantity="one">Voir %1$d titre</item>
+        <item quantity="other">Voir les %1$d titres</item>
+    </plurals>
+    <plurals name="listened_review_title">
+        <item quantity="one">%1$d écoute</item>
+        <item quantity="other">%1$d écoutes</item>
+    </plurals>
+    <plurals name="listened_send">
+        <item quantity="one">Marquer %1$d écoute</item>
+        <item quantity="other">Marquer %1$d écoutes</item>
+    </plurals>
+    <plurals name="listened_too_old">
+        <item quantity="one">%1$d écoute date de plus de 14 jours : Last.fm ne la prend pas.</item>
+        <item quantity="other">%1$d écoutes datent de plus de 14 jours : Last.fm ne les prend pas.</item>
+    </plurals>
 </resources>

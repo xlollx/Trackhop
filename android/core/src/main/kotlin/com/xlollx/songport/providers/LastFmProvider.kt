@@ -237,6 +237,28 @@ class LastFmProvider(override val slot: String = "") : CredentialsProvider() {
         }
     }
 
+    /**
+     * Mark as listened (1.18): [listens] as scrobbles (track.scrobble), [com.xlollx.songport.sync.Scrobbles.LASTFM_BATCH]
+     * at a time, with the session that loving uses. Answers how many Last.fm accepted.
+     */
+    suspend fun scrobble(ctx: Env, listens: List<com.xlollx.songport.sync.Scrobbles.Listen>): Int {
+        val sk = session(ctx) ?: throw ProviderException(ctx.text("lastfm_needs_password"))
+        var accepted = 0
+        listens.chunked(com.xlollx.songport.sync.Scrobbles.LASTFM_BATCH).forEachIndexed { n, chunk ->
+            if (n > 0) Http.pause(LOVE_SPACING_MS)
+            val params = linkedMapOf("method" to "track.scrobble", "sk" to sk)
+            chunk.forEachIndexed { i, l ->
+                params["artist[$i]"] = l.track.artists.firstOrNull().orEmpty()
+                params["track[$i]"] = l.track.title
+                params["timestamp[$i]"] = (l.at / 1000).toString()
+                if (l.track.album.isNotBlank()) params["album[$i]"] = l.track.album
+                if (l.track.durationMs > 0) params["duration[$i]"] = (l.track.durationMs / 1000).toString()
+            }
+            accepted += signedCall(ctx, params)["scrobbles"]["@attr"]["accepted"].int ?: chunk.size
+        }
+        return accepted
+    }
+
     companion object {
         const val SERVICE = "lastfm"
         private const val BASE = "https://ws.audioscrobbler.com/2.0/"

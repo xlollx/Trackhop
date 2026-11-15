@@ -145,6 +145,36 @@ object DeezerCatalog {
         return webUrl(hit["cover_medium"].str ?: hit["cover"].str).ifEmpty { null }
     }
 
+    /** An album of Deezer's catalogue, for Mark as listened (1.18): what to show and what to read its songs by (kept in a screen's saved state). */
+    data class Album(val id: String, val title: String, val artist: String) : java.io.Serializable
+
+    /** Albums for [query] ("Rumours Fleetwood Mac"); throws when Deezer does not answer. */
+    suspend fun albums(query: String): List<Album> {
+        val resp = Http.send("GET", "$API/search/album?limit=15&q=" + Http.enc(query.trim()))
+        if (!resp.ok) throw com.xlollx.songport.model.ProviderException("Deezer: HTTP ${resp.code}")
+        return parseAlbums(resp.body)
+    }
+
+    internal fun parseAlbums(body: String): List<Album> = parseJson(body)["data"].arr.mapNotNull { a ->
+        val id = a["id"].long?.toString() ?: a["id"].str ?: return@mapNotNull null
+        Album(id, a["title"].str ?: return@mapNotNull null, a["artist"]["name"].str.orEmpty())
+    }
+
+    /** [album]'s songs in order, with their lengths. */
+    suspend fun albumTracks(album: Album): List<Track> {
+        val resp = Http.send("GET", "$API/album/${Http.enc(album.id)}/tracks?limit=200")
+        if (!resp.ok) throw com.xlollx.songport.model.ProviderException("Deezer: HTTP ${resp.code}")
+        return parseAlbumTracks(resp.body, album)
+    }
+
+    internal fun parseAlbumTracks(body: String, album: Album): List<Track> = parseJson(body)["data"].arr.mapNotNull { t ->
+        val title = t["title"].str ?: return@mapNotNull null
+        Track(
+            id = t["id"].long?.toString() ?: title, title = title, artists = listOfNotNull(t["artist"]["name"].str ?: album.artist.ifBlank { null }),
+            album = album.title, durationMs = (t["duration"].long ?: 0) * 1000, isrc = t["isrc"].str,
+        )
+    }
+
     /** Artist pictures already looked up by [artistPicture], by name ("" when none): asked once per run of the app. */
     private val artistPictures = java.util.concurrent.ConcurrentHashMap<String, String>()
 

@@ -2723,4 +2723,43 @@
     <plurals name="twins_done">
         <item quantity="other">%1$d 件のプレイリストを削除しました。コピーはファイルにあります。</item>
     </plurals>
+    <string name="listened_title">聴いた曲として記録</string>
+    <string name="tools_row_listened">Last.fm や ListenBrainz が記録していない再生：レコード、CD、オフラインの旅。</string>
+    <string name="listened_what">聴いたもの</string>
+    <string name="listened_from_album">アルバム</string>
+    <string name="listened_from_playlist">プレイリスト</string>
+    <string name="listened_from_file">ファイル</string>
+    <string name="listened_from_text">テキスト</string>
+    <string name="listened_album_search">アルバムとアーティスト</string>
+    <string name="listened_file_pick">ファイルを選択</string>
+    <string name="listened_text_hint">1 行に 1 曲：アーティスト - 曲名</string>
+    <string name="listened_where">記録する場所</string>
+    <string name="listened_none_connected">再生を記録するには、アカウントで Last.fm か ListenBrainz を接続してください。</string>
+    <string name="listened_lastfm_needs_password">Last.fm：再生を記録するには、アカウントでパスワードも入れて接続し直してください。</string>
+    <string name="listened_listenbrainz_needs_token">ListenBrainz：再生を記録するには、アカウントでユーザートークン（listenbrainz.org → Settings）を追加してください。</string>
+    <string name="listened_when">いつ</string>
+    <string name="listened_finished_at">%1$s、%2$s に終了</string>
+    <string name="listened_started_at">%1$s、%2$s に開始</string>
+    <string name="listened_mode_finished">この時刻に終了</string>
+    <string name="listened_mode_started">この時刻に開始</string>
+    <string name="listened_lastfm_14">Last.fm が受け付けるのは過去 14 日間の再生だけです。それより前は ListenBrainz を使ってください。</string>
+    <string name="listened_review_hint">飛ばした曲のチェックを外してください。時刻は曲の長さに沿って並びます。</string>
+    <string name="listened_skipped">スキップ</string>
+    <string name="listened_album_note">Last.fm ではアルバム名がここに書かれたとおりに残ります。</string>
+    <string name="listened_future">一部の曲が未来の時刻になります。もっと前の時刻を選んでください。</string>
+    <string name="listened_done">記録しました：%1$s</string>
+    <string name="listened_done_lastfm">Last.fm に %1$d 件</string>
+    <string name="listened_done_listenbrainz">ListenBrainz に %1$d 件</string>
+    <plurals name="listened_see">
+        <item quantity="other">%1$d 曲を見る</item>
+    </plurals>
+    <plurals name="listened_review_title">
+        <item quantity="other">%1$d 回の再生</item>
+    </plurals>
+    <plurals name="listened_send">
+        <item quantity="other">%1$d 回の再生を記録</item>
+    </plurals>
+    <plurals name="listened_too_old">
+        <item quantity="other">%1$d 回の再生は 14 日より前です。Last.fm は受け付けません。</item>
+    </plurals>
 </resources>

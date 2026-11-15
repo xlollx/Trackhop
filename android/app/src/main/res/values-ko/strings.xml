@@ -2722,4 +2722,43 @@
     <plurals name="twins_done">
         <item quantity="other">플레이리스트 %1$d개를 삭제했습니다. 사본은 파일에 있습니다.</item>
     </plurals>
+    <string name="listened_title">들은 곡으로 기록</string>
+    <string name="tools_row_listened">Last.fm이나 ListenBrainz가 기록하지 못한 감상: LP, CD, 오프라인 여행.</string>
+    <string name="listened_what">들은 것</string>
+    <string name="listened_from_album">앨범</string>
+    <string name="listened_from_playlist">플레이리스트</string>
+    <string name="listened_from_file">파일</string>
+    <string name="listened_from_text">텍스트</string>
+    <string name="listened_album_search">앨범과 아티스트</string>
+    <string name="listened_file_pick">파일 선택</string>
+    <string name="listened_text_hint">한 줄에 한 곡: 아티스트 - 제목</string>
+    <string name="listened_where">기록할 곳</string>
+    <string name="listened_none_connected">감상을 기록하려면 계정에서 Last.fm 또는 ListenBrainz를 연결하세요.</string>
+    <string name="listened_lastfm_needs_password">Last.fm: 감상을 기록하려면 계정에서 비밀번호까지 넣어 다시 연결하세요.</string>
+    <string name="listened_listenbrainz_needs_token">ListenBrainz: 감상을 기록하려면 계정에 사용자 토큰(listenbrainz.org → Settings)을 추가하세요.</string>
+    <string name="listened_when">언제</string>
+    <string name="listened_finished_at">%1$s, %2$s에 끝남</string>
+    <string name="listened_started_at">%1$s, %2$s에 시작</string>
+    <string name="listened_mode_finished">이 시각에 끝남</string>
+    <string name="listened_mode_started">이 시각에 시작</string>
+    <string name="listened_lastfm_14">Last.fm은 최근 14일 이내의 감상만 받습니다. 그보다 오래된 날짜는 ListenBrainz를 쓰세요.</string>
+    <string name="listened_review_hint">건너뛴 곡은 체크를 해제하세요. 시간은 곡 길이에 따라 정해집니다.</string>
+    <string name="listened_skipped">건너뜀</string>
+    <string name="listened_album_note">Last.fm에는 앨범 이름이 여기 적힌 그대로 남습니다.</string>
+    <string name="listened_future">일부 곡이 미래 시각이 됩니다. 더 이른 시각을 고르세요.</string>
+    <string name="listened_done">기록됨: %1$s</string>
+    <string name="listened_done_lastfm">Last.fm에 %1$d개</string>
+    <string name="listened_done_listenbrainz">ListenBrainz에 %1$d개</string>
+    <plurals name="listened_see">
+        <item quantity="other">%1$d곡 보기</item>
+    </plurals>
+    <plurals name="listened_review_title">
+        <item quantity="other">감상 %1$d회</item>
+    </plurals>
+    <plurals name="listened_send">
+        <item quantity="other">감상 %1$d회 기록</item>
+    </plurals>
+    <plurals name="listened_too_old">
+        <item quantity="other">감상 %1$d회가 14일보다 오래되었습니다. Last.fm은 받지 않습니다.</item>
+    </plurals>
 </resources>

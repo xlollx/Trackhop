@@ -2787,4 +2787,47 @@
         <item quantity="one">%1$d Playlist gelöscht; eine Kopie liegt in den Dateien.</item>
         <item quantity="other">%1$d Playlists gelöscht; eine Kopie jeder liegt in den Dateien.</item>
     </plurals>
+    <string name="listened_title">Als gehört markieren</string>
+    <string name="tools_row_listened">Was Last.fm oder ListenBrainz nicht mitbekommen haben: eine Platte, eine CD, eine Reise offline.</string>
+    <string name="listened_what">Was du gehört hast</string>
+    <string name="listened_from_album">Album</string>
+    <string name="listened_from_playlist">Playlist</string>
+    <string name="listened_from_file">Datei</string>
+    <string name="listened_from_text">Text</string>
+    <string name="listened_album_search">Album und Künstler</string>
+    <string name="listened_file_pick">Datei wählen</string>
+    <string name="listened_text_hint">Ein Song pro Zeile: Künstler - Titel</string>
+    <string name="listened_where">Wo markieren</string>
+    <string name="listened_none_connected">Verbinde Last.fm oder ListenBrainz unter Konten, um Wiedergaben zu markieren.</string>
+    <string name="listened_lastfm_needs_password">Last.fm: Verbinde es unter Konten erneut, auch mit deinem Passwort, um Wiedergaben zu markieren.</string>
+    <string name="listened_listenbrainz_needs_token">ListenBrainz: Füge unter Konten dein Benutzer-Token hinzu (listenbrainz.org → Settings), um Wiedergaben zu markieren.</string>
+    <string name="listened_when">Wann</string>
+    <string name="listened_finished_at">%1$s, fertig um %2$s</string>
+    <string name="listened_started_at">%1$s, begonnen um %2$s</string>
+    <string name="listened_mode_finished">Zu dieser Zeit fertig</string>
+    <string name="listened_mode_started">Zu dieser Zeit begonnen</string>
+    <string name="listened_lastfm_14">Last.fm nimmt nur Wiedergaben der letzten 14 Tage an. Für ältere Daten nutze ListenBrainz.</string>
+    <string name="listened_review_hint">Entferne die Häkchen bei übersprungenen Songs. Die Zeiten folgen der Länge der Songs.</string>
+    <string name="listened_skipped">übersprungen</string>
+    <string name="listened_album_note">Auf Last.fm behält das Album den hier geschriebenen Namen.</string>
+    <string name="listened_future">Einige Songs lägen in der Zukunft: Wähle eine frühere Zeit.</string>
+    <string name="listened_done">Markiert: %1$s</string>
+    <string name="listened_done_lastfm">%1$d auf Last.fm</string>
+    <string name="listened_done_listenbrainz">%1$d auf ListenBrainz</string>
+    <plurals name="listened_see">
+        <item quantity="one">%1$d Song ansehen</item>
+        <item quantity="other">Die %1$d Songs ansehen</item>
+    </plurals>
+    <plurals name="listened_review_title">
+        <item quantity="one">%1$d Wiedergabe</item>
+        <item quantity="other">%1$d Wiedergaben</item>
+    </plurals>
+    <plurals name="listened_send">
+        <item quantity="one">%1$d Wiedergabe markieren</item>
+        <item quantity="other">%1$d Wiedergaben markieren</item>
+    </plurals>
+    <plurals name="listened_too_old">
+        <item quantity="one">%1$d Wiedergabe ist älter als 14 Tage: Last.fm nimmt sie nicht an.</item>
+        <item quantity="other">%1$d Wiedergaben sind älter als 14 Tage: Last.fm nimmt sie nicht an.</item>
+    </plurals>
 </resources>

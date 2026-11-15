@@ -2785,4 +2785,47 @@
         <item quantity="one">%1$d çalma listesi silindi; bir kopyası Dosyalar\'da.</item>
         <item quantity="other">%1$d çalma listesi silindi; her birinin kopyası Dosyalar\'da.</item>
     </plurals>
+    <string name="listened_title">Dinlendi olarak işaretle</string>
+    <string name="tools_row_listened">Last.fm veya ListenBrainz\'in görmediği dinlemeler: bir plak, bir CD, çevrimdışı bir yolculuk.</string>
+    <string name="listened_what">Ne dinlediniz</string>
+    <string name="listened_from_album">Albüm</string>
+    <string name="listened_from_playlist">Liste</string>
+    <string name="listened_from_file">Dosya</string>
+    <string name="listened_from_text">Metin</string>
+    <string name="listened_album_search">Albüm ve sanatçı</string>
+    <string name="listened_file_pick">Dosya seç</string>
+    <string name="listened_text_hint">Satır başına bir şarkı: Sanatçı - Başlık</string>
+    <string name="listened_where">Nereye işaretlensin</string>
+    <string name="listened_none_connected">Dinlemeleri işaretlemek için Hesaplar\'da Last.fm veya ListenBrainz\'i bağlayın.</string>
+    <string name="listened_lastfm_needs_password">Last.fm: dinlemeleri işaretlemek için Hesaplar\'da parolanızla birlikte yeniden bağlayın.</string>
+    <string name="listened_listenbrainz_needs_token">ListenBrainz: dinlemeleri işaretlemek için Hesaplar\'a kullanıcı jetonunuzu ekleyin (listenbrainz.org → Settings).</string>
+    <string name="listened_when">Ne zaman</string>
+    <string name="listened_finished_at">%1$s, %2$s itibarıyla bitti</string>
+    <string name="listened_started_at">%1$s, %2$s itibarıyla başladı</string>
+    <string name="listened_mode_finished">Bu saatte bitti</string>
+    <string name="listened_mode_started">Bu saatte başladı</string>
+    <string name="listened_lastfm_14">Last.fm yalnızca son 14 günün dinlemelerini kabul eder. Daha eski tarihler için ListenBrainz\'i kullanın.</string>
+    <string name="listened_review_hint">Atladıklarınızın işaretini kaldırın. Saatler şarkıların süresine göre sıralanır.</string>
+    <string name="listened_skipped">atlandı</string>
+    <string name="listened_album_note">Last.fm\'de albüm burada yazdığı adla kalır.</string>
+    <string name="listened_future">Bazı şarkılar gelecekte kalır: daha erken bir saat seçin.</string>
+    <string name="listened_done">İşaretlendi: %1$s</string>
+    <string name="listened_done_lastfm">Last.fm\'de %1$d</string>
+    <string name="listened_done_listenbrainz">ListenBrainz\'de %1$d</string>
+    <plurals name="listened_see">
+        <item quantity="one">%1$d şarkıyı gör</item>
+        <item quantity="other">%1$d şarkıyı gör</item>
+    </plurals>
+    <plurals name="listened_review_title">
+        <item quantity="one">%1$d dinleme</item>
+        <item quantity="other">%1$d dinleme</item>
+    </plurals>
+    <plurals name="listened_send">
+        <item quantity="one">%1$d dinlemeyi işaretle</item>
+        <item quantity="other">%1$d dinlemeyi işaretle</item>
+    </plurals>
+    <plurals name="listened_too_old">
+        <item quantity="one">%1$d dinleme 14 günden eski: Last.fm kabul etmez.</item>
+        <item quantity="other">%1$d dinleme 14 günden eski: Last.fm kabul etmez.</item>
+    </plurals>
 </resources>

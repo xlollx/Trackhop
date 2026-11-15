@@ -702,7 +702,7 @@ private fun PlainSourceCard(p: MusicProvider, onRemove: () -> Unit) {
     }
 }
 
-private fun displayName(ctx: android.content.Context, uri: Uri): String {
+internal fun displayName(ctx: android.content.Context, uri: Uri): String {
     ctx.contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c ->
         if (c.moveToFirst()) return c.getString(0) ?: "playlist"
     }
