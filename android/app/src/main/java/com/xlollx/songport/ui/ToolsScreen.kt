@@ -40,6 +40,7 @@ import androidx.compose.material.icons.filled.Lyrics
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.CardDefaults
@@ -121,7 +122,9 @@ private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVecto
     WANTED(Icons.Filled.Checklist, R.string.tools_wanted_title, R.string.tools_row_wanted, false),
     SERVER(Icons.Filled.Cloud, R.string.server_title, R.string.server_row_desc, false),
     SHARED(Icons.Filled.Groups, R.string.shared_title, R.string.shared_row_desc, false),
-    RECENT(Icons.Filled.History, R.string.recent_transfers_title, R.string.recent_transfers_row, false);
+    RECENT(Icons.Filled.History, R.string.recent_transfers_title, R.string.recent_transfers_row, false),
+    // 1.18 (Features.v2): offered only with the release switch on.
+    MATCHES(Icons.Filled.Link, R.string.saved_matches_title, R.string.tools_row_saved_matches, false);
 
     /** Works on the service chosen at the top of the list (Transfer picks its own two). */
     val usesSelectedService: Boolean get() = needsService && this != TRANSFER
@@ -221,6 +224,7 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
                     Tool.WANTED -> WantedCard(local)
                     Tool.SERVER -> ServerSyncsPage(local)
                     Tool.RECENT -> RecentTransfersPage(onReview)
+                    Tool.MATCHES -> SavedMatchesPage(local)
                     else -> {}
                 }
             }
@@ -270,6 +274,8 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
             ToolRow(Tool.FILES, provider) { open = Tool.FILES }
             // The one-off transfers (a setlist to a playlist): not syncs, kept a week for their review.
             if (hasOneOffs) ToolRow(Tool.RECENT, provider) { open = Tool.RECENT }
+            // 1.18 (Features): what Trackhop remembers across all syncs, fixed once for all of them.
+            if (v2) ToolRow(Tool.MATCHES, provider) { open = Tool.MATCHES }
         }
 
         PrefSection(stringResource(R.string.tools_section_clean), accent = JobColor.ORANGE, description = stringResource(R.string.tools_section_clean_desc)) {

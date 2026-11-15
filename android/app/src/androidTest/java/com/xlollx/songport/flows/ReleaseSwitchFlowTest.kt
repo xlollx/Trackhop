@@ -63,6 +63,7 @@ open class ReleaseSwitchFlowTest : FlowTest() {
         assertTrue("Shared playlists in Tools", exists(s(R.string.shared_title)) == shown)
         // Synced lyrics, for the Jellyfin server connected.
         assertTrue("Synced lyrics in Tools", exists(s(R.string.tools_lyrics_title)) == shown)
+        assertTrue("Saved matches in Tools", exists(s(R.string.saved_matches_title)) == shown)
 
         discover()
         // The cards of 1.16 stay.

@@ -17,31 +17,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class StateKeptFlowTest : FlowTest() {
 
-    /** What Android does to an app left in the background: the activity made anew from its saved state. */
-    private fun remade() {
-        val before = main()
-        instr.runOnMainSync { before.recreate() }
-        val end = System.currentTimeMillis() + 15_000
-        while (System.currentTimeMillis() < end && (resumed() === before || resumed() !is MainActivity)) Thread.sleep(100)
-        compose.waitForIdle()
-    }
-
-    /** Home, then the app's icon, as a person does it. */
-    private fun homeAndBack() {
-        shell("input keyevent KEYCODE_HOME")
-        val end = System.currentTimeMillis() + 10_000
-        while (System.currentTimeMillis() < end && resumed() != null) Thread.sleep(100)
-        Thread.sleep(800)
-        app.startActivity(
-            Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER).setClass(app, MainActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED),
-        )
-        val back = System.currentTimeMillis() + 15_000
-        while (System.currentTimeMillis() < back && resumed() !is MainActivity) Thread.sleep(100)
-        Thread.sleep(800)
-        compose.waitForIdle()
-    }
-
     @Test
     fun aChannelBeingAddedSurvivesTheActivityMadeAnew() {
         launch(tabIntent(MainActivity.TAB_SETTINGS))

@@ -17,6 +17,7 @@ internal fun Web.v2Tool(r: Web.Req, rest: List<String>): Boolean {
         "poster" -> if (rest.size == 1) posterPage(r) else return false
         "alerts" -> if (rest.size == 1) alertsPage(r) else return false
         "nolyrics" -> if (rest.size == 1) syncedLyricsPage(r) else return false
+        "matches" -> if (rest.size == 1) savedMatchesPage(r) else return false
         else -> return false
     }
     return true
@@ -25,6 +26,7 @@ internal fun Web.v2Tool(r: Web.Req, rest: List<String>): Boolean {
 /** The Tools page's cards for them; empty when off. */
 internal fun v2ToolCards(): String = if (!Features.v2) "" else buildString {
     fun tool(href: String, title: String, text: String) = append("""<div class="card"><h3><a href="$href">$title</a></h3><p class="muted">$text</p></div>""")
+    tool("/tools/matches", "Saved matches", "Everything Trackhop remembers across your syncs: the song chosen for each one on the other service, the songs not found, the ones ignored. Forget one and the next sync searches it again.")
     append("<h2>Discover</h2>")
     tool("/tools/wrapped", "Wrapped", "Your top artists and songs, your musical age and your decades, from what you really played on Last.fm, ListenBrainz, your own server, Spotify, Deezer, TIDAL or YouTube Music: any time, as a card to share.")
     tool("/tools/poster", "Playlist poster", "A poster of a playlist: its artists and the songs you play most, in its cover's colours, to print or save as PDF.")
