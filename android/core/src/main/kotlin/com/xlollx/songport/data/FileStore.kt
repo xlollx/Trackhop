@@ -139,6 +139,8 @@ data class Settings(
     val artistAlertsWifiOnly: Boolean = false,
     /** What an artist followed from now on is checked for. */
     val artistAlertKinds: com.xlollx.songport.sync.ArtistAlerts.Kinds = com.xlollx.songport.sync.ArtistAlerts.Kinds(),
+    /** The alerts on the records of the Discogs wantlist, by release id (sync/Discogs): looked at with the artists followed. */
+    val discogsWantAlerts: Map<String, com.xlollx.songport.sync.Discogs.WantAlert> = emptyMap(),
 )
 
 /** Unita' di quota consumate in un giorno (chiave = data nel fuso del servizio). */

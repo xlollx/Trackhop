@@ -2718,4 +2718,37 @@
     <string name="lifetime_lb_confirm">确认：发送 %1$d 次收听</string>
     <string name="lifetime_lb_sending">正在发送到 ListenBrainz…</string>
     <string name="lifetime_lb_sent">已向 ListenBrainz 发送 %1$d 次收听。</string>
+    <string name="discover_myrecords_title">我的唱片</string>
+    <string name="discover_myrecords_desc">你在 Discogs 上的黑胶和 CD 收藏、它的价值，以及帮你盯价格的心愿单。</string>
+    <string name="myrecords_need_token">添加你的 Discogs 个人令牌（免费），即可读取收藏和心愿单。</string>
+    <string name="myrecords_tab_collection">收藏</string>
+    <string name="myrecords_tab_wantlist">心愿单</string>
+    <string name="myrecords_value">估计价值</string>
+    <string name="myrecords_value_median">中位数 %1$s</string>
+    <plurals name="myrecords_count">
+        <item quantity="other">%d 张唱片</item>
+    </plurals>
+    <string name="myrecords_prices_note">价格来自 Discogs 市场。</string>
+    <string name="myrecords_playlist">把我的唱片做成播放列表</string>
+    <string name="myrecords_playlist_note">把唱片里的歌曲放到 Spotify、Navidrome 或任何你想要的地方，添加唱片后自动更新。</string>
+    <string name="myrecords_reading">正在从 Discogs 读取…</string>
+    <string name="myrecords_empty_collection">你的 Discogs 收藏里还没有唱片。</string>
+    <string name="myrecords_empty_wantlist">你的 Discogs 心愿单是空的。</string>
+    <string name="myrecords_show_all">显示全部 %1$d 张</string>
+    <string name="myrecords_from">%1$s 起 · %2$d 件在售</string>
+    <string name="myrecords_alert_below_line">低于 %1$s 时提醒</string>
+    <string name="myrecords_alert_new_line">有新货时提醒</string>
+    <string name="myrecords_alert_title">提醒</string>
+    <string name="myrecords_alert_new">有新的一件上架</string>
+    <string name="myrecords_alert_below">价格低于</string>
+    <string name="myrecords_alert_amount">金额（%1$s）</string>
+    <string name="myrecords_alert_note">每天检查一次，和你关注的艺人一起。</string>
+    <string name="myrecords_open">在 Discogs 打开</string>
+    <string name="myrecords_no_buy">Trackhop 只会打开 Discogs 页面：不会购买任何东西，也与付款无关。</string>
+    <string name="myrecords_notif_below">%1$s 低于 %2$s</string>
+    <string name="myrecords_notif_below_text">Discogs 上有一件售价 %1$s。点按查看。</string>
+    <string name="myrecords_notif_new">%1$s：有新货上架</string>
+    <string name="myrecords_notif_new_text">Discogs 上 %1$s 起。点按查看。</string>
+    <string name="myrecords_market_some">价格只显示前 %1$d 张唱片和设了提醒的唱片。</string>
+    <string name="discogs_account_desc">你的个人令牌：收藏、心愿单和价格。</string>
 </resources>

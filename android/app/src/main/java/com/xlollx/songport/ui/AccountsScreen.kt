@@ -209,6 +209,24 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
                 )
             }
         }
+        // 1.18: Discogs is not a place playlists go to, but its token is an account: set here too.
+        if (com.xlollx.songport.Features.v2(data.settings)) item(key = "discogs-account") { DiscogsAccountCard() }
+    }
+}
+
+/** Accounts › Discogs: the personal token that reads the collection, the wantlist and the prices (Discover › My records). */
+@Composable
+private fun DiscogsAccountCard() {
+    val ctx = LocalContext.current
+    var open by rememberSaveable { mutableStateOf(false) }
+    if (open) DiscogsTokenDialog { open = false }
+    PageCard(shape = MaterialTheme.shapes.large, edge = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)) {
+        Column(Modifier.fillMaxWidth().clickable { open = true }.padding(16.dp)) {
+            Text("Discogs", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Spacer(Modifier.height(6.dp))
+            Text(stringResource(R.string.discogs_account_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(remember(open) { discogsTokenState(ctx) }), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+        }
     }
 }
 

@@ -1,0 +1,13 @@
+{
+  "id": 1362037, "title": "OK Computer", "year": 1997,
+  "artists": [ { "name": "Radiohead", "id": 3840 } ],
+  "identifiers": [ { "type": "Barcode", "value": "7 24385 52291 6" } ],
+  "tracklist": [
+    { "position": "", "type_": "heading", "title": "Eeny", "duration": "" },
+    { "position": "A1", "type_": "track", "title": "Airbag", "duration": "4:44" },
+    { "position": "A2", "type_": "track", "title": "Paranoid Android", "duration": "6:23" },
+    { "position": "", "type_": "index", "title": "Suite", "duration": "" },
+    { "position": "B1", "type_": "track", "title": "Exit Music (For A Film)", "duration": "4:24",
+      "artists": [ { "name": "Radiohead", "id": 3840 } ] }
+  ]
+}

@@ -458,7 +458,7 @@ object Records {
     }
 
     /** A GET to Discogs, paced; null when it did not answer. Throws [SlowDown] on 429 and [TokenRefused] on 401 with a token. */
-    private suspend fun discogsGet(token: String?, path: String): HttpResponse? {
+    internal suspend fun discogsGet(token: String?, path: String): HttpResponse? {
         val headers = buildMap {
             put("User-Agent", ArtistMixSource.userAgent)
             put("Accept", "application/vnd.discogs.v2.discogs+json")

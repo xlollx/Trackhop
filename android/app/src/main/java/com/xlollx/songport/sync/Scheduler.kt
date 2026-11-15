@@ -205,6 +205,13 @@ class ArtistAlertsWorker(ctx: Context, params: WorkerParameters) : CoroutineWork
         val out = ArtistAlerts.check(env, s.followedArtists, plan.periodDays, ArtistAlerts.live(country, Concerts.savedRange(env)))
         if (out.remaining > 0) Scheduler.continueArtistAlerts(ctx, plan)
         if (out.notify.isNotEmpty()) Notifications.artistAlerts(ctx, out.notify)
+        // 1.18: the Discogs wantlist's alerts, once a day in this same run. Never fails the run.
+        if (com.xlollx.songport.Features.v2) try {
+            val currency = com.xlollx.songport.sync.Records.currencyFor(ctx.resources.configuration.locales[0])
+            com.xlollx.songport.sync.Discogs.checkWants(env, s.discogsWantAlerts, currency).forEach { Notifications.discogsWant(ctx, it) }
+        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+            env.log("discogs", "wantlist alerts: ${e.message ?: e.javaClass.simpleName}")
+        }
         return Result.success()
     }
 }

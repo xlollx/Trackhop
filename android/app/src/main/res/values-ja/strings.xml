@@ -2718,4 +2718,37 @@
     <string name="lifetime_lb_confirm">確認: %1$d 回の再生を送信</string>
     <string name="lifetime_lb_sending">ListenBrainz に送信中…</string>
     <string name="lifetime_lb_sent">%1$d 回の再生を ListenBrainz に送信しました。</string>
+    <string name="discover_myrecords_title">マイレコード</string>
+    <string name="discover_myrecords_desc">Discogs のレコード・CD コレクションとその価値、価格を見守るウォントリスト。</string>
+    <string name="myrecords_need_token">コレクションとウォントリストを読み込むには、Discogs の個人トークン（無料）を追加してください。</string>
+    <string name="myrecords_tab_collection">コレクション</string>
+    <string name="myrecords_tab_wantlist">ウォントリスト</string>
+    <string name="myrecords_value">推定価値</string>
+    <string name="myrecords_value_median">中央値 %1$s</string>
+    <plurals name="myrecords_count">
+        <item quantity="other">%d 枚</item>
+    </plurals>
+    <string name="myrecords_prices_note">価格は Discogs マーケットプレイスのものです。</string>
+    <string name="myrecords_playlist">レコードをプレイリストに</string>
+    <string name="myrecords_playlist_note">レコードの収録曲を Spotify や Navidrome など好きな場所へ。レコードを追加すると更新されます。</string>
+    <string name="myrecords_reading">Discogs から読み込み中…</string>
+    <string name="myrecords_empty_collection">Discogs コレクションにまだレコードがありません。</string>
+    <string name="myrecords_empty_wantlist">Discogs のウォントリストは空です。</string>
+    <string name="myrecords_show_all">%1$d 件すべて表示</string>
+    <string name="myrecords_from">%1$s から · %2$d 点出品中</string>
+    <string name="myrecords_alert_below_line">%1$s 未満で通知</string>
+    <string name="myrecords_alert_new_line">新しい出品を通知</string>
+    <string name="myrecords_alert_title">アラート</string>
+    <string name="myrecords_alert_new">新しい出品があったとき</string>
+    <string name="myrecords_alert_below">価格が次の金額を下回ったとき</string>
+    <string name="myrecords_alert_amount">金額（%1$s）</string>
+    <string name="myrecords_alert_note">フォロー中のアーティストと一緒に、1 日 1 回確認します。</string>
+    <string name="myrecords_open">Discogs で開く</string>
+    <string name="myrecords_no_buy">Trackhop は Discogs のページを開くだけです。何も購入せず、支払いには関与しません。</string>
+    <string name="myrecords_notif_below">%1$s が %2$s を下回りました</string>
+    <string name="myrecords_notif_below_text">Discogs に %1$s の出品があります。タップして確認。</string>
+    <string name="myrecords_notif_new">%1$s: 新しい出品</string>
+    <string name="myrecords_notif_new_text">Discogs で %1$s から。タップして確認。</string>
+    <string name="myrecords_market_some">価格は最初の %1$d 枚とアラート設定済みのレコードに表示されます。</string>
+    <string name="discogs_account_desc">個人トークン: コレクション、ウォントリスト、価格。</string>
 </resources>

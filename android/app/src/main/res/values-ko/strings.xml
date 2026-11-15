@@ -2717,4 +2717,37 @@
     <string name="lifetime_lb_confirm">확인: 청취 %1$d회 보내기</string>
     <string name="lifetime_lb_sending">ListenBrainz로 보내는 중…</string>
     <string name="lifetime_lb_sent">청취 %1$d회를 ListenBrainz로 보냈습니다.</string>
+    <string name="discover_myrecords_title">내 음반</string>
+    <string name="discover_myrecords_desc">Discogs의 LP·CD 컬렉션과 그 가치, 그리고 가격을 지켜보는 원트리스트.</string>
+    <string name="myrecords_need_token">컬렉션과 원트리스트를 읽으려면 개인 Discogs 토큰(무료)을 추가하세요.</string>
+    <string name="myrecords_tab_collection">컬렉션</string>
+    <string name="myrecords_tab_wantlist">원트리스트</string>
+    <string name="myrecords_value">예상 가치</string>
+    <string name="myrecords_value_median">중앙값 %1$s</string>
+    <plurals name="myrecords_count">
+        <item quantity="other">음반 %d장</item>
+    </plurals>
+    <string name="myrecords_prices_note">가격은 Discogs 마켓플레이스 기준입니다.</string>
+    <string name="myrecords_playlist">내 음반을 플레이리스트로</string>
+    <string name="myrecords_playlist_note">내 음반의 곡을 Spotify, Navidrome 등 원하는 곳으로. 음반을 추가하면 업데이트됩니다.</string>
+    <string name="myrecords_reading">Discogs에서 읽는 중…</string>
+    <string name="myrecords_empty_collection">Discogs 컬렉션에 아직 음반이 없습니다.</string>
+    <string name="myrecords_empty_wantlist">Discogs 원트리스트가 비어 있습니다.</string>
+    <string name="myrecords_show_all">%1$d개 모두 보기</string>
+    <string name="myrecords_from">%1$s부터 · %2$d개 판매 중</string>
+    <string name="myrecords_alert_below_line">%1$s 미만이면 알림</string>
+    <string name="myrecords_alert_new_line">새 매물 알림</string>
+    <string name="myrecords_alert_title">알림</string>
+    <string name="myrecords_alert_new">새 매물이 올라올 때</string>
+    <string name="myrecords_alert_below">가격이 다음 금액 아래로 내려갈 때</string>
+    <string name="myrecords_alert_amount">금액(%1$s)</string>
+    <string name="myrecords_alert_note">팔로우한 아티스트와 함께 하루에 한 번 확인합니다.</string>
+    <string name="myrecords_open">Discogs에서 열기</string>
+    <string name="myrecords_no_buy">Trackhop은 Discogs 페이지를 열기만 합니다. 아무것도 구매하지 않으며 결제와 무관합니다.</string>
+    <string name="myrecords_notif_below">%1$s, %2$s 미만</string>
+    <string name="myrecords_notif_below_text">Discogs에 %1$s 매물이 있습니다. 눌러서 확인하세요.</string>
+    <string name="myrecords_notif_new">%1$s: 새 매물</string>
+    <string name="myrecords_notif_new_text">Discogs에서 %1$s부터. 눌러서 확인하세요.</string>
+    <string name="myrecords_market_some">가격은 처음 %1$d장과 알림을 설정한 음반에 표시됩니다.</string>
+    <string name="discogs_account_desc">개인 토큰: 컬렉션, 원트리스트, 가격.</string>
 </resources>

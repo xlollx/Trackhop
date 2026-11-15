@@ -82,4 +82,27 @@ class DiscoverV2StateKeptFlowTest : FlowTest() {
         scrollTo(compose.onNode(androidx.compose.ui.test.hasText("Karma Police · Radiohead")))
         waitText("Karma Police · Radiohead")
     }
+
+    @Test
+    fun aWantedRecordsAlertBeingSetSurvivesTheActivityMadeAnew() {
+        com.xlollx.songport.sync.Records.saveToken(app.env, "TOKEN")
+        com.xlollx.songport.sync.Discogs.keep(app.env, com.xlollx.songport.sync.Discogs.Wantlist(
+            "tester", listOf(com.xlollx.songport.sync.Discogs.Item(1810187, "Kid A", "Radiohead", 2000)), at = System.currentTimeMillis(),
+        ))
+        launch(tabIntent(MainActivity.TAB_DISCOVER))
+        waitText(s(R.string.discover_wrapped_title))
+        clickTile(s(R.string.discover_myrecords_title))
+        click(s(R.string.myrecords_tab_wantlist))
+        // The wantlist kept is shown (Discogs cannot be reached here); the alert's dialog opens on the bell.
+        waitText("Kid A · Radiohead")
+        tap(scrollTo(compose.onNode(hasTestTag(com.xlollx.songport.ui.WANT_ALERT_TAG))), "the alert's bell")
+        waitText(s(R.string.myrecords_alert_below))
+        compose.onNode(androidx.compose.ui.test.hasSetTextAction()).performTextReplacement("30")
+        remade()
+        // The tab, the dialog and the amount typed are all still there.
+        waitText(s(R.string.myrecords_alert_below))
+        waitNode("the amount kept", androidx.compose.ui.test.hasSetTextAction() and androidx.compose.ui.test.hasText("30"))
+        click(s(R.string.save))
+        waitFor("the alert saved") { store.data.settings.discogsWantAlerts["1810187"]?.below == 30.0 }
+    }
 }
