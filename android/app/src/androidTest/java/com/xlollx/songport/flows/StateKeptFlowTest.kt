@@ -17,15 +17,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class StateKeptFlowTest : FlowTest() {
 
-    /** What Android does to an app left in the background: the activity made anew from its saved state. */
-    private fun remade() {
-        val before = main()
-        instr.runOnMainSync { before.recreate() }
-        val end = System.currentTimeMillis() + 15_000
-        while (System.currentTimeMillis() < end && (resumed() === before || resumed() !is MainActivity)) Thread.sleep(100)
-        compose.waitForIdle()
-    }
-
     /** Home, then the app's icon, as a person does it. */
     private fun homeAndBack() {
         shell("input keyevent KEYCODE_HOME")

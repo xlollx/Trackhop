@@ -248,7 +248,7 @@ fun DiscoverScreen(
                         DiscoverCard.VANISHED -> VanishedPage(onBackup)
                         DiscoverCard.SUBS -> SubscriptionsPage(local, onGoToAccounts)
                         DiscoverCard.POSTER -> PosterCard(local)
-                        DiscoverCard.CONCERTS -> ConcertsPage(local)
+                        DiscoverCard.CONCERTS -> ConcertsPage(local, onNewSync)
                         DiscoverCard.SETLISTS -> SetlistsPage(local, onReview)
                         DiscoverCard.RECORDS -> RecordsPage(local)
                         DiscoverCard.FOLLOWED -> FollowedArtistsPage(local, followedSettings) { followedSettings = false }
