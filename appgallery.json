@@ -1,5 +1,5 @@
 {
- "checked": "2026-11-15T12:57:12Z",
+ "checked": "2026-11-16T13:59:27Z",
  "reports": {
   "appDownloadExport": {
    "columns": [
@@ -19,12 +19,12 @@
     "New installs",
     "Total uninstalls"
    ],
-   "days": 10,
+   "days": 11,
    "totals": {
-    "Valid impressions": 200.0,
+    "Valid impressions": 337.0,
     "Details UV (reported by client)": 10.0,
-    "Total downloads": 25.0,
-    "Successful updates": 21.0,
+    "Total downloads": 26.0,
+    "Successful updates": 22.0,
     "New downloads": 4.0,
     "Successful installs": 25.0,
     "Uninstalls": 2.0,
