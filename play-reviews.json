@@ -1,0 +1,26 @@
+{
+ "checked": "2026-11-16T19:42:08Z",
+ "unanswered": 2,
+ "reviews": [
+  {
+   "id": "88539e34-75f4-45f9-9cbb-16eb0973438c",
+   "author": "Simple meow",
+   "stars": 5,
+   "text": "My years of struggle are now solved, especially for free. thanks developer : )",
+   "language": "en",
+   "version": null,
+   "date": "2026-11-16T16:20:59Z",
+   "replied": false
+  },
+  {
+   "id": "117e9777-0aa5-4888-8336-8393b1f5567e",
+   "author": "Francesca Pollicelli",
+   "stars": 5,
+   "text": "la miglior app per sync playlist in assoluto, completa e soprattutto gratis, con delle simpatiche chicche nella sezione \"scopri\" fantastica",
+   "language": "it",
+   "version": "1.16.3",
+   "date": "2026-11-15T07:42:57Z",
+   "replied": false
+  }
+ ]
+}
