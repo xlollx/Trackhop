@@ -3,27 +3,25 @@
  "version": "2.0.0",
  "tag": "v2.0.0",
  "release": "https://github.com/xlollx/Trackhop/releases/tag/v2.0.0",
- "checked": "2026-11-15T11:36:50Z",
- "clean": false,
+ "checked": "2026-11-16T15:53:37Z",
+ "clean": true,
  "files": [
   {
    "name": "Trackhop-v2.0.0-play.aab",
    "sha256": "08af8e9ca0676b7bec617d9674f16af3a580863294bb1cd2a5c336602bb0c488",
    "malicious": 0,
    "suspicious": 0,
-   "engines": 67,
+   "engines": 50,
    "flagged_by": {},
    "link": "https://www.virustotal.com/gui/file/08af8e9ca0676b7bec617d9674f16af3a580863294bb1cd2a5c336602bb0c488"
   },
   {
    "name": "Trackhop-v2.0.0.apk",
    "sha256": "4028a15c7ee7311a7c5b19890dcadc3bcdf3913e644b0b91ea11ee2d9b3c626a",
-   "malicious": 1,
+   "malicious": 0,
    "suspicious": 0,
-   "engines": 68,
-   "flagged_by": {
-    "Microsoft": "Trojan:Script/Wacatac.B!ml"
-   },
+   "engines": 61,
+   "flagged_by": {},
    "link": "https://www.virustotal.com/gui/file/4028a15c7ee7311a7c5b19890dcadc3bcdf3913e644b0b91ea11ee2d9b3c626a"
   }
  ]
