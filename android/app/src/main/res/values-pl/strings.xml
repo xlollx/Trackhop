@@ -1542,6 +1542,9 @@
     <string name="whats_new_17_tiktok_body">Udostępnij film z TikToka w Trackhop: odczyta, jaki utwór w nim gra, i doda go do playlisty.</string>
     <string name="provider_note_emby">Twój serwer Emby. Bez rejestracji, bez limitów. Ulubione liczą się jako polubione utwory.</string>
     <string name="login_hint_emby">Podaj adres swojego serwera Emby (na przykład https://emby.example.com), nazwę użytkownika i hasło.</string>
+    <string name="provider_note_koel">Twój serwer Koel, przez interfejs Subsonic, który obsługuje. Bez rejestracji, bez limitów. Ulubione liczą się jako polubione utwory. Nowość: sprawdzone jeszcze na niewielu serwerach.</string>
+    <string name="login_hint_koel">Podaj adres swojego serwera Koel (ten, który otwierasz w przeglądarce, na przykład https://koel.example.com). Jako nazwę użytkownika wpisz swój e-mail z Koel, a jako klucz API klucz API Subsonic z profilu Koel (Profil › Subsonic), nie hasło do Koel. Klucz nigdy nie jest wysyłany wprost: każde żądanie używa skrótu z solą.</string>
+    <string name="koel_signin_refused">Koel odrzucił logowanie. Jako nazwę użytkownika wpisz swój e-mail z Koel, a jako klucz klucz API Subsonic z profilu Koel (Profil › Subsonic), nie hasło do Koel.</string>
     <string name="editor_follows">Playlista, która zmienia się sama</string>
     <string name="editor_follows_desc">Dla daylist, Discover Weekly czy Release Radar: cel za każdym razem staje się nową wersją źródła, nawet gdy zmienia się prawie każdy utwór, bez potwierdzania.</string>
     <string name="timing_every_hours">Co %1$d godz.</string>

@@ -1480,6 +1480,9 @@
     <string name="whats_new_17_tiktok_body">Teile ein TikTok-Video mit Trackhop: Es erkennt, welcher Song darin läuft, und fügt ihn deiner Playlist hinzu.</string>
     <string name="provider_note_emby">Dein Emby-Server. Keine Registrierung, kein Kontingent. Favoriten zählen als Lieblingssongs.</string>
     <string name="login_hint_emby">Gib die Adresse deines Emby-Servers ein (zum Beispiel https://emby.example.com), deinen Benutzernamen und dein Passwort.</string>
+    <string name="provider_note_koel">Dein Koel-Server, über die Subsonic-API, die er spricht. Keine Registrierung, kein Kontingent. Favoriten zählen als Lieblingssongs. Neu: noch auf wenigen Servern ausprobiert.</string>
+    <string name="login_hint_koel">Gib die Adresse deines Koel-Servers ein (die, die du im Browser öffnest, zum Beispiel https://koel.example.com). Als Benutzername dient deine Koel-E-Mail-Adresse, als API-Schlüssel der Subsonic-API-Schlüssel aus deinem Koel-Profil (Profil › Subsonic), nicht dein Koel-Passwort. Der Schlüssel wird nie im Klartext gesendet: Jede Anfrage nutzt einen Hash mit Salt.</string>
+    <string name="koel_signin_refused">Koel hat die Anmeldung abgelehnt. Nutze deine Koel-E-Mail-Adresse als Benutzernamen und als Schlüssel den Subsonic-API-Schlüssel aus deinem Koel-Profil (Profil › Subsonic), nicht dein Koel-Passwort.</string>
     <string name="editor_follows">Playlist, die sich selbst ändert</string>
     <string name="editor_follows_desc">Für eine daylist, Discover Weekly oder Release Radar: Das Ziel wird jedes Mal zur neuen Version der Quelle, auch wenn sich fast alle Titel ändern, ohne Bestätigung.</string>
     <string name="timing_every_hours">Alle %1$d Stunden</string>

@@ -28,6 +28,7 @@ fun installConnectors() = Providers.install(
         Factory(GaanaBridgeProvider.SERVICE) { GaanaBridgeProvider(it) },
         Factory(com.xlollx.songport.sync.SoundCloudPublic.SERVICE) { SoundCloudBridgeProvider(it) },
         Factory(SubsonicProvider.SERVICE) { SubsonicProvider(it) },
+        Factory(KoelProvider.SERVICE) { KoelProvider(it) },
         Factory(JellyfinProvider.SERVICE) { JellyfinProvider(it) },
         Factory(EmbyProvider.SERVICE) { EmbyProvider(it) },
         Factory(PlexProvider.SERVICE) { PlexProvider(it) },

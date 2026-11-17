@@ -61,7 +61,7 @@ THE ICON · Michel Henke · Pisqui❤️ · BjörnH. · Bougtib · Anonymous Mix
 <p align="center"><sub>More pictures: <a href="#gallery">Gallery</a>.</sub></p>
 
 Trackhop keeps playlists identical across Spotify, Apple Music, YouTube Music, Amazon Music, TIDAL,
-Deezer, SoundCloud, LiveOne, Subsonic/Navidrome, Jellyfin, Emby, Plex, Lyrion Music Server and Mopidy, with Last.fm, ListenBrainz and public NetEase
+Deezer, SoundCloud, LiveOne, Subsonic/Navidrome, Koel, Jellyfin, Emby, Plex, Lyrion Music Server and Mopidy, with Last.fm, ListenBrainz and public NetEase
 Cloud Music, QQ Music and JioSaavn links as sources and playlist files (CSV, TSV, M3U, iTunes XML, JSON, pasted text) as a bridge to everything else. New in 2.0:
 playlists shared by a group whose members each use their own service, and Discover pages that follow a playlist's artists: new releases, concerts,
 setlists, records and merch. Everything runs
@@ -89,6 +89,7 @@ F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and A
 | **LiveOne** | ✓ | ✓ | — | Quick sign-in (liked songs only, beta) | GitHub, F-Droid, Desktop, Docker · plugin |
 | **Navidrome / Subsonic** (Airsonic, Gonic, Ampache, LMS, Funkwhale) | ✓ | ✓ | ✓ | Your server's address and login | All builds |
 | **Jellyfin** | ✓ | ✓ | ✓ | Your server's address and login | All builds |
+| **Koel** (beta) | ✓ | ✓ | ✓ | Your server's address, your Koel email and the Subsonic API key from your Koel profile | All builds |
 | **Emby** (beta) | ✓ | ✓ | ✓ | Your server's address and login | All builds |
 | **Plex** | ✓ | ✓ | ✓ | Your server's address and token | All builds |
 | **Lyrion Music Server** (Logitech Media Server, beta) | ✓ | ✓ | ✓ | Your server's address (user and password if protected) | All builds |
@@ -382,8 +383,9 @@ The technical side of each connector (for a quick overview, see [Music services 
 | TIDAL | complete | OAuth PKCE | `TIDAL_CLIENT_ID` | API v2 (JSON:API) still evolving; endpoints isolated in `TidalProvider.kt`. |
 | Deezer | beta | OAuth implicit | `DEEZER_APP_ID` and an https redirect page (`docs/deezer-redirect.html`) | Registration of new apps may be closed. Playlists read from Deezer carry no ISRC. Beta: limited real-world use. |
 | LiveOne (web) | presets (liked songs): read and add, beta; GitHub/F-Droid, Docker and Desktop only | LiveOne's own page in the app (Docker/Desktop: paste the `slackerUser` entry) | nothing | No public API: the web player's backend, unofficial. Playlists of one's own need LiveOne's paid plan (not handled yet); no removal; stations play only in the US. |
-| Subsonic / Navidrome (Airsonic, Gonic, Ampache, LMS, Funkwhale) | complete | server URL, user, password (md5+salt token) | nothing | Starred tracks = likes. Koel speaks the Subsonic API too: sign in with your Koel email and, as the password, the Subsonic API key from your Koel profile (as Koel documents; not tried here). Ampache checks the token against the separate *Subsonic password* (or the API key) from *Preferences → Account*, not the account password; the app says so when Ampache refuses the login. |
+| Subsonic / Navidrome (Airsonic, Gonic, Ampache, LMS, Funkwhale) | complete | server URL, user, password (md5+salt token) | nothing | Starred tracks = likes. Ampache checks the token against the separate *Subsonic password* (or the API key) from *Preferences → Account*, not the account password; the app says so when Ampache refuses the login. |
 | Jellyfin | complete | server URL, user, password | nothing | Favourites supported. |
+| Koel | beta | server URL, Koel email, Subsonic API key (md5+salt token, the key never travels) | nothing | Koel speaks OpenSubsonic ([docs](https://docs.koel.dev/usage/subsonic)), so it runs on the Subsonic connector: playlists read and written (create, add, remove, rename, delete), favourites as liked songs. The key is the *Subsonic API key* of *Profile › Subsonic*, not the Koel password; the app says so when Koel refuses the sign-in. Koel has no public/private switch for playlists through this API and reports no play counts. Not yet tried on a real Koel server. |
 | Emby | beta | server URL, user, password | nothing | Jellyfin's API (Emby is where Jellyfin forked from) under `/emby`, with `X-Emby-Authorization`/`X-Emby-Token`; favourites supported. Not yet tried on a real Emby server. |
 | Plex | complete | server URL and X-Plex-Token | nothing | Music playlists only. A new playlist is created empty on the server's library, then filled (checked on Plex 1.43). |
 | Lyrion Music Server | beta | server URL; user and password only with password protection (HTTP Basic) | nothing | The documented CLI commands as JSON-RPC on `/jsonrpc.js`: `playlists`, `playlists tracks`, `titles search:`, `playlists new/edit/rename/delete`. Tracks are added by url and removed by position; a playlist keeps a track once and names are unique (a taken name is refused, never overwritten). No favourites, no ISRC. Not yet tried on a real server. |

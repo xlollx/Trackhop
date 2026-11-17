@@ -29,7 +29,7 @@ import java.security.SecureRandom
  * In alternativa, sui server OpenSubsonic che la offrono, una chiave API (estensione
  * apiKeyAuthentication: parametro `apiKey`, senza `u`, `t`, `s`).
  */
-class SubsonicProvider(override val slot: String = "") : CredentialsProvider(), PlayCounts {
+open class SubsonicProvider(override val slot: String = "") : CredentialsProvider(), PlayCounts {
     override val serviceId = SERVICE
     override val displayName = "Subsonic / Navidrome"
     override val routeNoteName: String? get() = "route_note_server"

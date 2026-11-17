@@ -7,7 +7,7 @@ is which services they can reach, and how.
 |---|---|---|
 | Spotify, YouTube Music, Apple Music, Amazon Music, Deezer, SoundCloud through their web players | **built in**: sign in and go | through the optional Trackhop Bridge plugin |
 | Spotify, YouTube Music, Apple Music, TIDAL, Deezer through their official APIs | yes | yes |
-| Navidrome/Subsonic, Jellyfin, Emby, Plex, Last.fm, ListenBrainz, files | yes | yes |
+| Navidrome/Subsonic, Koel, Jellyfin, Emby, Plex, Last.fm, ListenBrainz, files | yes | yes |
 | SoundCloud public links | yes | through the plugin |
 | LiveOne, Anghami, Qobuz (web player), NetEase Cloud Music, QQ Music and JioSaavn links, TikTok | yes | through the plugin |
 | Gaana: quick sign-in (alpha) and public links (in the next update) | yes | through the plugin |

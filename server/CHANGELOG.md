@@ -7,6 +7,7 @@ the Docker image carried the app's version.
 
 ## Unreleased
 
+- **Koel** (beta): your Koel server as a source and a target, on the Subsonic connector (Koel speaks OpenSubsonic): playlists read and written, favourites as liked songs. Sign in with your Koel email and the Subsonic API key from your Koel profile, not your Koel password.
 - **Gaana** (unofficial, alpha): your playlists and favourite songs with the session of a browser signed in to gaana.com, read and written (create, add, remove, rename, delete), matched by ISRC where the source has one; and public Gaana playlists as a source, from their link, with no account.
 
 ## 2.0.0

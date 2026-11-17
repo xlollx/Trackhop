@@ -1488,6 +1488,9 @@
     <string name="whats_new_17_tiktok_body">Partage une vidéo TikTok avec Trackhop : il lit quel morceau on y entend et l\'ajoute à ta playlist.</string>
     <string name="provider_note_emby">Ton serveur Emby. Sans inscription, sans quota. Les favoris comptent comme titres likés.</string>
     <string name="login_hint_emby">Saisis l\'adresse de ton serveur Emby (par exemple https://emby.example.com), ton nom d\'utilisateur et ton mot de passe.</string>
+    <string name="provider_note_koel">Ton serveur Koel, par l\'API Subsonic qu\'il parle. Sans inscription, sans quota. Les favoris comptent comme titres likés. Nouveau : encore essayé sur peu de serveurs.</string>
+    <string name="login_hint_koel">Saisis l\'adresse de ton serveur Koel (celle que tu ouvres dans le navigateur, par exemple https://koel.example.com). Comme nom d\'utilisateur, ton e-mail Koel ; comme clé d\'API, la clé d\'API Subsonic de ton profil Koel (Profil › Subsonic), pas ton mot de passe Koel. La clé n\'est jamais envoyée telle quelle : chaque requête utilise un hachage salé.</string>
+    <string name="koel_signin_refused">Koel a refusé la connexion. Utilise ton e-mail Koel comme nom d\'utilisateur et, comme clé, la clé d\'API Subsonic de ton profil Koel (Profil › Subsonic), pas ton mot de passe Koel.</string>
     <string name="editor_follows">Playlist qui change toute seule</string>
     <string name="editor_follows_desc">Pour un daylist, Discover Weekly ou Release Radar : la destination devient à chaque fois la nouvelle version de la source, même si presque tous les titres changent, sans confirmation.</string>
     <string name="timing_every_hours">Toutes les %1$d heures</string>

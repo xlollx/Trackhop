@@ -3,6 +3,7 @@ package com.xlollx.songport.server
 import com.xlollx.songport.platform.BuildDefaults
 import com.xlollx.songport.providers.DeezerProvider
 import com.xlollx.songport.providers.EmbyProvider
+import com.xlollx.songport.providers.KoelProvider
 import com.xlollx.songport.providers.JellyfinProvider
 import com.xlollx.songport.providers.LastFmProvider
 import com.xlollx.songport.providers.ListenBrainzProvider
@@ -59,6 +60,7 @@ private fun installServerConnectorsOnly(officialOnly: Boolean) = Providers.insta
         Factory(QobuzWebServerProvider.SERVICE) { QobuzWebServerProvider(it) }.takeUnless { officialOnly },
         Factory(GaanaWebServerProvider.SERVICE) { GaanaWebServerProvider(it) }.takeUnless { officialOnly },
         Factory(SubsonicProvider.SERVICE) { SubsonicProvider(it) },
+        Factory(KoelProvider.SERVICE) { KoelProvider(it) },
         Factory(JellyfinProvider.SERVICE) { JellyfinProvider(it) },
         Factory(EmbyProvider.SERVICE) { EmbyProvider(it) },
         Factory(PlexProvider.SERVICE) { PlexProvider(it) },

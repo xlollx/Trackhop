@@ -103,6 +103,7 @@ playlist files. Back that folder up and you have backed up Trackhop.
 | TIDAL | yes | Your own key from developer.tidal.com |
 | Deezer | yes (beta) | Your own app, and an `https` address |
 | Navidrome / Subsonic, Jellyfin, Emby (beta), Plex | yes | The server's address and your login |
+| Koel (beta) | yes | The server's address, your Koel email and the Subsonic API key from your Koel profile (*Profile › Subsonic*), not your Koel password |
 | Last.fm | yes, as a source; Loved tracks also as a target | Your user name; to love tracks, your password once (only the session Last.fm gives back is kept) and `LASTFM_SHARED_SECRET` |
 | ListenBrainz | yes, as a source | Your user name |
 | SoundCloud | yes, as a source (unofficial) | Nothing: pick it as the source of a new sync and paste a public set or likes link. [More](soundcloud) |

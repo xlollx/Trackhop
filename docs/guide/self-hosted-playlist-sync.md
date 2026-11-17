@@ -5,7 +5,7 @@ description: Keep your Navidrome, Jellyfin or Plex playlists in sync with Spotif
 
 # Self-hosted playlist sync
 
-You run your own music server, **Navidrome** (or another Subsonic server), **Jellyfin**, **Emby** (beta), **Plex**,
+You run your own music server, **Navidrome** (or another Subsonic server), **Koel** (beta), **Jellyfin**, **Emby** (beta), **Plex**,
 [**Lyrion Music Server**](lyrion) (beta) or [**Mopidy**](mopidy) (beta),
 and you still have playlists on a streaming service. Trackhop keeps the two in step: the same
 playlists on both sides, updated on a schedule, on hardware you own. No account, no cloud service
@@ -46,6 +46,21 @@ login) and a streaming service, and create a sync. The [Docker guide](docker) ha
 settings and the details for each service.
 
 ![Services: Spotify, TIDAL, Navidrome, Jellyfin and Plex connected](../store/desktop/5-services.jpg)
+
+## Koel
+
+[Koel](https://koel.dev) speaks the Subsonic API, so Trackhop reads and writes its playlists like
+Navidrome's (beta: built from Koel's documentation, not yet tried on many servers). In **Services**
+choose **Koel** and enter:
+
+- the **address** of your Koel server, the one you open in the browser;
+- your **Koel email** as the username;
+- the **Subsonic API key** from your Koel profile (*Profile › Subsonic*, as
+  [Koel's guide](https://docs.koel.dev/usage/subsonic) shows), **not** your Koel password. The key
+  itself is never sent: each request carries a salted hash of it.
+
+Playlists can be created, filled, emptied, renamed and deleted; favourites count as liked songs.
+Koel has no public/private switch for playlists on this API, and it reports no play counts.
 
 ## Why self-host it
 

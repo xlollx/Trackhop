@@ -45,7 +45,7 @@ object Html {
         val glyph = com.xlollx.songport.providers.ServiceMarks.pathData(serviceId)?.let { """<svg viewBox="0 0 24 24"><path fill="#fff" d="$it"/></svg>""" }
             ?: when (serviceId) {
                 "csv" -> """<svg viewBox="0 0 24 24"><path fill="#fff" d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>"""
-                "subsonic" -> """<svg viewBox="0 0 24 24"><path fill="#fff" d="M20 13H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zM7 19c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM20 3H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1zM7 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>"""
+                "subsonic", "koel" -> """<svg viewBox="0 0 24 24"><path fill="#fff" d="M20 13H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zM7 19c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM20 3H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1zM7 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>"""
                 else -> """<b>${h(name.take(1).uppercase())}</b>"""
             }
         return """<span class="logo" style="--s:${size}px;background:$color" role="img" aria-label="${h(name)}">$glyph</span>"""
