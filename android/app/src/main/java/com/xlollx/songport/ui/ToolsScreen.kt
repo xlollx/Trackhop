@@ -243,6 +243,8 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
             .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp + LocalBottomBarInset.current),
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
+        // A playlist a tool made and could not fill to the end (the app closed, the page left): Continue.
+        HalfMadeCards(snackbar)
         // The service the playlist tools work on, chosen once, in plain sight.
         if (provider == null) {
             PrefSection(stringResource(R.string.tools_service_title)) {

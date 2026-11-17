@@ -52,6 +52,8 @@ class ServerEnv(
     fun storageTrouble(): String? = when {
         store.damagedCopy != null -> "Trackhop could not read its saved syncs and settings, so it started empty. Nothing was deleted: the unreadable file is kept as ${store.damagedCopy?.name} in the data folder. Restore a backup from Tools › Backup & restore."
         (tokens as? JsonTokenVault)?.damaged == true -> "Trackhop could not read its saved sign-ins, so the services have to be connected again. The unreadable file is kept beside tokens.json in the data folder."
+        com.xlollx.songport.shared.SharedGroups.unreadable.keys.any { id -> store.data.groups.any { it.id == id } } ->
+            "Trackhop could not read the saved state of a shared playlist (${store.data.groups.filter { it.id in com.xlollx.songport.shared.SharedGroups.unreadable.keys }.joinToString(", ") { it.name }}). Nothing was deleted: the unreadable file is kept aside in the data folder, and the state is read again from the group at the next sync."
         store.writeError != null -> "Trackhop cannot save its changes (${store.writeError}): the disk may be full. What you see is kept only until Trackhop stops; free some space and it is saved by itself."
         else -> null
     }
@@ -82,6 +84,12 @@ class ServerEnv(
         provider.startAuth(this)
         return requested.get()?.second.also { requested.set(null) }
     }
+
+    /** What the start of the server finished by itself (a song put back after "Remove duplicates" was cut short), for the Tools page; null when nothing. */
+    @Volatile var startNote: String? = null
+
+    /** What runs now, written down so the next start knows what a stop of the server cut short ([RunMarks]). */
+    val marks: RunMarks by lazy { RunMarks(keyValues("running")) }
 
     private val kv = ConcurrentHashMap<String, KeyValues>()
     override fun keyValues(name: String): KeyValues =

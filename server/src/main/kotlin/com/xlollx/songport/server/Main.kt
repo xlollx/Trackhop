@@ -138,6 +138,7 @@ class Launched(val env: ServerEnv, val runner: Runner, val web: Web, val version
 
     fun started(warnNoPassword: Boolean, port: Int = config.port) {
         runner.startScheduler()
+        resumePutBacks(env)
         runCatching { LocalKey.write(config.dataDir, port) }.onFailure { env.log("server", "no key for the command line: ${it.message}") }
         env.log("server", "${edition.product} $version${if (edition.stage.isNotEmpty()) " (${edition.stage.uppercase()}: keep a copy of the data folder)" else ""}, data in ${config.dataDir.absolutePath}" + if (warnNoPassword) " (no password: set SONGPORT_PASSWORD if others can reach this port)" else "")
         Runtime.getRuntime().addShutdownHook(Thread { env.store.flush() })
@@ -167,7 +168,26 @@ fun launch(
     // A first start: the services the server offers are not listed until the user adds them, as in the app.
     if (!env.store.data.settings.connectorsInit) env.store.updateSettings { it.copy(connectorsInit = true) }
 
+    // What the last stop cut short (a sync run by hand, a long tool): said, never started again.
+    runCatching { RunMarks.afterRestart(env) }.onFailure { env.log("server", "the runs interrupted by the restart could not be read: ${it.message}") }
+
     val runner = Runner(env, edition)
     val web = Web(env, runner, Auth(env), config.password, version, edition, onQuit, onShow, account, sharedRoot, config.user)
     return Launched(env, runner, web, version, config, edition)
+}
+
+/**
+ * "Remove duplicates" cut short between taking a song's copies out and putting one back (the server
+ * stopped right then): at the next start the song goes back in its playlist, in the background, and
+ * the log and the Tools page say which. What cannot be reached now stays for the start after.
+ */
+internal fun resumePutBacks(env: ServerEnv): Thread = kotlin.concurrent.thread(name = "put-back", isDaemon = true) {
+    runCatching {
+        val r = kotlinx.coroutines.runBlocking { com.xlollx.songport.sync.LibraryTools.resumePutBacks(env) }
+        if (r.back.isNotEmpty()) {
+            val names = r.back.joinToString(", ") { com.xlollx.songport.sync.LibraryTools.songName(it) }
+            env.startNote = "Removing duplicates was interrupted last time. Put back in its playlist: $names"
+            env.log("dedupe", "interrupted last time: put back $names")
+        }
+    }.onFailure { env.log("dedupe", "what was left to put back could not be looked at: ${it.message}") }
 }

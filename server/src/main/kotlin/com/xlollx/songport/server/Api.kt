@@ -144,6 +144,8 @@ object Api {
         // Its source is the playlist the Shazam app fills on Spotify or Apple Music.
         put("shazam", j.shazam)
         put("running", running)
+        // Its last run by hand was cut short by a restart of Trackhop and has not been run again since.
+        put("interrupted", env.marks.interrupted(RunMarks.SYNC, j.id) != null)
         put("lastRun", if (j.lastRunEpoch > 0) JsonPrimitive(j.lastRunEpoch) else JsonNull)
         put("nextRun", Runner.nextRun(j)?.let { JsonPrimitive(it) } ?: JsonNull)
         put("lastResult", j.lastReportId?.let { env.store.report(it) }?.let { run(it, tracks = false) } ?: JsonNull)
@@ -347,6 +349,10 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
             put("syncs", jobs.size)
             put("running", buildJsonArray { running.keys.forEach { add(it) } })
             put("lastRun", jobs.maxOfOrNull { it.lastRunEpoch } ?: 0)
+            // What a restart of Trackhop cut short (a sync run by hand, a long tool): waiting for a retry, never run again by itself.
+            put("interrupted", buildJsonArray {
+                env.marks.interrupted().forEach { m -> add(buildJsonObject { put("kind", m.kind); put("id", m.id); put("title", m.title); put("started", m.at) }) }
+            })
         })
         // A playlist reserved by another device (a phone set to coordinate with this server) before it
         // writes there, for a while it renews as it runs: this server's syncs skip it meanwhile, and a
@@ -405,11 +411,14 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
         })
         rest == listOf("backup") && method == "POST" -> {
             if (Tasks.running(Backups.TITLE)) return error(409, "A backup is already running.")
-            val task = Tasks.start(Backups.TITLE, "/tools/backup", { env.log("backup", it) }, env.owner) { t -> Backups.run(env) { t.progress = it } }
+            val task = Tasks.start(Backups.TITLE, "/tools/backup", { env.log("backup", it) }, env.owner, env.marks) { t -> Backups.run(env) { t.progress = it } }
             json(202, buildJsonObject { put("task", task.id) })
         }
         rest.size == 2 && rest[0] == "tasks" && method == "GET" -> {
-            val t = Tasks.get(rest[1], env.sees) ?: return error(404, "No task with that id (finished tasks are kept for an hour).")
+            val t = Tasks.get(rest[1], env.sees) ?: run {
+                env.marks.interrupted(RunMarks.TASK, rest[1])?.let { return json(200, interruptedTask(it)) }
+                return error(404, "No task with that id (finished tasks are kept for an hour).")
+            }
             json(200, buildJsonObject {
                 put("id", t.id); put("title", t.title); put("done", t.done); put("progress", t.progress)
                 put("error", t.error?.let { JsonPrimitive(it) } ?: JsonNull)
@@ -536,7 +545,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
             val folder = query["folder"].orEmpty()
             if (Lyrics.target(root, folder) == null) return error(400, "$folder is not a folder of the library.")
             val options = Lyrics.Options(folder, syncedOnly = query["synced"] == "true", retryMissing = query["retry"] == "true")
-            val task = Tasks.start(Lyrics.TITLE, "/tools/lyrics", { env.log("lyrics", it) }, env.owner) { t -> lyricsResult(Lyrics.run(env, options) { t.progress = it }) }
+            val task = Tasks.start(Lyrics.TITLE, "/tools/lyrics", { env.log("lyrics", it) }, env.owner, env.marks) { t -> lyricsResult(Lyrics.run(env, options) { t.progress = it }) }
             json(202, buildJsonObject { put("task", task.id) })
         }
         else -> error(404, "Unknown call. See https://trackhop.org/guide/docker#api")

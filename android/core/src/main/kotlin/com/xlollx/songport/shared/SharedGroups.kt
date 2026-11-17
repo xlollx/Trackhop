@@ -205,8 +205,34 @@ object SharedGroups {
 
     private fun stateFile(env: Env, id: String) = File(File(env.dataDir, "shared"), "$id.json")
 
+    /**
+     * The groups whose saved state was there but could not be read (cut short, damaged), and the copy
+     * of it kept aside: whoever runs the engine says it (the app on its Syncs tab, the server under
+     * its header), as for the store ([FileStore.damagedCopy]). Until the app is closed.
+     */
+    val unreadable = ConcurrentHashMap<String, File>()
+    /** Among them, the ones not read again from the group yet: a curator's action waits for that ([change]). */
+    private val toRebuild: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    private const val MAX_DAMAGED = 3
+
     fun load(env: Env, id: String): GroupState = synchronized(lockOf(id)) {
-        runCatching { codec.decodeFromString(GroupState.serializer(), stateFile(env, id).readText()) }.getOrNull() ?: GroupState()
+        val file = stateFile(env, id)
+        if (!file.exists()) return@synchronized GroupState()
+        runCatching { codec.decodeFromString(GroupState.serializer(), file.readText()) }.getOrElse {
+            // Not readable: taken aside under another name before a save writes over it, and said. The
+            // state starts empty and the next refresh builds it again from the members' files; until
+            // then this member signs nothing, since the number of their last action went with the state.
+            val keep = File(file.parentFile, "${file.name}.damaged-${System.currentTimeMillis()}")
+            val kept = runCatching { com.xlollx.songport.data.AtomicFiles.copy(file, keep); file.delete(); keep }.getOrNull()
+            runCatching {
+                file.parentFile?.listFiles { f -> f.name.startsWith("${file.name}.damaged-") }?.sortedByDescending { it.name }?.drop(MAX_DAMAGED)?.forEach { it.delete() }
+            }
+            unreadable[id] = kept ?: file
+            toRebuild += id
+            val name = group(env, id)?.name ?: id
+            env.log("shared", "$name: the saved state of the group could not be read" + (kept?.let { k -> "; kept aside as ${k.name}" } ?: "") + ", read again from the group at the next sync")
+            GroupState()
+        }
     }
 
     private fun save(env: Env, id: String, s: GroupState) {
@@ -228,7 +254,8 @@ object SharedGroups {
      * file again when it changed (their card, the newest curators' list, every event: a member who
      * leaves does not take the group's history with them).
      */
-    fun refresh(env: Env, group: SharedGroup, write: Boolean = true): GroupState = refresh(env, group, write, MAX_MOVES)
+    fun refresh(env: Env, group: SharedGroup, write: Boolean = true): GroupState =
+        refresh(env, group, write, MAX_MOVES).also { toRebuild -= group.id }
 
     /** [moves]: how many "the channel moved" words are still followed in this refresh (a curator cannot keep it busy for ever). */
     private fun refresh(env: Env, group: SharedGroup, write: Boolean, moves: Int): GroupState = synchronized(lockOf(group.id)) {
@@ -451,6 +478,10 @@ object SharedGroups {
     private fun change(env: Env, group: SharedGroup, tracks: List<Track>, op: String) {
         if (tracks.isEmpty()) return
         synchronized(lockOf(group.id)) {
+            // A state that could not be read starts empty, the numbers of this member's actions too:
+            // read again from the group first, or an action would take a number already signed. The
+            // group out of reach, the action fails and is tried at the next sync.
+            if (load(env, group.id).let { group.id in toRebuild }) refresh(env, group)
             val s = load(env, group.id)
             val now = clock()
             val keys = tracks.map { keyFor(it) }

@@ -131,7 +131,7 @@ internal fun Web.syncedLyricsPage(r: Web.Req) {
                 return redirect(r.ex, "$back&ok=${q("Saved.")}")
             }
             "check" -> {
-                val task = Tasks.start(title, back, { env.log("lyrics", it) }, env.owner) { t ->
+                val task = Tasks.start(title, back, { env.log("lyrics", it) }, env.owner, env.marks) { t ->
                     val report = SyncedLyrics.report(env, service) { t.progress = "$it songs read…" }
                     ServerLyrics.keep(env, service, report)
                     env.log("lyrics", "${service.label(env)}: ${report.missing.size} of ${report.total} songs without lyrics")
@@ -143,7 +143,7 @@ internal fun Web.syncedLyricsPage(r: Web.Req) {
                 val p = ServerLyrics.pendingOf(env, service) ?: return redirect(r.ex, "$back&err=${q("Check the library first.")}")
                 if (Tasks.running(title)) return redirect(r.ex, "$back&err=${q("Lyrics are already being looked up.")}")
                 val songs = p.report.missing
-                val task = Tasks.start(title, back, { env.log("lyrics", it) }, env.owner) { t ->
+                val task = Tasks.start(title, back, { env.log("lyrics", it) }, env.owner, env.marks) { t ->
                     val found = SyncedLyrics.lookUp(songs, ServerLyrics.session(env, service)) { t.progress = "$it of ${songs.size} looked up on LRCLIB…" }
                     p.proposals = found
                     previewHtml(service, found)
@@ -156,7 +156,7 @@ internal fun Web.syncedLyricsPage(r: Web.Req) {
                 if (!ServerLyrics.canFill(env, service)) return redirect(r.ex, "$back&err=${q("Lyrics cannot be added to ${service.label(env)} from here.")}")
                 val sidecars = ServerLyrics.sidecars(env, service)
                 p.proposals = null
-                val task = Tasks.start(title, back, { env.log("lyrics", it) }, env.owner) { t ->
+                val task = Tasks.start(title, back, { env.log("lyrics", it) }, env.owner, env.marks) { t ->
                     val s = SyncedLyrics.save(env, service, found, sidecars) { t.progress = "$it of ${found.count { f -> f.text != null }} added…" }
                     """<div class="card ok"><h3>${h(ServerLyrics.TITLE)}</h3><p>${h(ServerLyrics.savedLine(s))}</p>""" +
                         (if (service.lyricsSupport == LyricsSupport.SIDECAR) """<p class="muted">$name shows them after its next library scan.</p>""" else "") +

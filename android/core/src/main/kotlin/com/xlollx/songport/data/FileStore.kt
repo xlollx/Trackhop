@@ -276,15 +276,75 @@ open class FileStore(dir: File) {
     private var pendingWrite: java.util.concurrent.ScheduledFuture<*>? = null
     private val lock = Any()
 
+    /**
+     * The last good copy of the state (`store.json.bak`): what a start read well, then what was saved
+     * well since, written whole ([AtomicFiles]) and no more than once every [GOOD_COPY_EVERY_MS]. One
+     * file. When a start finds the state unreadable, the copy stops being renewed ([goodCopyOffer], a
+     * marker beside it that survives the next starts): it is what the person is offered to go back to,
+     * and the empty state the app started with must not take its place.
+     */
+    private val goodCopy = File(dir, GOOD_COPY)
+    private val goodCopyOffer = File(dir, "$GOOD_COPY.offer")
+    @Volatile private var goodCopyAt = 0L
+
     private val _state = MutableStateFlow(load().also { Providers.configure(it.settings.extraAccounts, it.settings.connectorNames, it.settings.connectors) })
     val state: StateFlow<StoreData> get() = _state
     val data: StoreData get() = _state.value
 
+    /**
+     * What is wrong with the saved state, for a card where the person looks (the app's Syncs tab):
+     * [damaged] the state could not be read at this start and the app began empty; [goodCopyAt] when
+     * the last good copy was written, if there is one to go back to ([restoreGoodCopy]). Null when
+     * all is well, and once the person restored the copy or said to go on without it.
+     */
+    data class Notice(val damaged: Boolean, val goodCopyAt: Long?)
+
+    private val _notice = MutableStateFlow(
+        (if (goodCopyOffer.exists() && goodCopy.exists()) goodCopy.lastModified() else null).let { at -> if (damagedCopy != null || at != null) Notice(damagedCopy != null, at) else null },
+    )
+    val notice: StateFlow<Notice?> get() = _notice
+
+    /**
+     * The last good copy put in place of the state, because the person asked: never by itself, since a
+     * sync deleted after the copy was made would run again. What the state held until now is kept
+     * beside it (`store.json.before-restore`). False, and nothing changed, when the copy cannot be read.
+     */
+    fun restoreGoodCopy(): Boolean {
+        val restored = runCatching { com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(goodCopy.readText())) }.getOrNull() ?: return false
+        flush()
+        runCatching { if (file.exists()) AtomicFiles.copy(file, File(file.parentFile, BEFORE_RESTORE)) }
+        synchronized(lock) { _state.value = restored }
+        Providers.configure(restored.settings.extraAccounts, restored.settings.connectorNames, restored.settings.connectors)
+        flush()
+        if (writeError != null) return false
+        goodCopyOffer.delete()
+        damagedCopy = null
+        _notice.value = null
+        return true
+    }
+
+    /** The person goes on with the state as it is: the notice goes, and the copy is renewed again from now on. */
+    fun dismissNotice() {
+        goodCopyOffer.delete()
+        _notice.value = null
+    }
+
+    /** [text], just read or written well, becomes the last good copy; not while one is on offer, and not too often. */
+    private fun keepGoodCopy(text: String, now: Long = System.currentTimeMillis()) {
+        if (now - goodCopyAt < GOOD_COPY_EVERY_MS || goodCopyOffer.exists()) return
+        goodCopyAt = now
+        // Never failing a load or a save: the copy is a help, not the state.
+        runCatching { AtomicFiles.write(goodCopy, text) }
+    }
+
     private fun load(): StoreData {
         if (!file.exists()) return StoreData()
         return try {
-            com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(file.readText()))
+            val text = file.readText()
+            com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(text)).also { keepGoodCopy(text) }
         } catch (e: Exception) {
+            // The last good copy is kept as it is from here on, until the person decides.
+            if (goodCopy.exists()) runCatching { goodCopyOffer.createNewFile() }
             // Not readable: kept aside before anything is written over it, then an empty start.
             damagedCopy = runCatching {
                 val keep = File(file.parentFile, "$DAMAGED_PREFIX${System.currentTimeMillis()}")
@@ -326,8 +386,10 @@ open class FileStore(dir: File) {
         val snapshot = _state.value
         // Whole or not at all (AtomicFiles): a write cut short leaves the last state saved in place.
         try {
-            AtomicFiles.write(file, json.encodeToString(snapshot))
+            val text = json.encodeToString(snapshot)
+            AtomicFiles.write(file, text)
             writeError = null
+            keepGoodCopy(text)
         } catch (e: Exception) {
             writeError = e.message ?: e.javaClass.simpleName
         }
@@ -579,6 +641,10 @@ open class FileStore(dir: File) {
         const val MAX_REPORTS = 200
         /** The name an unreadable store.json is kept under, followed by when it was found. */
         const val DAMAGED_PREFIX = "store.json.damaged-"
+        const val GOOD_COPY = "store.json.bak"
+        const val BEFORE_RESTORE = "store.json.before-restore"
+        /** How often at most the last good copy is renewed after a save (a start always renews it). */
+        internal var GOOD_COPY_EVERY_MS = 60 * 60_000L
         private const val MAX_DAMAGED = 3
         /** How long a track a service said it holds, though unlisted, counts as present without asking again. */
         private const val PRESENT_TTL_MS = 30L * 24 * 3_600_000

@@ -176,7 +176,7 @@ internal fun Web.recordsPage(r: Web.Req) {
     val playlist = params["playlist"]?.let { id -> lists.firstOrNull { it.id == id } }
     val look = Records.Look.of(params["kind"]) ?: Records.Look.ALL
     if (r.method == "POST" && playlist != null) {
-        val task = Tasks.start(title, "/tools/records?service=${q(service.id)}&playlist=${q(playlist.id)}&kind=${RecordTexts.lookName(look)}", { env.log("records", it) }, env.owner) { t ->
+        val task = Tasks.start(title, "/tools/records?service=${q(service.id)}&playlist=${q(playlist.id)}&kind=${RecordTexts.lookName(look)}", { env.log("records", it) }, env.owner, env.marks) { t ->
             t.progress = "Reading the playlist"
             val res = recordsOf(service, playlist.id, Records.currencyFor(), look) { done, total -> t.progress = "Artist ${minOf(done + 1, total)} of $total" }
             recordsHtml(playlist.name, res)

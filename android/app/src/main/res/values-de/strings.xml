@@ -3084,4 +3084,15 @@
     <string name="store_damaged_text">Trackhop hat seine gespeicherten Syncs und Einstellungen beschädigt vorgefunden und leer gestartet. Nichts wurde überschrieben: Die beschädigte Datei bleibt auf diesem Telefon. Wenn du eine Backup-Datei hast, stelle sie in den Einstellungen wieder her.</string>
     <string name="accounts_keystore_unavailable">Deine Anmeldungen können gerade nicht gelesen werden: Der sichere Speicher dieses Telefons hat sich nicht geöffnet. Deshalb werden die Dienste als nicht verbunden angezeigt. Nichts ist verloren: Schließe Trackhop vollständig und öffne es erneut oder starte das Telefon neu. Eine erneute Anmeldung jetzt würde nicht halten.</string>
     <string name="tools_dedupe_not_put_back">Die zusätzlichen Kopien von „%1$s“ wurden entfernt, aber eine konnte nicht wieder hinzugefügt werden: Die Verbindung ist abgebrochen. Füge den Titel von Hand zur Playlist hinzu.</string>
+    <string name="error_listed_short">%1$s hat nur %2$d von %3$d Titeln geliefert; es wurde nichts entfernt. Versuch es später noch einmal.</string>
+    <string name="half_made_text">„%1$s“ auf %2$s wurde nicht bis zum Ende gefüllt: Einige der %3$d Titel fehlen. „Weiter“ fügt nur die fehlenden hinzu.</string>
+    <string name="half_made_done">„%1$s“ ist jetzt vollständig: %2$d Titel hinzugefügt.</string>
+    <string name="notice_dismiss">Ausblenden</string>
+    <string name="store_good_copy_text">Auf diesem Telefon liegt eine Kopie deiner Syncs und Einstellungen vom %1$s. Du kannst zu ihr zurückkehren. Ein Sync, den du danach gelöscht hast, käme zurück – deshalb wird nichts wiederhergestellt, solange du es nicht verlangst.</string>
+    <string name="store_good_copy_restore">Diese Kopie wiederherstellen</string>
+    <string name="store_good_copy_confirm">Deine Syncs und Einstellungen werden wieder so, wie sie am %1$s waren. Was du danach eingerichtet hast, wird ersetzt; eine Kopie davon bleibt auf diesem Telefon.</string>
+    <string name="store_good_copy_restored">Wiederhergestellt: %1$d Syncs sind zurück.</string>
+    <string name="store_good_copy_failed">Diese Kopie konnte nicht gelesen werden. Es wurde nichts geändert.</string>
+    <string name="tools_dedupe_put_back">Das Entfernen der Duplikate wurde beim letzten Mal unterbrochen. Wieder in die Playlist eingefügt: %1$s</string>
+    <string name="shared_state_unreadable">Der gespeicherte Stand der geteilten Playlist „%1$s“ konnte nicht gelesen werden. Es wurde nichts gelöscht: Er wird beim nächsten Sync neu aus der Gruppe gelesen.</string>
 </resources>

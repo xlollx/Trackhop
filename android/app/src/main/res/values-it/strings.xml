@@ -3084,4 +3084,15 @@
     <string name="store_damaged_text">Trackhop ha trovato danneggiate le sync e le impostazioni salvate ed è ripartito da vuoto. Niente è stato sovrascritto: il file danneggiato resta su questo telefono. Se hai un file di backup, ripristinalo dalle Impostazioni.</string>
     <string name="accounts_keystore_unavailable">Gli accessi non si leggono in questo momento: l\'archivio sicuro di questo telefono non si è aperto. Per questo i servizi risultano non collegati. Niente è perso: chiudi del tutto Trackhop e riaprilo, oppure riavvia il telefono. Rifare l\'accesso adesso non durerebbe.</string>
     <string name="tools_dedupe_not_put_back">Le copie in più di «%1$s» sono state tolte, ma non è stato possibile rimetterne una: la connessione è caduta. Aggiungila a mano alla playlist.</string>
+    <string name="error_listed_short">%1$s ha dato solo %2$d brani su %3$d; non è stato tolto niente. Riprova più tardi.</string>
+    <string name="half_made_text">«%1$s» su %2$s non è stata riempita fino in fondo: mancano alcuni dei suoi %3$d brani. Continua aggiunge solo quelli che mancano.</string>
+    <string name="half_made_done">«%1$s» ora è completa: %2$d brani aggiunti.</string>
+    <string name="notice_dismiss">Ignora</string>
+    <string name="store_good_copy_text">Su questo telefono c\'è una copia delle tue sync e impostazioni com\'erano il %1$s. Puoi tornare a quella. Una sync cancellata dopo tornerebbe, perciò niente viene ripristinato se non lo chiedi tu.</string>
+    <string name="store_good_copy_restore">Ripristina quella copia</string>
+    <string name="store_good_copy_confirm">Le sync e le impostazioni tornano com\'erano il %1$s. Quello che hai impostato dopo viene sostituito; una copia resta su questo telefono.</string>
+    <string name="store_good_copy_restored">Ripristinato: sono tornate %1$d sync.</string>
+    <string name="store_good_copy_failed">Non è stato possibile leggere quella copia. Non è cambiato niente.</string>
+    <string name="tools_dedupe_put_back">L\'ultima volta la rimozione dei doppioni è stata interrotta. Rimesso nella sua playlist: %1$s</string>
+    <string name="shared_state_unreadable">Non è stato possibile leggere lo stato salvato della playlist condivisa «%1$s». Niente è stato cancellato: viene riletto dal gruppo alla prossima sync.</string>
 </resources>

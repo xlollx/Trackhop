@@ -166,6 +166,8 @@ fun SettingsScreen(
             .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp + LocalBottomBarInset.current),
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
+        // What went wrong with the saved state, and what the app finished by itself at this start.
+        StateNotices(store, snackbar)
         // ---------------------------------------------------------------- Appearance
         PrefSection(stringResource(R.string.settings_section_appearance), accent = JobColor.PURPLE) {
             val mode = ThemeMode.of(settings.themeMode)

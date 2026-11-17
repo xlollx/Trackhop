@@ -156,7 +156,7 @@ internal class CliV2(private val c: CliCommands) {
             val file = p.getOrNull(1) ?: throw Cli.Failure(2, "usage: trackhop wrapped card <file.png> [<wrapped>]")
             val id = p.getOrNull(2) ?: "latest"
             val bytes = api.bytes("GET", "wrapped/${enc(id)}/card")
-            File(file).writeBytes(bytes)
+            CliFiles.save(file, bytes)
             if (c.asJson) print(buildJsonObject { put("file", file); put("bytes", bytes.size) }) else out.println("Saved the card to $file.")
             0
         }

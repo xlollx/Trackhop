@@ -67,7 +67,7 @@ internal object ServerAlerts {
     }
 
     /** A look now ([manual]: every artist, whatever when it was looked up last), as a task. */
-    fun start(env: ServerEnv, manual: Boolean): Tasks.Task = Tasks.start(TITLE, "/tools/alerts", { env.log("alerts", it) }, env.owner) { t ->
+    fun start(env: ServerEnv, manual: Boolean): Tasks.Task = Tasks.start(TITLE, "/tools/alerts", { env.log("alerts", it) }, env.owner, env.marks.takeIf { manual }) { t ->
         t.progress = "Looking up the artists you follow"
         val out = check(env, manual)
         buildString {

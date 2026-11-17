@@ -60,7 +60,7 @@ internal fun Web.releasesTool(r: Web.Req) {
         }
         // Now: the tracks of the releases, as a File playlist that "Send to a service" takes anywhere.
         "file" -> {
-            val task = Tasks.start(title, back, { env.log("releases", it) }, env.owner) { t ->
+            val task = Tasks.start(title, back, { env.log("releases", it) }, env.owner, env.marks) { t ->
                 val found = NewReleases.find(env, NewReleases.artists(service.tracks(env, playlist.id)), days, upcoming = false) { done, total -> t.progress = "Checking artists: $done of $total" }
                 val tracks = NewReleases.tracksOf(env, found.releases) { done, total -> t.progress = "Reading the tracks: $done of $total" }
                 if (tracks.isEmpty()) return@start """<div class="card">These releases have no tracks to add yet.</div>"""
@@ -73,7 +73,7 @@ internal fun Web.releasesTool(r: Web.Req) {
         }
     }
     val targets = Providers.connectors().filter { usable(it) && it.canWrite && it.canCreatePlaylists && it.id != LocalFilesProvider.id }
-    val task = Tasks.start(title, back, { env.log("releases", it) }, env.owner) { t ->
+    val task = Tasks.start(title, back, { env.log("releases", it) }, env.owner, env.marks) { t ->
         val artists = NewReleases.artists(service.tracks(env, playlist.id))
         val found = NewReleases.find(env, artists, days, upcoming) { done, total -> t.progress = "Checking artists: $done of $total" }
         releasesResult(service.id, playlist.id, playlist.name, days, found, targets.map { it.id to it.label(env) })

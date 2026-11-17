@@ -10,7 +10,8 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * Long tool runs (a full backup, a scan of every playlist) in the background, so a page never waits
  * on them: the page that started one shows its progress, refreshing, then its result. Kept in memory
- * only; a run's page outlives it by an hour.
+ * only; a run's page outlives it by an hour. One started by hand is also written down while it runs
+ * ([RunMarks]): cut short by a restart of the server, its page says so instead of "no longer kept".
  */
 object Tasks {
     /** [owner]: whose run it is on a shared server ([ServerEnv.owner]); the others do not see it. */
@@ -27,11 +28,16 @@ object Tasks {
     private val tasks = ConcurrentHashMap<String, Task>()
 
     /** Starts [block], which reports through the task and returns the result's HTML. */
-    fun start(title: String, back: String, log: (String) -> Unit, owner: String = "", block: suspend (Task) -> String): Task {
+    /**
+     * [marks]: where a run started by hand is written down while it lasts, so a restart of the server
+     * can say it was interrupted ([RunMarks]); null for the ones a schedule starts again by itself.
+     */
+    fun start(title: String, back: String, log: (String) -> Unit, owner: String = "", marks: RunMarks? = null, block: suspend (Task) -> String): Task {
         val now = System.currentTimeMillis()
         tasks.values.removeIf { it.done && now - it.finishedAt > KEEP_MS }
         val task = Task(UUID.randomUUID().toString(), title, back, owner)
         tasks[task.id] = task
+        marks?.begin(RunMarks.TASK, task.id, title, back)
         scope.launch {
             try {
                 task.resultHtml = block(task)
@@ -41,6 +47,7 @@ object Tasks {
             } finally {
                 task.finishedAt = System.currentTimeMillis()
                 task.done = true
+                marks?.end(RunMarks.TASK, task.id)
             }
         }
         return task

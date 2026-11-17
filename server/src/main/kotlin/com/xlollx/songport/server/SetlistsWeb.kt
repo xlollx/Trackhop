@@ -114,7 +114,7 @@ internal fun Web.setlistsPage(r: Web.Req) {
     // A setlist picked from a result: its songs as a File playlist, to send to any service.
     if (r.method == "POST" && r.form["action"] == "file") {
         val id = r.form["setlist"].orEmpty()
-        val task = Tasks.start(title, "/tools/setlists", { env.log("setlists", it) }, env.owner) { _ ->
+        val task = Tasks.start(title, "/tools/setlists", { env.log("setlists", it) }, env.owner, env.marks) { _ ->
             val s = Setlists.byId(env, id) ?: return@start """<div class="card err">${h(SetlistTexts.NO_KEY)}</div>"""
             val tracks = Setlists.tracks(s)
             val file = LocalFilesProvider.importTracks(env, Setlists.playlistName(s), tracks)
@@ -141,7 +141,7 @@ internal fun Web.setlistsPage(r: Web.Req) {
         .getOrElse { return send(r.ex, 200, page(title, """<div class="card err">${h(it.message)}</div>""")) }
     val playlist = params["playlist"]?.let { id -> lists.firstOrNull { it.id == id } }
     if (r.method == "POST" && playlist != null) {
-        val task = Tasks.start(title, "/tools/setlists?service=${q(service.id)}&playlist=${q(playlist.id)}", { env.log("setlists", it) }, env.owner) { t ->
+        val task = Tasks.start(title, "/tools/setlists?service=${q(service.id)}&playlist=${q(playlist.id)}", { env.log("setlists", it) }, env.owner, env.marks) { t ->
             t.progress = "Reading the playlist"
             val res = setlistsOf(service, playlist.id) { done, total -> t.progress = "Artist ${minOf(done + 1, total)} of $total" }
             setlistsHtml(playlist.name, res)

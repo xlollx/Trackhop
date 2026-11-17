@@ -48,6 +48,13 @@ object Tools {
     suspend fun undoUnplayable(ctx: Context, provider: MusicProvider, fix: UnplayableFix): Int =
         LibraryTools.undoUnplayable(ctx.env, provider, fix)
 
+    fun halfMade(ctx: Context) = LibraryTools.halfMade(ctx.env)
+
+    fun forgetHalfMade(ctx: Context, entry: Unfinished.HalfMade) = LibraryTools.forgetHalfMade(ctx.env, entry)
+
+    suspend fun continueHalfMade(ctx: Context, entry: Unfinished.HalfMade, onProgress: (Progress) -> Unit = {}) =
+        LibraryTools.continueHalfMade(ctx.env, entry, onProgress)
+
     suspend fun createWith(
         ctx: Context, provider: MusicProvider, name: String, description: String, tracks: List<Track>,
         onProgress: (Progress) -> Unit = {},

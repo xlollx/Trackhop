@@ -91,9 +91,19 @@ object LibraryTools {
                 // The two steps are one: a page left or a run stopped between them would take the song
                 // out of the playlist altogether. Not stopped here, the copy put back is tried again when
                 // the connection drops, and a song that could not be put back is named, to add by hand.
+                // A process killed between them cannot be held back: the song to put back is written down
+                // first ([Unfinished.putBacks]) and crossed out once it is back; what is still written at
+                // the next start is put back then ([resumePutBacks]).
                 kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
+                    val back = if (byId.any { it.id == keep.id }) Unfinished.PutBack(provider.id, playlistId, keep, System.currentTimeMillis()) else null
+                    if (back != null) Unfinished.putBacks.change(ctx) { it + back }
+                    // A removal that fails leaves the note: whether the copies went is not known, and the
+                    // next start looks (a song still listed is only crossed out).
                     provider.removeTracks(ctx, playlistId, byId)
-                    if (byId.any { it.id == keep.id }) putBack(ctx, provider, playlistId, keep)
+                    if (back != null) {
+                        putBack(ctx, provider, playlistId, keep)
+                        runCatching { Unfinished.putBacks.change(ctx) { it - back } }
+                    }
                 }
             }
             removed += extras.size
@@ -115,12 +125,49 @@ object LibraryTools {
                 val wait = PUT_BACK_WAITS_MS.getOrNull(attempt++)
                 if (wait == null) {
                     ctx.log("tools", "duplicates: $keep removed from $playlistId on ${provider.displayName} and not put back: ${e.message?.take(160)}")
-                    throw ProviderException(ctx.text("tools_dedupe_not_put_back", listOfNotNull(keep.artists.firstOrNull(), keep.title).joinToString(" – ")))
+                    throw ProviderException(ctx.text("tools_dedupe_not_put_back", songName(keep)))
                 }
                 kotlinx.coroutines.delay(wait)
             }
         }
     }
+
+    /** What [resumePutBacks] did: the songs back in their playlists, and those still to put back (tried again at the next start). */
+    data class PutBacks(val back: List<Track>, val waiting: List<Track>)
+
+    /**
+     * At the start of the app or the server: the songs "Remove duplicates" had taken out and not yet
+     * put back when it was cut short (the process killed, the phone off). Each is added again unless
+     * its playlist lists it already (put back by hand meanwhile), and crossed out; one that cannot
+     * be reached now stays written for the next start. Safe to run any number of times.
+     */
+    suspend fun resumePutBacks(ctx: Env): PutBacks {
+        val entries = Unfinished.putBacks.read(ctx)
+        val back = ArrayList<Track>()
+        val waiting = ArrayList<Track>()
+        for (e in entries) {
+            val provider = Providers.byId(e.provider)
+            if (provider == null) { waiting += e.track; continue }
+            try {
+                val there = provider.tracks(ctx, e.playlistId).any { it.id == e.track.id }
+                if (!there) provider.addTracks(ctx, e.playlistId, listOf(e.track))
+                Unfinished.putBacks.change(ctx) { it - e }
+                if (!there) {
+                    back += e.track
+                    ctx.log("tools", "duplicates: ${e.track} put back in ${e.playlistId} on ${provider.displayName} (removing duplicates had been cut short)")
+                }
+            } catch (x: kotlinx.coroutines.CancellationException) {
+                throw x
+            } catch (x: Exception) {
+                waiting += e.track
+                ctx.log("tools", "duplicates: ${e.track} still to put back in ${e.playlistId} on ${provider.displayName}: ${x.message?.take(160)}")
+            }
+        }
+        return PutBacks(back, waiting)
+    }
+
+    /** A song as people name it: "Artist – Title". */
+    fun songName(t: Track): String = listOfNotNull(t.artists.firstOrNull(), t.title).joinToString(" – ")
 
     // ---------------------------------------------------------------- unplayable tracks
 
@@ -237,26 +284,60 @@ object LibraryTools {
             throw ProviderException(ctx.text("tools_make_cannot_create", provider.displayName))
         }
         val pl = provider.createPlaylist(ctx, name, description)
+        // What it is meant to hold, written down before the first track goes in: stopped half way (the
+        // page left, the app closed, the server restarted), the playlist is on the service part filled,
+        // and "Continue" adds what is missing ([continueHalfMade]). Crossed out once it is whole.
+        val meant = if (tracks.isEmpty()) null else Unfinished.HalfMade(provider.id, pl.id, pl.name.ifBlank { name }, tracks, System.currentTimeMillis())
+        if (meant != null) runCatching { Unfinished.halfMade.change(ctx) { it + meant } }
+        val (added, failed) = addInOrder(ctx, provider, pl.id, tracks, onProgress)
+        if (meant != null) runCatching { Unfinished.halfMade.change(ctx) { it - meant } }
+        return Created(pl, added, failed)
+    }
+
+    /** The playlists a tool made and did not fill to the end, the latest first: each waits for [continueHalfMade] or [forgetHalfMade]. */
+    fun halfMade(ctx: Env): List<Unfinished.HalfMade> = Unfinished.halfMade.read(ctx).sortedByDescending { it.at }
+
+    /** The person does not want [entry] finished: it is no longer offered; the playlist stays as it is. */
+    fun forgetHalfMade(ctx: Env, entry: Unfinished.HalfMade) = Unfinished.halfMade.change(ctx) { all -> all.filterNot { it.provider == entry.provider && it.playlistId == entry.playlistId } }
+
+    /**
+     * Adds to the playlist of [entry] the tracks it was meant to hold and does not list yet, in their
+     * order; one it has is not added again, so continuing twice, or after the first try had in fact
+     * finished, adds nothing. Stopped again, it stays on offer.
+     */
+    suspend fun continueHalfMade(ctx: Env, entry: Unfinished.HalfMade, onProgress: (Progress) -> Unit = {}): Created {
+        val provider = Providers.byId(entry.provider) ?: throw ProviderException(ctx.text("error_not_connected", entry.provider))
+        val there = HashMap<String, Int>()
+        for (t in provider.tracks(ctx, entry.playlistId)) there.merge(t.id, 1, Int::plus)
+        // As many copies as were meant: a song meant twice and there once is added once more.
+        val missing = entry.tracks.filter { t -> (there[t.id] ?: 0).let { n -> if (n > 0) { there[t.id] = n - 1; false } else true } }
+        val (added, failed) = addInOrder(ctx, provider, entry.playlistId, missing, onProgress)
+        runCatching { forgetHalfMade(ctx, entry) }
+        return Created(Playlist(entry.playlistId, entry.name), added, failed)
+    }
+
+    /** [tracks] added to [playlistId] in blocks of 50; a block refused is tried track by track. Returns how many went in, and the ones refused. */
+    private suspend fun addInOrder(ctx: Env, provider: MusicProvider, playlistId: String, tracks: List<Track>, onProgress: (Progress) -> Unit): Pair<Int, List<String>> {
         var added = 0
         val failed = ArrayList<String>()
         for (chunk in tracks.chunked(50)) {
             onProgress(Progress(Progress.Step.ADDING, added, tracks.size))
             try {
-                provider.addTracks(ctx, pl.id, chunk); added += chunk.size
+                provider.addTracks(ctx, playlistId, chunk); added += chunk.size
             } catch (e: kotlinx.coroutines.CancellationException) {
                 // Stopped (the page left, the app closed), not refused: it ends here, instead of trying
                 // every track left by itself and listing each as failed.
                 throw e
             } catch (e: Exception) {
                 for (t in chunk) {
-                    try { provider.addTracks(ctx, pl.id, listOf(t)); added++ }
+                    try { provider.addTracks(ctx, playlistId, listOf(t)); added++ }
                     catch (e2: kotlinx.coroutines.CancellationException) { throw e2 }
                     catch (e2: Exception) { failed += "$t (${e2.message})" }
                 }
             }
         }
         onProgress(Progress(Progress.Step.ADDING, added, tracks.size))
-        return Created(pl, added, failed)
+        return added to failed
     }
 
     /** A personal server's library: how many songs it has, and the ones whose file carries no MusicBrainz tag. */

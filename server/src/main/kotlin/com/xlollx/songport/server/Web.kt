@@ -318,6 +318,7 @@ class Web(
         if (jobs.isEmpty()) body.append("""<p class="muted">No syncs yet.</p>""")
         // Many syncs reaching one service at once (issue #56): said once, until the group changes.
         body.append(crowdCard())
+        body.append(interruptedCards("/"))
         // Find and filter as in the app: a search (genre:metal asks for exactly that tag) and chips for
         // the favourites, the labels and the tags. The starred syncs come first.
         val filter = homeFilter(r.query).pruned(jobs)
@@ -428,7 +429,7 @@ class Web(
 <div>
 <span class="badge">${h(if (radio != null) com.xlollx.songport.sync.RadioTitles.describe(radio) else com.xlollx.songport.sync.Timing.describe(job))}</span>${if (job.archive) " <span class=\"badge\">keeps every track</span>" else if (job.mirrorRemovals) " <span class=\"badge\">mirror</span>" else ""}${if (job.linkedJobId?.let { env.store.job(it) } != null) " <span class=\"badge\">two-way${if (job.twoWayRemovals) ", removals too" else ""}</span>" else ""}${if (!job.enabled) " <span class=\"badge\">${job.scheduledOn?.let { "off, scheduled on ${h(it)}" } ?: "off"}</span>" else ""}$groups
 <span class="muted">Last run ${Html.date(job.lastRunEpoch)}$next</span>$onAir
-<div class="row"><div>$status</div><div class="actions">${if (isRunning) Html.postButton("/syncs/${q(job.id)}/stop", "Stop", "secondary") else Html.postButton("/syncs/${q(job.id)}/run", "Run now")}${if (!isRunning && last?.targetShrunkFrom?.let { it > 0 } == true) " " + Html.postButton("/syncs/${q(job.id)}/run-anyway", "Sync anyway", "secondary") else ""}$download$moves</div></div></div></div>"""
+<div class="row"><div>$status</div><div class="actions">${if (isRunning) Html.postButton("/syncs/${q(job.id)}/stop", "Stop", "secondary") else Html.postButton("/syncs/${q(job.id)}/run", if (env.marks.interrupted(RunMarks.SYNC, job.id) != null) "Retry" else "Run now")}${if (!isRunning && last?.targetShrunkFrom?.let { it > 0 } == true) " " + Html.postButton("/syncs/${q(job.id)}/run-anyway", "Sync anyway", "secondary") else ""}$download$moves</div></div></div></div>"""
     }
 
     private fun progressText(jobId: String): String {

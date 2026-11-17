@@ -61,6 +61,20 @@ class InterruptedStorageTest {
         assertEquals(listOf("tokens.json"), file.parentFile.list()!!.toList())
     }
 
+    @Test fun aCommandLineExportThatFailsHalfWayKeepsTheOldFileAndLeavesNoPiece() {
+        val file = File(tmp.newFolder(), "Road trip.csv")
+        CliFiles.save(file.path, "title,artist\nSong,Band\n")
+        assertEquals("title,artist\nSong,Band\n", file.readText())
+        // The disk refuses the file written beside it (here: its name is taken by a folder).
+        val blocker = File(file.parentFile, ".Road trip.csv.tmp").also { it.mkdirs(); File(it, "x").writeText("x") }
+        assertTrue(runCatching { CliFiles.save(file.path, "title,artist\nSong,Band\nAnother,Band\n") }.isFailure)
+        assertEquals("the export of before, whole", "title,artist\nSong,Band\n", file.readText())
+        blocker.deleteRecursively()
+        CliFiles.save(file.path, byteArrayOf(1, 2, 3))
+        assertEquals(listOf<Byte>(1, 2, 3), file.readBytes().toList())
+        assertEquals("no piece beside it", listOf("Road trip.csv"), file.parentFile.list()!!.toList())
+    }
+
     @Test fun aCopyToTheBackupFolderStoppedHalfWayIsMadeAgainWhole() {
         val e = env()
         val folder = tmp.newFolder("copies")
