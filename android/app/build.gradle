@@ -225,6 +225,12 @@ kotlin {
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.16.0'
+    // Play Console's "deprecated edge-to-edge APIs" notice (Window.setStatusBarColor, setNavigationBarColor,
+    // LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES) points at these two libraries, not at Trackhop's code, which
+    // calls none of them (checked 11/2026 with the Play build's R8 mapping): androidx.activity's own
+    // enableEdgeToEdge (EdgeToEdgeApi23–30, the branches for Android before 15) and core-splashscreen
+    // (SplashScreen$Impl31). Their latest releases (activity 1.13.0, core-splashscreen 1.2.0) still carry the
+    // same calls, so an update does not clear it. The app is already edge to edge with insets everywhere.
     implementation 'androidx.core:core-splashscreen:1.0.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.9.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.9.1'
