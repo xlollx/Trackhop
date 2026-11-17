@@ -53,6 +53,16 @@ object Tasks {
         return task
     }
 
+    /**
+     * [start], unless a task of this [title] and [owner] still runs: then null. Checked and started
+     * in one step, so a double click starts one task, not two.
+     */
+    fun startOnce(title: String, back: String, log: (String) -> Unit, owner: String = "", marks: RunMarks? = null, block: suspend (Task) -> String): Task? =
+        synchronized(this) {
+            if (tasks.values.any { it.title == title && it.owner == owner && !it.done }) null
+            else start(title, back, log, owner, marks, block)
+        }
+
     /** The task with this id; with [owner], only when it is theirs ([ServerEnv.sees]: null sees all). */
     fun get(id: String?, owner: String? = null): Task? = id?.let { tasks[it] }?.takeIf { owner == null || it.owner == owner }
 

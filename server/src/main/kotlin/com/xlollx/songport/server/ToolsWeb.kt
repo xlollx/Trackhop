@@ -85,11 +85,11 @@ internal fun Web.halfMadeAction(r: Web.Req) {
         return redirect(r.ex, "/tools")
     }
     val title = "Continue “${entry.name}”"
-    if (Tasks.all(env.owner).any { it.title == title && !it.done }) return redirect(r.ex, "/tools?err=${q("That playlist is already being continued.")}")
-    val task = Tasks.start(title, "/tools", { env.log("tools", it) }, env.owner, env.marks) { t ->
+    // Checked and started in one step: a double click continues it once.
+    val task = Tasks.startOnce(title, "/tools", { env.log("tools", it) }, env.owner, env.marks) { t ->
         val made = LibraryTools.continueHalfMade(env, entry) { p -> t.progress = "Adding ${p.done}/${p.total}" }
         """<div class="card ok">“${h(entry.name)}” is complete now: ${made.added} ${if (made.added == 1) "track" else "tracks"} added.${if (made.failed.isNotEmpty()) " ${made.failed.size} could not be added." else ""}</div>"""
-    }
+    } ?: return redirect(r.ex, "/tools?err=${q("That playlist is already being continued.")}")
     redirect(r.ex, "/tools/task/${task.id}")
 }
 

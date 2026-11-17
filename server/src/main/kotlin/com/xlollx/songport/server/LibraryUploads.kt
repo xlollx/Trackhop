@@ -64,6 +64,12 @@ object LibraryUploads {
     fun get(token: String, owner: String): Pending? = pending[token]?.takeIf { it.owner == owner && System.currentTimeMillis() - it.at <= KEEP_MS }
     fun drop(token: String) { pending.remove(token) }
 
+    private val adding: MutableSet<String> = ConcurrentHashMap.newKeySet()
+
+    /** True for the one request that may add from [token] now; a second click while it runs gets false. [release] after. */
+    fun claim(token: String): Boolean = adding.add(token)
+    fun release(token: String) { adding.remove(token) }
+
     /** The playlists [names] of [lib] (all of the person's own when empty) saved as files; with [whole], the whole library too. */
     fun add(env: ServerEnv, lib: ItunesLibrary, fileName: String, picked: List<ItunesLibrary.Playlist>, whole: Boolean, out: MutableList<Pair<String, Int>> = ArrayList()): List<Pair<String, Int>> {
         for (p in picked) {
@@ -112,7 +118,8 @@ internal fun Web.uploadToDisk(ex: HttpExchange, type: String) {
         }
         file.file.inputStream().use { importUploaded(ex, file.name, it) }
     } finally {
-        file?.file?.delete()
+        // Every part that came as a file, not only the one used.
+        parts.files.values.forEach { it.file.delete() }
     }
 }
 
@@ -155,14 +162,20 @@ internal fun Web.libraryAdd(r: Web.Req) {
     val picked = r.rawForm.filter { it.first == "p" }.mapNotNull { it.second.toIntOrNull() }.distinct().mapNotNull { p.library.choices.getOrNull(it) }
     val whole = r.form["whole"] == "1"
     if (picked.isEmpty() && !whole) return redirect(r.ex, "/files/library?t=${q(token)}&err=${q("Tick at least one playlist.")}")
+    // One adding at a time from this library: a double click does not save every playlist twice.
+    if (!LibraryUploads.claim(token)) return redirect(r.ex, "/connectors/csv?err=${q("Those playlists are already being added.")}")
     val added = ArrayList<Pair<String, Int>>()
-    val failed = runCatching { LibraryUploads.add(env, p.library, p.fileName, picked, whole, added) }.exceptionOrNull()
-    if (failed != null) {
-        // Kept for another try: the ones already added stay, the rest can be ticked again.
-        val done = if (added.isEmpty()) "Nothing was added" else "Added ${added.joinToString(", ") { it.first }}, then it stopped"
-        return redirect(r.ex, "/files/library?t=${q(token)}&err=${q("$done: ${failed.message ?: "could not write the file"}.")}")
+    try {
+        val failed = runCatching { LibraryUploads.add(env, p.library, p.fileName, picked, whole, added) }.exceptionOrNull()
+        if (failed != null) {
+            // Kept for another try: the ones already added stay, the rest can be ticked again.
+            val done = if (added.isEmpty()) "Nothing was added" else "Added ${added.joinToString(", ") { it.first }}, then it stopped"
+            return redirect(r.ex, "/files/library?t=${q(token)}&err=${q("$done: ${failed.message ?: "could not write the file"}.")}")
+        }
+        LibraryUploads.drop(token)
+    } finally {
+        LibraryUploads.release(token)
     }
-    LibraryUploads.drop(token)
     env.log("files", "imported ${added.size} playlists from ${p.fileName}")
     val names = added.joinToString(", ") { it.first }
     redirect(r.ex, "/connectors/csv?ok=${q(if (added.size == 1) "Added $names: ${added[0].second} tracks." else "Added ${added.size} playlists: $names.")}")
