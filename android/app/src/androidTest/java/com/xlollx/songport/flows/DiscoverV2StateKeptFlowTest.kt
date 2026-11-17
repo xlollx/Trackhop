@@ -59,6 +59,9 @@ class DiscoverV2StateKeptFlowTest : FlowTest() {
         click(s(R.string.diary_tab_attended))
         waitText(s(R.string.diary_user_field))
         compose.onNode(androidx.compose.ui.test.hasSetTextAction()).performTextReplacement("lorenzo")
+        // The text in the field and the keyboard settled before Android makes the activity anew (as StateKeptFlowTest).
+        waitNode("the text typed", androidx.compose.ui.test.hasSetTextAction() and androidx.compose.ui.test.hasText("lorenzo"))
+        compose.waitForIdle()
         remade()
         waitNode("the name kept", androidx.compose.ui.test.hasSetTextAction() and androidx.compose.ui.test.hasText("lorenzo"))
     }
@@ -98,6 +101,9 @@ class DiscoverV2StateKeptFlowTest : FlowTest() {
         tap(scrollTo(compose.onNode(hasTestTag(com.xlollx.songport.ui.WANT_ALERT_TAG))), "the alert's bell")
         waitText(s(R.string.myrecords_alert_below))
         compose.onNode(androidx.compose.ui.test.hasSetTextAction()).performTextReplacement("30")
+        // The text in the field and the keyboard settled before Android makes the activity anew (as StateKeptFlowTest).
+        waitNode("the text typed", androidx.compose.ui.test.hasSetTextAction() and androidx.compose.ui.test.hasText("30"))
+        compose.waitForIdle()
         remade()
         // The tab, the dialog and the amount typed are all still there.
         waitText(s(R.string.myrecords_alert_below))
@@ -112,6 +118,9 @@ class DiscoverV2StateKeptFlowTest : FlowTest() {
         click(s(R.string.venues_tab))
         waitText(s(R.string.venues_empty))
         compose.onNode(hasTestTag(com.xlollx.songport.ui.VENUE_SEARCH_TAG)).performTextReplacement("Alcatraz")
+        // The text in the field and the keyboard settled before Android makes the activity anew (as StateKeptFlowTest).
+        waitNode("the text typed", androidx.compose.ui.test.hasSetTextAction() and androidx.compose.ui.test.hasText("Alcatraz"))
+        compose.waitForIdle()
         remade()
         waitText(s(R.string.venues_empty))
         waitNode("the search kept", androidx.compose.ui.test.hasSetTextAction() and androidx.compose.ui.test.hasText("Alcatraz"))

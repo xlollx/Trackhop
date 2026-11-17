@@ -4,6 +4,7 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.xlollx.songport.BuildConfig
 import com.xlollx.songport.MainActivity
 import com.xlollx.songport.R
 import com.xlollx.songport.model.PlaylistRef
@@ -148,6 +149,7 @@ class NwayHiddenFlowTest : FlowTest() {
         waitText(s(R.string.empty_syncs_title))
         click(s(R.string.new_sync))
         waitText(s(R.string.editor_title_new))
-        assertFalse(exists(s(R.string.nway_entry_title)))
+        // From 2.0 every build has the switch on (V2 defaults to true): offered exactly when the build is V2.
+        assertEquals(BuildConfig.V2, exists(s(R.string.nway_entry_title)))
     }
 }
