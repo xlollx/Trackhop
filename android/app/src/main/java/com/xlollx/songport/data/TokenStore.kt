@@ -57,6 +57,18 @@ class TokenStore(context: Context) : TokenVault {
         )
 
         /**
+         * [value] saved under [providerId] (null: taken away), on the disk before this returns
+         * (commit, not apply). A service that gives a new refresh token at every renewal (Spotify,
+         * TIDAL) has already retired the old one: written in the background, a process killed a moment
+         * later would keep a token that no longer works, and the person would have to sign in again.
+         */
+        internal fun write(sp: SharedPreferences, providerId: String, value: String?) {
+            val edit = sp.edit().let { if (value == null) it.remove(providerId) else it.putString(providerId, value) }
+            // commit() answers false when the disk refused: the value is in memory all the same, as with apply().
+            edit.commit()
+        }
+
+        /**
          * The [encrypted] store, or [plain] when it cannot be opened: the cause is kept in
          * [unavailable] and handed to [said], never swallowed.
          */
@@ -73,13 +85,9 @@ class TokenStore(context: Context) : TokenVault {
     override fun get(providerId: String): Tokens? =
         sp.getString(providerId, null)?.let { runCatching { json.decodeFromString<Tokens>(it) }.getOrNull() }
 
-    override fun set(providerId: String, tokens: Tokens) {
-        sp.edit().putString(providerId, json.encodeToString(tokens)).apply()
-    }
+    override fun set(providerId: String, tokens: Tokens) = write(sp, providerId, json.encodeToString(tokens))
 
-    override fun clear(providerId: String) {
-        sp.edit().remove(providerId).apply()
-    }
+    override fun clear(providerId: String) = write(sp, providerId, null)
 
     /** The ids kept, for the encrypted full backup (the library's own keyset entries left out). */
     override fun ids(): Set<String> = runCatching { sp.all.keys.filterNot { it.startsWith("__androidx_security_crypto") }.toSet() }.getOrDefault(emptySet())
