@@ -106,6 +106,11 @@ object ArtistMix {
         return out
     }
 
+    /** The listeners of the artist's most listened recording in ListenBrainz's popularity answer; null when it lists none. */
+    fun parseListeners(j: JsonElement?, artistMbid: String): Long? =
+        j.arr.filter { r -> r["artist_mbids"].arr.mapNotNull { it.str }.let { it.isEmpty() || artistMbid in it } }
+            .mapNotNull { it["total_user_count"].long }.maxOrNull()
+
     /**
      * The Deezer artist a search means by [name]: among those with the very same name, the one with
      * the most fans (a tribute act or a homonym has few). Null when no name matches.

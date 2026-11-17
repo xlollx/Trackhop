@@ -1,0 +1,9 @@
+{
+  "created": "2026-11-15T10:00:00.000Z", "count": 3, "offset": 0,
+  "places": [
+    { "id": "478558f9-a951-4067-ad91-e83f6ba63e74", "type": "Venue", "score": 100, "name": "Circolo Magnolia", "address": "Via Circonvallazione Idroscalo 41",
+      "area": { "id": "c2ff0e0f-6d03-4b3d-a3a4-8a5c5b1a2d10", "type": "City", "name": "Segrate" }, "life-span": { "ended": null } },
+    { "id": "bd55aeb7-19d1-4607-a500-14b8479d3fed", "type": "Studio", "score": 80, "name": "Magnolia Studios", "area": { "name": "Los Angeles" }, "life-span": { "ended": null } },
+    { "id": "cd55aeb7-19d1-4607-a500-14b8479d3fee", "type": "Venue", "score": 70, "name": "Old Magnolia", "area": { "name": "Milano" }, "life-span": { "begin": "1990", "end": "2001", "ended": true } }
+  ]
+}

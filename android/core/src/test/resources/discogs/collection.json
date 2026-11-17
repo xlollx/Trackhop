@@ -1,0 +1,34 @@
+{
+  "pagination": { "page": 1, "pages": 1, "per_page": 100, "items": 3, "urls": {} },
+  "releases": [
+    {
+      "id": 1362037, "instance_id": 148842233, "date_added": "2015-11-30T10:54:13-08:00", "rating": 0,
+      "basic_information": {
+        "id": 1362037, "master_id": 21491, "master_url": "https://api.discogs.com/masters/21491",
+        "resource_url": "https://api.discogs.com/releases/1362037",
+        "thumb": "https://i.discogs.com/abc/rs:fit/g:sm/q:40/h:150/w:150/R-1362037.jpeg", "cover_image": "https://i.discogs.com/abc/R-1362037.jpeg",
+        "title": "OK Computer", "year": 1997,
+        "formats": [ { "name": "Vinyl", "qty": "2", "descriptions": ["LP", "Album"] } ],
+        "labels": [ { "name": "Parlophone", "catno": "NODATA 02", "id": 2294 } ],
+        "artists": [ { "name": "Radiohead", "anv": "", "join": "", "role": "", "tracks": "", "id": 3840, "resource_url": "https://api.discogs.com/artists/3840" } ],
+        "genres": ["Electronic", "Rock"], "styles": ["Alternative Rock"]
+      }
+    },
+    {
+      "id": 28461, "instance_id": 148842234, "date_added": "2016-01-02T09:00:00-08:00", "rating": 5,
+      "basic_information": {
+        "id": 28461, "master_id": 3069, "thumb": "https://st.discogs.com/images/spacer.gif", "title": "Mezzanine", "year": 0,
+        "formats": [ { "name": "CD", "qty": "1", "descriptions": ["Album"] } ],
+        "artists": [ { "name": "Massive Attack", "id": 4520 } ]
+      }
+    },
+    {
+      "id": 4950798, "instance_id": 148842235, "date_added": "2020-05-05T09:00:00-08:00", "rating": 0,
+      "basic_information": {
+        "id": 4950798, "master_id": 0, "thumb": "", "title": "Dummy", "year": 1994,
+        "formats": [ { "name": "Vinyl", "qty": "1" }, { "name": "Vinyl", "qty": "1" } ],
+        "artists": [ { "name": "Portishead (2)", "id": 1375 } ]
+      }
+    }
+  ]
+}

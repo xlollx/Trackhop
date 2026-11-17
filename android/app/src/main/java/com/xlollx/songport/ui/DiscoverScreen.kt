@@ -70,6 +70,7 @@ import androidx.compose.material.icons.filled.NewReleases
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.unit.sp
 import androidx.compose.animation.core.animateDpAsState
@@ -124,6 +125,8 @@ internal enum class DiscoverCard(val emoji: String, val tint: Long, val titleRes
     SETLISTS("🎤", 0xFF3949AB, R.string.discover_setlists_title, R.string.discover_setlists_desc, Icons.Filled.Mic),
     RECORDS("💿", 0xFF4E342E, R.string.discover_records_title, R.string.discover_records_desc, Icons.Filled.Album),
     FOLLOWED("🔔", 0xFF00695C, R.string.alerts_followed_title, R.string.alerts_followed_desc, Icons.Filled.Notifications),
+    MYRECORDS("📀", 0xFF37474F, R.string.discover_myrecords_title, R.string.discover_myrecords_desc, Icons.Filled.Album),
+    LIFETIME("📊", 0xFF1565C0, R.string.discover_lifetime_title, R.string.discover_lifetime_desc, Icons.Filled.QueryStats, longArrayOf(0xFF0D47A1, 0xFF1565C0, 0xFF6A1B9A)),
     ;
 
     /** The tool's look on its page: this card's colour, its icon and its header's gradient ([DiscoverToolScaffold]). */
@@ -137,7 +140,7 @@ internal enum class DiscoverCard(val emoji: String, val tint: Long, val titleRes
          * The cards of Trackhop 1.18, in the grid only with [com.xlollx.songport.Features.v2]. Followed
          * artists still opens from its alerts' notification for who follows artists already.
          */
-        val V2: Set<DiscoverCard> = setOf(RELEASES, CONCERTS, SETLISTS, RECORDS, FOLLOWED)
+        val V2: Set<DiscoverCard> = setOf(RELEASES, CONCERTS, SETLISTS, RECORDS, FOLLOWED, LIFETIME, MYRECORDS)
 
         /** The cards of the grid (the Wrapped is on top, outside it) in [saved]'s order, new ones where the default puts them. */
         fun ordered(saved: List<String>): List<DiscoverCard> {
@@ -248,10 +251,12 @@ fun DiscoverScreen(
                         DiscoverCard.VANISHED -> VanishedPage(onBackup)
                         DiscoverCard.SUBS -> SubscriptionsPage(local, onGoToAccounts)
                         DiscoverCard.POSTER -> PosterCard(local)
-                        DiscoverCard.CONCERTS -> ConcertsPage(local)
+                        DiscoverCard.CONCERTS -> ConcertsPage(local, onNewSync)
                         DiscoverCard.SETLISTS -> SetlistsPage(local, onReview)
                         DiscoverCard.RECORDS -> RecordsPage(local)
                         DiscoverCard.FOLLOWED -> FollowedArtistsPage(local, followedSettings) { followedSettings = false }
+                        DiscoverCard.LIFETIME -> LifetimePage(local, onNewSync)
+                        DiscoverCard.MYRECORDS -> MyRecordsPage(local, onNewSync)
                     }
                 }
             } }

@@ -579,6 +579,7 @@ object Providers {
     /** The connector [id] names; also the "New releases" source and the shared playlists, which every build has and no list shows. */
     fun byId(id: String): MusicProvider? = testDoubles.firstOrNull { it.id == id } ?: cached.firstOrNull { it.id == id }
         ?: NewReleasesProvider.takeIf { id == it.id } ?: com.xlollx.songport.shared.SharedProvider.takeIf { id == it.id }
+        ?: DiscoverSource.takeIf { id == it.id }
     /** Un'istanza per servizio (account principale). */
     fun services(): List<MusicProvider> = cached.filter { it.slot.isEmpty() }
     /** Tutte le istanze (account) di un servizio. */

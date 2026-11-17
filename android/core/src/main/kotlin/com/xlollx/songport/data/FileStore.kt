@@ -139,6 +139,13 @@ data class Settings(
     val artistAlertsWifiOnly: Boolean = false,
     /** What an artist followed from now on is checked for. */
     val artistAlertKinds: com.xlollx.songport.sync.ArtistAlerts.Kinds = com.xlollx.songport.sync.ArtistAlerts.Kinds(),
+    /** The alerts on the records of the Discogs wantlist, by release id (sync/Discogs): looked at with the artists followed. */
+    val discogsWantAlerts: Map<String, com.xlollx.songport.sync.Discogs.WantAlert> = emptyMap(),
+    /** The venues followed in Discover › Concerts, and the city typed for "Concerts near you" (sync/Venues). */
+    val followedVenues: List<com.xlollx.songport.sync.Venues.Venue> = emptyList(),
+    val concertCity: String = "",
+    /** Settings › Notifications › Concerts: which ticket and date alerts are wanted (sync/ConcertAlerts). */
+    val concertAlerts: com.xlollx.songport.sync.ConcertAlerts.Kinds = com.xlollx.songport.sync.ConcertAlerts.Kinds(),
 )
 
 /** Unita' di quota consumate in un giorno (chiave = data nel fuso del servizio). */

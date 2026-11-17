@@ -108,12 +108,25 @@ object Concerts {
         /** A small picture of the event (Ticketmaster's), and the credit it asks for; "" when none. */
         val image: String = "",
         val imageCredit: String = "",
+        /** Ticketmaster's id of the event: the same when its date moves. "" from the other sources. */
+        val id: String = "",
+        /** [CANCELLED], "postponed" or "rescheduled" as Ticketmaster says (dates.status.code); "" when on as planned, or not said. */
+        val status: String = "",
+        /** When the tickets go on sale to everyone, and when the first presale opens (instants, Ticketmaster's sales.public and sales.presales); null when not said. */
+        val onSale: String? = null,
+        val presale: String? = null,
+        /** Everyone on the bill, as the source lists them (a venue's events, [Venues]); empty for an artist's own dates. */
+        val lineup: List<String> = emptyList(),
     )
+
+    /** [Event.status] of a date called off. */
+    const val CANCELLED = "cancelled"
 
     /** A search on a ticket site; [site] null = the artist's official site, through a web search. */
     data class Link(val site: String?, val url: String)
 
-    data class ArtistDates(val artist: String, val events: List<Event>, val searches: List<Link>)
+    /** [cancelled]: the artist's dates Ticketmaster says were called off: never listed, told by the alerts ([ConcertAlerts]). */
+    data class ArtistDates(val artist: String, val events: List<Event>, val searches: List<Link>, val cancelled: List<Event> = emptyList())
 
     data class Result(
         val country: String,
@@ -284,8 +297,9 @@ object Concerts {
                 }
                 Triple(tm, mb.await(), vt.await().orEmpty() + t1.await().orEmpty() + sp.await().orEmpty() + site.await().orEmpty())
             }
-            val events = merge(tm.orEmpty(), mb.orEmpty(), sites).filter { inRange(it, today, end) }
-            out += ArtistDates(artist, events, if (events.isEmpty()) searches(artist, c) else emptyList())
+            val (off, on) = tm.orEmpty().partition { it.status == CANCELLED }
+            val events = merge(on, mb.orEmpty(), sites).filter { inRange(it, today, end) }
+            out += ArtistDates(artist, events, if (events.isEmpty()) searches(artist, c) else emptyList(), off)
             // What is found so far: kept when the user stops the search.
             partial(result(c, out, asked.size, key != null, own, quotaHit, refused, range, ticketOneRead))
         }
@@ -366,21 +380,21 @@ object Concerts {
         // tribute act or namesake. Not answering: the search by name, as before.
         ArtistIds.attraction(env, artist)?.let { id ->
             ticketmasterCall(env, key, "$tmBase/events.json?apikey=${enc(key)}&attractionId=${enc(id)}$rest")?.let { body ->
-                val events = parseTicketmaster(body, artist, country, attractionId = id)
+                val events = parseTicketmaster(body, artist, country, attractionId = id, withCancelled = true)
                 remember(env, ck, events)
                 return events
             }
             env.log("concerts", "Ticketmaster did not answer for the attraction $id: searching the name")
         }
         val body = ticketmasterCall(env, key, "$tmBase/events.json?apikey=${enc(key)}&keyword=${enc(artist)}$rest") ?: return null
-        val events = parseTicketmaster(body, artist, country)
+        val events = parseTicketmaster(body, artist, country, withCancelled = true)
         remember(env, ck, events)
         ArtistIds.rememberAttraction(env, artist, ArtistIds.ticketmasterAttraction(body, artist, ArtistIds.mbid(env, artist)))
         return events
     }
 
     /** One Discovery API call: the body; null when it did not answer. Throws [QuotaGone] or [KeyRefused]. */
-    private suspend fun ticketmasterCall(env: Env, key: String, url: String): String? {
+    internal suspend fun ticketmasterCall(env: Env, key: String, url: String): String? {
         for (attempt in 0..1) {
             val r = try {
                 tmPace.paced { Http.send("GET", url, mapOf("Accept" to "application/json"), maxRateLimitRetries = 0) }
@@ -409,9 +423,10 @@ object Concerts {
     /**
      * The events of a Discovery API answer that are [artist]'s (one of the event's attractions is
      * the artist; a keyword search also finds tributes and festivals naming them), in [country],
-     * not cancelled. Asked by [attractionId]: the events that list that attraction, whatever the name.
+     * not cancelled (unless [withCancelled]: then marked, [Event.status]). Asked by [attractionId]:
+     * the events that list that attraction, whatever the name.
      */
-    fun parseTicketmaster(body: String, artist: String, country: String, attractionId: String? = null): List<Event> {
+    fun parseTicketmaster(body: String, artist: String, country: String, attractionId: String? = null, withCancelled: Boolean = false): List<Event> {
         val want = Matcher.normalizeArtist(artist)
         return parseJson(body)["_embedded"]["events"].arr.mapNotNull { e ->
             val attractions = e["_embedded"]["attractions"].arr.mapNotNull { it["name"].str }
@@ -419,19 +434,31 @@ object Concerts {
                 else if (attractions.isNotEmpty()) attractions.any { Matcher.normalizeArtist(it) == want }
                 else Matcher.normalizeArtist(e["name"].str.orEmpty()).startsWith(want)
             if (!theirs || want.isEmpty()) return@mapNotNull null
-            if (e["dates"]["status"]["code"].str.equals("cancelled", ignoreCase = true)) return@mapNotNull null
-            val date = e["dates"]["start"]["localDate"].str ?: return@mapNotNull null
-            val venue = e["_embedded"]["venues"][0]
-            val where = venue["country"]["countryCode"].str.orEmpty().uppercase()
-            if (where.isNotEmpty() && where != country) return@mapNotNull null
-            Event(
-                artist = artist, name = e["name"].str.orEmpty(), date = date,
-                time = e["dates"]["start"]["localTime"].str?.take(5),
-                city = venue["city"]["name"].str.orEmpty(), venue = venue["name"].str.orEmpty(),
-                country = where.ifEmpty { country }, url = webUrl(e["url"].str), source = Source.TICKETMASTER,
-                timeZone = e["dates"]["timezone"].str?.takeIf { it.isNotBlank() },
-            ).let { ev -> image(e["images"].arr)?.let { (url, credit) -> ev.copy(image = url, imageCredit = credit) } ?: ev }
+            ticketmasterEvent(e, artist, country)?.takeIf { withCancelled || it.status != CANCELLED }
         }
+    }
+
+    /**
+     * One event of a Discovery API answer as [artist]'s date, a cancelled one too ([Event.status]);
+     * null without a date, or held outside [country] (null: anywhere).
+     */
+    internal fun ticketmasterEvent(e: kotlinx.serialization.json.JsonElement, artist: String, country: String?): Event? {
+        val date = e["dates"]["start"]["localDate"].str ?: return null
+        val venue = e["_embedded"]["venues"][0]
+        val where = venue["country"]["countryCode"].str.orEmpty().uppercase()
+        if (country != null && where.isNotEmpty() && where != country) return null
+        val code = e["dates"]["status"]["code"].str.orEmpty().lowercase()
+        return Event(
+            artist = artist, name = e["name"].str.orEmpty(), date = date,
+            time = e["dates"]["start"]["localTime"].str?.take(5),
+            city = venue["city"]["name"].str.orEmpty(), venue = venue["name"].str.orEmpty(),
+            country = where.ifEmpty { country.orEmpty() }, url = webUrl(e["url"].str), source = Source.TICKETMASTER,
+            timeZone = e["dates"]["timezone"].str?.takeIf { it.isNotBlank() },
+            id = e["id"].str.orEmpty(),
+            status = code.takeIf { it == CANCELLED || it == "canceled" || it == "postponed" || it == "rescheduled" }?.replace("canceled", CANCELLED).orEmpty(),
+            onSale = e["sales"]["public"]["startDateTime"].str?.takeIf { it.isNotBlank() },
+            presale = e["sales"]["presales"].arr.mapNotNull { it["startDateTime"].str?.takeIf { d -> d.isNotBlank() } }.minOrNull(),
+        ).let { ev -> image(e["images"].arr)?.let { (url, credit) -> ev.copy(image = url, imageCredit = credit) } ?: ev }
     }
 
     /**

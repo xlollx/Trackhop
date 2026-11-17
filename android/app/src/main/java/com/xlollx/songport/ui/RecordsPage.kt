@@ -308,7 +308,7 @@ private fun noneForLabel(f: Records.Format) = when (f) {
     Records.Format.CASSETTE -> R.string.records_none_cassette_for
 }
 
-private fun price(value: Double, currency: String?): String = runCatching {
+internal fun price(value: Double, currency: String?): String = runCatching {
     NumberFormat.getCurrencyInstance().apply { this.currency = Currency.getInstance(currency ?: "EUR") }.format(value)
 }.getOrDefault("$value ${currency.orEmpty()}")
 

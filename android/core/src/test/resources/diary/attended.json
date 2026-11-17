@@ -1,0 +1,45 @@
+{
+  "type": "setlists",
+  "itemsPerPage": 20,
+  "page": 1,
+  "total": 4,
+  "setlist": [
+    {
+      "id": "63de4613",
+      "versionId": "7be1aaa0",
+      "eventDate": "12-07-2026",
+      "artist": { "mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711", "name": "Radiohead", "sortName": "Radiohead" },
+      "venue": { "id": "6bd6ca6e", "name": "Ippodromo SNAI San Siro", "city": { "id": "3173435", "name": "Milan", "country": { "code": "IT", "name": "Italy" } } },
+      "tour": { "name": "World Tour 2026" },
+      "sets": { "set": [
+        { "song": [ { "name": "Intro", "tape": true }, { "name": "Airbag" }, { "name": "Karma Police" }, { "name": "Ceremony", "cover": { "name": "Joy Division" } } ] },
+        { "encore": 1, "song": [ { "name": "Paranoid Android" } ] }
+      ] },
+      "url": "https://www.setlist.fm/setlist/radiohead/2026/ippodromo-snai-san-siro-milan-italy-63de4613.html"
+    },
+    {
+      "id": "23d5e8a7",
+      "eventDate": "03-05-2026",
+      "artist": { "name": "Fontaines D.C." },
+      "venue": { "name": "Alcatraz", "city": { "name": "Milan", "country": { "code": "IT" } } },
+      "sets": { "set": [ { "song": [ { "name": "Starburster" }, { "name": "Favourite" } ] } ] },
+      "url": "https://www.setlist.fm/setlist/fontaines-dc/2026/alcatraz-milan-italy-23d5e8a7.html"
+    },
+    {
+      "id": "1bd6f9c4",
+      "eventDate": "08-06-2025",
+      "artist": { "name": "Radiohead" },
+      "venue": { "name": "Visarno Arena", "city": { "name": "Florence", "country": { "code": "IT" } } },
+      "sets": { "set": [ { "song": [ { "name": "Karma Police" }, { "name": "Karma Police" }, { "name": "No Surprises" } ] } ] },
+      "url": "https://www.setlist.fm/setlist/radiohead/2025/visarno-arena-florence-italy-1bd6f9c4.html"
+    },
+    {
+      "id": "4bd6f1a2",
+      "eventDate": "21-09-2009",
+      "artist": { "name": "Massive Attack" },
+      "venue": { "name": "Alcatraz", "city": { "name": "Milan", "country": { "code": "IT" } } },
+      "sets": { "set": [] },
+      "url": "https://www.setlist.fm/setlist/massive-attack/2009/alcatraz-milan-italy-4bd6f1a2.html"
+    }
+  ]
+}

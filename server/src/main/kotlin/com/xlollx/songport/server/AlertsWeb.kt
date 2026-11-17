@@ -3,6 +3,8 @@ package com.xlollx.songport.server
 import com.xlollx.songport.notify.Notify
 import com.xlollx.songport.server.Html.h
 import com.xlollx.songport.sync.ArtistAlerts
+import com.xlollx.songport.sync.ConcertAlerts
+import com.xlollx.songport.sync.Ics
 import com.xlollx.songport.sync.Concerts
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -88,7 +90,16 @@ internal object ServerAlerts {
         val period = if (manual) 0L else ArtistAlerts.plan(s)?.periodDays ?: 1L
         val out = ArtistAlerts.check(env, s.followedArtists, period, lookup ?: ArtistAlerts.live(country(env), Concerts.savedRange(env)), gapMs = gapMs, now = now)
         env.keyValues(KV)["next"] = (now() + if (out.remaining > 0) AGAIN_MS else EVERY_MS).toString()
-        if (out.notify.isNotEmpty()) notify(env, out.notify)
+        // "New dates" turned off (the app's Settings › Notifications › Concerts, carried by a set-up file) keeps the new concerts out of the news.
+        val news = if (s.concertAlerts.newDates) out.notify else out.notify.filter { it.kind != ArtistAlerts.Kind.CONCERT }
+        if (news.isNotEmpty()) notify(env, news)
+        // The tickets' sales and the dates moved or called off, and the dates kept for the calendar
+        // ([ServerCalendar]), once every artist has been looked up. Not with the tests' own lookup.
+        if (out.remaining == 0 && lookup == null) try {
+            ConcertAlerts.toChannels(env, ConcertAlerts.check(env, s, country(env), Concerts.savedRange(env), force = manual))
+        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+            env.log("alerts", "concert alerts: ${e.message ?: e.javaClass.simpleName}")
+        }
         return out
     }
 
@@ -178,6 +189,7 @@ internal fun Web.alertsPage(r: Web.Req) {
                 env.store.updateSettings { it.copy(artistAlerts = f["enabled"] == "on", artistAlertsWeekly = f["every"] == "week") }
                 "ok=${q("Saved.")}"
             }
+            "calendar-new" -> { ServerCalendar.rotate(env); "ok=${q("New calendar address: the old one no longer works.")}" }
             "check" -> {
                 if (ServerAlerts.running(env)) "err=${q("A look is already under way.")}"
                 else return redirect(r.ex, "/tools/task/${q(ServerAlerts.start(env, manual = true).id)}")
@@ -224,7 +236,49 @@ internal fun Web.alertsPage(r: Web.Req) {
 <label class="check"><input type="checkbox" name="enabled"${if (s.artistAlerts) " checked" else ""}> Look for news on a schedule</label>
 <label>How often</label><select name="every"><option value="day"${if (!s.artistAlertsWeekly) " selected" else ""}>Every day</option><option value="week"${if (s.artistAlertsWeekly) " selected" else ""}>Every week</option></select>
 <p><button class="secondary">Save</button></p></form>""")
+    // The calendar to subscribe to: its address holds the secret, shown to its owner only.
+    val url = "${env.baseUrl.trimEnd('/')}/cal/${ServerCalendar.token(env)}.ics"
+    body.append("""<div class="card"><h3>Calendar</h3><p class="muted">Add this address to Google Calendar, Apple Calendar or Outlook ("Subscribe from URL"): the concerts of your artists and venues show up there and update by themselves, after each look.</p>
+<p><input id="cal-url" readonly value="${h(url)}" onclick="this.select()"> <button type="button" class="secondary" onclick="navigator.clipboard.writeText(document.getElementById('cal-url').value)">Copy</button></p>
+<p class="muted">The address holds a secret code: who does not have it sees nothing. "New address" makes the old one stop working.</p>
+<div class="actions">${Html.postButton("/tools/alerts", "New address", "secondary", mapOf("action" to "calendar-new"), confirm = "Make a new address? Calendars subscribed to the old one stop updating.")}</div></div>""")
     send(r.ex, 200, page(title, body.toString()))
+}
+
+/**
+ * The concerts of the artists and venues followed as a calendar to subscribe to (`/cal/<token>.ics`,
+ * [Ics]): the dates the last look kept ([ConcertAlerts.calendar]), no request made when it is read.
+ * No password: the address itself is the secret, a random token kept in the token vault with the
+ * sign-ins, never logged; [rotate] makes a new one and the old address answers 404.
+ */
+internal object ServerCalendar {
+    private const val VAULT = "__calendar__"
+
+    private fun saved(env: ServerEnv): String? = env.tokens.get(VAULT)?.accessToken?.takeIf { it.length >= 32 }
+
+    /** The token, made the first time it is asked for. */
+    fun token(env: ServerEnv): String = saved(env) ?: rotate(env)
+
+    fun rotate(env: ServerEnv): String {
+        val t = ByteArray(24).also { java.security.SecureRandom().nextBytes(it) }.joinToString("") { "%02x".format(it) }
+        env.tokens.set(VAULT, com.xlollx.songport.data.Tokens(accessToken = t))
+        return t
+    }
+
+    /** [given] is this user's token (compared in constant time); false when none was ever made. */
+    fun matches(env: ServerEnv, given: String?): Boolean {
+        val t = saved(env) ?: return false
+        return given != null && java.security.MessageDigest.isEqual(t.toByteArray(), given.toByteArray())
+    }
+
+    /** "<token>.ics" of a /cal/ path as the token; null for anything else. */
+    fun tokenOf(file: String): String? = file.takeIf { it.endsWith(".ics") }?.removeSuffix(".ics")?.takeIf { it.isNotEmpty() }
+
+    /** How a shared server asks each user's Trackhop whether a calendar address is theirs ([Web.acceptsApi]). */
+    const val HEADER = "Calendar "
+
+    fun ics(env: ServerEnv): String =
+        Ics.calendar(ConcertAlerts.calendar(env), "Trackhop: concerts", System.currentTimeMillis(), java.time.ZoneId.systemDefault())
 }
 
 // ------------------------------------------------------------------ the API

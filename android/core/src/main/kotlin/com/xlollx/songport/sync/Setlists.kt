@@ -296,7 +296,7 @@ object Setlists {
         return found
     }
 
-    private class NotFound : Exception()
+    internal class NotFound : Exception()
 
     /** Today (UTC) as a day number. */
     private fun today() = Instant.ofEpochMilli(now()).truncatedTo(ChronoUnit.DAYS).toEpochMilli() / 86_400_000
@@ -322,7 +322,7 @@ object Setlists {
      * One GET to the API: the body, or throws [QuotaGone], [KeyRefused] or [NotFound] (404: "nothing
      * found" for a search). Null when it did not answer.
      */
-    private suspend fun get(env: Env, key: String, path: String): String? {
+    internal suspend fun get(env: Env, key: String, path: String): String? {
         if (exhaustedToday(env, key) || usedToday(env, key) >= DAILY) throw QuotaGone()
         for (attempt in 0..1) {
             count(env, key)

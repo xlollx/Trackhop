@@ -1,0 +1,11 @@
+{
+  "pagination": { "page": 1, "pages": 1, "per_page": 100, "items": 2, "urls": {} },
+  "wants": [
+    { "id": 1810187, "rating": 0, "notes": "", "resource_url": "https://api.discogs.com/users/someone/wants/1810187",
+      "basic_information": { "id": 1810187, "master_id": 21501, "title": "Kid A", "year": 2000, "thumb": "https://i.discogs.com/x/R-1810187.jpeg",
+        "formats": [ { "name": "Vinyl", "qty": "2" } ], "artists": [ { "name": "Radiohead", "id": 3840 } ] } },
+    { "id": 2224498, "rating": 0,
+      "basic_information": { "id": 2224498, "title": "Heligoland", "year": 2010, "thumb": "",
+        "formats": [ { "name": "Vinyl", "qty": "2" } ], "artists": [ { "name": "Massive Attack", "id": 4520 } ] } }
+  ]
+}

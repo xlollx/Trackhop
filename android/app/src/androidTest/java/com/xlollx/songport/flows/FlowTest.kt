@@ -156,6 +156,15 @@ abstract class FlowTest {
 
     protected fun main(): MainActivity = resumed() as? MainActivity ?: throw AssertionError("MainActivity is not on screen")
 
+    /** What Android does to an app left in the background: the activity made anew from its saved state. */
+    protected fun remade() {
+        val before = main()
+        instr.runOnMainSync { before.recreate() }
+        val end = System.currentTimeMillis() + 15_000
+        while (System.currentTimeMillis() < end && (resumed() === before || resumed() !is MainActivity)) Thread.sleep(100)
+        compose.waitForIdle()
+    }
+
     /** Rotates the screen and waits until the app is drawn turned (MainActivity is not remade for it: the same one). */
     protected fun rotate(to: Int) {
         val before = resumed()
@@ -206,15 +215,6 @@ abstract class FlowTest {
         instr.uiAutomation.executeShellCommand(cmd).let { pfd -> android.os.ParcelFileDescriptor.AutoCloseInputStream(pfd).use { it.readBytes().decodeToString() } }
 
     // ------------------------------------------------------------------ leaving and coming back (StateKeptFlowTest)
-
-    /** What Android does to an app left in the background: the activity made anew from its saved state. */
-    protected fun remade() {
-        val before = main()
-        instr.runOnMainSync { before.recreate() }
-        val end = System.currentTimeMillis() + 15_000
-        while (System.currentTimeMillis() < end && (resumed() === before || resumed() !is MainActivity)) Thread.sleep(100)
-        compose.waitForIdle()
-    }
 
     /** Home, then the app's icon, as a person does it. */
     protected fun homeAndBack() {
