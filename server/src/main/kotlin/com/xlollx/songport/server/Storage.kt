@@ -38,7 +38,10 @@ internal fun writePrivate(file: File, text: String) {
  */
 internal fun keepDamaged(file: File): File? = runCatching {
     val keep = File(file.parentFile, "${file.name}.damaged-${System.currentTimeMillis()}")
-    file.copyTo(keep, overwrite = true)
+    // Readable by the owner only, as the file it copies (sign-ins), before a byte is written in it.
+    keep.writeBytes(ByteArray(0))
+    runCatching { Files.setPosixFilePermissions(keep.toPath(), PosixFilePermissions.fromString("rw-------")) }
+    file.inputStream().use { i -> java.io.FileOutputStream(keep).use { i.copyTo(it) } }
     keep
 }.getOrNull().also {
     Log.add("storage", "${file.name} could not be read, so what it held starts empty" + (it?.let { k -> "; the unreadable file is kept as ${k.name}" } ?: ""))

@@ -33,6 +33,16 @@ class StorageTest {
         assertNull(JsonTokenVault(file).get("spotify"))
     }
 
+    @Test fun theCopyOfADamagedFileIsPrivateToo() {
+        org.junit.Assume.assumeTrue("posix" in FileSystems.getDefault().supportedFileAttributeViews())
+        val file = File(tmp.root, "tokens.json")
+        file.writeText("{\"spotify\":{\"accessToken\":\"a")
+        Files.setPosixFilePermissions(file.toPath(), java.nio.file.attribute.PosixFilePermissions.fromString("rw-r--r--"))
+        val keep = keepDamaged(file)!!
+        assertEquals(file.readText(), keep.readText())
+        assertEquals("rw-------", java.nio.file.attribute.PosixFilePermissions.toString(Files.getPosixFilePermissions(keep.toPath())))
+    }
+
     @Test fun keyValuesPersist() {
         val file = File(tmp.root, "kv/isrc.json")
         JsonKeyValues(file)["a"] = "1"
