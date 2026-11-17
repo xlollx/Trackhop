@@ -215,8 +215,9 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
                         // The tracks are the service's own already: the playlist is made here, with them in it,
                         // and the sync keeps the file and the playlist paired for "Extend with AI" and later runs.
                         d.busy = true
-                        val created = target.createPlaylist(app, finalName, MusicProvider.description(app.getString(R.string.app_name)))
-                        if (kept.isNotEmpty()) target.addTracks(app, created.id, kept)
+                        // Through the tool that writes down what the playlist is meant to hold: stopped half
+                        // way, Tools offers to continue it with only the tracks that are missing.
+                        val created = com.xlollx.songport.sync.Tools.createWith(app, target, finalName, MusicProvider.description(app.getString(R.string.app_name)), kept).playlist
                         val job = SyncJob(
                             id = UUID.randomUUID().toString(),
                             name = finalName,

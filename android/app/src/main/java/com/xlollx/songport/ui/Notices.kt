@@ -137,3 +137,45 @@ fun StateNotices(store: Store, snackbar: SnackbarHostState) {
     }
 }
 
+/** One "Continue" at a time, in the app's own scope: leaving Tools does not stop it. */
+private val continuing = AppRun<Pair<String, Int>>()
+
+/**
+ * On the Tools tab: the playlists a tool made on a service and could not fill to the end (the app
+ * closed, the page left, the connection gone). Continue adds only the tracks that are missing;
+ * Dismiss leaves the playlist as it is.
+ */
+@Composable
+fun HalfMadeCards(snackbar: SnackbarHostState) {
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val running by continuing.running.collectAsState()
+    val done by continuing.finished.collectAsState()
+    var version by remember { mutableIntStateOf(0) }
+    var progress by remember { mutableStateOf<Progress?>(null) }
+    val entries = remember(version, running) { runCatching { Tools.halfMade(ctx) }.getOrDefault(emptyList()) }
+    androidx.compose.runtime.LaunchedEffect(done) {
+        val r = done ?: return@LaunchedEffect
+        continuing.finished.value = null
+        version++
+        // In the screen's scope: clearing [finished] restarts this effect, which would cancel the snackbar.
+        scope.launch {
+            r.onSuccess { (name, added) -> snackbar.showSnackbar(ctx.getString(R.string.half_made_done, name, added)) }
+                .onFailure { snackbar.showSnackbar(it.userMessage(ctx)) }
+        }
+    }
+    for (entry in entries) {
+        val service = Providers.byId(entry.provider)?.label(ctx) ?: entry.provider
+        NoticeBox(title = null, text = stringResource(R.string.half_made_text, entry.name, service, entry.tracks.size), error = false) {
+            Button(enabled = !running, onClick = {
+                val app = ctx.applicationContext
+                continuing.start { entry.name to Tools.continueHalfMade(app, entry) { progress = it }.added }
+            }) { Text(stringResource(R.string.connect_continue)) }
+            TextButton(enabled = !running, onClick = { runCatching { Tools.forgetHalfMade(ctx, entry) }; version++ }) { Text(stringResource(R.string.notice_dismiss)) }
+            if (running) Row(verticalAlignment = Alignment.CenterVertically) {
+                CircularProgressIndicator(Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
+                progress?.let { Text(stringResource(R.string.tools_progress_make, it.done, it.total), style = MaterialTheme.typography.bodySmall) }
+            }
+        }
+    }
+}

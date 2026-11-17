@@ -66,6 +66,33 @@ internal fun Web.interruptedDismiss(r: Web.Req) {
     redirect(r.ex, r.form["back"]?.takeIf { it.startsWith("/") && !it.startsWith("//") } ?: "/tools")
 }
 
+/**
+ * The playlists a tool made on a service and could not fill to the end (Trackhop stopped, the service
+ * out of reach): a card each, with Continue, which adds only the tracks that are missing, and Dismiss.
+ */
+internal fun Web.halfMadeCards(): String = LibraryTools.halfMade(env).joinToString("") { e ->
+    val service = Providers.byId(e.provider)?.label(env) ?: e.provider
+    val fields = mapOf("service" to e.provider, "playlist" to e.playlistId)
+    """<div class="card" role="status"><p>“${h(e.name)}” on ${h(service)} was not filled to the end: some of its ${e.tracks.size} tracks are missing. Continue adds only the missing ones.</p>
+<div class="actions">${Html.postButton("/tools/halfmade", "Continue", "", fields + ("action" to "continue"))} ${Html.postButton("/tools/halfmade", "Dismiss", "secondary", fields + ("action" to "dismiss"))}</div></div>"""
+}
+
+internal fun Web.halfMadeAction(r: Web.Req) {
+    if (r.method != "POST") return redirect(r.ex, "/tools")
+    val entry = LibraryTools.halfMade(env).firstOrNull { it.provider == r.form["service"] && it.playlistId == r.form["playlist"] } ?: return redirect(r.ex, "/tools")
+    if (r.form["action"] == "dismiss") {
+        LibraryTools.forgetHalfMade(env, entry)
+        return redirect(r.ex, "/tools")
+    }
+    val title = "Continue “${entry.name}”"
+    if (Tasks.all(env.owner).any { it.title == title && !it.done }) return redirect(r.ex, "/tools?err=${q("That playlist is already being continued.")}")
+    val task = Tasks.start(title, "/tools", { env.log("tools", it) }, env.owner, env.marks) { t ->
+        val made = LibraryTools.continueHalfMade(env, entry) { p -> t.progress = "Adding ${p.done}/${p.total}" }
+        """<div class="card ok">“${h(entry.name)}” is complete now: ${made.added} ${if (made.added == 1) "track" else "tracks"} added.${if (made.failed.isNotEmpty()) " ${made.failed.size} could not be added." else ""}</div>"""
+    }
+    redirect(r.ex, "/tools/task/${task.id}")
+}
+
 private fun Web.readable(): List<MusicProvider> =
     Providers.connectors().filter { (!it.requiresAuth || it.isConnected(env)) && !it.linkOnly }
 

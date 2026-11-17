@@ -3087,6 +3087,8 @@
     <string name="accounts_keystore_unavailable">Your sign-ins cannot be read right now: this phone\'s secure storage did not open. That is why the services show as not connected. Nothing is lost: close Trackhop completely and open it again, or restart the phone. Signing in again now would not last.</string>
     <string name="tools_dedupe_not_put_back">The extra copies of “%1$s” were removed, but one could not be put back: the connection dropped. Add it to the playlist by hand.</string>
     <string name="error_listed_short">%1$s gave only %2$d of %3$d tracks; nothing was removed. Try again later.</string>
+    <string name="half_made_text">“%1$s” on %2$s was not filled to the end: some of its %3$d tracks are missing. Continue adds only the missing ones.</string>
+    <string name="half_made_done">“%1$s” is complete now: %2$d tracks added.</string>
     <string name="notice_dismiss">Dismiss</string>
     <string name="store_good_copy_text">A copy of your syncs and settings as they were on %1$s is kept on this phone. You can go back to it. A sync you deleted after that would come back, so nothing is restored unless you ask.</string>
     <string name="store_good_copy_restore">Restore that copy</string>

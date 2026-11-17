@@ -3093,6 +3093,8 @@
     <string name="accounts_keystore_unavailable">Ahora mismo no se pueden leer tus inicios de sesión: el almacenamiento seguro de este teléfono no se ha abierto. Por eso los servicios aparecen como no conectados. No se ha perdido nada: cierra Trackhop del todo y vuelve a abrirlo, o reinicia el teléfono. Iniciar sesión de nuevo ahora no duraría.</string>
     <string name="tools_dedupe_not_put_back">Se quitaron las copias de más de «%1$s», pero no se pudo volver a poner una: se cortó la conexión. Añádela a mano a la playlist.</string>
     <string name="error_listed_short">%1$s solo ha dado %2$d de %3$d canciones; no se ha quitado nada. Inténtalo más tarde.</string>
+    <string name="half_made_text">«%1$s» en %2$s no se llenó hasta el final: faltan algunas de sus %3$d canciones. Continuar añade solo las que faltan.</string>
+    <string name="half_made_done">«%1$s» ya está completa: %2$d canciones añadidas.</string>
     <string name="notice_dismiss">Descartar</string>
     <string name="store_good_copy_text">En este teléfono hay una copia de tus sincronizaciones y ajustes tal como estaban el %1$s. Puedes volver a ella. Una sincronización que borraste después volvería, por eso no se restaura nada si no lo pides.</string>
     <string name="store_good_copy_restore">Restaurar esa copia</string>

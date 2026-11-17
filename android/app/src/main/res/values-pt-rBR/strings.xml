@@ -3093,6 +3093,8 @@
     <string name="accounts_keystore_unavailable">Não é possível ler seus acessos agora: o armazenamento seguro deste telefone não abriu. Por isso os serviços aparecem como não conectados. Nada foi perdido: feche o Trackhop por completo e abra de novo, ou reinicie o telefone. Entrar de novo agora não duraria.</string>
     <string name="tools_dedupe_not_put_back">As cópias a mais de “%1$s” foram removidas, mas não foi possível recolocar uma: a conexão caiu. Adicione-a à playlist manualmente.</string>
     <string name="error_listed_short">%1$s entregou só %2$d de %3$d faixas; nada foi removido. Tente de novo mais tarde.</string>
+    <string name="half_made_text">“%1$s” no %2$s não foi preenchida até o fim: faltam algumas das %3$d faixas. Continuar adiciona só as que faltam.</string>
+    <string name="half_made_done">“%1$s” agora está completa: %2$d faixas adicionadas.</string>
     <string name="notice_dismiss">Dispensar</string>
     <string name="store_good_copy_text">Este telefone guarda uma cópia das suas sincronizações e configurações como estavam em %1$s. Você pode voltar a ela. Uma sincronização apagada depois voltaria, por isso nada é restaurado sem você pedir.</string>
     <string name="store_good_copy_restore">Restaurar essa cópia</string>

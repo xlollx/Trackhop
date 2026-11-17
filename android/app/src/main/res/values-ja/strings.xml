@@ -3011,6 +3011,8 @@
     <string name="accounts_keystore_unavailable">現在、ログイン情報を読み取れません。この端末のセキュアストレージを開けませんでした。そのため、サービスが未接続と表示されています。何も失われていません。Trackhop を完全に終了して開き直すか、端末を再起動してください。今ログインし直しても保持されません。</string>
     <string name="tools_dedupe_not_put_back">「%1$s」の余分なコピーは削除しましたが、接続が切れたため 1 つを戻せませんでした。プレイリストに手動で追加してください。</string>
     <string name="error_listed_short">%1$s は %3$d 曲のうち %2$d 曲しか返しませんでした。何も削除していません。しばらくしてからもう一度お試しください。</string>
+    <string name="half_made_text">%2$s の「%1$s」は最後まで入りませんでした。%3$d 曲のうち一部が足りません。「続ける」で足りない曲だけを追加します。</string>
+    <string name="half_made_done">「%1$s」が完成しました：%2$d 曲を追加しました。</string>
     <string name="notice_dismiss">閉じる</string>
     <string name="store_good_copy_text">この端末には %1$s 時点の同期と設定のコピーが残っています。その状態に戻せます。その後に削除した同期も戻ってしまうため、あなたが求めないかぎり復元はしません。</string>
     <string name="store_good_copy_restore">そのコピーを復元</string>
