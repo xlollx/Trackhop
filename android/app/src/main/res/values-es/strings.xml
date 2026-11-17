@@ -3090,5 +3090,6 @@
     <string name="export_not_saved">No se pudo guardar el archivo: no queda espacio o ya no se puede acceder a la carpeta. No ha quedado nada escrito a medias. Inténtalo de nuevo.</string>
     <string name="store_damaged_title">No se pudieron leer tus sincronizaciones</string>
     <string name="store_damaged_text">Trackhop encontró dañadas las sincronizaciones y los ajustes guardados y empezó de cero. No se ha sobrescrito nada: el archivo dañado se conserva en este teléfono. Si tienes un archivo de copia de seguridad, restáuralo desde Ajustes.</string>
+    <string name="accounts_keystore_unavailable">Ahora mismo no se pueden leer tus inicios de sesión: el almacenamiento seguro de este teléfono no se ha abierto. Por eso los servicios aparecen como no conectados. No se ha perdido nada: cierra Trackhop del todo y vuelve a abrirlo, o reinicia el teléfono. Iniciar sesión de nuevo ahora no duraría.</string>
     <string name="tools_dedupe_not_put_back">Se quitaron las copias de más de «%1$s», pero no se pudo volver a poner una: se cortó la conexión. Añádela a mano a la playlist.</string>
 </resources>
