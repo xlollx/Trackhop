@@ -92,15 +92,22 @@ object BridgePlugin {
     fun find(ctx: Context): Info? {
         cache?.let { (at, info) -> if (System.currentTimeMillis() - at < 10_000) return info }
         val pm = ctx.packageManager
-        val ri = runCatching { pm.queryIntentActivities(Intent(ACTION), PackageManager.GET_META_DATA) }.getOrNull()?.firstOrNull()
-        val info = if (ri != null) {
-            val authority = ri.activityInfo.metaData?.getString(META_AUTHORITY) ?: LEGACY_AUTHORITY
-            Info(ri.activityInfo.packageName, Uri.parse("content://$authority"))
-        } else if (BuildConfig.PLUGIN_LINKS && runCatching { pm.getPackageInfo(LEGACY_PACKAGE, 0) }.isSuccess) {
-            Info(LEGACY_PACKAGE, Uri.parse("content://$LEGACY_AUTHORITY"))
-        } else null
+        // Any app can declare the action: only one signed by Trackhop or Trackhop Bridge is used (PluginSigning).
+        val declared = runCatching { pm.queryIntentActivities(Intent(ACTION), PackageManager.GET_META_DATA) }.getOrDefault(emptyList())
+            .map { PluginSigning.Candidate(it.activityInfo.packageName, it.activityInfo.metaData?.getString(META_AUTHORITY)) }
+        val legacy = BuildConfig.PLUGIN_LINKS && runCatching { pm.getPackageInfo(LEGACY_PACKAGE, 0) }.isSuccess
+        val info = PluginSigning.choose(declared, legacy, LEGACY_PACKAGE, trustedSigner(ctx))
+            ?.let { Info(it.packageName, Uri.parse("content://${it.authority ?: LEGACY_AUTHORITY}")) }
         cache = System.currentTimeMillis() to info
         return info
+    }
+
+    /** Whether a package is signed as a plugin must be ([PluginSigning.trusted]), each package read once per lookup. */
+    private fun trustedSigner(ctx: Context): (String) -> Boolean {
+        val pm = ctx.packageManager
+        val own = PluginSigning.read(pm, ctx.packageName)
+        val seen = HashMap<String, Boolean>()
+        return { pkg -> seen.getOrPut(pkg) { PluginSigning.trusted(PluginSigning.read(pm, pkg), own) } }
     }
 
     fun installed(ctx: Context): Boolean = builtIn || find(ctx) != null
@@ -108,11 +115,15 @@ object BridgePlugin {
     /** An installed plugin as the plugins section shows it: its own name and version, nothing else. */
     class Installed(val packageName: String, val label: String, val version: String?)
 
-    /** Every installed app that declares itself a plugin through [ACTION]; none in the GitHub/F-Droid build's view. */
+    /**
+     * Every installed app that declares itself a plugin through [ACTION] and is signed as one must be
+     * ([PluginSigning]); none in the GitHub/F-Droid build's view.
+     */
     fun installedPlugins(ctx: Context): List<Installed> {
         val pm = ctx.packageManager
+        val trusted = trustedSigner(ctx)
         return runCatching { pm.queryIntentActivities(Intent(ACTION), 0) }.getOrDefault(emptyList())
-            .map { it.activityInfo.packageName }.distinct()
+            .map { it.activityInfo.packageName }.distinct().filter(trusted)
             .map { p ->
                 Installed(
                     p,
