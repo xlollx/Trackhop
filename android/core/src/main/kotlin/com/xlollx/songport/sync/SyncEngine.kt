@@ -1672,7 +1672,9 @@ class SyncEngine(
         val places = ToFix.settle(store, item, chosen.id)
         return applied(places) { job, dst, targetId, place ->
             if (place.chosen?.id == chosen.id) return@applied
-            if (place.chosen != null && dst.canRemoveTracks) removeEntries(dst, targetId, listOf(place.chosen))
+            // The old match leaves the playlist only when no other source track is matched to it (as in ignoreEverywhere).
+            val old = place.chosen
+            if (old != null && dst.canRemoveTracks && store.sourcesMatchedTo(job.source.provider, side(dst.id, job), old.id).isEmpty()) removeEntries(dst, targetId, listOf(old))
             dst.addTracks(env, targetId, listOf(chosen))
             wroteTo(dst, targetId)
         }

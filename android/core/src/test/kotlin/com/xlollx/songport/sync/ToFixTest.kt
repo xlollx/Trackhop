@@ -196,6 +196,16 @@ class ToFixTest {
         assertEquals(DecisionKind.MATCH, env.store.data.reviewDecisions.getValue(FileStore.cacheKey("msrc", "glass", "mdst")).kind)
     }
 
+    @Test fun anotherSongKeepsTheOldOneWhenAnotherSourceTrackIsMatchedToIt() = runBlocking {
+        seed()
+        // A second source track (the studio take) is matched to the same song on the target.
+        env.store.update { d -> d.copy(matchCache = d.matchCache + (FileStore.cacheKey("msrc", "glass-studio", "mdst") to "d-glass")) }
+        val other = Track(id = "d-glass2", title = "Glasshouse", artists = listOf("Ines Varga"))
+        engine.fixEverywhere(item("glass"), other)
+        assertEquals(listOf("d-glass", "d-glass2"), dst.lists.getValue("t").map { it.id })
+        assertEquals("d-glass2", env.store.cachedMatch("msrc", "glass", "mdst"))
+    }
+
     @Test fun laterHidesARowUntilTheNextRunOfItsSync() = runBlocking {
         seed()
         src.lists["q"] = mutableListOf(low)
