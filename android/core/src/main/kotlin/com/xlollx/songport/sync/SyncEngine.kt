@@ -10,6 +10,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 import com.xlollx.songport.model.MatchPolicy
 import com.xlollx.songport.model.MatchReview
+import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.model.Progress
 import com.xlollx.songport.model.ProviderException
 import com.xlollx.songport.model.SyncJob
@@ -431,7 +432,7 @@ class SyncEngine(
             // without a name resolves here), then whatever the sync is called.
             val name = job.target.playlistName.ifBlank { info?.name?.takeIf { it.isNotBlank() } ?: srcName.ifBlank { job.name } }
             val description = MusicProvider.plainDescription(info?.description)
-            val created = patient(onProgress) { dst.createPlaylist(env, name, description.ifBlank { MusicProvider.description(str("app_name")) }) }
+            val created = createOnce(dst, name, description.ifBlank { MusicProvider.description(str("app_name")) }, onProgress)
             targetId = created.id
             targetCreated = true
             // From the stored job, not the one this run started with: whatever was changed meanwhile
@@ -1236,6 +1237,35 @@ class SyncEngine(
                     else -> throw e
                 }
             }
+        }
+    }
+
+    /**
+     * Makes the playlist [name] on [dst], once. Making one cannot be asked twice without harm: a
+     * reply lost after the service had made it (a timeout) and tried again would leave two. So the
+     * playlists there are read first, and before trying again they are read anew: one that was not
+     * there, with this name and nothing in it, is the one this run made, and is taken as it is.
+     * Where the list cannot be read beforehand the creation is tried again as any other call.
+     */
+    private suspend fun createOnce(dst: MusicProvider, name: String, description: String, onProgress: (Progress) -> Unit): Playlist {
+        val before = try {
+            patient(onProgress) { dst.playlists(env) }.mapTo(HashSet()) { it.id }
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            env.log("engine", "playlists not read before making one: ${e.message?.take(120)}")
+            null
+        }
+        var asked = false
+        return patient(onProgress) {
+            if (asked && before != null) {
+                dst.playlists(env).firstOrNull { it.id !in before && it.name.trim() == name.trim() && it.trackCount <= 0 }?.let {
+                    env.log("engine", "the playlist was made before the reply was lost: taken, not made again")
+                    return@patient it
+                }
+            }
+            asked = true
+            dst.createPlaylist(env, name, description)
         }
     }
 
