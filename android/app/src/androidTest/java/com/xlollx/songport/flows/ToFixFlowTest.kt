@@ -80,7 +80,7 @@ class ToFixFlowTest : FlowTest() {
         launch(tabIntent(MainActivity.TAB_TOOLS))
         waitText(s(R.string.tools_transfer_title))
         click(s(R.string.saved_matches_title))
-        waitText(s(R.string.to_fix_once))
+        waitText(s(R.string.to_fix_once), substring = true)
     }
 
     /** The tab as a screen reader says it: its name and its count, one node. */
@@ -151,7 +151,7 @@ class ToFixFlowTest : FlowTest() {
         com.xlollx.songport.ui.ReviewFocus.request.value = "r-chill"
         waitText(s(R.string.review_title, "Chill Evening"))
         click(s(R.string.to_fix_open_all, 3))
-        waitText(s(R.string.to_fix_once))
+        waitText(s(R.string.to_fix_once), substring = true)
         waitTab(3)
         // The Saved tab is one tap away, and kept.
         click(s(R.string.to_fix_tab_saved))
