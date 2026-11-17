@@ -53,6 +53,8 @@ fun AppleMusicProvider.developerToken(ctx: Context): String = developerToken(ctx
 fun LocalFilesProvider.dir(ctx: Context): File = dir(ctx.env)
 fun LocalFilesProvider.importFile(ctx: Context, fileName: String, text: String): Int = importFile(ctx.env, fileName, text)
 fun LocalFilesProvider.importFileAsPlaylist(ctx: Context, fileName: String, text: String): Playlist = importFileAsPlaylist(ctx.env, fileName, text)
+fun LocalFilesProvider.importStream(ctx: Context, fileName: String, reader: java.io.Reader, progress: (Long) -> Unit = {}, cancelled: () -> Boolean = { false }): Playlist =
+    importStream(ctx.env, fileName, reader, progress, cancelled)
 fun LocalFilesProvider.importTracks(ctx: Context, name: String, tracks: List<Track>): String = importTracks(ctx.env, name, tracks)
 fun LocalFilesProvider.exportText(ctx: Context, playlistId: String, format: LocalFilesProvider.Export): String = exportText(ctx.env, playlistId, format)
 fun LocalFilesProvider.delete(ctx: Context, playlistId: String) = delete(ctx.env, playlistId)

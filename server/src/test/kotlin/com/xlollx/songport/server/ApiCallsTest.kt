@@ -68,6 +68,38 @@ class ApiCallsTest {
 
     private fun JsonObject.s(k: String) = this[k]?.jsonPrimitive?.content
 
+    // #67: a library through the API: its playlists by name, or all of the person's own, never the library's own lists.
+    @Test fun anItunesLibraryThroughTheApiBecomesOneFilePerPlaylist() {
+        fun song(i: Int) = "<key>$i</key><dict><key>Track ID</key><integer>$i</integer><key>Name</key><string>Song $i</string><key>Artist</key><string>Band</string></dict>"
+        fun list(name: String, vararg ids: Int, extra: String = "") = "<dict><key>Name</key><string>$name</string>$extra<key>Playlist Items</key><array>" +
+            ids.joinToString("") { "<dict><key>Track ID</key><integer>$it</integer></dict>" } + "</array></dict>"
+        val xml = "<?xml version=\"1.0\"?><plist version=\"1.0\"><dict><key>Tracks</key><dict>${(1..4).joinToString("") { song(it) }}</dict><key>Playlists</key><array>" +
+            list("Library", 1, 2, 3, 4, extra = "<key>Master</key><true/>") + list("Run", 2, 1) + list("Chill", 3) + "</array></dict></plist>"
+        val named = call("PUT", "files/Library.xml?playlists=Chill", xml)
+        assertEquals(201, named.code)
+        assertEquals(listOf("Chill.csv"), named.obj["files"]!!.jsonArray.map { it.jsonObject.s("name") })
+        val all = call("PUT", "files/Library.xml", xml)
+        assertEquals(201, all.code)
+        assertEquals(listOf("Run.csv", "Chill (2).csv"), all.obj["files"]!!.jsonArray.map { it.jsonObject.s("name") })
+        assertEquals(404, call("PUT", "files/Library.xml?playlists=Nope", xml).code)
+        val whole = call("PUT", "files/Library.xml?whole=true", xml)
+        assertEquals(4, whole.obj["tracks"]!!.jsonPrimitive.content.toInt())
+    }
+
+    // #67: any format through the API is read a piece at a time; one cut short adds nothing.
+    @Test fun aPlaylistFileThroughTheApiIsReadWholeOrNotAtAll() {
+        val jspf = com.xlollx.songport.sync.PlaylistFiles.toJspf("Mine", (1..30).map { com.xlollx.songport.model.Track("$it", "Song $it", listOf("Band")) })
+        val before = call("GET", "files").arr.size
+        val cut = call("PUT", "files/Mine.jspf", jspf.substring(0, jspf.length / 2))
+        assertEquals(400, cut.code)
+        assertTrue(cut.text, cut.text.contains("incomplete"))
+        assertEquals(before, call("GET", "files").arr.size)
+        val whole = call("PUT", "files/Mine.jspf", jspf)
+        assertEquals(201, whole.code)
+        assertEquals(30, whole.obj["tracks"]!!.jsonPrimitive.content.toInt())
+        assertEquals(before + 1, call("GET", "files").arr.size)
+    }
+
     @Test fun newReleasesAreListedAndMakeAWeeklySync() {
         // A 1.18 feature: behind the release switch, on for this test.
         Features.v2 = true

@@ -548,7 +548,8 @@ internal fun FilesCard(
     val scope = rememberCoroutineScope()
     var lists by remember { mutableStateOf<List<Playlist>>(emptyList()) }
     var version by remember { mutableIntStateOf(0) }
-    LaunchedEffect(version) { lists = withContext(Dispatchers.IO) { LocalFilesProvider.playlists(ctx) } }
+    val libraryImports by LibraryImport.imported.collectAsState()
+    LaunchedEffect(version, libraryImports) { lists = withContext(Dispatchers.IO) { LocalFilesProvider.playlists(ctx) } }
 
     // "Send to a service" right after the import: the list is there, where should it go?
     fun offerSend(id: String, name: String, tracks: Int) {
@@ -569,18 +570,34 @@ internal fun FilesCard(
         pendingImport = null
         // In the card's scope: clearing pendingImport restarts this effect, which would cancel the import.
         scope.launch {
+            // An Apple Music/iTunes library: read a piece at a time, then its playlists to pick (#67).
+            val name = displayName(ctx, uri)
+            if (withContext(Dispatchers.IO) { LibraryImport.isLibrary(ctx, uri) }) {
+                LibraryImport.start(ctx, uri, name)
+                return@launch
+            }
+            // Any other file of some size (or of a size not said): read the same way, with its progress.
+            val size = withContext(Dispatchers.IO) { LibraryImport.size(ctx, uri) }
+            if (size < 0 || size > LibraryImport.SMALL_FILE) {
+                LibraryImport.startFile(ctx, uri, name)
+                return@launch
+            }
             val result = withContext(Dispatchers.IO) {
                 runCatching {
-                    // Bytes, not a UTF-8 reader: a BOM or a Windows-1252 .m3u decodes as written.
-                    val text = ctx.contentResolver.openInputStream(uri)?.use { com.xlollx.songport.sync.PlaylistFiles.decode(it.readBytes()) } ?: ""
-                    LocalFilesProvider.importFileAsPlaylist(ctx, displayName(ctx, uri), text)
+                    // A small one: the same reading, a piece at a time, without the progress. Bytes, not
+                    // a UTF-8 reader: a BOM or a Windows-1252 .m3u decodes as written.
+                    val input = ctx.contentResolver.openInputStream(uri) ?: error(ctx.getString(R.string.library_cannot_open))
+                    input.use { LocalFilesProvider.importStream(ctx, name, com.xlollx.songport.sync.PlaylistFiles.reader(it)) }
                 }
             }
             onMain {
                 result.onSuccess { pl ->
                     version++
                     offerSend(pl.id, pl.name, pl.trackCount.coerceAtLeast(0))
-                }.onFailure { snackbar.showSnackbar(it.userMessage(ctx)) }
+                }.onFailure {
+                    // Cut short: nothing was added, said in the person's language.
+                    snackbar.showSnackbar(if (it is com.xlollx.songport.sync.ItunesLibrary.Incomplete) ctx.getString(R.string.file_incomplete) else it.userMessage(ctx))
+                }
             }
         }
     }

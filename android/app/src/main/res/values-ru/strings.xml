@@ -3179,4 +3179,52 @@
     <string name="concert_alerts_changes">Перенесённые или отменённые даты</string>
     <string name="concert_alerts_channels">Также в каналы (Telegram, ntfy…)</string>
     <string name="concert_alerts_note">Для артистов и площадок, на которые вы подписаны. Данные о продажах и переносах берутся из Ticketmaster по вашему ключу.</string>
+    <!-- Apple Music/iTunes library import (#67) -->
+    <string name="library_cannot_open">Не удалось открыть файл.</string>
+    <string name="library_incomplete">Файл обрывается раньше конца медиатеки: он неполный, поэтому ничего не добавлено. Экспортируйте его заново из «Музыки» или iTunes.</string>
+    <string name="library_failed">Ничего не добавлено: %1$s</string>
+    <string name="library_adding">Добавляю плейлисты…</string>
+    <string name="library_partial">Добавлено: %1$s, затем остановилось: %2$s</string>
+    <string name="library_reading">Читаю медиатеку…</string>
+    <string name="library_hide">Скрыть</string>
+    <string name="library_read_of">Прочитано %1$s из %2$s</string>
+    <string name="library_read">Прочитано %1$s</string>
+    <string name="library_reading_note">Она читается по частям: даже очень большой файл не нагружает телефон. Можно скрыть это окно, чтение продолжится, а в конце появятся плейлисты.</string>
+    <string name="library_title">Медиатека «Музыки»</string>
+    <string name="library_summary">Треков: %1$s · плейлистов: %2$s</string>
+    <string name="library_pick_search">Найти плейлист</string>
+    <string name="library_select_all">Выбрать все</string>
+    <string name="library_select_none">Ни одного</string>
+    <string name="library_folder">Папка · %1$s</string>
+    <string name="library_smart">Смарт</string>
+    <string name="library_all_at_once">Всё сразу</string>
+    <string name="library_whole">Вся медиатека одним файлом</string>
+    <string name="library_smart_songs">%1$s · смарт</string>
+    <string name="file_reading">Читаю файл…</string>
+    <string name="file_reading_note">Он читается по частям: даже очень большой файл не нагружает телефон. Можно скрыть это окно, чтение продолжится, а в конце файл будет добавлен.</string>
+    <string name="file_incomplete">Файл обрывается раньше конца своего списка: он неполный, поэтому ничего не добавлено. Экспортируйте его заново или скопируйте на телефон ещё раз.</string>
+    <plurals name="library_added">
+        <item quantity="one">Добавлен плейлист (%1$d): %2$s</item>
+        <item quantity="few">Добавлено плейлистов: %1$d — %2$s</item>
+        <item quantity="many">Добавлено плейлистов: %1$d — %2$s</item>
+        <item quantity="other">Добавлено плейлистов: %1$d — %2$s</item>
+    </plurals>
+    <plurals name="library_import">
+        <item quantity="one">Импортировать плейлисты: %d</item>
+        <item quantity="few">Импортировать плейлисты: %d</item>
+        <item quantity="many">Импортировать плейлисты: %d</item>
+        <item quantity="other">Импортировать плейлисты: %d</item>
+    </plurals>
+    <plurals name="library_songs">
+        <item quantity="one">Треков: %1$s</item>
+        <item quantity="few">Треков: %1$s</item>
+        <item quantity="many">Треков: %1$s</item>
+        <item quantity="other">Треков: %1$s</item>
+    </plurals>
+    <plurals name="library_songs_as_before">
+        <item quantity="one">Треков: %1$s · как раньше</item>
+        <item quantity="few">Треков: %1$s · как раньше</item>
+        <item quantity="many">Треков: %1$s · как раньше</item>
+        <item quantity="other">Треков: %1$s · как раньше</item>
+    </plurals>
 </resources>

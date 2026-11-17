@@ -2969,4 +2969,40 @@
     <string name="concert_alerts_changes">日期变更或取消</string>
     <string name="concert_alerts_channels">同时发到通知渠道（Telegram、ntfy…）</string>
     <string name="concert_alerts_note">针对你关注的艺人和场地。开票和日期变更信息来自 Ticketmaster，使用你的密钥。</string>
+    <!-- Apple Music/iTunes library import (#67) -->
+    <string name="library_cannot_open">无法打开该文件。</string>
+    <string name="library_incomplete">文件在资料库结束前就断了：文件不完整，因此没有添加任何内容。请从“音乐”或 iTunes 重新导出。</string>
+    <string name="library_failed">没有添加任何内容：%1$s</string>
+    <string name="library_adding">正在添加歌单…</string>
+    <string name="library_partial">已添加 %1$s，随后中断：%2$s</string>
+    <string name="library_reading">正在读取资料库…</string>
+    <string name="library_hide">隐藏</string>
+    <string name="library_read_of">已读取 %1$s / %2$s</string>
+    <string name="library_read">已读取 %1$s</string>
+    <string name="library_reading_note">分段读取：再大的文件也不会拖累手机。可以隐藏此窗口，读取会继续，完成后显示歌单。</string>
+    <string name="library_title">“音乐”资料库</string>
+    <string name="library_summary">%1$s 首歌曲 · %2$s 个歌单</string>
+    <string name="library_pick_search">搜索歌单</string>
+    <string name="library_select_all">全选</string>
+    <string name="library_select_none">全不选</string>
+    <string name="library_folder">文件夹 · %1$s</string>
+    <string name="library_smart">智能</string>
+    <string name="library_all_at_once">全部一起</string>
+    <string name="library_whole">整个资料库作为一个文件</string>
+    <string name="library_smart_songs">%1$s · 智能</string>
+    <string name="file_reading">正在读取文件…</string>
+    <string name="file_reading_note">分段读取：再大的文件也不会拖累手机。可以隐藏此窗口，读取会继续，完成后添加文件。</string>
+    <string name="file_incomplete">文件在列表结束前就断了：文件不完整，因此没有添加任何内容。请重新导出，或重新复制到手机。</string>
+    <plurals name="library_added">
+        <item quantity="other">已添加 %1$d 个歌单：%2$s</item>
+    </plurals>
+    <plurals name="library_import">
+        <item quantity="other">导入 %d 个歌单</item>
+    </plurals>
+    <plurals name="library_songs">
+        <item quantity="other">%1$s 首歌曲</item>
+    </plurals>
+    <plurals name="library_songs_as_before">
+        <item quantity="other">%1$s 首歌曲 · 与之前相同</item>
+    </plurals>
 </resources>

@@ -147,7 +147,7 @@ shows); a `<playlist>` its name or id.
 | `trackhop files get <name> [<file>]` | One, in a format (`--format`); to the screen without `<file>`. |
 | `trackhop files rm <name>…` | Deletes them. |
 | `trackhop files zip <file.zip> [<name>…]` | Several (all without names) in one .zip, in a format. |
-| `trackhop import <file>` | A playlist file into the File service: CSV, M3U, PLS, XSPF, JSPF, iTunes XML, JSON or text. |
+| `trackhop import <file>` | A playlist file into the File service: CSV, M3U, PLS, XSPF, JSPF, iTunes XML, JSON or text, of any size (it is read a piece at a time). From a whole Apple Music/iTunes library each of your playlists becomes a file; `--playlists "A,B"` takes only those, `--whole` the library as one file. |
 | `trackhop patterns` | How track names in imported files are read, and your own patterns ([how they work](export-playlist-csv#and-back-in)). |
 | `trackhop patterns set <pattern>…`, `patterns clear` | Your own patterns, tried in order (each in quotes: `'{artist}/{album}/{track} {title}'`), or back to automatic. |
 | `trackhop patterns layout <layout>` | `auto`, `artist_title`, `artist_album_title` or `custom`. |

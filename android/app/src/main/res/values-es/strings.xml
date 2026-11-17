@@ -3047,4 +3047,44 @@
     <string name="concert_alerts_changes">Fechas cambiadas o canceladas</string>
     <string name="concert_alerts_channels">También en los canales (Telegram, ntfy…)</string>
     <string name="concert_alerts_note">Para los artistas y salas que sigues. Las ventas y los cambios de fecha vienen de Ticketmaster, con tu clave.</string>
+    <!-- Apple Music/iTunes library import (#67) -->
+    <string name="library_cannot_open">No se pudo abrir el archivo.</string>
+    <string name="library_incomplete">El archivo termina antes que la biblioteca: está incompleto, así que no se añadió nada. Vuelve a exportarlo desde Música o iTunes.</string>
+    <string name="library_failed">No se añadió nada: %1$s</string>
+    <string name="library_adding">Añadiendo las playlists…</string>
+    <string name="library_partial">Se añadieron %1$s y luego se detuvo: %2$s</string>
+    <string name="library_reading">Leyendo la biblioteca…</string>
+    <string name="library_hide">Ocultar</string>
+    <string name="library_read_of">%1$s leídos de %2$s</string>
+    <string name="library_read">%1$s leídos</string>
+    <string name="library_reading_note">Se lee por partes: ni un archivo muy grande pesa en el teléfono. Puedes ocultar esto, sigue solo, y las playlists aparecen al terminar.</string>
+    <string name="library_title">Biblioteca de Música</string>
+    <string name="library_summary">%1$s canciones · %2$s playlists</string>
+    <string name="library_pick_search">Buscar una playlist</string>
+    <string name="library_select_all">Seleccionar todas</string>
+    <string name="library_select_none">Ninguna</string>
+    <string name="library_folder">Carpeta · %1$s</string>
+    <string name="library_smart">Inteligentes</string>
+    <string name="library_all_at_once">Todo junto</string>
+    <string name="library_whole">Toda la biblioteca en un archivo</string>
+    <string name="library_smart_songs">%1$s · inteligente</string>
+    <string name="file_reading">Leyendo el archivo…</string>
+    <string name="file_reading_note">Se lee por partes: ni un archivo muy grande pesa en el teléfono. Puedes ocultar esto, sigue solo, y el archivo se añade al terminar.</string>
+    <string name="file_incomplete">El archivo termina antes que su lista: está incompleto, así que no se añadió nada. Vuelve a exportarlo o cópialo de nuevo al teléfono.</string>
+    <plurals name="library_added">
+        <item quantity="one">%1$d playlist añadida: %2$s</item>
+        <item quantity="other">%1$d playlists añadidas: %2$s</item>
+    </plurals>
+    <plurals name="library_import">
+        <item quantity="one">Importar %d playlist</item>
+        <item quantity="other">Importar %d playlists</item>
+    </plurals>
+    <plurals name="library_songs">
+        <item quantity="one">%1$s canción</item>
+        <item quantity="other">%1$s canciones</item>
+    </plurals>
+    <plurals name="library_songs_as_before">
+        <item quantity="one">%1$s canción · como antes</item>
+        <item quantity="other">%1$s canciones · como antes</item>
+    </plurals>
 </resources>

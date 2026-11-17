@@ -3041,4 +3041,44 @@
     <string name="concert_alerts_changes">Dates moved or cancelled</string>
     <string name="concert_alerts_channels">Also on the channels (Telegram, ntfy…)</string>
     <string name="concert_alerts_note">For the artists and venues you follow. Sales and date changes come from Ticketmaster, with your key.</string>
+    <!-- Apple Music/iTunes library import (#67) -->
+    <string name="library_cannot_open">The file could not be opened.</string>
+    <string name="library_incomplete">The file ends before the library does: it is incomplete, so nothing was added. Export it again from Music or iTunes.</string>
+    <string name="library_failed">Nothing was added: %1$s</string>
+    <string name="library_adding">Adding the playlists…</string>
+    <string name="library_partial">Added %1$s, then it stopped: %2$s</string>
+    <string name="library_reading">Reading the library…</string>
+    <string name="library_hide">Hide</string>
+    <string name="library_read_of">%1$s read of %2$s</string>
+    <string name="library_read">%1$s read</string>
+    <string name="library_reading_note">It is read a piece at a time: even a very big file does not weigh on the phone. You can hide this, it carries on, and the playlists show when it ends.</string>
+    <string name="library_title">Music library</string>
+    <string name="library_summary">%1$s songs · %2$s playlists</string>
+    <string name="library_pick_search">Search a playlist</string>
+    <string name="library_select_all">Select all</string>
+    <string name="library_select_none">None</string>
+    <string name="library_folder">Folder · %1$s</string>
+    <string name="library_smart">Smart</string>
+    <string name="library_all_at_once">All at once</string>
+    <string name="library_whole">The whole library as one file</string>
+    <string name="library_smart_songs">%1$s · smart</string>
+    <string name="file_reading">Reading the file…</string>
+    <string name="file_reading_note">It is read a piece at a time: even a very big file does not weigh on the phone. You can hide this, it carries on, and the file is added when it ends.</string>
+    <string name="file_incomplete">The file ends before its list does: it is incomplete, so nothing was added. Export it again, or copy it to the phone again.</string>
+    <plurals name="library_added">
+        <item quantity="one">%1$d playlist added: %2$s</item>
+        <item quantity="other">%1$d playlists added: %2$s</item>
+    </plurals>
+    <plurals name="library_import">
+        <item quantity="one">Import %d playlist</item>
+        <item quantity="other">Import %d playlists</item>
+    </plurals>
+    <plurals name="library_songs">
+        <item quantity="one">%1$s song</item>
+        <item quantity="other">%1$s songs</item>
+    </plurals>
+    <plurals name="library_songs_as_before">
+        <item quantity="one">%1$s song · as before</item>
+        <item quantity="other">%1$s songs · as before</item>
+    </plurals>
 </resources>

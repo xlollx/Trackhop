@@ -3039,4 +3039,44 @@
     <string name="concert_alerts_changes">Verschobene oder abgesagte Termine</string>
     <string name="concert_alerts_channels">Auch über die Kanäle (Telegram, ntfy…)</string>
     <string name="concert_alerts_note">Für die Künstler und Locations, denen du folgst. Verkaufsstarts und Terminänderungen kommen von Ticketmaster, mit deinem Schlüssel.</string>
+    <!-- Apple Music/iTunes library import (#67) -->
+    <string name="library_cannot_open">Die Datei ließ sich nicht öffnen.</string>
+    <string name="library_incomplete">Die Datei endet vor der Mediathek: Sie ist unvollständig, deshalb wurde nichts hinzugefügt. Exportiere sie erneut aus Musik oder iTunes.</string>
+    <string name="library_failed">Nichts wurde hinzugefügt: %1$s</string>
+    <string name="library_adding">Playlists werden hinzugefügt…</string>
+    <string name="library_partial">%1$s hinzugefügt, dann brach es ab: %2$s</string>
+    <string name="library_reading">Mediathek wird gelesen…</string>
+    <string name="library_hide">Ausblenden</string>
+    <string name="library_read_of">%1$s von %2$s gelesen</string>
+    <string name="library_read">%1$s gelesen</string>
+    <string name="library_reading_note">Sie wird Stück für Stück gelesen: Auch eine sehr große Datei belastet das Handy nicht. Du kannst das ausblenden, es läuft weiter, und am Ende erscheinen die Playlists.</string>
+    <string name="library_title">Musik-Mediathek</string>
+    <string name="library_summary">%1$s Songs · %2$s Playlists</string>
+    <string name="library_pick_search">Playlist suchen</string>
+    <string name="library_select_all">Alle auswählen</string>
+    <string name="library_select_none">Keine</string>
+    <string name="library_folder">Ordner · %1$s</string>
+    <string name="library_smart">Intelligent</string>
+    <string name="library_all_at_once">Alles auf einmal</string>
+    <string name="library_whole">Die ganze Mediathek als eine Datei</string>
+    <string name="library_smart_songs">%1$s · intelligent</string>
+    <string name="file_reading">Datei wird gelesen…</string>
+    <string name="file_reading_note">Sie wird Stück für Stück gelesen: Auch eine sehr große Datei belastet das Handy nicht. Du kannst das ausblenden, es läuft weiter, und am Ende wird die Datei hinzugefügt.</string>
+    <string name="file_incomplete">Die Datei endet vor ihrer Liste: Sie ist unvollständig, deshalb wurde nichts hinzugefügt. Exportiere sie erneut oder kopiere sie noch einmal aufs Handy.</string>
+    <plurals name="library_added">
+        <item quantity="one">%1$d Playlist hinzugefügt: %2$s</item>
+        <item quantity="other">%1$d Playlists hinzugefügt: %2$s</item>
+    </plurals>
+    <plurals name="library_import">
+        <item quantity="one">%d Playlist importieren</item>
+        <item quantity="other">%d Playlists importieren</item>
+    </plurals>
+    <plurals name="library_songs">
+        <item quantity="one">%1$s Song</item>
+        <item quantity="other">%1$s Songs</item>
+    </plurals>
+    <plurals name="library_songs_as_before">
+        <item quantity="one">%1$s Song · wie bisher</item>
+        <item quantity="other">%1$s Songs · wie bisher</item>
+    </plurals>
 </resources>

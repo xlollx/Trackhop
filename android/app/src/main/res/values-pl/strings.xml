@@ -3181,4 +3181,52 @@
     <string name="concert_alerts_changes">Przełożone lub odwołane terminy</string>
     <string name="concert_alerts_channels">Także na kanałach (Telegram, ntfy…)</string>
     <string name="concert_alerts_note">Dla artystów i miejsc, które obserwujesz. Informacje o sprzedaży i zmianach terminów pochodzą z Ticketmaster, z twoim kluczem.</string>
+    <!-- Apple Music/iTunes library import (#67) -->
+    <string name="library_cannot_open">Nie udało się otworzyć pliku.</string>
+    <string name="library_incomplete">Plik kończy się przed końcem biblioteki: jest niekompletny, więc nic nie dodano. Wyeksportuj go ponownie z Muzyki lub iTunes.</string>
+    <string name="library_failed">Nic nie dodano: %1$s</string>
+    <string name="library_adding">Dodawanie playlist…</string>
+    <string name="library_partial">Dodano %1$s, potem przerwało się: %2$s</string>
+    <string name="library_reading">Odczyt biblioteki…</string>
+    <string name="library_hide">Ukryj</string>
+    <string name="library_read_of">Odczytano %1$s z %2$s</string>
+    <string name="library_read">Odczytano %1$s</string>
+    <string name="library_reading_note">Jest czytana kawałek po kawałku: nawet bardzo duży plik nie obciąża telefonu. Możesz to ukryć, działa dalej, a playlisty pojawią się na końcu.</string>
+    <string name="library_title">Biblioteka Muzyki</string>
+    <string name="library_summary">Utwory: %1$s · playlisty: %2$s</string>
+    <string name="library_pick_search">Szukaj playlisty</string>
+    <string name="library_select_all">Zaznacz wszystkie</string>
+    <string name="library_select_none">Żadna</string>
+    <string name="library_folder">Folder · %1$s</string>
+    <string name="library_smart">Inteligentne</string>
+    <string name="library_all_at_once">Wszystko naraz</string>
+    <string name="library_whole">Cała biblioteka w jednym pliku</string>
+    <string name="library_smart_songs">%1$s · inteligentna</string>
+    <string name="file_reading">Odczyt pliku…</string>
+    <string name="file_reading_note">Jest czytany kawałek po kawałku: nawet bardzo duży plik nie obciąża telefonu. Możesz to ukryć, działa dalej, a plik zostanie dodany na końcu.</string>
+    <string name="file_incomplete">Plik kończy się przed końcem swojej listy: jest niekompletny, więc nic nie dodano. Wyeksportuj go ponownie albo skopiuj jeszcze raz na telefon.</string>
+    <plurals name="library_added">
+        <item quantity="one">Dodano %1$d playlistę: %2$s</item>
+        <item quantity="few">Dodano playlisty (%1$d): %2$s</item>
+        <item quantity="many">Dodano playlisty (%1$d): %2$s</item>
+        <item quantity="other">Dodano playlisty (%1$d): %2$s</item>
+    </plurals>
+    <plurals name="library_import">
+        <item quantity="one">Importuj %d playlistę</item>
+        <item quantity="few">Importuj playlisty: %d</item>
+        <item quantity="many">Importuj playlisty: %d</item>
+        <item quantity="other">Importuj playlisty: %d</item>
+    </plurals>
+    <plurals name="library_songs">
+        <item quantity="one">%1$s utwór</item>
+        <item quantity="few">Utwory: %1$s</item>
+        <item quantity="many">Utwory: %1$s</item>
+        <item quantity="other">Utwory: %1$s</item>
+    </plurals>
+    <plurals name="library_songs_as_before">
+        <item quantity="one">%1$s utwór · jak dotąd</item>
+        <item quantity="few">Utwory: %1$s · jak dotąd</item>
+        <item quantity="many">Utwory: %1$s · jak dotąd</item>
+        <item quantity="other">Utwory: %1$s · jak dotąd</item>
+    </plurals>
 </resources>

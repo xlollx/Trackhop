@@ -122,7 +122,7 @@ object Cli {
             "files rm <name>...",
             "files zip <file.zip> [<name>...] [--format F]",
         ), "the playlist files (File service): list, download, delete, several in a .zip", subs = listOf("get", "rm", "zip")),
-        Cmd("import", "Files and backups", listOf("import <file>"), "a playlist file into the File service (CSV, M3U, PLS, XSPF, JSPF, JSON, text)"),
+        Cmd("import", "Files and backups", listOf("import <file> [--playlists \"A,B\"] [--whole]"), "a playlist file into the File service (CSV, M3U, PLS, XSPF, JSPF, JSON, text); an Apple Music/iTunes library: each of your playlists, or the ones named, or --whole"),
         Cmd("patterns", "Files and backups", listOf(
             "patterns",
             "patterns layout auto|artist_title|artist_album_title|custom",
@@ -163,7 +163,7 @@ object Cli {
 
     /** The switches with no value, and the options that take one (--name NAME or --name=NAME). */
     private val FLAGS = setOf("json", "wait", "all", "albums", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals", "apply", "names", "upcoming", "encrypted", "replaces-device", "replace-sign-ins")
-    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency") + CliV2.valued
+    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency", "playlists") + CliV2.valued
     val OPTIONS: List<String> get() = (FLAGS + VALUED).sorted().map { "--$it" }
 
     /** The options a command was given: switches and values (a value given twice is a list: --set). */
@@ -370,6 +370,9 @@ object Cli {
         /** The same, with [headers] (the encrypted backup's password: in a header, never in the address). */
         fun raw(method: String, path: String, body: ByteArray?, headers: Map<String, String>): String =
             String(exchange(method, path, body?.let { HttpRequest.BodyPublishers.ofByteArray(it) }, null, headers), Charsets.UTF_8)
+        /** [file] as the body, streamed from disk (a big library is never read whole here). */
+        fun rawFile(method: String, path: String, file: java.io.File): String =
+            String(exchange(method, path, HttpRequest.BodyPublishers.ofFile(file.toPath()), null), Charsets.UTF_8)
         /** A file the API answers with (a .zip): its bytes as they come. */
         fun bytes(method: String, path: String, body: JsonElement? = null): ByteArray =
             exchange(method, path, body?.let { HttpRequest.BodyPublishers.ofString(it.toString()) }, if (body != null) "application/json" else null)
