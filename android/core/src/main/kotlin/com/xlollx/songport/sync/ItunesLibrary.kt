@@ -104,8 +104,11 @@ class ItunesLibrary private constructor(
 
         private fun parentKey(level: Int): String? = keys.getOrNull(level)
 
+        var sawRoot = false
+
         override fun startDict() {
             val depth = kinds.length
+            if (depth == 0) sawRoot = true
             // root dict = level 0; Tracks dict = level 1 under key "Tracks"; a song = level 2 inside it.
             if (depth == 2 && kinds[0] == 'd' && kinds[1] == 'd' && parentKey(0) == "Tracks") track = HashMap()
             // Playlists array = level 1 under key "Playlists"; a playlist = level 2 inside it.
@@ -162,10 +165,16 @@ class ItunesLibrary private constructor(
         }
 
         fun build(): ItunesLibrary {
+            // A file cut short (an upload or a copy that stopped half way) leaves containers open:
+            // nothing is taken from it, rather than a library that silently lacks its end.
+            if (kinds.isNotEmpty() || !sawRoot) throw Incomplete()
             val folders = raws.filter { it.kind == Kind.FOLDER }.associate { it.key to it.name }
             return ItunesLibrary(tracks, raws.map { Playlist(it.key, it.name, it.kind, it.parent?.let(folders::get), it.ids) })
         }
     }
+
+    /** The file ends before its library does: it was cut short (an interrupted upload or copy). */
+    class Incomplete : IllegalStateException("The file ends before the library does: it is incomplete. Export it again, or upload it again.")
 
     private class IntList {
         private var a = IntArray(16)
@@ -202,7 +211,7 @@ internal class PlistEvents(
     private fun next(): Int {
         if (pos == len) {
             len = reader.read(buf)
-            if (len <= 0) { len = 0; return -1 }
+            if (len <= 0) { len = 0; pos = 0; return -1 }
             pos = 0
             total += len
             if (total >= nextReport) {

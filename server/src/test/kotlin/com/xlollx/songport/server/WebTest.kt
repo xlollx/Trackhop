@@ -383,6 +383,23 @@ class WebTest {
         assertTrue(post("/files/library", "t=$t&p=1", *origin).headers().firstValue("Location").orElse("").contains("err="))
     }
 
+    @Test fun anUploadCutShortAddsNothingAndLeavesNothing() {
+        val boundary = "----trackhop67c"
+        val whole = tmp.newFile("whole.bin")
+        writeLibrary(whole, songs = 2_000, boundary = boundary)
+        // The request ends half way through the file: no closing boundary, the library cut in two.
+        val bytes = whole.readBytes()
+        val res = client.send(
+            HttpRequest.newBuilder(URI("$base/files")).header("Authorization", auth).header("Origin", base)
+                .header("Content-Type", "multipart/form-data; boundary=$boundary").POST(HttpRequest.BodyPublishers.ofByteArray(bytes, 0, bytes.size / 2)).build(),
+            HttpResponse.BodyHandlers.ofString(),
+        )
+        assertEquals(303, res.statusCode())
+        assertTrue(java.net.URLDecoder.decode(res.headers().firstValue("Location").orElse(""), Charsets.UTF_8).contains("nothing was added"))
+        assertTrue(File(data, "csv").listFiles().orEmpty().isEmpty())
+        assertTrue(File(data, "uploads").listFiles().orEmpty().isEmpty())
+    }
+
     @Test fun aBigFileThatIsNotALibraryIsStillRefusedWithWhy() {
         val boundary = "----trackhop67b"
         val body = tmp.newFile("big.bin")

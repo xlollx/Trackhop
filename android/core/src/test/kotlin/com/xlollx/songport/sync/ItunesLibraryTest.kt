@@ -124,6 +124,15 @@ class ItunesLibraryTest {
         assertEquals(200, lib.tracksOf(lib.choices[0]).size)
     }
 
+    @Test fun aFileCutShortIsRefusedNotHalfRead() {
+        for (cut in listOf(library.length / 3, library.length / 2, library.length - 20)) {
+            try { ItunesLibrary.read(library.substring(0, cut)); org.junit.Assert.fail("cut at $cut was read") }
+            catch (e: ItunesLibrary.Incomplete) { /* refused */ }
+        }
+        // An empty or non-plist file is refused the same way.
+        try { ItunesLibrary.read(""); org.junit.Assert.fail() } catch (e: ItunesLibrary.Incomplete) { }
+    }
+
     @Test(expected = java.util.concurrent.CancellationException::class)
     fun readingStopsWhenCancelled() {
         ItunesLibrary.read(BigLibrary(songs = 50_000, lists = 1), cancelled = { true })

@@ -42,6 +42,7 @@ object MultipartToDisk {
     class DiskFile(val name: String, val file: java.io.File)
     class Parts(val fields: Map<String, String>, val files: Map<String, DiskFile>)
     class TooLarge : Exception("too large")
+    class Incomplete : Exception("the upload was cut short")
 
     const val MAX_FIELD = 1_000_000
 
@@ -78,6 +79,8 @@ object MultipartToDisk {
                     val counted = Limited(java.io.BufferedOutputStream(java.io.FileOutputStream(f), 64 * 1024), budget)
                     found = try { counted.use { copyUntil(inp, delimiter, fail, it) } } catch (e: Exception) { f.delete(); throw e }
                     budget -= counted.written
+                    // The request ended inside the file: the upload was cut short, nothing of it is used.
+                    if (!found) { f.delete(); throw Incomplete() }
                     if (f.length() > 0) files[name] = DiskFile(String(fileName.toByteArray(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8), f) else f.delete()
                 } else {
                     val buf = Limited(java.io.ByteArrayOutputStream(), MAX_FIELD.toLong())
