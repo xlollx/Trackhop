@@ -98,6 +98,32 @@ class SharedPlaylistTest {
 
     private fun everyone() { ana.sync(); ben.sync(); cleo.sync() }
 
+    /** The curator's saved state cut short on the disk: kept aside and said, built again from the group before they sign anything. */
+    @Test fun aStateThatCannotBeReadIsKeptAsideAndReadAgainFromTheGroupBeforeSigning() {
+        group()
+        ana.add("6"); everyone()
+        val seqBefore = ana.state().seq
+        assertTrue(seqBefore > 0)
+        val file = File(File(ana.env.dataDir, "shared"), "${ana.groupId}.json")
+        file.writeText("""{"events":[{"id":""")
+
+        // Read: empty, the unreadable file under another name, and said.
+        assertEquals(0, SharedGroups.load(ana.env, ana.groupId).seq)
+        val aside = file.parentFile.listFiles { f -> f.name.startsWith("${file.name}.damaged-") }!!
+        assertEquals(1, aside.size)
+        assertEquals("""{"events":[{"id":""", aside.single().readText())
+        assertNotNull(SharedGroups.unreadable[ana.groupId])
+        assertTrue(ana.env.logs.toString(), ana.env.logs.any { "the saved state of the group could not be read" in it })
+
+        // Her next action takes a number after her last one, not one already signed.
+        ana.add("7"); everyone()
+        assertTrue("the numbers go on from $seqBefore: ${ana.state().seq}", ana.state().seq > seqBefore)
+        val all = listOf("1", "2", "3", "4", "5", "6", "7")
+        assertEquals(all, ana.songs.sortedBy { it.toInt() })
+        assertEquals(all, ben.songs.sortedBy { it.toInt() })
+        assertEquals(all, cleo.songs.sortedBy { it.toInt() })
+    }
+
     @Test fun theGroupReachesEveryMemberOnTheirOwnService() {
         group()
         val first = listOf("1", "2", "3", "4", "5")
