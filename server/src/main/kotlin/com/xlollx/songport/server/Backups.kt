@@ -57,11 +57,13 @@ object Backups {
         var n = 0
         LocalFilesProvider.dir(env).listFiles { f -> f.isFile && f.extension == "csv" }.orEmpty().forEach { f ->
             val out = File(dir, f.name)
-            if (!out.exists()) { f.copyTo(out); n++ }
+            // Whole or not at all: a copy stopped half way (the server stopped, the disk full) must not
+            // leave a file cut short that the next run would skip as "already there".
+            if (!out.exists()) { com.xlollx.songport.data.AtomicFiles.copy(f, out); n++ }
         }
         // The set-up of the day: restoring the folder gives the syncs back, not only the playlists.
         val config = File(dir, com.xlollx.songport.data.ConfigBackup.fileName())
-        if (!config.exists()) { config.writeText(Notify.intoBackup(env, com.xlollx.songport.data.ConfigBackup.export(env, "Trackhop (scheduled backup)"))); n++ }
+        if (!config.exists()) { com.xlollx.songport.data.AtomicFiles.write(config, Notify.intoBackup(env, com.xlollx.songport.data.ConfigBackup.export(env, "Trackhop (scheduled backup)"))); n++ }
         return n
     }
 

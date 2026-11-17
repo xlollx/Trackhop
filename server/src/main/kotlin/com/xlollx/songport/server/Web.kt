@@ -255,7 +255,7 @@ class Web(
     internal val productName: String get() = edition.product
 
     internal fun page(title: String, body: String, refresh: Int? = null, wide: Boolean = false) =
-        Html.page(title, body, version, refresh, edition, currentPath.get().orEmpty(), account, theme = Theme.of(env), banner = updateBanner() + offlineBanner(), wide = wide)
+        Html.page(title, body, version, refresh, edition, currentPath.get().orEmpty(), account, theme = Theme.of(env), banner = updateBanner() + storageBanner() + offlineBanner(), wide = wide)
 
     /**
      * A friendly error page, in the server's language: what happened in plain words and where to go

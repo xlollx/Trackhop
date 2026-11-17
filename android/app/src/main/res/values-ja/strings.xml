@@ -3005,4 +3005,9 @@
     <plurals name="library_songs_as_before">
         <item quantity="other">%1$s 曲 · これまでどおり</item>
     </plurals>
+    <string name="export_not_saved">ファイルを保存できませんでした。空き容量がないか、フォルダにアクセスできなくなっています。書きかけのファイルは残っていません。もう一度お試しください。</string>
+    <string name="store_damaged_title">同期を読み込めませんでした</string>
+    <string name="store_damaged_text">保存されていた同期と設定が壊れていたため、Trackhop は空の状態で起動しました。上書きはしていません。壊れたファイルはこの端末に残してあります。バックアップファイルがあれば、設定から復元してください。</string>
+    <string name="accounts_keystore_unavailable">現在、ログイン情報を読み取れません。この端末のセキュアストレージを開けませんでした。そのため、サービスが未接続と表示されています。何も失われていません。Trackhop を完全に終了して開き直すか、端末を再起動してください。今ログインし直しても保持されません。</string>
+    <string name="tools_dedupe_not_put_back">「%1$s」の余分なコピーは削除しましたが、接続が切れたため 1 つを戻せませんでした。プレイリストに手動で追加してください。</string>
 </resources>

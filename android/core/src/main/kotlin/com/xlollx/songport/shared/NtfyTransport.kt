@@ -467,11 +467,7 @@ class NtfyTransport(
             runCatching { codec.decodeFromString(NtfyState.serializer(), file(env, groupId).readText()) }.getOrNull() ?: NtfyState()
 
         private fun save(env: Env, groupId: String, s: NtfyState) {
-            val f = file(env, groupId)
-            f.parentFile.mkdirs()
-            val tmp = File(f.parentFile, ".${f.name}.tmp")
-            tmp.writeText(codec.encodeToString(NtfyState.serializer(), s))
-            if (!tmp.renameTo(f)) { f.writeText(tmp.readText()); tmp.delete() }
+            com.xlollx.songport.data.AtomicFiles.write(file(env, groupId), codec.encodeToString(NtfyState.serializer(), s))
         }
 
         fun forget(env: Env, groupId: String) { file(env, groupId).delete() }

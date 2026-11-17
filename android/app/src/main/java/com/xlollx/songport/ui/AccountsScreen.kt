@@ -185,8 +185,11 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
         if (index >= 0) runCatching { listState.animateScrollToItem(index + 1) }
         ConnectorFocus.request.value = null
     }
+    val keystoreTrouble = remember { com.xlollx.songport.data.TokenStore.unavailable(ctx) != null }
     LazyColumn(Modifier.fillMaxSize(), state = listState, contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp + LocalBottomBarInset.current), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item(key = "intro") { TrustBanner() }
+        // The saved sign-ins could not be opened: said here, where every service would just look disconnected.
+        if (keystoreTrouble) item(key = "keystore") { KeystoreBanner() }
         items(providers, key = { it.id }) { p ->
             key(refresh) {
                 if (p.serviceId == LocalFilesProvider.serviceId) FilesCard(snackbar, onRemove = { remove(p) }, onManage = onManageFiles, onSendTo = onSendTo)
@@ -383,6 +386,19 @@ private fun TrustBanner() {
         Icon(Icons.Filled.Lock, null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
         Spacer(Modifier.width(12.dp))
         Text(stringResource(R.string.accounts_intro), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
+    }
+}
+
+/** The phone's secure storage did not open: the sign-ins are not lost, they cannot be read right now. */
+@Composable
+private fun KeystoreBanner() {
+    Row(
+        Modifier.fillMaxWidth().clip(MaterialTheme.shapes.medium).background(MaterialTheme.colorScheme.errorContainer).padding(14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(Icons.Filled.Lock, null, tint = MaterialTheme.colorScheme.onErrorContainer)
+        Spacer(Modifier.width(12.dp))
+        Text(stringResource(R.string.accounts_keystore_unavailable), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onErrorContainer)
     }
 }
 

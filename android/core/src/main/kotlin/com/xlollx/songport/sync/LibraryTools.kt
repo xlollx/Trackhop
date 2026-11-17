@@ -88,12 +88,38 @@ object LibraryTools {
             if (byItem.isNotEmpty()) provider.removeTracks(ctx, playlistId, byItem)
             if (byId.isNotEmpty()) {
                 // Rimozione per id: le copie con lo stesso id del "da tenere" spariscono tutte, poi se ne rimette una.
-                provider.removeTracks(ctx, playlistId, byId)
-                if (byId.any { it.id == keep.id }) provider.addTracks(ctx, playlistId, listOf(keep))
+                // The two steps are one: a page left or a run stopped between them would take the song
+                // out of the playlist altogether. Not stopped here, the copy put back is tried again when
+                // the connection drops, and a song that could not be put back is named, to add by hand.
+                kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
+                    provider.removeTracks(ctx, playlistId, byId)
+                    if (byId.any { it.id == keep.id }) putBack(ctx, provider, playlistId, keep)
+                }
             }
             removed += extras.size
         }
         return removed
+    }
+
+    /** How long [putBack] waits before each new try (milliseconds); tests set it to nothing. */
+    @Volatile internal var PUT_BACK_WAITS_MS = longArrayOf(1_000, 3_000, 8_000)
+
+    /** [keep] added again after its copies were all removed; when every try fails, the song is named. */
+    private suspend fun putBack(ctx: Env, provider: MusicProvider, playlistId: String, keep: Track) {
+        var attempt = 0
+        while (true) {
+            try {
+                provider.addTracks(ctx, playlistId, listOf(keep))
+                return
+            } catch (e: Exception) {
+                val wait = PUT_BACK_WAITS_MS.getOrNull(attempt++)
+                if (wait == null) {
+                    ctx.log("tools", "duplicates: $keep removed from $playlistId on ${provider.displayName} and not put back: ${e.message?.take(160)}")
+                    throw ProviderException(ctx.text("tools_dedupe_not_put_back", listOfNotNull(keep.artists.firstOrNull(), keep.title).joinToString(" – ")))
+                }
+                kotlinx.coroutines.delay(wait)
+            }
+        }
     }
 
     // ---------------------------------------------------------------- unplayable tracks
@@ -217,9 +243,15 @@ object LibraryTools {
             onProgress(Progress(Progress.Step.ADDING, added, tracks.size))
             try {
                 provider.addTracks(ctx, pl.id, chunk); added += chunk.size
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                // Stopped (the page left, the app closed), not refused: it ends here, instead of trying
+                // every track left by itself and listing each as failed.
+                throw e
             } catch (e: Exception) {
                 for (t in chunk) {
-                    try { provider.addTracks(ctx, pl.id, listOf(t)); added++ } catch (e2: Exception) { failed += "$t (${e2.message})" }
+                    try { provider.addTracks(ctx, pl.id, listOf(t)); added++ }
+                    catch (e2: kotlinx.coroutines.CancellationException) { throw e2 }
+                    catch (e2: Exception) { failed += "$t (${e2.message})" }
                 }
             }
         }

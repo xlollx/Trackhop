@@ -110,7 +110,8 @@ fun FilesScreen(onClose: () -> Unit, onSendTo: (id: String, name: String) -> Uni
                         val doc = DocumentsContract.createDocument(resolver, dirUri, format.mime, name) ?: return@count false
                         val text = if (format != LocalFilesProvider.Export.OPML) LocalFilesProvider.exportText(ctx, id, format)
                             else LocalFilesProvider.encodeLooked(ctx.env, format, id, LocalFilesProvider.tracks(ctx.env, id)).first
-                        resolver.openOutputStream(doc)?.bufferedWriter()?.use { it.write(text) } != null
+                        // Whole or not there: a file that stopped half way is removed, and not counted.
+                        runCatching { com.xlollx.songport.data.DocumentWrite.text(ctx, doc, text) }.isSuccess
                     }
                 }
             }
@@ -151,15 +152,18 @@ fun FilesScreen(onClose: () -> Unit, onSendTo: (id: String, name: String) -> Uni
         exporting = null
         if (uri == null || id == null) return
         scope.launch {
-            // OPML: the feeds a file of shows lacks are looked up first (Apple's directory, paced).
-            val (text, noFeed) = withContext(Dispatchers.IO) {
-                if (format != LocalFilesProvider.Export.OPML) LocalFilesProvider.exportText(ctx, id, format) to 0
-                else LocalFilesProvider.encodeLooked(ctx.env, format, id, LocalFilesProvider.tracks(ctx.env, id))
+            // A write that fails (no space left, the folder gone) is said here: it used to close the app.
+            try {
+                // OPML: the feeds a file of shows lacks are looked up first (Apple's directory, paced).
+                val (text, noFeed) = withContext(Dispatchers.IO) {
+                    if (format != LocalFilesProvider.Export.OPML) LocalFilesProvider.exportText(ctx, id, format) to 0
+                    else LocalFilesProvider.encodeLooked(ctx.env, format, id, LocalFilesProvider.tracks(ctx.env, id))
+                }
+                withContext(Dispatchers.IO) { com.xlollx.songport.data.DocumentWrite.text(ctx, uri, text) }
+                snackbar.showSnackbar(if (noFeed > 0) ctx.getString(R.string.opml_feeds_missing, noFeed) else ctx.getString(R.string.csv_exported))
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+                snackbar.showSnackbar(e.userMessage(ctx))
             }
-            withContext(Dispatchers.IO) {
-                ctx.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(text) }
-            }
-            snackbar.showSnackbar(if (noFeed > 0) ctx.getString(R.string.opml_feeds_missing, noFeed) else ctx.getString(R.string.csv_exported))
         }
     }
     val export = rememberPlaylistExporter { uri, format -> writeExport(uri, format) }

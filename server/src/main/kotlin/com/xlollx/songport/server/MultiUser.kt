@@ -65,7 +65,12 @@ class MultiUser private constructor(
     private val classPath = System.getProperty("java.class.path").split(File.pathSeparator).filter { it.isNotBlank() }
         .map { File(it).toURI().toURL() }.toTypedArray()
 
-    private fun log(message: String) = admin.env.log("users", message)
+    /** A line of the admin's log. [people] are the user names in it, which a report for asking for help leaves out ([Log.people]). */
+    private fun log(message: String, vararg people: String) {
+        // Only what can be a user name, and not without end: a name typed at the sign-in page comes here too.
+        Log.people += listOf(adminName) + users.names() + people.filter { NAME.matches(it) && Log.people.size < MAX_NAMED }
+        admin.env.log("users", message)
+    }
 
     private fun startEngine(name: String) {
         val dir = userDir(name).apply { mkdirs() }
@@ -84,7 +89,7 @@ class MultiUser private constructor(
         } catch (e: Throwable) {
             val cause = (e as? java.lang.reflect.InvocationTargetException)?.targetException ?: e
             broken[name] = "${cause.javaClass.simpleName}: ${cause.message}"
-            log("$name's Trackhop did not start: ${broken[name]}")
+            log("$name's Trackhop did not start: ${broken[name]}", name)
             runCatching { loader.close() }
         }
     }
@@ -224,7 +229,7 @@ class MultiUser private constructor(
         val name = normalize(f["user"].orEmpty())
         if (!verify(name, f["password"].orEmpty())) {
             failures.merge(ip, 1 to now) { old, _ -> old.first + 1 to old.second }
-            log("wrong password for \"${name.take(32)}\" from $ip")
+            log("wrong password for \"${name.take(32)}\" from $ip", name.take(32))
             return send(ex, 401, loginPage(safeNext(f["next"]), "Wrong user name or password."))
         }
         failures.remove(ip)
@@ -261,7 +266,7 @@ class MultiUser private constructor(
                 else -> {
                     users.add(invite.name, password, invite.permissions)
                     startEngine(invite.name)
-                    log("${invite.name} joined with the invitation from ${invite.by}")
+                    log("${invite.name} joined with the invitation from ${invite.by}", invite.name, invite.by)
                     val session = sessions.create(invite.name, config.password!!)
                     ex.responseHeaders.add("Set-Cookie", cookieHeader(session, SESSION_DAYS * 86_400L))
                     return redirect(ex, "/")
@@ -310,7 +315,7 @@ class MultiUser private constructor(
                     // Other browsers signed in as this person sign in again; this one stays.
                     sessions.removeUser(name, keep = cookie(ex, COOKIE))
                     basicCache.clear()
-                    log("$name changed their password")
+                    log("$name changed their password", name)
                     message = "Password changed. Other devices signed in as you have to sign in again."
                 }
             }
@@ -359,7 +364,7 @@ $passwordCard"""
                     f["how"] == "invite" || (f["how"] == null && password.isEmpty()) -> {
                         // Invited: the name is kept for them until they choose their password.
                         val token = invites.create(name, chosen, me)
-                        log("$me invited $name (${Permissions.format(chosen).ifEmpty { "no permissions" }})")
+                        log("$me invited $name (${Permissions.format(chosen).ifEmpty { "no permissions" }})", me, name)
                         newLink = name to inviteLink(token)
                     }
                     password.length < MIN_PASSWORD -> error = "Use at least $MIN_PASSWORD characters for the password."
@@ -367,7 +372,7 @@ $passwordCard"""
                         users.add(name, password, chosen)
                         invites.cancel(name)
                         startEngine(name)
-                        log("$me added $name (${Permissions.format(chosen).ifEmpty { "no permissions" }})")
+                        log("$me added $name (${Permissions.format(chosen).ifEmpty { "no permissions" }})", me, name)
                         message = "Added $name: they sign in with that name and password, and start with an empty Trackhop."
                     }
                 }
@@ -378,7 +383,7 @@ $passwordCard"""
                         users.setPassword(name, password)
                         sessions.removeUser(name)
                         basicCache.clear()
-                        log("$me set a new password for $name")
+                        log("$me set a new password for $name", me, name)
                         message = "New password for $name: tell them, they sign in again with it."
                     }
                 }
@@ -389,7 +394,7 @@ $passwordCard"""
                     else -> {
                         users.setPermissions(name, chosen)
                         restartEngine(name)
-                        log("$me set $name's permissions: ${Permissions.format(chosen).ifEmpty { "none" }}")
+                        log("$me set $name's permissions: ${Permissions.format(chosen).ifEmpty { "none" }}", me, name)
                         message = "Saved $name's permissions. Their Trackhop restarted with them: a sync that was running starts again at its next turn."
                     }
                 }
@@ -397,12 +402,12 @@ $passwordCard"""
                     null -> error = "There is no invitation for $name."
                     else -> {
                         newLink = name to inviteLink(invites.create(name, old.permissions, me))
-                        log("$me made a new invitation link for $name")
+                        log("$me made a new invitation link for $name", me, name)
                     }
                 }
                 "cancel" -> {
                     invites.cancel(name)
-                    log("$me cancelled the invitation for $name")
+                    log("$me cancelled the invitation for $name", me, name)
                     message = "Cancelled the invitation for $name: the link no longer works."
                 }
                 "remove" -> when {
@@ -415,7 +420,7 @@ $passwordCard"""
                         basicCache.clear()
                         broken.remove(name)
                         val kept = moveAway(name)
-                        log("$me removed $name, data kept in ${kept?.path ?: "(nothing)"}")
+                        log("$me removed $name, data kept in ${kept?.path ?: "(nothing)"}", me, name)
                         message = "Removed $name." + (kept?.let { " Their data is kept in ${it.path}: delete that folder when you no longer need it." } ?: "")
                     }
                 }
@@ -490,6 +495,8 @@ $pending$rows
         /** The admin's user name unless SONGPORT_USER sets another: SONGPORT_PASSWORD is their password. Never someone else's. */
         const val ADMIN = "admin"
         const val USERS_DIR = "users"
+        /** The names typed at the sign-in page that a report still hides: enough for any server, an end for a flood. */
+        private const val MAX_NAMED = 2000
         const val REMOVED_DIR = "users-removed"
         internal const val COOKIE = "trackhop_session"
         /** Settings a person's engine receives besides the container's: their name, the shared data folder, the server's port. */

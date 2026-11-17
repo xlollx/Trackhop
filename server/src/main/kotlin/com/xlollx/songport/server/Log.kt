@@ -17,6 +17,19 @@ object Log {
     /** Several people on one server: whose engine this is, at the start of its lines in the container's output. */
     @Volatile var who: String? = null
 
+    /**
+     * The people of a shared server named in the lines so far ([MultiUser] says who): a report for
+     * asking for help leaves their names out, as it does the syncs' and the playlists'.
+     */
+    val people: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
+
+    /** As a process just started: no lines, no file, nobody named (tests, which share one process). */
+    internal fun reset() {
+        synchronized(lines) { lines.clear(); file = null }
+        people.clear()
+        who = null
+    }
+
     fun init(dataDir: File) { file = File(dataDir, "songport.log") }
 
     fun add(tag: String, message: String) {

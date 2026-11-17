@@ -3077,4 +3077,9 @@
         <item quantity="one">%1$s şarkı · eskisi gibi</item>
         <item quantity="other">%1$s şarkı · eskisi gibi</item>
     </plurals>
+    <string name="export_not_saved">Dosya kaydedilemedi: yer kalmadı ya da klasöre artık ulaşılamıyor. Yarım yazılmış bir şey bırakılmadı. Yeniden dene.</string>
+    <string name="store_damaged_title">Eşitlemelerin okunamadı</string>
+    <string name="store_damaged_text">Trackhop kayıtlı eşitlemeleri ve ayarları bozulmuş buldu ve boş olarak başladı. Hiçbir şeyin üzerine yazılmadı: bozuk dosya bu telefonda duruyor. Bir yedek dosyan varsa Ayarlar\'dan geri yükle.</string>
+    <string name="accounts_keystore_unavailable">Oturumların şu anda okunamıyor: bu telefonun güvenli deposu açılmadı. Bu yüzden hizmetler bağlı değil olarak görünüyor. Hiçbir şey kaybolmadı: Trackhop\'u tamamen kapatıp yeniden aç ya da telefonu yeniden başlat. Şimdi yeniden oturum açmak kalıcı olmaz.</string>
+    <string name="tools_dedupe_not_put_back">“%1$s” parçasının fazla kopyaları kaldırıldı ama biri geri konulamadı: bağlantı kesildi. Çalma listesine elle ekle.</string>
 </resources>

@@ -195,11 +195,7 @@ class ServerGroupTransport(private val env: Env, private val groupId: String, ad
             runCatching { codec.decodeFromString(MailboxState.serializer(), file(env, groupId).readText()) }.getOrNull() ?: MailboxState()
 
         private fun save(env: Env, groupId: String, s: MailboxState) {
-            val f = file(env, groupId)
-            f.parentFile.mkdirs()
-            val tmp = File(f.parentFile, ".${f.name}.tmp")
-            tmp.writeText(codec.encodeToString(MailboxState.serializer(), s))
-            if (!tmp.renameTo(f)) { f.writeText(tmp.readText()); tmp.delete() }
+            com.xlollx.songport.data.AtomicFiles.write(file(env, groupId), codec.encodeToString(MailboxState.serializer(), s))
         }
 
         fun forget(env: Env, groupId: String) { file(env, groupId).delete() }

@@ -30,7 +30,8 @@ object Diagnostics {
     /**
      * The names a report leaves out unless asked: each sync's (as "[sync N]", N its place in the list,
      * so lines about the same sync still read as one), its playlists', and the tracks, artists and
-     * albums of the last runs. Whole words only, and never a service's own name.
+     * albums of the last runs, and on a shared server the people's user names (as "[user]": the
+     * admin's log names them). Whole words only, and never a service's own name.
      */
     class Names(env: ServerEnv) {
         private val map = LinkedHashMap<String, String>()
@@ -51,6 +52,15 @@ object Diagnostics {
                     add(t.title, "[track]"); t.artists.forEach { add(it, "[artist]") }; add(t.artistLine, "[artist]"); add(t.album, "[album]")
                 }
             }
+            // The people of a shared server: those the log named since the start, those with a folder
+            // here, and those removed whose data is kept (<name>-<date>-<time>). Their names are short.
+            val folders = listOf(MultiUser.USERS_DIR to false, MultiUser.REMOVED_DIR to true).flatMap { (dir, stamped) ->
+                runCatching { java.io.File(env.owner, dir).list()?.map { if (stamped) it.replace(REMOVED_STAMP, "") else it } }.getOrNull().orEmpty()
+            }
+            (Log.people + folders).forEach { p ->
+                val n = p.trim().lowercase()
+                if (n.length >= 2 && n !in services && n !in map) map[n] = "[user]"
+            }
             regex = map.keys.sortedByDescending { it.length }.takeIf { it.isNotEmpty() }
                 ?.joinToString("|", """(?<![\p{L}\p{N}])(?:""", """)(?![\p{L}\p{N}])""") { Regex.escape(it) }
                 ?.let { Regex(it, setOf(RegexOption.IGNORE_CASE)) }
@@ -58,6 +68,8 @@ object Diagnostics {
 
         fun hide(text: String): String = regex?.replace(text) { m -> map[m.value.lowercase()] ?: "[name]" } ?: text
     }
+
+    private val REMOVED_STAMP = Regex("""-\d{8}-\d{6}$""")
 
     /** The addresses of the user's own servers (Navidrome, Jellyfin, Plex…), hidden wherever they appear. */
     private fun servers(env: ServerEnv): List<String> =

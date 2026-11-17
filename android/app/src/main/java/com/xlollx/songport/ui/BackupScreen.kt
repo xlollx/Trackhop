@@ -90,10 +90,10 @@ fun BackupScreen(onClose: () -> Unit) {
                 runCatching {
                     // With the notification channels, never their secrets (Notify.intoBackup).
                     val text = com.xlollx.songport.notify.Notify.intoBackup(ctx.env, ConfigBackup.export(ctx.env, "Trackhop ${BuildConfig.VERSION_NAME} (Android)", deviceName = android.os.Build.MODEL.orEmpty()))
-                    ctx.contentResolver.openOutputStream(uri)?.use { it.write(text.toByteArray()) } ?: error("no stream")
+                    com.xlollx.songport.data.DocumentWrite.text(ctx, uri, text)
                 }.isSuccess
             }
-            snackbar.showSnackbar(ctx.getString(if (ok) R.string.backup_config_saved else R.string.error_generic))
+            snackbar.showSnackbar(ctx.getString(if (ok) R.string.backup_config_saved else R.string.export_not_saved))
         }
     }
     var pending by remember { mutableStateOf<ConfigBackup.Snapshot?>(null) }
@@ -284,7 +284,7 @@ private fun FullBackupSaveRow(snackbar: SnackbarHostState) {
             val done = withContext(Dispatchers.IO) {
                 runCatching {
                     val out = FullBackup.export(ctx, password)
-                    ctx.contentResolver.openOutputStream(uri)?.use { it.write(out.text.toByteArray()) } ?: error("no stream")
+                    com.xlollx.songport.data.DocumentWrite.text(ctx, uri, out.text)
                     out
                 }.also { password.fill('\u0000') }
             }
@@ -297,7 +297,7 @@ private fun FullBackupSaveRow(snackbar: SnackbarHostState) {
                     },
                     duration = if (out.webGap != FullBackup.WebGap.NONE) androidx.compose.material3.SnackbarDuration.Long else androidx.compose.material3.SnackbarDuration.Short,
                 )
-            }.onFailure { snackbar.showSnackbar(ctx.getString(R.string.error_generic)) }
+            }.onFailure { snackbar.showSnackbar(if (it is com.xlollx.songport.data.DocumentWrite.NotSaved) it.message.orEmpty() else ctx.getString(R.string.error_generic)) }
         }
     }
     PrefRow(Icons.Filled.Lock, stringResource(R.string.backup_full_save), stringResource(R.string.backup_full_save_desc), chevron = false) { first = ""; again = ""; asking = true }

@@ -4,6 +4,9 @@ import com.xlollx.songport.providers.*
 import android.app.Application
 import com.xlollx.songport.sync.Scheduler
 
+/** The notice shown when the saved syncs could not be read at the start. */
+private const val STORE_NOTICE_ID = 4290
+
 class SongportApp : Application() {
     override fun onCreate() {
         super.onCreate()
@@ -48,6 +51,12 @@ class SongportApp : Application() {
         // The sync cards' last "up to date" checks, so a card opens with them (FreshnessChecks).
         com.xlollx.songport.ui.FreshnessChecks.init(this)
         Notifications.ensureChannel(this)
+        // The saved syncs were there but could not be read (FileStore.damagedCopy): the app started
+        // empty and says so, with the unreadable file kept aside, instead of quietly losing them.
+        com.xlollx.songport.data.Store.get(this).damagedCopy?.let {
+            com.xlollx.songport.data.Diagnostics.log(this, "store", "store.json could not be read: started empty, the unreadable file is kept as ${it.name}")
+            Notifications.notice(this, STORE_NOTICE_ID, getString(R.string.store_damaged_title), getString(R.string.store_damaged_text))
+        }
         // Riallinea i lavori periodici alla configurazione salvata (idempotente).
         Scheduler.applyAll(this)
     }

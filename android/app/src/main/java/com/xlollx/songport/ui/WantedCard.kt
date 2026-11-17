@@ -73,7 +73,7 @@ fun WantedCard(snackbar: SnackbarHostState) {
             val wants = list.filter { !it.got }
             if (uri != null) scope.launch {
                 try {
-                    withContext(Dispatchers.IO) { ctx.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(f.encode(wants)) } }
+                    withContext(Dispatchers.IO) { com.xlollx.songport.data.DocumentWrite.text(ctx, uri, f.encode(wants)) }
                     snackbar.showSnackbar(ctx.getString(R.string.tools_export_done, wants.size))
                 } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
                     snackbar.showSnackbar(e.userMessage(ctx))

@@ -93,6 +93,33 @@ class ListeningExportTest {
         }
     }
 
+    /** Where the [n]th file of the archive [zip] starts (its "PK 03 04"), n from 0. */
+    private fun fileStart(zip: ByteArray, n: Int): Int {
+        var seen = -1
+        for (i in 0 until zip.size - 3) {
+            if (zip[i] == 'P'.code.toByte() && zip[i + 1] == 'K'.code.toByte() && zip[i + 2] == 3.toByte() && zip[i + 3] == 4.toByte() && ++seen == n) return i
+        }
+        error("no file $n")
+    }
+
+    @Test fun `an archive cut between two of its files is refused, not read as a shorter history`() {
+        val whole = zip("Spotify Extended Streaming History/Streaming_History_Audio_2014-2015_0.json" to res("spotify-extended.json"),
+            "Spotify Extended Streaming History/Streaming_History_Audio_2016-2017_1.json" to res("spotify-extended.json"))
+        assertEquals(10, read(whole).size)
+        // Cut exactly where the second file starts (a download stopped there), in the closing list, and just before its end.
+        for (cut in listOf(fileStart(whole, 1), whole.size - 40, whole.size - 1)) {
+            val e = runCatching { read(whole.copyOf(cut)) }.exceptionOrNull()
+            assertTrue("cut at $cut of ${whole.size}: $e", e is ItunesLibrary.Incomplete)
+        }
+        // A workbook cut the same way.
+        val book = workbook()
+        assertTrue(runCatching { read(book.copyOf(fileStart(book, 2))) }.exceptionOrNull() is ItunesLibrary.Incomplete)
+        // A comment at the end of the archive, and an archive inside an archive, are still whole.
+        val commented = ByteArrayOutputStream().also { o -> ZipOutputStream(o).use { z -> z.setComment("exported for you"); z.putNextEntry(ZipEntry("a.json")); z.write(res("spotify-extended.json")); z.closeEntry() } }.toByteArray()
+        assertEquals(5, read(commented).size)
+        assertEquals(2, read(zip("deezer-data.xlsx" to workbook())).size)
+    }
+
     @Test fun `a file with no listening history is said`() {
         for (bytes in listOf(zip("notes.txt" to "hi".toByteArray(), "data.json" to """{"a":1}""".toByteArray()), """[{"name":"x"}]""".toByteArray(), "hello".toByteArray())) {
             assertTrue(runCatching { read(bytes) }.exceptionOrNull() is ListeningExport.NotAnExport)

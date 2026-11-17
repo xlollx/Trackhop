@@ -258,6 +258,9 @@ private fun readExport(ctx: Context, uri: Uri) {
                 }
             } catch (e: ListeningExport.NotAnExport) {
                 throw Exception(app.getString(R.string.lifetime_not_export))
+            } catch (e: com.xlollx.songport.sync.ItunesLibrary.Incomplete) {
+                // An archive cut short (a download or a copy stopped): no sums from half a history.
+                throw Exception(app.getString(R.string.file_incomplete))
             }
             k.plays = plays
             builder.build().also { ListeningExport.keep(app.env, it) }

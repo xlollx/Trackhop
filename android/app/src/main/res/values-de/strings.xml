@@ -3079,4 +3079,9 @@
         <item quantity="one">%1$s Song · wie bisher</item>
         <item quantity="other">%1$s Songs · wie bisher</item>
     </plurals>
+    <string name="export_not_saved">Die Datei konnte nicht gespeichert werden: Es ist kein Speicherplatz mehr frei oder der Ordner ist nicht mehr erreichbar. Es wurde nichts halb geschrieben zurückgelassen. Versuche es erneut.</string>
+    <string name="store_damaged_title">Deine Syncs konnten nicht gelesen werden</string>
+    <string name="store_damaged_text">Trackhop hat seine gespeicherten Syncs und Einstellungen beschädigt vorgefunden und leer gestartet. Nichts wurde überschrieben: Die beschädigte Datei bleibt auf diesem Telefon. Wenn du eine Backup-Datei hast, stelle sie in den Einstellungen wieder her.</string>
+    <string name="accounts_keystore_unavailable">Deine Anmeldungen können gerade nicht gelesen werden: Der sichere Speicher dieses Telefons hat sich nicht geöffnet. Deshalb werden die Dienste als nicht verbunden angezeigt. Nichts ist verloren: Schließe Trackhop vollständig und öffne es erneut oder starte das Telefon neu. Eine erneute Anmeldung jetzt würde nicht halten.</string>
+    <string name="tools_dedupe_not_put_back">Die zusätzlichen Kopien von „%1$s“ wurden entfernt, aber eine konnte nicht wieder hinzugefügt werden: Die Verbindung ist abgebrochen. Füge den Titel von Hand zur Playlist hinzu.</string>
 </resources>

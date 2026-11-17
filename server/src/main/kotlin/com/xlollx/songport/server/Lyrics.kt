@@ -161,7 +161,8 @@ object Lyrics {
     private fun write(audio: File, ext: String, text: String) {
         val out = File(audio.parentFile, audio.nameWithoutExtension + "." + ext)
         try {
-            out.writeText(text.trimEnd() + "\n")
+            // Whole or not at all: half a lyrics file would count as "has lyrics" from then on.
+            com.xlollx.songport.data.AtomicFiles.write(out, text.trimEnd() + "\n")
         } catch (e: java.io.IOException) {
             throw IllegalStateException("$READ_ONLY (${out.parentFile.name}: ${e.message})")
         }

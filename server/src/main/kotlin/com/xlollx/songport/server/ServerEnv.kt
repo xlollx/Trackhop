@@ -39,6 +39,22 @@ class ServerEnv(
 
     override val store: FileStore = FileStore(dataDir).also { FileStore.install(it) }
     override val tokens: TokenVault = JsonTokenVault(File(dataDir, "tokens.json"))
+
+    init {
+        store.damagedCopy?.let { Log.add("storage", "store.json (the syncs, their history and the settings) could not be read, so Trackhop started empty; the unreadable file is kept as ${it.name}") }
+    }
+
+    /**
+     * What went wrong with the saved state, in plain words for the pages; null when all is well: the
+     * state or the sign-ins could not be read at the start (kept aside, never written over), or the
+     * last write failed (a full disk), so what is on the screen is not saved yet.
+     */
+    fun storageTrouble(): String? = when {
+        store.damagedCopy != null -> "Trackhop could not read its saved syncs and settings, so it started empty. Nothing was deleted: the unreadable file is kept as ${store.damagedCopy?.name} in the data folder. Restore a backup from Tools › Backup & restore."
+        (tokens as? JsonTokenVault)?.damaged == true -> "Trackhop could not read its saved sign-ins, so the services have to be connected again. The unreadable file is kept beside tokens.json in the data folder."
+        store.writeError != null -> "Trackhop cannot save its changes (${store.writeError}): the disk may be full. What you see is kept only until Trackhop stops; free some space and it is saved by itself."
+        else -> null
+    }
     override val redirectUri: String get() = "$baseUrl/callback"
 
     override fun text(name: String, vararg args: Any): String = SERVER_TEXTS[name]?.let { if (args.isEmpty()) it else String.format(it, *args) } ?: strings.text(name, *args)

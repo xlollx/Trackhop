@@ -175,7 +175,7 @@ private fun ReportRow(r: SyncReport, job: SyncJob?, snackbar: SnackbarHostState,
         if (uri != null && fileTarget != null) scope.launch {
             try {
                 val text = LocalFilesProvider.exportText(ctx, fileTarget, LocalFilesProvider.Export.CSV)
-                withContext(Dispatchers.IO) { ctx.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(text) } }
+                withContext(Dispatchers.IO) { com.xlollx.songport.data.DocumentWrite.text(ctx, uri, text) }
                 snackbar.showSnackbar(ctx.getString(R.string.csv_exported))
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
                 snackbar.showSnackbar(e.userMessage(ctx))

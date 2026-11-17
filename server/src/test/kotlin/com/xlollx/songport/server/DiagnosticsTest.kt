@@ -51,6 +51,8 @@ class DiagnosticsTest {
     private var github: MockWebServer? = null
 
     @Before fun start() {
+        // The log is one for the process: without the lines of the tests that ran before (whatever their order).
+        Log.reset()
         data = tmp.newFolder("data")
         installServerConnectors()
         env = ServerEnv(data, Strings(emptyMap()), "https://songport.example.org")
@@ -142,6 +144,44 @@ class DiagnosticsTest {
         assertEquals(plain.s("signature"), named.s("signature"))
 
         assertEquals(400, call("GET", "diagnostics?since=yesterday").code)
+    }
+
+    /** The admin's log of a shared server names its people: a report leaves them out as it does the syncs. */
+    @Test fun thePeopleOfASharedServerAreNotNamedUnlessAsked() {
+        val root = tmp.newFolder("shared")
+        val settings = mapOf("SONGPORT_DATA" to root.path, "SONGPORT_PORT" to "0", "SONGPORT_PASSWORD" to "admin-secret", "SONGPORT_MULTIUSER" to "true", "SONGPORT_USER" to "Lorenzo")
+        val hub = MultiUser.serve(Config(settings), settings)
+        try {
+            val at = "http://127.0.0.1:${hub.server!!.address.port}"
+            fun form(path: String, cookie: String?, vararg f: Pair<String, String>) = client.send(
+                HttpRequest.newBuilder(URI("$at$path")).header("Content-Type", "application/x-www-form-urlencoded").header("Origin", at)
+                    .apply { cookie?.let { header("Cookie", it) } }
+                    .POST(HttpRequest.BodyPublishers.ofString(f.joinToString("&") { "${it.first}=${it.second}" })).build(),
+                HttpResponse.BodyHandlers.ofString(),
+            )
+            val admin = form("/login", null, "user" to "lorenzo", "password" to "admin-secret").headers().firstValue("Set-Cookie").get().substringBefore(';')
+            assertTrue(form("/users", admin, "action" to "add", "name" to "giulia", "password" to "giulia-password").body().contains("Added giulia"))
+            form("/users", admin, "action" to "remove", "name" to "giulia")
+            form("/login", null, "user" to "martina", "password" to "not-hers")
+
+            val shared = ServerEnv(root, Strings(emptyMap()), "https://songport.example.org")
+            val since = System.currentTimeMillis() - 3_600_000
+            val named = Diagnostics.report(shared, "Trackhop server", "2.1.0", since, names = true)
+            for (line in listOf("several people on this server: lorenzo and", "lorenzo added giulia", "lorenzo removed giulia", "wrong password for \"martina\"")) assertTrue("$line not in:\n$named", named.contains(line))
+            val report = Diagnostics.report(shared, "Trackhop server", "2.1.0", since, names = false)
+            for (name in listOf("lorenzo", "giulia", "martina")) assertFalse("$name still in:\n$report", report.contains(name))
+            assertTrue(report, report.contains("several people on this server: [user] and"))
+            assertTrue(report, report.contains("[user] added [user]"))
+
+            // After a restart nobody has been named yet: the folders say who is, and who was, on this server.
+            Log.people.clear()
+            val later = Diagnostics.clean(shared, "lorenzo removed giulia, data kept in /data/users-removed/giulia-20261117-101500", names = false)
+            assertFalse(later, later.contains("giulia"))
+        } finally {
+            hub.stop()
+            LocalKey.reset()
+            LocalKey.write(data, server.address.port)
+        }
     }
 
     // ------------------------------------------------------------------ signature

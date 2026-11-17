@@ -1484,7 +1484,8 @@ object Cards {
 
     /** Writes the PNG where the system picker said. */
     fun save(ctx: Context, bmp: Bitmap, uri: Uri): Boolean = runCatching {
-        ctx.contentResolver.openOutputStream(uri)?.use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) } != null
+        com.xlollx.songport.data.DocumentWrite.to(ctx, uri) { if (!bmp.compress(Bitmap.CompressFormat.PNG, 100, it)) throw java.io.IOException("not compressed") }
+        true
     }.getOrDefault(false)
 }
 
