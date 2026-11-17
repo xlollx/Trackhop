@@ -229,7 +229,9 @@ class MultiUser private constructor(
         val name = normalize(f["user"].orEmpty())
         if (!verify(name, f["password"].orEmpty())) {
             failures.merge(ip, 1 to now) { old, _ -> old.first + 1 to old.second }
-            log("wrong password for \"${name.take(32)}\" from $ip", name.take(32))
+            // What was typed may be a password in the wrong box: only a possible user name reaches the log.
+            val typed = name.take(32).takeIf { NAME.matches(it) }
+            log("wrong password for ${typed?.let { "\"$it\"" } ?: "(not a user name)"} from $ip", *listOfNotNull(typed).toTypedArray())
             return send(ex, 401, loginPage(safeNext(f["next"]), "Wrong user name or password."))
         }
         failures.remove(ip)

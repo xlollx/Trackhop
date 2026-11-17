@@ -82,6 +82,17 @@ class MultiUserTest {
         assertEquals("/", away.headers().firstValue("Location").get())
     }
 
+    @Test fun aTypedNameThatIsNoUserNameNeverReachesTheReport() {
+        val since = System.currentTimeMillis() - 1000
+        // A password typed in the name box.
+        assertEquals(401, post("/login", mapOf("user" to "Hunter2 Secret!", "password" to "x")).statusCode())
+        assertEquals(401, post("/login", mapOf("user" to "nobody", "password" to "x")).statusCode())
+        val report = Diagnostics.report(ServerEnv(tmp.newFolder("diag"), Strings(emptyMap()), "https://songport.example.org"), "Trackhop server", "2.1.0", since, names = true)
+        assertFalse(report, report.contains("hunter2", ignoreCase = true))
+        assertTrue(report, report.contains("wrong password for (not a user name)"))
+        assertTrue(report, report.contains("wrong password for \"nobody\""))
+    }
+
     @Test fun eachPersonHasTheirOwnTrackhop() {
         val admin = signIn("admin", "admin-secret")
         assertTrue(post("/users", mapOf("action" to "add", "name" to "Anna", "password" to "short"), admin).body().contains("at least"))
