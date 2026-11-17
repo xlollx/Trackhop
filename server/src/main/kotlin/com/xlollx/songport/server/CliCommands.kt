@@ -105,6 +105,10 @@ internal class CliCommands(
         val running = s["running"]?.jsonArray?.size ?: 0
         out.println("Trackhop ${s.s("version")}")
         out.println("${s.n("syncs")} syncs, ${if (running == 0) "none running" else "$running running"}, last run ${whenAt(s.l("lastRun"))}")
+        // Cut short by a restart of Trackhop: said until run again; nothing restarts by itself.
+        (s["interrupted"] as? JsonArray)?.map { it.jsonObject }?.forEach { m ->
+            out.println("Interrupted by a restart: ${m.s("title")} (${if (m.s("kind") == "sync") "run it again: trackhop run \"${m.s("title")}\"" else "a tool: start it again"})")
+        }
         return 0
     }
 

@@ -30,7 +30,11 @@ internal fun Web.toolPage(r: Web.Req, tool: String) {
 }
 
 internal fun Web.taskPage(r: Web.Req, id: String) {
-    val t = Tasks.get(id, env.sees) ?: return send(r.ex, 404, page("Finished", """<div class="card">This run is no longer kept. <a href="/tools">Tools</a></div>"""))
+    val t = Tasks.get(id, env.sees) ?: run {
+        // Not in memory because Trackhop was restarted while it ran: said, with the way to start it again.
+        env.marks.interrupted(RunMarks.TASK, id)?.let { return send(r.ex, 200, page(it.title, interruptedCard(it))) }
+        return send(r.ex, 404, page("Finished", """<div class="card">This run is no longer kept. <a href="/tools">Tools</a></div>"""))
+    }
     val body = StringBuilder()
     when {
         !t.done -> body.append("""<div class="card"><p>${h(t.progress)}</p><progress></progress><p class="muted">This page refreshes by itself; you can leave it, the run goes on.</p></div>""")
@@ -39,6 +43,27 @@ internal fun Web.taskPage(r: Web.Req, id: String) {
     }
     body.append("""<p><a href="${h(t.back)}">Back</a></p>""")
     send(r.ex, 200, page(t.title, body.toString(), refresh = if (t.done) null else 3))
+}
+
+/**
+ * What a restart of Trackhop cut short ([RunMarks]): a card each, with Retry (the sync is run again; a
+ * tool's page is opened as it was asked, to start it again) and Dismiss. Nothing starts by itself.
+ */
+internal fun Web.interruptedCards(back: String = "/tools"): String = env.marks.interrupted().joinToString("") { interruptedCard(it, back) }
+
+internal fun Web.interruptedCard(m: RunMarks.Mark, back: String = "/tools"): String {
+    val sync = m.kind == RunMarks.SYNC
+    val retry = if (sync) Html.postButton("/syncs/${q(m.id)}/run", "Retry")
+        else """<a class="button" href="${h(m.back.ifEmpty { "/tools" })}">Retry</a>"""
+    return """<div class="card err" role="alert"><p><b>${h(RunMarks.TEXT)}</b>: ${h(m.title)}${if (m.at > 0) """ <span class="muted">(started ${Html.date(m.at)})</span>""" else ""}</p>
+<p class="muted">Trackhop was stopped or restarted while ${if (sync) "this sync" else "this tool"} was running, so it did not finish. ${if (sync) "What it had already added stays." else "What it had already done stays."} It does not start again by itself.</p>
+<div class="actions">$retry ${Html.postButton("/tools/interrupted", "Dismiss", "secondary", mapOf("kind" to m.kind, "id" to m.id, "back" to back))}</div></div>"""
+}
+
+/** Dismiss on an interruption's card: the note goes, nothing is run. */
+internal fun Web.interruptedDismiss(r: Web.Req) {
+    if (r.method == "POST") env.marks.end(r.form["kind"].orEmpty(), r.form["id"].orEmpty())
+    redirect(r.ex, r.form["back"]?.takeIf { it.startsWith("/") && !it.startsWith("//") } ?: "/tools")
 }
 
 private fun Web.readable(): List<MusicProvider> =
@@ -66,7 +91,7 @@ private fun Web.backupTool(r: Web.Req) {
             else -> {
                 if (Tasks.running(Backups.TITLE)) return redirect(r.ex, "/tools/backup?err=${q("A backup is already running.")}")
                 val chosen = r.form["service"]?.let { id -> Backups.services(env).filter { it.id == id } } ?: Backups.services(env)
-                val task = Tasks.start(Backups.TITLE, "/tools/backup", { env.log("backup", it) }, env.owner) { t -> Backups.run(env, chosen) { t.progress = it } }
+                val task = Tasks.start(Backups.TITLE, "/tools/backup", { env.log("backup", it) }, env.owner, env.marks) { t -> Backups.run(env, chosen) { t.progress = it } }
                 return redirect(r.ex, "/tools/task/${q(task.id)}")
             }
         }
@@ -121,7 +146,7 @@ private fun Web.dedupeTool(r: Web.Req) {
     }
     val back = "/tools/dedupe?service=${q(service.id)}&playlist=${q(playlist.id)}"
     if (r.method == "POST") {
-        val task = Tasks.start("Remove duplicates", back, { env.log("dedupe", it) }, env.owner) { t ->
+        val task = Tasks.start("Remove duplicates", back, { env.log("dedupe", it) }, env.owner, env.marks) { t ->
             val n = LibraryTools.removeDuplicates(env, service, playlist.id) { p -> t.progress = "${p.done}/${p.total}" }
             env.log("dedupe", "${service.label(env)} / ${playlist.name}: $n removed")
             """<div class="card ok">Removed $n extra copies from ${h(playlist.name)}.</div>"""
@@ -164,7 +189,7 @@ private fun Web.unplayableTool(r: Web.Req) {
     if (r.method == "POST") {
         when (r.form["action"]) {
             "scan" -> {
-                val task = Tasks.start("Unplayable tracks", back, { env.log("unplayable", it) }, env.owner) { t ->
+                val task = Tasks.start("Unplayable tracks", back, { env.log("unplayable", it) }, env.owner, env.marks) { t ->
                     val targets = LibraryTools.unplayableTargets(env, service)
                     val scan = LibraryTools.scanUnplayable(env, service, targets) { t.progress = "Reading $it…" }
                     val withProposals = scan.found.map { u ->
@@ -247,7 +272,7 @@ private fun Web.mbTagsTool(r: Web.Req) {
     val service = params["service"]?.let { id -> candidates.firstOrNull { it.id == id } }
         ?: return send(r.ex, 200, page(title, notice(r) + serviceForm("/tools/mbtags", candidates, note)))
     if (r.method == "POST") {
-        val task = Tasks.start(title, "/tools/mbtags?service=${q(service.id)}", { env.log("mbtags", it) }) { t ->
+        val task = Tasks.start(title, "/tools/mbtags?service=${q(service.id)}", { env.log("mbtags", it) }, marks = env.marks) { t ->
             val tags = LibraryTools.untaggedSongs(env, service) { t.progress = "$it songs read…" }
             env.log("mbtags", "${service.label(env)}: ${tags.untagged.size} of ${tags.total} songs without MusicBrainz tags")
             mbTagsResult(service, tags)

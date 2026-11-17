@@ -315,7 +315,7 @@ internal fun Web.wrappedPage(r: Web.Req, rest: List<String>) {
         val period = runCatching { ServerWrapped.period(r.form["period"]) }.getOrNull()
         val source = r.form["source"]?.takeIf { it.isNotBlank() }
         if (Tasks.all(env.owner).any { it.title == ServerWrapped.TITLE && !it.done }) return redirect(r.ex, "/tools/wrapped?err=${q("A Wrapped is already being made.")}")
-        val task = Tasks.start(ServerWrapped.TITLE, "/tools/wrapped", { env.log("wrapped", it) }, env.owner) { t ->
+        val task = Tasks.start(ServerWrapped.TITLE, "/tools/wrapped", { env.log("wrapped", it) }, env.owner, env.marks) { t ->
             val w = try { ServerWrapped.make(env, source, period) { t.progress = it } } catch (e: ServerWrapped.Refused) { throw IllegalStateException(e.message) }
             ServerWrapped.html(w, "/tools/wrapped/${q(w.id)}/card.png")
         }

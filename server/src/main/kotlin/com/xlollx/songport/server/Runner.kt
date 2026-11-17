@@ -48,8 +48,18 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
         // A Stop or Pause posted after the previous run had ended must not reach this one.
         SyncState.finish(job.id)
         SyncState.start(job.id)
+        // A run by hand is written down while it lasts: cut short by a restart of the server, the next
+        // start says so and offers Retry (RunMarks). A scheduled one comes back by its schedule; either
+        // way a new run takes the place of an interruption said before.
+        if (scheduled) env.marks.end(RunMarks.SYNC, job.id) else env.marks.begin(RunMarks.SYNC, job.id, job.name, "/syncs/${job.id}")
         scope.launch {
-            slots.withPermit { run(job, scheduled, confirmRemovals && !scheduled) }
+            var began = false
+            try {
+                slots.withPermit { began = true; run(job, scheduled, confirmRemovals && !scheduled) }
+            } finally {
+                // Cancelled while it waited for its turn (the person's engine stopped): not a restart's doing.
+                if (!began) env.marks.end(RunMarks.SYNC, job.id)
+            }
         }
     }
 
@@ -94,6 +104,9 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
         } catch (e: Exception) {
             env.log("sync", "${job.name}: ${e.javaClass.simpleName}: ${e.message}")
         } finally {
+            // Ended, failed or stopped by the person: no longer something a restart could cut short.
+            // Before the sync is free to start again, so the mark of a next run is never the one taken away.
+            env.marks.end(RunMarks.SYNC, job.id)
             SyncState.finish(job.id)
             env.store.flush()
         }

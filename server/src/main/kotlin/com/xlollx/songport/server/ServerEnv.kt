@@ -83,6 +83,9 @@ class ServerEnv(
         return requested.get()?.second.also { requested.set(null) }
     }
 
+    /** What runs now, written down so the next start knows what a stop of the server cut short ([RunMarks]). */
+    val marks: RunMarks by lazy { RunMarks(keyValues("running")) }
+
     private val kv = ConcurrentHashMap<String, KeyValues>()
     override fun keyValues(name: String): KeyValues =
         kv.getOrPut(name) { JsonKeyValues(File(File(dataDir, "kv"), "${name.replace(Regex("[^A-Za-z0-9_.-]"), "_")}.json")) }

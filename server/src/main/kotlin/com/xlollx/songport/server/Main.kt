@@ -167,6 +167,9 @@ fun launch(
     // A first start: the services the server offers are not listed until the user adds them, as in the app.
     if (!env.store.data.settings.connectorsInit) env.store.updateSettings { it.copy(connectorsInit = true) }
 
+    // What the last stop cut short (a sync run by hand, a long tool): said, never started again.
+    runCatching { RunMarks.afterRestart(env) }.onFailure { env.log("server", "the runs interrupted by the restart could not be read: ${it.message}") }
+
     val runner = Runner(env, edition)
     val web = Web(env, runner, Auth(env), config.password, version, edition, onQuit, onShow, account, sharedRoot, config.user)
     return Launched(env, runner, web, version, config, edition)

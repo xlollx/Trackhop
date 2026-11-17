@@ -195,7 +195,7 @@ internal fun Web.apiMore(ex: HttpExchange, method: String, rest: List<String>, q
             val p = connected(rest[1], error) ?: return true
             if (!p.canRemoveTracks) return true.also { error(405, "${p.label(env)} does not let apps remove tracks.") }
             val playlist = rest[3]
-            val task = Tasks.start("Remove duplicates", "/tools/dedupe?service=${q(p.id)}&playlist=${q(playlist)}", { env.log("dedupe", it) }, env.owner) { t ->
+            val task = Tasks.start("Remove duplicates", "/tools/dedupe?service=${q(p.id)}&playlist=${q(playlist)}", { env.log("dedupe", it) }, env.owner, env.marks) { t ->
                 val n = LibraryTools.removeDuplicates(env, p, playlist) { pr -> t.progress = "${pr.done}/${pr.total}" }
                 env.log("dedupe", "${p.label(env)} / $playlist: $n removed")
                 "<div class=\"card ok\">Removed $n extra copies.</div>"
@@ -302,7 +302,7 @@ internal fun Web.apiMore(ex: HttpExchange, method: String, rest: List<String>, q
                 put("id", t.id); put("title", t.title); put("done", t.done); put("progress", t.progress)
                 put("error", t.error?.let { JsonPrimitive(it) } ?: JsonNull)
             }
-        }))
+        } + env.marks.interrupted().filter { it.kind == RunMarks.TASK }.map { interruptedTask(it) }))
         rest == listOf("log") && method == "GET" -> {
             // One log for the whole server: other people's lines are in it, so it is the admin's.
             if (!env.may(Permissions.ADMIN)) return true.also { error(403, "The log is the admin's.") }
@@ -471,4 +471,12 @@ private fun Web.configEncrypted(ex: HttpExchange, text: String, query: Map<Strin
     if (query["dryRun"] == "true") return json(200, summary(false))
     val done = FullBackupServer.import(env, opened, replacesDevice = query["replacesDevice"] == "true", replaceSignIns = query["replaceSignIns"] == "true", channels = true)
     json(200, summary(true, done))
+}
+
+/** A tool a restart of Trackhop cut short ([RunMarks]), as the tasks' calls give it: ended, with that as its error. */
+internal fun interruptedTask(m: RunMarks.Mark): JsonObject = buildJsonObject {
+    put("id", m.id); put("title", m.title); put("done", true); put("progress", RunMarks.TEXT)
+    put("error", "${RunMarks.TEXT} of Trackhop: it did not finish and is not started again by itself. Start it again when you want.")
+    put("interrupted", true)
+    put("finished", JsonNull)
 }

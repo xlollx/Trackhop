@@ -157,7 +157,7 @@ internal fun Web.concertsPage(r: Web.Req) {
     if (r.method == "POST" && playlist != null) {
         val country = Concerts.country(params["country"]) ?: startCountry()
         env.keyValues("ui")[UI_COUNTRY] = country
-        val task = Tasks.start(title, "/tools/concerts?service=${q(service.id)}&playlist=${q(playlist.id)}", { env.log("concerts", it) }, env.owner) { t ->
+        val task = Tasks.start(title, "/tools/concerts?service=${q(service.id)}&playlist=${q(playlist.id)}", { env.log("concerts", it) }, env.owner, env.marks) { t ->
             t.progress = "Reading the playlist"
             val res = concertsOf(service, playlist.id, country) { done, total -> t.progress = "Artist ${minOf(done + 1, total)} of $total" }
             concertsHtml(playlist.name, res)
