@@ -62,7 +62,10 @@ class NwayFlowTest : FlowTest() {
         pick(null, "Road Trip")
         remade()
         waitText(s(R.string.nway_role_main_desc))
-        waitNode("the playlist kept in the dialog", hasText("Road Trip") and hasText(s(R.string.shared_playlist)))
+        // The field's value and its label are one node only in the merged tree: unmerged, the label is a child of its own.
+        waitFor("the playlist kept in the dialog") {
+            compose.onAllNodes(hasText("Road Trip") and hasText(s(R.string.shared_playlist))).fetchSemanticsNodes().isNotEmpty()
+        }
         click(s(R.string.ok))
         waitText(s(R.string.nway_role_main))
 
