@@ -1508,6 +1508,7 @@
     <string name="charts_label">チャート</string>
     <string name="provider_note_charts">Apple Music（国別トップ100）と Deezer（国別・世界）の公開フィードのチャート。同期でチャートの変化に合わせてあなたのプレイリストを最新に保ちます。アカウント不要。</string>
     <string name="charts_apple_name">Apple Music トップ100 · %1$s</string>
+    <string name="charts_apple_list_name">Apple Music · %1$s</string>
     <string name="charts_deezer_name">Deezer · %1$s</string>
     <string name="charts_unknown">このチャートは利用できなくなりました。</string>
     <string name="charts_unavailable">%1$s がチャートを返しませんでした（%2$d）。後でもう一度お試しください。</string>

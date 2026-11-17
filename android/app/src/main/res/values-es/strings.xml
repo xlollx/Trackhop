@@ -1547,6 +1547,7 @@
     <string name="charts_label">Listas</string>
     <string name="provider_note_charts">Las listas de Apple Music (Top 100 por país) y Deezer (top por país y mundial), de sus feeds públicos: una sync mantiene al día una playlist tuya cuando cambia la lista. Sin cuenta.</string>
     <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
+    <string name="charts_apple_list_name">Apple Music · %1$s</string>
     <string name="charts_deezer_name">Deezer · %1$s</string>
     <string name="charts_unknown">Esta lista ya no está disponible.</string>
     <string name="charts_unavailable">%1$s no devolvió su lista (%2$d): inténtalo más tarde.</string>

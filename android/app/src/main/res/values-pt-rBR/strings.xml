@@ -1547,6 +1547,7 @@
     <string name="charts_label">Paradas</string>
     <string name="provider_note_charts">As paradas do Apple Music (Top 100 por país) e do Deezer (top por país e mundial), dos feeds públicos: uma sync mantém uma playlist sua atualizada quando a parada muda. Sem conta.</string>
     <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
+    <string name="charts_apple_list_name">Apple Music · %1$s</string>
     <string name="charts_deezer_name">Deezer · %1$s</string>
     <string name="charts_unknown">Esta parada não está mais disponível.</string>
     <string name="charts_unavailable">%1$s não retornou a parada (%2$d): tente mais tarde.</string>

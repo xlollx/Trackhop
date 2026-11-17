@@ -1507,6 +1507,7 @@
     <string name="charts_label">차트</string>
     <string name="provider_note_charts">Apple Music(국가별 Top 100)과 Deezer(국가별·전 세계) 공개 피드의 차트. 동기화로 차트가 바뀔 때마다 내 플레이리스트를 최신으로 유지합니다. 계정 필요 없음.</string>
     <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
+    <string name="charts_apple_list_name">Apple Music · %1$s</string>
     <string name="charts_deezer_name">Deezer · %1$s</string>
     <string name="charts_unknown">이 차트는 더 이상 제공되지 않습니다.</string>
     <string name="charts_unavailable">%1$s에서 차트를 받지 못했습니다(%2$d). 나중에 다시 시도하세요.</string>

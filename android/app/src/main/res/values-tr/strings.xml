@@ -1537,6 +1537,7 @@
     <string name="charts_label">Listeler</string>
     <string name="provider_note_charts">Apple Music (ülkeye göre Top 100) ve Deezer (ülkeye göre ve dünya) listeleri, herkese açık akışlarından: eşitleme, liste değiştikçe çalma listeni güncel tutar. Hesap gerekmez.</string>
     <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
+    <string name="charts_apple_list_name">Apple Music · %1$s</string>
     <string name="charts_deezer_name">Deezer · %1$s</string>
     <string name="charts_unknown">Bu liste artık yok.</string>
     <string name="charts_unavailable">%1$s listeyi döndürmedi (%2$d): daha sonra tekrar dene.</string>

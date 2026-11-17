@@ -1603,6 +1603,7 @@
     <string name="charts_label">Listy przebojów</string>
     <string name="provider_note_charts">Listy Apple Music (Top 100 według kraju) i Deezera (top krajowe i światowe) z ich publicznych źródeł: synchronizacja utrzymuje twoją playlistę na bieżąco, gdy lista się zmienia. Bez konta.</string>
     <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
+    <string name="charts_apple_list_name">Apple Music · %1$s</string>
     <string name="charts_deezer_name">Deezer · %1$s</string>
     <string name="charts_unknown">Ta lista nie jest już dostępna.</string>
     <string name="charts_unavailable">%1$s nie zwrócił listy (%2$d): spróbuj później.</string>
