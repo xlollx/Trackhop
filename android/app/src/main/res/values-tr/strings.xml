@@ -3077,4 +3077,7 @@
         <item quantity="one">%1$s şarkı · eskisi gibi</item>
         <item quantity="other">%1$s şarkı · eskisi gibi</item>
     </plurals>
+    <string name="export_not_saved">Dosya kaydedilemedi: yer kalmadı ya da klasöre artık ulaşılamıyor. Yarım yazılmış bir şey bırakılmadı. Yeniden dene.</string>
+    <string name="store_damaged_title">Eşitlemelerin okunamadı</string>
+    <string name="store_damaged_text">Trackhop kayıtlı eşitlemeleri ve ayarları bozulmuş buldu ve boş olarak başladı. Hiçbir şeyin üzerine yazılmadı: bozuk dosya bu telefonda duruyor. Bir yedek dosyan varsa Ayarlar\'dan geri yükle.</string>
 </resources>

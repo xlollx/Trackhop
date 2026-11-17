@@ -3004,4 +3004,7 @@
     <plurals name="library_songs_as_before">
         <item quantity="other">%1$s곡 · 지금처럼</item>
     </plurals>
+    <string name="export_not_saved">파일을 저장하지 못했습니다. 저장 공간이 없거나 폴더에 더 이상 접근할 수 없습니다. 쓰다 만 파일은 남기지 않았습니다. 다시 시도해 주세요.</string>
+    <string name="store_damaged_title">동기화를 읽을 수 없습니다</string>
+    <string name="store_damaged_text">저장된 동기화와 설정이 손상되어 Trackhop이 빈 상태로 시작했습니다. 아무것도 덮어쓰지 않았으며 손상된 파일은 이 휴대전화에 보관되어 있습니다. 백업 파일이 있다면 설정에서 복원하세요.</string>
 </resources>

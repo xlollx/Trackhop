@@ -372,7 +372,7 @@ private fun ExportCard(provider: MusicProvider, snackbar: SnackbarHostState) {
                 val tracks = provider.tracks(ctx, pl.id)
                 val (text, noFeed) = LocalFilesProvider.encodeLooked(ctx.env, fmt, pl.name, tracks) { done, total -> lookups = done to total }
                 withContext(Dispatchers.IO) {
-                    ctx.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(text) }
+                    com.xlollx.songport.data.DocumentWrite.text(ctx, uri, text)
                 }
                 snackbar.showSnackbar(if (noFeed > 0) ctx.getString(R.string.opml_feeds_missing, noFeed) else ctx.getString(R.string.tools_export_done, tracks.size))
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {

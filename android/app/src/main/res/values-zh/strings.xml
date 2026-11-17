@@ -3005,4 +3005,7 @@
     <plurals name="library_songs_as_before">
         <item quantity="other">%1$s 首歌曲 · 与之前相同</item>
     </plurals>
+    <string name="export_not_saved">文件未能保存：存储空间不足，或文件夹已无法访问。没有留下写了一半的文件。请重试。</string>
+    <string name="store_damaged_title">无法读取你的同步</string>
+    <string name="store_damaged_text">Trackhop 发现已保存的同步和设置已损坏，因此以空白状态启动。没有覆盖任何内容：损坏的文件仍保留在这部手机上。如果你有备份文件，请在“设置”中恢复。</string>
 </resources>

@@ -3087,4 +3087,7 @@
         <item quantity="one">%1$s canción · como antes</item>
         <item quantity="other">%1$s canciones · como antes</item>
     </plurals>
+    <string name="export_not_saved">No se pudo guardar el archivo: no queda espacio o ya no se puede acceder a la carpeta. No ha quedado nada escrito a medias. Inténtalo de nuevo.</string>
+    <string name="store_damaged_title">No se pudieron leer tus sincronizaciones</string>
+    <string name="store_damaged_text">Trackhop encontró dañadas las sincronizaciones y los ajustes guardados y empezó de cero. No se ha sobrescrito nada: el archivo dañado se conserva en este teléfono. Si tienes un archivo de copia de seguridad, restáuralo desde Ajustes.</string>
 </resources>

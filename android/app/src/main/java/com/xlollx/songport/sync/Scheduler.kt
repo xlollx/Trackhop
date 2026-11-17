@@ -113,9 +113,11 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
             }
         } finally {
             if (foreground) SyncNotice.leave(ctx)
+            // Also when the system stops the worker: the matches found so far are on the disk before the process can go.
+            store.flush()
+            store.writeError?.let { Diagnostics.log(ctx, "store", "the state could not be saved: $it") }
         }
         com.xlollx.songport.widget.Widgets.refresh(ctx)
-        store.flush()
         return if (retryLater.get()) Result.retry() else Result.success()
     }
 

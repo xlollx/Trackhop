@@ -3087,4 +3087,7 @@
         <item quantity="one">%1$s música · como antes</item>
         <item quantity="other">%1$s músicas · como antes</item>
     </plurals>
+    <string name="export_not_saved">Não foi possível salvar o arquivo: não há mais espaço ou a pasta não está mais acessível. Nada ficou escrito pela metade. Tente de novo.</string>
+    <string name="store_damaged_title">Não foi possível ler suas sincronizações</string>
+    <string name="store_damaged_text">O Trackhop encontrou as sincronizações e as configurações salvas danificadas e começou vazio. Nada foi sobrescrito: o arquivo danificado continua neste telefone. Se você tiver um arquivo de backup, restaure-o nas Configurações.</string>
 </resources>

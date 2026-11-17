@@ -3079,4 +3079,7 @@
         <item quantity="one">%1$s Song · wie bisher</item>
         <item quantity="other">%1$s Songs · wie bisher</item>
     </plurals>
+    <string name="export_not_saved">Die Datei konnte nicht gespeichert werden: Es ist kein Speicherplatz mehr frei oder der Ordner ist nicht mehr erreichbar. Es wurde nichts halb geschrieben zurückgelassen. Versuche es erneut.</string>
+    <string name="store_damaged_title">Deine Syncs konnten nicht gelesen werden</string>
+    <string name="store_damaged_text">Trackhop hat seine gespeicherten Syncs und Einstellungen beschädigt vorgefunden und leer gestartet. Nichts wurde überschrieben: Die beschädigte Datei bleibt auf diesem Telefon. Wenn du eine Backup-Datei hast, stelle sie in den Einstellungen wieder her.</string>
 </resources>

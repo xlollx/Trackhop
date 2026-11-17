@@ -3087,4 +3087,7 @@
         <item quantity="one">%1$s titre · comme avant</item>
         <item quantity="other">%1$s titres · comme avant</item>
     </plurals>
+    <string name="export_not_saved">Le fichier n\'a pas pu être enregistré : il n\'y a plus d\'espace, ou le dossier n\'est plus accessible. Rien n\'a été laissé écrit à moitié. Réessaie.</string>
+    <string name="store_damaged_title">Tes synchronisations n\'ont pas pu être lues</string>
+    <string name="store_damaged_text">Trackhop a trouvé ses synchronisations et ses réglages enregistrés endommagés et a redémarré à vide. Rien n\'a été écrasé : le fichier endommagé est conservé sur ce téléphone. Si tu as un fichier de sauvegarde, restaure-le depuis les Réglages.</string>
 </resources>

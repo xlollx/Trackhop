@@ -123,7 +123,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
             try {
                 val tracks = provider.tracks(ctx, pl.id)
                 val text = LocalFilesProvider.encodeLooked(ctx.env, fmt, pl.name, tracks).first
-                withContext(Dispatchers.IO) { ctx.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { it.write(text) } }
+                withContext(Dispatchers.IO) { com.xlollx.songport.data.DocumentWrite.text(ctx, uri, text) }
                 snackbar.showSnackbar(ctx.getString(R.string.tools_export_done, tracks.size))
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { fail(e) }
         }

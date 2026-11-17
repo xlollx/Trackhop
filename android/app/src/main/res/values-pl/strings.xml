@@ -3229,4 +3229,7 @@
         <item quantity="many">Utwory: %1$s · jak dotąd</item>
         <item quantity="other">Utwory: %1$s · jak dotąd</item>
     </plurals>
+    <string name="export_not_saved">Nie udało się zapisać pliku: brakuje miejsca albo folder nie jest już dostępny. Nie został żaden plik zapisany do połowy. Spróbuj ponownie.</string>
+    <string name="store_damaged_title">Nie udało się odczytać twoich synchronizacji</string>
+    <string name="store_damaged_text">Trackhop zastał zapisane synchronizacje i ustawienia uszkodzone i uruchomił się pusty. Nic nie zostało nadpisane: uszkodzony plik pozostaje na tym telefonie. Jeśli masz plik kopii zapasowej, przywróć go w Ustawieniach.</string>
 </resources>

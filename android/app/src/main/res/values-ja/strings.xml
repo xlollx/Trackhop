@@ -3005,4 +3005,7 @@
     <plurals name="library_songs_as_before">
         <item quantity="other">%1$s 曲 · これまでどおり</item>
     </plurals>
+    <string name="export_not_saved">ファイルを保存できませんでした。空き容量がないか、フォルダにアクセスできなくなっています。書きかけのファイルは残っていません。もう一度お試しください。</string>
+    <string name="store_damaged_title">同期を読み込めませんでした</string>
+    <string name="store_damaged_text">保存されていた同期と設定が壊れていたため、Trackhop は空の状態で起動しました。上書きはしていません。壊れたファイルはこの端末に残してあります。バックアップファイルがあれば、設定から復元してください。</string>
 </resources>

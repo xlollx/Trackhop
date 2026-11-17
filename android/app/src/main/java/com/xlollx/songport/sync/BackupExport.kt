@@ -148,32 +148,55 @@ object BackupExport {
         return Result(services, copied, failed)
     }
 
+    /**
+     * Whether [name] is to be written to the folder: it is not there yet, or it is the one whose copy
+     * was under way when the app was closed ([cutShort]): what the folder holds under that name may
+     * be half a file, which "already there, by name" would otherwise keep for good.
+     */
+    internal fun needsCopy(name: String, inFolder: Set<String>, cutShort: String?): Boolean = name !in inFolder || name == cutShort
+
+    /** The file being copied right now, kept until its copy ends: found at the next run, the app was closed half way. */
+    private const val COPYING = "copying"
+
     /** I file locali che nella cartella non ci sono ancora, per nome. @return quanti ne ha scritti. */
     private suspend fun copyNew(ctx: Context, tree: Uri): Int = withContext(Dispatchers.IO) {
         val resolver = ctx.contentResolver
         val dirId = DocumentsContract.getTreeDocumentId(tree)
         val dirUri = DocumentsContract.buildDocumentUriUsingTree(tree, dirId)
-        val existing = HashSet<String>()
+        val existing = HashMap<String, String>() // name to document id
         resolver.query(
             DocumentsContract.buildChildDocumentsUriUsingTree(tree, dirId),
-            arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME), null, null, null,
-        )?.use { c -> while (c.moveToNext()) existing += c.getString(0) }
+            arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME, DocumentsContract.Document.COLUMN_DOCUMENT_ID), null, null, null,
+        )?.use { c -> while (c.moveToNext()) existing[c.getString(0)] = c.getString(1) }
+        val cutShort = prefs(ctx).getString(COPYING, null)
+        if (cutShort != null) Diagnostics.log(ctx, "backup", "the copy of $cutShort was stopped half way last time: made again")
+
+        /** [name] written whole, or not there: a failure removes what was written and is thrown on (DocumentWrite). */
+        fun put(name: String, mime: String, write: (java.io.OutputStream) -> Unit): Boolean {
+            if (!needsCopy(name, existing.keys, cutShort)) return false
+            // Half a file from last time: taken away first, so the new one keeps the name.
+            existing[name]?.let { id -> runCatching { DocumentsContract.deleteDocument(resolver, DocumentsContract.buildDocumentUriUsingTree(tree, id)) } }
+            prefs(ctx).edit().putString(COPYING, name).commit()
+            try {
+                val doc = DocumentsContract.createDocument(resolver, dirUri, mime, name) ?: return false
+                com.xlollx.songport.data.DocumentWrite.to(ctx, doc, write)
+            } finally {
+                // Reached unless the app is closed meanwhile: then the name stays noted for the next run.
+                prefs(ctx).edit().remove(COPYING).commit()
+            }
+            return true
+        }
+
         var copied = 0
         for (f in LocalFilesProvider.dir(ctx).listFiles { it -> it.extension == "csv" }.orEmpty()) {
-            if (f.name in existing) continue
-            val doc = DocumentsContract.createDocument(resolver, dirUri, "text/csv", f.name) ?: continue
-            resolver.openOutputStream(doc)?.use { out -> f.inputStream().use { it.copyTo(out) } }
-            copied++
+            if (put(f.name, "text/csv") { out -> f.inputStream().use { it.copyTo(out) } }) copied++
         }
         // The set-up of the day, once a day: restoring the folder gives the syncs back, not only the playlists.
         val config = com.xlollx.songport.data.ConfigBackup.fileName()
-        if (config !in existing) {
-            DocumentsContract.createDocument(resolver, dirUri, "application/octet-stream", config)?.let { doc ->
-                val env = com.xlollx.songport.platform.AndroidEnv.of(ctx)
-                val text = com.xlollx.songport.notify.Notify.intoBackup(env, com.xlollx.songport.data.ConfigBackup.export(env, "Trackhop ${com.xlollx.songport.BuildConfig.VERSION_NAME} (Android)", deviceName = android.os.Build.MODEL.orEmpty()))
-                resolver.openOutputStream(doc)?.use { it.write(text.toByteArray()) }
-                copied++
-            }
+        if (needsCopy(config, existing.keys, cutShort)) {
+            val env = com.xlollx.songport.platform.AndroidEnv.of(ctx)
+            val text = com.xlollx.songport.notify.Notify.intoBackup(env, com.xlollx.songport.data.ConfigBackup.export(env, "Trackhop ${com.xlollx.songport.BuildConfig.VERSION_NAME} (Android)", deviceName = android.os.Build.MODEL.orEmpty()))
+            if (put(config, "application/octet-stream") { it.write(text.toByteArray()) }) copied++
         }
         copied
     }
