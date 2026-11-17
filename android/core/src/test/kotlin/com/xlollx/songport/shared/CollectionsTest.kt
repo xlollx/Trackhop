@@ -23,7 +23,7 @@ import java.nio.file.Files
 /**
  * A collection of shared playlists ([Collections]) between two devices meeting in one folder, run
  * with the real SyncEngine. Giulia curates on "cgs" (her playlists Road Trip, Jazz, Indie); Leo
- * follows on "cly" and "cln", where he already has a playlist called Jazz.
+ * follows on "cly" and "cln", where he already has a playlist of his own called Jazz (one song).
  */
 class CollectionsTest {
     private lateinit var folder: File
@@ -46,7 +46,8 @@ class CollectionsTest {
         gs.lists["Road Trip"] = (1..3).map { song("g", it) }.toMutableList()
         gs.lists["Jazz"] = (11..12).map { song("g", it) }.toMutableList()
         gs.lists["Indie"] = (21..24).map { song("g", it) }.toMutableList()
-        ly.lists["Jazz"] = mutableListOf(song("y", 30))
+        ly.lists["his-jazz"] = mutableListOf(song("y", 30))
+        ly.names["his-jazz"] = "Jazz"
         Providers.testDoubles = listOf(gs, ly, ln)
     }
 
@@ -111,7 +112,7 @@ class CollectionsTest {
         assertEquals(listOf(3, 2, 4), Collections.entries(giulia, c).map { it.tracks })
     }
 
-    @Test fun followingAllOnTwoServicesMakesThePlaylistsAndUsesTheOneOfTheSameName() {
+    @Test fun followingAllOnTwoServicesMakesThePlaylistsAndLeavesHisOwnOfTheSameName() {
         create()
         run(giulia)
         val joined = join()
@@ -125,14 +126,15 @@ class CollectionsTest {
         assertTrue(leo.store.data.groups.all { it.collectionId == cid && it.keepMine && !it.createdHere })
         // Two syncs per playlist and service.
         assertEquals(12, leo.store.data.jobs.size)
-        assertEquals(setOf("Jazz", "Road Trip", "Indie"), ly.lists.keys)
+        assertEquals(setOf("his-jazz", "Jazz", "Road Trip", "Indie"), ly.lists.keys)
         assertEquals(setOf("Jazz", "Road Trip", "Indie"), ln.lists.keys)
         run(leo)
         assertEquals(listOf(1, 2, 3), titles(ly, "Road Trip"))
         assertEquals(listOf(1, 2, 3), titles(ln, "Road Trip"))
         assertEquals(listOf(21, 22, 23, 24), titles(ln, "Indie"))
-        // His own Jazz was used, and what it held stays (he keeps his additions).
-        assertEquals(listOf(11, 12, 30), titles(ly, "Jazz"))
+        // His own Jazz, with a song in it, is not taken over: a new one is made beside it.
+        assertEquals(listOf(11, 12), titles(ly, "Jazz"))
+        assertEquals(listOf(30), titles(ly, "his-jazz"))
         // Nothing of his reaches the curator.
         run(giulia)
         assertEquals(listOf(11, 12), titles(gs, "Jazz"))
@@ -246,6 +248,24 @@ class CollectionsTest {
         assertEquals(0, Collections.rows(leo, Collections.get(leo, cid)!!).count { it.pending })
         assertEquals(setOf("Road Trip", "Jazz", "Indie"), ln.lists.keys)
         assertEquals(6, leo.store.data.jobs.size)
+    }
+
+    @Test fun anEmptyPlaylistOfTheSameNameIsTakenUnlessASyncUsesIt() {
+        create("Road Trip", "Jazz")
+        run(giulia)
+        join()
+        // An empty Road Trip no sync uses is taken; an empty Jazz another sync writes to is not.
+        ln.lists["empty-trip"] = ArrayList()
+        ln.names["empty-trip"] = "Road Trip"
+        ln.lists["busy-jazz"] = ArrayList()
+        ln.names["busy-jazz"] = "Jazz"
+        leo.store.upsertJob(com.xlollx.songport.model.SyncJob(id = "other", name = "other",
+            source = com.xlollx.songport.model.PlaylistRef("cly", "his-jazz", "Jazz"), target = com.xlollx.songport.model.PlaylistRef("cln", "busy-jazz", "Jazz")))
+        val settled = runBlocking { Collections.choose(leo, cid, SharedCollection.ALL, listOf("cln"), true, emptySet()) }
+        assertTrue(settled.failed.toString(), settled.complete)
+        assertEquals(setOf("empty-trip", "busy-jazz", "Jazz"), ln.lists.keys)
+        val targets = leo.store.data.jobs.filter { it.id != "other" }.flatMap { listOf(it.source.playlistId, it.target.playlistId) }.toSet()
+        assertTrue(targets.toString(), "empty-trip" in targets && "Jazz" in targets && "busy-jazz" !in targets)
     }
 
     @Test fun aPlaylistMadeJustBeforeTheStopIsUsedByTheNextRun() {

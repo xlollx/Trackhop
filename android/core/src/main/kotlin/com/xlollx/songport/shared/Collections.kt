@@ -429,10 +429,13 @@ object Collections {
                     if (has(env.store.data.jobs, e.groupId, service)) continue
                     val p = Providers.byId(service) ?: throw ProviderException(env.text("shared_no_services"))
                     val mine = lists.getOrPut(service) { p.playlists(env).filter { it.ownedByMe && !MusicProvider.isLibrary(it.id) }.toMutableList() }
-                    val used = jobs(env, c).filter { it.target.provider == service }.mapNotNull { it.target.playlistId }.toSet()
-                    // A playlist of that name already there is used, its tracks staying: never a second one
-                    // (also the one an earlier run made just before it stopped).
-                    val local = mine.firstOrNull { it.id !in used && it.name.trim().equals(e.name.trim(), ignoreCase = true) }
+                    // Any sync's playlist on that service, as source or target: a collection never takes one over.
+                    val used = env.store.data.jobs.flatMap { j ->
+                        listOfNotNull(j.source.playlistId.takeIf { j.source.provider == service }, j.target.playlistId.takeIf { j.target.provider == service })
+                    }.toSet()
+                    // An empty playlist of that name no sync uses is taken, never a second one (the one an
+                    // earlier run made just before it stopped). One with tracks is the person's own: a new one is made.
+                    val local = mine.firstOrNull { it.id !in used && it.trackCount <= 0 && it.name.trim().equals(e.name.trim(), ignoreCase = true) }
                         ?: run {
                             if (!p.canCreatePlaylists) throw ProviderException(env.text("collection_error_cannot_create", p.displayName))
                             p.createPlaylist(env, e.name, MusicProvider.description("Trackhop")).also { mine += it }
