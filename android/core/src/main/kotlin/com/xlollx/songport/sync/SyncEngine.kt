@@ -406,7 +406,25 @@ class SyncEngine(
         // it) must stop the sync with its name, not feed a ghost. One list call per side, per run.
         val srcDeclared = checkStillThere(src, srcPlaylistId, job.source.playlistName, isSource = true)
         val dstDeclared = job.target.playlistId?.let { checkStillThere(dst, it, job.target.playlistName, isSource = false) } ?: -1
-        val allSource = listing(job, src, interactive, onWait) { patient(onProgress) { src.tracks(env, srcPlaylistId) } }
+        var allSource = listing(job, src, interactive, onWait) { patient(onProgress) { src.tracks(env, srcPlaylistId) } }
+        // A sync that removes (mirror): a source that answers well with fewer tracks than the service
+        // itself counts for the playlist (a page it did not send) would have every track it left out
+        // taken off the target. Read once more; still short, the removals of this run do not happen
+        // (see where they are planned). Beside the other nets (an empty source, a quarter of the
+        // target, the target's own size), not in their place.
+        var sourceShortOf = 0
+        if (job.mirrorRemovals && !job.archive) {
+            val declared = declaredCount(src, srcPlaylistId, srcDeclared)
+            if (declared > allSource.size) {
+                env.log("engine", "${job.name}: ${src.displayName} gave ${allSource.size} of the $declared tracks it counts: reading it again")
+                kotlinx.coroutines.delay(shrinkRereadMs)
+                val again = listing(job, src, interactive, onWait) { patient(onProgress) { src.tracks(env, srcPlaylistId) } }
+                // The count may have changed meanwhile (a track taken out by the person): asked again too.
+                val declaredNow = runCatching { src.playlists(env).firstOrNull { it.id == srcPlaylistId }?.trackCount }.getOrNull()?.takeIf { it >= 0 } ?: declared
+                if (again.size >= allSource.size || again.size >= declaredNow) allSource = again
+                if (declaredNow > allSource.size) sourceShortOf = declaredNow
+            }
+        }
         // Ignored in this sync, or declared absent from this destination service by any sync.
         val ignoredIds = job.ignoredSourceIds.toHashSet()
         // Verso "album salvati" o "artisti seguiti" (anche da un file) si cercano album o artisti, non brani.
@@ -688,6 +706,24 @@ class SyncEngine(
                 !dst.canRemoveTracks -> if (extra.isNotEmpty()) notes += str("note_no_removals", dst.displayName, extra.size)
                 // Origine vuota: quasi certamente un errore, non svuotiamo la destinazione.
                 srcTracks.isEmpty() -> notes += str("error_source_empty")
+                // The source answered with fewer tracks than it counts, twice: the ones it left out would
+                // be removed. The preview says it and asks; a run stops here, before anything is written,
+                // unless the person saw these removals in the preview and confirmed them.
+                sourceShortOf > 0 && !pairOn && extra.isNotEmpty() -> {
+                    val said = str("error_listed_short", src.displayName, allSource.size, sourceShortOf)
+                    val confirmed = if (interactive || unattended) null else store.takeRemovalConfirmation(job.id)
+                    when {
+                        interactive -> { toRemove = extra; needsConfirmation = true; notes += said }
+                        confirmed != null && extra.all { it.id in confirmed } -> {
+                            toRemove = extra
+                            env.log("engine", "${job.name}: ${src.displayName} gave ${allSource.size} of $sourceShortOf tracks; ${extra.size} removals confirmed in the preview")
+                        }
+                        else -> {
+                            env.log("engine", "${job.name}: stopped, ${src.displayName} gave ${allSource.size} of the $sourceShortOf tracks it counts and ${extra.size} would be removed; nothing written")
+                            throw ProviderException(said)
+                        }
+                    }
+                }
                 interactive -> { toRemove = extra; needsConfirmation = large && (pairOn || !job.followsChanges) }
                 !large || (job.followsChanges && !pairOn) -> toRemove = extra
                 else -> {

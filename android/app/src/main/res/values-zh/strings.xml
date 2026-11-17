@@ -3010,4 +3010,5 @@
     <string name="store_damaged_text">Trackhop 发现已保存的同步和设置已损坏，因此以空白状态启动。没有覆盖任何内容：损坏的文件仍保留在这部手机上。如果你有备份文件，请在“设置”中恢复。</string>
     <string name="accounts_keystore_unavailable">目前无法读取你的登录信息：这部手机的安全存储未能打开，所以各项服务显示为未连接。没有丢失任何内容：请完全关闭 Trackhop 后重新打开，或重启手机。现在重新登录也不会保留。</string>
     <string name="tools_dedupe_not_put_back">“%1$s”的多余副本已移除，但连接中断，未能放回其中一个。请手动把它添加到播放列表。</string>
+    <string name="error_listed_short">%1$s 只给出了 %3$d 首中的 %2$d 首；没有移除任何内容。请稍后再试。</string>
 </resources>

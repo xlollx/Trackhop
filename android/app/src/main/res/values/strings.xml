@@ -3086,4 +3086,5 @@
     <string name="store_damaged_text">Trackhop found its saved syncs and settings damaged and started empty. Nothing was written over: the damaged file is kept on this phone. If you have a backup file, restore it from Settings.</string>
     <string name="accounts_keystore_unavailable">Your sign-ins cannot be read right now: this phone\'s secure storage did not open. That is why the services show as not connected. Nothing is lost: close Trackhop completely and open it again, or restart the phone. Signing in again now would not last.</string>
     <string name="tools_dedupe_not_put_back">The extra copies of “%1$s” were removed, but one could not be put back: the connection dropped. Add it to the playlist by hand.</string>
+    <string name="error_listed_short">%1$s gave only %2$d of %3$d tracks; nothing was removed. Try again later.</string>
 </resources>

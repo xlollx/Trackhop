@@ -3234,4 +3234,5 @@
     <string name="store_damaged_text">Trackhop zastał zapisane synchronizacje i ustawienia uszkodzone i uruchomił się pusty. Nic nie zostało nadpisane: uszkodzony plik pozostaje na tym telefonie. Jeśli masz plik kopii zapasowej, przywróć go w Ustawieniach.</string>
     <string name="accounts_keystore_unavailable">Nie można teraz odczytać Twoich logowań: bezpieczny magazyn tego telefonu się nie otworzył. Dlatego usługi są pokazane jako niepołączone. Nic nie przepadło: zamknij całkowicie Trackhop i otwórz go ponownie albo uruchom telefon ponownie. Ponowne logowanie teraz by się nie utrzymało.</string>
     <string name="tools_dedupe_not_put_back">Dodatkowe kopie „%1$s” zostały usunięte, ale nie udało się przywrócić jednej: połączenie zostało przerwane. Dodaj ten utwór ręcznie do playlisty.</string>
+    <string name="error_listed_short">%1$s podał tylko %2$d z %3$d utworów; nic nie zostało usunięte. Spróbuj ponownie później.</string>
 </resources>

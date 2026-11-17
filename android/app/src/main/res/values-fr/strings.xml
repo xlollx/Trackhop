@@ -3092,4 +3092,5 @@
     <string name="store_damaged_text">Trackhop a trouvé ses synchronisations et ses réglages enregistrés endommagés et a redémarré à vide. Rien n\'a été écrasé : le fichier endommagé est conservé sur ce téléphone. Si tu as un fichier de sauvegarde, restaure-le depuis les Réglages.</string>
     <string name="accounts_keystore_unavailable">Tes connexions ne peuvent pas être lues pour le moment : le stockage sécurisé de ce téléphone ne s\'est pas ouvert. C\'est pourquoi les services apparaissent comme non connectés. Rien n\'est perdu : ferme complètement Trackhop et rouvre-le, ou redémarre le téléphone. Te reconnecter maintenant ne tiendrait pas.</string>
     <string name="tools_dedupe_not_put_back">Les copies en trop de « %1$s » ont été retirées, mais il n\'a pas été possible d\'en remettre une : la connexion a été coupée. Ajoute-la à la main à la playlist.</string>
+    <string name="error_listed_short">%1$s n\'a donné que %2$d titres sur %3$d ; rien n\'a été retiré. Réessaie plus tard.</string>
 </resources>
