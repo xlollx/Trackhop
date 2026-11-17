@@ -209,6 +209,8 @@ data class StoreData(
     val serverPairs: Map<String, String> = emptyMap(),
     /** The shared playlists this device takes part in (see shared/SharedGroups); their logs live in files of their own. */
     val groups: List<com.xlollx.songport.shared.SharedGroup> = emptyList(),
+    /** The collections of shared playlists this device takes part in (see shared/Collections): each one's playlists are [groups]. */
+    val collections: List<com.xlollx.songport.shared.SharedCollection> = emptyList(),
 ) {
     /** The user's syncs: [jobs] without the one-off transfers ([SyncJob.oneOff]), which never show or run as syncs. */
     val syncs: List<SyncJob> get() = jobs.filterNot { it.oneOff }

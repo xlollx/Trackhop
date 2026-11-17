@@ -46,6 +46,8 @@ data class SharedGroup(
     val transport: String = Invite.FOLDER,
     /** When the group's ntfy channel last moved to [folder] here: an older word of a move is not followed. */
     val movedAt: Long = 0,
+    /** The collection this playlist came with (see [Collections]): behind the collection's one card, not a card of its own. */
+    val collectionId: String = "",
 ) {
     val createdHere: Boolean get() = creator == me
     /** The invite without its secret part: [SharedTransports.invite] adds an encrypted channel's key, or a server mailbox's. */
@@ -91,6 +93,12 @@ data class Invite(
      * token or user name and password, kept in this device's vault. The invite only says so, never carries them.
      */
     val signIn: Boolean = false,
+    /**
+     * The invite of a collection (see [Collections]): [groupId] is its list of playlists, a group
+     * whose entries are the playlists' own invites. Written with another name in the link, so a
+     * Trackhop from before collections reads no invite in it, rather than a playlist of playlist names.
+     */
+    val collection: Boolean = false,
 ) {
     /**
      * The group's code, from the creator's key: what the person joining compares with the code on
@@ -102,7 +110,7 @@ data class Invite(
     val code: String get() = codeOf(creator)
 
     fun link(): String = buildString {
-        append(BASE).append("g=").append(groupId).append("&k=").append(creator).append("&t=").append(transport)
+        append(BASE).append(if (collection) "c=" else "g=").append(groupId).append("&k=").append(creator).append("&t=").append(transport)
         append("&n=").append(enc(name.take(MAX_NAME)))
         if (folderName.isNotBlank()) append("&f=").append(enc(folderName.take(MAX_FOLDER)))
         if (transport == NTFY || transport == SERVER) append("&s=").append(enc(server)).append("&x=").append(key)
@@ -141,9 +149,14 @@ data class Invite(
         fun parse(text: String): Invite? {
             val at = Regex("""(?:trackhop\.org/join|songport://join)[#?/]*([^\s]+)""").find(text)?.groupValues?.get(1) ?: return null
             val params = at.split('&').mapNotNull { p -> p.split('=', limit = 2).takeIf { it.size == 2 }?.let { it[0] to dec(it[1]) } }.toMap()
-            val id = params["g"]?.takeIf { ID.matches(it) } ?: return null
+            val collection = "g" !in params && "c" in params
+            val id = (params["g"] ?: params["c"])?.takeIf { ID.matches(it) } ?: return null
             val key = params["k"]?.takeIf { KEY_TEXT.matches(it) && B64.decode(it)?.let { k -> k.size == 32 && Ed25519.usableKey(k) } == true } ?: return null
             val name = params["n"]?.let { plainOf(it, MAX_NAME).trim() }?.takeIf { it.isNotEmpty() } ?: return null
+            return of(id, name, key, params)?.copy(collection = collection)
+        }
+
+        private fun of(id: String, name: String, key: String, params: Map<String, String>): Invite? {
             return when (val transport = params["t"] ?: FOLDER) {
                 FOLDER -> Invite(id, name, key, plainOf(params["f"].orEmpty(), MAX_FOLDER).trim(), transport)
                 NTFY -> {
@@ -512,13 +525,13 @@ object SharedGroups {
      * member is its creator and first curator. The playlist's tracks reach the group on the first sync.
      */
     fun create(
-        env: Env, name: String, folder: String, folderName: String, myName: String, myService: String, local: PlaylistRef,
-        transport: String = Invite.FOLDER, ntfyAuth: String? = null,
+        env: Env, name: String, folder: String, folderName: String, myName: String, myService: String, local: PlaylistRef?,
+        transport: String = Invite.FOLDER, ntfyAuth: String? = null, collectionId: String = "",
     ): SharedGroup {
         val me = Identity.create()
         val id = newGroupId()
         val group = SharedGroup(id, name.trim().take(Invite.MAX_NAME), me.id, me.id, folder.trim(), folderName, myName.trim(), myService,
-            jobId = UUID.randomUUID().toString(), twinId = UUID.randomUUID().toString(), joinedAt = clock(), transport = transport)
+            jobId = UUID.randomUUID().toString(), twinId = UUID.randomUUID().toString(), joinedAt = clock(), transport = transport, collectionId = collectionId)
         val roster = Roster(id, 1, clock(), listOf(Grant(me.id))).signed(me)
         val secret = when (transport) {
             Invite.NTFY -> mapOf(SharedTransports.GROUP_KEY to SharedTransports.newGroupKey()) + SharedTransports.authEntry(ntfyAuth)
@@ -541,15 +554,16 @@ object SharedGroups {
      * [ntfyAuth]: this member's own sign-in to a protected ntfy server ([NtfyServer.authorization]).
      */
     fun join(
-        env: Env, invite: Invite, folder: String, folderName: String, myName: String, myService: String, local: PlaylistRef,
-        ntfyAuth: String? = null,
+        env: Env, invite: Invite, folder: String, folderName: String, myName: String, myService: String, local: PlaylistRef?,
+        ntfyAuth: String? = null, collectionId: String = "", keepMine: Boolean = false,
     ): Pair<SharedGroup, Boolean> {
         if (group(env, invite.groupId) != null) throw ProviderException(env.text("shared_error_already", invite.name))
         val me = Identity.create()
         val remote = invite.transport == Invite.NTFY || invite.transport == Invite.SERVER
         val group = SharedGroup(invite.groupId, invite.name, invite.creator, me.id, if (remote) invite.server else folder,
             if (remote) NtfyServer.hostOf(invite.server) else folderName, myName.trim(), myService,
-            jobId = UUID.randomUUID().toString(), twinId = UUID.randomUUID().toString(), joinedAt = clock(), transport = invite.transport)
+            jobId = UUID.randomUUID().toString(), twinId = UUID.randomUUID().toString(), joinedAt = clock(), transport = invite.transport,
+            collectionId = collectionId, keepMine = keepMine)
         val secret = when (invite.transport) {
             Invite.NTFY -> mapOf(SharedTransports.GROUP_KEY to invite.key) + SharedTransports.authEntry(ntfyAuth)
             Invite.SERVER -> mapOf(SharedTransports.MAILBOX_KEY to invite.key)
@@ -560,7 +574,8 @@ object SharedGroups {
         return g to others
     }
 
-    private fun start(env: Env, first: SharedGroup, me: Identity, state: GroupState, local: PlaylistRef, extra: Map<String, String>): SharedGroup {
+    /** [local] null: a collection's list of playlists, a group with no playlist and no syncs, kept by its collection (see [Collections]). */
+    private fun start(env: Env, first: SharedGroup, me: Identity, state: GroupState, local: PlaylistRef?, extra: Map<String, String>): SharedGroup {
         env.tokens.set(tokenKey(first.id), Tokens(accessToken = B64.encode(me.seed), userId = me.id, extra = extra))
         synchronized(lockOf(first.id)) { save(env, first.id, state) }
         joining.remove(first.id)
@@ -573,6 +588,7 @@ object SharedGroups {
         }
         // Joined with an invite older than a move a curator made: on the server the group moved to.
         val group = joining.remove(first.id) ?: first
+        if (local == null) return group
         val (down, up) = jobsFor(group, local)
         env.store.update { d -> d.copy(groups = d.groups.filter { it.id != group.id } + group, jobs = d.jobs + down + up) }
         env.log("shared", "${group.name}: ${if (group.createdHere) "created" else "joined"}, files in ${group.folderName.ifBlank { "the chosen folder" }}")
