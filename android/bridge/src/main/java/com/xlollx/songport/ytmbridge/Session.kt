@@ -82,6 +82,15 @@ open class YtmSessionStore(val slot: String) {
         YtmWeb.reset(slot)
         YtmRenewal.forget(slot)
         prefs(ctx).edit().clear().apply()
+        clearCookies()
+    }
+
+    /**
+     * Deletes Google's and YouTube's cookies in this account's jar: after a sign-out, and before a
+     * sign-in of an account that is not signed in, so Google asks which account instead of taking
+     * the one the WebView still holds.
+     */
+    fun clearCookies() {
         // Only Google's and YouTube's cookies: inside Trackhop the WebView also holds the other web
         // sessions (Amazon, Spotify, Apple), which signing out of YouTube Music must not touch.
         runCatching {

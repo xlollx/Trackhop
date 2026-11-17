@@ -70,7 +70,7 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
     // prompt=consent garantisce il refresh token anche ai riaccessi successivi. select_account: Google's
     // chooser every time, where a brand account's channel is picked (#41; the API has no channel switch).
     override val extraAuthParams = mapOf("access_type" to "offline", "prompt" to "consent select_account")
-    // Extra accounts: Google shows the account chooser instead of reusing the signed-in one.
+    // Every sign-in: Google shows the account chooser instead of reusing the signed-in one.
     override val switchAccountParams = mapOf("prompt" to "consent select_account")
 
     // Client Android della build: Google impone lo schema "client id invertito" (nel manifest).

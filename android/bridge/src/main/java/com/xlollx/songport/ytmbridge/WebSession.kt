@@ -92,22 +92,41 @@ class WebSession private constructor(private val name: String, private val domai
 
     fun clear(ctx: Context) {
         prefs(ctx).edit().clear().apply()
-        runCatching {
-            val cm = jar()
-            domains.forEach { d ->
-                cm.getCookie("https://$d")?.split(';')?.forEach { c ->
-                    val n = c.substringBefore('=').trim()
-                    if (n.isNotEmpty()) {
-                        cm.setCookie("https://$d", "$n=; Max-Age=0; Path=/")
-                        cm.setCookie("https://$d", "$n=; Max-Age=0; Domain=.${d.substringAfter('.')}; Path=/")
-                    }
-                }
-            }
-            cm.flush()
-        }
+        clearCookies()
     }
 
+    /**
+     * Deletes the service's cookies in this account's jar, what is kept for the session aside (other
+     * services keep theirs): after a sign-out, and before a sign-in of an account that is not signed
+     * in, so the service's page asks which account instead of opening the old one in silence.
+     * @return how many cookie names were there.
+     */
+    fun clearCookies(): Int = runCatching {
+        val cm = jar()
+        var n = 0
+        domains.forEach { d ->
+            cm.getCookie("https://$d")?.split(';')?.map { it.substringBefore('=').trim() }?.filter { it.isNotEmpty() }?.distinct()?.forEach { name ->
+                n++
+                deletions(d, name).forEach { cm.setCookie("https://$d", it) }
+            }
+        }
+        cm.flush()
+        n
+    }.getOrDefault(0)
+
     companion object {
+        /**
+         * The cookie lines that delete [name] wherever a page of [host] may have set it: for the host
+         * alone and for the host and each parent domain down to two labels, each with and without
+         * `Secure` (a `__Secure-` or `__Host-` name is refused without it).
+         */
+        fun deletions(host: String, name: String): List<String> {
+            val labels = host.trim('.').split('.')
+            val domains = (0..(labels.size - 2).coerceAtLeast(0)).map { labels.drop(it).joinToString(".") }.filter { it.contains('.') }
+            val scopes = listOf("") + domains.map { " Domain=.$it;" }
+            return scopes.flatMap { scope -> listOf("$name=; Max-Age=0;$scope Path=/", "$name=; Max-Age=0;$scope Path=/; Secure") }
+        }
+
         fun cookieValue(cookies: String?, name: String): String? = WebHost.cookieValue(cookies, name)
     }
 }

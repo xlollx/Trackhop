@@ -11,7 +11,7 @@ import android.content.Context
  * [DeezerWebClient] then talks to the web player's gateway the way deezer.com does.
  */
 object DeezerBridge {
-    val session = WebSession("deezer", listOf("www.deezer.com", "deezer.com", "account.deezer.com", "connect.deezer.com"))
+    val session = WebSession("deezer", listOf("www.deezer.com", "deezer.com", "account.deezer.com", "connect.deezer.com", "auth.deezer.com"))
     const val ORIGIN = DeezerWebClient.ORIGIN
     const val LOGIN_URL = "https://www.deezer.com/login"
 

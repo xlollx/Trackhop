@@ -276,6 +276,13 @@ class WebLoginActivity : ComponentActivity() {
                 else -> { setResult(RESULT_CANCELED); finish() }
             }
         }
+        // An account that is not signed in starts without the service's cookies, as Amazon's sign-in
+        // does and as after its sign-out: cookies left in the WebView would open the old account in
+        // silence, with no way to choose another (Deezer, 16/11/2026). A signed-in account keeps its own.
+        sessionOf()?.takeIf { !it.isConnected(applicationContext) }?.let { s ->
+            val n = s.clearCookies()
+            BridgeNet.log(service, "sign-in started for an account not signed in ($n old cookies of the service removed first, so its page asks which account)")
+        }
         web.loadUrl(when (service) {
             APPLE -> AppleBridge.HOME
             DEEZER -> DeezerBridge.LOGIN_URL
@@ -447,6 +454,18 @@ class WebLoginActivity : ComponentActivity() {
         if (kind != DataDome.Kind.BLOCKED) return
         notice.text = getString(R.string.bridge_login_blocked, serviceName())
         notice.visibility = android.view.View.VISIBLE
+    }
+
+    /** The session this sign-in fills; null for SoundCloud, whose sign-in keeps the account's cookies and drops only DataDome's. */
+    private fun sessionOf(): WebSession? = when (service) {
+        SPOTIFY -> SpotifyBridge.session(slot)
+        APPLE -> AppleBridge.session(slot)
+        DEEZER -> DeezerBridge.session(slot)
+        LIVEONE -> LiveOneBridge.session(slot)
+        ANGHAMI -> AnghamiBridge.session(slot)
+        QOBUZ -> QobuzBridge.session(slot)
+        GAANA -> GaanaBridge.session(slot)
+        else -> null
     }
 
     private fun serviceOrNull(): String? = if (::service.isInitialized) service else null

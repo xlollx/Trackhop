@@ -90,6 +90,12 @@ class LoginActivity : ComponentActivity() {
         onBackPressedDispatcher.addCallback(this) {
             if (web.canGoBack()) web.goBack() else { setResult(RESULT_CANCELED); finish() }
         }
+        // An account that is not signed in starts without Google's cookies, as after its sign-out:
+        // those another sign-in left in the WebView would enter that Google account without asking.
+        if (!Session.forSlot(slot).isConnected(applicationContext)) {
+            Session.forSlot(slot).clearCookies()
+            BridgeNet.log("ytm", "sign-in started for an account not signed in: Google's old cookies removed first, so Google asks which account")
+        }
         web.loadUrl(LOGIN_URL)
     }
 
