@@ -115,21 +115,48 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
     /** The scheduler: once a minute, the syncs that are due. */
     fun startScheduler() {
         if (env.may(Permissions.RADIO)) radio.start()
-        scope.launch {
-            delay(STARTUP_DELAY_MS)
-            while (isActive) {
-                val now = System.currentTimeMillis()
-                env.store.data.jobs.filter { isDue(it, now) && !isRunning(it.id) }.forEach { start(it, scheduled = true) }
-                // The backup schedule (Tools › Full backup), as the app's BackupWorker.
-                if (Backups.isDue(env, now)) Tasks.start(Backups.TITLE, "/tools/backup", { env.log("backup", it) }, env.owner) { t -> Backups.run(env) { t.progress = it } }
-                // Lyrics for the files added to the library this week (Tools › Lyrics, Docker only).
-                if (env.may(Permissions.ADMIN) && Lyrics.isDue(env, edition, now)) Tasks.start(Lyrics.TITLE, "/tools/lyrics", { env.log("lyrics", it) }, env.owner) { t -> lyricsResult(Lyrics.run(env, Lyrics.Options()) { t.progress = it }) }
-                // The followed artists' look (Tools › Followed artists), once a day or a week.
-                if (Features.v2) env.alertsTick(now)
-                // "A new version is out" (Settings › Updates): twice a day at most, where this engine may check.
-                runCatching { Updates.checkIfDue(now) }
-                delay(TICK_MS)
-            }
+        loop(STARTUP_DELAY_MS, TICK_MS) { tick(it) }
+    }
+
+    /**
+     * [turn] every [every] ms, after [startup]. A turn that throws is written in the log and the next
+     * one comes all the same: one error must not end the scheduled syncs until the server is restarted.
+     */
+    internal fun loop(startup: Long, every: Long, turn: suspend (Long) -> Unit) = scope.launch {
+        delay(startup)
+        while (isActive) {
+            guarded("turn") { turn(System.currentTimeMillis()) }
+            delay(every)
+        }
+    }
+
+    /** One turn of the minute at [now]. Each sync and each other entry by itself: one that throws does not keep the others from starting. */
+    internal suspend fun tick(now: Long, begin: (SyncJob) -> Unit = { start(it, scheduled = true) }) {
+        guarded("syncs") {
+            env.store.data.jobs.forEach { job -> guarded(job.name) { if (isDue(job, now) && !isRunning(job.id)) begin(job) } }
+        }
+        // The backup schedule (Tools › Full backup), as the app's BackupWorker.
+        guarded("backup") {
+            if (Backups.isDue(env, now)) Tasks.start(Backups.TITLE, "/tools/backup", { env.log("backup", it) }, env.owner) { t -> Backups.run(env) { t.progress = it } }
+        }
+        // Lyrics for the files added to the library this week (Tools › Lyrics, Docker only).
+        guarded("lyrics") {
+            if (env.may(Permissions.ADMIN) && Lyrics.isDue(env, edition, now)) Tasks.start(Lyrics.TITLE, "/tools/lyrics", { env.log("lyrics", it) }, env.owner) { t -> lyricsResult(Lyrics.run(env, Lyrics.Options()) { t.progress = it }) }
+        }
+        // The followed artists' look (Tools › Followed artists), once a day or a week.
+        guarded("artist alerts") { if (Features.v2) env.alertsTick(now) }
+        // "A new version is out" (Settings › Updates): twice a day at most, where this engine may check.
+        guarded("updates") { Updates.checkIfDue(now) }
+    }
+
+    /** [block], its error written in the log instead of thrown (a stop of the scheduler still stops it). */
+    private inline fun guarded(what: String, block: () -> Unit) {
+        try {
+            block()
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            runCatching { env.log("scheduler", "$what: ${e.javaClass.simpleName}: ${e.message}") }
         }
     }
 
