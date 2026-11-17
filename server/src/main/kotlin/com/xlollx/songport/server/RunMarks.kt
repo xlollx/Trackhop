@@ -47,10 +47,16 @@ class RunMarks(private val kv: KeyValues) {
         }.toString()
     }
 
-    /** A run begins: marked before it does anything. A mark of an earlier, interrupted run of the same thing gives way to it. */
+    /**
+     * A run begins: marked before it does anything. A mark of an earlier, interrupted run of the same
+     * thing gives way to it: the same id, or (a task tried again gets a new id) the same kind and title.
+     */
     fun begin(kind: String, id: String, title: String, back: String = "", now: Long = System.currentTimeMillis()) = synchronized(lock) {
         // Never failing the run for a mark that cannot be written (a full disk says so on every page).
-        runCatching { write((read().filterNot { it.kind == kind && it.id == id } + Mark(kind, id, title, back, now)).takeLast(MAX)) }
+        runCatching {
+            val kept = read().filterNot { it.kind == kind && (it.id == id || (it.interrupted && it.title == title)) }
+            write((kept + Mark(kind, id, title, back, now)).takeLast(MAX))
+        }
         Unit
     }
 

@@ -97,6 +97,17 @@ class RunMarksTest {
         assertTrue(RunMarks.afterRestart(env()).isEmpty())
     }
 
+    @Test fun startingATaskAgainClearsItsOlderInterruptedMarks() {
+        val marks = env().marks
+        marks.begin(RunMarks.TASK, "t1", "Full backup", "/tools/backup", now = 1)
+        marks.begin(RunMarks.TASK, "t2", "Remove duplicates", "/tools/dedupe", now = 2)
+        marks.begin(RunMarks.SYNC, "s1", "Full backup", now = 3)
+        assertEquals(3, marks.afterRestart().size)
+        // Tried again: a new task, a new id.
+        marks.begin(RunMarks.TASK, "t3", "Full backup", "/tools/backup", now = 4)
+        assertEquals(setOf("t2", "s1"), marks.interrupted().map { it.id }.toSet())
+    }
+
     @Test fun aTaskStillRunningInThisServerIsNotCalledInterrupted() {
         val env = env()
         val gate = CompletableDeferred<Unit>()
