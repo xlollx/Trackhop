@@ -139,6 +139,8 @@ fun StateNotices(store: Store, snackbar: SnackbarHostState) {
 
 /** One "Continue" at a time, in the app's own scope: leaving Tools does not stop it. */
 private val continuing = AppRun<Pair<String, Int>>()
+/** Which half-made playlist [continuing] is filling (service and playlist): its card alone shows the progress. */
+private val continuingKey = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
 
 /**
  * On the Tools tab: the playlists a tool made on a service and could not fill to the end (the app
@@ -150,6 +152,7 @@ fun HalfMadeCards(snackbar: SnackbarHostState) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val running by continuing.running.collectAsState()
+    val runningKey by continuingKey.collectAsState()
     val done by continuing.finished.collectAsState()
     var version by remember { mutableIntStateOf(0) }
     var progress by remember { mutableStateOf<Progress?>(null) }
@@ -167,12 +170,16 @@ fun HalfMadeCards(snackbar: SnackbarHostState) {
     for (entry in entries) {
         val service = Providers.byId(entry.provider)?.label(ctx) ?: entry.provider
         NoticeBox(title = null, text = stringResource(R.string.half_made_text, entry.name, service, entry.tracks.size), error = false) {
+            val key = entry.provider + "|" + entry.playlistId
             Button(enabled = !running, onClick = {
                 val app = ctx.applicationContext
-                continuing.start { entry.name to Tools.continueHalfMade(app, entry) { progress = it }.added }
+                progress = null
+                continuingKey.value = key
+                if (!continuing.start { entry.name to Tools.continueHalfMade(app, entry) { progress = it }.added }) continuingKey.value = runningKey
             }) { Text(stringResource(R.string.connect_continue)) }
             TextButton(enabled = !running, onClick = { runCatching { Tools.forgetHalfMade(ctx, entry) }; version++ }) { Text(stringResource(R.string.notice_dismiss)) }
-            if (running) Row(verticalAlignment = Alignment.CenterVertically) {
+            // Only on the card being continued: the others just wait (their buttons off).
+            if (running && runningKey == key) Row(verticalAlignment = Alignment.CenterVertically) {
                 CircularProgressIndicator(Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
                 progress?.let { Text(stringResource(R.string.tools_progress_make, it.done, it.total), style = MaterialTheme.typography.bodySmall) }
             }
