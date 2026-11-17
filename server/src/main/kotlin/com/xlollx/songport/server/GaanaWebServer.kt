@@ -1,5 +1,6 @@
 package com.xlollx.songport.server
 
+import com.xlollx.songport.providers.ConnectorLog.logged
 import com.xlollx.songport.data.Tokens
 import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.model.ProviderException
@@ -77,7 +78,7 @@ class GaanaWebServerProvider(override val slot: String = "") : CookieConnector {
     }
 
     override suspend fun playlists(ctx: Env): List<Playlist> =
-        io(ctx) { c -> c.playlists().map { Playlist(it.id, it.name, it.count) } }
+        io(ctx) { c -> c.playlists().map { Playlist(it.id, it.name, it.count) } }.logged(ctx, this, "playlists")
 
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> =
         io(ctx) { c -> (if (playlistId == MusicProvider.LIKED_ID) c.liked() else c.tracks(playlistId)).map { toTrack(it) } }

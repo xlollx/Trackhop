@@ -401,6 +401,25 @@ object Listening {
     data class Details(val year: Int, val cover: String?)
 
     /**
+     * [read] with its line in the diagnostic log: the source used, the period, how much came back
+     * (counts only), or why nothing did. The error goes on to the caller as it was.
+     */
+    suspend fun logged(env: com.xlollx.songport.platform.Env, source: Source, period: Period, read: suspend () -> Report): Report = try {
+        read().also { r ->
+            env.log("wrapped", "source ${source.name.lowercase()}, ${period.key}: ${r.tracks.size} songs, ${r.artists.size} artists" +
+                (if (r.totalPlays > 0) ", ${r.totalPlays} plays" else "") + (if (r.before != null) ", the period before known" else ""))
+        }
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        env.log("wrapped", "source ${source.name.lowercase()}, ${period.key}: " + when (e) {
+            is MissingScope -> "the sign-in lacks the permission for the top songs"
+            else -> (e.message ?: e.javaClass.simpleName).take(160)
+        })
+        throw e
+    }
+
+    /**
      * [r]'s songs with their year and cover filled in where the service did not give them: the
      * first [max] songs are looked up, one after the other (never a burst), through [lookup];
      * [onProgress] gets (looked up, to look up). A lookup that fails leaves the song as it was.

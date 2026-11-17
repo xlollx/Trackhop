@@ -284,6 +284,7 @@ object NewReleases {
         }
         onProgress(names.size, names.size)
         if (unanswered > 0) env.log("releases", "$unanswered of ${names.size} artists not answered (Deezer and MusicBrainz both silent)")
+        env.log("releases", "${names.size} artists, ${if (upcoming) "the next" else "the last"} $days days: ${all.size} releases read (Deezer, MusicBrainz), ${window(all, days, upcoming).size} in the window")
         return Result(window(all, days, upcoming), names, unanswered)
     }
 

@@ -130,12 +130,15 @@ class DeezerProvider(override val slot: String = "") : OAuthProvider() {
         val me = tokens(ctx).userId
         val out = ArrayList<Playlist>()
         var url: String? = "$API/user/me/playlists?limit=100"
+        var total: Int? = null
+        var unreadable = 0
         while (url != null) {
             val j = dz(ctx, "GET", url)
+            if (total == null) total = j["total"].int
             for (p in j["data"].arr) {
-                if (p["is_loved_track"].bool == true) continue // gia' esposta come "Brani preferiti"
+                if (p["is_loved_track"].bool == true) { total = total?.minus(1); continue } // gia' esposta come "Brani preferiti"
                 out += Playlist(
-                    id = p["id"].long?.toString() ?: continue,
+                    id = p["id"].long?.toString() ?: run { unreadable++; null } ?: continue,
                     name = p["title"].str ?: "",
                     trackCount = p["nb_tracks"].int ?: -1,
                     ownedByMe = p["creator"]["id"].long?.toString() == me,
@@ -145,6 +148,7 @@ class DeezerProvider(override val slot: String = "") : OAuthProvider() {
             }
             url = j["next"].str
         }
+        ConnectorLog.listed(ctx, this, "playlists", out.size, total, unreadable)
         return out
     }
 

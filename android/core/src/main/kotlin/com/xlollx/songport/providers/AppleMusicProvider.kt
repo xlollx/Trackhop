@@ -168,12 +168,15 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
     override suspend fun playlists(ctx: Env): List<Playlist> {
         val out = ArrayList<Playlist>()
         var url: String? = "$API/v1/me/library/playlists?limit=100"
+        var total: Int? = null
+        var unreadable = 0
         while (url != null) {
             val j = api(ctx, "GET", url)
+            if (total == null) total = j["meta"]["total"].int
             for (p in j["data"].arr) {
                 val a = p["attributes"]
                 out += Playlist(
-                    id = p["id"].str ?: continue,
+                    id = p["id"].str ?: run { unreadable++; null } ?: continue,
                     name = a["name"].str ?: "",
                     // canEdit=false per le playlist sincronizzate da iTunes o create da Apple.
                     ownedByMe = a["canEdit"].bool ?: true,
@@ -182,6 +185,7 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
             }
             url = nextUrl(j)
         }
+        ConnectorLog.listed(ctx, this, "playlists", out.size, total, unreadable)
         return out
     }
 

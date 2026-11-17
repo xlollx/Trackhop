@@ -1,5 +1,6 @@
 package com.xlollx.songport.providers
 
+import com.xlollx.songport.providers.ConnectorLog.logged
 import android.net.Uri
 import android.os.Bundle
 import com.xlollx.songport.model.Playlist
@@ -62,7 +63,7 @@ class AnghamiBridgeProvider(override val slot: String = "") : MusicProvider, Web
     // Start over: the Bridge forgets the session and the sites' data; an older one only signs out.
     override fun startOver(ctx: Env) { runCatching { call(ctx, "anghami.reset") }.onFailure { disconnect(ctx) } }
     override suspend fun playlists(ctx: Env): List<Playlist> = io(ctx, "anghami.playlists") { j ->
-        j.arr.mapNotNull { p -> p["id"].str?.let { Playlist(it, p["name"].str ?: "", p["count"]?.long?.toInt() ?: -1) } }
+        j.arr.mapNotNull { p -> p["id"].str?.let { Playlist(it, p["name"].str ?: "", p["count"]?.long?.toInt() ?: -1) } }.logged(ctx, this, "playlists", j.arr.size)
     }
 
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> = withContext(Dispatchers.IO) {

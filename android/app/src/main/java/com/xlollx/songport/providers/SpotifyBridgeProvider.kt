@@ -1,5 +1,6 @@
 package com.xlollx.songport.providers
 
+import com.xlollx.songport.providers.ConnectorLog.logged
 import android.content.Context
 import com.xlollx.songport.platform.Env
 import com.xlollx.songport.platform.android
@@ -84,7 +85,7 @@ class SpotifyBridgeProvider(override val slot: String = "") : MusicProvider, Web
     // Start over: the Bridge forgets the session and the sites' data; an older one only signs out.
     override fun startOver(ctx: Env) { runCatching { call(ctx, "spotify.reset") }.onFailure { disconnect(ctx) } }
     override suspend fun playlists(ctx: Env): List<Playlist> = io(ctx, "spotify.playlists") { j ->
-        j.arr.mapNotNull { p -> toPlaylist(p) }
+        j.arr.mapNotNull { p -> toPlaylist(p) }.logged(ctx, this, "playlists", j.arr.size)
     }
 
     override suspend fun playlistVersion(ctx: Env, playlistId: String): String? =
