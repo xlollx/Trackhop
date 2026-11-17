@@ -2745,6 +2745,37 @@
     <plurals name="saved_matches_used_by">
         <item quantity="other">%1$d개 동기화에서 사용: %2$s</item>
     </plurals>
+    <string name="to_fix_tab">수정 필요</string>
+    <string name="to_fix_tab_saved">저장됨</string>
+    <string name="to_fix_once">한 번만 수정하세요.</string>
+    <string name="to_fix_once_body">선택한 내용은 같은 곡이 있는 모든 동기화에 적용됩니다.</string>
+    <string name="to_fix_swipe_hint">오른쪽으로 밀면 수락, 왼쪽으로 밀면 나중에. 버튼으로도 똑같이 할 수 있습니다.</string>
+    <string name="to_fix_group">그룹</string>
+    <string name="to_fix_by_sync">동기화별</string>
+    <string name="to_fix_by_service">서비스별</string>
+    <string name="to_fix_suggested_on">%1$s의 제안</string>
+    <string name="to_fix_not_found_on">%1$s에서 찾지 못함</string>
+    <string name="to_fix_search_by_hand">직접 검색</string>
+    <string name="to_fix_later">나중에</string>
+    <string name="to_fix_accept">수락</string>
+    <string name="to_fix_search_on">%1$s에서 검색</string>
+    <string name="to_fix_from">출처: %1$s</string>
+    <string name="to_fix_ignore">이 곡 무시</string>
+    <string name="to_fix_remove_match">잘못된 매칭: 제거</string>
+    <string name="to_fix_empty_title">수정할 항목 없음</string>
+    <string name="to_fix_empty_body">동기화의 모든 곡에 매칭이 있습니다. 찾지 못한 곡과 확인이 필요한 매칭이 여기에 표시됩니다.</string>
+    <string name="to_fix_see_saved">저장된 매칭 보기</string>
+    <string name="to_fix_on_service">%1$s에서 찾을 곡</string>
+    <string name="to_fix_later_done">해당 동기화가 다시 실행될 때까지 미뤄 두었습니다.</string>
+    <string name="to_fix_partial">저장했습니다. 지금은 %1$s을(를) 업데이트하지 못했습니다. 다음 실행 때 곡이 추가됩니다.</string>
+    <string name="to_fix_ignore_partial">무시했습니다. 지금은 %1$s에서 곡을 제거하지 못했습니다. 그곳에서 직접 제거하세요.</string>
+    <string name="to_fix_open_all">수정이 필요한 모든 곡(%1$d)</string>
+    <plurals name="to_fix_in_syncs">
+        <item quantity="other">동기화 %1$d개</item>
+    </plurals>
+    <plurals name="to_fix_done">
+        <item quantity="other">동기화 %1$d개에서 수정됨</item>
+    </plurals>
     <string name="twins_title">중복 플레이리스트</string>
     <string name="tools_row_twins">반복 전송으로 남은 사본: 같은 이름이거나 거의 같은 곡.</string>
     <string name="twins_reading">플레이리스트 읽는 중: %2$d개 중 %1$d개</string>

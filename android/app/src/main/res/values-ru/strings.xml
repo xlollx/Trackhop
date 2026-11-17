@@ -2908,6 +2908,43 @@
         <item quantity="many">Используется в %1$d синхронизациях: %2$s</item>
         <item quantity="other">Используется в %1$d синхронизациях: %2$s</item>
     </plurals>
+    <string name="to_fix_tab">Исправить</string>
+    <string name="to_fix_tab_saved">Сохранённые</string>
+    <string name="to_fix_once">Исправьте один раз.</string>
+    <string name="to_fix_once_body">Ваш выбор действует для каждой синхронизации с этим треком.</string>
+    <string name="to_fix_swipe_hint">Смахните вправо, чтобы принять, влево — чтобы отложить. Кнопки делают то же самое.</string>
+    <string name="to_fix_group">Группировать</string>
+    <string name="to_fix_by_sync">По синхронизации</string>
+    <string name="to_fix_by_service">По сервису</string>
+    <string name="to_fix_suggested_on">Предложение в %1$s</string>
+    <string name="to_fix_not_found_on">Не найден в %1$s</string>
+    <string name="to_fix_search_by_hand">Искать вручную</string>
+    <string name="to_fix_later">Позже</string>
+    <string name="to_fix_accept">Принять</string>
+    <string name="to_fix_search_on">Поиск в %1$s</string>
+    <string name="to_fix_from">Из: %1$s</string>
+    <string name="to_fix_ignore">Пропустить этот трек</string>
+    <string name="to_fix_remove_match">Неверное совпадение: убрать</string>
+    <string name="to_fix_empty_title">Нечего исправлять</string>
+    <string name="to_fix_empty_body">У каждого трека в ваших синхронизациях есть совпадение. Ненайденные треки и совпадения для проверки появятся здесь.</string>
+    <string name="to_fix_see_saved">Открыть сохранённые совпадения</string>
+    <string name="to_fix_on_service">Найти в %1$s</string>
+    <string name="to_fix_later_done">Отложено до следующего запуска синхронизации.</string>
+    <string name="to_fix_partial">Сохранено. Сейчас не удалось обновить: %1$s. Следующий запуск добавит трек.</string>
+    <string name="to_fix_ignore_partial">Пропущено. Сейчас не удалось убрать трек из: %1$s. Уберите его там вручную.</string>
+    <string name="to_fix_open_all">Все треки для исправления (%1$d)</string>
+    <plurals name="to_fix_in_syncs">
+        <item quantity="one">В %1$d синхронизации</item>
+        <item quantity="few">В %1$d синхронизациях</item>
+        <item quantity="many">В %1$d синхронизациях</item>
+        <item quantity="other">В %1$d синхронизациях</item>
+    </plurals>
+    <plurals name="to_fix_done">
+        <item quantity="one">Исправлено в %1$d синхронизации</item>
+        <item quantity="few">Исправлено в %1$d синхронизациях</item>
+        <item quantity="many">Исправлено в %1$d синхронизациях</item>
+        <item quantity="other">Исправлено в %1$d синхронизациях</item>
+    </plurals>
     <string name="twins_title">Дубликаты плейлистов</string>
     <string name="tools_row_twins">Копии после повторных переносов: то же название или почти те же песни.</string>
     <string name="twins_reading">Читаю плейлисты: %1$d из %2$d</string>

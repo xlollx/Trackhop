@@ -2808,6 +2808,39 @@
         <item quantity="one">Usada por %1$d sincronização: %2$s</item>
         <item quantity="other">Usada por %1$d sincronizações: %2$s</item>
     </plurals>
+    <string name="to_fix_tab">A corrigir</string>
+    <string name="to_fix_tab_saved">Salvas</string>
+    <string name="to_fix_once">Corrija uma vez.</string>
+    <string name="to_fix_once_body">Sua escolha vale para todas as sincronizações que têm a mesma faixa.</string>
+    <string name="to_fix_swipe_hint">Deslize para a direita para aceitar e para a esquerda para deixar para depois. Os botões fazem o mesmo.</string>
+    <string name="to_fix_group">Agrupar</string>
+    <string name="to_fix_by_sync">Por sincronização</string>
+    <string name="to_fix_by_service">Por serviço</string>
+    <string name="to_fix_suggested_on">Proposta no %1$s</string>
+    <string name="to_fix_not_found_on">Não encontrada no %1$s</string>
+    <string name="to_fix_search_by_hand">Buscar à mão</string>
+    <string name="to_fix_later">Depois</string>
+    <string name="to_fix_accept">Aceitar</string>
+    <string name="to_fix_search_on">Buscar no %1$s</string>
+    <string name="to_fix_from">De %1$s</string>
+    <string name="to_fix_ignore">Ignorar esta faixa</string>
+    <string name="to_fix_remove_match">Correspondência errada: remover</string>
+    <string name="to_fix_empty_title">Nada a corrigir</string>
+    <string name="to_fix_empty_body">Todas as faixas das suas sincronizações têm uma correspondência. As faixas não encontradas e as correspondências a conferir aparecerão aqui.</string>
+    <string name="to_fix_see_saved">Ver as correspondências salvas</string>
+    <string name="to_fix_on_service">A encontrar no %1$s</string>
+    <string name="to_fix_later_done">Deixada de lado até a sincronização dela rodar de novo.</string>
+    <string name="to_fix_partial">Salvo. Não foi possível atualizar %1$s agora: a próxima execução adiciona a faixa.</string>
+    <string name="to_fix_ignore_partial">Ignorada. Não foi possível remover a faixa de %1$s agora: remova-a lá à mão.</string>
+    <string name="to_fix_open_all">Todas as faixas a corrigir (%1$d)</string>
+    <plurals name="to_fix_in_syncs">
+        <item quantity="one">Em %1$d sincronização</item>
+        <item quantity="other">Em %1$d sincronizações</item>
+    </plurals>
+    <plurals name="to_fix_done">
+        <item quantity="one">Corrigida em %1$d sincronização</item>
+        <item quantity="other">Corrigida em %1$d sincronizações</item>
+    </plurals>
     <string name="twins_title">Playlists duplicadas</string>
     <string name="tools_row_twins">Cópias deixadas por transferências repetidas: mesmo nome ou quase as mesmas músicas.</string>
     <string name="twins_reading">Lendo as playlists: %1$d de %2$d</string>

@@ -2798,6 +2798,39 @@
         <item quantity="one">%1$d senkronizasyonda kullanılıyor: %2$s</item>
         <item quantity="other">%1$d senkronizasyonda kullanılıyor: %2$s</item>
     </plurals>
+    <string name="to_fix_tab">Düzeltilecekler</string>
+    <string name="to_fix_tab_saved">Kayıtlı</string>
+    <string name="to_fix_once">Bir kez düzeltin.</string>
+    <string name="to_fix_once_body">Seçiminiz aynı parçanın bulunduğu her senkronizasyon için geçerlidir.</string>
+    <string name="to_fix_swipe_hint">Kabul etmek için sağa, sonraya bırakmak için sola kaydırın. Düğmeler de aynı işi yapar.</string>
+    <string name="to_fix_group">Grupla</string>
+    <string name="to_fix_by_sync">Senkronizasyona göre</string>
+    <string name="to_fix_by_service">Hizmete göre</string>
+    <string name="to_fix_suggested_on">%1$s üzerinde öneri</string>
+    <string name="to_fix_not_found_on">%1$s üzerinde bulunamadı</string>
+    <string name="to_fix_search_by_hand">Elle ara</string>
+    <string name="to_fix_later">Sonra</string>
+    <string name="to_fix_accept">Kabul et</string>
+    <string name="to_fix_search_on">%1$s üzerinde ara</string>
+    <string name="to_fix_from">Kaynak: %1$s</string>
+    <string name="to_fix_ignore">Bu parçayı yok say</string>
+    <string name="to_fix_remove_match">Yanlış eşleşme: kaldır</string>
+    <string name="to_fix_empty_title">Düzeltilecek bir şey yok</string>
+    <string name="to_fix_empty_body">Senkronizasyonlarınızdaki her parçanın bir eşleşmesi var. Bulunamayan parçalar ve kontrol edilecek eşleşmeler burada görünür.</string>
+    <string name="to_fix_see_saved">Kayıtlı eşleşmeleri gör</string>
+    <string name="to_fix_on_service">%1$s üzerinde bulunacak</string>
+    <string name="to_fix_later_done">Senkronizasyonu yeniden çalışana kadar kenara ayrıldı.</string>
+    <string name="to_fix_partial">Kaydedildi. %1$s şu anda güncellenemedi: sonraki çalıştırma parçayı ekler.</string>
+    <string name="to_fix_ignore_partial">Yok sayıldı. Parça şu anda %1$s içinden kaldırılamadı: orada elle kaldırın.</string>
+    <string name="to_fix_open_all">Düzeltilecek tüm parçalar (%1$d)</string>
+    <plurals name="to_fix_in_syncs">
+        <item quantity="one">%1$d senkronizasyonda</item>
+        <item quantity="other">%1$d senkronizasyonda</item>
+    </plurals>
+    <plurals name="to_fix_done">
+        <item quantity="one">%1$d senkronizasyonda düzeltildi</item>
+        <item quantity="other">%1$d senkronizasyonda düzeltildi</item>
+    </plurals>
     <string name="twins_title">Yinelenen çalma listeleri</string>
     <string name="tools_row_twins">Tekrarlanan aktarımların bıraktığı kopyalar: aynı ad ya da neredeyse aynı şarkılar.</string>
     <string name="twins_reading">Çalma listeleri okunuyor: %1$d / %2$d</string>

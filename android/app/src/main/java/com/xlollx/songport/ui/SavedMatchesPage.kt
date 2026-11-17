@@ -33,6 +33,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -79,7 +81,7 @@ internal object SavedMatchesKept {
 }
 
 /** A connector of [family], a connected one first: for its logo, its name, its links and its search. */
-private fun providerOf(family: String, connected: Boolean = false, ctx: android.content.Context): MusicProvider? {
+internal fun providerOf(family: String, connected: Boolean = false, ctx: android.content.Context): MusicProvider? {
     val fam = family.substringBefore('#')
     return Providers.connectors().firstOrNull { FileStore.family(it.id) == fam && (!it.requiresAuth || it.isConnected(ctx.env)) }
         ?: if (connected) null else Providers.all().firstOrNull { FileStore.family(it.id) == fam }
@@ -88,13 +90,37 @@ private fun providerOf(family: String, connected: Boolean = false, ctx: android.
 private fun line(t: Track) = listOfNotNull(t.title, t.artistLine.ifBlank { null }).joinToString(" · ")
 
 /**
- * Tools › Saved matches (1.18, [SavedMatches]): every song Trackhop remembers across the syncs, its
+ * Tools › Saved matches: two tabs. "To fix" (2.1, [ToFixTab]) lists what the syncs' last runs left
+ * not found or matched loosely, with its count beside the name; "Saved" (1.18, [SavedTab]) is
+ * everything Trackhop remembers.
+ */
+@Composable
+fun SavedMatchesPage(snackbar: SnackbarHostState) {
+    val ctx = LocalContext.current
+    val store = remember { Store.get(ctx) }
+    val data by store.state.collectAsState()
+    var tab by rememberSaveable { mutableIntStateOf(0) }
+    val toFix = remember(data.jobs, data.reports, data.toFixLater) { com.xlollx.songport.sync.ToFix.items(data) }
+    TabRow(selectedTabIndex = tab, containerColor = androidx.compose.ui.graphics.Color.Transparent) {
+        Tab(selected = tab == 0, onClick = { tab = 0 }, modifier = Modifier.heightIn(min = 48.dp), text = {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.to_fix_tab), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                ToFixCount(toFix.size)
+            }
+        })
+        Tab(selected = tab == 1, onClick = { tab = 1 }, modifier = Modifier.heightIn(min = 48.dp), text = { Text(stringResource(R.string.to_fix_tab_saved), maxLines = 1, overflow = TextOverflow.Ellipsis) })
+    }
+    if (tab == 0) ToFixTab(toFix, snackbar) { tab = 1 } else SavedTab(snackbar)
+}
+
+/**
+ * The Saved tab (1.18, [SavedMatches]): every song Trackhop remembers across the syncs, its
  * match on the other service, a song not found or one ignored. A row opens a sheet to listen, change,
  * mark it as not there or forget it: what is done there holds for every sync between the two services.
  */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-fun SavedMatchesPage(snackbar: SnackbarHostState) {
+private fun SavedTab(snackbar: SnackbarHostState) {
     val ctx = LocalContext.current
     val store = remember { Store.get(ctx) }
     val data by store.state.collectAsState()

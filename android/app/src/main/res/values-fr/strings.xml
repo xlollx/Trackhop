@@ -2808,6 +2808,39 @@
         <item quantity="one">Utilisée par %1$d synchro : %2$s</item>
         <item quantity="other">Utilisée par %1$d synchros : %2$s</item>
     </plurals>
+    <string name="to_fix_tab">À corriger</string>
+    <string name="to_fix_tab_saved">Enregistrées</string>
+    <string name="to_fix_once">Corrigez une fois.</string>
+    <string name="to_fix_once_body">Votre choix vaut pour toutes les synchros qui ont le même titre.</string>
+    <string name="to_fix_swipe_hint">Balayez vers la droite pour accepter, vers la gauche pour plus tard. Les boutons font la même chose.</string>
+    <string name="to_fix_group">Grouper</string>
+    <string name="to_fix_by_sync">Par synchro</string>
+    <string name="to_fix_by_service">Par service</string>
+    <string name="to_fix_suggested_on">Proposition sur %1$s</string>
+    <string name="to_fix_not_found_on">Introuvable sur %1$s</string>
+    <string name="to_fix_search_by_hand">Chercher à la main</string>
+    <string name="to_fix_later">Plus tard</string>
+    <string name="to_fix_accept">Accepter</string>
+    <string name="to_fix_search_on">Chercher sur %1$s</string>
+    <string name="to_fix_from">De %1$s</string>
+    <string name="to_fix_ignore">Ignorer ce titre</string>
+    <string name="to_fix_remove_match">Mauvaise correspondance : la retirer</string>
+    <string name="to_fix_empty_title">Rien à corriger</string>
+    <string name="to_fix_empty_body">Chaque titre de vos synchros a une correspondance. Les titres introuvables et les correspondances à vérifier apparaîtront ici.</string>
+    <string name="to_fix_see_saved">Voir les correspondances enregistrées</string>
+    <string name="to_fix_on_service">À trouver sur %1$s</string>
+    <string name="to_fix_later_done">Mis de côté jusqu\'à la prochaine exécution de sa synchro.</string>
+    <string name="to_fix_partial">Enregistré. %1$s n\'a pas pu être mise à jour pour l\'instant : sa prochaine exécution ajoute le titre.</string>
+    <string name="to_fix_ignore_partial">Ignoré. Le titre n\'a pas pu être retiré de %1$s pour l\'instant : retirez-le là-bas à la main.</string>
+    <string name="to_fix_open_all">Tous les titres à corriger (%1$d)</string>
+    <plurals name="to_fix_in_syncs">
+        <item quantity="one">Dans %1$d synchro</item>
+        <item quantity="other">Dans %1$d synchros</item>
+    </plurals>
+    <plurals name="to_fix_done">
+        <item quantity="one">Corrigé dans %1$d synchro</item>
+        <item quantity="other">Corrigé dans %1$d synchros</item>
+    </plurals>
     <string name="twins_title">Playlists en double</string>
     <string name="tools_row_twins">Les copies laissées par des transferts répétés : même nom, ou presque les mêmes titres.</string>
     <string name="twins_reading">Lecture des playlists : %1$d sur %2$d</string>

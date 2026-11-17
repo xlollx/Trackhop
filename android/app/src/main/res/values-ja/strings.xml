@@ -2746,6 +2746,37 @@
     <plurals name="saved_matches_used_by">
         <item quantity="other">%1$d 件の同期で使用：%2$s</item>
     </plurals>
+    <string name="to_fix_tab">要修正</string>
+    <string name="to_fix_tab_saved">保存済み</string>
+    <string name="to_fix_once">修正は一度だけ。</string>
+    <string name="to_fix_once_body">選んだ内容は、同じ曲を含むすべての同期に適用されます。</string>
+    <string name="to_fix_swipe_hint">右にスワイプで承認、左で後回し。ボタンでも同じ操作ができます。</string>
+    <string name="to_fix_group">グループ</string>
+    <string name="to_fix_by_sync">同期ごと</string>
+    <string name="to_fix_by_service">サービスごと</string>
+    <string name="to_fix_suggested_on">%1$s での候補</string>
+    <string name="to_fix_not_found_on">%1$s で見つかりません</string>
+    <string name="to_fix_search_by_hand">手動で検索</string>
+    <string name="to_fix_later">後で</string>
+    <string name="to_fix_accept">承認</string>
+    <string name="to_fix_search_on">%1$s で検索</string>
+    <string name="to_fix_from">%1$s から</string>
+    <string name="to_fix_ignore">この曲を無視</string>
+    <string name="to_fix_remove_match">一致が違う：削除する</string>
+    <string name="to_fix_empty_title">修正するものはありません</string>
+    <string name="to_fix_empty_body">同期内のすべての曲に一致があります。見つからない曲や確認が必要な一致はここに表示されます。</string>
+    <string name="to_fix_see_saved">保存された一致を見る</string>
+    <string name="to_fix_on_service">%1$s で探す曲</string>
+    <string name="to_fix_later_done">その同期が次に実行されるまで後回しにしました。</string>
+    <string name="to_fix_partial">保存しました。%1$s は今は更新できませんでした。次回の実行で曲が追加されます。</string>
+    <string name="to_fix_ignore_partial">無視しました。今は %1$s から曲を削除できませんでした。そちらで手動で削除してください。</string>
+    <string name="to_fix_open_all">修正が必要なすべての曲（%1$d）</string>
+    <plurals name="to_fix_in_syncs">
+        <item quantity="other">%1$d 件の同期</item>
+    </plurals>
+    <plurals name="to_fix_done">
+        <item quantity="other">%1$d 件の同期で修正しました</item>
+    </plurals>
     <string name="twins_title">重複したプレイリスト</string>
     <string name="tools_row_twins">転送を繰り返して残ったコピー：同じ名前、またはほぼ同じ曲。</string>
     <string name="twins_reading">プレイリストを読み込み中：%1$d / %2$d</string>

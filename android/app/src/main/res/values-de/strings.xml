@@ -2800,6 +2800,39 @@
         <item quantity="one">Genutzt von %1$d Sync: %2$s</item>
         <item quantity="other">Genutzt von %1$d Syncs: %2$s</item>
     </plurals>
+    <string name="to_fix_tab">Zu klären</string>
+    <string name="to_fix_tab_saved">Gespeichert</string>
+    <string name="to_fix_once">Einmal klären.</string>
+    <string name="to_fix_once_body">Deine Wahl gilt für jeden Sync mit demselben Titel.</string>
+    <string name="to_fix_swipe_hint">Nach rechts wischen zum Annehmen, nach links für später. Die Schaltflächen tun dasselbe.</string>
+    <string name="to_fix_group">Gruppieren</string>
+    <string name="to_fix_by_sync">Nach Sync</string>
+    <string name="to_fix_by_service">Nach Dienst</string>
+    <string name="to_fix_suggested_on">Vorschlag auf %1$s</string>
+    <string name="to_fix_not_found_on">Auf %1$s nicht gefunden</string>
+    <string name="to_fix_search_by_hand">Von Hand suchen</string>
+    <string name="to_fix_later">Später</string>
+    <string name="to_fix_accept">Annehmen</string>
+    <string name="to_fix_search_on">Auf %1$s suchen</string>
+    <string name="to_fix_from">Aus %1$s</string>
+    <string name="to_fix_ignore">Diesen Titel ignorieren</string>
+    <string name="to_fix_remove_match">Falsche Zuordnung: entfernen</string>
+    <string name="to_fix_empty_title">Nichts zu klären</string>
+    <string name="to_fix_empty_body">Jeder Titel deiner Syncs hat eine Zuordnung. Nicht gefundene Titel und Zuordnungen zum Nachprüfen erscheinen hier.</string>
+    <string name="to_fix_see_saved">Gespeicherte Zuordnungen ansehen</string>
+    <string name="to_fix_on_service">Auf %1$s zu finden</string>
+    <string name="to_fix_later_done">Zurückgestellt, bis der Sync wieder läuft.</string>
+    <string name="to_fix_partial">Gespeichert. %1$s konnte gerade nicht aktualisiert werden: Der nächste Lauf fügt den Titel hinzu.</string>
+    <string name="to_fix_ignore_partial">Ignoriert. Der Titel konnte gerade nicht aus %1$s entfernt werden: Entferne ihn dort von Hand.</string>
+    <string name="to_fix_open_all">Alle zu klärenden Titel (%1$d)</string>
+    <plurals name="to_fix_in_syncs">
+        <item quantity="one">In %1$d Sync</item>
+        <item quantity="other">In %1$d Syncs</item>
+    </plurals>
+    <plurals name="to_fix_done">
+        <item quantity="one">In %1$d Sync geklärt</item>
+        <item quantity="other">In %1$d Syncs geklärt</item>
+    </plurals>
     <string name="twins_title">Doppelte Playlists</string>
     <string name="tools_row_twins">Kopien von wiederholten Übertragungen: gleicher Name oder fast dieselben Songs.</string>
     <string name="twins_reading">Lese die Playlists: %1$d von %2$d</string>

@@ -213,6 +213,12 @@ data class StoreData(
     val groups: List<com.xlollx.songport.shared.SharedGroup> = emptyList(),
     /** The collections of shared playlists this device takes part in (see shared/Collections): each one's playlists are [groups]. */
     val collections: List<com.xlollx.songport.shared.SharedCollection> = emptyList(),
+    /**
+     * "Later" in the To fix list (sync/ToFix): report id -> the source tracks set aside in it. A run
+     * writes a new report, so a track comes back at the next run of its sync; reports no sync ends
+     * with any more are dropped at the next write. Stays on the device: a configuration file leaves it out.
+     */
+    val toFixLater: Map<String, Set<String>> = emptyMap(),
 ) {
     /** The user's syncs: [jobs] without the one-off transfers ([SyncJob.oneOff]), which never show or run as syncs. */
     val syncs: List<SyncJob> get() = jobs.filterNot { it.oneOff }
