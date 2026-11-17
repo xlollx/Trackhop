@@ -122,7 +122,7 @@ this server or the same sync on both, and the app's reach here: see
 | `trackhop setlists <service> <playlist>` | The latest setlist.fm setlists of a playlist's artists (date, venue, city, number of songs, link); `--json` adds the songs (encores, tapes, covers) and each setlist's tracks, ready to add to a playlist. Asked only now, cached a week. Needs a setlist.fm key: Settings › setlist.fm key, or `SETLISTFM_API_KEY`. |
 | `trackhop concerts <service> <playlist> [--country IT]` | The upcoming concerts of a playlist's artists in a country (date, city, venue, link), from Ticketmaster and MusicBrainz; the artists without dates are named (`--json` for their search links). Asked only now, cached a day. Ticketmaster needs a key: Settings › Ticketmaster key, or `TICKETMASTER_API_KEY`. |
 | `trackhop records <service> <playlist> [--currency EUR]` | The records (CD, vinyl, cassette) of a playlist's artists from Discogs, and their official site, shop and Bandcamp from MusicBrainz (`--json` for the shop searches too). With the server's Discogs token (Settings › Discogs token), the copies for sale and the lowest price. Plain links; Discogs kept six hours, the links a week. |
-| `trackhop export <service> <playlist> [<file>]` | A playlist as a file: `--format csv`, `m3u`, `xspf`, `jspf` or `txt` (or from the file's extension); to the screen without `<file>`. |
+| `trackhop export <service> <playlist> [<file>]` | A playlist as a file: `--format csv`, `m3u`, `xspf`, `jspf`, `wpl`, `zpl` or `txt` (or from the file's extension); to the screen without `<file>`. |
 
 A `<service>` is its name or id (`spotify`, `tidal`, `subsonic`, `csv` for File…, as `trackhop services`
 shows); a `<playlist>` its name or id.
@@ -147,7 +147,7 @@ shows); a `<playlist>` its name or id.
 | `trackhop files get <name> [<file>]` | One, in a format (`--format`); to the screen without `<file>`. |
 | `trackhop files rm <name>…` | Deletes them. |
 | `trackhop files zip <file.zip> [<name>…]` | Several (all without names) in one .zip, in a format. |
-| `trackhop import <file>` | A playlist file into the File service: CSV, M3U, PLS, XSPF, JSPF, iTunes XML, JSON or text, of any size (it is read a piece at a time). From a whole Apple Music/iTunes library each of your playlists becomes a file; `--playlists "A,B"` takes only those, `--whole` the library as one file. |
+| `trackhop import <file>` | A playlist file into the File service: CSV, M3U, PLS, XSPF, JSPF, WPL/ZPL, iTunes XML, rekordbox XML, JSON or text, of any size (it is read a piece at a time). From a whole Apple Music/iTunes library or a rekordbox collection each of your playlists becomes a file; `--playlists "A,B"` takes only those, `--whole` the library as one file. |
 | `trackhop patterns` | How track names in imported files are read, and your own patterns ([how they work](export-playlist-csv#and-back-in)). |
 | `trackhop patterns set <pattern>…`, `patterns clear` | Your own patterns, tried in order (each in quotes: `'{artist}/{album}/{track} {title}'`), or back to automatic. |
 | `trackhop patterns layout <layout>` | `auto`, `artist_title`, `artist_album_title` or `custom`. |

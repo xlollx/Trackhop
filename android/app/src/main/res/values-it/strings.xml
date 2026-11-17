@@ -330,6 +330,8 @@
     <string name="export_format">Esporta come %1$s</string>
     <string name="format_text">Testo</string>
     <string name="format_opml">OPML (podcast)</string>
+    <string name="format_wpl">WPL (Windows Media Player)</string>
+    <string name="format_zpl">ZPL (Zune)</string>
     <string name="opml_finding_feeds">Cerco gli indirizzi dei feed: %1$d di %2$d</string>
     <string name="opml_feeds_missing">Fatto. Podcast senza indirizzo del feed nella directory di Apple: %1$d. Sono elencati solo per nome.</string>
     <string name="tools_export_save">Salva come…</string>
@@ -1480,6 +1482,9 @@
     <string name="whats_new_17_tiktok_body">Condividi un video TikTok con Trackhop: legge quale canzone ci suona e la aggiunge alla tua playlist.</string>
     <string name="provider_note_emby">Il tuo server Emby. Nessuna registrazione, nessuna quota. I preferiti contano come brani che ti piacciono.</string>
     <string name="login_hint_emby">Inserisci l\'indirizzo del tuo server Emby (per esempio https://emby.example.com), nome utente e password.</string>
+    <string name="provider_note_koel">Il tuo server Koel, attraverso l\'API Subsonic che parla. Nessuna registrazione, nessuna quota. I preferiti contano come brani che ti piacciono. Nuovo: ancora poco provato su server reali.</string>
+    <string name="login_hint_koel">Inserisci l\'indirizzo del tuo server Koel (quello che apri nel browser, per esempio https://koel.example.com). Come nome utente usa la tua email di Koel; come chiave API usa la chiave API Subsonic del tuo profilo Koel (Profilo › Subsonic), non la password di Koel. La chiave non viene mai inviata così com\'è: ogni richiesta usa un hash con salt.</string>
+    <string name="koel_signin_refused">Koel ha rifiutato l\'accesso. Usa la tua email di Koel come nome utente e, come chiave, la chiave API Subsonic del tuo profilo Koel (Profilo › Subsonic), non la password di Koel.</string>
     <string name="editor_follows">Playlist che cambia da sola</string>
     <string name="editor_follows_desc">Per una daylist, Discover Weekly o Release Radar: la destinazione diventa ogni volta la nuova versione della sorgente, anche se cambiano quasi tutti i brani, senza conferma.</string>
     <string name="timing_every_hours">Ogni %1$d ore</string>
@@ -1536,6 +1541,7 @@
     <string name="charts_label">Classifiche</string>
     <string name="provider_note_charts">Le classifiche di Apple Music (Top 100 per Paese) e Deezer (top per Paese e mondiale), dai loro feed pubblici: una sync tiene aggiornata una tua playlist quando la classifica cambia. Nessun account.</string>
     <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
+    <string name="charts_apple_list_name">Apple Music · %1$s</string>
     <string name="charts_deezer_name">Deezer · %1$s</string>
     <string name="charts_unknown">Questa classifica non è più disponibile.</string>
     <string name="charts_unavailable">%1$s non ha restituito la classifica (%2$d): riprova più tardi.</string>

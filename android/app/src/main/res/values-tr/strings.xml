@@ -330,6 +330,8 @@
     <string name="export_format">%1$s olarak dışa aktar</string>
     <string name="format_text">Metin</string>
     <string name="format_opml">OPML (podcast\'ler)</string>
+    <string name="format_wpl">WPL (Windows Media Player)</string>
+    <string name="format_zpl">ZPL (Zune)</string>
     <string name="opml_finding_feeds">Akış adresleri aranıyor: %1$d / %2$d</string>
     <string name="opml_feeds_missing">Tamam. Apple\'ın podcast dizininde akış adresi olmayan podcast\'ler: %1$d. Yalnızca adlarıyla listelendi.</string>
     <string name="tools_export_save">Farklı kaydet…</string>
@@ -1478,6 +1480,9 @@
     <string name="whats_new_17_tiktok_body">Bir TikTok videosunu Trackhop ile paylaş: içinde hangi şarkının çaldığını okur ve çalma listene ekler.</string>
     <string name="provider_note_emby">Emby sunucunuz. Kayıt yok, kota yok. Favoriler beğenilen şarkılar sayılır.</string>
     <string name="login_hint_emby">Emby sunucunuzun adresini (örneğin https://emby.example.com), kullanıcı adınızı ve şifrenizi girin.</string>
+    <string name="provider_note_koel">Koel sunucunuz, konuştuğu Subsonic API üzerinden. Kayıt yok, kota yok. Favoriler beğenilen şarkılar sayılır. Yeni: henüz az sayıda sunucuda denendi.</string>
+    <string name="login_hint_koel">Koel sunucunuzun adresini girin (tarayıcıda açtığınız adres, örneğin https://koel.example.com). Kullanıcı adı olarak Koel e-postanızı, API anahtarı olarak Koel profilinizdeki (Profil › Subsonic) Subsonic API anahtarını kullanın; Koel şifrenizi değil. Anahtar hiçbir zaman olduğu gibi gönderilmez: her istek tuzlanmış bir özet kullanır.</string>
+    <string name="koel_signin_refused">Koel oturum açmayı reddetti. Kullanıcı adı olarak Koel e-postanızı, anahtar olarak Koel profilinizdeki (Profil › Subsonic) Subsonic API anahtarını kullanın; Koel şifrenizi değil.</string>
     <string name="editor_follows">Kendi kendine değişen liste</string>
     <string name="editor_follows_desc">Daylist, Discover Weekly veya Release Radar için: hedef, şarkıların neredeyse hepsi değişse bile her seferinde kaynağın yeni sürümü olur, onay gerekmez.</string>
     <string name="timing_every_hours">%1$d saatte bir</string>
@@ -1534,6 +1539,7 @@
     <string name="charts_label">Listeler</string>
     <string name="provider_note_charts">Apple Music (ülkeye göre Top 100) ve Deezer (ülkeye göre ve dünya) listeleri, herkese açık akışlarından: eşitleme, liste değiştikçe çalma listeni güncel tutar. Hesap gerekmez.</string>
     <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
+    <string name="charts_apple_list_name">Apple Music · %1$s</string>
     <string name="charts_deezer_name">Deezer · %1$s</string>
     <string name="charts_unknown">Bu liste artık yok.</string>
     <string name="charts_unavailable">%1$s listeyi döndürmedi (%2$d): daha sonra tekrar dene.</string>

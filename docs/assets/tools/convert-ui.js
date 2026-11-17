@@ -9,8 +9,8 @@ const T = strings.convert;
 const root = document.getElementById('convert-tool');
 const list = root.querySelector('.tool-files'), errors = root.querySelector('.tool-errors');
 const bar = progress(root.querySelector('.tool-progress'));
-const ICONS = { csv: 'CSV', m3u: 'M3U', pls: 'PLS', itunes: 'XML', xspf: 'XSPF', opml: 'OPML', json: 'JSON', text: 'TXT' };
-const TYPES = { csv: 'text/csv', m3u8: 'audio/x-mpegurl', xspf: 'application/xspf+xml', jspf: 'application/json', text: 'text/plain' };
+const ICONS = { csv: 'CSV', m3u: 'M3U', pls: 'PLS', itunes: 'XML', rekordbox: 'XML', wpl: 'WPL', xspf: 'XSPF', opml: 'OPML', json: 'JSON', text: 'TXT' };
+const TYPES = { csv: 'text/csv', m3u8: 'audio/x-mpegurl', xspf: 'application/xspf+xml', jspf: 'application/json', wpl: 'application/vnd.ms-wpl', zpl: 'application/vnd.ms-wpl', text: 'text/plain' };
 
 let busy = false, serial = 0;
 const count = (text, n) => fmt(text, { n }).replace(String(n), num(n));
@@ -128,11 +128,11 @@ function itemOf(file, read) {
     // Smart playlists start unticked: their songs are only what they held when exported.
     item.selected = new Set(lib.choices.filter((p) => p.kind === 'user' && p.trackIds.length).map((p) => p.key));
     item.count = lib.trackCount;
-    item.kind = 'itunes_library';
+    item.kind = read.format === 'rekordbox' ? 'rekordbox' : 'itunes_library';
   } else {
     item.tracks = read.library ? read.library.asOneList() : read.tracks;
     item.count = item.tracks.length;
-    item.kind = read.library ? (read.library.isLibrary ? 'itunes_library' : 'itunes_playlist') : read.source || read.format;
+    item.kind = read.format === 'rekordbox' ? 'rekordbox' : read.library ? (read.library.isLibrary ? 'itunes_library' : 'itunes_playlist') : read.source || read.format;
   }
   return item;
 }

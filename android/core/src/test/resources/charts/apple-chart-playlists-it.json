@@ -1,0 +1,105 @@
+{
+  "results": {
+    "dailyGlobalTopCharts": [
+      {
+        "chart": "daily-global-top",
+        "name": "Top 100 giornaliere",
+        "orderId": "daily-global-top:playlists",
+        "href": "/v1/catalog/it/charts?chart=daily-global-top&limit=50&types=playlists&with=dailyGlobalTopCharts",
+        "next": "/v1/catalog/it/charts?chart=daily-global-top&limit=50&offset=3&types=playlists&with=dailyGlobalTopCharts",
+        "data": [
+          {
+            "id": "pl.d25f5d1181894928af76c85c967f8f31",
+            "type": "playlists",
+            "href": "/v1/catalog/it/playlists/pl.d25f5d1181894928af76c85c967f8f31",
+            "attributes": {
+              "name": "Top 100: Mondiale",
+              "curatorName": "Apple Music",
+              "playlistType": "editorial",
+              "isChart": true,
+              "lastModifiedDate": "2026-11-17T08:02:11Z",
+              "description": { "standard": "Le 100 canzoni più ascoltate nel mondo, aggiornate ogni giorno." },
+              "artwork": { "width": 4320, "height": 1080, "url": "https://is1-ssl.mzstatic.com/image/thumb/Features/v4/aa/bb/cc/global.png/{w}x{h}cc.jpg" },
+              "playParams": { "id": "pl.d25f5d1181894928af76c85c967f8f31", "kind": "playlist", "versionHash": "9f1c" },
+              "url": "https://music.apple.com/it/playlist/top-100-mondiale/pl.d25f5d1181894928af76c85c967f8f31"
+            }
+          },
+          {
+            "id": "pl.606afcbb70264d2eb2b51d8dbcfa6a12",
+            "type": "playlists",
+            "href": "/v1/catalog/it/playlists/pl.606afcbb70264d2eb2b51d8dbcfa6a12",
+            "attributes": {
+              "name": "Top 100: Stati Uniti",
+              "curatorName": "Apple Music",
+              "playlistType": "editorial",
+              "isChart": true,
+              "lastModifiedDate": "2026-11-17T08:02:40Z",
+              "playParams": { "id": "pl.606afcbb70264d2eb2b51d8dbcfa6a12", "kind": "playlist" },
+              "url": "https://music.apple.com/it/playlist/top-100-stati-uniti/pl.606afcbb70264d2eb2b51d8dbcfa6a12"
+            }
+          },
+          {
+            "id": "pl.737e067787df485a8062e2c4927d94db",
+            "type": "playlists",
+            "href": "/v1/catalog/it/playlists/pl.737e067787df485a8062e2c4927d94db",
+            "attributes": {
+              "name": "Top 100: Italia",
+              "curatorName": "Apple Music",
+              "playlistType": "editorial",
+              "isChart": true,
+              "lastModifiedDate": "2026-11-17T08:03:05Z",
+              "playParams": { "id": "pl.737e067787df485a8062e2c4927d94db", "kind": "playlist" },
+              "url": "https://music.apple.com/it/playlist/top-100-italia/pl.737e067787df485a8062e2c4927d94db"
+            }
+          }
+        ]
+      }
+    ],
+    "cityCharts": [
+      {
+        "chart": "city-top",
+        "name": "Classifiche delle città",
+        "orderId": "city-top:playlists",
+        "href": "/v1/catalog/it/charts?chart=city-top&limit=50&types=playlists&with=cityCharts",
+        "data": [
+          {
+            "id": "pl.b1f1e0c3a54a4b4f8d0a3d2a8a1f0c11",
+            "type": "playlists",
+            "href": "/v1/catalog/it/playlists/pl.b1f1e0c3a54a4b4f8d0a3d2a8a1f0c11",
+            "attributes": {
+              "name": "Top 25: Milano",
+              "curatorName": "Apple Music",
+              "playlistType": "editorial",
+              "isChart": true,
+              "lastModifiedDate": "2026-11-17T09:10:00Z",
+              "playParams": { "id": "pl.b1f1e0c3a54a4b4f8d0a3d2a8a1f0c11", "kind": "playlist" },
+              "url": "https://music.apple.com/it/playlist/top-25-milano/pl.b1f1e0c3a54a4b4f8d0a3d2a8a1f0c11"
+            }
+          },
+          {
+            "id": "pl.c2a2f1d4b65b4c5a9e1b4e3b9b2a1d22",
+            "type": "playlists",
+            "href": "/v1/catalog/it/playlists/pl.c2a2f1d4b65b4c5a9e1b4e3b9b2a1d22",
+            "attributes": {
+              "name": "Top 25: Roma",
+              "curatorName": "Apple Music",
+              "playlistType": "editorial",
+              "isChart": true,
+              "lastModifiedDate": "2026-11-17T09:10:30Z",
+              "playParams": { "id": "pl.c2a2f1d4b65b4c5a9e1b4e3b9b2a1d22", "kind": "playlist" },
+              "url": "https://music.apple.com/it/playlist/top-25-roma/pl.c2a2f1d4b65b4c5a9e1b4e3b9b2a1d22"
+            }
+          },
+          {
+            "id": "1440818839",
+            "type": "songs",
+            "attributes": { "name": "Not a playlist: left out" }
+          }
+        ]
+      }
+    ],
+    "playlists": [
+      { "chart": "most-played", "name": "Playlist più ascoltate", "orderId": "most-played:playlists", "href": "/v1/catalog/it/charts?chart=most-played&types=playlists", "data": [] }
+    ]
+  }
+}

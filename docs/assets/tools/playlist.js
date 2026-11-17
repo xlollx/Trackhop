@@ -4,8 +4,8 @@
 import { ToolError, Lines, blobBytes, headText, streamText, own } from './io.js';
 import { JsonStream } from './json-stream.js';
 
-export const FORMATS = ['csv', 'm3u', 'pls', 'itunes', 'xspf', 'opml', 'json', 'text'];
-export const OUTPUTS = { csv: 'csv', m3u8: 'm3u8', xspf: 'xspf', jspf: 'jspf', text: 'txt' };
+export const FORMATS = ['csv', 'm3u', 'pls', 'itunes', 'rekordbox', 'wpl', 'xspf', 'opml', 'json', 'text'];
+export const OUTPUTS = { csv: 'csv', m3u8: 'm3u8', xspf: 'xspf', jspf: 'jspf', wpl: 'wpl', zpl: 'zpl', text: 'txt' };
 
 // ---------------------------------------------------------------- small Kotlin look-alikes
 
@@ -89,12 +89,27 @@ export function detect(fileName, text) {
   if (name.endsWith('.pls') || starts('[playlist]')) return 'pls';
   if (name.endsWith('.xspf') || (head.startsWith('<') && /<playlist\b[^>]*xspf\.org/i.test(head))) return 'xspf';
   if (name.endsWith('.opml') || (head.startsWith('<') && head.toLowerCase().includes('<opml'))) return 'opml';
+  // Told by what is inside, whatever the name: rekordbox writes a plain ".xml", as Apple does.
+  if (head.startsWith('<') && head.includes('<DJ_PLAYLISTS')) return 'rekordbox';
+  if (looksLikeWpl(name, head)) return 'wpl';
   if (head.includes('<plist') || (name.endsWith('.xml') && head.startsWith('<'))) return 'itunes';
   if (head.startsWith('{') || head.startsWith('[') || name.endsWith('.json')) return 'json';
   // Shazam's export opens with a title line above the header: look at the first few lines.
   if (name.endsWith('.csv') || name.endsWith('.tsv') ||
     text.split(/\r\n|\n|\r/).filter((l) => !blank(l)).slice(0, 3).some((l) => /[,;\t]/.test(l))) return 'csv';
   return 'text';
+}
+
+/**
+ * A Windows Media Player playlist (.wpl) or a Zune one (.zpl): both open with their own processing
+ * instruction above a `smil` element. A ".zpl" that is not XML is Zoom Player's (a text list).
+ */
+function looksLikeWpl(name, head) {
+  if (name.endsWith('.wpl')) return true;
+  if (!head.startsWith('<')) return false;
+  const h = head.toLowerCase();
+  return h.startsWith('<?wpl') || h.startsWith('<?zpl') ||
+    ((name.endsWith('.zpl') || h.slice(0, 400).includes('<smil')) && h.includes('<smil'));
 }
 
 // ---------------------------------------------------------------- CSV
@@ -869,9 +884,172 @@ class ItunesReader {
   }
 }
 
+// ---------------------------------------------------------------- rekordbox XML, WPL and ZPL
+
+const TAG_ATTR = /([\w:.-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
+
+/** The attributes of a tag, names as written, values with their entities read. */
+function tagAttrs(s) {
+  const out = {};
+  TAG_ATTR.lastIndex = 0;
+  for (let m; (m = TAG_ATTR.exec(s));) out[m[1]] = unescapeXml((m[2] ?? m[3]).replace(NUMERIC_ENTITY, (x, v) => {
+    const code = /^x/i.test(v) ? parseInt(v.slice(1), 16) : parseInt(v, 10);
+    try { return String.fromCodePoint(code); } catch (e) { return x; }
+  }));
+  return out;
+}
+
+/**
+ * XML read as tags, a piece at a time (the app's XmlTokens): open(name, attrs, selfClosing) and
+ * close(name) for each tag, the text between them passed over; comments and declarations skipped.
+ * `whole` says the file ended where its first element did: one cut short does not.
+ */
+class XmlTags {
+  constructor(sink, kind) { this.sink = sink; this.kind = kind; this.buf = ''; this.root = null; this.rootClosed = false; }
+  push(text) {
+    const buf = this.buf + text;
+    let pos = 0;
+    for (;;) {
+      const lt = buf.indexOf('<', pos);
+      if (lt < 0) { pos = buf.length; break; }
+      pos = lt;
+      if (buf.length - lt < 4) break;
+      if (buf.startsWith('<!--', lt)) {
+        const e = buf.indexOf('-->', lt + 4);
+        if (e < 0) break;
+        pos = e + 3;
+        continue;
+      }
+      // The tag's '>': one inside a quoted attribute is not its end.
+      let end = -1, quote = '';
+      for (let i = lt + 1; i < buf.length; i++) {
+        const c = buf[i];
+        if (quote) { if (c === quote) quote = ''; } else if (c === '"' || c === "'") quote = c; else if (c === '>') { end = i; break; }
+      }
+      if (end < 0) break;
+      const raw = buf.slice(lt + 1, end).trim();
+      pos = end + 1;
+      if (raw.startsWith('!') || raw.startsWith('?')) continue;
+      const closing = raw.startsWith('/');
+      const selfClosing = raw.endsWith('/');
+      const body = closing ? raw.slice(1) : raw;
+      const name = /^[^\s/]*/.exec(body)[0];
+      if (!name) continue;
+      if (closing) {
+        this.rootClosed = this.root != null && name.toLowerCase() === this.root.toLowerCase();
+        this.sink.close(name);
+      } else {
+        if (this.root == null) this.root = name;
+        this.rootClosed = selfClosing && name.toLowerCase() === this.root.toLowerCase();
+        this.sink.open(name, body.slice(name.length), selfClosing);
+      }
+    }
+    this.buf = buf.slice(pos);
+    if (this.buf.length > MAX_PENDING) throw new ToolError('unreadable', this.kind);
+  }
+  end() {
+    if (this.root == null || !this.rootClosed || this.buf.includes('<')) throw new ToolError('incomplete', this.kind);
+  }
+}
+
+/**
+ * rekordbox's XML (File › Export Collection in xml format), as AlphaTheta publishes it: a COLLECTION
+ * of TRACKs (TrackID, Name, Artist, Album, TotalTime in seconds, Location…) and a PLAYLISTS tree of
+ * NODEs, folders (Type 0) and playlists (Type 1) whose TRACK Key entries name a track by its TrackID
+ * (KeyType 0) or its Location (KeyType 1). Read into the same library as an Apple Music file, so its
+ * playlists are offered to pick from. Beat grids and cue points go by unread.
+ */
+class RekordboxReader {
+  constructor() {
+    this.tracks = new Map();
+    this.byLocation = new Map();
+    this.nodes = [];
+    this.open_ = [];
+    this.inCollection = false;
+    this.inPlaylists = false;
+    this.made = 0;
+    this.xml = new XmlTags(this, 'rekordbox');
+  }
+  push(text) { this.xml.push(text); }
+  open(name, attrs, selfClosing) {
+    if (name === 'COLLECTION') { this.inCollection = !selfClosing; return; }
+    if (name === 'PLAYLISTS') { this.inPlaylists = !selfClosing; return; }
+    if (this.inCollection && name === 'TRACK') {
+      const a = tagAttrs(attrs);
+      const title = (a.Name || '').trim();
+      // A track without an id of its own still counts: it gets one no real track has.
+      const id = (a.TrackID != null ? toLong(a.TrackID.trim()) : null) ?? --this.made;
+      if (!blank(a.Location)) this.byLocation.set(own(a.Location), id);
+      if (!title) return;
+      // Seconds, written as a whole number or with decimals.
+      const secs = a.TotalTime != null ? toDouble(a.TotalTime.trim().replace(',', '.')) : null;
+      this.tracks.set(id, {
+        title: own(title), artist: own((a.Artist || '').trim()), album: own((a.Album || '').trim()),
+        durationMs: secs != null && secs > 0 && secs < 1e7 ? Math.trunc(secs * 1000) : 0,
+      });
+    } else if (this.inPlaylists && name === 'NODE') {
+      const a = tagAttrs(attrs);
+      // The first NODE is the root folder ("ROOT"): a container, not a folder to show.
+      let node = null;
+      if (this.open_.length) {
+        const parent = this.open_[this.open_.length - 1];
+        node = { folder: (a.Type || '').trim() !== '1', name: own((a.Name || '').trim() || 'Playlist'), byLocation: (a.KeyType || '').trim() === '1', parent: parent ? parent.name : null, ids: [] };
+        this.nodes.push(node);
+      }
+      if (!selfClosing) this.open_.push(node);
+    } else if (this.inPlaylists && name === 'TRACK') {
+      const node = this.open_[this.open_.length - 1];
+      if (!node || node.folder) return;
+      const key = tagAttrs(attrs).Key;
+      if (key == null) return;
+      const id = node.byLocation ? this.byLocation.get(key) : toLong(key.trim());
+      if (id != null) node.ids.push(id);
+    }
+  }
+  close(name) {
+    if (name === 'COLLECTION') this.inCollection = false;
+    else if (name === 'PLAYLISTS') this.inPlaylists = false;
+    else if (name === 'NODE' && this.inPlaylists && this.open_.length) this.open_.pop();
+  }
+  end() {
+    this.xml.end();
+    const playlists = this.nodes.map((n, i) => ({ key: '#' + i, name: n.name, kind: n.folder ? 'folder' : 'user', folder: n.parent, trackIds: Int32Array.from(n.ids) }));
+    return { library: new ItunesLibrary(this.tracks, playlists) };
+  }
+}
+
+/**
+ * WPL (Windows Media Player) and ZPL (Zune), the same SMIL: smil › body › seq › media, a media at a
+ * time. Windows Media Player writes only `src`, the file's path, read as a path; Groove and Zune add
+ * trackTitle, trackArtist, albumTitle, albumArtist and duration (ms), taken as they are.
+ */
+class WplReader {
+  constructor() { this.tracks = []; this.inSeq = 0; this.xml = new XmlTags(this, 'wpl'); }
+  push(text) { this.xml.push(text); }
+  open(name, attrs, selfClosing) {
+    const n = name.toLowerCase();
+    if (n === 'seq') { if (!selfClosing) this.inSeq++; return; }
+    if (!this.inSeq || n !== 'media') return;
+    const a = {};
+    for (const [k, v] of Object.entries(tagAttrs(attrs))) a[k.toLowerCase()] = v;
+    const title = (a.tracktitle || '').trim();
+    if (!title) {
+      const src = (a.src || '').trim();
+      const t = src ? fromPath(src) : null;
+      if (t && !blank(t.title)) this.tracks.push(t);
+      return;
+    }
+    const artist = (a.trackartist || '').trim() || (a.albumartist || '').trim();
+    const dur = a.duration != null ? toLong(a.duration.trim()) : null;
+    this.tracks.push(track(own(title), splitArtists(artist), own((a.albumtitle || '').trim()), dur != null && dur > 0 ? dur : 0));
+  }
+  close(name) { if (name.toLowerCase() === 'seq' && this.inSeq > 0) this.inSeq--; }
+  end() { this.xml.end(); return { tracks: this.tracks }; }
+}
+
 // ---------------------------------------------------------------- reading a file
 
-const READERS = { csv: CsvReader, m3u: M3uReader, pls: PlsReader, itunes: ItunesReader, xspf: XspfReader, opml: OpmlReader, json: JsonReader, text: TextReader };
+const READERS = { csv: CsvReader, m3u: M3uReader, pls: PlsReader, itunes: ItunesReader, rekordbox: RekordboxReader, wpl: WplReader, xspf: XspfReader, opml: OpmlReader, json: JsonReader, text: TextReader };
 
 /** A reader for [format]: { push(text), end() → { tracks } or { library } }. */
 export function reader(format) {
@@ -961,13 +1139,39 @@ export function toXspf(name, tracks) {
   return out.join('');
 }
 
-/** A list in one of the output formats (csv, m3u8, xspf, jspf, text), as text. */
+const XML_INVALID = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g;
+/** An attribute's value: nothing XML refuses, line breaks and runs of spaces as one space, entities written. */
+const xmlAttr = (s) => escapeXml(s.replace(XML_INVALID, '').replace(/\s+/g, ' ').trim());
+
+/**
+ * A Windows Media Player playlist, or with [zune] a Zune one (the same list under Zune's header).
+ * There is no file behind a list of songs, so `src`, which the format requires, is the same search
+ * line an M3U gets ("Artist - Title"); title, artist, album and length go in the attributes Groove
+ * and Zune write.
+ */
+export function toWpl(name, tracks, zune = false) {
+  const out = [(zune ? '<?zpl version="2.0"?>' : '<?wpl version="1.0"?>') + '\r\n<smil>\r\n  <head>\r\n    <meta name="Generator" content="Trackhop"/>\r\n' +
+    '    <meta name="ItemCount" content="' + tracks.length + '"/>\r\n    <title>' + xmlAttr(name) + '</title>\r\n  </head>\r\n  <body>\r\n    <seq>\r\n'];
+  for (const t of tracks) {
+    let s = '      <media src="' + xmlAttr(t.artists.length ? artistLine(t) + ' - ' + t.title : t.title) + '" trackTitle="' + xmlAttr(t.title) + '"';
+    if (t.artists.length) s += ' trackArtist="' + xmlAttr(artistLine(t)) + '"';
+    if (!blank(t.album)) s += ' albumTitle="' + xmlAttr(t.album) + '"';
+    if (t.durationMs > 0) s += ' duration="' + t.durationMs + '"';
+    out.push(s + '/>\r\n');
+  }
+  out.push('    </seq>\r\n  </body>\r\n</smil>\r\n');
+  return out.join('');
+}
+
+/** A list in one of the output formats (csv, m3u8, xspf, jspf, wpl, zpl, text), as text. */
 export function encode(output, name, tracks) {
   switch (output) {
     case 'csv': return encodeCsv(tracks);
     case 'm3u8': return toM3u(tracks);
     case 'xspf': return toXspf(name, tracks);
     case 'jspf': return toJspf(name, tracks);
+    case 'wpl': return toWpl(name, tracks);
+    case 'zpl': return toWpl(name, tracks, true);
     case 'text': return toText(tracks);
     default: throw new ToolError('unreadable', 'output ' + output);
   }

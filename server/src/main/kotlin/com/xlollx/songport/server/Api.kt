@@ -483,7 +483,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
         }))
         rest == listOf("files") && method == "GET" -> json(200, JsonArray(csvFiles().map { JsonPrimitive(it.name) }))
         rest.size == 2 && rest[0] == "files" && (method == "POST" || method == "PUT") -> {
-            // A playlist file in the body (CSV, M3U, XSPF, JSPF, iTunes XML, JSON, plain text), named by the path.
+            // A playlist file in the body (CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, rekordbox XML, JSON, plain text), named by the path.
             // It goes to disk first (#67), then is read a piece at a time: a file can be any size, whatever its format.
             val dir = LibraryUploads.dir(env)
             val tmp = java.io.File.createTempFile("api-", ".part", dir.also { LibraryUploads.budget(it) })

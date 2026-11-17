@@ -103,6 +103,7 @@ playlist files. Back that folder up and you have backed up Trackhop.
 | TIDAL | yes | Your own key from developer.tidal.com |
 | Deezer | yes (beta) | Your own app, and an `https` address |
 | Navidrome / Subsonic, Jellyfin, Emby (beta), Plex | yes | The server's address and your login |
+| Koel (beta) | yes | The server's address, your Koel email and the Subsonic API key from your Koel profile (*Profile › Subsonic*), not your Koel password |
 | Last.fm | yes, as a source; Loved tracks also as a target | Your user name; to love tracks, your password once (only the session Last.fm gives back is kept) and `LASTFM_SHARED_SECRET` |
 | ListenBrainz | yes, as a source | Your user name |
 | SoundCloud | yes, as a source (unofficial) | Nothing: pick it as the source of a new sync and paste a public set or likes link. [More](soundcloud) |
@@ -741,15 +742,15 @@ also reads the tour dates on Spotify's artist pages when you have **Spotify (web
 | `POST /api/v1/services/{service}/playlists/{playlist}/tracks/remove` | Remove tracks (for tools that cannot send a body with DELETE). |
 | `GET /api/v1/services/{service}/playlists/{playlist}/duplicates` | The tracks a playlist holds more than once. |
 | `POST /api/v1/services/{service}/playlists/{playlist}/duplicates/remove` | Remove the extra copies (a background task). |
-| `GET /api/v1/services/{service}/playlists/{playlist}/export` | A playlist as a file: csv, m3u, xspf, jspf or txt. |
+| `GET /api/v1/services/{service}/playlists/{playlist}/export` | A playlist as a file: csv, m3u, xspf, jspf, wpl, zpl or txt. |
 
 **Files**
 
 | Call | What it does |
 |---|---|
 | `GET /api/v1/files` | The File playlists. |
-| `GET /api/v1/files/{file}` | A File playlist, in a format: csv, m3u, xspf, jspf or txt. |
-| `PUT /api/v1/files/{file}` | Bring in a playlist file (CSV, M3U, PLS, XSPF, JSPF, iTunes XML, JSON, text) as the body, of any size: it is read a piece at a time. From an Apple Music/iTunes library each of your playlists becomes a file; `?playlists=A,B` picks them by name, `?whole=true` adds the library as one file. |
+| `GET /api/v1/files/{file}` | A File playlist, in a format: csv, m3u, xspf, jspf, wpl, zpl or txt. |
+| `PUT /api/v1/files/{file}` | Bring in a playlist file (CSV, M3U, PLS, XSPF, JSPF, WPL/ZPL, iTunes XML, rekordbox XML, JSON, text) as the body, of any size: it is read a piece at a time. From an Apple Music/iTunes library or a rekordbox collection each of your playlists becomes a file; `?playlists=A,B` picks them by name, `?whole=true` adds the library as one file. |
 | `POST /api/v1/files/{file}` | The same as PUT, for tools that only POST. |
 | `DELETE /api/v1/files/{file}` | Delete a File playlist. |
 | `POST /api/v1/files/zip` | Several File playlists in one .zip, in a format. |

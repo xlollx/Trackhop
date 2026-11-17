@@ -33,7 +33,7 @@ The same page saves your whole Trackhop set-up (syncs, settings, the matches you
 
 ## And back in
 
-A CSV, M3U, XSPF, JSPF, iTunes XML, JSON or plain-text list can also be the **source** of a sync:
+A CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, rekordbox XML, JSON or plain-text list can also be the **source** of a sync:
 *Tools → File playlists → Import*, then sync it to any service. That is how you move a playlist
 from a service Trackhop cannot reach, or restore one from a backup.
 

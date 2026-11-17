@@ -328,6 +328,8 @@
     <string name="export_format">导出为 %1$s</string>
     <string name="format_text">文本</string>
     <string name="format_opml">OPML（播客）</string>
+    <string name="format_wpl">WPL (Windows Media Player)</string>
+    <string name="format_zpl">ZPL (Zune)</string>
     <string name="opml_finding_feeds">正在查找订阅源地址：%1$d / %2$d</string>
     <string name="opml_feeds_missing">完成。在 Apple 播客目录中没有订阅源地址的播客：%1$d 个，仅按名称列出。</string>
     <string name="tools_export_save">保存为…</string>
@@ -1450,6 +1452,9 @@
     <string name="whats_new_17_tiktok_body">将 TikTok 视频分享给 Trackhop：它会读出视频中播放的歌曲并添加到你的歌单。</string>
     <string name="provider_note_emby">你自己的 Emby 服务器。无需注册，没有配额。收藏的歌曲视为喜欢的歌曲。</string>
     <string name="login_hint_emby">输入你的 Emby 服务器地址（例如 https://emby.example.com）、用户名和密码。</string>
+    <string name="provider_note_koel">你自己的 Koel 服务器，通过它支持的 Subsonic API 连接。无需注册，没有配额。收藏的歌曲视为喜欢的歌曲。新功能：尚未在很多服务器上试用。</string>
+    <string name="login_hint_koel">输入你的 Koel 服务器地址（即在浏览器中打开的地址，例如 https://koel.example.com）。用户名填你的 Koel 邮箱；API 密钥填 Koel 个人资料（个人资料 › Subsonic）里的 Subsonic API 密钥，不是 Koel 密码。密钥不会原样发送：每次请求都使用加盐哈希。</string>
+    <string name="koel_signin_refused">Koel 拒绝了登录。用户名请填你的 Koel 邮箱，密钥请填 Koel 个人资料（个人资料 › Subsonic）里的 Subsonic API 密钥，不是 Koel 密码。</string>
     <string name="editor_follows">会自动变化的歌单</string>
     <string name="editor_follows_desc">适用于 daylist、Discover Weekly 或 Release Radar：即使几乎所有歌曲都变了，目标每次都会变成源歌单的新版本，无需确认。</string>
     <string name="timing_every_hours">每 %1$d 小时</string>
@@ -1505,6 +1510,7 @@
     <string name="charts_label">排行榜</string>
     <string name="provider_note_charts">Apple Music（各国 Top 100）和 Deezer（各国及全球）公开源的排行榜：同步会随排行榜变化更新你的歌单。无需账户。</string>
     <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
+    <string name="charts_apple_list_name">Apple Music · %1$s</string>
     <string name="charts_deezer_name">Deezer · %1$s</string>
     <string name="charts_unknown">此排行榜已不可用。</string>
     <string name="charts_unavailable">%1$s 未返回排行榜（%2$d）：请稍后再试。</string>

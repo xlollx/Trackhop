@@ -330,6 +330,8 @@
     <string name="export_format">Export as %1$s</string>
     <string name="format_text">Text</string>
     <string name="format_opml">OPML (podcasts)</string>
+    <string name="format_wpl">WPL (Windows Media Player)</string>
+    <string name="format_zpl">ZPL (Zune)</string>
     <string name="opml_finding_feeds">Finding feed addresses: %1$d of %2$d</string>
     <string name="opml_feeds_missing">Done. Shows without a feed address in Apple\'s podcast directory: %1$d. They are listed by name only.</string>
     <string name="tools_export_save">Save as…</string>
@@ -1480,6 +1482,9 @@
     <string name="whats_new_17_tiktok_body">Share a TikTok video to Trackhop: it reads which song plays in it and adds it to your playlist.</string>
     <string name="provider_note_emby">Your Emby server. No registration, no quota. Favourites count as liked songs.</string>
     <string name="login_hint_emby">Enter the address of your Emby server (for example https://emby.example.com), your username and password.</string>
+    <string name="provider_note_koel">Your Koel server, through the Subsonic API it speaks. No registration, no quota. Favourites count as liked songs. New: not yet tried on many servers.</string>
+    <string name="login_hint_koel">Enter the address of your Koel server (the one you open in the browser, for example https://koel.example.com). As the username use your Koel email; as the API key use the Subsonic API key from your Koel profile (Profile › Subsonic), not your Koel password. The key is never sent as-is: each request uses a salted hash.</string>
+    <string name="koel_signin_refused">Koel refused the sign-in. Use your Koel email as the username and the Subsonic API key from your Koel profile (Profile › Subsonic) as the key, not your Koel password.</string>
     <string name="editor_follows">Playlist that changes by itself</string>
     <string name="editor_follows_desc">For a daylist, Discover Weekly or Release Radar: the target becomes the source\'s new version each time, even when most tracks change, with no confirmation.</string>
     <string name="timing_every_hours">Every %1$d hours</string>
@@ -1536,6 +1541,7 @@
     <string name="charts_label">Charts</string>
     <string name="provider_note_charts">The charts of Apple Music (Top 100 by country) and Deezer (top by country and worldwide), from their public feeds: a sync keeps a playlist of yours up to date as the chart changes. No account needed.</string>
     <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
+    <string name="charts_apple_list_name">Apple Music · %1$s</string>
     <string name="charts_deezer_name">Deezer · %1$s</string>
     <string name="charts_unknown">This chart is no longer available.</string>
     <string name="charts_unavailable">%1$s did not answer with its chart (%2$d): try again later.</string>

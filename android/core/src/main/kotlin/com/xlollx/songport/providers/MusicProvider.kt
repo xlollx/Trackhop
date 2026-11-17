@@ -533,6 +533,7 @@ object Providers {
         Factory(TidalProvider.SERVICE) { TidalProvider(it) },
         Factory(DeezerProvider.SERVICE) { DeezerProvider(it) },
         Factory(SubsonicProvider.SERVICE) { SubsonicProvider(it) },
+        Factory(KoelProvider.SERVICE) { KoelProvider(it) },
         Factory(JellyfinProvider.SERVICE) { JellyfinProvider(it) },
         Factory(EmbyProvider.SERVICE) { EmbyProvider(it) },
         Factory(PlexProvider.SERVICE) { PlexProvider(it) },

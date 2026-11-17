@@ -161,6 +161,31 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
         return parseJson(resp.body)
     }
 
+    /** A chart that is a playlist of the catalogue: its id (`pl.…`), Apple's name for it and the collection it is listed in. */
+    data class ChartList(val id: String, val name: String, val kind: String)
+
+    /**
+     * The charts Apple publishes as playlists (developer.apple.com/documentation/applemusicapi/charts,
+     * `with=dailyGlobalTopCharts,cityCharts`): the Daily Top 100 of the world and of each country, and
+     * the Top 25 of each city. A catalogue call: the developer token alone, no user. The names come in
+     * the language of [storefront]. Each collection is read a page at a time, to [CHART_PAGES] pages.
+     */
+    suspend fun chartPlaylists(ctx: Env, storefront: String): List<ChartList> {
+        require(storefront.matches(Regex("[a-z]{2}"))) { "storefront" }
+        val out = ArrayList<ChartList>()
+        val first = api(ctx, "GET", "$API/v1/catalog/$storefront/charts?types=playlists&with=${CHART_KINDS.joinToString(",")}&limit=$CHART_PAGE")
+        for (kind in CHART_KINDS) {
+            var chart = first["results"][kind].arr.firstOrNull()
+            var pages = 0
+            while (chart != null) {
+                out += chartLists(chart, kind)
+                val next = chart["next"].str?.takeIf { it.startsWith("/") && ++pages < CHART_PAGES } ?: break
+                chart = api(ctx, "GET", API + next + (if ("with=" in next) "" else "&with=$kind"))["results"][kind].arr.firstOrNull()
+            }
+        }
+        return out.distinctBy { it.id }
+    }
+
     /** `next` e' un percorso relativo tipo "/v1/me/library/playlists?offset=100". */
     private fun nextUrl(j: JsonElement?): String? =
         j["next"].str?.let { if (it.startsWith("http")) it else API + it }
@@ -475,6 +500,17 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
         private const val FAVORITES = "apple_favorites"
         /** Recently played: thirty songs a page. */
         private const val RECENT_PAGES = 5
+        /** The collections of chart playlists asked with `with=`, in the order they are listed. */
+        internal val CHART_KINDS = listOf("dailyGlobalTopCharts", "cityCharts")
+        private const val CHART_PAGE = 50
+        private const val CHART_PAGES = 6
+
+        /** The playlists of one chart collection of the charts answer: `data[]` with `id` and `attributes.name`. */
+        internal fun chartLists(chart: JsonElement?, kind: String): List<ChartList> = chart["data"].arr.mapNotNull { d ->
+            val id = d["id"].str?.takeIf { it.startsWith(CATALOG_PREFIX) } ?: return@mapNotNull null
+            val name = d["attributes"]["name"].str?.trim()?.takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+            ChartList(id, name, kind)
+        }
         private const val LISTENING = "poster"
     }
 }

@@ -61,7 +61,7 @@ THE ICON · Michel Henke · Pisqui❤️ · BjörnH. · Bougtib · Anonymous Mix
 <p align="center"><sub>More pictures: <a href="#gallery">Gallery</a>.</sub></p>
 
 Trackhop keeps playlists identical across Spotify, Apple Music, YouTube Music, Amazon Music, TIDAL,
-Deezer, SoundCloud, LiveOne, Subsonic/Navidrome, Jellyfin, Emby, Plex, Lyrion Music Server and Mopidy, with Last.fm, ListenBrainz and public NetEase
+Deezer, SoundCloud, LiveOne, Subsonic/Navidrome, Koel, Jellyfin, Emby, Plex, Lyrion Music Server and Mopidy, with Last.fm, ListenBrainz and public NetEase
 Cloud Music, QQ Music and JioSaavn links as sources and playlist files (CSV, TSV, M3U, iTunes XML, JSON, pasted text) as a bridge to everything else. New in 2.0:
 playlists shared by a group whose members each use their own service, and Discover pages that follow a playlist's artists: new releases, concerts,
 setlists, records and merch. Everything runs
@@ -89,6 +89,7 @@ F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and A
 | **LiveOne** | ✓ | ✓ | — | Quick sign-in (liked songs only, beta) | GitHub, F-Droid, Desktop, Docker · plugin |
 | **Navidrome / Subsonic** (Airsonic, Gonic, Ampache, LMS, Funkwhale) | ✓ | ✓ | ✓ | Your server's address and login | All builds |
 | **Jellyfin** | ✓ | ✓ | ✓ | Your server's address and login | All builds |
+| **Koel** (beta) | ✓ | ✓ | ✓ | Your server's address, your Koel email and the Subsonic API key from your Koel profile | All builds |
 | **Emby** (beta) | ✓ | ✓ | ✓ | Your server's address and login | All builds |
 | **Plex** | ✓ | ✓ | ✓ | Your server's address and token | All builds |
 | **Lyrion Music Server** (Logitech Media Server, beta) | ✓ | ✓ | ✓ | Your server's address (user and password if protected) | All builds |
@@ -106,8 +107,8 @@ F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and A
 | | ✓ | — | — | Paste a public playlist link, no account | GitHub, F-Droid, Desktop, Docker · plugin |
 | **TikTok** | ✓ | — | — | Share a video: Trackhop reads the song it uses, or recognises it from the audio | GitHub, F-Droid, Desktop, Docker · plugin |
 | **Internet radio, Shazam** | ✓ | — | — | What a station plays, or every song you Shazam | All builds |
-| **Charts** (Apple Music, Deezer) | ✓ | — | — | A country's Top 100, refreshed as it changes, no account | All builds |
-| **Files** (CSV, M3U, XSPF, JSPF, iTunes XML, JSON, text) | ✓ | ✓ | ✓ | Import and export | All builds |
+| **Charts** (Apple Music, Deezer) | ✓ | — | — | A country's Top 100, refreshed as it changes, no account; with an Apple Music developer token (the build's or your own) also Apple's Daily Top 100 of the world and of each country and the Top 25 of each city | All builds |
+| **Files** (CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, JSON, text; rekordbox XML read only) | ✓ | ✓ | ✓ | Import and export | All builds |
 
 Details, keys and limits of each service: [Supported services and their limits](#supported-services-and-their-limits).
 Not connectable: Pandora (no public API, United States only): use files.
@@ -323,7 +324,7 @@ reports are what make it better: if something does not work as it should, say so
 | Links | Paste or share a public playlist link | Spotify, Apple Music, YouTube, Deezer, TIDAL; short share links too. "From link" is a source of its own in the editor. Public NetEase Cloud Music, QQ Music and [JioSaavn](https://trackhop.org/guide/jiosaavn) links too (GitHub/F-Droid builds, Desktop, Docker). |
 | | Share a single track or a text list | A track link from any music app goes into one of your playlists on **any** connected service, Navidrome, Jellyfin and Plex included: the same recording is found with the sync's matching, shown with its score before adding, with "Open in…" and "Copy link" next to it. Several "Artist - Title" lines become a file playlist and a new sync. |
 | | Music links open with Trackhop (optional) | Settings › "Offer Trackhop for music links": Android then lists Trackhop among the apps for a Spotify, Apple Music, YouTube Music, Amazon Music, Deezer or TIDAL link. Off by default; Trackhop never takes a link by itself. |
-| Files | Import/export | Reads CSV, TSV, M3U/M3U8, XSPF, JSPF, OPML (podcasts), Apple Music/iTunes XML, JSON, Shazam exports, plain text lists; writes CSV, M3U, XSPF, JSPF and plain text. |
+| Files | Import/export | Reads CSV, TSV, M3U/M3U8, XSPF, JSPF, OPML (podcasts), Apple Music/iTunes XML, rekordbox XML (a collection's playlists to pick from), WPL and ZPL (Windows Media Player, Groove, Zune), JSON, Shazam exports, plain text lists; writes CSV, M3U, XSPF, JSPF, WPL, ZPL and plain text. rekordbox XML is read only: a list of songs has no files behind it, so rekordbox would have nothing to load. |
 | | setlist.fm | Share or paste a setlist.fm link: the concert becomes a playlist to sync anywhere. |
 | | Shazam | Share a song from the Shazam app: title and artist are read from the shared text (nothing is asked of Shazam) and the song goes into a playlist on any connected service. To have every Shazam everywhere, make a Shazam sync (above): "Sync my Shazams" in the sheet opens one. |
 | | TikTok | Share a TikTok video (GitHub and F-Droid builds, store builds with the plugin): the song it uses is read from the video's public page (no account) and goes into a playlist on any connected service. A sound the creator recorded ("original sound") names no song: Trackhop then listens to the sound itself (a short audio signature sent to Shazam, see Credits below) and often finds the song playing in it, marked as recognised so you can check it. Also in Desktop and Docker: paste the link in a review search. |
@@ -382,8 +383,9 @@ The technical side of each connector (for a quick overview, see [Music services 
 | TIDAL | complete | OAuth PKCE | `TIDAL_CLIENT_ID` | API v2 (JSON:API) still evolving; endpoints isolated in `TidalProvider.kt`. |
 | Deezer | beta | OAuth implicit | `DEEZER_APP_ID` and an https redirect page (`docs/deezer-redirect.html`) | Registration of new apps may be closed. Playlists read from Deezer carry no ISRC. Beta: limited real-world use. |
 | LiveOne (web) | presets (liked songs): read and add, beta; GitHub/F-Droid, Docker and Desktop only | LiveOne's own page in the app (Docker/Desktop: paste the `slackerUser` entry) | nothing | No public API: the web player's backend, unofficial. Playlists of one's own need LiveOne's paid plan (not handled yet); no removal; stations play only in the US. |
-| Subsonic / Navidrome (Airsonic, Gonic, Ampache, LMS, Funkwhale) | complete | server URL, user, password (md5+salt token) | nothing | Starred tracks = likes. Koel speaks the Subsonic API too: sign in with your Koel email and, as the password, the Subsonic API key from your Koel profile (as Koel documents; not tried here). Ampache checks the token against the separate *Subsonic password* (or the API key) from *Preferences → Account*, not the account password; the app says so when Ampache refuses the login. |
+| Subsonic / Navidrome (Airsonic, Gonic, Ampache, LMS, Funkwhale) | complete | server URL, user, password (md5+salt token) | nothing | Starred tracks = likes. Ampache checks the token against the separate *Subsonic password* (or the API key) from *Preferences → Account*, not the account password; the app says so when Ampache refuses the login. |
 | Jellyfin | complete | server URL, user, password | nothing | Favourites supported. |
+| Koel | beta | server URL, Koel email, Subsonic API key (md5+salt token, the key never travels) | nothing | Koel speaks OpenSubsonic ([docs](https://docs.koel.dev/usage/subsonic)), so it runs on the Subsonic connector: playlists read and written (create, add, remove, rename, delete), favourites as liked songs. The key is the *Subsonic API key* of *Profile › Subsonic*, not the Koel password; the app says so when Koel refuses the sign-in. Koel has no public/private switch for playlists through this API and reports no play counts. Not yet tried on a real Koel server. |
 | Emby | beta | server URL, user, password | nothing | Jellyfin's API (Emby is where Jellyfin forked from) under `/emby`, with `X-Emby-Authorization`/`X-Emby-Token`; favourites supported. Not yet tried on a real Emby server. |
 | Plex | complete | server URL and X-Plex-Token | nothing | Music playlists only. A new playlist is created empty on the server's library, then filled (checked on Plex 1.43). |
 | Lyrion Music Server | beta | server URL; user and password only with password protection (HTTP Basic) | nothing | The documented CLI commands as JSON-RPC on `/jsonrpc.js`: `playlists`, `playlists tracks`, `titles search:`, `playlists new/edit/rename/delete`. Tracks are added by url and removed by position; a playlist keeps a track once and names are unique (a taken name is refused, never overwritten). No favourites, no ISRC. Not yet tried on a real server. |
@@ -488,7 +490,7 @@ On Trackhop Desktop only the computer itself can reach it (loopback only).
 | `GET /api/v1/runs/<id>` | A run: added, removed, not found, with the tracks |
 | `GET /api/v1/services` | The services and whether they are connected |
 | `GET /api/v1/files`, `GET /api/v1/files/<name>.csv?format=m3u` | The File playlists, in any export format |
-| `POST /api/v1/files/<name>` | Adds a playlist file sent as the body (CSV, M3U, XSPF, JSPF, iTunes XML, JSON or text), ready to sync (201), of any size; an Apple Music/iTunes library becomes one file per playlist (`?playlists=A,B`, `?whole=true`) |
+| `POST /api/v1/files/<name>` | Adds a playlist file sent as the body (CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, rekordbox XML, JSON or text), ready to sync (201), of any size; an Apple Music/iTunes library or a rekordbox collection becomes one file per playlist (`?playlists=A,B`, `?whole=true`) |
 | `POST /api/v1/syncs/<id>/enable`, `…/disable` | Turns a sync on or off |
 | `GET /api/v1/backup`, `POST /api/v1/backup` | The last full backup and its schedule; starts one (202, with a task id) |
 | `GET /api/v1/tasks/<id>` | A background task (a backup): progress, done, error |

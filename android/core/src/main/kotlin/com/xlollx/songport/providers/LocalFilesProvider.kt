@@ -175,6 +175,9 @@ object LocalFilesProvider : MusicProvider {
         M3U("audio/x-mpegurl", "m3u8"),
         JSPF("application/json", "jspf"),
         XSPF("application/xspf+xml", "xspf"),
+        /** Windows Media Player's playlist, and Zune's: the same list under two headers. */
+        WPL("application/vnd.ms-wpl", "wpl"),
+        ZPL("application/vnd.ms-wpl", "zpl"),
         TXT("text/plain", "txt"),
         /** Podcast subscriptions, for AntennaPod, Pocket Casts, Podcast Addict: only for followed podcasts (see [forShows]). */
         OPML("text/x-opml", "opml"),
@@ -186,6 +189,8 @@ object LocalFilesProvider : MusicProvider {
             M3U -> PlaylistFiles.toM3u(tracks)
             JSPF -> PlaylistFiles.toJspf(name, tracks)
             XSPF -> PlaylistFiles.toXspf(name, tracks)
+            WPL -> PlaylistFiles.toWpl(name, tracks)
+            ZPL -> PlaylistFiles.toWpl(name, tracks, zune = true)
             TXT -> PlaylistFiles.toText(tracks)
             OPML -> PlaylistFiles.toOpml(name, tracks)
         }

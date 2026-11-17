@@ -334,6 +334,8 @@
     <string name="export_format">Экспортировать как %1$s</string>
     <string name="format_text">Текст</string>
     <string name="format_opml">OPML (подкасты)</string>
+    <string name="format_wpl">WPL (Windows Media Player)</string>
+    <string name="format_zpl">ZPL (Zune)</string>
     <string name="opml_finding_feeds">Поиск адресов лент: %1$d из %2$d</string>
     <string name="opml_feeds_missing">Готово. Подкастов без адреса ленты в каталоге Apple: %1$d. Они записаны только по названию.</string>
     <string name="tools_export_save">Сохранить как…</string>
@@ -1540,6 +1542,9 @@
     <string name="whats_new_17_tiktok_body">Поделитесь видео из TikTok с Trackhop: он узнает, какая песня в нём звучит, и добавит её в плейлист.</string>
     <string name="provider_note_emby">Ваш сервер Emby. Без регистрации и без квот. Избранное считается любимыми треками.</string>
     <string name="login_hint_emby">Введите адрес вашего сервера Emby (например, https://emby.example.com), имя пользователя и пароль.</string>
+    <string name="provider_note_koel">Ваш сервер Koel, через Subsonic API, который он поддерживает. Без регистрации и без квот. Избранное считается любимыми треками. Новое: пока проверено на немногих серверах.</string>
+    <string name="login_hint_koel">Введите адрес вашего сервера Koel (тот, что вы открываете в браузере, например https://koel.example.com). Имя пользователя: ваш e-mail в Koel; ключ API: ключ Subsonic API из профиля Koel (Профиль › Subsonic), а не пароль от Koel. Ключ никогда не отправляется как есть: в каждом запросе используется хеш с солью.</string>
+    <string name="koel_signin_refused">Koel отклонил вход. Укажите ваш e-mail в Koel как имя пользователя, а как ключ: ключ Subsonic API из профиля Koel (Профиль › Subsonic), а не пароль от Koel.</string>
     <string name="editor_follows">Плейлист, который меняется сам</string>
     <string name="editor_follows_desc">Для daylist, Discover Weekly или Release Radar: плейлист назначения каждый раз становится новой версией источника, даже если меняются почти все треки, без подтверждения.</string>
     <string name="timing_every_hours">Каждые %1$d ч</string>
@@ -1598,6 +1603,7 @@
     <string name="charts_label">Чарты</string>
     <string name="provider_note_charts">Чарты Apple Music (Топ-100 по странам) и Deezer (по странам и мировой) из их открытых лент: синхронизация обновляет ваш плейлист вслед за чартом. Без аккаунта.</string>
     <string name="charts_apple_name">Apple Music Топ-100 · %1$s</string>
+    <string name="charts_apple_list_name">Apple Music · %1$s</string>
     <string name="charts_deezer_name">Deezer · %1$s</string>
     <string name="charts_unknown">Этот чарт больше недоступен.</string>
     <string name="charts_unavailable">%1$s не вернул чарт (%2$d): попробуйте позже.</string>

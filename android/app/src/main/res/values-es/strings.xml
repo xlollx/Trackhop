@@ -330,6 +330,8 @@
     <string name="export_format">Exportar como %1$s</string>
     <string name="format_text">Texto</string>
     <string name="format_opml">OPML (pódcasts)</string>
+    <string name="format_wpl">WPL (Windows Media Player)</string>
+    <string name="format_zpl">ZPL (Zune)</string>
     <string name="opml_finding_feeds">Buscando las direcciones de los feeds: %1$d de %2$d</string>
     <string name="opml_feeds_missing">Listo. Pódcasts sin dirección de feed en el directorio de Apple: %1$d. Aparecen solo por su nombre.</string>
     <string name="tools_export_save">Guardar como…</string>
@@ -1488,6 +1490,9 @@
     <string name="whats_new_17_tiktok_body">Comparte un vídeo de TikTok con Trackhop: lee qué canción suena y la añade a tu playlist.</string>
     <string name="provider_note_emby">Tu servidor Emby. Sin registro, sin cuotas. Los favoritos cuentan como canciones que te gustan.</string>
     <string name="login_hint_emby">Introduce la dirección de tu servidor Emby (por ejemplo https://emby.example.com), tu usuario y tu contraseña.</string>
+    <string name="provider_note_koel">Tu servidor Koel, a través de la API Subsonic que habla. Sin registro, sin cuotas. Los favoritos cuentan como canciones que te gustan. Nuevo: aún probado en pocos servidores.</string>
+    <string name="login_hint_koel">Introduce la dirección de tu servidor Koel (la que abres en el navegador, por ejemplo https://koel.example.com). Como usuario pon tu correo de Koel; como clave de API, la clave de API de Subsonic de tu perfil de Koel (Perfil › Subsonic), no tu contraseña de Koel. La clave nunca se envía tal cual: cada petición usa un hash con sal.</string>
+    <string name="koel_signin_refused">Koel ha rechazado el acceso. Usa tu correo de Koel como usuario y, como clave, la clave de API de Subsonic de tu perfil de Koel (Perfil › Subsonic), no tu contraseña de Koel.</string>
     <string name="editor_follows">Playlist que cambia sola</string>
     <string name="editor_follows_desc">Para un daylist, Discover Weekly o Release Radar: el destino pasa a ser cada vez la nueva versión del origen, aunque cambien casi todas las canciones, sin confirmación.</string>
     <string name="timing_every_hours">Cada %1$d horas</string>
@@ -1544,6 +1549,7 @@
     <string name="charts_label">Listas</string>
     <string name="provider_note_charts">Las listas de Apple Music (Top 100 por país) y Deezer (top por país y mundial), de sus feeds públicos: una sync mantiene al día una playlist tuya cuando cambia la lista. Sin cuenta.</string>
     <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
+    <string name="charts_apple_list_name">Apple Music · %1$s</string>
     <string name="charts_deezer_name">Deezer · %1$s</string>
     <string name="charts_unknown">Esta lista ya no está disponible.</string>
     <string name="charts_unavailable">%1$s no devolvió su lista (%2$d): inténtalo más tarde.</string>

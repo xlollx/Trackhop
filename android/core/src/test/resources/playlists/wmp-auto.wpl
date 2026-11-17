@@ -1,0 +1,20 @@
+<?wpl version="1.0"?>
+<smil>
+    <head>
+        <meta name="Generator" content="Microsoft Windows Media Player -- 12.0.19041.4355"/>
+        <meta name="AutoPlaylist" content="true"/>
+        <title>Fresh tracks</title>
+    </head>
+    <body>
+        <seq>
+            <smartPlaylist version="1.0.0.0">
+                <querySet>
+                    <sourceFilter id="{4202947A-A563-4B05-A754-A1B4B5989849}" name="Music in my library">
+                        <fragment id="{0D0A1B2C-3D4E-4F5A-8B6C-7D8E9F0A1B2C}" name="Date Added to Library"><argument name="Number of Days">30</argument></fragment>
+                    </sourceFilter>
+                </querySet>
+            </smartPlaylist>
+            <media src="..\Kylie Minogue\Fever\03 Can&apos;t Get You Out of My Head.mp3"/>
+        </seq>
+    </body>
+</smil>

@@ -33,7 +33,7 @@ import java.time.ZoneOffset
  */
 object Wanted {
     /** The services that are the user's own server. */
-    val SERVERS = setOf("subsonic", "jellyfin", "emby", "plex", "lyrion", "mopidy")
+    val SERVERS = setOf("subsonic", "koel", "jellyfin", "emby", "plex", "lyrion", "mopidy")
 
     fun isServer(providerId: String) = providerId.substringBefore('@') in SERVERS
 

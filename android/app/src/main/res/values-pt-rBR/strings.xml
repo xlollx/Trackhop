@@ -330,6 +330,8 @@
     <string name="export_format">Exportar como %1$s</string>
     <string name="format_text">Texto</string>
     <string name="format_opml">OPML (podcasts)</string>
+    <string name="format_wpl">WPL (Windows Media Player)</string>
+    <string name="format_zpl">ZPL (Zune)</string>
     <string name="opml_finding_feeds">Procurando os endereços dos feeds: %1$d de %2$d</string>
     <string name="opml_feeds_missing">Pronto. Podcasts sem endereço de feed no diretório da Apple: %1$d. Aparecem só pelo nome.</string>
     <string name="tools_export_save">Salvar como…</string>
@@ -1488,6 +1490,9 @@
     <string name="whats_new_17_tiktok_body">Compartilhe um vídeo do TikTok com o Trackhop: ele lê qual música toca nele e a adiciona à sua playlist.</string>
     <string name="provider_note_emby">Seu servidor Emby. Sem cadastro, sem cota. Os favoritos contam como músicas curtidas.</string>
     <string name="login_hint_emby">Digite o endereço do seu servidor Emby (por exemplo https://emby.example.com), seu usuário e sua senha.</string>
+    <string name="provider_note_koel">Seu servidor Koel, pela API Subsonic que ele fala. Sem cadastro, sem cota. Os favoritos contam como músicas curtidas. Novo: ainda testado em poucos servidores.</string>
+    <string name="login_hint_koel">Digite o endereço do seu servidor Koel (o que você abre no navegador, por exemplo https://koel.example.com). Como usuário, use seu e-mail do Koel; como chave de API, a chave de API Subsonic do seu perfil no Koel (Perfil › Subsonic), não a sua senha do Koel. A chave nunca é enviada como está: cada pedido usa um hash com sal.</string>
+    <string name="koel_signin_refused">O Koel recusou o acesso. Use seu e-mail do Koel como usuário e, como chave, a chave de API Subsonic do seu perfil no Koel (Perfil › Subsonic), não a sua senha do Koel.</string>
     <string name="editor_follows">Playlist que muda sozinha</string>
     <string name="editor_follows_desc">Para um daylist, Descobertas da Semana ou Radar de Novidades: o destino vira a nova versão da origem a cada vez, mesmo que quase todas as músicas mudem, sem confirmação.</string>
     <string name="timing_every_hours">A cada %1$d horas</string>
@@ -1544,6 +1549,7 @@
     <string name="charts_label">Paradas</string>
     <string name="provider_note_charts">As paradas do Apple Music (Top 100 por país) e do Deezer (top por país e mundial), dos feeds públicos: uma sync mantém uma playlist sua atualizada quando a parada muda. Sem conta.</string>
     <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
+    <string name="charts_apple_list_name">Apple Music · %1$s</string>
     <string name="charts_deezer_name">Deezer · %1$s</string>
     <string name="charts_unknown">Esta parada não está mais disponível.</string>
     <string name="charts_unavailable">%1$s não retornou a parada (%2$d): tente mais tarde.</string>

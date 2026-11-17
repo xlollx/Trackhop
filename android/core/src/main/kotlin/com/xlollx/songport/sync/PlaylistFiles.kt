@@ -18,6 +18,8 @@ import kotlinx.serialization.json.put
  *  - **CSV / TSV / CSV con `;`** (Exportify, TuneMyMusic, Soundiiz, "Esporta playlist" di Apple Music)
  *  - **M3U / M3U8** (la maggior parte dei player desktop e Android)
  *  - **XML plist** (Apple Music / iTunes → File › Libreria › Esporta libreria)
+ *  - **rekordbox XML** (File › Export Collection in xml format), see [RekordboxXml]
+ *  - **WPL / ZPL** (Windows Media Player, Groove, Zune)
  *  - **JSON** (export di Amazon "Request My Data", Soundiiz, backup vari)
  *  - **testo semplice**, una riga per brano: "Artista - Titolo"
  *
@@ -26,7 +28,7 @@ import kotlinx.serialization.json.put
  */
 object PlaylistFiles {
 
-    enum class Format { CSV, M3U, PLS, ITUNES_XML, XSPF, OPML, JSON, TEXT }
+    enum class Format { CSV, M3U, PLS, ITUNES_XML, REKORDBOX_XML, WPL, XSPF, OPML, JSON, TEXT }
 
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
@@ -44,6 +46,9 @@ object PlaylistFiles {
             name.endsWith(".pls") || head.startsWith("[playlist]", ignoreCase = true) -> Format.PLS
             name.endsWith(".xspf") || (head.startsWith("<") && head.contains("xspf.org")) -> Format.XSPF
             name.endsWith(".opml") || (head.startsWith("<") && head.contains("<opml", ignoreCase = true)) -> Format.OPML
+            // Told by what is inside, whatever the name: rekordbox writes a plain ".xml", as Apple does.
+            RekordboxXml.looksLike(head) -> Format.REKORDBOX_XML
+            looksLikeWpl(name, head) -> Format.WPL
             head.contains("<plist") || (name.endsWith(".xml") && head.startsWith("<")) -> Format.ITUNES_XML
             head.startsWith("{") || head.startsWith("[") || name.endsWith(".json") -> Format.JSON
             // Shazam's export opens with a title line above the header: look at the first few lines.
@@ -112,7 +117,8 @@ object PlaylistFiles {
         val tracks = when (format) {
             Format.M3U -> readM3u(source, custom)
             Format.PLS -> readPls(source, custom)
-            Format.ITUNES_XML -> ItunesLibrary.read(source).asOneList()
+            Format.ITUNES_XML, Format.REKORDBOX_XML -> ItunesLibrary.read(source).asOneList()
+            Format.WPL -> readWpl(source, strict = true)
             Format.XSPF -> readXspf(source, strict = true)
             Format.OPML -> readOpml(source, strict = true)
             Format.JSON -> readJson(source, strict = true)
@@ -470,6 +476,90 @@ object PlaylistFiles {
 
     private fun escapeXml(s: String): String = s
         .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")
+
+    // ---------------------------------------------------------------- rekordbox XML
+
+    /** A rekordbox collection or playlist export as one list ([ItunesLibrary.asOneList]), read a piece at a time. */
+    fun parseRekordboxXml(text: String): List<Track> = RekordboxXml.read(text).asOneList()
+
+    // ---------------------------------------------------------------- WPL / ZPL
+
+    /**
+     * A Windows Media Player playlist (.wpl) or a Zune one (.zpl): both open with their own
+     * processing instruction, `<?wpl version="1.0"?>` or `<?zpl version="2.0"?>`, above a `smil`
+     * element. A ".zpl" that is not XML is Zoom Player's (a text list): not this format.
+     */
+    private fun looksLikeWpl(name: String, head: String): Boolean {
+        if (name.endsWith(".wpl")) return true
+        if (!head.startsWith("<")) return false
+        return head.startsWith("<?wpl", ignoreCase = true) || head.startsWith("<?zpl", ignoreCase = true) ||
+            ((name.endsWith(".wpl") || name.endsWith(".zpl") || head.take(400).contains("<smil", ignoreCase = true)) && head.contains("<smil", ignoreCase = true))
+    }
+
+    fun parseWpl(text: String): List<Track> = readWpl(CharSource(text.reader()), strict = false)
+
+    /**
+     * WPL (learn.microsoft.com/windows/win32/wmp/windows-media-playlists) and ZPL, the same SMIL:
+     * `smil › body › seq › media`, a `media` at a time. Windows Media Player writes only `src`, the
+     * file's path, read as a path ([fromPath]); Groove and Zune add `trackTitle`, `trackArtist`,
+     * `albumTitle`, `albumArtist` and `duration` (ms), taken as they are. A `media` outside `seq` (a
+     * `smartPlaylist`'s rules hold none) and the head's `meta` go by. With [strict], a file that
+     * ends before its `</smil>` is refused.
+     */
+    private fun readWpl(source: CharSource, strict: Boolean): List<Track> {
+        val out = ArrayList<Track>()
+        val xml = XmlTokens(source)
+        var inSeq = 0
+        xml.run(object : XmlTokens.Handler {
+            override fun open(name: String, attrs: String, selfClosing: Boolean) {
+                if (name.equals("seq", ignoreCase = true)) { if (!selfClosing) inSeq++; return }
+                if (inSeq == 0 || !name.equals("media", ignoreCase = true)) return
+                val a = XmlTokens.attributes(attrs).mapKeys { it.key.lowercase() }
+                wplTrack(a)?.let(out::add)
+            }
+            override fun close(name: String) { if (name.equals("seq", ignoreCase = true) && inSeq > 0) inSeq-- }
+        })
+        if (strict && !xml.whole) throw incomplete()
+        return out
+    }
+
+    private fun wplTrack(a: Map<String, String>): Track? {
+        val title = a["tracktitle"]?.trim().orEmpty()
+        val src = a["src"]?.trim().orEmpty()
+        if (title.isEmpty()) return src.takeIf { it.isNotEmpty() }?.let { fromPath(it) }?.takeIf { it.title.isNotBlank() }?.let(CsvCodec::withStableId)
+        val artist = a["trackartist"]?.trim().orEmpty().ifEmpty { a["albumartist"]?.trim().orEmpty() }
+        return CsvCodec.withStableId(
+            Track(
+                id = "", title = title, artists = CsvCodec.splitArtists(artist), album = a["albumtitle"]?.trim().orEmpty(),
+                durationMs = a["duration"]?.trim()?.toLongOrNull()?.takeIf { it > 0 } ?: 0,
+            )
+        )
+    }
+
+    /**
+     * [tracks] as a Windows Media Player playlist, or with [zune] as a Zune one (the same list under
+     * Zune's header). Each `media` carries the song's title, artist, album and length, which Groove
+     * and Zune write too; there is no file behind a streaming playlist, so `src`, which the format
+     * requires, is the same search line an M3U gets ("Artist - Title").
+     */
+    fun toWpl(name: String, tracks: List<Track>, zune: Boolean = false): String = buildString {
+        append(if (zune) "<?zpl version=\"2.0\"?>\r\n" else "<?wpl version=\"1.0\"?>\r\n")
+        append("<smil>\r\n  <head>\r\n")
+        append("    <meta name=\"Generator\" content=\"Trackhop\"/>\r\n")
+        append("    <meta name=\"ItemCount\" content=\"").append(tracks.size).append("\"/>\r\n")
+        append("    <title>").append(xmlAttr(name)).append("</title>\r\n")
+        append("  </head>\r\n  <body>\r\n    <seq>\r\n")
+        for (t in tracks) {
+            val line = if (t.artists.isEmpty()) t.title else t.artistLine + " - " + t.title
+            append("      <media src=\"").append(xmlAttr(line)).append('"')
+            append(" trackTitle=\"").append(xmlAttr(t.title)).append('"')
+            if (t.artists.isNotEmpty()) append(" trackArtist=\"").append(xmlAttr(t.artistLine)).append('"')
+            if (t.album.isNotBlank()) append(" albumTitle=\"").append(xmlAttr(t.album)).append('"')
+            if (t.durationMs > 0) append(" duration=\"").append(t.durationMs).append('"')
+            append("/>\r\n")
+        }
+        append("    </seq>\r\n  </body>\r\n</smil>\r\n")
+    }
 
     // ---------------------------------------------------------------- iTunes / Apple Music XML
 

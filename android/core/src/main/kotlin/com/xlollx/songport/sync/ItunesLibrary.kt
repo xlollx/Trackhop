@@ -70,11 +70,17 @@ class ItunesLibrary private constructor(
     )
 
     companion object {
-        /** True when the start of a file ([head], a few KB) looks like an Apple plist. */
+        /**
+         * True when the start of a file ([head], a few KB) looks like a library with playlists to pick
+         * from: an Apple plist, or a rekordbox collection ([RekordboxXml]).
+         */
         fun looksLike(head: String): Boolean {
             val h = head.removePrefix("﻿").trimStart()
-            return h.startsWith("<") && (h.contains("<plist") || h.contains("Apple//DTD PLIST"))
+            return (h.startsWith("<") && (h.contains("<plist") || h.contains("Apple//DTD PLIST"))) || RekordboxXml.looksLike(head)
         }
+
+        /** A library read from another program's file ([RekordboxXml]): the same songs and playlists to pick from. */
+        internal fun of(tracks: LinkedHashMap<Int, Info>, playlists: List<Playlist>): ItunesLibrary = ItunesLibrary(tracks, playlists)
 
         /**
          * Reads [reader] to the end. [progress] gets the characters read so far, about every MB;
@@ -83,7 +89,9 @@ class ItunesLibrary private constructor(
         fun read(reader: Reader, progress: (Long) -> Unit = {}, cancelled: () -> Boolean = { false }): ItunesLibrary =
             read(CharSource(reader, progress, cancelled))
 
-        internal fun read(source: CharSource): ItunesLibrary = Builder().also { PlistEvents(source, it).run() }.build()
+        internal fun read(source: CharSource): ItunesLibrary =
+            if (RekordboxXml.looksLike(source.head())) RekordboxXml.read(source)
+            else Builder().also { PlistEvents(source, it).run() }.build()
 
         fun read(text: String): ItunesLibrary = read(text.reader())
     }
@@ -176,9 +184,13 @@ class ItunesLibrary private constructor(
     }
 
     /** The file ends before its library (or its list) does: it was cut short (an interrupted upload or copy). */
-    class Incomplete(message: String = "The file ends before the library does: it is incomplete. Export it again, or upload it again.") : IllegalStateException(message)
+    class Incomplete(
+        message: String = "The file ends before the library does: it is incomplete. Export it again, or upload it again.",
+        /** True for an Apple Music/iTunes library: what to export again is then known. */
+        val apple: Boolean = true,
+    ) : IllegalStateException(message)
 
-    private class IntList {
+    internal class IntList {
         private var a = IntArray(16)
         private var n = 0
         fun add(v: Int) { if (n == a.size) a = a.copyOf(n * 2); a[n++] = v }
