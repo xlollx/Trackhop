@@ -24,7 +24,10 @@ class StoppedWhileAddingTest {
     private class Stoppable(id: String) : MemoryService(id) {
         /** The add call that is stopped (1-based); none when null. */
         var stopAt: Int? = null
+        /** Runs at the start of every add. */
+        var onAdd: (() -> Unit)? = null
         override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
+            onAdd?.invoke()
             if (addCalls + 1 == stopAt) { addCalls++; throw CancellationException("the worker was stopped") }
             super.addTracks(ctx, playlistId, tracks)
         }
@@ -65,5 +68,24 @@ class StoppedWhileAddingTest {
         assertEquals(70, r.added)
         assertEquals((1..120).map { "d$it" }.toSet(), dst.lists["t"]!!.map { it.id }.toSet())
         assertEquals("nothing added twice", 120, dst.lists["t"]!!.size)
+    }
+
+    @Test fun thePlaylistARunMakesIsOnTheDiskBeforeAnythingIsAddedToIt() = runBlocking {
+        val job = SyncJob(id = "n", name = "new", source = PlaylistRef("csrc", "p", "p"), target = PlaylistRef("cdst", null, "Fresh")).also { env.store.upsertJob(it) }
+        env.store.flush()
+        // What a process starting now would read, at the moment the first tracks go in.
+        val onDisk = ArrayList<String?>()
+        dst.onAdd = { onDisk += com.xlollx.songport.data.FileStore(env.dataDir).job("n")?.target?.playlistId }
+        // Closed by the system right there: the run that follows must find the playlist, not make another.
+        dst.stopAt = 1
+        assertTrue(runCatching { SyncEngine(env).run(job) }.exceptionOrNull() is CancellationException)
+        assertEquals(listOf<String?>("Fresh"), onDisk)
+        dst.stopAt = null
+        dst.onAdd = null
+        val again = com.xlollx.songport.data.FileStore(env.dataDir).job("n")!!
+        val r = SyncEngine(env).run(again)
+        assertTrue(r.ok)
+        assertEquals("one playlist, made once", listOf("t", "Fresh"), dst.lists.keys.toList())
+        assertEquals(120, dst.lists["Fresh"]!!.size)
     }
 }

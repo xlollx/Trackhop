@@ -443,6 +443,9 @@ class SyncEngine(
                 target = stored.target.copy(playlistId = created.id, playlistName = created.name),
                 sourceCover = info?.imageUrl,
             ))
+            // On the disk at once, not at the store's next write: a process closed right now would
+            // forget the playlist it has just made, and the next run would make a second one.
+            store.flush()
             // Covers on the services added in 1.18 wait for it (Features).
             val covers = com.xlollx.songport.Features.coversOn(dst)
             val cover = info?.imageUrl ?: (if (covers) runCatching { src.playlists(env).firstOrNull { it.id == srcPlaylistId }?.imageUrl }.getOrNull() else null)
