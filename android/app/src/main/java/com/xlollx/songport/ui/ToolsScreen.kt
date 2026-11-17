@@ -177,7 +177,7 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
     // The release switch: Shared playlists and My server are 1.18's (Features). Groups and syncs on the
     // server that a test build made stay reachable.
     val v2 = com.xlollx.songport.Features.v2(storeData.settings)
-    val hasGroups = storeData.groups.any { !com.xlollx.songport.shared.Nway.isGroup(it) }
+    val hasGroups = storeData.groups.any { !com.xlollx.songport.shared.Nway.isGroup(it) } || storeData.collections.isNotEmpty()
     val hasHandedOver = storeData.handedOver.isNotEmpty()
     // The list's position, kept while a tool's page is open: back lands on the tool just used.
     val listScroll = rememberScrollState()

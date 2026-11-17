@@ -60,6 +60,8 @@ class SongportApp : Application() {
         // "Remove duplicates" cut short between taking a song's copies out and putting one back (the
         // app killed, the phone off): the song goes back in its playlist now, and the person is told.
         com.xlollx.songport.sync.AppTasks.resumePutBacks(this)
+        // A collection being left when the app last closed: finished now, before its syncs are scheduled again.
+        com.xlollx.songport.ui.CollectionUi.recover(this)
         // Riallinea i lavori periodici alla configurazione salvata (idempotente).
         Scheduler.applyAll(this)
     }

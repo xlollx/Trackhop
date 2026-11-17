@@ -100,9 +100,11 @@ object NwayUi {
 
     /** The syncs that belong to a group of the user's own playlists: behind the group's card, not cards themselves. */
     fun memberJobIds(d: StoreData): Set<String> {
+        // So are the syncs of a collection's playlists: behind the collection's one card (CollectionUi).
+        val collected = CollectionUi.memberJobIds(d)
         val ids = groups(d).mapTo(HashSet()) { it.id }
-        if (ids.isEmpty()) return emptySet()
-        return d.jobs.filter { SharedGroups.sharedSide(it) in ids }.mapTo(HashSet()) { it.id }
+        if (ids.isEmpty()) return collected
+        return d.jobs.filter { SharedGroups.sharedSide(it) in ids }.mapTo(HashSet()) { it.id } + collected
     }
 
     /** [Labels.storeIndex] for a place among the syncs the list shows, as a place in the stored list, which holds the groups' syncs too. */

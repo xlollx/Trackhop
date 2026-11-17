@@ -3243,4 +3243,97 @@
     <string name="store_good_copy_failed">Эту копию не удалось прочитать. Ничего не изменено.</string>
     <string name="tools_dedupe_put_back">Удаление дубликатов в прошлый раз было прервано. Возвращено в плейлист: %1$s</string>
     <string name="shared_state_unreadable">Не удалось прочитать сохранённое состояние общего плейлиста «%1$s». Ничего не удалено: оно будет заново прочитано из группы при следующей синхронизации.</string>
+    <string name="collection_one">Один плейлист</string>
+    <string name="collection_one_desc">Группа вокруг одного из ваших плейлистов.</string>
+    <string name="collection_several">Несколько плейлистов вместе</string>
+    <string name="collection_several_desc">Одно приглашение на много плейлистов. Подписчик берёт все или выбирает некоторые.</string>
+    <string name="collection_new">Новая коллекция</string>
+    <string name="collection_name">Название коллекции</string>
+    <string name="collection_search">Поиск по вашим плейлистам</string>
+    <string name="collection_all">Все</string>
+    <string name="collection_pick">Выбрать</string>
+    <string name="collection_chosen_n">Выбрано %1$d из %2$d</string>
+    <string name="collection_auto_add">Добавлять и плейлисты, которые я создам позже</string>
+    <string name="collection_auto_add_desc">Они придут тем, кто подписан на «Все».</string>
+    <string name="collection_n_of_m">Плейлистов: %1$d из %2$d</string>
+    <string name="collection_choose_pending">Выберите, на что подписаться</string>
+    <string name="collection_all_note">Вы получаете все, включая добавленные позже.</string>
+    <string name="collection_pick_note">%1$d из %2$d · новые плейлисты вам предлагаются, сами они не добавляются.</string>
+    <string name="collection_where">Где вы слушаете?</string>
+    <string name="collection_where_several">На нескольких сервисах каждый плейлист остаётся одинаковым на всех.</string>
+    <string name="collection_when_follow">Когда вы подписаны</string>
+    <string name="collection_keep_desc">То, что вы добавляете, остаётся только в ваших плейлистах.</string>
+    <string name="collection_exact_desc">Ваши плейлисты становятся такими же, как у куратора.</string>
+    <string name="collection_tip_exists">«%1$s» уже есть на %2$s: используется он, а его треки остаются.</string>
+    <string name="collection_already">Вы уже в этой коллекции.</string>
+    <string name="collection_join_hint">Коллекция плейлистов: какие взять, вы выберете на следующем шаге.</string>
+    <string name="collection_new_from">Новое от %1$s</string>
+    <string name="collection_new_playlist">Новый плейлист</string>
+    <string name="collection_add">Добавить</string>
+    <string name="collection_ignore">Пропустить</string>
+    <string name="collection_continue">Продолжить</string>
+    <string name="collection_stopped">Остановилось на полпути: настроенное остаётся, и ничего не создаётся дважды.</string>
+    <string name="collection_removed_by_curator">Куратор убрал: %1$s. Ваши плейлисты остаются как есть.</string>
+    <string name="collection_playlists">Плейлисты</string>
+    <string name="collection_switch_note">Выключите один: он перестанет синхронизироваться и останется на вашем сервисе как есть.</string>
+    <string name="collection_row_pending">ещё не настроен</string>
+    <string name="collection_add_playlists">Добавить плейлисты</string>
+    <string name="collection_remove_playlist">Убрать из коллекции</string>
+    <string name="collection_remove_playlist_confirm">Подписчики перестанут его получать. Ваш плейлист и их плейлисты останутся как есть.</string>
+    <string name="collection_leave">Выйти из коллекции</string>
+    <string name="collection_leave_confirm">Все плейлисты перестанут синхронизироваться. Ваши плейлисты останутся на ваших сервисах как есть.</string>
+    <string name="collection_not_join">Не вступать</string>
+    <string name="collection_not_join_note">На ваших сервисах ничего не создано. Вы можете вступить снова по тому же приглашению.</string>
+    <string name="collection_invite_desc">Одно приглашение на все плейлисты коллекции.</string>
+    <string name="collection_error_cannot_create">%1$s не может создавать плейлисты отсюда. Создайте там плейлист с тем же названием и продолжите.</string>
+    <string name="collection_no_playlists">На этом сервисе у вас нет других плейлистов для добавления.</string>
+    <string name="collection_empty">В коллекции пока нет плейлистов.</string>
+    <plurals name="collection_create_n">
+        <item quantity="one">Создать и пригласить (%1$d плейлист)</item>
+        <item quantity="few">Создать и пригласить (%1$d плейлиста)</item>
+        <item quantity="many">Создать и пригласить (%1$d плейлистов)</item>
+        <item quantity="other">Создать и пригласить (%1$d плейлиста)</item>
+    </plurals>
+    <plurals name="collection_playlists_n">
+        <item quantity="one">%1$d плейлист</item>
+        <item quantity="few">%1$d плейлиста</item>
+        <item quantity="many">%1$d плейлистов</item>
+        <item quantity="other">%1$d плейлиста</item>
+    </plurals>
+    <plurals name="collection_tip_new">
+        <item quantity="one">%1$d новый плейлист на %2$s.</item>
+        <item quantity="few">%1$d новых плейлиста на %2$s.</item>
+        <item quantity="many">%1$d новых плейлистов на %2$s.</item>
+        <item quantity="other">%1$d нового плейлиста на %2$s.</item>
+    </plurals>
+    <plurals name="collection_join_n">
+        <item quantity="one">Вступить (%1$d плейлист)</item>
+        <item quantity="few">Вступить (%1$d плейлиста)</item>
+        <item quantity="many">Вступить (%1$d плейлистов)</item>
+        <item quantity="other">Вступить (%1$d плейлиста)</item>
+    </plurals>
+    <plurals name="collection_followers_n">
+        <item quantity="one">%1$d подписчик</item>
+        <item quantity="few">%1$d подписчика</item>
+        <item quantity="many">%1$d подписчиков</item>
+        <item quantity="other">%1$d подписчика</item>
+    </plurals>
+    <plurals name="collection_pending_n">
+        <item quantity="one">%1$d плейлист ещё не настроен.</item>
+        <item quantity="few">%1$d плейлиста ещё не настроены.</item>
+        <item quantity="many">%1$d плейлистов ещё не настроены.</item>
+        <item quantity="other">%1$d плейлиста ещё не настроены.</item>
+    </plurals>
+    <plurals name="collection_todo_n">
+        <item quantity="one">%1$d плейлист ещё не опубликован.</item>
+        <item quantity="few">%1$d плейлиста ещё не опубликованы.</item>
+        <item quantity="many">%1$d плейлистов ещё не опубликованы.</item>
+        <item quantity="other">%1$d плейлиста ещё не опубликованы.</item>
+    </plurals>
+    <plurals name="collection_new_n">
+        <item quantity="one">%1$d новый плейлист</item>
+        <item quantity="few">%1$d новых плейлиста</item>
+        <item quantity="many">%1$d новых плейлистов</item>
+        <item quantity="other">%1$d нового плейлиста</item>
+    </plurals>
 </resources>
