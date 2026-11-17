@@ -1,5 +1,10 @@
 package com.xlollx.songport.flows
 
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performScrollTo
@@ -48,8 +53,25 @@ class ToFixFlowTest : FlowTest() {
     private fun key(t: Track) = FileStore.cacheKey("spotify", t.id, "deezer")
     private fun row(t: Track) = compose.onNode(hasTestTag(TO_FIX_ROW_TAG + key(t)))
 
-    /** The row scrolled to and moved above the glass bottom bar, which would take the swipe of a row under it. */
-    private fun rowInReach(t: Track) = row(t).also { it.performScrollTo(); clearOfBottomBar(it); compose.waitForIdle() }
+    /**
+     * The row scrolled to and moved above the glass bottom bar, which would take the swipe of a row
+     * under it. (clearOfBottomBar does nothing here: with the page's own two tabs at the top it takes
+     * the tabs for a rail at the side.)
+     */
+    private fun rowInReach(t: Track) = row(t).also { n ->
+        n.performScrollTo()
+        val node = n.fetchSemanticsNode()
+        val tabs = compose.onAllNodes(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)).fetchSemanticsNodes()
+        val barTop = tabs.map { it.boundsInRoot.top }.filter { it > app.resources.displayMetrics.heightPixels / 2 }.minOrNull()
+        val bottom = node.positionInRoot.y + node.size.height
+        if (barTop != null && bottom > barTop) {
+            var p = node.parent
+            while (p != null && !p.config.contains(SemanticsActions.ScrollBy)) p = p.parent
+            val scroll = p?.config?.getOrNull(SemanticsActions.ScrollBy)?.action
+            if (scroll != null) compose.runOnIdle { scroll(0f, bottom - barTop + 24 * app.resources.displayMetrics.density) }
+        }
+        compose.waitForIdle()
+    }
 
     /**
      * Road Trip to Deezer's Workout: a loose match, a track with a candidate, one with nothing.
