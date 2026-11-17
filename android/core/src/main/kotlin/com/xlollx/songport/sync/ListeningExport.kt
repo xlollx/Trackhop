@@ -79,9 +79,12 @@ object ListeningExport {
         if (!(head[0] == 'P'.code.toByte() && head[1] == 'K'.code.toByte())) return readJson(input, each)
         var n = 0
         val workbook = HashMap<String, ByteArray>()
-        val zip = ZipInputStream(input)
+        val whole = ZipEnd(input)
+        val zip = ZipInputStream(whole)
+        var entries = 0
         while (true) {
             val e = zip.nextEntry ?: break
+            entries++
             val name = e.name.lowercase()
             when {
                 e.isDirectory -> {}
@@ -91,8 +94,59 @@ object ListeningExport {
                 name == "xl/sharedstrings.xml" || (name.startsWith("xl/worksheets/") && name.endsWith(".xml")) -> workbook[name] = bytes(zip)
             }
         }
+        // An archive cut between two of its files ends without an error: only its closing list says
+        // whether these were all of them. Half a history is not shown as a lifetime.
+        if (!whole.complete(entries)) throw ItunesLibrary.Incomplete("The file ends before the archive does: it is incomplete. Download it again, or copy it again.")
         if (workbook.isNotEmpty()) n += readWorkbook(workbook, each)
         return n
+    }
+
+    /**
+     * The archive's stream, remembering its last bytes: a whole .zip closes with its list of files
+     * (the "end of central directory" record, PK 05 06), which says how many there are.
+     */
+    private class ZipEnd(input: InputStream) : FilterInputStream(input) {
+        // The record is 22 bytes and may be followed by a comment of up to 65535.
+        private val tail = ByteArray(22 + 65_535)
+        private var at = 0
+        private var filled = 0
+
+        private fun keep(b: ByteArray, off: Int, len: Int) {
+            for (i in off until off + len) { tail[at] = b[i]; at = (at + 1) % tail.size }
+            filled = minOf(tail.size, filled + len)
+        }
+
+        override fun read(): Int {
+            val one = ByteArray(1)
+            return if (read(one, 0, 1) < 0) -1 else one[0].toInt() and 0xff
+        }
+
+        override fun read(b: ByteArray, off: Int, len: Int): Int = super.read(b, off, len).also { if (it > 0) keep(b, off, it) }
+
+        // Skipped bytes would not be remembered: read instead.
+        override fun skip(n: Long): Long {
+            val buf = ByteArray(minOf(n, 8192L).toInt().coerceAtLeast(1))
+            return read(buf, 0, buf.size).coerceAtLeast(0).toLong()
+        }
+
+        override fun markSupported() = false
+
+        /** Reads what is left, then: is the closing record there, and does it count no more files than the [entries] read? */
+        fun complete(entries: Int): Boolean {
+            val buf = ByteArray(16 * 1024)
+            while (read(buf, 0, buf.size) >= 0) { /* to the end */ }
+            val end = ByteArray(filled) { tail[(at - filled + it + tail.size * 2) % tail.size] }
+            var i = end.size - 22
+            while (i >= 0) {
+                if (end[i] == 'P'.code.toByte() && end[i + 1] == 'K'.code.toByte() && end[i + 2] == 5.toByte() && end[i + 3] == 6.toByte()) {
+                    val total = (end[i + 10].toInt() and 0xff) or ((end[i + 11].toInt() and 0xff) shl 8)
+                    // 0xFFFF: more than fit here (a zip64 archive), the count is elsewhere.
+                    return total == 0xffff || entries >= total
+                }
+                i--
+            }
+            return false
+        }
     }
 
     private fun bytes(input: InputStream): ByteArray {
