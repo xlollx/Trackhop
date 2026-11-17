@@ -79,6 +79,9 @@ class RotationBackFlowTest : FlowTest() {
         instr.runOnMainSync { SharedUi.request.value = SharedUi.Request.List }
         waitText(s(R.string.shared_title))
         click(s(R.string.shared_create))
+        // One playlist or several: the chooser comes first.
+        waitText(s(R.string.collection_one))
+        click(s(R.string.collection_one))
         waitText(s(R.string.shared_name))
     }
 
@@ -114,6 +117,9 @@ class RotationBackFlowTest : FlowTest() {
 
         // Nothing typed: back closes it at once, without asking.
         click(s(R.string.shared_create))
+        // One playlist or several: the chooser comes first.
+        waitText(s(R.string.collection_one))
+        click(s(R.string.collection_one))
         waitText(s(R.string.shared_name))
         pressBack()
         waitGone(s(R.string.shared_name))
