@@ -731,7 +731,7 @@ also reads the tour dates on Spotify's artist pages when you have **Spotify (web
 |---|---|
 | `GET /api/v1/files` | The File playlists. |
 | `GET /api/v1/files/{file}` | A File playlist, in a format: csv, m3u, xspf, jspf or txt. |
-| `PUT /api/v1/files/{file}` | Bring in a playlist file (CSV, M3U, PLS, XSPF, JSPF, iTunes XML, JSON, text) as the body. |
+| `PUT /api/v1/files/{file}` | Bring in a playlist file (CSV, M3U, PLS, XSPF, JSPF, iTunes XML, JSON, text) as the body, up to 20 MB. An Apple Music/iTunes library can be any size: each of your playlists becomes a file; `?playlists=A,B` picks them by name, `?whole=true` adds the library as one file. |
 | `POST /api/v1/files/{file}` | The same as PUT, for tools that only POST. |
 | `DELETE /api/v1/files/{file}` | Delete a File playlist. |
 | `POST /api/v1/files/zip` | Several File playlists in one .zip, in a format. |

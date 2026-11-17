@@ -66,7 +66,7 @@ internal class CliCommands(
         "setlists" -> { need(p, 2, "setlists <service> <playlist>"); setlists(p[0], p.drop(1).joinToString(" ")) }
         "export" -> { need(p, 2, "export <service> <playlist> [<file>]"); export(p[0], p[1], p.getOrNull(2), o) }
         "files" -> filesCommand(p, o)
-        "import" -> import(one(p, "import <file>"))
+        "import" -> import(one(p, "import <file>"), o)
         "patterns" -> patterns(p, o)
         "backup" -> backup(o.has("wait"))
         "config" -> when {
@@ -314,11 +314,16 @@ internal class CliCommands(
         return 0
     }
 
-    private fun import(path: String): Int {
+    private fun import(path: String, o: Cli.Opts): Int {
         val f = File(path)
         if (!f.isFile) throw Cli.Failure(2, "no file at $path")
-        val r = Json.parseToJsonElement(api.raw("PUT", "files/${enc(f.name)}", f.readBytes())).jsonObject
-        if (asJson) print(r) else out.println("Imported ${f.name}: ${r.n("tracks")} tracks")
+        // Streamed from disk: an Apple Music/iTunes library can be any size (#67).
+        val query = listOfNotNull(o.value("playlists")?.let { "playlists=${enc(it)}" }, "whole=true".takeIf { o.has("whole") }).joinToString("&")
+        val r = Json.parseToJsonElement(api.rawFile("PUT", "files/${enc(f.name)}" + (if (query.isEmpty()) "" else "?$query"), f)).jsonObject
+        if (asJson) return print(r).let { 0 }
+        val files = r["files"]?.jsonArray
+        if (files == null) out.println("Imported ${f.name}: ${r.n("tracks")} tracks")
+        else files.forEach { e -> out.println("Imported ${e.jsonObject.s("name")}: ${e.jsonObject.n("tracks")} tracks") }
         return 0
     }
 

@@ -71,6 +71,7 @@ internal fun Web.fileList(sample: String = ""): String {
     sb.append(
         """<p class="muted">Playlists saved inside Trackhop. A sync whose target is File writes its playlist here; a file uploaded here can be the source of a sync to any service.</p></div>
 <form method="post" action="/files" enctype="multipart/form-data" class="card"><label>Add a playlist file: CSV, M3U, PLS, XSPF, JSPF or JSON, iTunes XML, OPML, or a text list of “Artist - Title”</label>
+<p class="muted">A whole Apple Music/iTunes library (File › Library › Export Library) can be as big as it is: you then pick its playlists. Other files up to 20 MB.</p>
 <input type="file" name="file" required>
 <label>Names like “A - B - C” in M3U, PLS and text files</label><select name="names">${nameLayoutOptions()}</select>
 <p class="muted">Automatic reads them as Artist - Album - Title when most lines have three parts. A file already added is not changed: upload it again.</p>
@@ -158,24 +159,37 @@ internal fun Web.tryPatterns(r: Web.Req) {
 
 internal fun Web.upload(r: Web.Req) {
     val file = r.files["file"] ?: return redirect(r.ex, "/connectors/csv?err=${q("Choose a file.")}")
-    // The choice is kept for the next upload, as the app keeps it; bad patterns are refused, with why.
-    r.form["patterns"]?.let { raw ->
+    if (!saveNameChoice(r.ex, r.form)) return
+    importUploaded(r.ex, file.name, file.bytes)
+}
+
+/**
+ * The choice of how names are read, from the upload form: kept for the next upload, as the app keeps
+ * it; bad patterns are refused, with why. False when it answered with an error.
+ */
+internal fun Web.saveNameChoice(ex: com.sun.net.httpserver.HttpExchange, form: Map<String, String>): Boolean {
+    form["patterns"]?.let { raw ->
         val lines = raw.lines().map { it.trim() }.filter { it.isNotEmpty() }
         lines.forEachIndexed { i, l ->
-            NamePatterns.compile(l).exceptionOrNull()?.let { return redirect(r.ex, "/connectors/csv?err=${q("Pattern on line ${i + 1}: ${it.message}")}") }
+            NamePatterns.compile(l).exceptionOrNull()?.let { redirect(ex, "/connectors/csv?err=${q("Pattern on line ${i + 1}: ${it.message}")}"); return false }
         }
         env.store.updateSettings { it.copy(fileNamePatterns = lines) }
     }
-    r.form["names"]?.let { PlaylistFiles.NameLayout.of(it).name }?.let { v ->
-        if (v == "CUSTOM" && env.store.data.settings.fileNamePatterns.isEmpty()) return redirect(r.ex, "/connectors/csv?err=${q("Write at least one pattern under “Your own patterns”.")}")
+    form["names"]?.let { PlaylistFiles.NameLayout.of(it).name }?.let { v ->
+        if (v == "CUSTOM" && env.store.data.settings.fileNamePatterns.isEmpty()) { redirect(ex, "/connectors/csv?err=${q("Write at least one pattern under “Your own patterns”.")}"); return false }
         env.store.updateSettings { it.copy(fileNameLayout = v) }
     }
-    val text = PlaylistFiles.decode(file.bytes)
-    val n = runCatching { LocalFilesProvider.importFile(env, file.name.substringAfterLast('/').substringAfterLast('\\'), text) }
-        .getOrElse { return redirect(r.ex, "/connectors/csv?err=${q(it.message ?: "Could not read the file.")}") }
-    if (n == 0) return redirect(r.ex, "/connectors/csv?err=${q("No tracks found in ${file.name}.")}")
-    env.log("files", "imported ${file.name}: $n tracks")
-    redirect(r.ex, "/connectors/csv?ok=${q("Added ${file.name}: $n tracks.")}")
+    return true
+}
+
+/** A playlist file in memory (up to [LibraryUploads.MAX_TEXT_FILE]) added as one file. */
+internal fun Web.importUploaded(ex: com.sun.net.httpserver.HttpExchange, fileName: String, bytes: ByteArray) {
+    val name = fileName.substringAfterLast('/').substringAfterLast('\\')
+    val n = runCatching { LocalFilesProvider.importFile(env, name, PlaylistFiles.decode(bytes)) }
+        .getOrElse { return redirect(ex, "/connectors/csv?err=${q(it.message ?: "Could not read the file.")}") }
+    if (n == 0) return redirect(ex, "/connectors/csv?err=${q("No tracks found in $name.")}")
+    env.log("files", "imported $name: $n tracks")
+    redirect(ex, "/connectors/csv?ok=${q("Added $name: $n tracks.")}")
 }
 
 // ------------------------------------------------------------------ tools

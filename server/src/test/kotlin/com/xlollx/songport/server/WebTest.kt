@@ -334,6 +334,73 @@ class WebTest {
         assertEquals(200, get("/tools/export").statusCode())
     }
 
+    /** A library file bigger than the 20 MB the page took before #67, written to [f] a piece at a time. */
+    private fun writeLibrary(f: File, songs: Int, boundary: String? = null) {
+        f.bufferedWriter().use { w ->
+            if (boundary != null) w.write("--$boundary\r\nContent-Disposition: form-data; name=\"names\"\r\n\r\nAUTO\r\n--$boundary\r\nContent-Disposition: form-data; name=\"file\"; filename=\"iTunes Library.xml\"\r\nContent-Type: text/xml\r\n\r\n")
+            w.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"x\">\n<plist version=\"1.0\"><dict><key>Tracks</key><dict>")
+            for (i in 1..songs) w.write("<key>$i</key><dict><key>Track ID</key><integer>$i</integer><key>Name</key><string>Song $i</string><key>Artist</key><string>Band ${i % 300}</string><key>Total Time</key><integer>200000</integer><key>Location</key><string>file:///Users/me/Music/Media/Band%20${i % 300}/Album/${i}%20Song%20with%20a%20long%20file%20name.m4a</string></dict>")
+            w.write("</dict><key>Playlists</key><array>")
+            w.write("<dict><key>Name</key><string>Library</string><key>Master</key><true/><key>Playlist Items</key><array><dict><key>Track ID</key><integer>1</integer></dict></array></dict>")
+            w.write("<dict><key>Name</key><string>Gym</string><key>Playlist Persistent ID</key><string>F1</string><key>Folder</key><true/></dict>")
+            w.write("<dict><key>Name</key><string>Run</string><key>Parent Persistent ID</key><string>F1</string><key>Playlist Items</key><array><dict><key>Track ID</key><integer>5</integer></dict><dict><key>Track ID</key><integer>3</integer></dict></array></dict>")
+            w.write("<dict><key>Name</key><string>Road Trip</string><key>Playlist Items</key><array><dict><key>Track ID</key><integer>7</integer></dict></array></dict>")
+            w.write("<dict><key>Name</key><string>Top 25</string><key>Smart Info</key><data>AQEAAw==</data><key>Playlist Items</key><array><dict><key>Track ID</key><integer>9</integer></dict></array></dict>")
+            w.write("</array></dict></plist>")
+            if (boundary != null) w.write("\r\n--$boundary--\r\n")
+        }
+    }
+
+    // #67: a library bigger than 20 MB goes to disk, is read a piece at a time, and its playlists are picked.
+    @Test fun aBigItunesLibraryIsUploadedAndItsPlaylistsPicked() {
+        val boundary = "----trackhop67"
+        val body = tmp.newFile("upload.bin")
+        writeLibrary(body, songs = 70_000, boundary = boundary)
+        assertTrue("the body is over 20 MB: ${body.length()}", body.length() > 20_000_000)
+        val res = client.send(
+            HttpRequest.newBuilder(URI("$base/files")).header("Authorization", auth).header("Origin", base)
+                .header("Content-Type", "multipart/form-data; boundary=$boundary").POST(HttpRequest.BodyPublishers.ofFile(body.toPath())).build(),
+            HttpResponse.BodyHandlers.ofString(),
+        )
+        assertEquals(303, res.statusCode())
+        val to = res.headers().firstValue("Location").orElse("")
+        assertTrue(to, to.startsWith("/files/library?t="))
+        // Nothing of the upload is left on disk once read.
+        assertTrue(File(data, "uploads").listFiles().orEmpty().isEmpty())
+        val page = get(to)
+        assertEquals(200, page.statusCode())
+        assertTrue(page.body().contains("Run") && page.body().contains("Road Trip") && page.body().contains("Top 25") && page.body().contains("Folder · Gym"))
+        assertFalse(page.body().contains(">Library<"))
+        val t = to.substringAfter("t=")
+        // Run (0) and Top 25 (2): each a file of its own, in the playlist's order.
+        val add = post("/files/library", "t=$t&p=0&p=2", *origin)
+        assertEquals(303, add.statusCode())
+        assertTrue(add.headers().firstValue("Location").orElse("").contains("ok="))
+        assertEquals(listOf("Song 5", "Song 3"), com.xlollx.songport.sync.CsvCodec.parse(File(data, "csv/Run.csv").readText()).map { it.title })
+        assertTrue(File(data, "csv/Top 25.csv").exists())
+        assertFalse(File(data, "csv/Road Trip.csv").exists())
+        // Used once: the same choice again finds nothing.
+        assertTrue(post("/files/library", "t=$t&p=1", *origin).headers().firstValue("Location").orElse("").contains("err="))
+    }
+
+    @Test fun aBigFileThatIsNotALibraryIsStillRefusedWithWhy() {
+        val boundary = "----trackhop67b"
+        val body = tmp.newFile("big.bin")
+        body.bufferedWriter().use { w ->
+            w.write("--$boundary\r\nContent-Disposition: form-data; name=\"file\"; filename=\"huge.csv\"\r\n\r\nartist,title\n")
+            repeat(800_000) { w.write("Some Band,Some quite long song title number $it\n") }
+            w.write("\r\n--$boundary--\r\n")
+        }
+        val res = client.send(
+            HttpRequest.newBuilder(URI("$base/files")).header("Authorization", auth).header("Origin", base)
+                .header("Content-Type", "multipart/form-data; boundary=$boundary").POST(HttpRequest.BodyPublishers.ofFile(body.toPath())).build(),
+            HttpResponse.BodyHandlers.ofString(),
+        )
+        assertEquals(303, res.statusCode())
+        assertTrue(java.net.URLDecoder.decode(res.headers().firstValue("Location").orElse(""), Charsets.UTF_8).contains("Files up to 20 MB, except an Apple Music/iTunes library"))
+        assertTrue(File(data, "uploads").listFiles().orEmpty().isEmpty())
+    }
+
     // #49: "Artist - Album - Title" names, read as chosen on the upload form; the choice is kept.
     @Test fun uploadReadsThreePartNamesAsChosen() {
         val boundary = "----trackhop"

@@ -476,13 +476,43 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
         rest == listOf("files") && method == "GET" -> json(200, JsonArray(csvFiles().map { JsonPrimitive(it.name) }))
         rest.size == 2 && rest[0] == "files" && (method == "POST" || method == "PUT") -> {
             // A playlist file in the body (CSV, M3U, XSPF, JSPF, iTunes XML, JSON, plain text), named by the path.
-            val bytes = ex.requestBody.readNBytes(MAX_API_BODY + 1)
-            if (bytes.size > MAX_API_BODY) return error(413, "Files up to ${MAX_API_BODY / 1_000_000} MB.")
-            val n = runCatching { com.xlollx.songport.providers.LocalFilesProvider.importFile(env, rest[1], com.xlollx.songport.sync.PlaylistFiles.decode(bytes)) }
-                .getOrElse { return error(400, it.message ?: "Could not read the file.") }
-            if (n == 0) return error(400, "No tracks found in the file.")
-            env.log("files", "imported ${rest[1]} through the API: $n tracks")
-            json(201, buildJsonObject { put("tracks", n) })
+            // It goes to disk first (#67): an Apple Music/iTunes library can be any size and is read a piece at a time.
+            val dir = LibraryUploads.dir(env)
+            val tmp = java.io.File.createTempFile("api-", ".part", dir.also { LibraryUploads.budget(it) })
+            try {
+                val budget = LibraryUploads.budget(dir)
+                val copied = runCatching { tmp.outputStream().buffered().use { out -> copyAtMost(ex.requestBody, out, budget) } }
+                    .getOrElse { return error(400, "The file did not arrive whole: try again.") }
+                if (copied > budget) return error(413, "This file is too big for the space left here.")
+                if (LibraryUploads.isLibrary(tmp)) {
+                    val lib = runCatching { LibraryUploads.readLibrary(tmp) }.getOrElse { return error(400, it.message ?: "Could not read the library.") }
+                    // ?playlists=A,B picks by name; ?whole=true adds the library as one file; neither: all of the person's own playlists.
+                    val names = query["playlists"]?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
+                    val whole = query["whole"] == "true" || !lib.worthPicking
+                    val picked = when {
+                        !lib.worthPicking -> emptyList()
+                        names.isNotEmpty() -> lib.choices.filter { it.name in names }.also { found ->
+                            (names - found.map { it.name }.toSet()).firstOrNull()?.let { return error(404, "No playlist called \"$it\" in the library.") }
+                        }
+                        query["whole"] == "true" -> emptyList()
+                        else -> lib.choices.filter { it.kind == com.xlollx.songport.sync.ItunesLibrary.Kind.USER }
+                    }
+                    val added = LibraryUploads.add(env, lib, rest[1], picked, whole)
+                    val n = added.sumOf { it.second }
+                    if (n == 0) return error(400, "No tracks found in the file.")
+                    env.log("files", "imported ${rest[1]} through the API: ${added.size} files, $n tracks")
+                    return json(201, buildJsonObject {
+                        put("tracks", n)
+                        put("files", JsonArray(added.map { (name, count) -> buildJsonObject { put("name", "$name.csv"); put("tracks", count) } }))
+                    })
+                }
+                if (copied > MAX_API_BODY) return error(413, "Files up to ${MAX_API_BODY / 1_000_000} MB, except an Apple Music/iTunes library, which can be any size.")
+                val n = runCatching { com.xlollx.songport.providers.LocalFilesProvider.importFile(env, rest[1], com.xlollx.songport.sync.PlaylistFiles.decode(tmp.readBytes())) }
+                    .getOrElse { return error(400, it.message ?: "Could not read the file.") }
+                if (n == 0) return error(400, "No tracks found in the file.")
+                env.log("files", "imported ${rest[1]} through the API: $n tracks")
+                json(201, buildJsonObject { put("tracks", n) })
+            } finally { tmp.delete() }
         }
         rest.size == 2 && rest[0] == "files" && method == "GET" -> {
             val f = csvFiles().firstOrNull { it.name == rest[1] } ?: return error(404, "No such file.")
@@ -561,4 +591,17 @@ internal fun Web.apiPage(r: Web.Req) {
 <p><button class="secondary">Save</button></p></form>""",
     )
     send(r.ex, 200, page("API", body.toString()))
+}
+
+/** Copies at most [max] + 1 bytes of [inp] to [out]: the count says whether it went over. */
+private fun copyAtMost(inp: java.io.InputStream, out: java.io.OutputStream, max: Long): Long {
+    val buf = ByteArray(64 * 1024)
+    var total = 0L
+    while (true) {
+        val n = inp.read(buf)
+        if (n < 0) return total
+        total += n
+        if (total > max) return total
+        out.write(buf, 0, n)
+    }
 }

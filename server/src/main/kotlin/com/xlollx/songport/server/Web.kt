@@ -162,6 +162,8 @@ class Web(
         // A form posted from another site is refused: every change comes from these pages.
         if (method == "POST" && !sameOrigin({ ex.requestHeaders.getFirst(it) }, env.baseUrl)) return send(ex, 403, "Cross-site request refused", "text/plain")
         val type = ex.requestHeaders.getFirst("Content-Type").orEmpty()
+        // A playlist file goes to disk as it arrives, never whole into memory (#67): a library can be big.
+        if (method == "POST" && path == listOf("files") && type.startsWith("multipart/form-data")) return uploadToDisk(ex, type)
         val bytes = if (method == "POST") ex.requestBody.readNBytes(MAX_BODY + 1) else ByteArray(0)
         if (bytes.size > MAX_BODY) return send(ex, 413, page("Too large", "<p>Files up to ${MAX_BODY / 1_000_000} MB.</p>"))
         val parts = if (type.startsWith("multipart/form-data")) Multipart.parse(type, bytes) else null
@@ -180,6 +182,8 @@ class Web(
             // Before files/<name>: the playlist files all end in .csv, so "try" is never one.
             path == listOf("files", "try") && method == "POST" -> tryPatterns(r)
             path == listOf("files", "bulk") && method == "POST" -> bulkFiles(r)
+            path == listOf("files", "library") && method == "GET" -> libraryPage(r)
+            path == listOf("files", "library") && method == "POST" -> libraryAdd(r)
             path.size == 2 && path[0] == "files" && method == "GET" -> download(r, path[1])
             path.size == 2 && path[0] == "files" && method == "POST" -> fileAction(r, path[1])
             path == listOf("files") && method == "POST" -> upload(r)
