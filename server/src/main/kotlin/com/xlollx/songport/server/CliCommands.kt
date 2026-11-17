@@ -436,7 +436,7 @@ internal class CliCommands(
 
     private fun config(file: String?): Int {
         val text = api.raw("GET", "config", null)
-        if (file == null) out.println(text) else { File(file).writeText(text); out.println("Saved the set-up to $file") }
+        if (file == null) out.println(text) else { CliFiles.save(file, text); out.println("Saved the set-up to $file") }
         return 0
     }
 
@@ -833,7 +833,7 @@ internal class CliCommands(
         val pl = playlist(s.s("id"), playlistAsk)
         val format = o.value("format") ?: file?.substringAfterLast('.', "")?.takeIf { it in setOf("csv", "m3u", "xspf", "jspf", "txt") } ?: "csv"
         val text = api.raw("GET", "services/${enc(s.s("id"))}/playlists/${enc(pl.s("id"))}/export?format=${enc(format)}", null)
-        if (file == null) out.print(text) else { File(file).writeText(text); out.println("Saved ${pl.s("name")} to $file") }
+        if (file == null) out.print(text) else { CliFiles.save(file, text); out.println("Saved ${pl.s("name")} to $file") }
         return 0
     }
 
@@ -852,7 +852,7 @@ internal class CliCommands(
             val to = p.getOrNull(2)
             val format = o.value("format") ?: to?.substringAfterLast('.', "")?.takeIf { it in setOf("csv", "m3u", "xspf", "jspf", "txt") } ?: "csv"
             val text = api.raw("GET", "files/${enc(name)}?format=${enc(format)}", null)
-            if (to == null) out.print(text) else { File(to).writeText(text); out.println("Saved $name to $to") }
+            if (to == null) out.print(text) else { CliFiles.save(to, text); out.println("Saved $name to $to") }
             0
         }
         "rm", "remove", "delete" -> {
@@ -868,7 +868,7 @@ internal class CliCommands(
                 if (names.isNotEmpty()) put("files", buildJsonArray { names.forEach { add(it) } })
                 o.value("format")?.let { put("format", it) }
             })
-            File(to).writeBytes(bytes)
+            CliFiles.save(to, bytes)
             if (asJson) print(buildJsonObject { put("saved", to); put("bytes", bytes.size) }) else out.println("Saved ${if (names.isEmpty()) "every file" else "${names.size} files"} to $to")
             0
         }
@@ -917,7 +917,7 @@ internal class CliCommands(
             pw.fill('\u0000')
         }
         if (file == null) out.println(text) else {
-            File(file).writeText(text)
+            CliFiles.save(file, text)
             out.println("Saved the encrypted set-up to $file. Keep the password safe: without it nobody can open the file.")
         }
         return 0
@@ -1061,7 +1061,7 @@ internal class CliCommands(
         val r = api.get("diagnostics" + diagQuery(o).let { if (it.isEmpty()) "" else "?$it" }).jsonObject
         val file = o.value("out")
         if (file != null) {
-            File(file).writeText(if (asJson) pretty.encodeToString(JsonElement.serializer(), r) else r.s("report"))
+            CliFiles.save(file, if (asJson) pretty.encodeToString(JsonElement.serializer(), r) else r.s("report"))
             if (!asJson) out.println("Saved the report to $file: read it before you share it.")
             return 0
         }
