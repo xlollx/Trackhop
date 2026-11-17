@@ -115,4 +115,17 @@ class StoreGoodCopyTest {
         assertEquals(FileStore.Notice(damaged = true, goodCopyAt = null), store.notice.value)
         assertFalse(store.restoreGoodCopy())
     }
+
+    @Test fun aRestoreThatCannotBeSavedPutsTheStateBackAsItWas() {
+        val d = damagedAfterAGoodStart()
+        val store = FileStore(d)
+        store.upsertJob(sync("made after")); store.flush()
+        store.failWrites = true
+        assertFalse(store.restoreGoodCopy())
+        assertEquals("the state shown is the one on the disk", listOf("made after"), store.data.jobs.map { it.id })
+        assertNotNull("still on offer", store.notice.value?.goodCopyAt)
+        store.failWrites = false
+        assertTrue(store.restoreGoodCopy())
+        assertEquals(listOf("one", "two"), store.data.jobs.map { it.id })
+    }
 }

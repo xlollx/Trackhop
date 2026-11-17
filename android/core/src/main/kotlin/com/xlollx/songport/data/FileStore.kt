@@ -317,16 +317,21 @@ open class FileStore(dir: File) {
     /**
      * The last good copy put in place of the state, because the person asked: never by itself, since a
      * sync deleted after the copy was made would run again. What the state held until now is kept
-     * beside it (`store.json.before-restore`). False, and nothing changed, when the copy cannot be read.
+     * beside it (`store.json.before-restore`). False, and nothing changed, when the copy cannot be read or saved.
      */
     fun restoreGoodCopy(): Boolean {
         val restored = runCatching { com.xlollx.songport.sync.Schedules.normalized(null, com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(goodCopy.readText()))) }.getOrNull() ?: return false
         flush()
         runCatching { if (file.exists()) AtomicFiles.copy(file, File(file.parentFile, BEFORE_RESTORE)) }
-        synchronized(lock) { _state.value = restored }
+        val before = synchronized(lock) { _state.value.also { _state.value = restored } }
         Providers.configure(restored.settings.extraAccounts, restored.settings.connectorNames, restored.settings.connectors)
         flush()
-        if (writeError != null) return false
+        if (writeError != null) {
+            // Not saved: the state the app shows stays the one on the disk, the copy still on offer.
+            synchronized(lock) { _state.value = before }
+            Providers.configure(before.settings.extraAccounts, before.settings.connectorNames, before.settings.connectors)
+            return false
+        }
         goodCopyOffer.delete()
         damagedCopy = null
         _notice.value = null
