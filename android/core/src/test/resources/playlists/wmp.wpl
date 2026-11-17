@@ -1,0 +1,17 @@
+<?wpl version="1.0"?>
+<smil>
+    <head>
+        <meta name="Generator" content="Microsoft Windows Media Player -- 12.0.19041.4355"/>
+        <meta name="ItemCount" content="4"/>
+        <author/>
+        <title>Sunday &amp; coffee</title>
+    </head>
+    <body>
+        <seq>
+            <media src="..\Daft Punk\Homework\07 Around the World.mp3" cid="{4A6FC1B3-2A0F-4B3E-9A1D-5E0C7B8F1D22}" tid="{0D1C8E2A-6B7F-4C3D-8E9A-1F2B3C4D5E6F}"/>
+            <media src="..\New Order\Substance\05 Blue Monday.wma" tid="{7B2D9F10-3C4E-4A5B-9C6D-7E8F9A0B1C2D}"/>
+            <media src="D:\Music\Kylie Minogue - Can&apos;t Get You Out of My Head.mp3"/>
+            <media src="\\nas\music\Basic Channel &amp; Tikiman\Showcase\02 Rhythm &amp; Sound.flac"/>
+        </seq>
+    </body>
+</smil>

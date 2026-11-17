@@ -154,7 +154,7 @@ object LibraryImport {
             } catch (e: java.util.concurrent.CancellationException) {
                 return@launch
             } catch (e: ItunesLibrary.Incomplete) {
-                state.value = State.Done(emptyList(), null, app.getString(R.string.library_incomplete)); return@launch
+                state.value = State.Done(emptyList(), null, app.getString(if (e.apple) R.string.library_incomplete else R.string.file_incomplete)); return@launch
             } catch (e: Throwable) {
                 state.value = State.Done(emptyList(), null, app.getString(R.string.library_failed, e.message ?: e.javaClass.simpleName)); return@launch
             }

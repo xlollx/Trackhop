@@ -115,14 +115,14 @@ object Cli {
             "What your syncs to your own server could not find, without doubles. --format prints the list as a file (to save with > file);\n" +
                 "lidarr is Lidarr's Custom List (artists with a known MusicBrainz id). --albums groups by album, --all shows the ticked ones too,\n" +
                 "--sync and --service narrow it (a sync's name or id; a source or target service), --since 7d, 24h or 2026-11-01 only the newer ones."),
-        Cmd("export", "Services and playlists", listOf("export <service> <playlist> [<file>] [--format csv|m3u|xspf|jspf|txt|opml]"), "a playlist as a file (to stdout without <file>)"),
+        Cmd("export", "Services and playlists", listOf("export <service> <playlist> [<file>] [--format csv|m3u|xspf|jspf|wpl|zpl|xml|txt|opml]"), "a playlist as a file (to stdout without <file>)"),
         Cmd("files", "Files and backups", listOf(
             "files",
             "files get <name> [<file>] [--format F]",
             "files rm <name>...",
             "files zip <file.zip> [<name>...] [--format F]",
         ), "the playlist files (File service): list, download, delete, several in a .zip", subs = listOf("get", "rm", "zip")),
-        Cmd("import", "Files and backups", listOf("import <file> [--playlists \"A,B\"] [--whole]"), "a playlist file into the File service (CSV, M3U, PLS, XSPF, JSPF, JSON, text); an Apple Music/iTunes library: each of your playlists, or the ones named, or --whole"),
+        Cmd("import", "Files and backups", listOf("import <file> [--playlists \"A,B\"] [--whole]"), "a playlist file into the File service (CSV, M3U, PLS, XSPF, JSPF, WPL/ZPL, JSON, text); an Apple Music/iTunes library or a rekordbox collection (XML): each of your playlists, or the ones named, or --whole"),
         Cmd("patterns", "Files and backups", listOf(
             "patterns",
             "patterns layout auto|artist_title|artist_album_title|custom",

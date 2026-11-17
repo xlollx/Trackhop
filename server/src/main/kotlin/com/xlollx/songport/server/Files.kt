@@ -12,7 +12,7 @@ import kotlinx.coroutines.runBlocking
 /**
  * The File service's playlists (CSV files in the data folder) and the Tools that move playlists in
  * and out as files, as the app's Tools › File playlists and Export a playlist do: upload a file in
- * any format Trackhop reads, download one as CSV, M3U, XSPF, JSPF or plain text, delete one, and
+ * any format Trackhop reads, download one as CSV, M3U, XSPF, JSPF, WPL/ZPL, rekordbox XML or plain text, delete one, and
  * export any service's playlist the same way.
  */
 internal enum class ExportFormat(val label: String, val ext: String, val mime: String) {
@@ -20,6 +20,9 @@ internal enum class ExportFormat(val label: String, val ext: String, val mime: S
     M3U("M3U", "m3u", "audio/x-mpegurl"),
     XSPF("XSPF", "xspf", "application/xspf+xml"),
     JSPF("JSPF (ListenBrainz)", "jspf", "application/json"),
+    WPL("WPL (Windows Media Player)", "wpl", "application/vnd.ms-wpl"),
+    ZPL("ZPL (Zune)", "zpl", "application/vnd.ms-wpl"),
+    REKORDBOX("rekordbox XML", "xml", "application/xml"),
     TEXT("Text", "txt", "text/plain"),
     OPML("OPML (podcasts)", "opml", "text/x-opml"),
     ;
@@ -29,6 +32,9 @@ internal enum class ExportFormat(val label: String, val ext: String, val mime: S
         M3U -> PlaylistFiles.toM3u(tracks)
         XSPF -> PlaylistFiles.toXspf(name, tracks)
         JSPF -> PlaylistFiles.toJspf(name, tracks)
+        WPL -> PlaylistFiles.toWpl(name, tracks)
+        ZPL -> PlaylistFiles.toWpl(name, tracks, zune = true)
+        REKORDBOX -> PlaylistFiles.toRekordboxXml(name, tracks)
         TEXT -> PlaylistFiles.toText(tracks)
         OPML -> PlaylistFiles.toOpml(name, tracks)
     }
@@ -70,7 +76,7 @@ internal fun Web.fileList(sample: String = ""): String {
     )
     sb.append(
         """<p class="muted">Playlists saved inside Trackhop. A sync whose target is File writes its playlist here; a file uploaded here can be the source of a sync to any service.</p></div>
-<form method="post" action="/files" enctype="multipart/form-data" class="card"><label>Add a playlist file: CSV, M3U, PLS, XSPF, JSPF or JSON, iTunes XML, OPML, or a text list of “Artist - Title”</label>
+<form method="post" action="/files" enctype="multipart/form-data" class="card"><label>Add a playlist file: CSV, M3U, PLS, XSPF, JSPF or JSON, WPL or ZPL, iTunes XML, rekordbox XML, OPML, or a text list of “Artist - Title”</label>
 <p class="muted">A file can be as big as it is: it is read a piece at a time. From a whole Apple Music/iTunes library (File › Library › Export Library) you then pick the playlists.</p>
 <input type="file" name="file" required>
 <label>Names like “A - B - C” in M3U, PLS and text files</label><select name="names">${nameLayoutOptions()}</select>
@@ -226,7 +232,7 @@ private fun Web.toolsIndex(r: Web.Req) {
         body.append("""<div class="card"><h3><a href="$href">$title</a></h3><p class="muted">$text</p></div>""")
     body.append("<h2>Move</h2>")
     tool("/playlists", "Playlists and transfer", "See a service's playlists and their tracks, rename, delete, take tracks out; or copy several to another service at once.")
-    tool("/tools/export", "Export a playlist", "Any playlist of a connected service as CSV, M3U, XSPF, JSPF or plain text${if (Features.v2) ", followed podcasts as OPML" else ""}, or saved into File.")
+    tool("/tools/export", "Export a playlist", "Any playlist of a connected service as CSV, M3U, XSPF, JSPF, WPL/ZPL, rekordbox XML or plain text${if (Features.v2) ", followed podcasts as OPML" else ""}, or saved into File.")
     tool("/connectors/csv", "File playlists", "Upload a playlist file to sync it anywhere; download the ones Trackhop saved.")
     tool("/tools/wanted", "Missing on my server", "The tracks of your playlists that your Navidrome, Jellyfin, Emby, Plex, Lyrion or Mopidy server does not have, each once: by album, tick what you got, download the list (CSV, M3U, text, Lidarr).")
     if (Features.v2) tool("/tools/records", "Records and merch", "The CDs, vinyl and cassettes of a playlist's artists on Discogs, the merch in their own shops, their official sites and shops, and searches on shops: plain links.")

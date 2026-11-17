@@ -290,3 +290,136 @@ test('XSPF: entities are unescaped once, and a mention of xspf.org in a title is
   assert.equal(parseText('a.xspf', x).tracks[0].title, 'A &lt;b&gt; & & C');
   assert.notEqual(detect('a.xml', '<?xml version="1.0"?><note>see xspf.org</note>'), 'xspf');
 });
+
+// ---------------------------------------------------------------- rekordbox XML, WPL and ZPL
+// Written by hand from AlphaTheta's "XML file format for playlists sharing" and Microsoft's Windows
+// Media Playlist reference, as the programs lay them out; none comes from anyone's library.
+
+const REKORDBOX = `<?xml version="1.0" encoding="UTF-8"?>
+
+<DJ_PLAYLISTS Version="1.0.0">
+  <PRODUCT Name="rekordbox" Version="6.8.5" Company="AlphaTheta"/>
+  <COLLECTION Entries="5">
+    <TRACK TrackID="14" Name="Around the World" Artist="Daft Punk" Composer="" Album="Homework" Genre="House" Kind="MP3 File" Size="17264012" TotalTime="429" Year="1997" AverageBpm="121.30" Location="file://localhost/C:/Music/Daft%20Punk/07%20Around%20the%20World.mp3" Tonality="7A">
+      <TEMPO Inizio="0.126" Bpm="121.30" Metro="4/4" Battito="1"/>
+      <POSITION_MARK Name="Drop &gt; here" Type="0" Start="63.441" Num="0"/>
+    </TRACK>
+    <TRACK TrackID="15" Name="Rhythm &amp; Sound (Dub)" Artist="Basic Channel" Album="R &amp; S" Kind="FLAC File" TotalTime="388" Location="file://localhost/C:/Music/Basic%20Channel/Rhythm%20%26%20Sound.flac"/>
+    <TRACK TrackID="22" Name="Can&apos;t Get You Out of My Head" Artist="Kylie Minogue" Album="Fever" Kind="M4A File" TotalTime="230.4" Location="file://localhost/C:/Music/Kylie/03.m4a"/>
+    <TRACK TrackID="31" Name="Blue Monday" Artist="New Order" Album="Substance" Kind="WAV File" TotalTime="448" Location="file://localhost/C:/Music/New%20Order/05.wav"/>
+    <TRACK TrackID="40" Name="" Artist="" Album="" Kind="MP3 File" TotalTime="12" Location="file://localhost/C:/Music/untitled.mp3"/>
+  </COLLECTION>
+  <PLAYLISTS>
+    <NODE Type="0" Name="ROOT" Count="3">
+      <NODE Name="Gigs" Type="0" Count="2">
+        <NODE Name="Warm up" Type="1" KeyType="0" Entries="3">
+          <TRACK Key="22"/>
+          <TRACK Key="14"/>
+          <TRACK Key="22"/>
+        </NODE>
+        <NODE Name="Peak &lt;time&gt;" Type="1" KeyType="0" Entries="2">
+          <TRACK Key="31"/>
+          <TRACK Key="999"/>
+        </NODE>
+      </NODE>
+      <NODE Name="By file" Type="1" KeyType="1" Entries="3">
+        <TRACK Key="file://localhost/C:/Music/Basic%20Channel/Rhythm%20%26%20Sound.flac"/>
+        <TRACK Key="file://localhost/C:/Music/untitled.mp3"/>
+        <TRACK Key="file://localhost/C:/Music/New%20Order/05.wav"/>
+      </NODE>
+      <NODE Name="Empty" Type="1" KeyType="0" Entries="0"/>
+    </NODE>
+  </PLAYLISTS>
+</DJ_PLAYLISTS>
+`;
+
+const WMP = '<?wpl version="1.0"?>\r\n<smil>\r\n    <head>\r\n        <meta name="Generator" content="Microsoft Windows Media Player -- 12.0.19041.4355"/>\r\n        <meta name="ItemCount" content="3"/>\r\n        <author/>\r\n        <title>Sunday &amp; coffee</title>\r\n    </head>\r\n    <body>\r\n        <seq>\r\n' +
+  '            <media src="..\\Daft Punk\\Homework\\07 Around the World.mp3" cid="{4A6FC1B3-2A0F-4B3E-9A1D-5E0C7B8F1D22}" tid="{0D1C8E2A-6B7F-4C3D-8E9A-1F2B3C4D5E6F}"/>\r\n' +
+  '            <media src="..\\New Order\\Substance\\05 Blue Monday.wma"/>\r\n' +
+  '            <media src="D:\\Music\\Kylie Minogue - Can&apos;t Get You Out of My Head.mp3"/>\r\n        </seq>\r\n    </body>\r\n</smil>\r\n';
+
+const ZUNE = `<?zpl version="2.0"?>
+<smil>
+  <head>
+    <meta name="generator" content="Zune -- 4.8.2345.0" />
+    <meta name="itemCount" content="2" />
+    <title>Road trip</title>
+  </head>
+  <body>
+    <seq>
+      <media src="C:\\Users\\Ada\\Music\\Zune\\x1.wma" albumTitle="Homework" albumArtist="Daft Punk" trackTitle="Around the World" trackArtist="Daft Punk" duration="429000" />
+      <media src="C:\\Users\\Ada\\Music\\Zune\\x3.mp3" albumTitle="Substance" albumArtist="New Order" trackTitle="Blue Monday" duration="448000" />
+    </seq>
+  </body>
+</smil>
+`;
+
+test('rekordbox XML and WPL/ZPL: told by their content', () => {
+  assert.equal(detect('collection.xml', REKORDBOX), 'rekordbox');
+  assert.equal(detect('export', REKORDBOX), 'rekordbox');
+  assert.equal(detect('Sunday.wpl', WMP), 'wpl');
+  assert.equal(detect('download', WMP), 'wpl');
+  assert.equal(detect('Road trip.zpl', ZUNE), 'wpl');
+  assert.equal(detect('x.xml', ZUNE), 'wpl');
+  // Zoom Player's .zpl is a text list, not Zune's XML; the other XML files keep their readers.
+  assert.notEqual(detect('list.zpl', 'AC=C:\\Music\\a.mp3\nNM=Daft Punk - Around the World\nBR!\n'), 'wpl');
+  assert.equal(detect('Library.xml', '<?xml version="1.0"?>\n<plist version="1.0">'), 'itunes');
+  assert.equal(detect('a.xspf', '<playlist xmlns="http://xspf.org/ns/0/">'), 'xspf');
+});
+
+test('rekordbox XML: songs, folders and playlists by id and by location', () => {
+  for (const size of [REKORDBOX.length, 97, 7, 1]) {
+    const lib = inPieces('collection.xml', REKORDBOX, size).library;
+    assert.equal(lib.trackCount, 4, 'pieces of ' + size);
+    assert.deepEqual(lib.playlists.map((p) => [p.name, p.kind, p.folder]), [['Gigs', 'folder', null], ['Warm up', 'user', 'Gigs'], ['Peak <time>', 'user', 'Gigs'], ['By file', 'user', null], ['Empty', 'user', null]]);
+    assert.equal(lib.worthPicking, true);
+    const [warm, peak, byFile, empty] = lib.choices;
+    assert.deepEqual(names(lib.tracksOf(warm)), ["Kylie Minogue - Can't Get You Out of My Head", 'Daft Punk - Around the World', "Kylie Minogue - Can't Get You Out of My Head"]);
+    assert.equal(lib.tracksOf(warm)[0].durationMs, 230400);
+    assert.equal(lib.tracksOf(warm)[0].album, 'Fever');
+    assert.deepEqual(names(lib.tracksOf(peak)), ['New Order - Blue Monday']);
+    assert.deepEqual(names(lib.tracksOf(byFile)), ['Basic Channel - Rhythm & Sound (Dub)', 'New Order - Blue Monday']);
+    assert.equal(lib.tracksOf(byFile)[0].album, 'R & S');
+    assert.deepEqual(lib.tracksOf(empty), []);
+    assert.deepEqual(names(lib.asOneList()), ['Daft Punk - Around the World', 'Basic Channel - Rhythm & Sound (Dub)', "Kylie Minogue - Can't Get You Out of My Head", 'New Order - Blue Monday']);
+  }
+});
+
+test('rekordbox XML: cut short is refused, wherever the cut falls', () => {
+  for (const cut of [200, REKORDBOX.indexOf('</COLLECTION>') + 5, REKORDBOX.indexOf('By file') + 20, REKORDBOX.length - 20, REKORDBOX.length - 4]) {
+    refuses(() => parseText('collection.xml', REKORDBOX.slice(0, cut)), 'incomplete');
+    refuses(() => inPieces('collection.xml', REKORDBOX.slice(0, cut), 13), 'incomplete');
+  }
+});
+
+test('WPL and ZPL: paths from Windows Media Player, fields from Zune', () => {
+  for (const size of [4096, 11, 1]) {
+    assert.deepEqual(names(inPieces('Sunday.wpl', WMP, size).tracks), ['Daft Punk - Around the World', 'New Order - Blue Monday', "Kylie Minogue - Can't Get You Out of My Head"]);
+    const z = inPieces('Road trip.zpl', ZUNE, size).tracks;
+    assert.deepEqual(z.map((t) => [t.title, t.artists, t.album, t.durationMs]), [['Around the World', ['Daft Punk'], 'Homework', 429000], ['Blue Monday', ['New Order'], 'Substance', 448000]]);
+  }
+  assert.equal(parseText('Sunday.wpl', WMP).tracks[0].album, 'Homework');
+  // An auto playlist: its rules are passed over, the files it lists are read.
+  const auto = '<?wpl version="1.0"?><smil><head><title>Fresh</title></head><body><seq><smartPlaylist version="1.0.0.0"><querySet><sourceFilter id="{4202947A-A563-4B05-A754-A1B4B5989849}" name="Music in my library"/></querySet></smartPlaylist><media src="..\\New Order\\Substance\\05 Blue Monday.wma"/></seq></body></smil>';
+  assert.deepEqual(names(parseText('Fresh.wpl', auto).tracks), ['New Order - Blue Monday']);
+  for (const cut of [120, WMP.length / 2, WMP.lastIndexOf('</seq>') + 3, WMP.length - 6]) refuses(() => parseText('Sunday.wpl', WMP.slice(0, cut)), 'incomplete');
+  refuses(() => parseText('Road trip.zpl', ZUNE.slice(0, ZUNE.length - 9)), 'incomplete');
+});
+
+test('outputs: WPL, ZPL and rekordbox XML as the app writes them, and read back', () => {
+  const tracks = parseText('a.csv', 'title,artist,album,duration_ms,isrc\n"Hello, World",A; B,Alb,215999,\nSolo <&> \'x\',,,,\n"Hello, World",A; B,Alb,215999,\n').tracks;
+  assert.equal(encode('wpl', 'M & M', tracks), '<?wpl version="1.0"?>\r\n<smil>\r\n  <head>\r\n    <meta name="Generator" content="Trackhop"/>\r\n    <meta name="ItemCount" content="3"/>\r\n    <title>M &amp; M</title>\r\n  </head>\r\n  <body>\r\n    <seq>\r\n' +
+    '      <media src="A, B - Hello, World" trackTitle="Hello, World" trackArtist="A, B" albumTitle="Alb" duration="215999"/>\r\n' +
+    '      <media src="Solo &lt;&amp;&gt; \'x\'" trackTitle="Solo &lt;&amp;&gt; \'x\'"/>\r\n' +
+    '      <media src="A, B - Hello, World" trackTitle="Hello, World" trackArtist="A, B" albumTitle="Alb" duration="215999"/>\r\n    </seq>\r\n  </body>\r\n</smil>\r\n');
+  assert.ok(encode('zpl', 'Mix', tracks).startsWith('<?zpl version="2.0"?>\r\n<smil>'));
+  assert.equal(encode('rekordbox', 'M & "M"', tracks), '<?xml version="1.0" encoding="UTF-8"?>\n\n<DJ_PLAYLISTS Version="1.0.0">\n  <PRODUCT Name="Trackhop" Version="1.0.0" Company="Trackhop"/>\n  <COLLECTION Entries="2">\n' +
+    '    <TRACK TrackID="1" Name="Hello, World" Artist="A, B" Album="Alb" TotalTime="215"/>\n' +
+    '    <TRACK TrackID="2" Name="Solo &lt;&amp;&gt; &apos;x&apos;" Artist="" Album="" TotalTime="0"/>\n  </COLLECTION>\n  <PLAYLISTS>\n    <NODE Type="0" Name="ROOT" Count="1">\n' +
+    '      <NODE Name="M &amp; &quot;M&quot;" Type="1" KeyType="0" Entries="3">\n        <TRACK Key="1"/>\n        <TRACK Key="2"/>\n        <TRACK Key="1"/>\n      </NODE>\n    </NODE>\n  </PLAYLISTS>\n</DJ_PLAYLISTS>\n');
+  for (const [out, name] of [['wpl', 'a.wpl'], ['zpl', 'a.zpl'], ['rekordbox', 'a.xml']]) {
+    const r = parseText(name, encode(out, 'Mix', tracks));
+    const back = r.library ? r.library.asOneList() : r.tracks;
+    assert.deepEqual(back.map((t) => [t.title, t.artists]), [['Hello, World', ['A', 'B']], ["Solo <&> 'x'", []], ['Hello, World', ['A', 'B']]], out);
+  }
+});

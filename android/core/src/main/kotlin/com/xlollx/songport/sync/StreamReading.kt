@@ -172,6 +172,11 @@ internal class XmlTokens(private val src: CharSource) {
 
     companion object {
         private val ENTITY = Regex("""&(#x[0-9a-fA-F]+|#\d+|amp|lt|gt|quot|apos);""")
+        private val ATTR = Regex("""([\w:.-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')""")
+
+        /** The attributes of a tag ([Handler.open]'s `attrs`), names as written, values with their entities read. */
+        fun attributes(attrs: String): Map<String, String> =
+            ATTR.findAll(attrs).associate { a -> a.groupValues[1] to unescape(a.groups[2]?.value ?: a.groupValues[3]) }
 
         fun unescape(s: String): String = if ('&' !in s) s else ENTITY.replace(s) { m ->
             when (val e = m.groupValues[1]) {

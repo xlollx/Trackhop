@@ -831,7 +831,7 @@ internal class CliCommands(
     private fun export(serviceAsk: String, playlistAsk: String, file: String?, o: Cli.Opts): Int {
         val s = service(serviceAsk)
         val pl = playlist(s.s("id"), playlistAsk)
-        val format = o.value("format") ?: file?.substringAfterLast('.', "")?.takeIf { it in setOf("csv", "m3u", "xspf", "jspf", "txt") } ?: "csv"
+        val format = o.value("format") ?: file?.substringAfterLast('.', "")?.takeIf { it in setOf("csv", "m3u", "xspf", "jspf", "wpl", "zpl", "xml", "txt") } ?: "csv"
         val text = api.raw("GET", "services/${enc(s.s("id"))}/playlists/${enc(pl.s("id"))}/export?format=${enc(format)}", null)
         if (file == null) out.print(text) else { File(file).writeText(text); out.println("Saved ${pl.s("name")} to $file") }
         return 0
@@ -850,7 +850,7 @@ internal class CliCommands(
         "get" -> {
             val name = file(p.getOrNull(1) ?: throw Cli.Failure(2, "usage: trackhop files get <name> [<file>] [--format F]"))
             val to = p.getOrNull(2)
-            val format = o.value("format") ?: to?.substringAfterLast('.', "")?.takeIf { it in setOf("csv", "m3u", "xspf", "jspf", "txt") } ?: "csv"
+            val format = o.value("format") ?: to?.substringAfterLast('.', "")?.takeIf { it in setOf("csv", "m3u", "xspf", "jspf", "wpl", "zpl", "xml", "txt") } ?: "csv"
             val text = api.raw("GET", "files/${enc(name)}?format=${enc(format)}", null)
             if (to == null) out.print(text) else { File(to).writeText(text); out.println("Saved $name to $to") }
             0

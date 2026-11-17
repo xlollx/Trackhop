@@ -56,7 +56,7 @@ en:
     guide: 'The Trackhop app makes a card like this from your playlists, on any service: <a href="/guide/wrapped-anytime">Your Wrapped, whenever you want</a>.'
   convert:
     h1: Convert a playlist file
-    lead: CSV, M3U, PLS, XSPF, JSPF, JSON, an Apple Music/iTunes library, a Shazam export or a plain list. Any size.
+    lead: CSV, M3U, PLS, XSPF, JSPF, WPL/ZPL, JSON, an Apple Music/iTunes library, a rekordbox collection, a Shazam export or a plain list. Any size.
     drop: Drop a file here, or choose one
     priv: "Converted on this page only: nothing is uploaded"
     cta: Want it on Spotify, Apple Music or YouTube Music instead of a file?
@@ -224,6 +224,8 @@ en:
         pls: PLS playlist
         itunes_library: Apple Music library
         itunes_playlist: Apple Music playlist
+        rekordbox: rekordbox collection
+        wpl: Windows Media Player playlist
         xspf: XSPF playlist
         opml: Podcast subscriptions
         json: JSON
@@ -234,6 +236,9 @@ en:
         m3u8: M3U8
         xspf: XSPF
         jspf: JSPF
+        wpl: WPL (Windows Media Player)
+        zpl: ZPL (Zune)
+        rekordbox: rekordbox XML
         text: Text
       songs_n: ["{n} song", "{n} songs"]
       playlists_n: ["{n} playlist", "{n} playlists"]
@@ -410,7 +415,7 @@ it:
     guide: 'L''app Trackhop crea una scheda così dalle tue playlist, su qualsiasi servizio: <a href="/guide/wrapped-quando-vuoi">Il tuo Wrapped, quando vuoi</a>.'
   convert:
     h1: Convertire un file di playlist
-    lead: CSV, M3U, PLS, XSPF, JSPF, JSON, una libreria di Apple Music/iTunes, un'esportazione di Shazam o un elenco semplice. Di qualsiasi dimensione.
+    lead: CSV, M3U, PLS, XSPF, JSPF, WPL/ZPL, JSON, una libreria di Apple Music/iTunes, una collezione di rekordbox, un'esportazione di Shazam o un elenco semplice. Di qualsiasi dimensione.
     drop: Trascina qui un file, oppure sceglilo
     priv: "Convertito solo in questa pagina: non viene caricato niente"
     cta: Lo vuoi su Spotify, Apple Music o YouTube Music invece che in un file?
@@ -578,6 +583,8 @@ it:
         pls: Playlist PLS
         itunes_library: Libreria di Apple Music
         itunes_playlist: Playlist di Apple Music
+        rekordbox: Collezione di rekordbox
+        wpl: Playlist di Windows Media Player
         xspf: Playlist XSPF
         opml: Iscrizioni ai podcast
         json: JSON
@@ -588,6 +595,9 @@ it:
         m3u8: M3U8
         xspf: XSPF
         jspf: JSPF
+        wpl: WPL (Windows Media Player)
+        zpl: ZPL (Zune)
+        rekordbox: rekordbox XML
         text: Testo
       songs_n: ["{n} brano", "{n} brani"]
       playlists_n: ["{n} playlist", "{n} playlist"]

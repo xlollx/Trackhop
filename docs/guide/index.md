@@ -34,7 +34,7 @@ description (architecture, matching, services and their limits) stays in the
 
 **Tools on this site, nothing to install**
 - [Your Wrapped, any time](../wrapped): top artists, songs and hours, year by year, from the data export of Spotify, Apple Music or YouTube Music. The file is read in your browser and is not uploaded ([Italiano](../it/wrapped)).
-- [Convert a playlist file](../convert): CSV, M3U, PLS, XSPF, JSPF, JSON, an Apple Music/iTunes library or a plain list into another format, in your browser ([Italiano](../it/convert)).
+- [Convert a playlist file](../convert): CSV, M3U, PLS, XSPF, JSPF, WPL/ZPL, JSON, an Apple Music/iTunes library, a rekordbox collection or a plain list into another format, in your browser ([Italiano](../it/convert)).
 - [A link for every service](../link): paste a song or album link from Apple Music, Deezer or Spotify and open the same song on the service you use. The lookup runs in your browser and nothing is stored ([Italiano](../it/link)).
 
 **On your computer or server**

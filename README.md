@@ -108,7 +108,7 @@ F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and A
 | **TikTok** | ✓ | — | — | Share a video: Trackhop reads the song it uses, or recognises it from the audio | GitHub, F-Droid, Desktop, Docker · plugin |
 | **Internet radio, Shazam** | ✓ | — | — | What a station plays, or every song you Shazam | All builds |
 | **Charts** (Apple Music, Deezer) | ✓ | — | — | A country's Top 100, refreshed as it changes, no account; with an Apple Music developer token (the build's or your own) also Apple's Daily Top 100 of the world and of each country and the Top 25 of each city | All builds |
-| **Files** (CSV, M3U, XSPF, JSPF, iTunes XML, JSON, text) | ✓ | ✓ | ✓ | Import and export | All builds |
+| **Files** (CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, rekordbox XML, JSON, text) | ✓ | ✓ | ✓ | Import and export | All builds |
 
 Details, keys and limits of each service: [Supported services and their limits](#supported-services-and-their-limits).
 Not connectable: Pandora (no public API, United States only): use files.
@@ -324,7 +324,7 @@ reports are what make it better: if something does not work as it should, say so
 | Links | Paste or share a public playlist link | Spotify, Apple Music, YouTube, Deezer, TIDAL; short share links too. "From link" is a source of its own in the editor. Public NetEase Cloud Music, QQ Music and [JioSaavn](https://trackhop.org/guide/jiosaavn) links too (GitHub/F-Droid builds, Desktop, Docker). |
 | | Share a single track or a text list | A track link from any music app goes into one of your playlists on **any** connected service, Navidrome, Jellyfin and Plex included: the same recording is found with the sync's matching, shown with its score before adding, with "Open in…" and "Copy link" next to it. Several "Artist - Title" lines become a file playlist and a new sync. |
 | | Music links open with Trackhop (optional) | Settings › "Offer Trackhop for music links": Android then lists Trackhop among the apps for a Spotify, Apple Music, YouTube Music, Amazon Music, Deezer or TIDAL link. Off by default; Trackhop never takes a link by itself. |
-| Files | Import/export | Reads CSV, TSV, M3U/M3U8, XSPF, JSPF, OPML (podcasts), Apple Music/iTunes XML, JSON, Shazam exports, plain text lists; writes CSV, M3U, XSPF, JSPF and plain text. |
+| Files | Import/export | Reads CSV, TSV, M3U/M3U8, XSPF, JSPF, OPML (podcasts), Apple Music/iTunes XML, rekordbox XML (a collection's playlists to pick from), WPL and ZPL (Windows Media Player, Groove, Zune), JSON, Shazam exports, plain text lists; writes CSV, M3U, XSPF, JSPF, WPL, ZPL, rekordbox XML and plain text. A list of songs has no files behind it: a written rekordbox XML carries no `Location`, so rekordbox lists the songs but has nothing to load for them. |
 | | setlist.fm | Share or paste a setlist.fm link: the concert becomes a playlist to sync anywhere. |
 | | Shazam | Share a song from the Shazam app: title and artist are read from the shared text (nothing is asked of Shazam) and the song goes into a playlist on any connected service. To have every Shazam everywhere, make a Shazam sync (above): "Sync my Shazams" in the sheet opens one. |
 | | TikTok | Share a TikTok video (GitHub and F-Droid builds, store builds with the plugin): the song it uses is read from the video's public page (no account) and goes into a playlist on any connected service. A sound the creator recorded ("original sound") names no song: Trackhop then listens to the sound itself (a short audio signature sent to Shazam, see Credits below) and often finds the song playing in it, marked as recognised so you can check it. Also in Desktop and Docker: paste the link in a review search. |
@@ -490,7 +490,7 @@ On Trackhop Desktop only the computer itself can reach it (loopback only).
 | `GET /api/v1/runs/<id>` | A run: added, removed, not found, with the tracks |
 | `GET /api/v1/services` | The services and whether they are connected |
 | `GET /api/v1/files`, `GET /api/v1/files/<name>.csv?format=m3u` | The File playlists, in any export format |
-| `POST /api/v1/files/<name>` | Adds a playlist file sent as the body (CSV, M3U, XSPF, JSPF, iTunes XML, JSON or text), ready to sync (201), of any size; an Apple Music/iTunes library becomes one file per playlist (`?playlists=A,B`, `?whole=true`) |
+| `POST /api/v1/files/<name>` | Adds a playlist file sent as the body (CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, rekordbox XML, JSON or text), ready to sync (201), of any size; an Apple Music/iTunes library or a rekordbox collection becomes one file per playlist (`?playlists=A,B`, `?whole=true`) |
 | `POST /api/v1/syncs/<id>/enable`, `…/disable` | Turns a sync on or off |
 | `GET /api/v1/backup`, `POST /api/v1/backup` | The last full backup and its schedule; starts one (202, with a task id) |
 | `GET /api/v1/tasks/<id>` | A background task (a backup): progress, done, error |
