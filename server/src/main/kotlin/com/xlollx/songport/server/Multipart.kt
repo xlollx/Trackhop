@@ -36,7 +36,7 @@ object Multipart {
 
 /**
  * A multipart form read straight from the request onto disk (#67): a file part goes to a file in
- * [dir] as it arrives, so its size costs disk, not memory. Fields stay small ([MAX_FIELD]).
+ * [dir] as it arrives, so its size costs disk, not memory. Fields stay small: [MAX_FIELD] for all of them together.
  */
 object MultipartToDisk {
     class DiskFile(val name: String, val file: java.io.File)
@@ -61,6 +61,8 @@ object MultipartToDisk {
         val delimiter = "\r\n--$boundary".toByteArray(StandardCharsets.ISO_8859_1)
         val fail = failure(delimiter)
         var budget = maxBytes
+        // All text fields together, not each: many small fields cannot add up past MAX_FIELD.
+        var fieldBytes = 0L
         try {
             while (true) {
                 val headers = ArrayList<String>()
@@ -83,8 +85,9 @@ object MultipartToDisk {
                     if (!found) { f.delete(); throw Incomplete() }
                     if (f.length() > 0) files[name] = DiskFile(String(fileName.toByteArray(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8), f) else f.delete()
                 } else {
-                    val buf = Limited(java.io.ByteArrayOutputStream(), MAX_FIELD.toLong())
+                    val buf = Limited(java.io.ByteArrayOutputStream(), MAX_FIELD - fieldBytes)
                     found = copyUntil(inp, delimiter, fail, buf)
+                    fieldBytes += buf.written
                     if (name != null) fields[name] = String((buf.out as java.io.ByteArrayOutputStream).toByteArray(), StandardCharsets.UTF_8)
                 }
                 if (!found) return Parts(fields, files)
