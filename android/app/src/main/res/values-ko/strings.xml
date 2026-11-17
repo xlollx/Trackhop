@@ -3004,4 +3004,107 @@
     <plurals name="library_songs_as_before">
         <item quantity="other">%1$s곡 · 지금처럼</item>
     </plurals>
+    <!-- 2.1: several syncs at once (#68) and saved schedules -->
+    <string name="bulk_schedule">일정</string>
+    <string name="bulk_removals">삭제 처리</string>
+    <string name="bulk_on_off">켜기 / 끄기</string>
+    <string name="bulk_color">색상 및 라벨</string>
+    <string name="bulk_different">값이 서로 다름</string>
+    <string name="bulk_will_change">변경됨</string>
+    <string name="bulk_how_often">빈도</string>
+    <string name="bulk_time">시간</string>
+    <string name="bulk_set_time">시간 설정</string>
+    <string name="bulk_time_untouched">건드리지 않음: 각 동기화는 자기 시간을 유지합니다.</string>
+    <string name="bulk_was">이전: %1$s</string>
+    <string name="bulk_undo">실행 취소</string>
+    <string name="bulk_leave">그대로 두기</string>
+    <string name="bulk_on_all">모두 켜기</string>
+    <string name="bulk_off_all">모두 끄기</string>
+    <string name="bulk_removals_leave">각 동기화를 그대로 두기 (삭제 반영: %1$d, 추가만: %2$d).</string>
+    <string name="bulk_removals_mirror_desc">원본에서 삭제된 곡은 대상에서도 삭제됩니다.</string>
+    <string name="bulk_add_only">추가만</string>
+    <string name="bulk_add_only_desc">대상에서는 아무것도 삭제되지 않습니다.</string>
+    <string name="bulk_removals_note">대량 삭제는 지금처럼 확인할 때까지 보류됩니다.</string>
+    <string name="bulk_removals_skipped">양방향, 보관, 라디오 동기화는 각자의 설정을 유지합니다.</string>
+    <string name="bulk_onoff_leave">각 동기화를 그대로 두기 (켜짐: %1$d, 꺼짐: %2$d).</string>
+    <string name="bulk_on">켜짐</string>
+    <string name="bulk_on_desc">일정에 따라 실행됩니다.</string>
+    <string name="bulk_off">꺼짐</string>
+    <string name="bulk_off_desc">자동으로 실행되지 않습니다. ‘지금 실행’은 계속 사용할 수 있습니다.</string>
+    <string name="bulk_delete_text">동기화가 Trackhop에서 삭제됩니다. 지난 실행 기록은 로그에 남습니다. 재생목록과 곡은 각 서비스에 그대로 남습니다.</string>
+    <string name="bulk_not_saved">변경된 것이 없습니다: 변경 사항을 저장하지 못했습니다. 다시 시도하세요.</string>
+    <string name="bulk_not_scheduled">저장했지만 Android가 일부 동기화의 새 시간을 받아들이지 않았습니다. 다음에 Trackhop을 열 때 다시 설정합니다.</string>
+    <string name="bulk_radio_note">라디오 동기화는 자체 시간대에 실행되므로 시간이 바뀌지 않습니다.</string>
+    <string name="bulk_not_here">이 동기화는 여기가 아니라 그룹이나 서버에서 변경합니다.</string>
+    <string name="bulk_linked_note">여기서 항목을 바꾸면 동기화들은 연결되지 않은 자체 시간을 갖게 됩니다.</string>
+    <string name="bulk_use_saved">저장된 일정 사용</string>
+    <string name="bulk_or_by_hand">또는 직접 설정</string>
+    <string name="bulk_from">%1$s에서</string>
+    <string name="sched_title">일정</string>
+    <string name="sched_intro">저장된 일정 하나로 여러 동기화를 실행할 수 있습니다. 여기서 바꾸면 그 일정을 쓰는 모든 동기화가 따라갑니다.</string>
+    <string name="sched_saved_tab">저장된 일정</string>
+    <string name="sched_by_hand_tab">직접 설정</string>
+    <string name="sched_not_used">사용하는 동기화 없음</string>
+    <string name="sched_no_name">이름 없음</string>
+    <string name="sched_new">새 일정</string>
+    <string name="sched_manage">관리</string>
+    <string name="sched_edit_title">일정 편집</string>
+    <string name="sched_name">이름(선택 사항)</string>
+    <string name="sched_name_hint">이름이 없으면 시간으로 표시됩니다.</string>
+    <string name="sched_next">다음 실행: %1$s</string>
+    <string name="sched_linked_note">연결됨. 나중에 %1$s을(를) 바꾸면 이 동기화도 따라갑니다.</string>
+    <string name="sched_wifi_note">‘Wi‑Fi 전용’은 동기화마다 설정하며 저장된 일정에 포함되지 않습니다.</string>
+    <string name="sched_linked">연결됨</string>
+    <string name="sched_pick_another">다른 일정 선택</string>
+    <string name="sched_detach">연결 해제</string>
+    <string name="sched_detach_note">연결을 해제하면 이 동기화는 직접 설정한 자체 사본(%1$s)을 갖고, 더 이상 %2$s을(를) 따르지 않습니다. 다른 동기화는 바뀌지 않습니다.</string>
+    <string name="sched_save_as">일정으로 저장</string>
+    <string name="sched_save_as_note">이름이 없으면 시간으로 표시됩니다. 이 동기화는 그 일정에 연결됩니다.</string>
+    <string name="sched_not_now">나중에</string>
+    <string name="sched_save">일정 저장</string>
+    <string name="sched_edit_note">저장하면 모든 동기화의 실행 시간이 바뀝니다. 하나만 바꾸려면 그 동기화를 열고 연결 해제를 누르세요.</string>
+    <string name="sched_delete">일정 삭제</string>
+    <string name="sched_delete_title">‘%1$s’을(를) 삭제할까요?</string>
+    <string name="sched_delete_keep">같은 시간에 각자의 일정으로 계속 실행됩니다.</string>
+    <string name="sched_empty">아직 저장된 일정이 없습니다. 시간을 한 번 저장해 두고 어느 동기화에서나 선택하세요.</string>
+    <string name="sched_settings_desc">한 번 저장한 시간을 원하는 만큼의 동기화에</string>
+    <plurals name="bulk_for_n">
+        <item quantity="other">선택한 동기화 %d개</item>
+    </plurals>
+    <plurals name="bulk_apply_n">
+        <item quantity="other">동기화 %d개에 적용</item>
+    </plurals>
+    <plurals name="bulk_delete_title">
+        <item quantity="other">동기화 %d개를 삭제할까요?</item>
+    </plurals>
+    <plurals name="bulk_delete_n">
+        <item quantity="other">동기화 %d개 삭제</item>
+    </plurals>
+    <plurals name="bulk_done">
+        <item quantity="other">동기화 %d개를 변경했습니다</item>
+    </plurals>
+    <plurals name="bulk_deleted">
+        <item quantity="other">동기화 %d개를 삭제했습니다</item>
+    </plurals>
+    <plurals name="bulk_started">
+        <item quantity="other">동기화 %d개를 시작했습니다</item>
+    </plurals>
+    <plurals name="sched_used_by">
+        <item quantity="other">동기화 %d개가 사용 중</item>
+    </plurals>
+    <plurals name="sched_within_hours">
+        <item quantity="other">%d시간 이내</item>
+    </plurals>
+    <plurals name="sched_within_days">
+        <item quantity="other">%d일 이내</item>
+    </plurals>
+    <plurals name="sched_also_used">
+        <item quantity="other">다른 동기화 %d개도 사용 중</item>
+    </plurals>
+    <plurals name="sched_save_for">
+        <item quantity="other">동기화 %d개에 저장</item>
+    </plurals>
+    <plurals name="sched_delete_used">
+        <item quantity="other">동기화 %d개가 사용 중:</item>
+    </plurals>
 </resources>

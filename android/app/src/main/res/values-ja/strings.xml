@@ -3005,4 +3005,107 @@
     <plurals name="library_songs_as_before">
         <item quantity="other">%1$s 曲 · これまでどおり</item>
     </plurals>
+    <!-- 2.1: several syncs at once (#68) and saved schedules -->
+    <string name="bulk_schedule">スケジュール</string>
+    <string name="bulk_removals">削除の扱い</string>
+    <string name="bulk_on_off">オン / オフ</string>
+    <string name="bulk_color">色とラベル</string>
+    <string name="bulk_different">値が異なります</string>
+    <string name="bulk_will_change">変更されます</string>
+    <string name="bulk_how_often">頻度</string>
+    <string name="bulk_time">時刻</string>
+    <string name="bulk_set_time">時刻を設定</string>
+    <string name="bulk_time_untouched">未変更: 各同期はそれぞれの時刻のままです。</string>
+    <string name="bulk_was">変更前: %1$s</string>
+    <string name="bulk_undo">元に戻す</string>
+    <string name="bulk_leave">そのままにする</string>
+    <string name="bulk_on_all">すべてオン</string>
+    <string name="bulk_off_all">すべてオフ</string>
+    <string name="bulk_removals_leave">各同期をそのままにする（削除をミラー: %1$d、追加のみ: %2$d）。</string>
+    <string name="bulk_removals_mirror_desc">同期元から削除した曲は、同期先からも削除されます。</string>
+    <string name="bulk_add_only">追加のみ</string>
+    <string name="bulk_add_only_desc">同期先では何も削除されません。</string>
+    <string name="bulk_removals_note">大量の削除は、これまでどおり確認するまで保留されます。</string>
+    <string name="bulk_removals_skipped">双方向・アーカイブ・ラジオの同期は、それぞれの設定のままです。</string>
+    <string name="bulk_onoff_leave">各同期をそのままにする（オン: %1$d、オフ: %2$d）。</string>
+    <string name="bulk_on">オン</string>
+    <string name="bulk_on_desc">スケジュールどおりに実行されます。</string>
+    <string name="bulk_off">オフ</string>
+    <string name="bulk_off_desc">自動では実行されません。「今すぐ実行」は使えます。</string>
+    <string name="bulk_delete_text">同期は Trackhop から削除されます。過去の実行はログに残ります。プレイリストと曲は各サービスにそのまま残ります。</string>
+    <string name="bulk_not_saved">何も変更されていません: 変更を保存できませんでした。もう一度お試しください。</string>
+    <string name="bulk_not_scheduled">保存しましたが、Android が一部の同期の新しい時刻を受け付けませんでした。次に Trackhop を開いたときに設定し直します。</string>
+    <string name="bulk_radio_note">ラジオの同期は独自の時間帯で動くため、時刻は変更されません。</string>
+    <string name="bulk_not_here">この同期は、グループまたはサーバー側で変更します。ここでは変更できません。</string>
+    <string name="bulk_linked_note">ここで項目を変えると、各同期はリンクされない独自の時刻になります。</string>
+    <string name="bulk_use_saved">保存したスケジュールを使う</string>
+    <string name="bulk_or_by_hand">または手動で設定</string>
+    <string name="bulk_from">%1$s から</string>
+    <string name="sched_title">スケジュール</string>
+    <string name="sched_intro">保存したスケジュールは複数の同期で使えます。ここで変更すると、使っているすべての同期に反映されます。</string>
+    <string name="sched_saved_tab">保存したスケジュール</string>
+    <string name="sched_by_hand_tab">手動で設定</string>
+    <string name="sched_not_used">どの同期も使っていません</string>
+    <string name="sched_no_name">名前なし</string>
+    <string name="sched_new">新しいスケジュール</string>
+    <string name="sched_manage">管理</string>
+    <string name="sched_edit_title">スケジュールを編集</string>
+    <string name="sched_name">名前（省略可）</string>
+    <string name="sched_name_hint">名前がない場合は、時刻で表示されます。</string>
+    <string name="sched_next">次回の実行: %1$s</string>
+    <string name="sched_linked_note">リンク済み。あとで %1$s を変更すると、この同期にも反映されます。</string>
+    <string name="sched_wifi_note">「Wi‑Fi のみ」は同期ごとの設定で、保存したスケジュールには含まれません。</string>
+    <string name="sched_linked">リンク済み</string>
+    <string name="sched_pick_another">別のものを選ぶ</string>
+    <string name="sched_detach">リンクを解除</string>
+    <string name="sched_detach_note">リンクを解除すると、この同期は独自のコピー（%1$s、手動設定）になり、%2$s には従わなくなります。ほかの同期は変わりません。</string>
+    <string name="sched_save_as">スケジュールとして保存</string>
+    <string name="sched_save_as_note">名前がない場合は、時刻で表示されます。この同期はそのスケジュールにリンクされます。</string>
+    <string name="sched_not_now">あとで</string>
+    <string name="sched_save">スケジュールを保存</string>
+    <string name="sched_edit_note">保存すると、すべての同期の実行時刻が変わります。1 つだけ変えるには、その同期を開いて「リンクを解除」をタップします。</string>
+    <string name="sched_delete">スケジュールを削除</string>
+    <string name="sched_delete_title">「%1$s」を削除しますか？</string>
+    <string name="sched_delete_keep">同じ時刻のまま、それぞれ独自のスケジュールで実行され続けます。</string>
+    <string name="sched_empty">保存したスケジュールはまだありません。時刻を一度保存すれば、どの同期でも選べます。</string>
+    <string name="sched_settings_desc">一度保存した時刻を、いくつもの同期で</string>
+    <plurals name="bulk_for_n">
+        <item quantity="other">選択した %d 件の同期</item>
+    </plurals>
+    <plurals name="bulk_apply_n">
+        <item quantity="other">%d 件の同期に適用</item>
+    </plurals>
+    <plurals name="bulk_delete_title">
+        <item quantity="other">%d 件の同期を削除しますか？</item>
+    </plurals>
+    <plurals name="bulk_delete_n">
+        <item quantity="other">%d 件の同期を削除</item>
+    </plurals>
+    <plurals name="bulk_done">
+        <item quantity="other">%d 件の同期を変更しました</item>
+    </plurals>
+    <plurals name="bulk_deleted">
+        <item quantity="other">%d 件の同期を削除しました</item>
+    </plurals>
+    <plurals name="bulk_started">
+        <item quantity="other">%d 件の同期を開始しました</item>
+    </plurals>
+    <plurals name="sched_used_by">
+        <item quantity="other">%d 件の同期が使用中</item>
+    </plurals>
+    <plurals name="sched_within_hours">
+        <item quantity="other">%d 時間以内</item>
+    </plurals>
+    <plurals name="sched_within_days">
+        <item quantity="other">%d 日以内</item>
+    </plurals>
+    <plurals name="sched_also_used">
+        <item quantity="other">ほかに %d 件の同期も使用中</item>
+    </plurals>
+    <plurals name="sched_save_for">
+        <item quantity="other">%d 件の同期に保存</item>
+    </plurals>
+    <plurals name="sched_delete_used">
+        <item quantity="other">%d 件の同期が使っています:</item>
+    </plurals>
 </resources>

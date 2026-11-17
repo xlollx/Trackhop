@@ -3079,4 +3079,120 @@
         <item quantity="one">%1$s Song · wie bisher</item>
         <item quantity="other">%1$s Songs · wie bisher</item>
     </plurals>
+    <!-- 2.1: several syncs at once (#68) and saved schedules -->
+    <string name="bulk_schedule">Zeitplan</string>
+    <string name="bulk_removals">Entfernungen</string>
+    <string name="bulk_on_off">Ein / Aus</string>
+    <string name="bulk_color">Farbe &amp; Labels</string>
+    <string name="bulk_different">Unterschiedliche Werte</string>
+    <string name="bulk_will_change">Wird geändert</string>
+    <string name="bulk_how_often">Wie oft</string>
+    <string name="bulk_time">Uhrzeit</string>
+    <string name="bulk_set_time">Uhrzeit festlegen</string>
+    <string name="bulk_time_untouched">Nicht angefasst: Jeder Sync behält seine eigene Uhrzeit.</string>
+    <string name="bulk_was">Vorher: %1$s</string>
+    <string name="bulk_undo">Rückgängig</string>
+    <string name="bulk_leave">So lassen</string>
+    <string name="bulk_on_all">Für alle ein</string>
+    <string name="bulk_off_all">Für alle aus</string>
+    <string name="bulk_removals_leave">Jeden Sync so lassen (Entfernungen spiegeln: %1$d, Nur hinzufügen: %2$d).</string>
+    <string name="bulk_removals_mirror_desc">Ein Titel, der aus der Quelle entfernt wird, wird auch aus dem Ziel entfernt.</string>
+    <string name="bulk_add_only">Nur hinzufügen</string>
+    <string name="bulk_add_only_desc">Im Ziel wird nie etwas gelöscht.</string>
+    <string name="bulk_removals_note">Große Entfernungen warten weiterhin auf deine Bestätigung, wie bisher.</string>
+    <string name="bulk_removals_skipped">Zwei-Wege-, Archiv- und Radio-Syncs behalten ihre eigene Einstellung.</string>
+    <string name="bulk_onoff_leave">Jeden Sync so lassen (Ein: %1$d, Aus: %2$d).</string>
+    <string name="bulk_on">Ein</string>
+    <string name="bulk_on_desc">Sie laufen nach ihrem Zeitplan.</string>
+    <string name="bulk_off">Aus</string>
+    <string name="bulk_off_desc">Sie laufen nicht von selbst. „Jetzt ausführen“ geht weiterhin.</string>
+    <string name="bulk_delete_text">Die Syncs werden aus Trackhop entfernt. Ihre bisherigen Läufe bleiben im Protokoll. Deine Playlists und ihre Titel bleiben bei jedem Dienst, wo sie sind.</string>
+    <string name="bulk_not_saved">Nichts wurde geändert: Die Änderung konnte nicht gespeichert werden. Versuch es noch einmal.</string>
+    <string name="bulk_not_scheduled">Gespeichert, aber Android hat nicht bei jedem Sync die neue Zeit übernommen. Trackhop setzt sie beim nächsten Öffnen erneut.</string>
+    <string name="bulk_radio_note">Radio-Syncs laufen in ihrem eigenen Zeitfenster: Ihre Zeit wird nicht geändert.</string>
+    <string name="bulk_not_here">Dieser Sync wird in seiner Gruppe oder auf deinem Server geändert, nicht hier.</string>
+    <string name="bulk_linked_note">Änderst du hier ein Feld, bekommen die Syncs eine eigene Zeit, nicht verknüpft.</string>
+    <string name="bulk_use_saved">Gespeicherten Zeitplan verwenden</string>
+    <string name="bulk_or_by_hand">oder von Hand festlegen</string>
+    <string name="bulk_from">Aus %1$s</string>
+    <string name="sched_title">Zeitpläne</string>
+    <string name="sched_intro">Ein gespeicherter Zeitplan kann viele Syncs steuern. Änderst du ihn hier, folgt jeder Sync, der ihn verwendet.</string>
+    <string name="sched_saved_tab">Gespeicherte Zeitpläne</string>
+    <string name="sched_by_hand_tab">Von Hand</string>
+    <string name="sched_not_used">Von keinem Sync verwendet</string>
+    <string name="sched_no_name">Kein Name</string>
+    <string name="sched_new">Neuer Zeitplan</string>
+    <string name="sched_manage">Verwalten</string>
+    <string name="sched_edit_title">Zeitplan bearbeiten</string>
+    <string name="sched_name">Name (optional)</string>
+    <string name="sched_name_hint">Ohne Namen wird er mit seiner Zeit aufgeführt.</string>
+    <string name="sched_next">Nächster Lauf: %1$s</string>
+    <string name="sched_linked_note">Verknüpft. Wenn du %1$s später änderst, folgt dieser Sync.</string>
+    <string name="sched_wifi_note">„Nur über WLAN“ wird pro Sync festgelegt und gehört nicht zum gespeicherten Zeitplan.</string>
+    <string name="sched_linked">Verknüpft</string>
+    <string name="sched_pick_another">Anderen wählen</string>
+    <string name="sched_detach">Lösen</string>
+    <string name="sched_detach_note">Lösen gibt diesem Sync eine eigene Kopie: %1$s, von Hand festgelegt. Er folgt %2$s nicht mehr. Die anderen Syncs bleiben unberührt.</string>
+    <string name="sched_save_as">Als Zeitplan speichern</string>
+    <string name="sched_save_as_note">Ohne Namen wird er mit seiner Zeit aufgeführt. Dieser Sync wird mit ihm verknüpft.</string>
+    <string name="sched_not_now">Nicht jetzt</string>
+    <string name="sched_save">Zeitplan speichern</string>
+    <string name="sched_edit_note">Speichern ändert, wann sie alle laufen. Um nur einen zu ändern, öffne diesen Sync und tippe auf Lösen.</string>
+    <string name="sched_delete">Zeitplan löschen</string>
+    <string name="sched_delete_title">„%1$s“ löschen?</string>
+    <string name="sched_delete_keep">Sie laufen weiter zu denselben Zeiten, als eigener Zeitplan.</string>
+    <string name="sched_empty">Noch keine gespeicherten Zeitpläne. Speichere eine Zeit einmal und wähle sie für beliebige Syncs.</string>
+    <string name="sched_settings_desc">Einmal gespeicherte Zeiten für beliebig viele Syncs</string>
+    <plurals name="bulk_for_n">
+        <item quantity="one">Für den ausgewählten Sync</item>
+        <item quantity="other">Für die %d ausgewählten Syncs</item>
+    </plurals>
+    <plurals name="bulk_apply_n">
+        <item quantity="one">Auf %d Sync anwenden</item>
+        <item quantity="other">Auf %d Syncs anwenden</item>
+    </plurals>
+    <plurals name="bulk_delete_title">
+        <item quantity="one">Diesen Sync löschen?</item>
+        <item quantity="other">%d Syncs löschen?</item>
+    </plurals>
+    <plurals name="bulk_delete_n">
+        <item quantity="one">%d Sync löschen</item>
+        <item quantity="other">%d Syncs löschen</item>
+    </plurals>
+    <plurals name="bulk_done">
+        <item quantity="one">%d Sync geändert</item>
+        <item quantity="other">%d Syncs geändert</item>
+    </plurals>
+    <plurals name="bulk_deleted">
+        <item quantity="one">%d Sync gelöscht</item>
+        <item quantity="other">%d Syncs gelöscht</item>
+    </plurals>
+    <plurals name="bulk_started">
+        <item quantity="one">%d Sync gestartet</item>
+        <item quantity="other">%d Syncs gestartet</item>
+    </plurals>
+    <plurals name="sched_used_by">
+        <item quantity="one">Von %d Sync verwendet</item>
+        <item quantity="other">Von %d Syncs verwendet</item>
+    </plurals>
+    <plurals name="sched_within_hours">
+        <item quantity="one">Innerhalb von %d Stunde</item>
+        <item quantity="other">Innerhalb von %d Stunden</item>
+    </plurals>
+    <plurals name="sched_within_days">
+        <item quantity="one">Innerhalb von %d Tag</item>
+        <item quantity="other">Innerhalb von %d Tagen</item>
+    </plurals>
+    <plurals name="sched_also_used">
+        <item quantity="one">Auch von %d weiteren Sync verwendet</item>
+        <item quantity="other">Auch von %d weiteren Syncs verwendet</item>
+    </plurals>
+    <plurals name="sched_save_for">
+        <item quantity="one">Für %d Sync speichern</item>
+        <item quantity="other">Für %d Syncs speichern</item>
+    </plurals>
+    <plurals name="sched_delete_used">
+        <item quantity="one">%d Sync verwendet ihn:</item>
+        <item quantity="other">%d Syncs verwenden ihn:</item>
+    </plurals>
 </resources>

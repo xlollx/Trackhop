@@ -365,6 +365,17 @@ fun SettingsScreen(
             }
         }
 
+        // ---------------------------------------------------------------- Schedules
+        // The library of saved schedules (ui/Schedules): a timing kept once, for any number of syncs.
+        PrefSection(stringResource(R.string.sched_title), accent = JobColor.BLUE) {
+            var schedulesOpen by rememberSaveable { mutableStateOf(false) }
+            PrefRow(
+                Icons.Filled.Schedule, stringResource(R.string.sched_title),
+                stringResource(R.string.sched_settings_desc),
+            ) { schedulesOpen = true }
+            if (schedulesOpen) SchedulesDialog { schedulesOpen = false }
+        }
+
         // ---------------------------------------------------------------- Backup & restore
         // One place for both kinds (BackupScreen): the set-up as a file, and the playlists' backups.
         PrefSection(stringResource(R.string.backup_title), accent = JobColor.GREEN) {

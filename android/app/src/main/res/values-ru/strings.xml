@@ -3227,4 +3227,146 @@
         <item quantity="many">Треков: %1$s · как раньше</item>
         <item quantity="other">Треков: %1$s · как раньше</item>
     </plurals>
+    <!-- 2.1: several syncs at once (#68) and saved schedules -->
+    <string name="bulk_schedule">Расписание</string>
+    <string name="bulk_removals">Удаления</string>
+    <string name="bulk_on_off">Вкл. / Выкл.</string>
+    <string name="bulk_color">Цвет и метки</string>
+    <string name="bulk_different">Разные значения</string>
+    <string name="bulk_will_change">Изменится</string>
+    <string name="bulk_how_often">Как часто</string>
+    <string name="bulk_time">Время</string>
+    <string name="bulk_set_time">Задать время</string>
+    <string name="bulk_time_untouched">Не тронуто: у каждой синхронизации остаётся своё время.</string>
+    <string name="bulk_was">Было: %1$s</string>
+    <string name="bulk_undo">Отменить</string>
+    <string name="bulk_leave">Оставить как есть</string>
+    <string name="bulk_on_all">Включить для всех</string>
+    <string name="bulk_off_all">Выключить для всех</string>
+    <string name="bulk_removals_leave">Оставить каждую синхронизацию как есть (Зеркалить удаления: %1$d, Только добавлять: %2$d).</string>
+    <string name="bulk_removals_mirror_desc">Трек, удалённый из источника, удаляется и из цели.</string>
+    <string name="bulk_add_only">Только добавлять</string>
+    <string name="bulk_add_only_desc">В цели никогда ничего не удаляется.</string>
+    <string name="bulk_removals_note">Крупные удаления по-прежнему ждут вашего подтверждения, как и сейчас.</string>
+    <string name="bulk_removals_skipped">Двусторонние, архивные и радиосинхронизации сохраняют свою настройку.</string>
+    <string name="bulk_onoff_leave">Оставить каждую синхронизацию как есть (Включено: %1$d, Выключено: %2$d).</string>
+    <string name="bulk_on">Включена</string>
+    <string name="bulk_on_desc">Они запускаются по своему расписанию.</string>
+    <string name="bulk_off">Выключена</string>
+    <string name="bulk_off_desc">Сами они не запускаются. «Запустить сейчас» по-прежнему работает.</string>
+    <string name="bulk_delete_text">Синхронизации удаляются из Trackhop. Их прошлые запуски остаются в журнале. Ваши плейлисты и их треки остаются на своих местах в каждом сервисе.</string>
+    <string name="bulk_not_saved">Ничего не изменено: не удалось сохранить изменение. Попробуйте ещё раз.</string>
+    <string name="bulk_not_scheduled">Сохранено, но Android принял новое время не для всех синхронизаций. Trackhop задаст его снова при следующем открытии.</string>
+    <string name="bulk_radio_note">Радиосинхронизации работают в своём временном окне: их время не меняется.</string>
+    <string name="bulk_not_here">Эта синхронизация меняется в своей группе или на вашем сервере, не здесь.</string>
+    <string name="bulk_linked_note">Если изменить поле здесь, у синхронизаций будет своё время, без связи.</string>
+    <string name="bulk_use_saved">Использовать сохранённое расписание</string>
+    <string name="bulk_or_by_hand">или задать вручную</string>
+    <string name="bulk_from">Из «%1$s»</string>
+    <string name="sched_title">Расписания</string>
+    <string name="sched_intro">Сохранённое расписание может запускать много синхронизаций. Измените его здесь, и все синхронизации, которые его используют, последуют за ним.</string>
+    <string name="sched_saved_tab">Сохранённые расписания</string>
+    <string name="sched_by_hand_tab">Вручную</string>
+    <string name="sched_not_used">Не используется ни одной синхронизацией</string>
+    <string name="sched_no_name">Без названия</string>
+    <string name="sched_new">Новое расписание</string>
+    <string name="sched_manage">Управление</string>
+    <string name="sched_edit_title">Изменить расписание</string>
+    <string name="sched_name">Название (необязательно)</string>
+    <string name="sched_name_hint">Без названия оно показывается по своему времени.</string>
+    <string name="sched_next">Следующий запуск: %1$s</string>
+    <string name="sched_linked_note">Связано. Если позже изменить «%1$s», эта синхронизация последует за ним.</string>
+    <string name="sched_wifi_note">«Только по Wi‑Fi» задаётся для каждой синхронизации и не входит в сохранённое расписание.</string>
+    <string name="sched_linked">Связано</string>
+    <string name="sched_pick_another">Выбрать другое</string>
+    <string name="sched_detach">Отвязать</string>
+    <string name="sched_detach_note">«Отвязать» даёт этой синхронизации собственную копию: %1$s, заданную вручную. Она перестаёт следовать за «%2$s». Остальные синхронизации не затрагиваются.</string>
+    <string name="sched_save_as">Сохранить как расписание</string>
+    <string name="sched_save_as_note">Без названия оно показывается по своему времени. Эта синхронизация будет с ним связана.</string>
+    <string name="sched_not_now">Не сейчас</string>
+    <string name="sched_save">Сохранить расписание</string>
+    <string name="sched_edit_note">Сохранение меняет время запуска их всех. Чтобы изменить только одну, откройте её и нажмите «Отвязать».</string>
+    <string name="sched_delete">Удалить расписание</string>
+    <string name="sched_delete_title">Удалить «%1$s»?</string>
+    <string name="sched_delete_keep">Они продолжат запускаться в то же время, по собственному расписанию.</string>
+    <string name="sched_empty">Сохранённых расписаний пока нет. Сохраните время один раз и выбирайте его для любой синхронизации.</string>
+    <string name="sched_settings_desc">Время, сохранённое один раз, для любого числа синхронизаций</string>
+    <plurals name="bulk_for_n">
+        <item quantity="one">Для %d выбранной синхронизации</item>
+        <item quantity="few">Для %d выбранных синхронизаций</item>
+        <item quantity="many">Для %d выбранных синхронизаций</item>
+        <item quantity="other">Для %d выбранных синхронизаций</item>
+    </plurals>
+    <plurals name="bulk_apply_n">
+        <item quantity="one">Применить к %d синхронизации</item>
+        <item quantity="few">Применить к %d синхронизациям</item>
+        <item quantity="many">Применить к %d синхронизациям</item>
+        <item quantity="other">Применить к %d синхронизациям</item>
+    </plurals>
+    <plurals name="bulk_delete_title">
+        <item quantity="one">Удалить %d синхронизацию?</item>
+        <item quantity="few">Удалить %d синхронизации?</item>
+        <item quantity="many">Удалить %d синхронизаций?</item>
+        <item quantity="other">Удалить %d синхронизации?</item>
+    </plurals>
+    <plurals name="bulk_delete_n">
+        <item quantity="one">Удалить %d синхронизацию</item>
+        <item quantity="few">Удалить %d синхронизации</item>
+        <item quantity="many">Удалить %d синхронизаций</item>
+        <item quantity="other">Удалить %d синхронизации</item>
+    </plurals>
+    <plurals name="bulk_done">
+        <item quantity="one">Изменена %d синхронизация</item>
+        <item quantity="few">Изменено %d синхронизации</item>
+        <item quantity="many">Изменено %d синхронизаций</item>
+        <item quantity="other">Изменено %d синхронизации</item>
+    </plurals>
+    <plurals name="bulk_deleted">
+        <item quantity="one">Удалена %d синхронизация</item>
+        <item quantity="few">Удалено %d синхронизации</item>
+        <item quantity="many">Удалено %d синхронизаций</item>
+        <item quantity="other">Удалено %d синхронизации</item>
+    </plurals>
+    <plurals name="bulk_started">
+        <item quantity="one">Запущена %d синхронизация</item>
+        <item quantity="few">Запущено %d синхронизации</item>
+        <item quantity="many">Запущено %d синхронизаций</item>
+        <item quantity="other">Запущено %d синхронизации</item>
+    </plurals>
+    <plurals name="sched_used_by">
+        <item quantity="one">Используется %d синхронизацией</item>
+        <item quantity="few">Используется %d синхронизациями</item>
+        <item quantity="many">Используется %d синхронизациями</item>
+        <item quantity="other">Используется %d синхронизациями</item>
+    </plurals>
+    <plurals name="sched_within_hours">
+        <item quantity="one">В течение %d часа</item>
+        <item quantity="few">В течение %d часов</item>
+        <item quantity="many">В течение %d часов</item>
+        <item quantity="other">В течение %d часа</item>
+    </plurals>
+    <plurals name="sched_within_days">
+        <item quantity="one">В течение %d дня</item>
+        <item quantity="few">В течение %d дней</item>
+        <item quantity="many">В течение %d дней</item>
+        <item quantity="other">В течение %d дня</item>
+    </plurals>
+    <plurals name="sched_also_used">
+        <item quantity="one">Используется ещё %d синхронизацией</item>
+        <item quantity="few">Используется ещё %d синхронизациями</item>
+        <item quantity="many">Используется ещё %d синхронизациями</item>
+        <item quantity="other">Используется ещё %d синхронизациями</item>
+    </plurals>
+    <plurals name="sched_save_for">
+        <item quantity="one">Сохранить для %d синхронизации</item>
+        <item quantity="few">Сохранить для %d синхронизаций</item>
+        <item quantity="many">Сохранить для %d синхронизаций</item>
+        <item quantity="other">Сохранить для %d синхронизаций</item>
+    </plurals>
+    <plurals name="sched_delete_used">
+        <item quantity="one">Его использует %d синхронизация:</item>
+        <item quantity="few">Его используют %d синхронизации:</item>
+        <item quantity="many">Его используют %d синхронизаций:</item>
+        <item quantity="other">Его используют %d синхронизации:</item>
+    </plurals>
 </resources>

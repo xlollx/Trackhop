@@ -116,8 +116,11 @@ object Schedules {
         return if (jobs == made.jobs && schedules == all) made else made.copy(jobs = jobs, settings = made.settings.copy(savedSchedules = schedules))
     }
 
+    /** A sync with nothing but [s]'s timing: for what reads a timing from a sync (the labels, [Timing]). */
+    fun probe(s: SavedSchedule): SyncJob = link(BLANK, s)
+
     /** The timing in English, as [Timing.describe]: "daily at 07:30", "every 6 h", "Sat, Sun at 10:00". */
-    fun describe(s: SavedSchedule): String = Timing.describe(link(BLANK, s))
+    fun describe(s: SavedSchedule): String = Timing.describe(probe(s))
 
     /** How the schedule is listed: its name, or its timing when it has none. */
     fun title(s: SavedSchedule): String = s.name.ifBlank { describe(s) }

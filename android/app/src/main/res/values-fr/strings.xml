@@ -3087,4 +3087,120 @@
         <item quantity="one">%1$s titre · comme avant</item>
         <item quantity="other">%1$s titres · comme avant</item>
     </plurals>
+    <!-- 2.1: several syncs at once (#68) and saved schedules -->
+    <string name="bulk_schedule">Planification</string>
+    <string name="bulk_removals">Suppressions</string>
+    <string name="bulk_on_off">Activer / Désactiver</string>
+    <string name="bulk_color">Couleur et libellés</string>
+    <string name="bulk_different">Valeurs différentes</string>
+    <string name="bulk_will_change">Va changer</string>
+    <string name="bulk_how_often">Fréquence</string>
+    <string name="bulk_time">Heure</string>
+    <string name="bulk_set_time">Choisir une heure</string>
+    <string name="bulk_time_untouched">Non modifié : chaque synchro garde son heure.</string>
+    <string name="bulk_was">Avant : %1$s</string>
+    <string name="bulk_undo">Annuler</string>
+    <string name="bulk_leave">Laisser tel quel</string>
+    <string name="bulk_on_all">Activé pour toutes</string>
+    <string name="bulk_off_all">Désactivé pour toutes</string>
+    <string name="bulk_removals_leave">Laisser chaque synchro telle quelle (Répercuter les suppressions : %1$d, Ajout seul : %2$d).</string>
+    <string name="bulk_removals_mirror_desc">Un titre retiré de la source est aussi retiré de la destination.</string>
+    <string name="bulk_add_only">Ajout seul</string>
+    <string name="bulk_add_only_desc">Rien n’est jamais supprimé dans la destination.</string>
+    <string name="bulk_removals_note">Les suppressions importantes attendent toujours ta confirmation, comme aujourd’hui.</string>
+    <string name="bulk_removals_skipped">Les synchros bidirectionnelles, d’archive et de radio gardent leur propre réglage.</string>
+    <string name="bulk_onoff_leave">Laisser chaque synchro telle quelle (Activées : %1$d, Désactivées : %2$d).</string>
+    <string name="bulk_on">Activée</string>
+    <string name="bulk_on_desc">Elles se lancent selon leur planification.</string>
+    <string name="bulk_off">Désactivée</string>
+    <string name="bulk_off_desc">Elles ne se lancent pas toutes seules. « Lancer maintenant » marche toujours.</string>
+    <string name="bulk_delete_text">Les synchros sont retirées de Trackhop. Leurs exécutions passées restent dans le journal. Tes playlists et leurs titres restent où ils sont sur chaque service.</string>
+    <string name="bulk_not_saved">Rien n’a été modifié : le changement n’a pas pu être enregistré. Réessaie.</string>
+    <string name="bulk_not_scheduled">Enregistré, mais Android n’a pas pris le nouvel horaire de toutes les synchros. Trackhop le redéfinit à sa prochaine ouverture.</string>
+    <string name="bulk_radio_note">Les synchros radio suivent leur propre plage horaire : leur horaire ne change pas.</string>
+    <string name="bulk_not_here">Cette synchro se modifie depuis son groupe ou sur ton serveur, pas ici.</string>
+    <string name="bulk_linked_note">Si tu modifies un champ ici, les synchros auront leur propre horaire, sans lien.</string>
+    <string name="bulk_use_saved">Utiliser une planification enregistrée</string>
+    <string name="bulk_or_by_hand">ou régler à la main</string>
+    <string name="bulk_from">De %1$s</string>
+    <string name="sched_title">Planifications</string>
+    <string name="sched_intro">Une planification enregistrée peut lancer plusieurs synchros. Modifie-la ici et toutes les synchros qui l’utilisent suivent.</string>
+    <string name="sched_saved_tab">Planifications enregistrées</string>
+    <string name="sched_by_hand_tab">À la main</string>
+    <string name="sched_not_used">Utilisée par aucune synchro</string>
+    <string name="sched_no_name">Sans nom</string>
+    <string name="sched_new">Nouvelle planification</string>
+    <string name="sched_manage">Gérer</string>
+    <string name="sched_edit_title">Modifier la planification</string>
+    <string name="sched_name">Nom (facultatif)</string>
+    <string name="sched_name_hint">Sans nom, elle apparaît avec son horaire.</string>
+    <string name="sched_next">Prochaine exécution : %1$s</string>
+    <string name="sched_linked_note">Liée. Si tu modifies %1$s plus tard, cette synchro suit.</string>
+    <string name="sched_wifi_note">« Wi‑Fi uniquement » se règle pour chaque synchro et ne fait pas partie de la planification enregistrée.</string>
+    <string name="sched_linked">Liée</string>
+    <string name="sched_pick_another">En choisir une autre</string>
+    <string name="sched_detach">Détacher</string>
+    <string name="sched_detach_note">Détacher donne à cette synchro sa propre copie : %1$s, réglée à la main. Elle ne suit plus %2$s. Les autres synchros ne sont pas touchées.</string>
+    <string name="sched_save_as">Enregistrer comme planification</string>
+    <string name="sched_save_as_note">Sans nom, elle apparaît avec son horaire. Cette synchro y sera liée.</string>
+    <string name="sched_not_now">Pas maintenant</string>
+    <string name="sched_save">Enregistrer la planification</string>
+    <string name="sched_edit_note">L’enregistrement change le moment où elles se lancent toutes. Pour n’en changer qu’une, ouvre cette synchro et touche Détacher.</string>
+    <string name="sched_delete">Supprimer la planification</string>
+    <string name="sched_delete_title">Supprimer « %1$s » ?</string>
+    <string name="sched_delete_keep">Elles continuent de se lancer aux mêmes heures, avec leur propre planification.</string>
+    <string name="sched_empty">Aucune planification enregistrée pour l’instant. Enregistre un horaire une fois et choisis-le pour n’importe quelle synchro.</string>
+    <string name="sched_settings_desc">Des horaires enregistrés une fois, pour autant de synchros que tu veux</string>
+    <plurals name="bulk_for_n">
+        <item quantity="one">Pour la synchro sélectionnée</item>
+        <item quantity="other">Pour les %d synchros sélectionnées</item>
+    </plurals>
+    <plurals name="bulk_apply_n">
+        <item quantity="one">Appliquer à %d synchro</item>
+        <item quantity="other">Appliquer à %d synchros</item>
+    </plurals>
+    <plurals name="bulk_delete_title">
+        <item quantity="one">Supprimer cette synchro ?</item>
+        <item quantity="other">Supprimer %d synchros ?</item>
+    </plurals>
+    <plurals name="bulk_delete_n">
+        <item quantity="one">Supprimer %d synchro</item>
+        <item quantity="other">Supprimer %d synchros</item>
+    </plurals>
+    <plurals name="bulk_done">
+        <item quantity="one">%d synchro modifiée</item>
+        <item quantity="other">%d synchros modifiées</item>
+    </plurals>
+    <plurals name="bulk_deleted">
+        <item quantity="one">%d synchro supprimée</item>
+        <item quantity="other">%d synchros supprimées</item>
+    </plurals>
+    <plurals name="bulk_started">
+        <item quantity="one">%d synchro lancée</item>
+        <item quantity="other">%d synchros lancées</item>
+    </plurals>
+    <plurals name="sched_used_by">
+        <item quantity="one">Utilisée par %d synchro</item>
+        <item quantity="other">Utilisée par %d synchros</item>
+    </plurals>
+    <plurals name="sched_within_hours">
+        <item quantity="one">Dans %d heure au plus</item>
+        <item quantity="other">Dans %d heures au plus</item>
+    </plurals>
+    <plurals name="sched_within_days">
+        <item quantity="one">Dans %d jour au plus</item>
+        <item quantity="other">Dans %d jours au plus</item>
+    </plurals>
+    <plurals name="sched_also_used">
+        <item quantity="one">Utilisée aussi par %d autre synchro</item>
+        <item quantity="other">Utilisée aussi par %d autres synchros</item>
+    </plurals>
+    <plurals name="sched_save_for">
+        <item quantity="one">Enregistrer pour %d synchro</item>
+        <item quantity="other">Enregistrer pour %d synchros</item>
+    </plurals>
+    <plurals name="sched_delete_used">
+        <item quantity="one">%d synchro l’utilise :</item>
+        <item quantity="other">%d synchros l’utilisent :</item>
+    </plurals>
 </resources>

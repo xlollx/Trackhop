@@ -3077,4 +3077,120 @@
         <item quantity="one">%1$s şarkı · eskisi gibi</item>
         <item quantity="other">%1$s şarkı · eskisi gibi</item>
     </plurals>
+    <!-- 2.1: several syncs at once (#68) and saved schedules -->
+    <string name="bulk_schedule">Zamanlama</string>
+    <string name="bulk_removals">Kaldırmalar</string>
+    <string name="bulk_on_off">Aç / Kapat</string>
+    <string name="bulk_color">Renk ve etiketler</string>
+    <string name="bulk_different">Farklı değerler</string>
+    <string name="bulk_will_change">Değişecek</string>
+    <string name="bulk_how_often">Ne sıklıkta</string>
+    <string name="bulk_time">Saat</string>
+    <string name="bulk_set_time">Saat ayarla</string>
+    <string name="bulk_time_untouched">Dokunulmadı: her eşitleme kendi saatini korur.</string>
+    <string name="bulk_was">Önce: %1$s</string>
+    <string name="bulk_undo">Geri al</string>
+    <string name="bulk_leave">Olduğu gibi bırak</string>
+    <string name="bulk_on_all">Hepsinde açık</string>
+    <string name="bulk_off_all">Hepsinde kapalı</string>
+    <string name="bulk_removals_leave">Her eşitlemeyi olduğu gibi bırak (Kaldırmaları yansıt: %1$d, Yalnızca ekle: %2$d).</string>
+    <string name="bulk_removals_mirror_desc">Kaynaktan kaldırılan parça hedeften de kaldırılır.</string>
+    <string name="bulk_add_only">Yalnızca ekle</string>
+    <string name="bulk_add_only_desc">Hedefte hiçbir şey silinmez.</string>
+    <string name="bulk_removals_note">Büyük kaldırmalar bugünkü gibi yine onayını bekler.</string>
+    <string name="bulk_removals_skipped">İki yönlü, arşiv ve radyo eşitlemeleri kendi ayarını korur.</string>
+    <string name="bulk_onoff_leave">Her eşitlemeyi olduğu gibi bırak (Açık: %1$d, Kapalı: %2$d).</string>
+    <string name="bulk_on">Açık</string>
+    <string name="bulk_on_desc">Zamanlamalarına göre çalışırlar.</string>
+    <string name="bulk_off">Kapalı</string>
+    <string name="bulk_off_desc">Kendiliğinden çalışmazlar. “Şimdi çalıştır” yine de çalışır.</string>
+    <string name="bulk_delete_text">Eşitlemeler Trackhop’tan kaldırılır. Geçmiş çalışmaları günlükte kalır. Çalma listelerin ve parçaları her hizmette olduğu yerde kalır.</string>
+    <string name="bulk_not_saved">Hiçbir şey değişmedi: değişiklik kaydedilemedi. Yeniden dene.</string>
+    <string name="bulk_not_scheduled">Kaydedildi, ancak Android her eşitlemenin yeni saatini almadı. Trackhop bir sonraki açılışta yeniden ayarlar.</string>
+    <string name="bulk_radio_note">Radyo eşitlemeleri kendi zaman aralığında çalışır: saatleri değişmez.</string>
+    <string name="bulk_not_here">Bu eşitleme buradan değil, grubundan veya sunucundan değiştirilir.</string>
+    <string name="bulk_linked_note">Burada bir alanı değiştirirsen eşitlemeler bağlı olmayan, kendi saatlerini alır.</string>
+    <string name="bulk_use_saved">Kayıtlı bir zamanlama kullan</string>
+    <string name="bulk_or_by_hand">veya elle ayarla</string>
+    <string name="bulk_from">%1$s zamanlamasından</string>
+    <string name="sched_title">Zamanlamalar</string>
+    <string name="sched_intro">Kayıtlı bir zamanlama birçok eşitlemeyi çalıştırabilir. Burada değiştirirsen onu kullanan her eşitleme uyar.</string>
+    <string name="sched_saved_tab">Kayıtlı zamanlamalar</string>
+    <string name="sched_by_hand_tab">Elle ayarla</string>
+    <string name="sched_not_used">Hiçbir eşitleme kullanmıyor</string>
+    <string name="sched_no_name">Adsız</string>
+    <string name="sched_new">Yeni zamanlama</string>
+    <string name="sched_manage">Yönet</string>
+    <string name="sched_edit_title">Zamanlamayı düzenle</string>
+    <string name="sched_name">Ad (isteğe bağlı)</string>
+    <string name="sched_name_hint">Adı yoksa saatiyle listelenir.</string>
+    <string name="sched_next">Sonraki çalışma: %1$s</string>
+    <string name="sched_linked_note">Bağlı. %1$s zamanlamasını sonra değiştirirsen bu eşitleme de uyar.</string>
+    <string name="sched_wifi_note">“Yalnızca Wi‑Fi” her eşitleme için ayrı ayarlanır, kayıtlı zamanlamanın parçası değildir.</string>
+    <string name="sched_linked">Bağlı</string>
+    <string name="sched_pick_another">Başkasını seç</string>
+    <string name="sched_detach">Ayır</string>
+    <string name="sched_detach_note">Ayır, bu eşitlemeye kendi kopyasını verir: %1$s, elle ayarlanmış. Artık %2$s zamanlamasını izlemez. Diğer eşitlemelere dokunulmaz.</string>
+    <string name="sched_save_as">Bunu zamanlama olarak kaydet</string>
+    <string name="sched_save_as_note">Adı yoksa saatiyle listelenir. Bu eşitleme ona bağlanır.</string>
+    <string name="sched_not_now">Şimdi değil</string>
+    <string name="sched_save">Zamanlamayı kaydet</string>
+    <string name="sched_edit_note">Kaydetmek hepsinin çalışma zamanını değiştirir. Yalnızca birini değiştirmek için o eşitlemeyi aç ve Ayır’a dokun.</string>
+    <string name="sched_delete">Zamanlamayı sil</string>
+    <string name="sched_delete_title">“%1$s” silinsin mi?</string>
+    <string name="sched_delete_keep">Kendi zamanlamalarıyla aynı saatlerde çalışmaya devam ederler.</string>
+    <string name="sched_empty">Henüz kayıtlı zamanlama yok. Bir saati bir kez kaydet, istediğin eşitlemede seç.</string>
+    <string name="sched_settings_desc">Bir kez kaydedilen saatler, istediğin kadar eşitleme için</string>
+    <plurals name="bulk_for_n">
+        <item quantity="one">Seçili eşitleme için</item>
+        <item quantity="other">Seçili %d eşitleme için</item>
+    </plurals>
+    <plurals name="bulk_apply_n">
+        <item quantity="one">%d eşitlemeye uygula</item>
+        <item quantity="other">%d eşitlemeye uygula</item>
+    </plurals>
+    <plurals name="bulk_delete_title">
+        <item quantity="one">Bu eşitleme silinsin mi?</item>
+        <item quantity="other">%d eşitleme silinsin mi?</item>
+    </plurals>
+    <plurals name="bulk_delete_n">
+        <item quantity="one">%d eşitlemeyi sil</item>
+        <item quantity="other">%d eşitlemeyi sil</item>
+    </plurals>
+    <plurals name="bulk_done">
+        <item quantity="one">%d eşitleme değiştirildi</item>
+        <item quantity="other">%d eşitleme değiştirildi</item>
+    </plurals>
+    <plurals name="bulk_deleted">
+        <item quantity="one">%d eşitleme silindi</item>
+        <item quantity="other">%d eşitleme silindi</item>
+    </plurals>
+    <plurals name="bulk_started">
+        <item quantity="one">%d eşitleme başlatıldı</item>
+        <item quantity="other">%d eşitleme başlatıldı</item>
+    </plurals>
+    <plurals name="sched_used_by">
+        <item quantity="one">%d eşitleme kullanıyor</item>
+        <item quantity="other">%d eşitleme kullanıyor</item>
+    </plurals>
+    <plurals name="sched_within_hours">
+        <item quantity="one">%d saat içinde</item>
+        <item quantity="other">%d saat içinde</item>
+    </plurals>
+    <plurals name="sched_within_days">
+        <item quantity="one">%d gün içinde</item>
+        <item quantity="other">%d gün içinde</item>
+    </plurals>
+    <plurals name="sched_also_used">
+        <item quantity="one">%d eşitleme daha kullanıyor</item>
+        <item quantity="other">%d eşitleme daha kullanıyor</item>
+    </plurals>
+    <plurals name="sched_save_for">
+        <item quantity="one">%d eşitleme için kaydet</item>
+        <item quantity="other">%d eşitleme için kaydet</item>
+    </plurals>
+    <plurals name="sched_delete_used">
+        <item quantity="one">%d eşitleme kullanıyor:</item>
+        <item quantity="other">%d eşitleme kullanıyor:</item>
+    </plurals>
 </resources>
