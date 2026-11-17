@@ -30,31 +30,36 @@ object CsvCodec {
         }
     }
 
-    fun parse(text: String): List<Track> {
-        var rows = parseRows(text.removePrefix("﻿"))
-        if (rows.isEmpty()) return emptyList()
-        // Shazam's export opens with a one-cell line ("Shazam Library") above the real header.
-        if (rows.size > 1 && rows.first().size == 1 && rows[1].size > 1 && rows[1].map { norm(it) }.any { it in TITLE_KEYS }) rows = rows.drop(1)
-        val header = rows.first().map { norm(it) }
-        fun col(keys: Set<String>) = header.indexOfFirst { it in keys }.takeIf { it >= 0 }
-        val iTitle = col(TITLE_KEYS)
-        val iArtist = col(ARTIST_KEYS)
-        val iAlbum = col(ALBUM_KEYS)
-        val iDur = col(DURATION_KEYS)
-        val iIsrc = col(ISRC_KEYS)
-        val iFeed = col(FEED_KEYS)
-        val iItunes = col(ITUNES_KEYS)
+    fun parse(text: String): List<Track> = read(CharSource(text.reader()))
+
+    /** The tracks of a CSV read a row at a time (#67): the file is never held whole. */
+    internal fun read(source: CharSource): List<Track> {
+        val rows = Rows()
+        eachRow(source, rows::add)
+        return rows.finish()
+    }
+
+    /** Which column holds what, read off the header row; without one: title,artist,album,duration,isrc. */
+    private class Columns(headerRow: List<String>) {
+        private val header = headerRow.map { norm(it) }
+        private fun col(keys: Set<String>) = header.indexOfFirst { it in keys }.takeIf { it >= 0 }
+        private val iTitle = col(TITLE_KEYS)
+        private val iArtist = col(ARTIST_KEYS)
+        private val iAlbum = col(ALBUM_KEYS)
+        private val iDur = col(DURATION_KEYS)
+        private val iIsrc = col(ISRC_KEYS)
+        private val iFeed = col(FEED_KEYS)
+        private val iItunes = col(ITUNES_KEYS)
         // "duration_ms" (ours, Exportify's "Duration (ms)") is milliseconds whatever the size: an 8-second
         // interlude is 8000 ms, not 8000 seconds.
-        val inMs = iDur != null && header[iDur].endsWith("ms")
+        private val inMs = iDur != null && header[iDur].endsWith("ms")
         // Senza intestazione riconoscibile: assumiamo title,artist,album,duration,isrc.
         val hasHeader = iTitle != null
-        val body = if (hasHeader) rows.drop(1) else rows
-        val out = ArrayList<Track>()
-        for (r in body) {
+
+        fun track(r: List<String>): Track? {
             fun at(i: Int?) = i?.let { r.getOrNull(it) }?.trim() ?: ""
             val title = if (hasHeader) at(iTitle) else r.getOrNull(0)?.trim() ?: ""
-            if (title.isEmpty()) continue
+            if (title.isEmpty()) return null
             val artist = if (hasHeader) at(iArtist) else r.getOrNull(1)?.trim() ?: ""
             val album = if (hasHeader) at(iAlbum) else r.getOrNull(2)?.trim() ?: ""
             val rawDur = if (hasHeader) at(iDur) else r.getOrNull(3)?.trim() ?: ""
@@ -62,9 +67,35 @@ object CsvCodec {
             val isrc = (if (hasHeader) at(iIsrc) else r.getOrNull(4)?.trim() ?: "").ifEmpty { null }
             val feed = if (hasHeader) at(iFeed).ifEmpty { null } else null
             val itunes = if (hasHeader) at(iItunes).ifEmpty { null } else null
-            out += withStableId(Track(id = "", title = title, artists = splitArtists(artist), album = album, durationMs = dur, isrc = isrc, feedUrl = feed, itunesId = itunes))
+            return withStableId(Track(id = "", title = title, artists = splitArtists(artist), album = album, durationMs = dur, isrc = isrc, feedUrl = feed, itunesId = itunes))
         }
-        return out
+    }
+
+    /** Rows turned into tracks as they come: the header is known once the second row is. */
+    private class Rows {
+        private var first: List<String>? = null
+        private var columns: Columns? = null
+        private val out = ArrayList<Track>()
+
+        private fun startWith(header: List<String>): Columns =
+            Columns(header).also { columns = it; if (!it.hasHeader) it.track(header)?.let(out::add) }
+
+        fun add(row: List<String>) {
+            val c = columns
+            val f = first
+            when {
+                c != null -> c.track(row)?.let(out::add)
+                f == null -> first = row
+                // Shazam's export opens with a one-cell line ("Shazam Library") above the real header.
+                f.size == 1 && row.size > 1 && row.map { norm(it) }.any { it in TITLE_KEYS } -> startWith(row)
+                else -> startWith(f).track(row)?.let(out::add)
+            }
+        }
+
+        fun finish(): List<Track> {
+            if (columns == null) first?.let(::startWith)
+            return out
+        }
     }
 
     fun splitArtists(s: String): List<String> =
@@ -107,34 +138,39 @@ object CsvCodec {
      * Parser RFC 4180 (virgolette, campi multilinea). Il separatore (`,`, `;` o TAB) e' dedotto
      * dalla prima riga: il TAB serve per gli export "Esporta playlist" di Apple Music/iTunes.
      */
-    fun parseRows(text: String): List<List<String>> {
+    fun parseRows(text: String): List<List<String>> = ArrayList<List<String>>().also { rows -> eachRow(CharSource(text.reader())) { rows.add(it) } }
+
+    /** No row keeps more cells than this: a file that is not a table cannot fill the memory. */
+    private const val MAX_CELLS = 4096
+
+    private fun eachRow(source: CharSource, each: (List<String>) -> Unit) {
         // The separator is read off the first lines that have one (a lone title line may come first).
-        val firstLine = text.lineSequence().filter { it.isNotBlank() }.take(3).joinToString("\n").ifEmpty { return emptyList() }
+        val firstLine = source.head().lineSequence().filter { it.isNotBlank() }.take(3).joinToString("\n")
         val sep = listOf(',', ';', '\t')
             .map { c -> c to firstLine.count { it == c } }
             .filter { it.second > 0 }
             .maxByOrNull { it.second }?.first ?: ','
-        val rows = ArrayList<List<String>>()
         var row = ArrayList<String>()
         val field = StringBuilder()
+        fun cell() { if (row.size < MAX_CELLS) row.add(field.toString()); field.setLength(0) }
+        fun keep(c: Char) { if (field.length < CharSource.MAX_TEXT) field.append(c) }
         var inQuotes = false
-        var i = 0
-        while (i < text.length) {
-            val c = text[i]
+        while (true) {
+            val i = source.next()
+            if (i < 0) break
+            val c = i.toChar()
             if (inQuotes) {
                 if (c == '"') {
-                    if (i + 1 < text.length && text[i + 1] == '"') { field.append('"'); i++ } else inQuotes = false
-                } else field.append(c)
+                    if (source.peek() == '"'.code) { keep('"'); source.next() } else inQuotes = false
+                } else keep(c)
             } else when (c) {
                 '"' -> inQuotes = true
-                sep -> { row.add(field.toString()); field.setLength(0) }
+                sep -> cell()
                 '\r' -> { }
-                '\n' -> { row.add(field.toString()); field.setLength(0); if (row.any { it.isNotBlank() }) rows.add(row); row = ArrayList() }
-                else -> field.append(c)
+                '\n' -> { cell(); if (row.any { it.isNotBlank() }) each(row); row = ArrayList() }
+                else -> keep(c)
             }
-            i++
         }
-        if (field.isNotEmpty() || row.isNotEmpty()) { row.add(field.toString()); if (row.any { it.isNotBlank() }) rows.add(row) }
-        return rows
+        if (field.isNotEmpty() || row.isNotEmpty()) { cell(); if (row.any { it.isNotBlank() }) each(row) }
     }
 }

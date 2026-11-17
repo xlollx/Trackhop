@@ -140,9 +140,16 @@ object LocalFilesProvider : MusicProvider {
      * Come [importFile], ma restituisce anche la playlist creata: l'id serve per usarla subito
      * come origine di una sync (inviare un file importato a un servizio senza sceglierlo a mano).
      */
-    fun importFileAsPlaylist(ctx: Env, fileName: String, text: String): Playlist {
+    fun importFileAsPlaylist(ctx: Env, fileName: String, text: String): Playlist = importStream(ctx, fileName, text.reader())
+
+    /**
+     * As [importFileAsPlaylist], for a file of any size read a piece at a time (#67, see
+     * [PlaylistFiles.readStream]). The file is written whole once the reading has ended: a file cut
+     * short, a read that fails or one stopped through [cancelled] throws and adds nothing.
+     */
+    fun importStream(ctx: Env, fileName: String, reader: java.io.Reader, progress: (Long) -> Unit = {}, cancelled: () -> Boolean = { false }): Playlist {
         val settings = ctx.store.data.settings
-        val tracks = PlaylistFiles.parse(fileName, text, PlaylistFiles.NameLayout.of(settings.fileNameLayout), NamePatterns.compileAll(settings.fileNamePatterns))
+        val tracks = PlaylistFiles.readStream(fileName, reader, PlaylistFiles.NameLayout.of(settings.fileNameLayout), NamePatterns.compileAll(settings.fileNamePatterns), progress, cancelled)
         val base = CsvCodec.safeName(fileName.substringBeforeLast('.').ifBlank { "playlist" })
         var candidate = base
         var n = 2

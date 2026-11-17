@@ -81,7 +81,9 @@ class ItunesLibrary private constructor(
          * [cancelled] is asked as often and stops the reading with a [java.util.concurrent.CancellationException].
          */
         fun read(reader: Reader, progress: (Long) -> Unit = {}, cancelled: () -> Boolean = { false }): ItunesLibrary =
-            Builder().also { PlistEvents(reader, it, progress, cancelled).run() }.build()
+            read(CharSource(reader, progress, cancelled))
+
+        internal fun read(source: CharSource): ItunesLibrary = Builder().also { PlistEvents(source, it).run() }.build()
 
         fun read(text: String): ItunesLibrary = read(text.reader())
     }
@@ -173,8 +175,8 @@ class ItunesLibrary private constructor(
         }
     }
 
-    /** The file ends before its library does: it was cut short (an interrupted upload or copy). */
-    class Incomplete : IllegalStateException("The file ends before the library does: it is incomplete. Export it again, or upload it again.")
+    /** The file ends before its library (or its list) does: it was cut short (an interrupted upload or copy). */
+    class Incomplete(message: String = "The file ends before the library does: it is incomplete. Export it again, or upload it again.") : IllegalStateException(message)
 
     private class IntList {
         private var a = IntArray(16)
@@ -185,16 +187,10 @@ class ItunesLibrary private constructor(
 }
 
 /**
- * A plist read as events, one character buffer at a time: dictionaries, arrays, keys and values.
- * Only what a plist holds is understood; <data> (smart playlists' rules, artwork) is skipped without
- * being kept, and a value longer than [MAX_TEXT] is cut, so no single element can fill the memory.
+ * A plist read as events through [XmlTokens]: dictionaries, arrays, keys and values. Only what a
+ * plist holds is understood; <data> (smart playlists' rules, artwork) is skipped without being kept.
  */
-internal class PlistEvents(
-    private val reader: Reader,
-    private val sink: Sink,
-    private val progress: (Long) -> Unit,
-    private val cancelled: () -> Boolean,
-) {
+internal class PlistEvents(private val source: CharSource, private val sink: Sink) {
     interface Sink {
         fun startDict(); fun endDict(); fun startArray(); fun endArray()
         fun key(name: String)
@@ -202,100 +198,33 @@ internal class PlistEvents(
         fun value(type: String, text: String)
     }
 
-    private val buf = CharArray(64 * 1024)
-    private var len = 0
-    private var pos = 0
-    private var total = 0L
-    private var nextReport = REPORT_EVERY
-
-    private fun next(): Int {
-        if (pos == len) {
-            len = reader.read(buf)
-            if (len <= 0) { len = 0; pos = 0; return -1 }
-            pos = 0
-            total += len
-            if (total >= nextReport) {
-                nextReport = total + REPORT_EVERY
-                if (cancelled()) throw java.util.concurrent.CancellationException("reading stopped")
-                progress(total)
-            }
-        }
-        return buf[pos++].code
-    }
-
-    private val tag = StringBuilder()
-    private val text = StringBuilder()
-
     fun run() {
+        val xml = XmlTokens(source)
         var open: String? = null // the scalar element whose text is being read
-        var skipping = false // inside <data>
-        while (true) {
-            val c = next()
-            if (c < 0) break
-            if (c != '<'.code) {
-                if (open != null && !skipping && text.length < MAX_TEXT) text.append(c.toChar())
-                continue
-            }
-            // A tag: read to its '>' (a comment or declaration is skipped whole).
-            tag.setLength(0)
-            var t = next()
-            if (t == '!'.code || t == '?'.code) { skipDeclaration(t); continue }
-            while (t >= 0 && t != '>'.code) { if (tag.length < 256) tag.append(t.toChar()); t = next() }
-            val raw = tag.toString().trim()
-            val closing = raw.startsWith("/")
-            val selfClosing = raw.endsWith("/")
-            val name = raw.removePrefix("/").removeSuffix("/").substringBefore(' ').trim()
-            when {
-                closing && name == open -> {
-                    // <data> says only that it is there (a smart playlist's rules): its content is never kept.
-                    if (skipping) sink.value(name, "") else {
-                        val value = unescape(text.toString())
-                        if (name == "key") sink.key(value) else sink.value(name, value)
+        xml.run(object : XmlTokens.Handler {
+            override fun open(name: String, attrs: String, selfClosing: Boolean) {
+                when {
+                    selfClosing -> when (name) {
+                        "true", "false" -> sink.value(name, "")
+                        "dict" -> { sink.startDict(); sink.endDict() }
+                        "array" -> { sink.startArray(); sink.endArray() }
+                        "string" -> sink.value("string", "")
                     }
-                    open = null; skipping = false
+                    name == "dict" -> sink.startDict()
+                    name == "array" -> sink.startArray()
+                    name == "plist" -> Unit
+                    // <data> says only that it is there (a smart playlist's rules): its content is never kept.
+                    else -> { open = name; xml.text.setLength(0); xml.keep = name != "data" }
                 }
-                closing -> when (name) { "dict" -> sink.endDict(); "array" -> sink.endArray() }
-                selfClosing -> when (name) {
-                    "true", "false" -> sink.value(name, "")
-                    "dict" -> { sink.startDict(); sink.endDict() }
-                    "array" -> { sink.startArray(); sink.endArray() }
-                    "string" -> sink.value("string", "")
-                }
-                name == "dict" -> sink.startDict()
-                name == "array" -> sink.startArray()
-                name == "plist" -> Unit
-                else -> { open = name; text.setLength(0); skipping = name == "data" }
             }
-        }
-    }
 
-    private fun skipDeclaration(first: Int) {
-        // <!-- … --> ends at "-->", <!DOCTYPE …> and <?xml …?> at the first '>'.
-        var a = next()
-        if (first == '!'.code && a == '-'.code) {
-            var p1 = 0; var p2 = 0
-            while (true) {
-                val c = next(); if (c < 0) return
-                if (c == '>'.code && p1 == '-'.code && p2 == '-'.code) return
-                p2 = p1; p1 = c
+            override fun close(name: String) {
+                if (name == open) {
+                    val value = XmlTokens.unescape(xml.text.toString())
+                    if (name == "key") sink.key(value) else sink.value(name, value)
+                    open = null; xml.keep = false
+                } else when (name) { "dict" -> sink.endDict(); "array" -> sink.endArray() }
             }
-        }
-        while (a >= 0 && a != '>'.code) a = next()
-    }
-
-    companion object {
-        const val MAX_TEXT = 64 * 1024
-        private const val REPORT_EVERY = 1L shl 20
-        private val ENTITY = Regex("""&(#x[0-9a-fA-F]+|#\d+|amp|lt|gt|quot|apos);""")
-
-        fun unescape(s: String): String = if ('&' !in s) s else ENTITY.replace(s) { m ->
-            when (val e = m.groupValues[1]) {
-                "amp" -> "&"; "lt" -> "<"; "gt" -> ">"; "quot" -> "\""; "apos" -> "'"
-                else -> runCatching {
-                    val cp = if (e.startsWith("#x")) e.substring(2).toInt(16) else e.substring(1).toInt()
-                    String(Character.toChars(cp))
-                }.getOrDefault(m.value)
-            }
-        }
+        })
     }
 }

@@ -81,17 +81,52 @@ object PlaylistFiles {
         companion object { fun of(name: String?): NameLayout = entries.firstOrNull { it.name == name } ?: AUTO }
     }
 
-    fun parse(fileName: String, text: String, layout: NameLayout = NameLayout.AUTO, patterns: List<NamePatterns.Pattern> = emptyList()): List<Track> {
-        val clean = text.removePrefix("\uFEFF")
-        val format = detect(fileName, clean)
+    /** As [decode], for a file read as it comes: the bytes of [input] as text, a piece at a time. */
+    fun reader(input: java.io.InputStream): java.io.Reader = DecodingReader(input)
+
+    fun parse(fileName: String, text: String, layout: NameLayout = NameLayout.AUTO, patterns: List<NamePatterns.Pattern> = emptyList()): List<Track> =
+        readStream(fileName, text.reader(), layout, patterns)
+
+    /**
+     * The tracks of a playlist file of any size, read a piece at a time (#67): the format is told
+     * from the name and the first few KB, then the same stream goes on, a record at a time. The
+     * memory taken is the one of the tracks, never of the file. [progress] gets the characters read
+     * so far, about every MB; [cancelled] is asked as often and stops the reading with a
+     * [java.util.concurrent.CancellationException].
+     *
+     * A file that ends before its list does (XML, JSON: cut short by an upload or a copy that
+     * stopped) throws [ItunesLibrary.Incomplete], so nothing is taken from it. CSV, M3U, PLS and
+     * plain text have no end to look for: what is there is read.
+     */
+    fun readStream(
+        fileName: String,
+        reader: java.io.Reader,
+        layout: NameLayout = NameLayout.AUTO,
+        patterns: List<NamePatterns.Pattern> = emptyList(),
+        progress: (Long) -> Unit = {},
+        cancelled: () -> Boolean = { false },
+    ): List<Track> {
+        val source = CharSource(reader, progress, cancelled)
+        val format = detect(fileName, source.head())
         val custom = if (layout == NameLayout.CUSTOM) patterns else emptyList()
-        val tracks = parseClean(format, clean, custom)
+        val tracks = when (format) {
+            Format.M3U -> readM3u(source, custom)
+            Format.PLS -> readPls(source, custom)
+            Format.ITUNES_XML -> ItunesLibrary.read(source).asOneList()
+            Format.XSPF -> readXspf(source, strict = true)
+            Format.OPML -> readOpml(source, strict = true)
+            Format.JSON -> readJson(source, strict = true)
+            Format.CSV -> CsvCodec.read(source)
+            Format.TEXT -> readText(source, custom)
+        }
         return when {
             format != Format.M3U && format != Format.PLS && format != Format.TEXT -> tracks
             layout == NameLayout.CUSTOM -> tracks
             else -> withLayout(tracks, layout)
         }
     }
+
+    private fun incomplete() = ItunesLibrary.Incomplete("The file ends before its list does: it is incomplete. Export it again, or upload it again.")
 
     /**
      * The tracks read from names, with "Album - Title" titles split when [layout] says so (AUTO: at
@@ -114,27 +149,19 @@ object PlaylistFiles {
         }
     }
 
-    private fun parseClean(format: Format, text: String, patterns: List<NamePatterns.Pattern>): List<Track> = when (format) {
-        Format.M3U -> parseM3u(text, patterns)
-        Format.PLS -> parsePls(text, patterns)
-        Format.ITUNES_XML -> parseItunesXml(text)
-        Format.XSPF -> parseXspf(text)
-        Format.OPML -> parseOpml(text)
-        Format.JSON -> parseJson(text)
-        Format.CSV -> CsvCodec.parse(text)
-        Format.TEXT -> parseText(text, patterns)
-    }
-
     // ---------------------------------------------------------------- M3U
 
     private val EXTINF = Regex("""^#EXTINF:\s*(-?\d+(?:\.\d+)?)?\s*(?:[^,]*)?,\s*(.*)$""")
 
-    fun parseM3u(text: String, patterns: List<NamePatterns.Pattern> = emptyList()): List<Track> {
+    fun parseM3u(text: String, patterns: List<NamePatterns.Pattern> = emptyList()): List<Track> = readM3u(CharSource(text.reader()), patterns)
+
+    /** A line at a time: an #EXTINF line waits for the path it describes. */
+    private fun readM3u(source: CharSource, patterns: List<NamePatterns.Pattern>): List<Track> {
         val out = ArrayList<Track>()
         var pendingSeconds = 0L
         var pendingLabel: String? = null
-        for (raw in text.lineSequence()) {
-            val line = raw.trim()
+        while (true) {
+            val line = (source.line() ?: break).trim()
             if (line.isEmpty()) continue
             if (line.startsWith("#")) {
                 val m = EXTINF.find(line) ?: continue
@@ -157,19 +184,36 @@ object PlaylistFiles {
     private val PLS_ENTRY = Regex("""^(file|title|length)(\d+)\s*=\s*(.*)$""", RegexOption.IGNORE_CASE)
 
     /** PLS (Winamp, VLC, Clementine): File1=…, Title1=Artist - Title, Length1=seconds. */
-    fun parsePls(text: String, patterns: List<NamePatterns.Pattern> = emptyList()): List<Track> {
-        val entries = java.util.TreeMap<Int, MutableMap<String, String>>()
-        for (raw in text.lineSequence()) {
-            val m = PLS_ENTRY.find(raw.trim()) ?: continue
-            entries.getOrPut(m.groupValues[2].toInt()) { HashMap() }[m.groupValues[1].lowercase()] = m.groupValues[3].trim()
+    fun parsePls(text: String, patterns: List<NamePatterns.Pattern> = emptyList()): List<Track> = readPls(CharSource(text.reader()), patterns)
+
+    /** How many entries stay open at once: the lines of one entry are together, or nearly. */
+    private const val PLS_OPEN = 4096
+
+    /**
+     * A line at a time, by entry number. An entry becomes its track once [PLS_OPEN] newer ones have
+     * come, so only those are held as written; in a bigger file whose lines are not grouped by entry
+     * (every File, then every Title), a line that comes that late makes the entry again on its own.
+     */
+    private fun readPls(source: CharSource, patterns: List<NamePatterns.Pattern>): List<Track> {
+        val open = LinkedHashMap<Int, MutableMap<String, String>>()
+        val done = java.util.TreeMap<Int, Track>()
+        fun finish(n: Int, e: Map<String, String>) { plsTrack(e, patterns)?.let { done[n] = it } }
+        while (true) {
+            val m = PLS_ENTRY.find((source.line() ?: break).trim()) ?: continue
+            val n = m.groupValues[2].toIntOrNull() ?: continue
+            open.getOrPut(n) { HashMap() }[m.groupValues[1].lowercase()] = m.groupValues[3].trim()
+            if (open.size > PLS_OPEN) open.entries.iterator().let { it.next().also { e -> finish(e.key, e.value) }; it.remove() }
         }
-        return entries.values.mapNotNull { e ->
-            val t = (e["title"]?.takeIf { it.isNotBlank() }?.let { NamePatterns.read(it, patterns) } ?: e["file"]?.let { NamePatterns.read(it, patterns) })?.track()
-                ?: e["title"]?.takeIf { it.isNotBlank() }?.let { label -> splitArtistTitle(label).let { (artist, title) -> Track(id = "", title = title, artists = artist) } }
-                ?: e["file"]?.let { fromPath(it) } ?: return@mapNotNull null
-            val secs = e["length"]?.toLongOrNull()?.takeIf { it > 0 } ?: 0
-            t.takeIf { it.title.isNotBlank() }?.let { CsvCodec.withStableId(it.copy(durationMs = secs * 1000)) }
-        }
+        open.forEach { (n, e) -> finish(n, e) }
+        return ArrayList(done.values)
+    }
+
+    private fun plsTrack(e: Map<String, String>, patterns: List<NamePatterns.Pattern>): Track? {
+        val t = (e["title"]?.takeIf { it.isNotBlank() }?.let { NamePatterns.read(it, patterns) } ?: e["file"]?.let { NamePatterns.read(it, patterns) })?.track()
+            ?: e["title"]?.takeIf { it.isNotBlank() }?.let { label -> splitArtistTitle(label).let { (artist, title) -> Track(id = "", title = title, artists = artist) } }
+            ?: e["file"]?.let { fromPath(it) } ?: return null
+        val secs = e["length"]?.toLongOrNull()?.takeIf { it > 0 } ?: 0
+        return t.takeIf { it.title.isNotBlank() }?.let { CsvCodec.withStableId(it.copy(durationMs = secs * 1000)) }
     }
 
     /** Folder names that are a music root, not an artist or an album. */
@@ -297,9 +341,7 @@ object PlaylistFiles {
         append("  </trackList>\n</playlist>\n")
     }
 
-    private val OPML_OUTLINE = Regex("""<outline\b((?:[^>"']|"[^"]*"|'[^']*')*)>""", RegexOption.IGNORE_CASE)
     private val OPML_ATTR = Regex("""([\w:.-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')""")
-    private val XML_COMMENT = Regex("""<!--[\s\S]*?-->""")
     private val NUMERIC_ENTITY = Regex("""&#(x[0-9a-fA-F]+|\d+);""")
 
     /** An attribute's value as written in XML: entities read, line breaks and runs of spaces as one space. */
@@ -307,7 +349,7 @@ object PlaylistFiles {
         val v = m.groupValues[1]
         val code = if (v.startsWith("x") || v.startsWith("X")) v.substring(1).toIntOrNull(16) else v.toIntOrNull()
         code?.takeIf { Character.isValidCodePoint(it) }?.let { String(Character.toChars(it)) } ?: m.value
-    }.let(::unescapeXml).replace(Regex("""\s+"""), " ").trim()
+    }.let(XmlTokens::unescape).replace(Regex("""\s+"""), " ").trim()
 
     /**
      * OPML delle iscrizioni ai podcast (AntennaPod, Pocket Casts, Podcast Addict, Apple Podcasts…): un
@@ -315,20 +357,34 @@ object PlaylistFiles {
      * dove l'outline ne porta uno, l'id di Apple (`htmlUrl` verso podcasts.apple.com, `itunes:id`).
      * Gruppi, commenti e outline senza nome si saltano.
      */
-    fun parseOpml(text: String): List<Track> {
-        return OPML_OUTLINE.findAll(XML_COMMENT.replace(text, "")).mapNotNull { m ->
-            val attrs = OPML_ATTR.findAll(m.groupValues[1]).associate { a ->
-                a.groupValues[1].lowercase() to xmlText(a.groups[2]?.value ?: a.groupValues[3])
+    fun parseOpml(text: String): List<Track> = readOpml(CharSource(text.reader()), strict = false)
+
+    /** An outline at a time. With [strict], a file that ends before its </opml> is refused. */
+    private fun readOpml(source: CharSource, strict: Boolean): List<Track> {
+        val out = ArrayList<Track>()
+        val xml = XmlTokens(source)
+        xml.run(object : XmlTokens.Handler {
+            override fun open(name: String, attrs: String, selfClosing: Boolean) {
+                if (name.equals("outline", ignoreCase = true)) opmlShow(attrs)?.let(out::add)
             }
-            // Group headers are outlines too; only the ones pointing at a feed are shows.
-            val feed = attrs["xmlurl"]?.takeIf { it.isNotBlank() }
-                ?: attrs["url"]?.takeIf { it.isNotBlank() && attrs["type"].equals("rss", ignoreCase = true) }
-                ?: return@mapNotNull null
-            val title = listOf(attrs["text"], attrs["title"]).firstOrNull { !it.isNullOrBlank() } ?: return@mapNotNull null
-            val itunes = Podcasts.itunesId(attrs["itunes:id"]) ?: Podcasts.itunesId(attrs["htmlurl"])
-            val publisher = listOf(attrs["itunes:author"], attrs["author"]).firstOrNull { !it.isNullOrBlank() }
-            CsvCodec.withStableId(Track(id = "", title = title, artists = listOfNotNull(publisher), kind = Track.KIND_PODCAST, feedUrl = feed, itunesId = itunes))
-        }.toList()
+            override fun close(name: String) {}
+        })
+        if (strict && !xml.whole) throw incomplete()
+        return out
+    }
+
+    private fun opmlShow(tag: String): Track? {
+        val attrs = OPML_ATTR.findAll(tag).associate { a ->
+            a.groupValues[1].lowercase() to xmlText(a.groups[2]?.value ?: a.groupValues[3])
+        }
+        // Group headers are outlines too; only the ones pointing at a feed are shows.
+        val feed = attrs["xmlurl"]?.takeIf { it.isNotBlank() }
+            ?: attrs["url"]?.takeIf { it.isNotBlank() && attrs["type"].equals("rss", ignoreCase = true) }
+            ?: return null
+        val title = listOf(attrs["text"], attrs["title"]).firstOrNull { !it.isNullOrBlank() } ?: return null
+        val itunes = Podcasts.itunesId(attrs["itunes:id"]) ?: Podcasts.itunesId(attrs["htmlurl"])
+        val publisher = listOf(attrs["itunes:author"], attrs["author"]).firstOrNull { !it.isNullOrBlank() }
+        return CsvCodec.withStableId(Track(id = "", title = title, artists = listOfNotNull(publisher), kind = Track.KIND_PODCAST, feedUrl = feed, itunesId = itunes))
     }
 
     /** Characters XML 1.0 does not allow, even escaped (control characters but tab and line breaks). */
@@ -362,25 +418,55 @@ object PlaylistFiles {
         append("  </body>\n</opml>\n")
     }
 
-    private val XSPF_TRACK = Regex("""<track>([\s\S]*?)</track>""")
-    private fun xspfField(body: String, tag: String): String? =
-        Regex("""<$tag>([\s\S]*?)</$tag>""").find(body)?.groupValues?.get(1)?.let { unescapeXml(it).trim() }?.takeIf { it.isNotEmpty() }
+    private val XSPF_FIELDS = setOf("title", "creator", "album", "duration", "identifier")
+    private val XSPF_ISRC = Regex("""isrc:([A-Za-z0-9]+)""")
 
-    fun parseXspf(text: String): List<Track> = XSPF_TRACK.findAll(text).mapNotNull { m ->
-        val body = m.groupValues[1]
-        val title = xspfField(body, "title") ?: return@mapNotNull null
-        val isrc = Regex("""<identifier>\s*isrc:([A-Za-z0-9]+)\s*</identifier>""").find(body)?.groupValues?.get(1)
-        CsvCodec.withStableId(
-            Track(
-                id = "",
-                title = title,
-                artists = CsvCodec.splitArtists(xspfField(body, "creator").orEmpty()),
-                album = xspfField(body, "album").orEmpty(),
-                durationMs = xspfField(body, "duration")?.toLongOrNull() ?: 0,
-                isrc = isrc,
-            )
-        )
-    }.toList()
+    fun parseXspf(text: String): List<Track> = readXspf(CharSource(text.reader()), strict = false)
+
+    /**
+     * A <track> at a time: only its title, creator, album, duration and identifiers are kept, the
+     * rest of the file goes by. With [strict], a file that ends before its </playlist> is refused.
+     */
+    private fun readXspf(source: CharSource, strict: Boolean): List<Track> {
+        val out = ArrayList<Track>()
+        val xml = XmlTokens(source)
+        var fields: HashMap<String, String>? = null // inside a <track>
+        var open: String? = null // the field whose text is being read
+        xml.run(object : XmlTokens.Handler {
+            override fun open(name: String, attrs: String, selfClosing: Boolean) {
+                if (selfClosing) return
+                if (name == "track") { fields = HashMap(); open = null; xml.keep = false; return }
+                val f = fields ?: return
+                // The first of each, as before; every identifier, for the one that is an ISRC.
+                if (open == null && name in XSPF_FIELDS && (name == "identifier" || name !in f)) { open = name; xml.text.setLength(0); xml.keep = true }
+            }
+
+            override fun close(name: String) {
+                val f = fields ?: return
+                if (name == open) {
+                    val value = XmlTokens.unescape(xml.text.toString()).trim()
+                    open = null; xml.keep = false
+                    if (name != "identifier") f[name] = value
+                    else if ("isrc" !in f) XSPF_ISRC.matchEntire(value)?.let { f["isrc"] = it.groupValues[1] }
+                } else if (name == "track") {
+                    fields = null; open = null; xml.keep = false
+                    val title = f["title"]?.takeIf { it.isNotEmpty() } ?: return
+                    out += CsvCodec.withStableId(
+                        Track(
+                            id = "",
+                            title = title,
+                            artists = CsvCodec.splitArtists(f["creator"].orEmpty()),
+                            album = f["album"].orEmpty(),
+                            durationMs = f["duration"]?.toLongOrNull() ?: 0,
+                            isrc = f["isrc"],
+                        )
+                    )
+                }
+            }
+        })
+        if (strict && !xml.whole) throw incomplete()
+        return out
+    }
 
     private fun escapeXml(s: String): String = s
         .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")
@@ -390,67 +476,121 @@ object PlaylistFiles {
     /** A library or playlist from Apple Music / iTunes as one list ([ItunesLibrary.asOneList]), read a piece at a time. */
     fun parseItunesXml(text: String): List<Track> = ItunesLibrary.read(text).asOneList()
 
-    private fun unescapeXml(s: String): String = s
-        .replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", "\"")
-        .replace("&apos;", "'").replace("&#38;", "&").replace("&amp;", "&")
-
     // ---------------------------------------------------------------- JSON
 
-    fun parseJson(text: String): List<Track> {
-        val root = try { json.parseToJsonElement(text) } catch (e: Exception) { return salvageJson(text) }
-        val best = bestTrackArray(root) ?: return emptyList()
-        return tracksOf(best)
+    /**
+     * The tracks of a JSON text. One that does not read to its end (cut off by a token limit: an AI's
+     * answer) still gives every object in it that parses on its own; a file is read with [readStream],
+     * which refuses one cut short.
+     */
+    fun parseJson(text: String): List<Track> =
+        try { readJson(CharSource(text.reader()), strict = true) } catch (e: ItunesLibrary.Incomplete) { salvageJson(text) }
+
+    private fun salvageJson(text: String): List<Track> =
+        Regex("""\{[^{}]*\}""").findAll(text).mapNotNull { m ->
+            try { (json.parseToJsonElement(m.value) as? JsonObject)?.let(::jsonTrack) } catch (e: Exception) { null }
+        }.map(CsvCodec::withStableId).toList()
+
+    /** The track an object describes, without its id yet, or null when it has no title. */
+    private fun jsonTrack(o: JsonObject): Track? {
+        val title = pick(o, TITLE_KEYS)?.trim().orEmpty()
+        if (title.isEmpty()) return null
+        return Track(
+            id = "",
+            title = title,
+            artists = CsvCodec.splitArtists(pick(o, ARTIST_KEYS).orEmpty()),
+            album = pick(o, ALBUM_KEYS).orEmpty(),
+            durationMs = CsvCodec.parseDuration(pick(o, DURATION_KEYS).orEmpty()),
+            isrc = pick(o, ISRC_KEYS)?.takeIf { it.isNotBlank() },
+        )
     }
+
+    /** One object of a list is parsed on its own, up to this size; a bigger one is not a track. */
+    private const val MAX_JSON_ELEMENT = 2 * 1024 * 1024
 
     /**
-     * A JSON array that does not parse as a whole (cut off by a token limit, a trailing comma, a stray
-     * comment): every object in it that parses on its own still counts.
+     * JSON read a piece at a time: brackets and strings are followed, and each object that sits in a
+     * list is parsed on its own when it closes. As before, the tracks are the ones of the list with
+     * the most objects among those where an object has a title (the first of them when two have as
+     * many), wherever it is in the file. Lines of objects without a list around them count as one.
+     * With [strict], a file that ends inside a list, an object or a string is refused.
      */
-    private fun salvageJson(text: String): List<Track> {
-        val objects = Regex("""\{[^{}]*\}""").findAll(text).mapNotNull { m ->
-            try { json.parseToJsonElement(m.value) as? JsonObject } catch (e: Exception) { null }
-        }.toList()
-        return tracksOf(objects)
-    }
-
-    private fun tracksOf(best: Iterable<JsonElement>): List<Track> {
-        val out = ArrayList<Track>()
-        for (el in best) {
-            val o = el as? JsonObject ?: continue
-            val title = pick(o, TITLE_KEYS)?.trim().orEmpty()
-            if (title.isEmpty()) continue
-            out += CsvCodec.withStableId(
-                Track(
-                    id = "",
-                    title = title,
-                    artists = CsvCodec.splitArtists(pick(o, ARTIST_KEYS).orEmpty()),
-                    album = pick(o, ALBUM_KEYS).orEmpty(),
-                    durationMs = CsvCodec.parseDuration(pick(o, DURATION_KEYS).orEmpty()),
-                    isrc = pick(o, ISRC_KEYS)?.takeIf { it.isNotBlank() },
-                )
-            )
+    private fun readJson(source: CharSource, strict: Boolean): List<Track> {
+        class Frame(val list: Boolean, val order: Int) {
+            var objects = 0
+            val tracks = ArrayList<Track>()
+            /** Where this object starts in [text], or -1 when it is not kept (not in a list, or too big). */
+            var start = -1
         }
-        return out
-    }
+        // The file itself is the last list to win: only when it is lines of objects, at least two.
+        val root = Frame(list = true, order = Int.MAX_VALUE)
+        val stack = ArrayList<Frame>().apply { add(root) }
+        var best: Frame? = null
+        var opened = 0
+        // The text of the outermost object being kept; the ones inside it are parts of it.
+        val text = StringBuilder()
+        var kept = 0
 
-    /** L'array di oggetti piu' lungo che sembra una lista di brani (ha una chiave "titolo"). */
-    private fun bestTrackArray(root: JsonElement): JsonArray? {
-        var best: JsonArray? = null
-        fun visit(e: JsonElement) {
-            when (e) {
-                is JsonArray -> {
-                    val objects = e.filterIsInstance<JsonObject>()
-                    if (objects.isNotEmpty() && objects.any { pick(it, TITLE_KEYS) != null } &&
-                        (best == null || objects.size > best!!.size)
-                    ) best = e
-                    e.forEach { visit(it) }
+        fun consider(f: Frame) {
+            if (f.tracks.isEmpty() || (f === root && f.objects < 2)) return
+            val b = best
+            if (b == null || f.objects > b.objects || (f.objects == b.objects && f.order < b.order)) best = f
+        }
+        fun tooBig() {
+            // The outermost kept object is dropped; the text now starts at the next one inside it.
+            val outer = stack.first { it.start >= 0 }
+            outer.start = -1; kept--
+            val shift = stack.firstOrNull { it.start >= 0 }?.start ?: text.length
+            text.delete(0, shift)
+            stack.forEach { if (it.start >= 0) it.start -= shift }
+        }
+        fun keep(c: Char) {
+            if (kept == 0) return
+            text.append(c)
+            if (text.length > MAX_JSON_ELEMENT) tooBig()
+        }
+        fun close() {
+            if (stack.size == 1) return
+            val f = stack.removeAt(stack.size - 1)
+            if (f.list) return consider(f)
+            if (f.start < 0) return
+            val parsed = try { json.parseToJsonElement(text.substring(f.start)) as? JsonObject } catch (e: Exception) { null }
+            kept--
+            if (kept == 0) text.setLength(0)
+            parsed?.let(::jsonTrack)?.let { stack.last().tracks += it }
+        }
+
+        var cut = false
+        while (true) {
+            val i = source.next()
+            if (i < 0) break
+            val c = i.toChar()
+            when (c) {
+                '"' -> {
+                    keep(c)
+                    var escaped = false
+                    while (true) {
+                        val n = source.next()
+                        if (n < 0) { cut = true; break }
+                        keep(n.toChar())
+                        if (escaped) escaped = false else if (n == '\\'.code) escaped = true else if (n == '"'.code) break
+                    }
                 }
-                is JsonObject -> e.values.forEach { visit(it) }
-                else -> {}
+                '{' -> {
+                    val parent = stack.last()
+                    val f = Frame(list = false, order = 0)
+                    if (parent.list) { parent.objects++; f.start = text.length; kept++ }
+                    stack += f
+                    keep(c)
+                }
+                '[' -> { stack += Frame(list = true, order = opened++); keep(c) }
+                '}', ']' -> { keep(c); close() }
+                else -> keep(c)
             }
         }
-        visit(root)
-        return best
+        if (strict && (cut || stack.size > 1)) throw incomplete()
+        consider(root)
+        return best?.tracks.orEmpty().map(CsvCodec::withStableId)
     }
 
     /** Valore della prima chiave riconosciuta (confronto senza maiuscole/spazi/underscore). */
@@ -475,10 +615,12 @@ object PlaylistFiles {
 
     private val LIST_PREFIX = Regex("""^\s*\d+\s*[.)\-]\s+""")
 
-    fun parseText(text: String, patterns: List<NamePatterns.Pattern> = emptyList()): List<Track> {
+    fun parseText(text: String, patterns: List<NamePatterns.Pattern> = emptyList()): List<Track> = readText(CharSource(text.reader()), patterns)
+
+    private fun readText(source: CharSource, patterns: List<NamePatterns.Pattern>): List<Track> {
         val out = ArrayList<Track>()
-        for (raw in text.lineSequence()) {
-            val line = LIST_PREFIX.replace(raw.trim(), "").trim()
+        while (true) {
+            val line = LIST_PREFIX.replace((source.line() ?: break).trim(), "").trim()
             if (line.isEmpty() || line.startsWith("#")) continue
             // JSON punctuation or a JSON object is not a track name.
             if (line.first() in "[]{}" || line == "```" || line.startsWith("```")) continue
@@ -499,6 +641,4 @@ object PlaylistFiles {
             emptyList<String>() to label.trim()
         }
     }
-
-    private fun firstLine(text: String): String? = text.lineSequence().firstOrNull { it.isNotBlank() }
 }
