@@ -259,7 +259,19 @@ data class RemovalConfirmation(val trackIds: Set<String>, val at: Long)
  */
 open class FileStore(dir: File) {
     private val file = File(dir, "store.json")
-    private val tmp = File(dir, "store.json.tmp")
+
+    /**
+     * Set when the saved state was there but could not be read (cut short by a power cut, written by
+     * a newer version): the copy of it kept aside, untouched. The store starts empty, and whoever
+     * runs it says so (the app with a notice, the server in its log) instead of quietly forgetting
+     * every sync; the copy is what a restore by hand starts from.
+     */
+    var damagedCopy: File? = null
+        private set
+
+    /** Why the last write of the state failed (a full disk, a folder that went away); null once one succeeds. */
+    @Volatile var writeError: String? = null
+        private set
     private val writer = Executors.newSingleThreadScheduledExecutor()
     private var pendingWrite: java.util.concurrent.ScheduledFuture<*>? = null
     private val lock = Any()
@@ -268,10 +280,21 @@ open class FileStore(dir: File) {
     val state: StateFlow<StoreData> get() = _state
     val data: StoreData get() = _state.value
 
-    private fun load(): StoreData = try {
-        if (file.exists()) com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(file.readText())) else StoreData()
-    } catch (e: Exception) {
-        StoreData()
+    private fun load(): StoreData {
+        if (!file.exists()) return StoreData()
+        return try {
+            com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(file.readText()))
+        } catch (e: Exception) {
+            // Not readable: kept aside before anything is written over it, then an empty start.
+            damagedCopy = runCatching {
+                val keep = File(file.parentFile, "$DAMAGED_PREFIX${System.currentTimeMillis()}")
+                file.copyTo(keep, overwrite = true)
+                // A few at most: the newest are the ones worth looking at.
+                file.parentFile?.listFiles { f -> f.name.startsWith(DAMAGED_PREFIX) }?.sortedByDescending { it.name }?.drop(MAX_DAMAGED)?.forEach { it.delete() }
+                keep
+            }.getOrNull()
+            StoreData()
+        }
     }
 
     fun update(fn: (StoreData) -> StoreData) {
@@ -301,10 +324,13 @@ open class FileStore(dir: File) {
 
     private fun writeNow() {
         val snapshot = _state.value
+        // Whole or not at all (AtomicFiles): a write cut short leaves the last state saved in place.
         try {
-            tmp.writeText(json.encodeToString(snapshot))
-            if (!tmp.renameTo(file)) { file.writeText(json.encodeToString(snapshot)); tmp.delete() }
-        } catch (_: Exception) { }
+            AtomicFiles.write(file, json.encodeToString(snapshot))
+            writeError = null
+        } catch (e: Exception) {
+            writeError = e.message ?: e.javaClass.simpleName
+        }
     }
 
     /** Scrive subito (es. prima che il processo venga fermato). */
@@ -551,6 +577,9 @@ open class FileStore(dir: File) {
 
     companion object {
         const val MAX_REPORTS = 200
+        /** The name an unreadable store.json is kept under, followed by when it was found. */
+        const val DAMAGED_PREFIX = "store.json.damaged-"
+        private const val MAX_DAMAGED = 3
         /** How long a track a service said it holds, though unlisted, counts as present without asking again. */
         private const val PRESENT_TTL_MS = 30L * 24 * 3_600_000
         private const val WRITE_DELAY_MS = 500L

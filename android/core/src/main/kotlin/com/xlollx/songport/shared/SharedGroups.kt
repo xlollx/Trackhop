@@ -210,11 +210,8 @@ object SharedGroups {
     }
 
     private fun save(env: Env, id: String, s: GroupState) {
-        val f = stateFile(env, id)
-        f.parentFile.mkdirs()
-        val tmp = File(f.parentFile, ".${f.name}.tmp")
-        tmp.writeText(codec.encodeToString(GroupState.serializer(), s))
-        if (!tmp.renameTo(f)) { f.writeText(tmp.readText()); tmp.delete() }
+        // Whole or not at all: a write cut short must not leave a state that reads as "no group yet".
+        com.xlollx.songport.data.AtomicFiles.write(stateFile(env, id), codec.encodeToString(GroupState.serializer(), s))
     }
 
     private fun identity(env: Env, group: SharedGroup): Identity =

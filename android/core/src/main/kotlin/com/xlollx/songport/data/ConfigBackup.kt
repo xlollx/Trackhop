@@ -122,7 +122,9 @@ object ConfigBackup {
         for ((name, text) in s.files) {
             val safe = CsvCodec.safeName(name)
             val f = File(dir, "$safe.csv")
-            if (!f.exists()) { f.writeText(text); files++ }
+            // Whole or not at all: a restore stopped half way must not leave a file cut short, which the
+            // next restore would take for one "already here" and keep.
+            if (!f.exists()) { AtomicFiles.write(f, text); files++ }
         }
         env.store.update { d ->
             val ids = s.jobs.map { it.id }.toSet()
