@@ -3232,4 +3232,5 @@
     <string name="export_not_saved">Nie udało się zapisać pliku: brakuje miejsca albo folder nie jest już dostępny. Nie został żaden plik zapisany do połowy. Spróbuj ponownie.</string>
     <string name="store_damaged_title">Nie udało się odczytać twoich synchronizacji</string>
     <string name="store_damaged_text">Trackhop zastał zapisane synchronizacje i ustawienia uszkodzone i uruchomił się pusty. Nic nie zostało nadpisane: uszkodzony plik pozostaje na tym telefonie. Jeśli masz plik kopii zapasowej, przywróć go w Ustawieniach.</string>
+    <string name="tools_dedupe_not_put_back">Dodatkowe kopie „%1$s” zostały usunięte, ale nie udało się przywrócić jednej: połączenie zostało przerwane. Dodaj ten utwór ręcznie do playlisty.</string>
 </resources>

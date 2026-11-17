@@ -3090,4 +3090,5 @@
     <string name="export_not_saved">Não foi possível salvar o arquivo: não há mais espaço ou a pasta não está mais acessível. Nada ficou escrito pela metade. Tente de novo.</string>
     <string name="store_damaged_title">Não foi possível ler suas sincronizações</string>
     <string name="store_damaged_text">O Trackhop encontrou as sincronizações e as configurações salvas danificadas e começou vazio. Nada foi sobrescrito: o arquivo danificado continua neste telefone. Se você tiver um arquivo de backup, restaure-o nas Configurações.</string>
+    <string name="tools_dedupe_not_put_back">As cópias a mais de “%1$s” foram removidas, mas não foi possível recolocar uma: a conexão caiu. Adicione-a à playlist manualmente.</string>
 </resources>

@@ -3082,4 +3082,5 @@
     <string name="export_not_saved">Il file non è stato salvato: non c\'è più spazio, oppure la cartella non è più raggiungibile. Non è rimasto nulla scritto a metà. Riprova.</string>
     <string name="store_damaged_title">Non è stato possibile leggere le tue sync</string>
     <string name="store_damaged_text">Trackhop ha trovato danneggiate le sync e le impostazioni salvate ed è ripartito da vuoto. Niente è stato sovrascritto: il file danneggiato resta su questo telefono. Se hai un file di backup, ripristinalo dalle Impostazioni.</string>
+    <string name="tools_dedupe_not_put_back">Le copie in più di «%1$s» sono state tolte, ma non è stato possibile rimetterne una: la connessione è caduta. Aggiungila a mano alla playlist.</string>
 </resources>
