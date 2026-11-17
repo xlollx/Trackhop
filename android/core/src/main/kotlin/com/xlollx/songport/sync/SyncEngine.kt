@@ -1562,6 +1562,60 @@ class SyncEngine(
         if (reportId != null) dropReviews(reportId, listOf(review))
     }
 
+    /**
+     * The To fix list's "Accept" and "Use this" ([ToFix]): [chosen] is the song for [item], in every
+     * sync that lists it. The saved match is written first, in one write, with the track out of
+     * those syncs' lists: stopped after that, nothing is lost, each sync adds the song at its next
+     * run. Then each target playlist gets it now, once (two syncs writing to one playlist add it
+     * once; a playlist that holds it as its uncertain match is left alone, another uncertain match
+     * leaves it). A playlist that fails is named in the outcome, never retried here: the next run
+     * of its sync compares with what the playlist holds, so nothing is added twice.
+     */
+    suspend fun fixEverywhere(item: ToFix.Item, chosen: Track): ToFix.Outcome {
+        val places = ToFix.settle(store, item, chosen.id)
+        return applied(places) { job, dst, targetId, place ->
+            if (place.chosen?.id == chosen.id) return@applied
+            if (place.chosen != null && dst.canRemoveTracks) removeEntries(dst, targetId, listOf(place.chosen))
+            dst.addTracks(env, targetId, listOf(chosen))
+            wroteTo(dst, targetId)
+        }
+    }
+
+    /**
+     * The To fix list's "Ignore this track": [item] is not on the target service, for every sync
+     * (written first, as in [fixEverywhere]). An uncertain match then leaves the playlists that
+     * hold it, where the service allows removals and no other source track matches it.
+     */
+    suspend fun ignoreEverywhere(item: ToFix.Item): ToFix.Outcome {
+        val places = ToFix.settle(store, item, null)
+        return applied(places) { job, dst, targetId, place ->
+            val wrong = place.chosen ?: return@applied
+            if (!dst.canRemoveTracks || store.sourcesMatchedTo(job.source.provider, side(dst.id, job), wrong.id).isNotEmpty()) return@applied
+            removeEntries(dst, targetId, listOf(wrong))
+        }
+    }
+
+    /** [write] once per target playlist of [places]; the syncs whose playlist could not be written are named. */
+    private suspend fun applied(places: List<ToFix.Place>, write: suspend (SyncJob, MusicProvider, String, ToFix.Place) -> Unit): ToFix.Outcome {
+        val failed = ArrayList<String>()
+        val seen = HashSet<String>()
+        for (place in places) {
+            val job = store.job(place.jobId) ?: continue
+            try {
+                val (_, dst) = providers(job)
+                val targetId = job.target.playlistId ?: throw ProviderException("No target playlist")
+                if (!seen.add(dst.id + "|" + targetId)) continue
+                write(job, dst, targetId, place)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                env.log("engine", "${job.name}: to fix, not written now (${e.message?.take(160)}): left to its next run")
+                failed += job.name
+            }
+        }
+        return ToFix.Outcome(places.map { it.jobName }.distinct(), failed)
+    }
+
     private fun entriesKey(dst: MusicProvider, targetId: String) = TargetEntries.key(env.dataDir.path, dst.id, targetId)
 
     /** A listing of the target just read, kept a few minutes for the review ([TargetEntries]). */
