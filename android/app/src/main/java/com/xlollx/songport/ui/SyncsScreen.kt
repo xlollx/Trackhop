@@ -235,15 +235,24 @@ fun SyncsScreen(
      * and the status line here. Kept across rotation there; only in use from FIND_MIN_SYNCS syncs on.
      */
     filterState: androidx.compose.runtime.MutableState<SyncFilter> = rememberSaveable(stateSaver = SyncFilterSaver) { mutableStateOf(SyncFilter()) },
+    /** A group of the user's own playlists opened from its card (NwayScreen). */
+    onOpenGroup: (String) -> Unit = {},
 ) {
     val ctx = LocalContext.current
+    // One playlist on several services: each group is one card, and its own syncs are not cards. With
+    // no such group (and always before 1.18) the list is the store's, as ever.
+    val nwayGroups = remember(data.groups) { NwayUi.groups(data) }
+    val nwayHidden = remember(data.jobs, nwayGroups) { NwayUi.memberJobIds(data) }
+    val stored = data
+    @Suppress("NAME_SHADOWING")
+    val data = if (nwayHidden.isEmpty()) data else remember(data, nwayHidden) { data.copy(jobs = data.jobs.filter { it.id !in nwayHidden }) }
     val running by SyncState.running.collectAsState()
     // Pause asked for, pause reached (the engine waiting), stop asked for: what each running card shows.
     val pausedSet by SyncState.paused.collectAsState()
     val parkedSet by SyncState.parked.collectAsState()
     val stoppingSet by SyncState.stopping.collectAsState()
     var filter by filterState
-    if (data.syncs.isEmpty()) {
+    if (data.syncs.isEmpty() && nwayGroups.isEmpty()) {
         val anyConnected = remember { Providers.connectors().any { it.requiresAuth && it.isConnected(ctx) } }
         // With a service connected: what one service alone can do, a tap away, under the usual words.
         val primary = remember { ServiceIdeas.connected(ctx).firstOrNull() }
@@ -314,7 +323,8 @@ fun SyncsScreen(
         val followIt = here != null && from >= 0 && (follow || (from > to && (to == 0 || here == listState.firstVisibleItemIndex)))
         moveAnchor[0] = if (followIt) (here!! + (to - from)).coerceAtLeast(0) to 0
         else listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
-        Store.get(ctx).moveJob(job.id, com.xlollx.songport.sync.Labels.storeIndex(data.jobs, job.id, to, onTop))
+        if (nwayHidden.isEmpty()) Store.get(ctx).moveJob(job.id, com.xlollx.songport.sync.Labels.storeIndex(data.jobs, job.id, to, onTop))
+        else Store.get(ctx).let { st -> st.moveJob(job.id, NwayUi.storeIndex(st.data, job.id, to)) }
     }
     // Hold a card and drag it: the order while dragging lives here, and goes to the store when the
     // card is let go (kept until the store's list shows it, so the cards never jump back meanwhile).
@@ -410,7 +420,9 @@ fun SyncsScreen(
     val runAllIndex = 1
     // Index of the first card: the status line, the pill's row, the filter's line, then the support card and the
     // crowded-schedule card when there are any. With the filter cleared, its line is not there.
-    val firstCardUnfiltered = (if (runAllRow) 2 else 1) + (if (support != null || nudge) 1 else 0)
+    // The groups' cards come before the syncs', with the whole list only (a search is among the syncs).
+    val groupCards = if (effective.isActive) emptyList() else nwayGroups
+    val firstCardUnfiltered = (if (runAllRow) 2 else 1) + (if (support != null || nudge) 1 else 0) + groupCards.size
     var pillHeight by remember { mutableIntStateOf(0) }
     // Pinned once the list has scrolled past its place: the cards are then passing beneath it.
     val pillPinned by remember(runAllIndex) {
@@ -477,7 +489,8 @@ fun SyncsScreen(
                 // On already (alone): a second tap takes it off again.
                 val summaryShown = summary.filter.isNotEmpty() && filter == SyncFilter(statuses = summary.filter)
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SyncStatusStrip(
+                    // Groups alone, no sync of its own to count.
+                    if (n > 0) SyncStatusStrip(
                         summary, n, lastRun, shown = summaryShown,
                         onShow = { filter = if (summaryShown) SyncFilter() else SyncFilter(statuses = summary.filter) },
                         onStats = if (anyRun) onStats else null,
@@ -552,7 +565,8 @@ fun SyncsScreen(
                     )
                 }
             }
-            if (shown.isEmpty()) item(key = "nomatch", span = wholeRow) { SyncFinderEmpty { filter = SyncFilter() } }
+            items(groupCards, key = { "nway:" + it.id }, span = { GridItemSpan(maxLineSpan) }) { g -> NwayCard(g, stored, running.keys) { onOpenGroup(g.id) } }
+            if (shown.isEmpty() && data.syncs.isNotEmpty()) item(key = "nomatch", span = wholeRow) { SyncFinderEmpty { filter = SyncFilter() } }
             // Dragging works on the whole list only: with a filter, the cards between are hidden.
             val canDrag = !effective.isActive && shown.size >= 2
             val listed = dragOrder?.let { o -> shown.sortedBy { o.indexOf(it.id) } } ?: shown
@@ -639,7 +653,9 @@ fun SyncsScreen(
                         val to = dropped?.indexOf(job.id) ?: -1
                         if (com.xlollx.songport.BuildConfig.DEBUG) android.util.Log.d("Reorder", "stop ${job.id}: to=$to dropped=$dropped now=${orderNow()}")
                         if (to >= 0 && dropped != orderNow()) {
-                            Store.get(ctx).data.let { d -> Store.get(ctx).moveJob(job.id, com.xlollx.songport.sync.Labels.storeIndex(d.jobs, job.id, to, d.settings.favoritesOnTop)) }
+                            Store.get(ctx).data.let { d ->
+                                Store.get(ctx).moveJob(job.id, if (nwayHidden.isEmpty()) com.xlollx.songport.sync.Labels.storeIndex(d.jobs, job.id, to, d.settings.favoritesOnTop) else NwayUi.storeIndex(d, job.id, to))
+                            }
                             // The store's list takes over as soon as it shows the move; at the latest, now.
                             scope.launch { kotlinx.coroutines.delay(400); if (!reorder.isAnyItemDragging) dragOrder = null }
                         } else dragOrder = null
@@ -1858,7 +1874,12 @@ private val PolicySaver = androidx.compose.runtime.saveable.Saver<com.xlollx.son
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () -> Unit = {}, twinName: String? = null, onSave: (SyncJob, SyncJob?) -> Unit) {
+fun SyncEditorScreen(
+    job: SyncJob, onCancel: () -> Unit, onConnectService: () -> Unit = {}, twinName: String? = null,
+    /** New sync › One playlist on several services (1.18): set when it is offered. */
+    onSeveral: (() -> Unit)? = null,
+    onSave: (SyncJob, SyncJob?) -> Unit,
+) {
     val ctx = LocalContext.current
     val saveHaptic = rememberConfirmHaptic()
     val isNew = job.name.isEmpty()
@@ -2177,6 +2198,7 @@ fun SyncEditorScreen(job: SyncJob, onCancel: () -> Unit, onConnectService: () ->
                     )
                 }
             }
+            if (isNew && onSeveral != null && loginServices >= 2) NwayEntryCard(onSeveral)
             // Nothing to sync from yet, or only one service to sync between: say so, with the way to connect one.
             if (loginServices == 0) {
                 ConnectServiceCard(stringResource(R.string.no_connected_providers), onConnectService)

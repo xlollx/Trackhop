@@ -48,6 +48,13 @@ class FolderGroupTransport(private val folder: GroupFolder, private val groupId:
     override fun unreachable(env: Env, group: SharedGroup): String = env.text("shared_error_folder", group.folderName.ifBlank { group.name })
 }
 
+/** A group that never leaves this device ([Invite.LOCAL], see [Nway]): no one to read, nothing to publish. */
+object LocalGroupTransport : GroupTransport {
+    override fun readAll(first: Set<String>): List<MemberFile> = emptyList()
+    override fun publish(member: String, file: MemberFile, written: Int): Int = written
+    override fun unreachable(env: Env, group: SharedGroup): String = group.name
+}
+
 /** The transport of each group, and what one needs besides the member's own key. */
 object SharedTransports {
     /** Where the group key of an encrypted channel is kept, next to the member's own key in the vault. */
@@ -60,6 +67,7 @@ object SharedTransports {
     fun open(env: Env, group: SharedGroup): GroupTransport = when (group.transport) {
         Invite.NTFY -> NtfyTransport(env, group.id, group.folder, groupKey(env, group) ?: throw ProviderException(env.text("shared_error_key", group.name)), ntfyAuth(env, group))
         Invite.SERVER -> ServerGroupTransport(env, group.id, group.folder, mailboxKey(env, group) ?: throw ProviderException(env.text("shared_error_key", group.name)))
+        Invite.LOCAL -> LocalGroupTransport
         else -> FolderGroupTransport(SharedFolders.open(group.folder), group.id)
     }
 

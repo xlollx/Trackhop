@@ -113,6 +113,8 @@ data class Invite(
         const val FOLDER = "folder"
         const val NTFY = "ntfy"
         const val SERVER = "server"
+        /** No transport: a group of one user's own playlists, kept on this device (see [Nway]). Never in an invite. */
+        const val LOCAL = "local"
         const val BASE = "https://trackhop.org/join#"
         const val MAX_NAME = 60
         const val MAX_FOLDER = 40
@@ -494,7 +496,7 @@ object SharedGroups {
     private fun newGroupId(): String = ByteArray(8).also { SecureRandom().nextBytes(it) }.joinToString("") { "%02x".format(it) }
 
     /** The two halves of a member's sync: the group into [local], and [local] into the group. */
-    private fun jobsFor(group: SharedGroup, local: PlaylistRef): Pair<SyncJob, SyncJob> {
+    internal fun jobsFor(group: SharedGroup, local: PlaylistRef): Pair<SyncJob, SyncJob> {
         val shared = PlaylistRef(SharedProvider.ID, group.id, group.name)
         val down = SyncJob(id = group.jobId, name = group.name, source = shared, target = local, linkedJobId = group.twinId,
             twoWayRemovals = true, schedule = Schedule.EVERY_6H)
@@ -574,6 +576,21 @@ object SharedGroups {
         val (down, up) = jobsFor(group, local)
         env.store.update { d -> d.copy(groups = d.groups.filter { it.id != group.id } + group, jobs = d.jobs + down + up) }
         env.log("shared", "${group.name}: ${if (group.createdHere) "created" else "joined"}, files in ${group.folderName.ifBlank { "the chosen folder" }}")
+        return group
+    }
+
+    /**
+     * A local group ([Invite.LOCAL], see [Nway]) that came with a configuration file: the same group
+     * with a key of this device's own (keys never travel) and an empty list, which its main members
+     * fill again on their first run here. Nothing is removed by that run: the pairs' states did not travel either.
+     */
+    internal fun restoreLocal(env: Env, from: SharedGroup): SharedGroup {
+        val me = Identity.create()
+        val group = from.copy(name = plainOf(from.name, Invite.MAX_NAME), creator = me.id, me = me.id, folder = "", folderName = "", joinedAt = clock(), transport = Invite.LOCAL)
+        env.tokens.set(tokenKey(group.id), Tokens(accessToken = B64.encode(me.seed), userId = me.id))
+        synchronized(lockOf(group.id)) { save(env, group.id, GroupState(roster = Roster(group.id, 1, clock(), listOf(Grant(me.id))).signed(me))) }
+        env.store.update { d -> d.copy(groups = d.groups.filter { it.id != group.id } + group) }
+        env.log("shared", "${group.name}: brought in with a configuration file")
         return group
     }
 

@@ -45,6 +45,8 @@ object ConfigBackup {
         /** The installation that wrote it ([Settings.deviceId]) and how it calls itself ("Pixel 8"); "" in older files. */
         val device: String = "",
         val deviceName: String = "",
+        /** The groups of the user's own playlists (shared/Nway), without their lists: the members fill them again. */
+        val groups: List<com.xlollx.songport.shared.SharedGroup> = emptyList(),
     )
 
     /**
@@ -71,10 +73,13 @@ object ConfigBackup {
         val d = env.store.data
         val files = LocalFilesProvider.dir(env).listFiles { f -> f.isFile && f.extension == "csv" }.orEmpty()
             .associate { it.nameWithoutExtension to it.readText() }
+        // A group of the user's own playlists travels with its syncs; one shared with other people stays.
+        val own = d.groups.filter { com.xlollx.songport.shared.Nway.isGroup(it) }
+        val ownIds = own.mapTo(HashSet()) { it.id }
         val snapshot = Snapshot(
-            writtenBy = writtenBy, writtenAt = now,
+            writtenBy = writtenBy, writtenAt = now, groups = own,
             // A shared playlist's syncs stay: the group's key is this device's, and does not travel.
-            jobs = d.syncs.filter { com.xlollx.songport.shared.SharedGroups.sharedSide(it) == null }.let { jobs -> if (history) jobs else jobs.map { it.copy(lastReportId = null) } },
+            jobs = d.syncs.filter { com.xlollx.songport.shared.SharedGroups.sharedSide(it).let { g -> g == null || g in ownIds } }.let { jobs -> if (history) jobs else jobs.map { it.copy(lastReportId = null) } },
             reports = if (history) d.reports else emptyList(),
             matchCache = d.matchCache, ignoredTracks = d.ignoredTracks,
             settings = portable(d.settings), files = files,
@@ -142,6 +147,7 @@ object ConfigBackup {
                 wrapped = s.wrapped.fold(d.wrapped) { h, w -> Wrapped.remember(h, w) },
             )
         }
+        com.xlollx.songport.shared.Nway.restore(env, s.groups)
         // The services added come with it: the connector list follows the new settings at once.
         env.store.data.settings.let { st -> com.xlollx.songport.providers.Providers.configure(st.extraAccounts, st.connectorNames, st.connectors) }
         env.store.flush()
