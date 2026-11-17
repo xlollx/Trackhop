@@ -37,6 +37,10 @@ A CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, rekordbox XML, JSON or plain-text l
 *Tools → File playlists → Import*, then sync it to any service. That is how you move a playlist
 from a service Trackhop cannot reach, or restore one from a backup.
 
+A file of any size works: a big Apple Music/iTunes library or playlist file is read a piece at a time,
+with its progress, and a library (or a rekordbox collection) then lists its playlists for you to tick,
+each becoming a list of its own. A file cut short is refused, never half read.
+
 Once imported, *Send to a service* turns a list into the source of a new sync, with the first
 service that can make playlists as the target: it is offered right after an import or a pasted list,
 and in each list's ⋮ menu. On Desktop and Docker it is the *Send to a service* link next to each file.

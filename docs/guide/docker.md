@@ -109,7 +109,7 @@ playlist files. Back that folder up and you have backed up Trackhop.
 | SoundCloud | yes, as a source (unofficial) | Nothing: pick it as the source of a new sync and paste a public set or likes link. [More](soundcloud) |
 | NetEase Cloud Music, QQ Music, Anghami | yes, as sources (unofficial) | Nothing: pick one as the source of a new sync and paste a public playlist link. [More](netease-qq-music) |
 | JioSaavn | yes, as a source (unofficial) | Nothing: pick it as the source of a new sync and paste a public playlist, album or song link |
-| Gaana | yes (unofficial, alpha; in the next update) | Paste the session of a browser signed in to gaana.com, see [below](#gaana-unofficial); or nothing: pick **Gaana (public links, unofficial)** as the source and paste a public playlist link. [More](gaana) |
+| Gaana | yes (unofficial, alpha) | Paste the session of a browser signed in to gaana.com, see [below](#gaana-unofficial); or nothing: pick **Gaana (public links, unofficial)** as the source and paste a public playlist link. [More](gaana) |
 | CSV files | yes | Put them in `csv/` inside the data volume |
 | YouTube Music | yes (unofficial, alpha) | The cookies of a browser where you are signed in: [see below](#youtube-music-unofficial) |
 | Spotify (web) | yes (unofficial, alpha) | The `sp_dc` cookie of a browser where you are signed in: [see below](#spotify-and-deezer-without-a-key-unofficial) |
@@ -290,7 +290,7 @@ create, rename, public or private, delete); search, by ISRC first.
 ## Gaana (unofficial)
 
 Gaana has no interface for other apps: Trackhop goes through gaana.com's own website, unofficial and
-alpha, like the web connectors above. No developer key. In the next update.
+alpha, like the web connectors above. No developer key.
 
 1. In a desktop browser, sign in to [gaana.com](https://gaana.com).
 2. Open the developer tools (F12), then **Network**; type `token=` in the filter and open your library.

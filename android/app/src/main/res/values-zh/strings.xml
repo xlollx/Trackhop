@@ -3230,4 +3230,34 @@
     <plurals name="sched_delete_used">
         <item quantity="other">%d 个同步在使用：</item>
     </plurals>
+    <string name="whats_new_21_collections_title">共享合集</string>
+    <string name="whats_new_21_collections_body">一个邀请分享多个歌单。关注的人可以全部接收（包括以后新增的），也可以只选几个，各自用自己的服务。</string>
+    <string name="whats_new_21_nway_title">一个歌单，多个服务</string>
+    <string name="whats_new_21_nway_body">新建同步 › 一个歌单，多个服务：让同一个歌单在你的多个服务上同时保持一致，只占一张卡片。</string>
+    <string name="whats_new_21_bulk_title">一次编辑多个同步</string>
+    <string name="whats_new_21_bulk_body">长按一个同步再选中其他的，然后一起修改频率或删除方式、开启或关闭、设置颜色，或一起运行。</string>
+    <string name="whats_new_21_schedules_title">已保存的计划</string>
+    <string name="whats_new_21_schedules_body">计划只需保存一次，就能用于任何同步。修改它，使用它的所有同步都会跟着变。</string>
+    <string name="whats_new_21_tofix_title">一个待修正列表</string>
+    <string name="whats_new_21_tofix_body">工具中的“已保存的匹配”有了“待修正”标签，汇集你的同步没找到或需要你确认的歌曲。一首歌只需修正一次，所有同步都生效。</string>
+    <string name="whats_new_21_files_title">大型资料库和文件</string>
+    <string name="whats_new_21_files_body">大型 Apple Music 或 iTunes 资料库、大型歌单文件会分段读取，然后选择你想要的歌单。</string>
+    <string name="whats_new_21_resume_title">从中断处继续</string>
+    <string name="whats_new_21_resume_body">被手机中止的同步会重新开始，只填了一半的新歌单可以继续完成，不会留下写了一半的内容。无法读取的数据会被放到一边，并提供完好的副本供恢复。</string>
+    <string name="whats_new_21_account_title">选择账号</string>
+    <string name="whats_new_21_account_body">每次登录都会询问使用哪个账号，第一次也是。</string>
+    <string name="whats_new_21_koel_title">Koel 和更多排行榜</string>
+    <string name="whats_new_21_koel_body">你的 Koel 服务器可作为来源和目标（测试版）。Apple Music 的每日排行榜（全球和各国）以及城市排行榜。</string>
+    <string name="whats_new_21_formats_title">rekordbox、WPL 和 ZPL</string>
+    <string name="whats_new_21_formats_body">导入 rekordbox 收藏并选择其中的歌单。Windows Media Player 和 Zune 歌单，可导入也可导出。</string>
+    <string name="whats_new_21_discover_title">“发现”里的新内容</string>
+    <string name="whats_new_21_discover_body">根据服务发给你的文件生成的历史统计、演出日记、关注的场馆、你的 Discogs 唱片，以及开票提醒。</string>
+    <string name="whats_new_21_tools_title">新工具</string>
+    <string name="whats_new_21_tools_body">“标记为已收听”把你听过的专辑或歌单发送到 Last.fm 或 ListenBrainz。“重复的歌单”整理多次迁移留下的副本。</string>
+    <string name="whats_new_21_alphabets_title">其他文字的歌曲</string>
+    <string name="whats_new_21_alphabets_body">用西里尔文、希腊文、日文、韩文、希伯来文或阿拉伯文写的歌曲，现在能找到用拉丁字母写的同一首歌。</string>
+    <string name="whats_new_21_widgets_title">卡片颜色的小组件</string>
+    <string name="whats_new_21_widgets_body">小组件按同步卡片的颜色和样式显示。</string>
+    <string name="whats_new_21_gaana_title">Gaana</string>
+    <string name="whats_new_21_gaana_body">你的 Gaana 歌单和收藏的歌曲（alpha），以及通过链接读取的 Gaana 公开歌单。</string>
 </resources>

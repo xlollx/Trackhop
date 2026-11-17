@@ -122,6 +122,20 @@ say) doesn't bring it back.
   the server it uses), and **Leave group**: you stop receiving changes,
   your playlist stays as it is on your service, and the songs you added stay with the group.
 
+## Several playlists, one invite
+
+From Trackhop 2.1 a group can share a **collection**: several playlists behind one invite, code or
+channel. When you create a group, choose **Several playlists together**, name the collection and tick
+the playlists; you can also have the playlists you create later added to it.
+
+Whoever joins picks **All** (every playlist, the ones added later too) or **Pick** (only the ones they
+tick; new playlists are then proposed, with Add or Ignore, never added by themselves), and one or more
+of their services: on several services each playlist is kept the same on all of them. A playlist of
+the same name they already have is used, and the tracks it holds stay.
+
+The collection is one card in Syncs, with a switch per playlist: switch one off and it stops syncing
+and stays as it is on your service. Each playlist inside works like a shared playlist of its own.
+
 ## Good to know
 
 - On a shared folder, everyone in the group needs access to the folder: inviting someone to the

@@ -3329,4 +3329,34 @@
         <item quantity="one">%d sync uses it:</item>
         <item quantity="other">%d syncs use it:</item>
     </plurals>
+    <string name="whats_new_21_collections_title">Shared collections</string>
+    <string name="whats_new_21_collections_body">Share several playlists with one invite. Whoever follows takes them all, new ones included, or picks some, each on their own service.</string>
+    <string name="whats_new_21_nway_title">One playlist on several services</string>
+    <string name="whats_new_21_nway_body">New sync › One playlist on several services keeps the same playlist on more of your services at once, in a single card.</string>
+    <string name="whats_new_21_bulk_title">Several syncs at once</string>
+    <string name="whats_new_21_bulk_body">Hold a sync to select more, then change their schedule or removals, turn them on or off, colour them or run them together.</string>
+    <string name="whats_new_21_schedules_title">Saved schedules</string>
+    <string name="whats_new_21_schedules_body">Save a schedule once and give it to any sync. Change it and every sync that uses it follows.</string>
+    <string name="whats_new_21_tofix_title">One list to fix</string>
+    <string name="whats_new_21_tofix_body">Saved matches, in Tools, gathers what your syncs could not find or want you to check, in its To fix tab. Fix a song once and it is fixed in every sync.</string>
+    <string name="whats_new_21_files_title">Big libraries and files</string>
+    <string name="whats_new_21_files_body">A big Apple Music or iTunes library, or a big playlist file, is read a piece at a time. Then pick the playlists you want.</string>
+    <string name="whats_new_21_resume_title">Picks up where it stopped</string>
+    <string name="whats_new_21_resume_body">A sync the phone stops starts again, a new playlist filled half way can be continued, and nothing is left half written. Saved data that cannot be read is kept aside, with a good copy to restore.</string>
+    <string name="whats_new_21_account_title">Choose the account</string>
+    <string name="whats_new_21_account_body">Every sign-in asks which account to use, the first one too.</string>
+    <string name="whats_new_21_koel_title">Koel and more charts</string>
+    <string name="whats_new_21_koel_body">Your Koel server as a source and a target (beta). Apple Music\'s daily charts, for the world and each country, and city charts.</string>
+    <string name="whats_new_21_formats_title">rekordbox, WPL and ZPL</string>
+    <string name="whats_new_21_formats_body">Bring in a rekordbox collection and pick its playlists. Windows Media Player and Zune playlists, in and out.</string>
+    <string name="whats_new_21_discover_title">More in Discover</string>
+    <string name="whats_new_21_discover_body">Lifetime stats from the file your service sends you, your concert diary, the venues you follow, your Discogs records, and alerts when tickets go on sale.</string>
+    <string name="whats_new_21_tools_title">New tools</string>
+    <string name="whats_new_21_tools_body">Mark as listened sends an album or a playlist you played to Last.fm or ListenBrainz. Duplicate playlists tidies the copies left by repeated transfers.</string>
+    <string name="whats_new_21_alphabets_title">Songs in other alphabets</string>
+    <string name="whats_new_21_alphabets_body">A song listed in Cyrillic, Greek, Japanese, Korean, Hebrew or Arabic now finds the same song written in Latin letters.</string>
+    <string name="whats_new_21_widgets_title">Widgets in your colours</string>
+    <string name="whats_new_21_widgets_body">A widget shows a sync in its card\'s colours and style.</string>
+    <string name="whats_new_21_gaana_title">Gaana</string>
+    <string name="whats_new_21_gaana_body">Your Gaana playlists and favourite songs (alpha), and public Gaana playlists from their link.</string>
 </resources>

@@ -3335,4 +3335,34 @@
         <item quantity="one">%d sincronização usa:</item>
         <item quantity="other">%d sincronizações usam:</item>
     </plurals>
+    <string name="whats_new_21_collections_title">Coleções compartilhadas</string>
+    <string name="whats_new_21_collections_body">Compartilhe várias playlists com um só convite. Quem segue pega todas, inclusive as novas, ou escolhe algumas, cada um no seu serviço.</string>
+    <string name="whats_new_21_nway_title">Uma playlist em vários serviços</string>
+    <string name="whats_new_21_nway_body">Nova sincronização › Uma playlist em vários serviços mantém a mesma playlist em vários dos seus serviços ao mesmo tempo, em um só cartão.</string>
+    <string name="whats_new_21_bulk_title">Várias syncs de uma vez</string>
+    <string name="whats_new_21_bulk_body">Toque e segure uma sync para selecionar outras e mude a frequência ou as remoções, ative ou desative, dê uma cor ou execute todas juntas.</string>
+    <string name="whats_new_21_schedules_title">Agendamentos salvos</string>
+    <string name="whats_new_21_schedules_body">Salve um agendamento uma vez e use em qualquer sync. Se mudar, todas as syncs que o usam acompanham.</string>
+    <string name="whats_new_21_tofix_title">Uma só lista para corrigir</string>
+    <string name="whats_new_21_tofix_body">Correspondências salvas, em Ferramentas, reúne o que suas syncs não acharam ou querem que você confira, na aba A corrigir. Corrija uma música uma vez e vale para todas as syncs.</string>
+    <string name="whats_new_21_files_title">Bibliotecas e arquivos grandes</string>
+    <string name="whats_new_21_files_body">Uma biblioteca grande do Apple Music ou iTunes, ou um arquivo de playlist grande, é lido aos poucos. Depois você escolhe as playlists que quiser.</string>
+    <string name="whats_new_21_resume_title">Continua de onde parou</string>
+    <string name="whats_new_21_resume_body">Uma sync parada pelo celular recomeça, uma playlist nova preenchida pela metade pode ser continuada e nada fica escrito pela metade. Dados ilegíveis são guardados à parte, com uma cópia boa para restaurar.</string>
+    <string name="whats_new_21_account_title">Escolha a conta</string>
+    <string name="whats_new_21_account_body">Cada login pergunta qual conta usar, inclusive o primeiro.</string>
+    <string name="whats_new_21_koel_title">Koel e mais paradas</string>
+    <string name="whats_new_21_koel_body">Seu servidor Koel como origem e destino (beta). As paradas diárias do Apple Music, do mundo e de cada país, e as das cidades.</string>
+    <string name="whats_new_21_formats_title">rekordbox, WPL e ZPL</string>
+    <string name="whats_new_21_formats_body">Importe uma coleção do rekordbox e escolha as playlists. Playlists do Windows Media Player e do Zune, para importar e exportar.</string>
+    <string name="whats_new_21_discover_title">Mais em Descobrir</string>
+    <string name="whats_new_21_discover_body">Suas estatísticas de sempre a partir do arquivo que seu serviço envia, seu diário de shows, as casas que você segue, seus discos do Discogs e avisos quando os ingressos começam a ser vendidos.</string>
+    <string name="whats_new_21_tools_title">Ferramentas novas</string>
+    <string name="whats_new_21_tools_body">Marcar como ouvidas envia ao Last.fm ou ao ListenBrainz um álbum ou uma playlist que você ouviu. Playlists duplicadas organiza as cópias deixadas por transferências repetidas.</string>
+    <string name="whats_new_21_alphabets_title">Músicas em outros alfabetos</string>
+    <string name="whats_new_21_alphabets_body">Uma música escrita em cirílico, grego, japonês, coreano, hebraico ou árabe agora encontra a mesma música em letras latinas.</string>
+    <string name="whats_new_21_widgets_title">Widgets nas suas cores</string>
+    <string name="whats_new_21_widgets_body">Um widget mostra uma sync com as cores e o estilo do seu cartão.</string>
+    <string name="whats_new_21_gaana_title">Gaana</string>
+    <string name="whats_new_21_gaana_body">Suas playlists e músicas favoritas do Gaana (alfa), e playlists públicas do Gaana pelo link.</string>
 </resources>

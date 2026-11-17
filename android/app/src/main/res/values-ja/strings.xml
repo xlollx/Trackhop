@@ -3230,4 +3230,34 @@
     <plurals name="sched_delete_used">
         <item quantity="other">%d 件の同期が使っています:</item>
     </plurals>
+    <string name="whats_new_21_collections_title">共有コレクション</string>
+    <string name="whats_new_21_collections_body">複数のプレイリストをひとつの招待で共有。フォローする人は、新しく増えるものも含めてすべて受け取るか、いくつか選べます。それぞれ自分のサービスで。</string>
+    <string name="whats_new_21_nway_title">1 つのプレイリストを複数のサービスで</string>
+    <string name="whats_new_21_nway_body">同じプレイリストを複数のサービスで同時にそろえます。新しい同期から作成でき、カードはひとつにまとまります。</string>
+    <string name="whats_new_21_bulk_title">複数の同期をまとめて編集</string>
+    <string name="whats_new_21_bulk_body">同期を長押しして他も選び、頻度や削除の扱いを変えたり、オン・オフ、色分け、まとめて実行ができます。</string>
+    <string name="whats_new_21_schedules_title">保存したスケジュール</string>
+    <string name="whats_new_21_schedules_body">スケジュールを一度保存すれば、どの同期にも使えます。変更すると、それを使うすべての同期に反映されます。</string>
+    <string name="whats_new_21_tofix_title">直す曲はひとつのリストに</string>
+    <string name="whats_new_21_tofix_body">ツールの「保存された一致」に「要修正」タブが加わり、同期で見つからなかった曲や確認が必要な曲をまとめます。一度直せば、すべての同期に反映されます。</string>
+    <string name="whats_new_21_files_title">大きなライブラリやファイルも</string>
+    <string name="whats_new_21_files_body">大きな Apple Music・iTunes ライブラリや大きなプレイリストファイルを少しずつ読み込み、その後で欲しいプレイリストを選べます。</string>
+    <string name="whats_new_21_resume_title">止まったところから再開</string>
+    <string name="whats_new_21_resume_body">端末に止められた同期は再開し、途中まで作られた新しいプレイリストは続きから作れ、書きかけのまま残るものはありません。読めなくなったデータは別に保管され、復元できる正常なコピーが提示されます。</string>
+    <string name="whats_new_21_account_title">アカウントを選択</string>
+    <string name="whats_new_21_account_body">サインインのたびに、使うアカウントを聞きます。最初のときも同じです。</string>
+    <string name="whats_new_21_koel_title">Koel とチャートの追加</string>
+    <string name="whats_new_21_koel_body">Koel サーバーをソースにも同期先にも（ベータ）。Apple Music のデイリーチャート（世界・各国）と都市別チャート。</string>
+    <string name="whats_new_21_formats_title">rekordbox、WPL、ZPL</string>
+    <string name="whats_new_21_formats_body">rekordbox のコレクションを読み込み、プレイリストを選べます。Windows Media Player と Zune のプレイリストは読み込みも書き出しも。</string>
+    <string name="whats_new_21_discover_title">発見に新機能</string>
+    <string name="whats_new_21_discover_body">サービスから届くファイルで見る全期間の統計、ライブ日記、フォロー中の会場、Discogs のレコード、チケット発売のお知らせ。</string>
+    <string name="whats_new_21_tools_title">新しいツール</string>
+    <string name="whats_new_21_tools_body">「聴いた曲として記録」は、聴いたアルバムやプレイリストを Last.fm や ListenBrainz に送ります。「重複したプレイリスト」は、移行を繰り返して残ったコピーを整理します。</string>
+    <string name="whats_new_21_alphabets_title">ほかの文字で書かれた曲</string>
+    <string name="whats_new_21_alphabets_body">キリル文字、ギリシャ文字、日本語、韓国語、ヘブライ文字、アラビア文字で書かれた曲が、ラテン文字で書かれた同じ曲を見つけられるようになりました。</string>
+    <string name="whats_new_21_widgets_title">カードの色のウィジェット</string>
+    <string name="whats_new_21_widgets_body">ウィジェットが同期をカードの色とスタイルで表示します。</string>
+    <string name="whats_new_21_gaana_title">Gaana</string>
+    <string name="whats_new_21_gaana_body">Gaana のプレイリストとお気に入りの曲（アルファ版）、リンクからの Gaana 公開プレイリスト。</string>
 </resources>

@@ -46,7 +46,7 @@ demo_alt: "A tour of Trackhop: syncs, a new sync, accounts, the Discover tab, a 
 what_title: What it does
 what_intro: Pick a source and a target, choose how often. Trackhop finds every track on the other side, shows you what will change, and keeps both in step.
 card1_title: Any service to any service
-card1: "Playlists, liked songs, saved albums and followed artists. Or paste the link of any public playlist. New in 2.0: one playlist shared with friends who each use their own service."
+card1: "Playlists, liked songs, saved albums and followed artists. Or paste the link of any public playlist. New in 2.0: one playlist shared with friends who each use their own service. New in 2.1: several playlists shared with one invite."
 card2_title: On a schedule
 card2: "Hourly, every 6 hours, daily or weekly. Additions only, or mirror removals too, and keep the source's order. Two-way too, removals included."
 card3_title: Nothing guessed
@@ -56,7 +56,7 @@ card4: You sign in on each service's own page. Access tokens are encrypted on th
 card5_title: Your own music server
 card5: "Navidrome and other Subsonic servers, Jellyfin, Emby, Plex, Lyrion and Mopidy, next to the streaming services, with a list of the songs your server still lacks. Files too: CSV, M3U, XML, JSON. <a href='https://www.navidrome.org/apps/'>Listed in the Navidrome app catalog.</a>"
 card6_title: Playlist tools
-card6: "Backups, duplicate removal, merge, split and sort, and a playlist generator driven by your own AI key. New in 2.0: the new releases, concerts, setlists and records of your playlists' artists."
+card6: "Backups, duplicate removal, merge, split and sort, and a playlist generator driven by your own AI key. New in 2.0: the new releases, concerts, setlists and records of your playlists' artists. New in 2.1: one list of songs to fix for every sync, and several syncs edited at once."
 one_title: "Even with just one service"
 one_intro: "No second service needed. If you only use Spotify, Apple Music, YouTube Music or any other, Trackhop still looks after your playlists."
 one1_title: "Save Discover Weekly"

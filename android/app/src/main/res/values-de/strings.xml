@@ -3327,4 +3327,34 @@
         <item quantity="one">%d Sync verwendet ihn:</item>
         <item quantity="other">%d Syncs verwenden ihn:</item>
     </plurals>
+    <string name="whats_new_21_collections_title">Geteilte Sammlungen</string>
+    <string name="whats_new_21_collections_body">Teile mehrere Playlists mit einer einzigen Einladung. Wer folgt, nimmt alle, auch neue, oder wählt einige aus, jeder auf seinem Dienst.</string>
+    <string name="whats_new_21_nway_title">Eine Playlist auf mehreren Diensten</string>
+    <string name="whats_new_21_nway_body">Neue Sync › Eine Playlist auf mehreren Diensten hält dieselbe Playlist auf mehreren deiner Dienste gleich, in einer einzigen Karte.</string>
+    <string name="whats_new_21_bulk_title">Mehrere Syncs auf einmal</string>
+    <string name="whats_new_21_bulk_body">Halte eine Sync gedrückt, um weitere auszuwählen, und ändere dann Zeitplan oder Entfernungen, schalte sie ein oder aus, färbe sie oder starte sie zusammen.</string>
+    <string name="whats_new_21_schedules_title">Gespeicherte Zeitpläne</string>
+    <string name="whats_new_21_schedules_body">Speichere einen Zeitplan einmal und gib ihn jeder Sync. Änderst du ihn, folgen alle Syncs, die ihn nutzen.</string>
+    <string name="whats_new_21_tofix_title">Eine Liste zum Klären</string>
+    <string name="whats_new_21_tofix_body">Gespeicherte Zuordnungen unter Werkzeuge sammelt im Tab Zu klären, was deine Syncs nicht gefunden haben oder geprüft haben wollen. Einmal geklärt, gilt es für jede Sync.</string>
+    <string name="whats_new_21_files_title">Große Mediatheken und Dateien</string>
+    <string name="whats_new_21_files_body">Eine große Apple-Music- oder iTunes-Mediathek oder eine große Playlist-Datei wird Stück für Stück gelesen. Dann wählst du die Playlists aus.</string>
+    <string name="whats_new_21_resume_title">Macht weiter, wo es aufgehört hat</string>
+    <string name="whats_new_21_resume_body">Eine vom Handy gestoppte Sync startet neu, eine halb gefüllte neue Playlist lässt sich fortsetzen, und nichts bleibt halb geschrieben. Unlesbare Daten werden beiseitegelegt, mit einer guten Kopie zum Wiederherstellen.</string>
+    <string name="whats_new_21_account_title">Konto wählen</string>
+    <string name="whats_new_21_account_body">Jede Anmeldung fragt, welches Konto genutzt werden soll, auch die erste.</string>
+    <string name="whats_new_21_koel_title">Koel und mehr Charts</string>
+    <string name="whats_new_21_koel_body">Dein Koel-Server als Quelle und Ziel (Beta). Die Tagescharts von Apple Music, weltweit und für jedes Land, und Städte-Charts.</string>
+    <string name="whats_new_21_formats_title">rekordbox, WPL und ZPL</string>
+    <string name="whats_new_21_formats_body">Importiere eine rekordbox-Sammlung und wähle ihre Playlists. Playlists von Windows Media Player und Zune, rein und raus.</string>
+    <string name="whats_new_21_discover_title">Mehr in Entdecken</string>
+    <string name="whats_new_21_discover_body">Deine Statistik aller Zeiten aus der Datei, die dir dein Dienst schickt, dein Konzerttagebuch, gefolgte Locations, deine Discogs-Platten und Hinweise, wenn Tickets in den Verkauf gehen.</string>
+    <string name="whats_new_21_tools_title">Neue Werkzeuge</string>
+    <string name="whats_new_21_tools_body">Als gehört markieren schickt ein gehörtes Album oder eine Playlist an Last.fm oder ListenBrainz. Doppelte Playlists räumt die Kopien wiederholter Übertragungen auf.</string>
+    <string name="whats_new_21_alphabets_title">Songs in anderen Schriften</string>
+    <string name="whats_new_21_alphabets_body">Ein Song in kyrillischer, griechischer, japanischer, koreanischer, hebräischer oder arabischer Schrift findet jetzt denselben Song in lateinischer Schrift.</string>
+    <string name="whats_new_21_widgets_title">Widgets in deinen Farben</string>
+    <string name="whats_new_21_widgets_body">Ein Widget zeigt eine Sync in den Farben und im Stil ihrer Karte.</string>
+    <string name="whats_new_21_gaana_title">Gaana</string>
+    <string name="whats_new_21_gaana_body">Deine Gaana-Playlists und Lieblingssongs (Alpha) und öffentliche Gaana-Playlists über ihren Link.</string>
 </resources>

@@ -41,9 +41,9 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 <p align="center">
   <b>On a computer or a server?</b> <sub>(Docker and Azure: beta)</sub><br>
   <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P"><img src="docs/assets/badges/msstore.svg" height="56" alt="Get it from the Microsoft Store"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.0.0/Trackhop-Desktop-v2.0.0-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.0.0/Trackhop-Desktop-v2.0.0-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.0.0/Trackhop-Desktop-v2.0.0-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.0/Trackhop-Desktop-v2.1.0-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.0/Trackhop-Desktop-v2.1.0-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.0/Trackhop-Desktop-v2.1.0-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
   <a href="https://trackhop.org/guide/docker"><img src="docs/assets/badges/docker.svg" height="56" alt="Run it on Docker"></a>
   <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json"><img src="docs/assets/badges/azure.svg" height="56" alt="Deploy on Azure (beta)"></a>
 </p>
@@ -64,7 +64,8 @@ Trackhop keeps playlists identical across Spotify, Apple Music, YouTube Music, A
 Deezer, SoundCloud, LiveOne, Subsonic/Navidrome, Koel, Jellyfin, Emby, Plex, Lyrion Music Server and Mopidy, with Last.fm, ListenBrainz and public NetEase
 Cloud Music, QQ Music and JioSaavn links as sources and playlist files (CSV, TSV, M3U, iTunes XML, JSON, pasted text) as a bridge to everything else. New in 2.0:
 playlists shared by a group whose members each use their own service, and Discover pages that follow a playlist's artists: new releases, concerts,
-setlists, records and merch. Everything runs
+setlists, records and merch. New in 2.1: several playlists shared behind one invite, one list of songs to fix for every sync,
+several syncs edited at once, and big libraries read a piece at a time. Everything runs
 on the phone: there is no Trackhop server, and access tokens never leave the device. Free, no ads in
 any build: development lives on voluntary donations. Listed in the [Navidrome app catalog](https://www.navidrome.org/apps/).
 
@@ -100,8 +101,8 @@ F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and A
 | | ✓ | — | — | Paste a public set or likes link, no account | GitHub, F-Droid, Desktop, Docker |
 | **NetEase Cloud Music, QQ Music** | ✓ | — | — | Paste a public playlist link | GitHub, F-Droid, Desktop, Docker · plugin |
 | **JioSaavn** | ✓ | — | — | Paste a public playlist, album or song link | GitHub, F-Droid, Desktop, Docker · plugin |
-| **Gaana** | ✓ | ✓ | ✓ | Quick sign-in with your Gaana account: your playlists and favourite songs (alpha, in the next update) | GitHub, F-Droid, Desktop, Docker · plugin |
-| | ✓ | — | — | Paste a public playlist link, no account (in the next update) | GitHub, F-Droid, Desktop, Docker · plugin |
+| **Gaana** | ✓ | ✓ | ✓ | Quick sign-in with your Gaana account: your playlists and favourite songs (alpha) | GitHub, F-Droid, Desktop, Docker · plugin |
+| | ✓ | — | — | Paste a public playlist link, no account | GitHub, F-Droid, Desktop, Docker · plugin |
 | **Anghami** | ✓ | ✓ | ✓ | Quick sign-in with your Anghami account: your playlists and likes (beta) | GitHub, F-Droid, Desktop, Docker · plugin |
 | **Qobuz** | ✓ | ✓ | ✓ | Quick sign-in with your Qobuz account (Google too): your playlists and favourite tracks (beta) | GitHub, F-Droid, Desktop, Docker · plugin |
 | | ✓ | — | — | Paste a public playlist link, no account | GitHub, F-Droid, Desktop, Docker · plugin |
@@ -139,14 +140,14 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
   built in. [Which Trackhop?](https://trackhop.org/guide/versions) compares them.
 - **Desktop (Windows, macOS, Linux)**: the same engine as a program on your
   computer, with its own Java runtime (no Java or Docker to install, no administrator rights), an icon
-  next to the clock and the same web page as the server. Version 2.0.0 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v2.0.0)):
-  [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v2.0.0/Trackhop-Desktop-v2.0.0-windows.msi) ·
-  [Windows, no install (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v2.0.0/Trackhop-Desktop-v2.0.0-windows.zip) ·
-  [macOS, Apple silicon](https://github.com/xlollx/Trackhop/releases/download/server-v2.0.0/Trackhop-Desktop-v2.0.0-macos-arm64.dmg) ·
-  [macOS, Intel](https://github.com/xlollx/Trackhop/releases/download/server-v2.0.0/Trackhop-Desktop-v2.0.0-macos-x64.dmg) ·
-  [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v2.0.0/Trackhop-Desktop-v2.0.0-linux.deb) ·
-  [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v2.0.0/Trackhop-Desktop-v2.0.0-linux.tar.gz) ·
-  [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v2.0.0/Trackhop-Desktop-v2.0.0-linux.flatpak). See the
+  next to the clock and the same web page as the server. Version 2.1.0 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v2.1.0)):
+  [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.0/Trackhop-Desktop-v2.1.0-windows.msi) ·
+  [Windows, no install (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.0/Trackhop-Desktop-v2.1.0-windows.zip) ·
+  [macOS, Apple silicon](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.0/Trackhop-Desktop-v2.1.0-macos-arm64.dmg) ·
+  [macOS, Intel](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.0/Trackhop-Desktop-v2.1.0-macos-x64.dmg) ·
+  [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.0/Trackhop-Desktop-v2.1.0-linux.deb) ·
+  [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.0/Trackhop-Desktop-v2.1.0-linux.tar.gz) ·
+  [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.0/Trackhop-Desktop-v2.1.0-linux.flatpak). See the
   [Desktop guide](https://trackhop.org/guide/desktop); every version is in the
   [Desktop & Server releases](https://github.com/xlollx/Trackhop/releases?q=server-v&expanded=true) (`server-v…`).
   With [Scoop](https://github.com/xlollx/scoop-bucket): `scoop bucket add xlollx https://github.com/xlollx/scoop-bucket`
@@ -179,7 +180,7 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
 - And a **command line**, `trackhop`: `trackhop run --all --wait`, `trackhop add spotify Focus "Bonobo - Kerala"`,
   from a terminal, cron or Task Scheduler, with nothing to set up on the same machine or in the
   container (`docker exec trackhop trackhop syncs`). See [the trackhop command](https://trackhop.org/guide/cli).
-- Desktop and Docker have their **own version** (now 2.0.0), separate from the app's.
+- Desktop and Docker have their **own version** (now 2.1.0), separate from the app's.
 
 Android 8.0 or newer. Languages: English, Italian, French, German, Spanish, Portuguese (Brazil), Polish,
 Russian, Turkish, Chinese, Japanese, Korean.
@@ -259,6 +260,7 @@ reports are what make it better: if something does not work as it should, say so
 - [Follow Trackhop](#follow-trackhop)
 - [Feedback](#feedback)
 - [Features](#features)
+- [New in 2.1](#new-in-21)
 - [New in 2.0](#new-in-20)
 - [Gallery](#gallery)
 - [Supported services and their limits](#supported-services-and-their-limits)
@@ -338,6 +340,34 @@ reports are what make it better: if something does not work as it should, say so
 | Security | Connections log | Settings › Developer options lists every host the app has contacted and how often, so "no Trackhop server" is something to check, not to believe. |
 | | Info sheet before every login, encrypted tokens, fingerprint or PIN lock | See [How logins are protected](#how-logins-are-protected). |
 
+## New in 2.1
+
+In Trackhop 2.1, in the app and in Desktop and Docker 2.1.0. Thanks to JPMarcelino (#66) and raykai (#67).
+
+| Area | Feature | Notes |
+|------|---------|-------|
+| Sync | Shared collections | Several shared playlists behind one invite, code or channel. Whoever follows takes them all (new ones included) or picks some, on one or more of their services; one card in Syncs with a switch per playlist. [Guide](https://trackhop.org/guide/shared-playlists). |
+| | One playlist on several services | New sync › One playlist on several services keeps the same playlist on more of your services at once, as one card with its own page. |
+| | Several syncs at once | Hold a sync (or ⋮ › Select) to pick more, then change schedule or removals, turn them on or off, run them, colour and label them, or delete them; fields that differ say so and stay as they are unless touched. |
+| | Saved schedules | A schedule saved once, with an optional name, given to any sync and linked: change it and every sync using it follows, or detach one sync. |
+| | One To fix list | Tools › Saved matches lists what Trackhop remembers across all syncs, with a To fix tab gathering every sync's songs not found or to check; a choice is made once for every sync with that song (#69). Desktop and Docker have a page to read and forget saved matches. |
+| | Picks up where it stopped | A sync the system stops while adding starts again; a new playlist filled half way shows Continue, which adds only what is missing; *Remove duplicates* cut short puts the song back; saved state is written whole or not at all, and a store that cannot be read is kept aside with the last good copy offered to restore, never by itself. Desktop and Docker say what a restart interrupted, with Retry. |
+| | Safer runs | A source that lists fewer tracks than it counts is read again, and a sync that removes stops before writing anything if it is still short; a playlist made by a run whose reply was lost is never made twice. |
+| Matching | Across alphabets | A song listed in Cyrillic, Greek, kana, Hangul, Hebrew or Arabic matches its Latin name when artist and length agree. |
+| Files | Big libraries and files | An Apple Music/iTunes library or a playlist file of any size is read a piece at a time, then its playlists are offered to tick (#67). rekordbox XML collections are read the same way; WPL and ZPL (Windows Media Player, Groove, Zune) are read and written. |
+| Services | Koel (beta) | Your Koel server as a source and a target, on the Subsonic connector. |
+| | Gaana (alpha, unofficial) | Your playlists and favourite songs, and public playlists from their link. GitHub/F-Droid builds, Desktop and Docker; the store builds through the plugin. [Guide](https://trackhop.org/guide/gaana). |
+| | Apple Music charts | Apple's Daily Top 100 of the world and of each country, and the Top 25 of each city, next to the Top 100. |
+| | Account choice | Every sign-in asks which account to use, the first account's too. |
+| Discover | Lifetime stats | The export file of Spotify, YouTube (Takeout) or Deezer read on the phone: hours, artists, a listening clock, the years, a story card and the all-time playlist. |
+| | Concerts | The concert diary from setlist.fm's attended concerts, followed venues and a typed city with the *Concerts near you* playlist, and alerts for tickets going on sale, presales and dates moved or called off; on the server a calendar to subscribe to (`.ics`). |
+| | My records | Your Discogs collection with Discogs' estimate of its value and as a playlist, and the wantlist with an alert per record. |
+| Tools | Mark as listened | An album, a playlist, a file or a pasted list sent once to Last.fm and ListenBrainz, laid back to back by the songs' lengths. |
+| | Duplicate playlists | The copies left by repeated transfers grouped, with the one a sync uses kept and each copy saved in Files before it goes. |
+| Widgets | Card colours | A coloured sync shows in its card's colours and style. |
+| Diagnostics | Richer log | Counts for list reads, matching, the Discover pages and shared playlists, on the phone and on the server; never tokens, passwords or names. |
+| Security | Connector plugins | Only a plugin signed by Trackhop is used. |
+
 ## New in 2.0
 
 Switched on in Trackhop 2.0, in the app and in Desktop and Docker 2.0.0.
@@ -395,7 +425,7 @@ The technical side of each connector (for a quick overview, see [Music services 
 | Files | complete | | | Import/export through the system file picker, or "Paste a list". |
 | SoundCloud | your account (sets, likes: read, create, add, remove; beta) built into the GitHub/F-Droid build and in the Trackhop Bridge; public links read-only on every non-Play build and the server; unofficial | none: paste a public set or likes link | nothing | No public API for new apps, so the link is read the way soundcloud.com's web player reads it, with the client id the site ships in its scripts. Sets (playlists, albums, EPs, unlisted ones with their secret link) and a user's public likes page; nothing to sign in to, never a destination. ISRC and album only where the uploader filled in the label metadata; otherwise "Artist - Title" is split from the title. Not an official route, may break without notice: the app then says it needs an update. |
 | NetEase Cloud Music, QQ Music | public links, read-only, unofficial; GitHub/F-Droid build, Docker and Desktop from the site only | none: paste a public playlist link | nothing | No interface for third-party apps, so a public playlist is read the way the sites' own pages read it, with no account: title, artists, album and duration, no ISRC. Never a destination, never a sign-in. Not an official route, may break without notice: the app then says it needs an update. [More](https://trackhop.org/guide/netease-qq-music). |
-| Gaana | quick sign-in (alpha) and public links, unofficial; GitHub/F-Droid build, Docker and Desktop from the site only; in the next update | sign in on Gaana's own page (Docker and Desktop: paste the session); or none: paste a public playlist link | your playlists and favourite songs (create, add, remove, rename, delete) | No interface for third-party apps, so Trackhop talks to gaana.com the way its own pages do. Songs carry their ISRC, so matches are exact where the other service has it too. Not an official route, against Gaana's terms, may break without notice. [More](https://trackhop.org/guide/gaana) |
+| Gaana | quick sign-in (alpha) and public links, unofficial; GitHub/F-Droid build, Docker and Desktop from the site only | sign in on Gaana's own page (Docker and Desktop: paste the session); or none: paste a public playlist link | your playlists and favourite songs (create, add, remove, rename, delete) | No interface for third-party apps, so Trackhop talks to gaana.com the way its own pages do. Songs carry their ISRC, so matches are exact where the other service has it too. Not an official route, against Gaana's terms, may break without notice. [More](https://trackhop.org/guide/gaana) |
 | JioSaavn | public links, read-only, unofficial; GitHub/F-Droid build, Docker and Desktop from the site only | none: paste a public playlist, album or song link | nothing | No interface for third-party apps, so the link is read the way jiosaavn.com's own pages read it, with no account: title, artists, album and duration, no ISRC. Never a destination, never a sign-in. Not an official route, may break without notice: the app then says it needs an update. |
 | Qobuz, Pandora | not connectable | | | Partner-only or closed-beta APIs. Use files. |
 

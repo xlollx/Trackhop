@@ -3327,4 +3327,34 @@
         <item quantity="one">La usa %d sync:</item>
         <item quantity="other">La usano %d sync:</item>
     </plurals>
+    <string name="whats_new_21_collections_title">Raccolte condivise</string>
+    <string name="whats_new_21_collections_body">Condividi più playlist con un solo invito. Chi segue le prende tutte, anche le nuove, o sceglie quali, ognuno sul proprio servizio.</string>
+    <string name="whats_new_21_nway_title">Una playlist su più servizi</string>
+    <string name="whats_new_21_nway_body">Nuova sync › Una playlist su più servizi tiene la stessa playlist su più dei tuoi servizi insieme, in una sola scheda.</string>
+    <string name="whats_new_21_bulk_title">Più sync insieme</string>
+    <string name="whats_new_21_bulk_body">Tieni premuta una sync per selezionarne altre, poi cambia frequenza o rimozioni, attivale o disattivale, colorale o eseguile insieme.</string>
+    <string name="whats_new_21_schedules_title">Pianificazioni salvate</string>
+    <string name="whats_new_21_schedules_body">Salva una pianificazione una volta e dalla a qualsiasi sync. Se la cambi, tutte le sync che la usano la seguono.</string>
+    <string name="whats_new_21_tofix_title">Una lista da sistemare</string>
+    <string name="whats_new_21_tofix_body">Abbinamenti salvati, in Strumenti, raccoglie ciò che le tue sync non hanno trovato o vogliono farti controllare, nella scheda Da sistemare. Sistemi un brano una volta e vale per tutte le sync.</string>
+    <string name="whats_new_21_files_title">Librerie e file grandi</string>
+    <string name="whats_new_21_files_body">Una libreria grande di Apple Music o iTunes, o un file di playlist grande, viene letto un pezzo alla volta. Poi scegli le playlist che vuoi.</string>
+    <string name="whats_new_21_resume_title">Riparte da dove si era fermato</string>
+    <string name="whats_new_21_resume_body">Una sync fermata dal telefono riparte, una playlist nuova riempita a metà si può continuare e niente resta scritto a metà. I dati salvati illeggibili vengono messi da parte, con una copia buona da ripristinare.</string>
+    <string name="whats_new_21_account_title">Scegli l\'account</string>
+    <string name="whats_new_21_account_body">Ogni accesso chiede quale account usare, anche il primo.</string>
+    <string name="whats_new_21_koel_title">Koel e altre classifiche</string>
+    <string name="whats_new_21_koel_body">Il tuo server Koel come origine e destinazione (beta). Le classifiche giornaliere di Apple Music, del mondo e di ogni paese, e quelle delle città.</string>
+    <string name="whats_new_21_formats_title">rekordbox, WPL e ZPL</string>
+    <string name="whats_new_21_formats_body">Importa una collezione rekordbox e scegli le sue playlist. Playlist di Windows Media Player e Zune, in entrata e in uscita.</string>
+    <string name="whats_new_21_discover_title">Novità in Scopri</string>
+    <string name="whats_new_21_discover_body">Statistiche di sempre dal file che ti manda il tuo servizio, il diario dei concerti, i locali che segui, i tuoi dischi Discogs e gli avvisi quando escono i biglietti.</string>
+    <string name="whats_new_21_tools_title">Nuovi strumenti</string>
+    <string name="whats_new_21_tools_body">Segna come ascoltate manda a Last.fm o ListenBrainz un album o una playlist che hai ascoltato. Playlist doppie mette ordine tra le copie lasciate da trasferimenti ripetuti.</string>
+    <string name="whats_new_21_alphabets_title">Brani in altri alfabeti</string>
+    <string name="whats_new_21_alphabets_body">Un brano scritto in cirillico, greco, giapponese, coreano, ebraico o arabo ora trova lo stesso brano scritto in lettere latine.</string>
+    <string name="whats_new_21_widgets_title">Widget nei tuoi colori</string>
+    <string name="whats_new_21_widgets_body">Un widget mostra una sync con i colori e lo stile della sua scheda.</string>
+    <string name="whats_new_21_gaana_title">Gaana</string>
+    <string name="whats_new_21_gaana_body">Le tue playlist e i brani preferiti di Gaana (alpha), e le playlist pubbliche di Gaana dal loro link.</string>
 </resources>

@@ -15,7 +15,7 @@ own pages do. There are two ways in:
 
 Only in the GitHub/F-Droid build, in Docker and in Trackhop Desktop downloaded from this site. The
 store builds carry official connectors only: on Google Play it works through the optional
-connector plugin. Coming in the next update.
+connector plugin.
 
 ## Sign in
 

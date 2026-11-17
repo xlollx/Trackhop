@@ -73,6 +73,12 @@ description (architecture, matching, services and their limits) stays in the
 - [Your Wrapped, whenever you want](wrapped-anytime), from any service, with history.
 - [Without a paid service](without-a-paid-service): new music every week on free YouTube Music, Spotify, Deezer or SoundCloud accounts.
 
+**New in 2.1**
+- [Several playlists, one invite](shared-playlists#several-playlists-one-invite): a collection of shared playlists; whoever follows takes them all or picks some.
+- [Big libraries and playlist files](export-playlist-csv#and-back-in): any size, read a piece at a time, then pick the playlists you want.
+- [rekordbox, WPL and ZPL](../convert): a rekordbox collection read, Windows Media Player and Zune playlists read and written, in the app and in your browser.
+- [Gaana](gaana): your playlists and favourite songs (alpha), and public playlists from their link.
+
 **New in 2.0**
 - [Your Wrapped from what you really play](wrapped-anytime#from-what-you-really-play): Last.fm, ListenBrainz, your own server and more.
 - [Your phone and your Trackhop server](phone-and-server): take turns on each playlist, hand a sync over to the server and bring it back.

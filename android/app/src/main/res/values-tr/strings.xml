@@ -3325,4 +3325,34 @@
         <item quantity="one">%d eşitleme kullanıyor:</item>
         <item quantity="other">%d eşitleme kullanıyor:</item>
     </plurals>
+    <string name="whats_new_21_collections_title">Paylaşılan koleksiyonlar</string>
+    <string name="whats_new_21_collections_body">Birden çok çalma listesini tek bir davetle paylaş. Takip eden hepsini, yenileri de dahil, alır ya da bazılarını seçer; herkes kendi servisinde.</string>
+    <string name="whats_new_21_nway_title">Tek çalma listesi, birden çok serviste</string>
+    <string name="whats_new_21_nway_body">Yeni eşitleme › Tek çalma listesi, birden çok serviste: aynı listeyi servislerinde aynı anda aynı tutar, tek bir kartta.</string>
+    <string name="whats_new_21_bulk_title">Birden çok eşitleme bir arada</string>
+    <string name="whats_new_21_bulk_body">Bir eşitlemeye basılı tutup başkalarını da seç; sonra sıklığı veya kaldırmaları değiştir, aç ya da kapat, renklendir ya da birlikte çalıştır.</string>
+    <string name="whats_new_21_schedules_title">Kayıtlı zamanlamalar</string>
+    <string name="whats_new_21_schedules_body">Bir zamanlamayı bir kez kaydet, istediğin eşitlemeye ver. Değiştirince onu kullanan tüm eşitlemeler de değişir.</string>
+    <string name="whats_new_21_tofix_title">Tek bir düzeltme listesi</string>
+    <string name="whats_new_21_tofix_body">Araçlar\'daki Kayıtlı eşleşmeler, eşitlemelerinin bulamadığı ya da kontrol etmeni istediği şarkıları Düzeltilecekler sekmesinde toplar. Bir şarkıyı bir kez düzelt, tüm eşitlemelerde düzelsin.</string>
+    <string name="whats_new_21_files_title">Büyük kitaplıklar ve dosyalar</string>
+    <string name="whats_new_21_files_body">Büyük bir Apple Music veya iTunes kitaplığı ya da büyük bir çalma listesi dosyası parça parça okunur. Sonra istediğin listeleri seçersin.</string>
+    <string name="whats_new_21_resume_title">Kaldığı yerden devam eder</string>
+    <string name="whats_new_21_resume_body">Telefonun durdurduğu bir eşitleme yeniden başlar, yarıya kadar doldurulan yeni bir liste tamamlanabilir ve hiçbir şey yarım yazılmış kalmaz. Okunamayan veriler kenara ayrılır, geri yüklemek için sağlam bir kopyayla.</string>
+    <string name="whats_new_21_account_title">Hesabı seç</string>
+    <string name="whats_new_21_account_body">Her girişte hangi hesabın kullanılacağı sorulur, ilkinde de.</string>
+    <string name="whats_new_21_koel_title">Koel ve daha fazla liste</string>
+    <string name="whats_new_21_koel_body">Koel sunucun kaynak ve hedef olarak (beta). Apple Music\'in günlük listeleri, dünya ve her ülke için, ve şehir listeleri.</string>
+    <string name="whats_new_21_formats_title">rekordbox, WPL ve ZPL</string>
+    <string name="whats_new_21_formats_body">Bir rekordbox koleksiyonunu içe aktar ve listelerini seç. Windows Media Player ve Zune listeleri, içe ve dışa.</string>
+    <string name="whats_new_21_discover_title">Keşfet\'te daha fazlası</string>
+    <string name="whats_new_21_discover_body">Servisinin gönderdiği dosyadan tüm zamanların istatistikleri, konser günlüğün, takip ettiğin mekanlar, Discogs plakların ve biletler satışa çıkınca uyarılar.</string>
+    <string name="whats_new_21_tools_title">Yeni araçlar</string>
+    <string name="whats_new_21_tools_body">Dinlendi olarak işaretle, dinlediğin bir albümü veya listeyi Last.fm ya da ListenBrainz\'e gönderir. Yinelenen çalma listeleri, tekrarlanan aktarımların bıraktığı kopyaları toparlar.</string>
+    <string name="whats_new_21_alphabets_title">Başka alfabelerde şarkılar</string>
+    <string name="whats_new_21_alphabets_body">Kiril, Yunan, Japon, Kore, İbrani veya Arap yazısıyla yazılmış bir şarkı artık Latin harfleriyle yazılmış aynı şarkıyı bulur.</string>
+    <string name="whats_new_21_widgets_title">Senin renklerinde widget\'lar</string>
+    <string name="whats_new_21_widgets_body">Bir widget, eşitlemeyi kartının renkleri ve stiliyle gösterir.</string>
+    <string name="whats_new_21_gaana_title">Gaana</string>
+    <string name="whats_new_21_gaana_body">Gaana çalma listelerin ve favori şarkıların (alfa) ve bağlantısından herkese açık Gaana listeleri.</string>
 </resources>

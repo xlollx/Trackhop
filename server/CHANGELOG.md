@@ -5,13 +5,27 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`, `v2.x`)
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
-## Unreleased
+## 2.1.0
 
+Released together with the app's 2.1. Apple Music/iTunes libraries and playlist files of any size, a server that
+picks up cleanly after a restart, Saved matches, concert alerts with a calendar to subscribe to, Koel, Gaana,
+Apple Music's daily and city charts, rekordbox XML, WPL and ZPL; then matching across alphabets, a richer
+diagnostic log and security fixes. Thanks to JPMarcelino (#66) and raykai (#67).
+
+- **Libraries and playlist files of any size** (#67): the page's form, the API and `trackhop import` write an upload to the data folder as it arrives and read it a piece at a time, so the space on the disk is the only limit. An Apple Music/iTunes library (or a rekordbox collection) lists its playlists to tick, each becoming a file; the API takes `?playlists=` and `?whole=true`. A file or an upload cut short adds nothing and is said to be incomplete.
+- **Interrupted by a restart**: a sync run by hand or a long tool cut short by a restart is said at the next start, with Retry on the page, in the API and in the command line's status; it is never started again by itself. A new playlist filled half way shows in Tools with **Continue**, which adds only the tracks that are missing; *Remove duplicates* cut short puts the song back in its playlist at the next start and says which.
+- **Nothing half written**: sign-ins and settings that cannot be read are kept aside (readable by their owner only) and said on every page, a failed save too; copies to the backup folder, lyrics files and the files the command line saves are written whole or not at all. An error in one turn of the minute loop, or in one sync of it, is written in the log and the scheduled syncs go on.
+- **Safer syncs**: a source that lists fewer tracks than it counts for the playlist (beyond the few hidden entries services always have) is read again; still short, a sync that removes stops before writing anything and says so. A playlist made by a run whose reply was lost is found and taken, not made a second time.
+- **Saved matches**: a page that lists what Trackhop remembers across all syncs (matches, songs not found, ignored), to read and to forget.
+- **Concert alerts and a calendar**: alerts for tickets going on sale, presales, and dates moved or called off, for the artists and venues followed, each kind with its switch; a calendar to subscribe to (`.ics`) behind a secret address that can be renewed.
+- **Matching across alphabets**: a song listed in Cyrillic, Greek, kana, Hangul, Hebrew or Arabic matches its Latin name when the artist and the length agree; an artist written with consonants alone always goes to the review.
 - **rekordbox XML**: a rekordbox collection (*File › Export Collection in xml format*) is read like an Apple Music library, of any size: its playlists are offered to tick, each becomes a file. It is read only: a list of songs has no file locations for rekordbox to load.
 - **WPL and ZPL**: Windows Media Player, Groove and Zune playlists are read (by their paths, or by the title, artist and album Zune writes) and written. A file of either kind that was cut short is refused, as the other XML files are.
 - **Apple Music daily and city charts**: the Charts source also lists Apple's Daily Top 100 (world and countries) and the cities' Top 25, from the Apple Music API's charts call, where an Apple Music developer token is set (Settings, or `APPLE_DEVELOPER_TOKEN`); without one the list is as before.
 - **Koel** (beta): your Koel server as a source and a target, on the Subsonic connector (Koel speaks OpenSubsonic): playlists read and written, favourites as liked songs. Sign in with your Koel email and the Subsonic API key from your Koel profile, not your Koel password.
 - **Gaana** (unofficial, alpha): your playlists and favourite songs with the session of a browser signed in to gaana.com, read and written (create, add, remove, rename, delete), matched by ISRC where the source has one; and public Gaana playlists as a source, from their link, with no account.
+- **Richer diagnostic log**: counts only, never names, tokens or keys: how many playlists a read listed against the total the service declared, how each run matched its tracks and why the others were not found, the Discover pages' sources and results, the shared playlists' events. The report for asking for help no longer names the people of a shared server.
+- **Security**: the text fields of an upload form are capped all together; a name typed at sign-in that is not a user name never reaches the log.
 
 ## 2.0.0
 

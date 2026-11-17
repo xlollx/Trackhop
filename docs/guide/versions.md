@@ -10,7 +10,7 @@ is which services they can reach, and how.
 | Navidrome/Subsonic, Koel, Jellyfin, Emby, Plex, Last.fm, ListenBrainz, files | yes | yes |
 | SoundCloud public links | yes | through the plugin |
 | LiveOne, Anghami, Qobuz (web player), NetEase Cloud Music, QQ Music and JioSaavn links, TikTok | yes | through the plugin |
-| Gaana: quick sign-in (alpha) and public links (in the next update) | yes | through the plugin |
+| Gaana: quick sign-in (alpha) and public links | yes | through the plugin |
 | Browse setlist.fm without a key (Discover › Setlists) | yes | through an optional connector plugin |
 | Concerts in Italy: Vivaticket's and TicketOne's dates (unofficial; Discover › Concerts) | yes | through an optional connector plugin |
 | Gemini Nano (AI on the phone, no key) | GitHub: yes · F-Droid: no (no Google libraries there) | Play: yes · AppGallery: no |

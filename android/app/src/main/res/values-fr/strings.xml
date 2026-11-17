@@ -3335,4 +3335,34 @@
         <item quantity="one">%d synchro l’utilise :</item>
         <item quantity="other">%d synchros l’utilisent :</item>
     </plurals>
+    <string name="whats_new_21_collections_title">Collections partagées</string>
+    <string name="whats_new_21_collections_body">Partage plusieurs playlists avec une seule invitation. Qui suit les prend toutes, nouvelles comprises, ou en choisit, chacun sur son service.</string>
+    <string name="whats_new_21_nway_title">Une playlist sur plusieurs services</string>
+    <string name="whats_new_21_nway_body">Nouvelle sync › Une playlist sur plusieurs services garde la même playlist sur plusieurs de tes services à la fois, dans une seule carte.</string>
+    <string name="whats_new_21_bulk_title">Plusieurs syncs à la fois</string>
+    <string name="whats_new_21_bulk_body">Appuie longuement sur une sync pour en sélectionner d\'autres, puis change leur fréquence ou leurs suppressions, active-les ou désactive-les, colore-les ou lance-les ensemble.</string>
+    <string name="whats_new_21_schedules_title">Planifications enregistrées</string>
+    <string name="whats_new_21_schedules_body">Enregistre une planification une fois et donne-la à n\'importe quelle sync. Modifie-la et toutes les syncs qui l\'utilisent suivent.</string>
+    <string name="whats_new_21_tofix_title">Une seule liste à corriger</string>
+    <string name="whats_new_21_tofix_body">Correspondances enregistrées, dans Outils, réunit ce que tes syncs n\'ont pas trouvé ou veulent te faire vérifier, dans l\'onglet À corriger. Corrige un titre une fois, c\'est fait pour toutes les syncs.</string>
+    <string name="whats_new_21_files_title">Grandes bibliothèques et gros fichiers</string>
+    <string name="whats_new_21_files_body">Une grande bibliothèque Apple Music ou iTunes, ou un gros fichier de playlist, est lu morceau par morceau. Choisis ensuite les playlists voulues.</string>
+    <string name="whats_new_21_resume_title">Reprend là où il s\'était arrêté</string>
+    <string name="whats_new_21_resume_body">Une sync arrêtée par le téléphone repart, une nouvelle playlist remplie à moitié peut être terminée et rien ne reste écrit à moitié. Les données illisibles sont mises de côté, avec une bonne copie à restaurer.</string>
+    <string name="whats_new_21_account_title">Choisis le compte</string>
+    <string name="whats_new_21_account_body">Chaque connexion demande quel compte utiliser, même la première.</string>
+    <string name="whats_new_21_koel_title">Koel et plus de classements</string>
+    <string name="whats_new_21_koel_body">Ton serveur Koel comme source et comme destination (bêta). Les classements quotidiens d\'Apple Music, du monde et de chaque pays, et ceux des villes.</string>
+    <string name="whats_new_21_formats_title">rekordbox, WPL et ZPL</string>
+    <string name="whats_new_21_formats_body">Importe une collection rekordbox et choisis ses playlists. Les playlists Windows Media Player et Zune, en import et en export.</string>
+    <string name="whats_new_21_discover_title">Plus dans Découvrir</string>
+    <string name="whats_new_21_discover_body">Tes statistiques de toujours depuis le fichier envoyé par ton service, ton journal de concerts, les salles suivies, tes disques Discogs et des alertes à la mise en vente des billets.</string>
+    <string name="whats_new_21_tools_title">Nouveaux outils</string>
+    <string name="whats_new_21_tools_body">Marquer comme écoutés envoie à Last.fm ou ListenBrainz un album ou une playlist écoutés. Playlists en double range les copies laissées par des transferts répétés.</string>
+    <string name="whats_new_21_alphabets_title">Titres dans d\'autres alphabets</string>
+    <string name="whats_new_21_alphabets_body">Un titre écrit en cyrillique, grec, japonais, coréen, hébreu ou arabe trouve maintenant le même titre écrit en lettres latines.</string>
+    <string name="whats_new_21_widgets_title">Widgets à tes couleurs</string>
+    <string name="whats_new_21_widgets_body">Un widget affiche une sync avec les couleurs et le style de sa carte.</string>
+    <string name="whats_new_21_gaana_title">Gaana</string>
+    <string name="whats_new_21_gaana_body">Tes playlists et titres favoris Gaana (alpha), et les playlists publiques Gaana depuis leur lien.</string>
 </resources>

@@ -64,6 +64,10 @@ import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.SettingsBackupRestore
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Headphones
+import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -126,6 +130,31 @@ object WhatsNew {
      */
     val releases: List<Release> by lazy {
         listOf(
+            // 2.1: shared collections, several syncs at once and saved schedules, one To fix list, big libraries
+            // and files, interruptions handled everywhere, and the 1.18 branches merged after 2.0 (one playlist on
+            // several services, the new Discover pages and tools, matching across alphabets). Gaana only where it
+            // is (built in, or a connector plugin that knows it).
+            Release(
+                "2.1",
+                listOf(
+                    Item(Icons.Filled.Groups, JobColor.TEAL, R.string.whats_new_21_collections_title, R.string.whats_new_21_collections_body, shown = v2),
+                    Item(Icons.Filled.Devices, JobColor.BLUE, R.string.whats_new_21_nway_title, R.string.whats_new_21_nway_body, shown = v2),
+                    Item(Icons.Filled.Checklist, JobColor.PURPLE, R.string.whats_new_21_bulk_title, R.string.whats_new_21_bulk_body),
+                    Item(Icons.Filled.Schedule, JobColor.GREEN, R.string.whats_new_21_schedules_title, R.string.whats_new_21_schedules_body),
+                    Item(Icons.AutoMirrored.Filled.ManageSearch, JobColor.ORANGE, R.string.whats_new_21_tofix_title, R.string.whats_new_21_tofix_body, shown = v2),
+                    Item(Icons.Filled.FolderOpen, JobColor.TEAL, R.string.whats_new_21_files_title, R.string.whats_new_21_files_body),
+                    Item(Icons.Filled.SettingsBackupRestore, JobColor.GREEN, R.string.whats_new_21_resume_title, R.string.whats_new_21_resume_body),
+                    Item(Icons.Filled.AccountCircle, JobColor.BLUE, R.string.whats_new_21_account_title, R.string.whats_new_21_account_body),
+                    Item(Icons.Filled.Dns, JobColor.PURPLE, R.string.whats_new_21_koel_title, R.string.whats_new_21_koel_body),
+                    Item(Icons.Filled.Album, JobColor.PINK, R.string.whats_new_21_formats_title, R.string.whats_new_21_formats_body),
+                    Item(Icons.Filled.Explore, JobColor.RED, R.string.whats_new_21_discover_title, R.string.whats_new_21_discover_body, shown = v2),
+                    Item(Icons.Filled.Headphones, JobColor.YELLOW, R.string.whats_new_21_tools_title, R.string.whats_new_21_tools_body, shown = v2),
+                    Item(Icons.Filled.Translate, JobColor.TEAL, R.string.whats_new_21_alphabets_title, R.string.whats_new_21_alphabets_body, shown = v2),
+                    Item(Icons.Filled.Widgets, JobColor.PINK, R.string.whats_new_21_widgets_title, R.string.whats_new_21_widgets_body),
+                    Item(Icons.Filled.LibraryMusic, JobColor.RED, R.string.whats_new_21_gaana_title, R.string.whats_new_21_gaana_body,
+                        shown = { c -> gaanaAvailable(c) }),
+                ),
+            ),
             // 2.0: the work planned as 1.17 and the features planned as 1.18 (until then behind the release
             // switch, com.xlollx.songport.Features), shipped together the day Trackhop arrived on Google Play.
             // There was no 1.17 release: its highlights are here. The switch's features show only where it is
@@ -286,6 +315,10 @@ object WhatsNew {
 
     /** The release switch's features are offered on this phone (com.xlollx.songport.Features). */
     private val v2: (android.content.Context) -> Boolean = { com.xlollx.songport.Features.v2 }
+
+    private fun gaanaAvailable(ctx: android.content.Context): Boolean =
+        com.xlollx.songport.providers.BridgePlugin.builtIn || (com.xlollx.songport.providers.BridgePlugin.installed(ctx) &&
+            runCatching { com.xlollx.songport.providers.BridgePlugin.call(ctx, "gaana.status")?.containsKey("connected") == true }.getOrDefault(false))
 
     private fun anghamiAvailable(ctx: android.content.Context): Boolean =
         com.xlollx.songport.providers.BridgePlugin.builtIn || (com.xlollx.songport.providers.BridgePlugin.installed(ctx) &&

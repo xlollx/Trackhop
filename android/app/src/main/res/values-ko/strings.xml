@@ -3229,4 +3229,34 @@
     <plurals name="sched_delete_used">
         <item quantity="other">동기화 %d개가 사용 중:</item>
     </plurals>
+    <string name="whats_new_21_collections_title">공유 컬렉션</string>
+    <string name="whats_new_21_collections_body">초대 하나로 여러 플레이리스트를 공유하세요. 팔로우하는 사람은 새로 추가되는 것까지 모두 받거나 일부만 고를 수 있고, 각자 자기 서비스에서 들어요.</string>
+    <string name="whats_new_21_nway_title">하나의 플레이리스트를 여러 서비스에서</string>
+    <string name="whats_new_21_nway_body">같은 플레이리스트를 여러 서비스에서 동시에 똑같이 유지해요. 새 동기화에서 만들 수 있고, 카드는 하나로 묶여요.</string>
+    <string name="whats_new_21_bulk_title">여러 동기화를 한 번에</string>
+    <string name="whats_new_21_bulk_body">동기화를 길게 눌러 다른 것도 선택한 뒤, 주기나 삭제 방식을 바꾸고, 켜거나 끄고, 색을 정하거나 함께 실행하세요.</string>
+    <string name="whats_new_21_schedules_title">저장된 일정</string>
+    <string name="whats_new_21_schedules_body">일정을 한 번 저장하면 어떤 동기화에도 쓸 수 있어요. 바꾸면 그 일정을 쓰는 모든 동기화가 따라가요.</string>
+    <string name="whats_new_21_tofix_title">수정할 곡은 한 목록에</string>
+    <string name="whats_new_21_tofix_body">도구의 저장된 매칭에 수정 필요 탭이 생겨, 동기화에서 찾지 못했거나 확인이 필요한 곡을 모아요. 한 번 고치면 모든 동기화에 적용돼요.</string>
+    <string name="whats_new_21_files_title">큰 보관함과 파일도</string>
+    <string name="whats_new_21_files_body">큰 Apple Music·iTunes 보관함이나 큰 플레이리스트 파일을 조금씩 읽은 뒤, 원하는 플레이리스트를 고를 수 있어요.</string>
+    <string name="whats_new_21_resume_title">멈춘 곳에서 다시</string>
+    <string name="whats_new_21_resume_body">휴대폰이 멈춘 동기화는 다시 시작되고, 반쯤 채워진 새 플레이리스트는 이어서 만들 수 있으며, 반만 쓰인 채로 남는 것은 없어요. 읽을 수 없는 데이터는 따로 보관되고, 복원할 정상 사본이 제공돼요.</string>
+    <string name="whats_new_21_account_title">계정 선택</string>
+    <string name="whats_new_21_account_body">로그인할 때마다 어떤 계정을 쓸지 물어봐요. 처음 로그인할 때도요.</string>
+    <string name="whats_new_21_koel_title">Koel과 더 많은 차트</string>
+    <string name="whats_new_21_koel_body">Koel 서버를 소스와 대상으로 쓸 수 있어요(베타). Apple Music의 일간 차트(전 세계, 국가별)와 도시 차트도요.</string>
+    <string name="whats_new_21_formats_title">rekordbox, WPL, ZPL</string>
+    <string name="whats_new_21_formats_body">rekordbox 컬렉션을 가져와 플레이리스트를 고르세요. Windows Media Player와 Zune 플레이리스트는 가져오기와 내보내기 모두 돼요.</string>
+    <string name="whats_new_21_discover_title">발견의 새 기능</string>
+    <string name="whats_new_21_discover_body">서비스가 보내 주는 파일로 보는 전체 기간 통계, 공연 일기, 팔로우한 공연장, Discogs 음반, 티켓 판매 시작 알림.</string>
+    <string name="whats_new_21_tools_title">새 도구</string>
+    <string name="whats_new_21_tools_body">들은 곡으로 기록은 들은 앨범이나 플레이리스트를 Last.fm 또는 ListenBrainz로 보내요. 중복 플레이리스트는 여러 번 옮기며 남은 사본을 정리해요.</string>
+    <string name="whats_new_21_alphabets_title">다른 문자로 된 곡</string>
+    <string name="whats_new_21_alphabets_body">키릴 문자, 그리스 문자, 일본어, 한국어, 히브리 문자, 아랍 문자로 쓰인 곡이 이제 라틴 문자로 쓰인 같은 곡을 찾아요.</string>
+    <string name="whats_new_21_widgets_title">카드 색의 위젯</string>
+    <string name="whats_new_21_widgets_body">위젯이 동기화를 카드의 색과 스타일로 보여 줘요.</string>
+    <string name="whats_new_21_gaana_title">Gaana</string>
+    <string name="whats_new_21_gaana_body">Gaana 플레이리스트와 좋아하는 곡(알파), 그리고 링크로 여는 Gaana 공개 플레이리스트.</string>
 </resources>

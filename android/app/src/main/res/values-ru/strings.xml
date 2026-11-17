@@ -3521,4 +3521,34 @@
         <item quantity="many">Его используют %d синхронизаций:</item>
         <item quantity="other">Его используют %d синхронизации:</item>
     </plurals>
+    <string name="whats_new_21_collections_title">Общие коллекции</string>
+    <string name="whats_new_21_collections_body">Поделитесь несколькими плейлистами одним приглашением. Подписчики берут все, включая новые, или выбирают нужные, каждый на своём сервисе.</string>
+    <string name="whats_new_21_nway_title">Один плейлист на нескольких сервисах</string>
+    <string name="whats_new_21_nway_body">Новая синхронизация › Один плейлист на нескольких сервисах держит один и тот же плейлист на нескольких ваших сервисах сразу, в одной карточке.</string>
+    <string name="whats_new_21_bulk_title">Несколько синхронизаций сразу</string>
+    <string name="whats_new_21_bulk_body">Удерживайте синхронизацию, чтобы выбрать ещё, затем меняйте расписание или удаления, включайте и выключайте, раскрашивайте или запускайте вместе.</string>
+    <string name="whats_new_21_schedules_title">Сохранённые расписания</string>
+    <string name="whats_new_21_schedules_body">Сохраните расписание один раз и назначайте его любой синхронизации. Измените его, и все синхронизации с ним последуют.</string>
+    <string name="whats_new_21_tofix_title">Один список для исправления</string>
+    <string name="whats_new_21_tofix_body">«Сохранённые совпадения» в «Инструментах» собирают на вкладке «Исправить» то, что ваши синхронизации не нашли или просят проверить. Исправьте трек один раз, и он исправлен во всех синхронизациях.</string>
+    <string name="whats_new_21_files_title">Большие медиатеки и файлы</string>
+    <string name="whats_new_21_files_body">Большая медиатека Apple Music или iTunes или большой файл плейлиста читается по частям. Затем выберите нужные плейлисты.</string>
+    <string name="whats_new_21_resume_title">Продолжает с места остановки</string>
+    <string name="whats_new_21_resume_body">Синхронизация, остановленная телефоном, запускается снова, новый плейлист, заполненный наполовину, можно дополнить, и ничто не остаётся недописанным. Нечитаемые данные откладываются в сторону, с хорошей копией для восстановления.</string>
+    <string name="whats_new_21_account_title">Выбор аккаунта</string>
+    <string name="whats_new_21_account_body">Каждый вход спрашивает, какой аккаунт использовать, даже первый.</string>
+    <string name="whats_new_21_koel_title">Koel и больше чартов</string>
+    <string name="whats_new_21_koel_body">Ваш сервер Koel как источник и цель (бета). Ежедневные чарты Apple Music, мировой и по странам, и чарты городов.</string>
+    <string name="whats_new_21_formats_title">rekordbox, WPL и ZPL</string>
+    <string name="whats_new_21_formats_body">Импортируйте коллекцию rekordbox и выберите её плейлисты. Плейлисты Windows Media Player и Zune: импорт и экспорт.</string>
+    <string name="whats_new_21_discover_title">Больше в «Открытиях»</string>
+    <string name="whats_new_21_discover_body">Статистика за всё время из файла от вашего сервиса, дневник концертов, клубы, на которые вы подписаны, ваши пластинки из Discogs и оповещения о старте продаж билетов.</string>
+    <string name="whats_new_21_tools_title">Новые инструменты</string>
+    <string name="whats_new_21_tools_body">«Отметить как прослушанные» отправляет в Last.fm или ListenBrainz прослушанный альбом или плейлист. «Дубликаты плейлистов» наводят порядок в копиях после повторных переносов.</string>
+    <string name="whats_new_21_alphabets_title">Треки в других алфавитах</string>
+    <string name="whats_new_21_alphabets_body">Трек, записанный кириллицей, греческими буквами, японским, корейским, ивритом или арабским письмом, теперь находит тот же трек, записанный латиницей.</string>
+    <string name="whats_new_21_widgets_title">Виджеты в ваших цветах</string>
+    <string name="whats_new_21_widgets_body">Виджет показывает синхронизацию в цветах и стиле её карточки.</string>
+    <string name="whats_new_21_gaana_title">Gaana</string>
+    <string name="whats_new_21_gaana_body">Ваши плейлисты и любимые треки Gaana (альфа) и публичные плейлисты Gaana по ссылке.</string>
 </resources>
