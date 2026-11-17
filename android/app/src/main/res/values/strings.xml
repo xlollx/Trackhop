@@ -2796,6 +2796,39 @@
         <item quantity="one">Used by %1$d sync: %2$s</item>
         <item quantity="other">Used by %1$d syncs: %2$s</item>
     </plurals>
+    <string name="to_fix_tab">To fix</string>
+    <string name="to_fix_tab_saved">Saved</string>
+    <string name="to_fix_once">Fix once.</string>
+    <string name="to_fix_once_body">Your choice applies to every sync that has the same track.</string>
+    <string name="to_fix_swipe_hint">Swipe right to accept, left for later. The buttons do the same thing.</string>
+    <string name="to_fix_group">Group</string>
+    <string name="to_fix_by_sync">By sync</string>
+    <string name="to_fix_by_service">By service</string>
+    <string name="to_fix_suggested_on">Suggested on %1$s</string>
+    <string name="to_fix_not_found_on">Not found on %1$s</string>
+    <string name="to_fix_search_by_hand">Search by hand</string>
+    <string name="to_fix_later">Later</string>
+    <string name="to_fix_accept">Accept</string>
+    <string name="to_fix_search_on">Search on %1$s</string>
+    <string name="to_fix_from">From %1$s</string>
+    <string name="to_fix_ignore">Ignore this track</string>
+    <string name="to_fix_remove_match">Wrong match: remove it</string>
+    <string name="to_fix_empty_title">Nothing to fix</string>
+    <string name="to_fix_empty_body">Every track in your syncs has a match. Tracks that can\'t be found, or matches to double-check, will show up here.</string>
+    <string name="to_fix_see_saved">See saved matches</string>
+    <string name="to_fix_on_service">To find on %1$s</string>
+    <string name="to_fix_later_done">Set aside until its sync runs again.</string>
+    <string name="to_fix_partial">Saved. %1$s could not be updated right now: its next run adds the song.</string>
+    <string name="to_fix_ignore_partial">Ignored. The song could not be removed from %1$s right now: remove it there by hand.</string>
+    <string name="to_fix_open_all">All tracks to fix (%1$d)</string>
+    <plurals name="to_fix_in_syncs">
+        <item quantity="one">In %1$d sync</item>
+        <item quantity="other">In %1$d syncs</item>
+    </plurals>
+    <plurals name="to_fix_done">
+        <item quantity="one">Fixed in %1$d sync</item>
+        <item quantity="other">Fixed in %1$d syncs</item>
+    </plurals>
     <string name="twins_title">Duplicate playlists</string>
     <string name="tools_row_twins">Copies left by repeated transfers: same name, or nearly the same songs.</string>
     <string name="twins_reading">Reading the playlists: %1$d of %2$d</string>

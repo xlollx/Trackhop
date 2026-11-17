@@ -2794,6 +2794,39 @@
         <item quantity="one">Usata da %1$d sync: %2$s</item>
         <item quantity="other">Usata da %1$d sync: %2$s</item>
     </plurals>
+    <string name="to_fix_tab">Da sistemare</string>
+    <string name="to_fix_tab_saved">Salvati</string>
+    <string name="to_fix_once">Sistemi una volta.</string>
+    <string name="to_fix_once_body">La tua scelta vale per ogni sync che ha lo stesso brano.</string>
+    <string name="to_fix_swipe_hint">Scorri a destra per accettare, a sinistra per più tardi. I pulsanti fanno la stessa cosa.</string>
+    <string name="to_fix_group">Raggruppa</string>
+    <string name="to_fix_by_sync">Per sync</string>
+    <string name="to_fix_by_service">Per servizio</string>
+    <string name="to_fix_suggested_on">Proposta su %1$s</string>
+    <string name="to_fix_not_found_on">Non trovato su %1$s</string>
+    <string name="to_fix_search_by_hand">Cerca a mano</string>
+    <string name="to_fix_later">Più tardi</string>
+    <string name="to_fix_accept">Accetta</string>
+    <string name="to_fix_search_on">Cerca su %1$s</string>
+    <string name="to_fix_from">Da %1$s</string>
+    <string name="to_fix_ignore">Ignora questo brano</string>
+    <string name="to_fix_remove_match">Abbinamento sbagliato: toglilo</string>
+    <string name="to_fix_empty_title">Niente da sistemare</string>
+    <string name="to_fix_empty_body">Ogni brano delle tue sync ha un abbinamento. I brani non trovati e gli abbinamenti da ricontrollare compariranno qui.</string>
+    <string name="to_fix_see_saved">Vedi gli abbinamenti salvati</string>
+    <string name="to_fix_on_service">Da trovare su %1$s</string>
+    <string name="to_fix_later_done">Messo da parte fino alla prossima esecuzione della sua sync.</string>
+    <string name="to_fix_partial">Salvato. Non è stato possibile aggiornare %1$s adesso: la prossima esecuzione aggiunge il brano.</string>
+    <string name="to_fix_ignore_partial">Ignorato. Non è stato possibile togliere il brano da %1$s adesso: toglilo lì a mano.</string>
+    <string name="to_fix_open_all">Tutti i brani da sistemare (%1$d)</string>
+    <plurals name="to_fix_in_syncs">
+        <item quantity="one">In %1$d sync</item>
+        <item quantity="other">In %1$d sync</item>
+    </plurals>
+    <plurals name="to_fix_done">
+        <item quantity="one">Sistemato in %1$d sync</item>
+        <item quantity="other">Sistemato in %1$d sync</item>
+    </plurals>
     <string name="twins_title">Playlist doppie</string>
     <string name="tools_row_twins">Le copie lasciate da trasferimenti ripetuti: stesso nome, o quasi le stesse canzoni.</string>
     <string name="twins_reading">Leggo le playlist: %1$d di %2$d</string>

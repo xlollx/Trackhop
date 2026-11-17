@@ -2740,6 +2740,37 @@
     <plurals name="saved_matches_used_by">
         <item quantity="other">%1$d 个同步在使用：%2$s</item>
     </plurals>
+    <string name="to_fix_tab">待修正</string>
+    <string name="to_fix_tab_saved">已保存</string>
+    <string name="to_fix_once">只需修正一次。</string>
+    <string name="to_fix_once_body">你的选择适用于包含同一首歌曲的所有同步。</string>
+    <string name="to_fix_swipe_hint">向右滑动接受，向左滑动稍后处理。按钮的作用相同。</string>
+    <string name="to_fix_group">分组</string>
+    <string name="to_fix_by_sync">按同步</string>
+    <string name="to_fix_by_service">按服务</string>
+    <string name="to_fix_suggested_on">%1$s 上的建议</string>
+    <string name="to_fix_not_found_on">在 %1$s 上未找到</string>
+    <string name="to_fix_search_by_hand">手动搜索</string>
+    <string name="to_fix_later">稍后</string>
+    <string name="to_fix_accept">接受</string>
+    <string name="to_fix_search_on">在 %1$s 上搜索</string>
+    <string name="to_fix_from">来自 %1$s</string>
+    <string name="to_fix_ignore">忽略这首歌曲</string>
+    <string name="to_fix_remove_match">匹配有误：移除</string>
+    <string name="to_fix_empty_title">没有需要修正的内容</string>
+    <string name="to_fix_empty_body">你的同步中每首歌曲都有匹配。找不到的歌曲和需要再确认的匹配会显示在这里。</string>
+    <string name="to_fix_see_saved">查看已保存的匹配</string>
+    <string name="to_fix_on_service">要在 %1$s 上查找</string>
+    <string name="to_fix_later_done">已搁置，直到该同步下次运行。</string>
+    <string name="to_fix_partial">已保存。暂时无法更新 %1$s：下次运行时会添加这首歌曲。</string>
+    <string name="to_fix_ignore_partial">已忽略。暂时无法从 %1$s 中移除这首歌曲：请在那里手动移除。</string>
+    <string name="to_fix_open_all">所有待修正的歌曲（%1$d）</string>
+    <plurals name="to_fix_in_syncs">
+        <item quantity="other">在 %1$d 个同步中</item>
+    </plurals>
+    <plurals name="to_fix_done">
+        <item quantity="other">已在 %1$d 个同步中修正</item>
+    </plurals>
     <string name="twins_title">重复的歌单</string>
     <string name="tools_row_twins">重复传输留下的副本：同名，或歌曲几乎相同。</string>
     <string name="twins_reading">正在读取歌单：%1$d / %2$d</string>

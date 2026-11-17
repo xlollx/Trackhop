@@ -491,6 +491,8 @@ private fun MainScreen(
     }
     // An idea for one service (ServiceIdeas), from the Syncs tab or the first sign-in: its page, filled in.
     var dedupeFor by rememberSaveable { mutableStateOf<String?>(null) }
+    // "All tracks to fix" in a sync's review: Tools opens on Saved matches.
+    var matchesAsked by rememberSaveable { mutableStateOf(false) }
     var aiSetupAsked by rememberSaveable { mutableStateOf(false) }
     var wrappedAsked by rememberSaveable { mutableStateOf(false) }
     fun openIdea(idea: com.xlollx.songport.ui.Idea) {
@@ -742,7 +744,7 @@ private fun MainScreen(
                     onClose = { targetJob = null }, onChanged = {},
                 )
                 wizard != null -> SetupWizardScreen(wizard) { wizardFor = null }
-                unmatched != null -> UnmatchedScreen(unmatched) { unmatchedReport = null }
+                unmatched != null -> UnmatchedScreen(unmatched, onAllToFix = { unmatchedReport = null; matchesAsked = true; tab = MainActivity.TAB_TOOLS }) { unmatchedReport = null }
                 filesOpen -> FilesScreen(onClose = { filesOpen = false }, onSendTo = { id, name ->
                     filesOpen = false
                     sendToService(id, name)
@@ -1034,7 +1036,7 @@ private fun MainScreen(
                     },
                     onReview = { unmatchedReport = it },
                 )
-                MainActivity.TAB_TOOLS -> ToolsScreen(snackbar, onManageFiles = { filesOpen = true }, onSendTo = sendToService, onTransfer = { transferOpen = true }, onSyncStarted = { tab = MainActivity.TAB_SYNCS }, onManage = { manageProvider = it }, onScan = { scanProvider = it }, onUnplayable = { unplayableProvider = it }, onSubpage = { toolSubpage = it }, onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onStats = { statsOpen = true }, onBackup = { backupOpen = true }, openDedupe = dedupeFor, onDedupeOpened = { dedupeFor = null }, openAiSetup = aiSetupAsked, onAiSetupOpened = { aiSetupAsked = false }, onReview = { unmatchedReport = it })
+                MainActivity.TAB_TOOLS -> ToolsScreen(snackbar, onManageFiles = { filesOpen = true }, onSendTo = sendToService, onTransfer = { transferOpen = true }, onSyncStarted = { tab = MainActivity.TAB_SYNCS }, onManage = { manageProvider = it }, onScan = { scanProvider = it }, onUnplayable = { unplayableProvider = it }, onSubpage = { toolSubpage = it }, onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onStats = { statsOpen = true }, onBackup = { backupOpen = true }, openDedupe = dedupeFor, onDedupeOpened = { dedupeFor = null }, openAiSetup = aiSetupAsked, onAiSetupOpened = { aiSetupAsked = false }, onReview = { unmatchedReport = it }, openMatches = matchesAsked, onMatchesOpened = { matchesAsked = false })
                 else -> SettingsScreen(data, store, snackbar, onSetup = { wizardFor = it }, onOpenLog = { logOpen = true }, onHowTo = { howToOpen = true }, onBackup = { backupOpen = true }, onWhatsNew = { whatsNewAsked = true },
                     onTips = { tipsOpen = true }, focusAutomation = focusAutomation, onAutomationFocused = { focusAutomation = false })
             } } } }

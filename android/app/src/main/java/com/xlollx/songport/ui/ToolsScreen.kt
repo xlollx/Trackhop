@@ -151,7 +151,7 @@ private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVecto
  */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onSendTo: (id: String, name: String) -> Unit = { _, _ -> }, onTransfer: () -> Unit = {}, onSyncStarted: () -> Unit = {}, onManage: (MusicProvider) -> Unit = {}, onScan: (MusicProvider) -> Unit = {}, onUnplayable: (MusicProvider) -> Unit = {}, onSubpage: (Boolean) -> Unit = {}, onGoToAccounts: () -> Unit = {}, onStats: () -> Unit = {}, onBackup: () -> Unit = {}, openDedupe: String? = null, onDedupeOpened: () -> Unit = {}, openAiSetup: Boolean = false, onAiSetupOpened: () -> Unit = {}, onReview: (reportId: String) -> Unit = {}) {
+fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onSendTo: (id: String, name: String) -> Unit = { _, _ -> }, onTransfer: () -> Unit = {}, onSyncStarted: () -> Unit = {}, onManage: (MusicProvider) -> Unit = {}, onScan: (MusicProvider) -> Unit = {}, onUnplayable: (MusicProvider) -> Unit = {}, onSubpage: (Boolean) -> Unit = {}, onGoToAccounts: () -> Unit = {}, onStats: () -> Unit = {}, onBackup: () -> Unit = {}, openDedupe: String? = null, onDedupeOpened: () -> Unit = {}, openAiSetup: Boolean = false, onAiSetupOpened: () -> Unit = {}, onReview: (reportId: String) -> Unit = {}, openMatches: Boolean = false, onMatchesOpened: () -> Unit = {}) {
     val ctx = LocalContext.current
     val connected = Providers.connectors().filter { it.requiresAuth && it.isConnected(ctx) }
     var selectedId by rememberSaveable { mutableStateOf(connected.firstOrNull()?.id) }
@@ -169,6 +169,12 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
         if (!openAiSetup) return@LaunchedEffect
         AiDraft.setupAsked = true; open = Tool.AI
         onAiSetupOpened()
+    }
+    // "All tracks to fix" from a sync's review: Saved matches, on its To fix tab.
+    LaunchedEffect(openMatches) {
+        if (!openMatches) return@LaunchedEffect
+        open = Tool.MATCHES
+        onMatchesOpened()
     }
     val storeData = remember { com.xlollx.songport.data.Store.get(ctx) }.state.collectAsState().value
     val hasOneOffs = storeData.jobs.any { it.oneOff }
@@ -204,6 +210,8 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
                 TopAppBar(
                     title = { Text(stringResource(current.titleRes)) },
                     navigationIcon = { IconButton(onClick = { close() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back)) } },
+                    // Saved matches: what changing, accepting a proposal and ignoring do, as in a sync's review.
+                    actions = { if (current == Tool.MATCHES) HelpButton(Helps.change, Helps.proposal, Helps.ignore, label = stringResource(R.string.help_review_title)) },
                     windowInsets = WindowInsets(0, 0, 0, 0),
                 )
             },

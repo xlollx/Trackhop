@@ -2802,6 +2802,39 @@
         <item quantity="one">Usada por %1$d sincronización: %2$s</item>
         <item quantity="other">Usada por %1$d sincronizaciones: %2$s</item>
     </plurals>
+    <string name="to_fix_tab">Por arreglar</string>
+    <string name="to_fix_tab_saved">Guardadas</string>
+    <string name="to_fix_once">Arréglalo una vez.</string>
+    <string name="to_fix_once_body">Tu elección vale para todas las sincronizaciones que tienen la misma canción.</string>
+    <string name="to_fix_swipe_hint">Desliza a la derecha para aceptar y a la izquierda para dejarla para más tarde. Los botones hacen lo mismo.</string>
+    <string name="to_fix_group">Agrupar</string>
+    <string name="to_fix_by_sync">Por sincronización</string>
+    <string name="to_fix_by_service">Por servicio</string>
+    <string name="to_fix_suggested_on">Propuesta en %1$s</string>
+    <string name="to_fix_not_found_on">No encontrada en %1$s</string>
+    <string name="to_fix_search_by_hand">Buscar a mano</string>
+    <string name="to_fix_later">Más tarde</string>
+    <string name="to_fix_accept">Aceptar</string>
+    <string name="to_fix_search_on">Buscar en %1$s</string>
+    <string name="to_fix_from">De %1$s</string>
+    <string name="to_fix_ignore">Ignorar esta canción</string>
+    <string name="to_fix_remove_match">Coincidencia equivocada: quitarla</string>
+    <string name="to_fix_empty_title">Nada por arreglar</string>
+    <string name="to_fix_empty_body">Todas las canciones de tus sincronizaciones tienen una coincidencia. Las que no se encuentren y las coincidencias por comprobar aparecerán aquí.</string>
+    <string name="to_fix_see_saved">Ver las coincidencias guardadas</string>
+    <string name="to_fix_on_service">Por encontrar en %1$s</string>
+    <string name="to_fix_later_done">Apartada hasta que su sincronización se ejecute de nuevo.</string>
+    <string name="to_fix_partial">Guardado. No se pudo actualizar %1$s ahora: la próxima ejecución añade la canción.</string>
+    <string name="to_fix_ignore_partial">Ignorada. No se pudo quitar la canción de %1$s ahora: quítala allí a mano.</string>
+    <string name="to_fix_open_all">Todas las canciones por arreglar (%1$d)</string>
+    <plurals name="to_fix_in_syncs">
+        <item quantity="one">En %1$d sincronización</item>
+        <item quantity="other">En %1$d sincronizaciones</item>
+    </plurals>
+    <plurals name="to_fix_done">
+        <item quantity="one">Arreglada en %1$d sincronización</item>
+        <item quantity="other">Arreglada en %1$d sincronizaciones</item>
+    </plurals>
     <string name="twins_title">Playlists duplicadas</string>
     <string name="tools_row_twins">Copias que dejan las transferencias repetidas: mismo nombre o casi las mismas canciones.</string>
     <string name="twins_reading">Leyendo las playlists: %1$d de %2$d</string>

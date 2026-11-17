@@ -2904,6 +2904,43 @@
         <item quantity="many">Używana przez %1$d synchronizacji: %2$s</item>
         <item quantity="other">Używana przez %1$d synchronizacji: %2$s</item>
     </plurals>
+    <string name="to_fix_tab">Do poprawy</string>
+    <string name="to_fix_tab_saved">Zapisane</string>
+    <string name="to_fix_once">Popraw raz.</string>
+    <string name="to_fix_once_body">Twój wybór dotyczy każdej synchronizacji z tym samym utworem.</string>
+    <string name="to_fix_swipe_hint">Przesuń w prawo, aby zaakceptować, w lewo, aby odłożyć na później. Przyciski robią to samo.</string>
+    <string name="to_fix_group">Grupuj</string>
+    <string name="to_fix_by_sync">Wg synchronizacji</string>
+    <string name="to_fix_by_service">Wg serwisu</string>
+    <string name="to_fix_suggested_on">Propozycja w %1$s</string>
+    <string name="to_fix_not_found_on">Nie znaleziono w %1$s</string>
+    <string name="to_fix_search_by_hand">Szukaj ręcznie</string>
+    <string name="to_fix_later">Później</string>
+    <string name="to_fix_accept">Akceptuj</string>
+    <string name="to_fix_search_on">Szukaj w %1$s</string>
+    <string name="to_fix_from">Z: %1$s</string>
+    <string name="to_fix_ignore">Ignoruj ten utwór</string>
+    <string name="to_fix_remove_match">Błędne dopasowanie: usuń</string>
+    <string name="to_fix_empty_title">Nic do poprawy</string>
+    <string name="to_fix_empty_body">Każdy utwór w Twoich synchronizacjach ma dopasowanie. Utwory, których nie znaleziono, i dopasowania do sprawdzenia pojawią się tutaj.</string>
+    <string name="to_fix_see_saved">Zobacz zapisane dopasowania</string>
+    <string name="to_fix_on_service">Do znalezienia w %1$s</string>
+    <string name="to_fix_later_done">Odłożono do następnego uruchomienia synchronizacji.</string>
+    <string name="to_fix_partial">Zapisano. Nie udało się teraz zaktualizować: %1$s. Następne uruchomienie doda utwór.</string>
+    <string name="to_fix_ignore_partial">Zignorowano. Nie udało się teraz usunąć utworu z: %1$s. Usuń go tam ręcznie.</string>
+    <string name="to_fix_open_all">Wszystkie utwory do poprawy (%1$d)</string>
+    <plurals name="to_fix_in_syncs">
+        <item quantity="one">W %1$d synchronizacji</item>
+        <item quantity="few">W %1$d synchronizacjach</item>
+        <item quantity="many">W %1$d synchronizacjach</item>
+        <item quantity="other">W %1$d synchronizacjach</item>
+    </plurals>
+    <plurals name="to_fix_done">
+        <item quantity="one">Poprawiono w %1$d synchronizacji</item>
+        <item quantity="few">Poprawiono w %1$d synchronizacjach</item>
+        <item quantity="many">Poprawiono w %1$d synchronizacjach</item>
+        <item quantity="other">Poprawiono w %1$d synchronizacjach</item>
+    </plurals>
     <string name="twins_title">Zduplikowane playlisty</string>
     <string name="tools_row_twins">Kopie po wielokrotnych przeniesieniach: ta sama nazwa lub prawie te same utwory.</string>
     <string name="twins_reading">Czytam playlisty: %1$d z %2$d</string>

@@ -53,6 +53,9 @@ class NewToolsFlowTest : FlowTest() {
             )
         }
         openTool(R.string.saved_matches_title)
+        // The page opens on To fix (2.1): the remembered matches are the second tab.
+        click(s(R.string.to_fix_tab_saved))
+        waitText(s(R.string.saved_matches_search))
         waitText(src.title, substring = true)
         click(src.title, substring = true)
         waitText(s(R.string.saved_matches_forget))

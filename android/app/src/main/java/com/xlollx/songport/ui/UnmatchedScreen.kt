@@ -103,7 +103,7 @@ import kotlinx.coroutines.withContext
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
+fun UnmatchedScreen(reportId: String, onAllToFix: (() -> Unit)? = null, onClose: () -> Unit) {
     val ctx = LocalContext.current
     val store = remember { Store.get(ctx) }
     val data by store.state.collectAsState()
@@ -289,6 +289,11 @@ fun UnmatchedScreen(reportId: String, onClose: () -> Unit) {
                         Text(stringResource(R.string.review_tap_hint, dstName), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         if (reviews.size + tracks.size > 1) PageNote(stringResource(R.string.review_select_hint), icon = Icons.Filled.TouchApp)
                         if (report.partial) PageNote(stringResource(R.string.review_partial_banner), tone = Tone.Accent, icon = Icons.Filled.Sync)
+                        // The same list for every sync at once (2.1): Saved matches › To fix.
+                        val everywhere = remember(data.jobs, data.reports, data.toFixLater) { com.xlollx.songport.sync.ToFix.count(data) }
+                        if (onAllToFix != null && everywhere > 0 && com.xlollx.songport.Features.v2(data.settings)) {
+                            TextButton(onClick = onAllToFix, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.to_fix_open_all, everywhere)) }
+                        }
                     }
                 }
             }
