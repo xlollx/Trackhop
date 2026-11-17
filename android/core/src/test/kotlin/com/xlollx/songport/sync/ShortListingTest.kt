@@ -98,4 +98,34 @@ class ShortListingTest {
         assertEquals("error_listed_short(ssrc,94,100)", scheduled.error)
         assertEquals(95, dst.lists["t"]!!.size)
     }
+
+    @Test fun aGapOfOneInAHundredIsANormalPlaylistReadOnce() = runBlocking {
+        // A hidden or local track the service counts and never lists: 99 of 100 is not short.
+        src.shortReads += listOf(99, 99)
+        val r = SyncEngine(env).run(job())
+        assertTrue(r.error, r.ok)
+        assertEquals("read once", 1, src.shortReads.size)
+        assertFalse(env.logs.toString(), env.logs.any { "reading it again" in it })
+        assertEquals(1, r.removed)
+    }
+
+    @Test fun aDeletedVideoDoesNotBlockTheRemovalsThePersonMade() = runBlocking {
+        // The service counts a deleted video it never lists; the person took song 50 out.
+        src.lists["p"]!!.removeAt(49)
+        src.lists["p"]!!.add(t("gone", 1).copy(title = "Deleted video"))
+        src.shortReads += 99
+        val r = SyncEngine(env).run(job())
+        assertTrue(r.error, r.ok)
+        assertEquals(1, r.removed)
+        assertFalse(dst.lists["t"]!!.any { it.id == "d50" })
+        assertEquals(99, dst.lists["t"]!!.size)
+    }
+
+    @Test fun theToleranceGrowsWithThePlaylist() {
+        assertFalse(answeredShort(100, 98))
+        assertTrue(answeredShort(100, 97))
+        assertFalse(answeredShort(1000, 980))
+        assertTrue(answeredShort(1000, 979))
+        assertFalse(answeredShort(-1, 0))
+    }
 }

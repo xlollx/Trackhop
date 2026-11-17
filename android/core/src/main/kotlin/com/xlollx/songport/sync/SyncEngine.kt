@@ -92,6 +92,13 @@ private const val SHRINK_MIN = 20
 internal var rereadAfterMs = 120_000L
 /** The pause before reading a suspect target again. */
 internal var shrinkRereadMs = 3_000L
+
+/**
+ * Whether a source that counts [declared] tracks and listed [listed] answered short. Services count
+ * entries the connector never lists (YouTube's private and deleted videos, Spotify's local files):
+ * a gap of a couple of tracks, or 2%, is a normal playlist, not a page left out.
+ */
+internal fun answeredShort(declared: Int, listed: Int): Boolean = declared - listed > maxOf(2, declared / 50)
 /** Above this many tracks the order step is skipped: too many single moves for one run. */
 private const val MAX_REORDER = 1500
 /** Hosts of the short links music apps put in their share text. */
@@ -415,14 +422,14 @@ class SyncEngine(
         var sourceShortOf = 0
         if (job.mirrorRemovals && !job.archive) {
             val declared = declaredCount(src, srcPlaylistId, srcDeclared)
-            if (declared > allSource.size) {
+            if (answeredShort(declared, allSource.size)) {
                 env.log("engine", "${job.name}: ${src.displayName} gave ${allSource.size} of the $declared tracks it counts: reading it again")
                 kotlinx.coroutines.delay(shrinkRereadMs)
                 val again = listing(job, src, interactive, onWait) { patient(onProgress) { src.tracks(env, srcPlaylistId) } }
                 // The count may have changed meanwhile (a track taken out by the person): asked again too.
                 val declaredNow = runCatching { src.playlists(env).firstOrNull { it.id == srcPlaylistId }?.trackCount }.getOrNull()?.takeIf { it >= 0 } ?: declared
                 if (again.size >= allSource.size || again.size >= declaredNow) allSource = again
-                if (declaredNow > allSource.size) sourceShortOf = declaredNow
+                if (answeredShort(declaredNow, allSource.size)) sourceShortOf = declaredNow
             }
         }
         // Ignored in this sync, or declared absent from this destination service by any sync.
