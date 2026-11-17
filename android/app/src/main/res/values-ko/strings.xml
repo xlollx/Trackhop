@@ -3004,4 +3004,73 @@
     <plurals name="library_songs_as_before">
         <item quantity="other">%1$s곡 · 지금처럼</item>
     </plurals>
+    <string name="collection_one">플레이리스트 하나</string>
+    <string name="collection_one_desc">내 플레이리스트 하나를 중심으로 한 그룹이에요.</string>
+    <string name="collection_several">여러 플레이리스트를 함께</string>
+    <string name="collection_several_desc">초대 하나로 여러 플레이리스트를 공유해요. 팔로우하는 사람은 모두 받거나 몇 개만 골라요.</string>
+    <string name="collection_new">새 컬렉션</string>
+    <string name="collection_name">컬렉션 이름</string>
+    <string name="collection_search">내 플레이리스트에서 검색</string>
+    <string name="collection_all">모두</string>
+    <string name="collection_pick">고르기</string>
+    <string name="collection_chosen_n">%2$d개 중 %1$d개 선택</string>
+    <string name="collection_auto_add">나중에 만드는 플레이리스트도 추가</string>
+    <string name="collection_auto_add_desc">“모두”를 팔로우하는 사람에게 전달돼요.</string>
+    <string name="collection_n_of_m">플레이리스트 %2$d개 중 %1$d개</string>
+    <string name="collection_choose_pending">팔로우할 항목을 고르세요</string>
+    <string name="collection_all_note">나중에 추가되는 것까지 모두 받아요.</string>
+    <string name="collection_pick_note">%2$d개 중 %1$d개 · 새 플레이리스트는 제안으로 오고, 저절로 추가되지 않아요.</string>
+    <string name="collection_where">어디에서 들으시나요?</string>
+    <string name="collection_where_several">여러 서비스를 고르면 각 플레이리스트가 모든 서비스에서 같게 유지돼요.</string>
+    <string name="collection_when_follow">팔로우할 때</string>
+    <string name="collection_keep_desc">추가한 곡은 내 플레이리스트에만 남아요.</string>
+    <string name="collection_exact_desc">내 플레이리스트가 큐레이터의 것과 같아져요.</string>
+    <string name="collection_tip_exists">“%1$s”은(는) %2$s에 이미 있어요. 그 플레이리스트를 쓰고, 들어 있는 곡은 그대로 남아요.</string>
+    <string name="collection_already">이미 이 컬렉션에 참여 중이에요.</string>
+    <string name="collection_join_hint">플레이리스트 컬렉션이에요. 어떤 것을 받을지는 다음 단계에서 골라요.</string>
+    <string name="collection_new_from">%1$s 님의 새 플레이리스트</string>
+    <string name="collection_new_playlist">새 플레이리스트</string>
+    <string name="collection_add">추가</string>
+    <string name="collection_ignore">무시</string>
+    <string name="collection_continue">계속</string>
+    <string name="collection_stopped">중간에 멈췄어요. 설정된 것은 그대로 남고, 아무것도 두 번 만들어지지 않아요.</string>
+    <string name="collection_removed_by_curator">큐레이터가 뺐어요: %1$s. 내 플레이리스트는 그대로 남아요.</string>
+    <string name="collection_playlists">플레이리스트</string>
+    <string name="collection_switch_note">하나를 끄면 동기화가 멈추고 서비스에 그대로 남아요.</string>
+    <string name="collection_row_pending">아직 설정 안 됨</string>
+    <string name="collection_add_playlists">플레이리스트 추가</string>
+    <string name="collection_remove_playlist">컬렉션에서 빼기</string>
+    <string name="collection_remove_playlist_confirm">팔로우하는 사람은 더 이상 받지 않아요. 내 플레이리스트와 상대의 플레이리스트는 그대로 남아요.</string>
+    <string name="collection_leave">컬렉션 나가기</string>
+    <string name="collection_leave_confirm">모든 플레이리스트의 동기화가 멈춰요. 내 플레이리스트는 서비스에 그대로 남아요.</string>
+    <string name="collection_not_join">참여 안 함</string>
+    <string name="collection_not_join_note">서비스에는 아무것도 만들어지지 않았어요. 같은 초대로 다시 참여할 수 있어요.</string>
+    <string name="collection_invite_desc">컬렉션의 모든 플레이리스트를 초대 하나로.</string>
+    <string name="collection_error_cannot_create">%1$s에서는 여기서 플레이리스트를 만들 수 없어요. 그쪽에서 같은 이름으로 하나 만든 뒤 계속하세요.</string>
+    <string name="collection_no_playlists">이 서비스에는 추가할 다른 플레이리스트가 없어요.</string>
+    <string name="collection_empty">컬렉션에 아직 플레이리스트가 없어요.</string>
+    <plurals name="collection_create_n">
+        <item quantity="other">만들고 초대하기 (플레이리스트 %1$d개)</item>
+    </plurals>
+    <plurals name="collection_playlists_n">
+        <item quantity="other">플레이리스트 %1$d개</item>
+    </plurals>
+    <plurals name="collection_tip_new">
+        <item quantity="other">%2$s에 새 플레이리스트 %1$d개.</item>
+    </plurals>
+    <plurals name="collection_join_n">
+        <item quantity="other">참여 (플레이리스트 %1$d개)</item>
+    </plurals>
+    <plurals name="collection_followers_n">
+        <item quantity="other">팔로워 %1$d명</item>
+    </plurals>
+    <plurals name="collection_pending_n">
+        <item quantity="other">플레이리스트 %1$d개가 아직 설정되지 않았어요.</item>
+    </plurals>
+    <plurals name="collection_todo_n">
+        <item quantity="other">플레이리스트 %1$d개가 아직 공유되지 않았어요.</item>
+    </plurals>
+    <plurals name="collection_new_n">
+        <item quantity="other">새 플레이리스트 %1$d개</item>
+    </plurals>
 </resources>

@@ -48,6 +48,8 @@ class SongportApp : Application() {
         // The sync cards' last "up to date" checks, so a card opens with them (FreshnessChecks).
         com.xlollx.songport.ui.FreshnessChecks.init(this)
         Notifications.ensureChannel(this)
+        // A collection being left when the app last closed: finished now, before its syncs are scheduled again.
+        com.xlollx.songport.ui.CollectionUi.recover(this)
         // Riallinea i lavori periodici alla configurazione salvata (idempotente).
         Scheduler.applyAll(this)
     }

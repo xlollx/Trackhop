@@ -3081,4 +3081,81 @@
         <item quantity="one">%1$s song · as before</item>
         <item quantity="other">%1$s songs · as before</item>
     </plurals>
+    <string name="collection_one">One playlist</string>
+    <string name="collection_one_desc">A group around one of your playlists.</string>
+    <string name="collection_several">Several playlists together</string>
+    <string name="collection_several_desc">One invite for many playlists. Whoever follows takes them all or picks some.</string>
+    <string name="collection_new">New collection</string>
+    <string name="collection_name">Collection name</string>
+    <string name="collection_search">Search your playlists</string>
+    <string name="collection_all">All</string>
+    <string name="collection_pick">Pick</string>
+    <string name="collection_chosen_n">%1$d of %2$d chosen</string>
+    <string name="collection_auto_add">Add the playlists I create later too</string>
+    <string name="collection_auto_add_desc">They reach whoever follows “All”.</string>
+    <string name="collection_n_of_m">%1$d of %2$d playlists</string>
+    <string name="collection_choose_pending">Choose what to follow</string>
+    <string name="collection_all_note">You take them all, also the ones added later.</string>
+    <string name="collection_pick_note">%1$d of %2$d · new playlists are proposed to you, not added by themselves.</string>
+    <string name="collection_where">Where do you listen?</string>
+    <string name="collection_where_several">On several services, each playlist is kept the same on all of them.</string>
+    <string name="collection_when_follow">When you follow</string>
+    <string name="collection_keep_desc">What you add stays in your playlists only.</string>
+    <string name="collection_exact_desc">Your playlists become the same as the curator\'s.</string>
+    <string name="collection_tip_exists">“%1$s” is already on %2$s: it is used, and the tracks it holds stay.</string>
+    <string name="collection_already">You are already in this collection.</string>
+    <string name="collection_join_hint">A collection of playlists: you choose which ones next.</string>
+    <string name="collection_new_from">New from %1$s</string>
+    <string name="collection_new_playlist">New playlist</string>
+    <string name="collection_add">Add</string>
+    <string name="collection_ignore">Ignore</string>
+    <string name="collection_continue">Continue</string>
+    <string name="collection_stopped">It stopped half way: what was set up stays, and nothing is made twice.</string>
+    <string name="collection_removed_by_curator">Taken out by the curator: %1$s. Your playlists stay as they are.</string>
+    <string name="collection_playlists">Playlists</string>
+    <string name="collection_switch_note">Switch one off: it stops syncing and stays as it is on your service.</string>
+    <string name="collection_row_pending">not set up yet</string>
+    <string name="collection_add_playlists">Add playlists</string>
+    <string name="collection_remove_playlist">Take out of the collection</string>
+    <string name="collection_remove_playlist_confirm">Whoever follows stops receiving it. Your playlist and theirs stay as they are.</string>
+    <string name="collection_leave">Leave the collection</string>
+    <string name="collection_leave_confirm">Every playlist stops syncing. Your playlists stay as they are on your services.</string>
+    <string name="collection_not_join">Don\'t join</string>
+    <string name="collection_not_join_note">Nothing has been made on your services. You can join again with the same invite.</string>
+    <string name="collection_invite_desc">One invite for every playlist of the collection.</string>
+    <string name="collection_error_cannot_create">%1$s cannot make playlists from here. Make one with the same name there, then continue.</string>
+    <string name="collection_no_playlists">This service has no playlists of yours to add.</string>
+    <string name="collection_empty">The collection has no playlists yet.</string>
+    <plurals name="collection_create_n">
+        <item quantity="one">Create and invite (%1$d playlist)</item>
+        <item quantity="other">Create and invite (%1$d playlists)</item>
+    </plurals>
+    <plurals name="collection_playlists_n">
+        <item quantity="one">%1$d playlist</item>
+        <item quantity="other">%1$d playlists</item>
+    </plurals>
+    <plurals name="collection_tip_new">
+        <item quantity="one">%1$d new playlist on %2$s.</item>
+        <item quantity="other">%1$d new playlists on %2$s.</item>
+    </plurals>
+    <plurals name="collection_join_n">
+        <item quantity="one">Join (%1$d playlist)</item>
+        <item quantity="other">Join (%1$d playlists)</item>
+    </plurals>
+    <plurals name="collection_followers_n">
+        <item quantity="one">%1$d follower</item>
+        <item quantity="other">%1$d followers</item>
+    </plurals>
+    <plurals name="collection_pending_n">
+        <item quantity="one">%1$d playlist is not set up yet.</item>
+        <item quantity="other">%1$d playlists are not set up yet.</item>
+    </plurals>
+    <plurals name="collection_todo_n">
+        <item quantity="one">%1$d playlist is not shared yet.</item>
+        <item quantity="other">%1$d playlists are not shared yet.</item>
+    </plurals>
+    <plurals name="collection_new_n">
+        <item quantity="one">%1$d new playlist</item>
+        <item quantity="other">%1$d new playlists</item>
+    </plurals>
 </resources>

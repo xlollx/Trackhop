@@ -271,6 +271,12 @@ object Collections {
         return if (take) settle(env, id, read = false) else Settled()
     }
 
+    /** A follower's choice for every playlist of the collection, those taken later too: keep their own additions, or an exact copy. */
+    fun setKeepMine(env: Env, id: String, keep: Boolean) {
+        val c = put(env, id) { it.copy(keepMine = keep) } ?: return
+        groups(env, c).forEach { SharedGroups.setKeepMine(env, it, keep) }
+    }
+
     // ---------------------------------------------------------------- the curator's side
 
     /** The creator adds [playlists] of their service to the collection: asked for, then shared one by one. */

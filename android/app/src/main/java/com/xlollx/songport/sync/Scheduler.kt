@@ -46,6 +46,8 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
             !scheduled || batch != null || jobId == ALL || !com.xlollx.songport.sync.Timing.timed(it) ||
                 com.xlollx.songport.sync.Timing.isDue(it, System.currentTimeMillis())
         }
+        // A playlist of a collection (shared/Collections): the collection's list is read for news when due.
+        if (scheduled) com.xlollx.songport.ui.CollectionUi.check(ctx, jobs)
         // Rete ancora assente al risveglio: non e' un esito della sync, la si rimette in coda.
         val retryLater = java.util.concurrent.atomic.AtomicBoolean(false)
         // Le sync manuali possono durare piu' dei 10 minuti concessi a un lavoro in background

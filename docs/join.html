@@ -92,7 +92,7 @@ footer a{color:inherit}
   set("kicker", t.kicker);
   var body = document.getElementById("body");
   // The same checks as the app's (Invite.parse); every text goes in as text, never as markup.
-  if (!/^[0-9a-f]{16}$/.test(params.g || "") || !/^[A-Za-z0-9_-]{43}$/.test(params.k || "") || !params.n ||
+  if (!/^[0-9a-f]{16}$/.test(params.g || params.c || "") || !/^[A-Za-z0-9_-]{43}$/.test(params.k || "") || !params.n ||
       (params.t === "ntfy" && (!/^[A-Za-z0-9_-]{43}$/.test(params.x || "") || !/^https?:\/\//.test(params.s || ""))) ||
       (params.t === "server" && (!/^thg_[A-Za-z0-9_-]{43}$/.test(params.x || "") || !/^https?:\/\//.test(params.s || "")))) {
     set("title", "Trackhop");

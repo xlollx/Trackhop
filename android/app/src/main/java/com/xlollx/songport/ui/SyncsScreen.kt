@@ -242,7 +242,9 @@ fun SyncsScreen(
     // One playlist on several services: each group is one card, and its own syncs are not cards. With
     // no such group (and always before 1.18) the list is the store's, as ever.
     val nwayGroups = remember(data.groups) { NwayUi.groups(data) }
-    val nwayHidden = remember(data.jobs, nwayGroups) { NwayUi.memberJobIds(data) }
+    val nwayHidden = remember(data.jobs, nwayGroups, data.collections) { NwayUi.memberJobIds(data) }
+    // A collection of shared playlists is one card too (CollectionScreen).
+    val collections = remember(data.collections) { data.collections.filter { !it.leaving } }
     val stored = data
     @Suppress("NAME_SHADOWING")
     val data = if (nwayHidden.isEmpty()) data else remember(data, nwayHidden) { data.copy(jobs = data.jobs.filter { it.id !in nwayHidden }) }
@@ -252,7 +254,7 @@ fun SyncsScreen(
     val parkedSet by SyncState.parked.collectAsState()
     val stoppingSet by SyncState.stopping.collectAsState()
     var filter by filterState
-    if (data.syncs.isEmpty() && nwayGroups.isEmpty()) {
+    if (data.syncs.isEmpty() && nwayGroups.isEmpty() && collections.isEmpty()) {
         val anyConnected = remember { Providers.connectors().any { it.requiresAuth && it.isConnected(ctx) } }
         // With a service connected: what one service alone can do, a tap away, under the usual words.
         val primary = remember { ServiceIdeas.connected(ctx).firstOrNull() }
@@ -422,7 +424,8 @@ fun SyncsScreen(
     // crowded-schedule card when there are any. With the filter cleared, its line is not there.
     // The groups' cards come before the syncs', with the whole list only (a search is among the syncs).
     val groupCards = if (effective.isActive) emptyList() else nwayGroups
-    val firstCardUnfiltered = (if (runAllRow) 2 else 1) + (if (support != null || nudge) 1 else 0) + groupCards.size
+    val collectionCards = if (effective.isActive) emptyList() else collections
+    val firstCardUnfiltered = (if (runAllRow) 2 else 1) + (if (support != null || nudge) 1 else 0) + groupCards.size + collectionCards.size
     var pillHeight by remember { mutableIntStateOf(0) }
     // Pinned once the list has scrolled past its place: the cards are then passing beneath it.
     val pillPinned by remember(runAllIndex) {
@@ -566,6 +569,9 @@ fun SyncsScreen(
                 }
             }
             items(groupCards, key = { "nway:" + it.id }, span = { GridItemSpan(maxLineSpan) }) { g -> NwayCard(g, stored, running.keys) { onOpenGroup(g.id) } }
+            items(collectionCards, key = { "collection:" + it.id }, span = { GridItemSpan(maxLineSpan) }) { c ->
+                CollectionCard(c, stored, running.keys) { SharedUi.request.value = SharedUi.Request.Collection(c.id) }
+            }
             if (shown.isEmpty() && data.syncs.isNotEmpty()) item(key = "nomatch", span = wholeRow) { SyncFinderEmpty { filter = SyncFilter() } }
             // Dragging works on the whole list only: with a filter, the cards between are hidden.
             val canDrag = !effective.isActive && shown.size >= 2
