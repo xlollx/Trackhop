@@ -3083,4 +3083,11 @@
     <string name="accounts_keystore_unavailable">Oturumların şu anda okunamıyor: bu telefonun güvenli deposu açılmadı. Bu yüzden hizmetler bağlı değil olarak görünüyor. Hiçbir şey kaybolmadı: Trackhop\'u tamamen kapatıp yeniden aç ya da telefonu yeniden başlat. Şimdi yeniden oturum açmak kalıcı olmaz.</string>
     <string name="tools_dedupe_not_put_back">“%1$s” parçasının fazla kopyaları kaldırıldı ama biri geri konulamadı: bağlantı kesildi. Çalma listesine elle ekle.</string>
     <string name="error_listed_short">%1$s, %3$d parçanın yalnızca %2$d tanesini verdi; hiçbir şey kaldırılmadı. Daha sonra yeniden dene.</string>
+    <string name="notice_dismiss">Kapat</string>
+    <string name="store_good_copy_text">Bu telefonda eşitlemelerinin ve ayarlarının %1$s tarihindeki bir kopyası duruyor. Ona geri dönebilirsin. Sonradan sildiğin bir eşitleme geri gelirdi; bu yüzden sen istemedikçe hiçbir şey geri yüklenmez.</string>
+    <string name="store_good_copy_restore">O kopyayı geri yükle</string>
+    <string name="store_good_copy_confirm">Eşitlemelerin ve ayarların %1$s tarihindeki haline döner. Sonradan ayarladıkların değiştirilir; bir kopyası bu telefonda kalır.</string>
+    <string name="store_good_copy_restored">Geri yüklendi: %1$d eşitleme geri geldi.</string>
+    <string name="store_good_copy_failed">O kopya okunamadı. Hiçbir şey değiştirilmedi.</string>
+    <string name="shared_state_unreadable">“%1$s” paylaşılan çalma listesinin kayıtlı durumu okunamadı. Hiçbir şey silinmedi: bir sonraki eşitlemede gruptan yeniden okunacak.</string>
 </resources>

@@ -3010,4 +3010,11 @@
     <string name="accounts_keystore_unavailable">지금은 로그인 정보를 읽을 수 없습니다. 이 휴대전화의 보안 저장소가 열리지 않았습니다. 그래서 서비스가 연결되지 않은 것으로 표시됩니다. 잃어버린 것은 없습니다. Trackhop을 완전히 닫았다가 다시 열거나 휴대전화를 다시 시작하세요. 지금 다시 로그인해도 유지되지 않습니다.</string>
     <string name="tools_dedupe_not_put_back">“%1$s”의 중복 항목은 삭제했지만 연결이 끊겨 하나를 다시 넣지 못했습니다. 플레이리스트에 직접 추가해 주세요.</string>
     <string name="error_listed_short">%1$s에서 %3$d곡 중 %2$d곡만 받았습니다. 아무것도 삭제하지 않았습니다. 나중에 다시 시도해 주세요.</string>
+    <string name="notice_dismiss">닫기</string>
+    <string name="store_good_copy_text">이 휴대전화에 %1$s 기준의 동기화와 설정 사본이 보관되어 있습니다. 그 상태로 돌아갈 수 있습니다. 그 뒤에 삭제한 동기화도 되살아나므로, 직접 요청하기 전에는 복원하지 않습니다.</string>
+    <string name="store_good_copy_restore">그 사본 복원</string>
+    <string name="store_good_copy_confirm">동기화와 설정이 %1$s 기준 상태로 돌아갑니다. 그 뒤에 설정한 내용은 대체되며, 그 사본은 이 휴대전화에 남습니다.</string>
+    <string name="store_good_copy_restored">복원됨: 동기화 %1$d개가 돌아왔습니다.</string>
+    <string name="store_good_copy_failed">그 사본을 읽을 수 없습니다. 아무것도 변경하지 않았습니다.</string>
+    <string name="shared_state_unreadable">공유 플레이리스트 “%1$s”의 저장된 상태를 읽을 수 없습니다. 아무것도 삭제하지 않았습니다. 다음 동기화 때 그룹에서 다시 읽습니다.</string>
 </resources>

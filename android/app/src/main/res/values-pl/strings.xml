@@ -3235,4 +3235,11 @@
     <string name="accounts_keystore_unavailable">Nie można teraz odczytać Twoich logowań: bezpieczny magazyn tego telefonu się nie otworzył. Dlatego usługi są pokazane jako niepołączone. Nic nie przepadło: zamknij całkowicie Trackhop i otwórz go ponownie albo uruchom telefon ponownie. Ponowne logowanie teraz by się nie utrzymało.</string>
     <string name="tools_dedupe_not_put_back">Dodatkowe kopie „%1$s” zostały usunięte, ale nie udało się przywrócić jednej: połączenie zostało przerwane. Dodaj ten utwór ręcznie do playlisty.</string>
     <string name="error_listed_short">%1$s podał tylko %2$d z %3$d utworów; nic nie zostało usunięte. Spróbuj ponownie później.</string>
+    <string name="notice_dismiss">Odrzuć</string>
+    <string name="store_good_copy_text">Na tym telefonie jest kopia twoich synchronizacji i ustawień z dnia %1$s. Możesz do niej wrócić. Synchronizacja usunięta później by wróciła, dlatego nic nie jest przywracane, dopóki o to nie poprosisz.</string>
+    <string name="store_good_copy_restore">Przywróć tę kopię</string>
+    <string name="store_good_copy_confirm">Twoje synchronizacje i ustawienia wrócą do stanu z dnia %1$s. To, co ustawiono później, zostanie zastąpione; kopia tego zostaje na tym telefonie.</string>
+    <string name="store_good_copy_restored">Przywrócono synchronizacje: %1$d.</string>
+    <string name="store_good_copy_failed">Nie udało się odczytać tej kopii. Nic nie zostało zmienione.</string>
+    <string name="shared_state_unreadable">Nie udało się odczytać zapisanego stanu wspólnej playlisty „%1$s”. Nic nie zostało usunięte: zostanie odczytany ponownie z grupy przy następnej synchronizacji.</string>
 </resources>

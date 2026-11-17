@@ -3093,4 +3093,11 @@
     <string name="accounts_keystore_unavailable">Tes connexions ne peuvent pas être lues pour le moment : le stockage sécurisé de ce téléphone ne s\'est pas ouvert. C\'est pourquoi les services apparaissent comme non connectés. Rien n\'est perdu : ferme complètement Trackhop et rouvre-le, ou redémarre le téléphone. Te reconnecter maintenant ne tiendrait pas.</string>
     <string name="tools_dedupe_not_put_back">Les copies en trop de « %1$s » ont été retirées, mais il n\'a pas été possible d\'en remettre une : la connexion a été coupée. Ajoute-la à la main à la playlist.</string>
     <string name="error_listed_short">%1$s n\'a donné que %2$d titres sur %3$d ; rien n\'a été retiré. Réessaie plus tard.</string>
+    <string name="notice_dismiss">Ignorer</string>
+    <string name="store_good_copy_text">Ce téléphone garde une copie de tes synchronisations et réglages tels qu\'ils étaient le %1$s. Tu peux y revenir. Une synchronisation supprimée depuis reviendrait : rien n\'est donc restauré sans que tu le demandes.</string>
+    <string name="store_good_copy_restore">Restaurer cette copie</string>
+    <string name="store_good_copy_confirm">Tes synchronisations et réglages redeviennent ce qu\'ils étaient le %1$s. Ce que tu as configuré depuis est remplacé ; une copie en reste sur ce téléphone.</string>
+    <string name="store_good_copy_restored">Restauré : %1$d synchronisations sont revenues.</string>
+    <string name="store_good_copy_failed">Cette copie n\'a pas pu être lue. Rien n\'a été modifié.</string>
+    <string name="shared_state_unreadable">L\'état enregistré de la playlist partagée « %1$s » n\'a pas pu être lu. Rien n\'a été supprimé : il sera relu depuis le groupe à la prochaine synchronisation.</string>
 </resources>

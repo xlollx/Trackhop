@@ -3087,4 +3087,11 @@
     <string name="accounts_keystore_unavailable">Your sign-ins cannot be read right now: this phone\'s secure storage did not open. That is why the services show as not connected. Nothing is lost: close Trackhop completely and open it again, or restart the phone. Signing in again now would not last.</string>
     <string name="tools_dedupe_not_put_back">The extra copies of “%1$s” were removed, but one could not be put back: the connection dropped. Add it to the playlist by hand.</string>
     <string name="error_listed_short">%1$s gave only %2$d of %3$d tracks; nothing was removed. Try again later.</string>
+    <string name="notice_dismiss">Dismiss</string>
+    <string name="store_good_copy_text">A copy of your syncs and settings as they were on %1$s is kept on this phone. You can go back to it. A sync you deleted after that would come back, so nothing is restored unless you ask.</string>
+    <string name="store_good_copy_restore">Restore that copy</string>
+    <string name="store_good_copy_confirm">Your syncs and settings go back to how they were on %1$s. What you set up after that is replaced; a copy of it stays on this phone.</string>
+    <string name="store_good_copy_restored">Restored: %1$d syncs are back.</string>
+    <string name="store_good_copy_failed">That copy could not be read. Nothing was changed.</string>
+    <string name="shared_state_unreadable">The saved state of the shared playlist “%1$s” could not be read. Nothing was deleted: it is read again from the group at the next sync.</string>
 </resources>
