@@ -85,6 +85,9 @@ class ServerEnv(
         return requested.get()?.second.also { requested.set(null) }
     }
 
+    /** What the start of the server finished by itself (a song put back after "Remove duplicates" was cut short), for the Tools page; null when nothing. */
+    @Volatile var startNote: String? = null
+
     /** What runs now, written down so the next start knows what a stop of the server cut short ([RunMarks]). */
     val marks: RunMarks by lazy { RunMarks(keyValues("running")) }
 

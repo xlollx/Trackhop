@@ -3017,5 +3017,6 @@
     <string name="store_good_copy_confirm">同期と設定を %1$s 時点の状態に戻します。その後に設定した内容は置き換えられますが、そのコピーはこの端末に残ります。</string>
     <string name="store_good_copy_restored">復元しました：%1$d 件の同期が戻りました。</string>
     <string name="store_good_copy_failed">そのコピーを読み込めませんでした。何も変更していません。</string>
+    <string name="tools_dedupe_put_back">前回、重複の削除が途中で中断されました。プレイリストに戻しました：%1$s</string>
     <string name="shared_state_unreadable">共有プレイリスト「%1$s」の保存された状態を読み込めませんでした。何も削除していません。次の同期でグループから読み直します。</string>
 </resources>

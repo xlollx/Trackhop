@@ -3089,5 +3089,6 @@
     <string name="store_good_copy_confirm">Eşitlemelerin ve ayarların %1$s tarihindeki haline döner. Sonradan ayarladıkların değiştirilir; bir kopyası bu telefonda kalır.</string>
     <string name="store_good_copy_restored">Geri yüklendi: %1$d eşitleme geri geldi.</string>
     <string name="store_good_copy_failed">O kopya okunamadı. Hiçbir şey değiştirilmedi.</string>
+    <string name="tools_dedupe_put_back">Yinelenenleri kaldırma geçen sefer yarıda kesildi. Çalma listesine geri konuldu: %1$s</string>
     <string name="shared_state_unreadable">“%1$s” paylaşılan çalma listesinin kayıtlı durumu okunamadı. Hiçbir şey silinmedi: bir sonraki eşitlemede gruptan yeniden okunacak.</string>
 </resources>

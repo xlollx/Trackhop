@@ -57,6 +57,9 @@ class SongportApp : Application() {
             com.xlollx.songport.data.Diagnostics.log(this, "store", "store.json could not be read: started empty, the unreadable file is kept as ${it.name}")
             Notifications.notice(this, STORE_NOTICE_ID, getString(R.string.store_damaged_title), getString(R.string.store_damaged_text))
         }
+        // "Remove duplicates" cut short between taking a song's copies out and putting one back (the
+        // app killed, the phone off): the song goes back in its playlist now, and the person is told.
+        com.xlollx.songport.sync.AppTasks.resumePutBacks(this)
         // Riallinea i lavori periodici alla configurazione salvata (idempotente).
         Scheduler.applyAll(this)
     }

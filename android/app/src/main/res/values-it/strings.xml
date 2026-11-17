@@ -3091,5 +3091,6 @@
     <string name="store_good_copy_confirm">Le sync e le impostazioni tornano com\'erano il %1$s. Quello che hai impostato dopo viene sostituito; una copia resta su questo telefono.</string>
     <string name="store_good_copy_restored">Ripristinato: sono tornate %1$d sync.</string>
     <string name="store_good_copy_failed">Non è stato possibile leggere quella copia. Non è cambiato niente.</string>
+    <string name="tools_dedupe_put_back">L\'ultima volta la rimozione dei doppioni è stata interrotta. Rimesso nella sua playlist: %1$s</string>
     <string name="shared_state_unreadable">Non è stato possibile leggere lo stato salvato della playlist condivisa «%1$s». Niente è stato cancellato: viene riletto dal gruppo alla prossima sync.</string>
 </resources>

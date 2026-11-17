@@ -3091,5 +3091,6 @@
     <string name="store_good_copy_confirm">Deine Syncs und Einstellungen werden wieder so, wie sie am %1$s waren. Was du danach eingerichtet hast, wird ersetzt; eine Kopie davon bleibt auf diesem Telefon.</string>
     <string name="store_good_copy_restored">Wiederhergestellt: %1$d Syncs sind zurück.</string>
     <string name="store_good_copy_failed">Diese Kopie konnte nicht gelesen werden. Es wurde nichts geändert.</string>
+    <string name="tools_dedupe_put_back">Das Entfernen der Duplikate wurde beim letzten Mal unterbrochen. Wieder in die Playlist eingefügt: %1$s</string>
     <string name="shared_state_unreadable">Der gespeicherte Stand der geteilten Playlist „%1$s“ konnte nicht gelesen werden. Es wurde nichts gelöscht: Er wird beim nächsten Sync neu aus der Gruppe gelesen.</string>
 </resources>

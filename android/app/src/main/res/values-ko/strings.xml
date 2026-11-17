@@ -3016,5 +3016,6 @@
     <string name="store_good_copy_confirm">동기화와 설정이 %1$s 기준 상태로 돌아갑니다. 그 뒤에 설정한 내용은 대체되며, 그 사본은 이 휴대전화에 남습니다.</string>
     <string name="store_good_copy_restored">복원됨: 동기화 %1$d개가 돌아왔습니다.</string>
     <string name="store_good_copy_failed">그 사본을 읽을 수 없습니다. 아무것도 변경하지 않았습니다.</string>
+    <string name="tools_dedupe_put_back">지난번에 중복 삭제가 중단되었습니다. 플레이리스트에 다시 넣었습니다: %1$s</string>
     <string name="shared_state_unreadable">공유 플레이리스트 “%1$s”의 저장된 상태를 읽을 수 없습니다. 아무것도 삭제하지 않았습니다. 다음 동기화 때 그룹에서 다시 읽습니다.</string>
 </resources>

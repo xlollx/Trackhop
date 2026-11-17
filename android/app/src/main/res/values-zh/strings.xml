@@ -3017,5 +3017,6 @@
     <string name="store_good_copy_confirm">你的同步和设置将回到 %1$s 时的状态。之后设置的内容会被替换；它的一份副本会留在这部手机上。</string>
     <string name="store_good_copy_restored">已恢复：%1$d 个同步回来了。</string>
     <string name="store_good_copy_failed">无法读取该副本。没有更改任何内容。</string>
+    <string name="tools_dedupe_put_back">上次移除重复歌曲时被中断。已放回播放列表：%1$s</string>
     <string name="shared_state_unreadable">无法读取共享播放列表“%1$s”的已保存状态。没有删除任何内容：下次同步时会从群组重新读取。</string>
 </resources>

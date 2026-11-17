@@ -3099,5 +3099,6 @@
     <string name="store_good_copy_confirm">Tus sincronizaciones y ajustes vuelven a como estaban el %1$s. Lo que configuraste después se sustituye; una copia queda en este teléfono.</string>
     <string name="store_good_copy_restored">Restaurado: han vuelto %1$d sincronizaciones.</string>
     <string name="store_good_copy_failed">No se pudo leer esa copia. No se ha cambiado nada.</string>
+    <string name="tools_dedupe_put_back">La última vez se interrumpió la eliminación de duplicados. Se ha vuelto a poner en su playlist: %1$s</string>
     <string name="shared_state_unreadable">No se pudo leer el estado guardado de la playlist compartida «%1$s». No se ha borrado nada: se vuelve a leer del grupo en la próxima sincronización.</string>
 </resources>

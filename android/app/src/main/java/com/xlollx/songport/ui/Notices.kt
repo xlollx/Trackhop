@@ -119,6 +119,13 @@ fun StateNotices(store: Store, snackbar: SnackbarHostState) {
         )
     }
 
+    val putBack by AppTasks.putBack.collectAsState()
+    putBack?.let { text ->
+        NoticeBox(title = stringResource(R.string.tools_dedupe_title), text = text, error = false) {
+            TextButton(onClick = { AppTasks.putBack.value = null }) { Text(stringResource(R.string.ok)) }
+        }
+    }
+
     // Shared playlists whose saved state could not be read (kept aside, read again from the group).
     var seen by remember { mutableIntStateOf(0) }
     val unreadable = remember(seen) { SharedGroups.unreadable.keys.toList() }

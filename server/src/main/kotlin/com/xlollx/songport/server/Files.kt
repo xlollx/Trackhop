@@ -226,6 +226,7 @@ private fun Web.toolsIndex(r: Web.Req) {
     fun tool(href: String, title: String, text: String) =
         body.append("""<div class="card"><h3><a href="$href">$title</a></h3><p class="muted">$text</p></div>""")
     body.append(interruptedCards())
+    env.startNote?.let { body.append("""<div class="card" role="status"><p>${h(it)}</p></div>""") }
     body.append("<h2>Move</h2>")
     tool("/playlists", "Playlists and transfer", "See a service's playlists and their tracks, rename, delete, take tracks out; or copy several to another service at once.")
     tool("/tools/export", "Export a playlist", "Any playlist of a connected service as CSV, M3U, XSPF, JSPF or plain text${if (Features.v2) ", followed podcasts as OPML" else ""}, or saved into File.")

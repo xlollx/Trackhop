@@ -3241,5 +3241,6 @@
     <string name="store_good_copy_confirm">Twoje synchronizacje i ustawienia wrócą do stanu z dnia %1$s. To, co ustawiono później, zostanie zastąpione; kopia tego zostaje na tym telefonie.</string>
     <string name="store_good_copy_restored">Przywrócono synchronizacje: %1$d.</string>
     <string name="store_good_copy_failed">Nie udało się odczytać tej kopii. Nic nie zostało zmienione.</string>
+    <string name="tools_dedupe_put_back">Usuwanie duplikatów zostało ostatnio przerwane. Przywrócono do playlisty: %1$s</string>
     <string name="shared_state_unreadable">Nie udało się odczytać zapisanego stanu wspólnej playlisty „%1$s”. Nic nie zostało usunięte: zostanie odczytany ponownie z grupy przy następnej synchronizacji.</string>
 </resources>
