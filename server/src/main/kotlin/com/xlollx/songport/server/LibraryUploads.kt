@@ -10,15 +10,13 @@ import java.security.SecureRandom
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Big playlist files on Desktop and Docker (#67): the upload is written to disk as it arrives, an
- * Apple Music/iTunes library is then read a piece at a time and its playlists offered to pick from.
- * Other formats are still read whole, so they keep a size limit.
+ * Big playlist files on Desktop and Docker (#67): the upload is written to disk as it arrives, then
+ * read a piece at a time, whatever its format; an Apple Music/iTunes library offers its playlists to
+ * pick from. The only limit is the space left on the disk.
  */
 object LibraryUploads {
     /** What one upload may take on disk; the free space is checked too. */
     const val MAX_UPLOAD = 2_000_000_000L
-    /** A file read whole (CSV, M3U, JSON…): the limit the page always had. */
-    const val MAX_TEXT_FILE = 20_000_000L
     private const val KEEP_MS = 60 * 60 * 1000L
     private const val KEEP_FREE = 200_000_000L
 
@@ -112,10 +110,7 @@ internal fun Web.uploadToDisk(ex: HttpExchange, type: String) {
             val token = LibraryUploads.keep(LibraryUploads.Pending(env.owner, file.name, lib))
             return redirect(ex, "/files/library?t=$token")
         }
-        if (file.file.length() > LibraryUploads.MAX_TEXT_FILE) {
-            return redirect(ex, "/connectors/csv?err=${q("Files up to 20 MB, except an Apple Music/iTunes library, which can be any size.")}")
-        }
-        importUploaded(ex, file.name, file.file.readBytes())
+        file.file.inputStream().use { importUploaded(ex, file.name, it) }
     } finally {
         file?.file?.delete()
     }

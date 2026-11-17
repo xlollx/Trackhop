@@ -309,7 +309,6 @@ object Api {
     }
 }
 
-private const val MAX_API_BODY = 20_000_000
 
 /** /api/v1/…: answered before the page's own password, with the API's token instead. */
 internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query: Map<String, String>) {
@@ -476,7 +475,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
         rest == listOf("files") && method == "GET" -> json(200, JsonArray(csvFiles().map { JsonPrimitive(it.name) }))
         rest.size == 2 && rest[0] == "files" && (method == "POST" || method == "PUT") -> {
             // A playlist file in the body (CSV, M3U, XSPF, JSPF, iTunes XML, JSON, plain text), named by the path.
-            // It goes to disk first (#67): an Apple Music/iTunes library can be any size and is read a piece at a time.
+            // It goes to disk first (#67), then is read a piece at a time: a file can be any size, whatever its format.
             val dir = LibraryUploads.dir(env)
             val tmp = java.io.File.createTempFile("api-", ".part", dir.also { LibraryUploads.budget(it) })
             try {
@@ -506,8 +505,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
                         put("files", JsonArray(added.map { (name, count) -> buildJsonObject { put("name", "$name.csv"); put("tracks", count) } }))
                     })
                 }
-                if (copied > MAX_API_BODY) return error(413, "Files up to ${MAX_API_BODY / 1_000_000} MB, except an Apple Music/iTunes library, which can be any size.")
-                val n = runCatching { com.xlollx.songport.providers.LocalFilesProvider.importFile(env, rest[1], com.xlollx.songport.sync.PlaylistFiles.decode(tmp.readBytes())) }
+                val n = runCatching { tmp.inputStream().use { com.xlollx.songport.providers.LocalFilesProvider.importStream(env, rest[1], com.xlollx.songport.sync.PlaylistFiles.reader(it)).trackCount } }
                     .getOrElse { return error(400, it.message ?: "Could not read the file.") }
                 if (n == 0) return error(400, "No tracks found in the file.")
                 env.log("files", "imported ${rest[1]} through the API: $n tracks")

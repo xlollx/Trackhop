@@ -317,7 +317,7 @@ internal class CliCommands(
     private fun import(path: String, o: Cli.Opts): Int {
         val f = File(path)
         if (!f.isFile) throw Cli.Failure(2, "no file at $path")
-        // Streamed from disk: an Apple Music/iTunes library can be any size (#67).
+        // Streamed from disk: a file can be any size, whatever its format (#67).
         val query = listOfNotNull(o.value("playlists")?.let { "playlists=${enc(it)}" }, "whole=true".takeIf { o.has("whole") }).joinToString("&")
         val r = Json.parseToJsonElement(api.rawFile("PUT", "files/${enc(f.name)}" + (if (query.isEmpty()) "" else "?$query"), f)).jsonObject
         if (asJson) return print(r).let { 0 }

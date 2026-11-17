@@ -86,6 +86,20 @@ class ApiCallsTest {
         assertEquals(4, whole.obj["tracks"]!!.jsonPrimitive.content.toInt())
     }
 
+    // #67: any format through the API is read a piece at a time; one cut short adds nothing.
+    @Test fun aPlaylistFileThroughTheApiIsReadWholeOrNotAtAll() {
+        val jspf = com.xlollx.songport.sync.PlaylistFiles.toJspf("Mine", (1..30).map { com.xlollx.songport.model.Track("$it", "Song $it", listOf("Band")) })
+        val before = call("GET", "files").arr.size
+        val cut = call("PUT", "files/Mine.jspf", jspf.substring(0, jspf.length / 2))
+        assertEquals(400, cut.code)
+        assertTrue(cut.text, cut.text.contains("incomplete"))
+        assertEquals(before, call("GET", "files").arr.size)
+        val whole = call("PUT", "files/Mine.jspf", jspf)
+        assertEquals(201, whole.code)
+        assertEquals(30, whole.obj["tracks"]!!.jsonPrimitive.content.toInt())
+        assertEquals(before + 1, call("GET", "files").arr.size)
+    }
+
     @Test fun newReleasesAreListedAndMakeAWeeklySync() {
         // A 1.18 feature: behind the release switch, on for this test.
         Features.v2 = true

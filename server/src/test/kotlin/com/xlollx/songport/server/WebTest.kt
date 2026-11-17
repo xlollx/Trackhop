@@ -400,22 +400,49 @@ class WebTest {
         assertTrue(File(data, "uploads").listFiles().orEmpty().isEmpty())
     }
 
-    @Test fun aBigFileThatIsNotALibraryIsStillRefusedWithWhy() {
+    // #67: any format is read a piece at a time, so a CSV over the 20 MB of before is added like a small one.
+    @Test fun aBigFileOfAnyFormatIsAdded() {
         val boundary = "----trackhop67b"
         val body = tmp.newFile("big.bin")
         body.bufferedWriter().use { w ->
             w.write("--$boundary\r\nContent-Disposition: form-data; name=\"file\"; filename=\"huge.csv\"\r\n\r\nartist,title\n")
-            repeat(800_000) { w.write("Some Band,Some quite long song title number $it\n") }
+            repeat(450_000) { w.write("Some Band,Some quite long song title number $it\n") }
             w.write("\r\n--$boundary--\r\n")
         }
+        assertTrue("the body is over 20 MB: ${body.length()}", body.length() > 20_000_000)
         val res = client.send(
             HttpRequest.newBuilder(URI("$base/files")).header("Authorization", auth).header("Origin", base)
                 .header("Content-Type", "multipart/form-data; boundary=$boundary").POST(HttpRequest.BodyPublishers.ofFile(body.toPath())).build(),
             HttpResponse.BodyHandlers.ofString(),
         )
         assertEquals(303, res.statusCode())
-        assertTrue(java.net.URLDecoder.decode(res.headers().firstValue("Location").orElse(""), Charsets.UTF_8).contains("Files up to 20 MB, except an Apple Music/iTunes library"))
+        val to = java.net.URLDecoder.decode(res.headers().firstValue("Location").orElse(""), Charsets.UTF_8)
+        assertTrue(to, to.contains("ok=Added huge.csv: 450000 tracks."))
+        File(data, "csv/huge.csv").useLines { lines ->
+            assertEquals("Some quite long song title number 449999,Some Band,,,", lines.last())
+        }
         assertTrue(File(data, "uploads").listFiles().orEmpty().isEmpty())
+    }
+
+    // #67: the upload arrived whole, but the file itself was cut short before it was sent: nothing is added.
+    @Test fun aFileCutShortBeforeItsUploadAddsNothing() {
+        val boundary = "----trackhop67d"
+        val xspf = com.xlollx.songport.sync.PlaylistFiles.toXspf("Mine", (1..40).map { com.xlollx.songport.model.Track("$it", "Song $it", listOf("Band")) })
+        fun upload(name: String, text: String) = client.send(
+            HttpRequest.newBuilder(URI("$base/files")).header("Authorization", auth).header("Origin", base)
+                .header("Content-Type", "multipart/form-data; boundary=$boundary").POST(HttpRequest.BodyPublishers.ofString(
+                    "--$boundary\r\nContent-Disposition: form-data; name=\"file\"; filename=\"$name\"\r\n\r\n$text\r\n--$boundary--\r\n")).build(),
+            HttpResponse.BodyHandlers.ofString(),
+        )
+        for ((name, text) in listOf("cut.xspf" to xspf.substring(0, xspf.length / 2), "cut.json" to "[{\"title\":\"One\"},{\"title\":\"Tw")) {
+            val to = java.net.URLDecoder.decode(upload(name, text).headers().firstValue("Location").orElse(""), Charsets.UTF_8)
+            assertTrue(to, to.contains("err=Nothing was added from $name") && to.contains("incomplete"))
+        }
+        assertTrue(File(data, "csv").listFiles().orEmpty().isEmpty())
+        assertTrue(File(data, "uploads").listFiles().orEmpty().isEmpty())
+        // The same file whole, afterwards: added once.
+        assertTrue(upload("cut.xspf", xspf).headers().firstValue("Location").orElse("").contains("ok="))
+        assertEquals(listOf("cut.csv"), File(data, "csv").listFiles().orEmpty().map { it.name })
     }
 
     // #49: "Artist - Album - Title" names, read as chosen on the upload form; the choice is kept.

@@ -484,7 +484,7 @@ On Trackhop Desktop only the computer itself can reach it (loopback only).
 | `GET /api/v1/runs/<id>` | A run: added, removed, not found, with the tracks |
 | `GET /api/v1/services` | The services and whether they are connected |
 | `GET /api/v1/files`, `GET /api/v1/files/<name>.csv?format=m3u` | The File playlists, in any export format |
-| `POST /api/v1/files/<name>` | Adds a playlist file sent as the body (CSV, M3U, XSPF, JSPF, iTunes XML, JSON or text), ready to sync (201); an Apple Music/iTunes library of any size becomes one file per playlist (`?playlists=A,B`, `?whole=true`) |
+| `POST /api/v1/files/<name>` | Adds a playlist file sent as the body (CSV, M3U, XSPF, JSPF, iTunes XML, JSON or text), ready to sync (201), of any size; an Apple Music/iTunes library becomes one file per playlist (`?playlists=A,B`, `?whole=true`) |
 | `POST /api/v1/syncs/<id>/enable`, `…/disable` | Turns a sync on or off |
 | `GET /api/v1/backup`, `POST /api/v1/backup` | The last full backup and its schedule; starts one (202, with a task id) |
 | `GET /api/v1/tasks/<id>` | A background task (a backup): progress, done, error |

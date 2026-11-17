@@ -81,7 +81,7 @@ internal object ApiDocs {
         Call("POST", "/convert", "Services", "Several tracks on another service.", body = "{\"tracks\": […], \"to\"}"),
         Call("GET", "/files", "Files", "The File playlists."),
         Call("GET", "/files/{file}", "Files", "A File playlist, in a format: csv, m3u, xspf, jspf, txt or opml.", listOf("format")),
-        Call("PUT", "/files/{file}", "Files", "Bring in a playlist file (CSV, M3U, PLS, XSPF, JSPF, iTunes XML, JSON, text) as the body, up to 20 MB. An Apple Music/iTunes library can be any size: each of your playlists becomes a file; ?playlists=A,B picks them by name, ?whole=true adds the whole library as one file. The answer lists the files made."),
+        Call("PUT", "/files/{file}", "Files", "Bring in a playlist file (CSV, M3U, PLS, XSPF, JSPF, iTunes XML, JSON, text) as the body, of any size: it is read a piece at a time. From an Apple Music/iTunes library each of your playlists becomes a file; ?playlists=A,B picks them by name, ?whole=true adds the whole library as one file. The answer lists the files made."),
         Call("POST", "/files/{file}", "Files", "The same as PUT, for tools that only POST."),
         Call("DELETE", "/files/{file}", "Files", "Delete a File playlist."),
         Call("POST", "/files/zip", "Files", "Several File playlists in one .zip, in a format.", body = "{\"files\"?: [names], \"format\"?}"),
