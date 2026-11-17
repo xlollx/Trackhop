@@ -1336,6 +1336,11 @@ class SyncEngine(
                         fresh.forEach { SyncState.item(job.id, SyncState.LiveItem(it.live(), null, SyncState.Outcome.ADDED)) }
                         there.forEach { SyncState.item(job.id, SyncState.LiveItem(it.live(), it.live(), SyncState.Outcome.CACHED)) }
                         break
+                    } catch (e: kotlinx.coroutines.CancellationException) {
+                        // Stopped by the system (the worker's time is up, the app closed), not refused by
+                        // the service: the run ends here and starts again later. Taken for a failed block
+                        // it would be tried track by track, each one listed as not added.
+                        throw e
                     } catch (e: Exception) {
                         // Il servizio ha bloccato l'indirizzo e dice quanto aspettare: si aspetta, come
                         // nella ricerca, invece di dare per falliti brani che sono solo in attesa.
@@ -1365,6 +1370,8 @@ class SyncEngine(
                                     SyncState.item(job.id, SyncState.LiveItem(t.live(), null, SyncState.Outcome.ADDED))
                                 }
                                 singleFails = 0
+                            } catch (e2: kotlinx.coroutines.CancellationException) {
+                                throw e2
                             } catch (e2: Exception) {
                                 if (NetError.isOffline(e2)) {
                                     offline = true
@@ -1404,6 +1411,7 @@ class SyncEngine(
                     kept = dst.removeTracksReportingKept(env, targetId, plan.toRemove)
                     break
                 }
+                catch (e: kotlinx.coroutines.CancellationException) { throw e }
                 catch (e: Exception) {
                     val asked = declaredWait(e.message)
                     if (asked != null && blockWaits < MAX_BLOCK_WAITS) { blockWaits++; waitVisible(asked, onProgress); continue }
