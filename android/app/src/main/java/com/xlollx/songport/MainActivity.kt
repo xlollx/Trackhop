@@ -355,7 +355,8 @@ private fun MainScreen(
     val ctx = LocalContext.current
     val store = remember { Store.get(ctx) }
     val data by store.state.collectAsState()
-    var tab by rememberSaveable { mutableIntStateOf(0) }
+    // A damaged state opens on Settings, where its notice is drawn, not on an empty Syncs tab.
+    var tab by rememberSaveable { mutableIntStateOf(if (store.notice.value != null) MainActivity.TAB_SETTINGS else MainActivity.TAB_SYNCS) }
     // The sync list's find and filter: its search field is in the top bar, the chips in the list. Kept across rotation.
     val syncFilter = rememberSaveable(stateSaver = com.xlollx.songport.ui.SyncFilterSaver) { mutableStateOf(com.xlollx.songport.sync.SyncFilter()) }
     // The syncs ticked on the Syncs tab to change several at once (#68): while there are any, its bar is where "New sync" was.
@@ -927,8 +928,9 @@ private fun MainScreen(
                 }
             }
         },
-        // While syncs are selected their action bar sits where the snackbar would go: the snackbar goes above it.
-        snackbarHost = { SnackbarHost(snackbar, if (tab == MainActivity.TAB_SYNCS && syncSelection.value.isNotEmpty()) Modifier.padding(bottom = 80.dp) else Modifier) },
+        // While syncs are selected their action bar sits where the snackbar would go: the snackbar goes above it
+        // (96 dp: the bar's labels can take two lines).
+        snackbarHost = { SnackbarHost(snackbar, if (tab == MainActivity.TAB_SYNCS && syncSelection.value.isNotEmpty()) Modifier.padding(bottom = 96.dp) else Modifier) },
         bottomBar = {
             // Glass: the bar is translucent and blurs the content scrolling under it (Android 12+;
             // older phones get a plain translucent surface).
@@ -992,6 +994,7 @@ private fun MainScreen(
             TabContent(tab) { shown -> ReadableWidth(max = layout.maxContentWidth(twoColumns = shown == MainActivity.TAB_SYNCS)) { tabStates.SaveableStateProvider(shown) { when (shown) {
                 MainActivity.TAB_SYNCS -> SyncsScreen(
                     data = data,
+                    snackbar = snackbar,
                     // The "↔" half of a two-way pair is edited through its original: one set of settings for both.
                     onEdit = { j ->
                         // A shared playlist's syncs are changed from their group's page.

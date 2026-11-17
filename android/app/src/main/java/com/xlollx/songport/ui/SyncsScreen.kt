@@ -248,6 +248,8 @@ fun SyncsScreen(
     selectionState: androidx.compose.runtime.MutableState<Set<String>> = rememberSaveable(stateSaver = SyncSelectionSaver) { mutableStateOf(emptySet()) },
     /** What a change to several syncs has to say (done, or what went wrong): the caller's snackbar. */
     onMessage: (String) -> Unit = {},
+    /** The caller's snackbar, for the notice of a damaged state drawn above the empty list. */
+    snackbar: androidx.compose.material3.SnackbarHostState? = null,
 ) {
     val ctx = LocalContext.current
     // One playlist on several services: each group is one card, and its own syncs are not cards. With
@@ -266,36 +268,14 @@ fun SyncsScreen(
     val stoppingSet by SyncState.stopping.collectAsState()
     var filter by filterState
     if (data.syncs.isEmpty() && nwayGroups.isEmpty() && collections.isEmpty()) {
-        val anyConnected = remember { Providers.connectors().any { it.requiresAuth && it.isConnected(ctx) } }
-        // With a service connected: what one service alone can do, a tap away, under the usual words.
-        val primary = remember { ServiceIdeas.connected(ctx).firstOrNull() }
-        if (anyConnected && primary != null) {
-            Column(
-                Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                    .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 100.dp + LocalBottomBarInset.current),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Icon(Icons.Filled.Sync, null, Modifier.size(40.dp), tint = MaterialTheme.colorScheme.primary)
-                Text(stringResource(R.string.empty_syncs_title), style = MaterialTheme.typography.titleLarge, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                Text(
-                    stringResource(R.string.empty_syncs_body_connected), style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                )
-                ServiceIdeasCard(primary, onIdea = onIdea)
-                if (onTour != null) TextButton(onClick = onTour, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.tour_offer)) }
+        // The saved syncs could not be read and the app began empty: said here too, wherever the app opens.
+        val store = remember { Store.get(ctx) }
+        val damaged by store.notice.collectAsState()
+        Column(Modifier.fillMaxSize()) {
+            if (damaged != null && snackbar != null) Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                StateNotices(store, snackbar)
             }
-        } else if (anyConnected) {
-            EmptyState(
-                Icons.Filled.Sync, stringResource(R.string.empty_syncs_title), stringResource(R.string.empty_syncs_body_connected),
-                secondaryLabel = stringResource(R.string.tour_offer), onSecondary = onTour,
-            )
-        } else {
-            EmptyState(
-                Icons.Filled.Sync, stringResource(R.string.empty_syncs_title), stringResource(R.string.empty_syncs_body),
-                stringResource(R.string.empty_syncs_cta_accounts), onGoToAccounts,
-                secondaryLabel = stringResource(R.string.tour_offer), onSecondary = onTour,
-            )
+            Box(Modifier.weight(1f)) { EmptySyncs(ctx, onIdea, onTour, onGoToAccounts) }
         }
         return
     }
@@ -3339,5 +3319,41 @@ private fun BubbleOver(text: String, onDismiss: () -> Unit) {
         ) {
             Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.inverseOnSurface)
         }
+    }
+}
+
+/** The Syncs tab with no sync yet: what to do first, by whether a service is connected. */
+@Composable
+private fun EmptySyncs(ctx: android.content.Context, onIdea: (Idea) -> Unit, onTour: (() -> Unit)?, onGoToAccounts: () -> Unit) {
+    val anyConnected = remember { Providers.connectors().any { it.requiresAuth && it.isConnected(ctx) } }
+    // With a service connected: what one service alone can do, a tap away, under the usual words.
+    val primary = remember { ServiceIdeas.connected(ctx).firstOrNull() }
+    if (anyConnected && primary != null) {
+        Column(
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+                .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 100.dp + LocalBottomBarInset.current),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Icon(Icons.Filled.Sync, null, Modifier.size(40.dp), tint = MaterialTheme.colorScheme.primary)
+            Text(stringResource(R.string.empty_syncs_title), style = MaterialTheme.typography.titleLarge, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+            Text(
+                stringResource(R.string.empty_syncs_body_connected), style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            )
+            ServiceIdeasCard(primary, onIdea = onIdea)
+            if (onTour != null) TextButton(onClick = onTour, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.tour_offer)) }
+        }
+    } else if (anyConnected) {
+        EmptyState(
+            Icons.Filled.Sync, stringResource(R.string.empty_syncs_title), stringResource(R.string.empty_syncs_body_connected),
+            secondaryLabel = stringResource(R.string.tour_offer), onSecondary = onTour,
+        )
+    } else {
+        EmptyState(
+            Icons.Filled.Sync, stringResource(R.string.empty_syncs_title), stringResource(R.string.empty_syncs_body),
+            stringResource(R.string.empty_syncs_cta_accounts), onGoToAccounts,
+            secondaryLabel = stringResource(R.string.tour_offer), onSecondary = onTour,
+        )
     }
 }
