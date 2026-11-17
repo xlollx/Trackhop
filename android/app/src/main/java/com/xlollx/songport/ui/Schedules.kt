@@ -356,7 +356,7 @@ fun SchedulePicker(
             if (picked != null && !picking) {
                 // This sync's schedule: what it is, when it runs next, who else uses it.
                 val others = Schedules.usedBy(data, picked.id).count { it.id != jobId }
-                Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.fillMaxWidth().testTag("schedule_linked")) {
+                Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}.testTag("schedule_linked")) {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text(scheduleTitle(picked), style = MaterialTheme.typography.titleMedium)
                         if (picked.name.isNotBlank()) Text(scheduleSummary(picked), style = MaterialTheme.typography.bodyMedium)

@@ -911,7 +911,8 @@ private fun MainScreen(
                 }
             }
         },
-        snackbarHost = { SnackbarHost(snackbar) },
+        // While syncs are selected their action bar sits where the snackbar would go: the snackbar goes above it.
+        snackbarHost = { SnackbarHost(snackbar, if (tab == MainActivity.TAB_SYNCS && syncSelection.value.isNotEmpty()) Modifier.padding(bottom = 80.dp) else Modifier) },
         bottomBar = {
             // Glass: the bar is translucent and blurs the content scrolling under it (Android 12+;
             // older phones get a plain translucent surface).
