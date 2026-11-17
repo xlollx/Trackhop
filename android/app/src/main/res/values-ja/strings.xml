@@ -2700,4 +2700,123 @@
     <string name="nway_pause_desc">オフにするまでグループは同期されません。</string>
     <string name="nway_delete">グループを削除</string>
     <string name="nway_delete_confirm">グループとその同期が削除されます。各プレイリストはそのまま残ります。</string>
+    <string name="saved_matches_title">保存された一致</string>
+    <string name="tools_row_saved_matches">Trackhop がすべての同期で覚えている選択：一覧で見て、一度で直せます。</string>
+    <string name="saved_matches_search">曲名やアーティストで検索</string>
+    <string name="saved_matches_all">すべて</string>
+    <string name="saved_matches_chosen">自分で選択</string>
+    <string name="saved_matches_not_found">見つからない</string>
+    <string name="saved_matches_ignored">無視</string>
+    <string name="saved_matches_to_all">移行先：すべてのサービス</string>
+    <string name="saved_matches_to">移行先：%1$s</string>
+    <string name="saved_matches_all_services">すべてのサービス</string>
+    <string name="saved_matches_tag_chosen">自分で選択</string>
+    <string name="saved_matches_tag_auto">自動</string>
+    <string name="saved_matches_tag_not_found">見つからない</string>
+    <string name="saved_matches_tag_ignored">無視</string>
+    <string name="saved_matches_none_found">曲が見つかりません</string>
+    <string name="saved_matches_ignored_line">無視</string>
+    <string name="saved_matches_song_on">%1$s の曲</string>
+    <string name="saved_matches_empty">まだ何もありません。同期を実行すると一覧が増えます。</string>
+    <string name="saved_matches_no_results">この条件に合うものはありません。</string>
+    <string name="saved_matches_reading">曲名を表示するため同期のプレイリストを読み込み中…</string>
+    <string name="saved_matches_more">さらに表示</string>
+    <string name="saved_matches_on">%1$s</string>
+    <string name="saved_matches_chosen_on">%1$s に自分で選択</string>
+    <string name="saved_matches_matched_to">↓ 一致した曲</string>
+    <string name="saved_matches_listen">%1$s で聴く</string>
+    <string name="saved_matches_change">曲を変更…</string>
+    <string name="saved_matches_not_there">%1$s にはない（探すのをやめる）</string>
+    <string name="saved_matches_forget">忘れる（次の同期でもう一度検索）</string>
+    <string name="saved_matches_used_none">今これを使う同期はありません。</string>
+    <string name="saved_matches_changed">変更しました。各同期は次回から新しい曲を使います。</string>
+    <string name="saved_matches_marked_absent">完了：今後どの同期も %1$s でこの曲を探しません。</string>
+    <string name="saved_matches_forgotten">忘れました。次の同期でもう一度検索します。</string>
+    <plurals name="saved_matches_used_by">
+        <item quantity="other">%1$d 件の同期で使用：%2$s</item>
+    </plurals>
+    <string name="twins_title">重複したプレイリスト</string>
+    <string name="tools_row_twins">転送を繰り返して残ったコピー：同じ名前、またはほぼ同じ曲。</string>
+    <string name="twins_reading">プレイリストを読み込み中：%1$d / %2$d</string>
+    <string name="twins_none">%1$s に重複したプレイリストはありません。</string>
+    <string name="twins_cannot_delete">Trackhop は %1$s のプレイリストを削除できません。%1$s のアプリでコピーを削除してください。</string>
+    <string name="twins_changed">%1$s に変更</string>
+    <string name="twins_same_percent">%1$d%% 同じ</string>
+    <string name="twins_fewer">%1$d 曲少ない</string>
+    <string name="twins_more">%1$d 曲多い</string>
+    <string name="twins_stays">残す</string>
+    <string name="twins_look_again">もう一度探す</string>
+    <string name="twins_identical">同一のコピー</string>
+    <string name="twins_add_then_delete">追加してから削除</string>
+    <string name="twins_saved_note">削除した各プレイリストのコピーは Trackhop のファイルに残ります。いつでもサービスに戻せます。</string>
+    <string name="twins_deleted_copy">%1$s（削除したコピー）</string>
+    <plurals name="twins_tip">
+        <item quantity="other">%1$d グループ。各グループで丸印の付いたものを残し、ほかは削除します。削除の前に Trackhop がファイルにコピーを保存します。</item>
+    </plurals>
+    <plurals name="twins_groups">
+        <item quantity="other">%1$d グループ。</item>
+    </plurals>
+    <plurals name="twins_same_name">
+        <item quantity="other">同じ名前 · %1$d 件のコピー</item>
+    </plurals>
+    <plurals name="twins_same_songs">
+        <item quantity="other">同じ曲 · %1$d 件のコピー</item>
+    </plurals>
+    <plurals name="twins_used_by">
+        <item quantity="other">%1$d 件の同期で使用中</item>
+    </plurals>
+    <plurals name="twins_delete_n">
+        <item quantity="other">%1$d 件のコピーを削除</item>
+    </plurals>
+    <plurals name="twins_confirm_title">
+        <item quantity="other">%2$s から %1$d 件のプレイリストを削除しますか？</item>
+    </plurals>
+    <plurals name="twins_missing_line">
+        <item quantity="other">もう一方にない曲 %1$d 曲</item>
+    </plurals>
+    <plurals name="twins_missing_tip">
+        <item quantity="other">これらのコピーの %1$d 曲は、残すプレイリストにありません。先に追加しますか？</item>
+    </plurals>
+    <plurals name="twins_done">
+        <item quantity="other">%1$d 件のプレイリストを削除しました。コピーはファイルにあります。</item>
+    </plurals>
+    <string name="listened_title">聴いた曲として記録</string>
+    <string name="tools_row_listened">Last.fm や ListenBrainz が記録していない再生：レコード、CD、オフラインの旅。</string>
+    <string name="listened_what">聴いたもの</string>
+    <string name="listened_from_album">アルバム</string>
+    <string name="listened_from_playlist">プレイリスト</string>
+    <string name="listened_from_file">ファイル</string>
+    <string name="listened_from_text">テキスト</string>
+    <string name="listened_album_search">アルバムとアーティスト</string>
+    <string name="listened_file_pick">ファイルを選択</string>
+    <string name="listened_text_hint">1 行に 1 曲：アーティスト - 曲名</string>
+    <string name="listened_where">記録する場所</string>
+    <string name="listened_none_connected">再生を記録するには、アカウントで Last.fm か ListenBrainz を接続してください。</string>
+    <string name="listened_lastfm_needs_password">Last.fm：再生を記録するには、アカウントでパスワードも入れて接続し直してください。</string>
+    <string name="listened_listenbrainz_needs_token">ListenBrainz：再生を記録するには、アカウントでユーザートークン（listenbrainz.org → Settings）を追加してください。</string>
+    <string name="listened_when">いつ</string>
+    <string name="listened_finished_at">%1$s、%2$s に終了</string>
+    <string name="listened_started_at">%1$s、%2$s に開始</string>
+    <string name="listened_mode_finished">この時刻に終了</string>
+    <string name="listened_mode_started">この時刻に開始</string>
+    <string name="listened_lastfm_14">Last.fm が受け付けるのは過去 14 日間の再生だけです。それより前は ListenBrainz を使ってください。</string>
+    <string name="listened_review_hint">飛ばした曲のチェックを外してください。時刻は曲の長さに沿って並びます。</string>
+    <string name="listened_skipped">スキップ</string>
+    <string name="listened_album_note">Last.fm ではアルバム名がここに書かれたとおりに残ります。</string>
+    <string name="listened_future">一部の曲が未来の時刻になります。もっと前の時刻を選んでください。</string>
+    <string name="listened_done">記録しました：%1$s</string>
+    <string name="listened_done_lastfm">Last.fm に %1$d 件</string>
+    <string name="listened_done_listenbrainz">ListenBrainz に %1$d 件</string>
+    <plurals name="listened_see">
+        <item quantity="other">%1$d 曲を見る</item>
+    </plurals>
+    <plurals name="listened_review_title">
+        <item quantity="other">%1$d 回の再生</item>
+    </plurals>
+    <plurals name="listened_send">
+        <item quantity="other">%1$d 回の再生を記録</item>
+    </plurals>
+    <plurals name="listened_too_old">
+        <item quantity="other">%1$d 回の再生は 14 日より前です。Last.fm は受け付けません。</item>
+    </plurals>
 </resources>

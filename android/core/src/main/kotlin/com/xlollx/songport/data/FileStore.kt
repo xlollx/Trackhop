@@ -549,7 +549,7 @@ open class FileStore(dir: File) {
         private const val WRITE_DELAY_MS = 500L
         private const val MAX_CACHE = 20_000
         /** Una ricerca fallita si ripete dopo una settimana: i cataloghi cambiano, ma non ogni giorno. */
-        private const val MISS_TTL_MS = 7L * 24 * 3_600_000
+        const val MISS_TTL_MS = 7L * 24 * 3_600_000
         /** A removal confirmation not used within this time is dropped: it was meant for the run started then. */
         const val CONFIRMATION_TTL_MS = 12L * 3_600_000
 

@@ -5,6 +5,7 @@ import com.xlollx.songport.model.ProviderException
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.net.get
 import com.xlollx.songport.net.int
+import com.xlollx.songport.net.long
 import com.xlollx.songport.net.str
 import com.xlollx.songport.platform.BuildDefaults
 import com.xlollx.songport.providers.LastFmProvider
@@ -12,6 +13,7 @@ import com.xlollx.songport.providers.ListenBrainzProvider
 import com.xlollx.songport.providers.MusicProvider
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -221,6 +223,29 @@ class LastFmContractTest : ContractTest() {
         assertEquals(listOf("track.search", "Get Lucky", "Daft Punk"), listOf(r.query("method"), r.query("track"), r.query("artist")))
     }
 
+    /** Mark as listened: 50 scrobbles a call at most, signed, with the session; what Last.fm accepted is counted. */
+    @Test fun scrobblesGoFiftyAtATimeSigned() = runBlocking {
+        withSession()
+        json("""{"scrobbles":{"@attr":{"accepted":50,"ignored":0}}}""")
+        json("""{"scrobbles":{"@attr":{"accepted":1,"ignored":1}}}""")
+        val listens = (0 until 52).map { com.xlollx.songport.sync.Scrobbles.Listen(Track("t$it", "Song $it", listOf("Fleetwood Mac", "Other"), album = "Rumours", durationMs = 200_000), 1_700_000_000_000L + it * 200_000L) }
+        assertEquals(51, lf.scrobble(env, listens))
+        val a = posted(next())
+        assertEquals("track.scrobble", a["method"]); assertEquals("SK1", a["sk"])
+        assertEquals("Fleetwood Mac", a["artist[0]"]); assertEquals("Song 0", a["track[0]"]); assertEquals("1700000000", a["timestamp[0]"])
+        assertEquals("Rumours", a["album[0]"]); assertEquals("200", a["duration[0]"]); assertEquals("Song 49", a["track[49]"])
+        assertEquals(LastFmProvider.signature(a - "api_sig", "SECRET"), a["api_sig"])
+        val b = posted(next())
+        assertEquals(listOf("Song 50", "Song 51"), listOf(b["track[0]"], b["track[1]"]))
+        noMoreRequests()
+    }
+
+    @Test fun noSessionNoScrobble() = runBlocking {
+        signIn()
+        try { lf.scrobble(env, listOf(com.xlollx.songport.sync.Scrobbles.Listen(Track("a", "b", listOf("c")), 1))); fail() } catch (e: ProviderException) { assertEquals("lastfm_needs_password", e.message) }
+        noMoreRequests()
+    }
+
     /** One match comes as an object (XML-born JSON), as in the loved list. */
     @Test fun searchWithOneMatch() = runBlocking {
         signIn()
@@ -414,6 +439,33 @@ class ListenBrainzContractTest : ContractTest() {
     @Test fun noTokenNoSearch() = runBlocking {
         signIn(token = null)
         try { lb.search(env, Track("x", "One More Time", artists = listOf("Daft Punk"))); fail() } catch (e: ProviderException) { assertEquals("listenbrainz_token_needed", e.message) }
+        noMoreRequests()
+    }
+
+    /** Mark as listened: an import with the user token, each listen at its own time. */
+    @Test fun listensAreSubmittedAsAnImport() = runBlocking {
+        signIn()
+        json("""{"status":"ok"}""")
+        val t = Track("x", "Dreams", listOf("Fleetwood Mac"), album = "Rumours", durationMs = 257_000)
+        assertEquals(1, lb.submit(env, listOf(com.xlollx.songport.sync.Scrobbles.Listen(t, 1_700_000_000_000L))))
+        val r = next()
+        assertCall(r, "POST", host, "/1/submit-listens")
+        assertEquals("Token LBTOKEN", r.getHeader("Authorization"))
+        val body = r.jsonBody()
+        assertEquals("import", body["listen_type"].str)
+        val l = body["payload"][0]
+        assertEquals(1_700_000_000L, l["listened_at"].long)
+        assertEquals("Dreams", l["track_metadata"]["track_name"].str)
+        assertEquals("Fleetwood Mac", l["track_metadata"]["artist_name"].str)
+        assertEquals("Rumours", l["track_metadata"]["release_name"].str)
+        assertEquals(257_000L, l["track_metadata"]["additional_info"]["duration_ms"].long)
+        noMoreRequests()
+    }
+
+    @Test fun noTokenNoListens() = runBlocking {
+        signIn(token = null)
+        assertFalse(lb.canSubmit(env))
+        try { lb.submit(env, listOf(com.xlollx.songport.sync.Scrobbles.Listen(Track("a", "b", listOf("c")), 1))); fail() } catch (e: ProviderException) { assertEquals("listenbrainz_token_needed", e.message) }
         noMoreRequests()
     }
 

@@ -2755,4 +2755,138 @@
     <string name="nway_pause_desc">The group does not sync until you turn this off.</string>
     <string name="nway_delete">Delete group</string>
     <string name="nway_delete_confirm">The group and its syncs are deleted. Every playlist stays as it is.</string>
+    <string name="saved_matches_title">Saved matches</string>
+    <string name="tools_row_saved_matches">Every choice Trackhop remembers, across all syncs: see it and fix it once.</string>
+    <string name="saved_matches_search">Search a song or an artist</string>
+    <string name="saved_matches_all">All</string>
+    <string name="saved_matches_chosen">Chosen by you</string>
+    <string name="saved_matches_not_found">Not found</string>
+    <string name="saved_matches_ignored">Ignored</string>
+    <string name="saved_matches_to_all">To: all services</string>
+    <string name="saved_matches_to">To: %1$s</string>
+    <string name="saved_matches_all_services">All services</string>
+    <string name="saved_matches_tag_chosen">Chosen by you</string>
+    <string name="saved_matches_tag_auto">Automatic</string>
+    <string name="saved_matches_tag_not_found">Not found</string>
+    <string name="saved_matches_tag_ignored">Ignored</string>
+    <string name="saved_matches_none_found">no song found</string>
+    <string name="saved_matches_ignored_line">ignored</string>
+    <string name="saved_matches_song_on">A song on %1$s</string>
+    <string name="saved_matches_empty">Nothing remembered yet: the list fills up as your syncs run.</string>
+    <string name="saved_matches_no_results">Nothing matches these filters.</string>
+    <string name="saved_matches_reading">Reading your syncs\' playlists for the song names…</string>
+    <string name="saved_matches_more">Show more</string>
+    <string name="saved_matches_on">On %1$s</string>
+    <string name="saved_matches_chosen_on">chosen by you on %1$s</string>
+    <string name="saved_matches_matched_to">↓ matched to</string>
+    <string name="saved_matches_listen">Listen on %1$s</string>
+    <string name="saved_matches_change">Change song…</string>
+    <string name="saved_matches_not_there">Not on %1$s (stop looking)</string>
+    <string name="saved_matches_forget">Forget (the next sync searches again)</string>
+    <string name="saved_matches_used_none">No sync uses it now.</string>
+    <string name="saved_matches_changed">Changed: every sync uses the new song from its next run.</string>
+    <string name="saved_matches_marked_absent">Done: no sync looks for it on %1$s any more.</string>
+    <string name="saved_matches_forgotten">Forgotten: the next sync searches it again.</string>
+    <plurals name="saved_matches_used_by">
+        <item quantity="one">Used by %1$d sync: %2$s</item>
+        <item quantity="other">Used by %1$d syncs: %2$s</item>
+    </plurals>
+    <string name="twins_title">Duplicate playlists</string>
+    <string name="tools_row_twins">Copies left by repeated transfers: same name, or nearly the same songs.</string>
+    <string name="twins_reading">Reading the playlists: %1$d of %2$d</string>
+    <string name="twins_none">No duplicate playlists on %1$s.</string>
+    <string name="twins_cannot_delete">Trackhop cannot delete playlists on %1$s: delete the copies in the %1$s app.</string>
+    <string name="twins_changed">changed %1$s</string>
+    <string name="twins_same_percent">%1$d%% the same</string>
+    <string name="twins_fewer">%1$d fewer</string>
+    <string name="twins_more">%1$d more</string>
+    <string name="twins_stays">stays</string>
+    <string name="twins_look_again">Look again</string>
+    <string name="twins_identical">identical copy</string>
+    <string name="twins_add_then_delete">Add and then delete</string>
+    <string name="twins_saved_note">A copy of each deleted playlist stays in Trackhop\'s Files: you can put it back on the service whenever you like.</string>
+    <string name="twins_deleted_copy">%1$s (deleted copy)</string>
+    <plurals name="twins_tip">
+        <item quantity="one">%1$d group. In each group keep the one with the dot; the others are deleted. Before deleting, Trackhop saves a copy of each in Files.</item>
+        <item quantity="other">%1$d groups. In each group keep the one with the dot; the others are deleted. Before deleting, Trackhop saves a copy of each in Files.</item>
+    </plurals>
+    <plurals name="twins_groups">
+        <item quantity="one">%1$d group.</item>
+        <item quantity="other">%1$d groups.</item>
+    </plurals>
+    <plurals name="twins_same_name">
+        <item quantity="one">same name · %1$d copy</item>
+        <item quantity="other">same name · %1$d copies</item>
+    </plurals>
+    <plurals name="twins_same_songs">
+        <item quantity="one">same songs · %1$d copy</item>
+        <item quantity="other">same songs · %1$d copies</item>
+    </plurals>
+    <plurals name="twins_used_by">
+        <item quantity="one">used by %1$d sync</item>
+        <item quantity="other">used by %1$d syncs</item>
+    </plurals>
+    <plurals name="twins_delete_n">
+        <item quantity="one">Delete %1$d copy</item>
+        <item quantity="other">Delete %1$d copies</item>
+    </plurals>
+    <plurals name="twins_confirm_title">
+        <item quantity="one">Delete %1$d playlist from %2$s?</item>
+        <item quantity="other">Delete %1$d playlists from %2$s?</item>
+    </plurals>
+    <plurals name="twins_missing_line">
+        <item quantity="one">%1$d song missing from the other</item>
+        <item quantity="other">%1$d songs missing from the other</item>
+    </plurals>
+    <plurals name="twins_missing_tip">
+        <item quantity="one">%1$d song of these copies is not in the playlist you keep. Add it first?</item>
+        <item quantity="other">%1$d songs of these copies are not in the playlists you keep. Add them first?</item>
+    </plurals>
+    <plurals name="twins_done">
+        <item quantity="one">%1$d playlist deleted; a copy is in Files.</item>
+        <item quantity="other">%1$d playlists deleted; a copy of each is in Files.</item>
+    </plurals>
+    <string name="listened_title">Mark as listened</string>
+    <string name="tools_row_listened">Listens Last.fm or ListenBrainz never saw: a record, a CD, a trip offline.</string>
+    <string name="listened_what">What you listened to</string>
+    <string name="listened_from_album">Album</string>
+    <string name="listened_from_playlist">Playlist</string>
+    <string name="listened_from_file">File</string>
+    <string name="listened_from_text">Text</string>
+    <string name="listened_album_search">Album and artist</string>
+    <string name="listened_file_pick">Choose a file</string>
+    <string name="listened_text_hint">One song per line: Artist - Title</string>
+    <string name="listened_where">Where to mark them</string>
+    <string name="listened_none_connected">Connect Last.fm or ListenBrainz in Accounts to mark listens.</string>
+    <string name="listened_lastfm_needs_password">Last.fm: connect it again in Accounts with your password too, to mark listens.</string>
+    <string name="listened_listenbrainz_needs_token">ListenBrainz: add your user token in Accounts (listenbrainz.org → Settings) to mark listens.</string>
+    <string name="listened_when">When</string>
+    <string name="listened_finished_at">%1$s, finished at %2$s</string>
+    <string name="listened_started_at">%1$s, started at %2$s</string>
+    <string name="listened_mode_finished">Finished at this time</string>
+    <string name="listened_mode_started">Started at this time</string>
+    <string name="listened_lastfm_14">Last.fm only accepts listens from the last 14 days. For older dates use ListenBrainz.</string>
+    <string name="listened_review_hint">Untick the ones you skipped. The times follow the songs\' lengths.</string>
+    <string name="listened_skipped">skipped</string>
+    <string name="listened_album_note">On Last.fm the album keeps the name written here.</string>
+    <string name="listened_future">Some songs would be in the future: choose an earlier time.</string>
+    <string name="listened_done">Marked: %1$s</string>
+    <string name="listened_done_lastfm">%1$d on Last.fm</string>
+    <string name="listened_done_listenbrainz">%1$d on ListenBrainz</string>
+    <plurals name="listened_see">
+        <item quantity="one">See %1$d song</item>
+        <item quantity="other">See the %1$d songs</item>
+    </plurals>
+    <plurals name="listened_review_title">
+        <item quantity="one">%1$d listen</item>
+        <item quantity="other">%1$d listens</item>
+    </plurals>
+    <plurals name="listened_send">
+        <item quantity="one">Mark %1$d listen</item>
+        <item quantity="other">Mark %1$d listens</item>
+    </plurals>
+    <plurals name="listened_too_old">
+        <item quantity="one">%1$d listen is older than 14 days: Last.fm does not take it.</item>
+        <item quantity="other">%1$d listens are older than 14 days: Last.fm does not take them.</item>
+    </plurals>
 </resources>

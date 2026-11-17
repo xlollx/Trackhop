@@ -2700,4 +2700,123 @@
     <string name="nway_pause_desc">关闭此项之前，群组不会同步。</string>
     <string name="nway_delete">删除群组</string>
     <string name="nway_delete_confirm">群组及其同步将被删除。每个歌单保持不变。</string>
+    <string name="saved_matches_title">已保存的匹配</string>
+    <string name="tools_row_saved_matches">Trackhop 在所有同步中记住的选择：一处查看，改一次即可。</string>
+    <string name="saved_matches_search">搜索歌曲或艺人</string>
+    <string name="saved_matches_all">全部</string>
+    <string name="saved_matches_chosen">你选择的</string>
+    <string name="saved_matches_not_found">未找到</string>
+    <string name="saved_matches_ignored">已忽略</string>
+    <string name="saved_matches_to_all">目标：所有服务</string>
+    <string name="saved_matches_to">目标：%1$s</string>
+    <string name="saved_matches_all_services">所有服务</string>
+    <string name="saved_matches_tag_chosen">你选择的</string>
+    <string name="saved_matches_tag_auto">自动</string>
+    <string name="saved_matches_tag_not_found">未找到</string>
+    <string name="saved_matches_tag_ignored">已忽略</string>
+    <string name="saved_matches_none_found">未找到歌曲</string>
+    <string name="saved_matches_ignored_line">已忽略</string>
+    <string name="saved_matches_song_on">%1$s 上的一首歌</string>
+    <string name="saved_matches_empty">还没有记录：同步运行后列表会逐渐填满。</string>
+    <string name="saved_matches_no_results">没有符合这些筛选条件的内容。</string>
+    <string name="saved_matches_reading">正在读取同步的歌单以获取歌名…</string>
+    <string name="saved_matches_more">显示更多</string>
+    <string name="saved_matches_on">在 %1$s</string>
+    <string name="saved_matches_chosen_on">你于 %1$s 选择</string>
+    <string name="saved_matches_matched_to">↓ 匹配到</string>
+    <string name="saved_matches_listen">在 %1$s 上收听</string>
+    <string name="saved_matches_change">更换歌曲…</string>
+    <string name="saved_matches_not_there">%1$s 上没有（不再查找）</string>
+    <string name="saved_matches_forget">忘记（下次同步重新查找）</string>
+    <string name="saved_matches_used_none">目前没有同步使用它。</string>
+    <string name="saved_matches_changed">已更改：每个同步从下次运行起使用新歌曲。</string>
+    <string name="saved_matches_marked_absent">完成：同步不会再在 %1$s 上查找它。</string>
+    <string name="saved_matches_forgotten">已忘记：下次同步会重新查找。</string>
+    <plurals name="saved_matches_used_by">
+        <item quantity="other">%1$d 个同步在使用：%2$s</item>
+    </plurals>
+    <string name="twins_title">重复的歌单</string>
+    <string name="tools_row_twins">重复传输留下的副本：同名，或歌曲几乎相同。</string>
+    <string name="twins_reading">正在读取歌单：%1$d / %2$d</string>
+    <string name="twins_none">%1$s 上没有重复的歌单。</string>
+    <string name="twins_cannot_delete">Trackhop 无法删除 %1$s 上的歌单：请在 %1$s 应用中删除这些副本。</string>
+    <string name="twins_changed">%1$s 更改</string>
+    <string name="twins_same_percent">%1$d%% 相同</string>
+    <string name="twins_fewer">少 %1$d 首</string>
+    <string name="twins_more">多 %1$d 首</string>
+    <string name="twins_stays">保留</string>
+    <string name="twins_look_again">重新查找</string>
+    <string name="twins_identical">完全相同的副本</string>
+    <string name="twins_add_then_delete">先添加再删除</string>
+    <string name="twins_saved_note">每个被删除歌单的副本都保留在 Trackhop 的文件中：你可以随时把它放回服务上。</string>
+    <string name="twins_deleted_copy">%1$s（已删除的副本）</string>
+    <plurals name="twins_tip">
+        <item quantity="other">%1$d 组。每组保留带圆点的那个，其余的将被删除。删除前，Trackhop 会在文件中保存一份副本。</item>
+    </plurals>
+    <plurals name="twins_groups">
+        <item quantity="other">%1$d 组。</item>
+    </plurals>
+    <plurals name="twins_same_name">
+        <item quantity="other">同名 · %1$d 个副本</item>
+    </plurals>
+    <plurals name="twins_same_songs">
+        <item quantity="other">相同歌曲 · %1$d 个副本</item>
+    </plurals>
+    <plurals name="twins_used_by">
+        <item quantity="other">被 %1$d 个同步使用</item>
+    </plurals>
+    <plurals name="twins_delete_n">
+        <item quantity="other">删除 %1$d 个副本</item>
+    </plurals>
+    <plurals name="twins_confirm_title">
+        <item quantity="other">要从 %2$s 删除 %1$d 个歌单吗？</item>
+    </plurals>
+    <plurals name="twins_missing_line">
+        <item quantity="other">另一个中缺少 %1$d 首歌</item>
+    </plurals>
+    <plurals name="twins_missing_tip">
+        <item quantity="other">这些副本中有 %1$d 首歌不在你保留的歌单里。要先添加吗？</item>
+    </plurals>
+    <plurals name="twins_done">
+        <item quantity="other">已删除 %1$d 个歌单；每个的副本都在文件中。</item>
+    </plurals>
+    <string name="listened_title">标记为已收听</string>
+    <string name="tools_row_listened">Last.fm 或 ListenBrainz 没有记录的收听：黑胶、CD、离线旅途。</string>
+    <string name="listened_what">你听了什么</string>
+    <string name="listened_from_album">专辑</string>
+    <string name="listened_from_playlist">歌单</string>
+    <string name="listened_from_file">文件</string>
+    <string name="listened_from_text">文本</string>
+    <string name="listened_album_search">专辑和艺人</string>
+    <string name="listened_file_pick">选择文件</string>
+    <string name="listened_text_hint">每行一首：艺人 - 歌名</string>
+    <string name="listened_where">标记到哪里</string>
+    <string name="listened_none_connected">在“账户”中连接 Last.fm 或 ListenBrainz 以标记收听。</string>
+    <string name="listened_lastfm_needs_password">Last.fm：要标记收听，请在“账户”中连同密码重新连接。</string>
+    <string name="listened_listenbrainz_needs_token">ListenBrainz：要标记收听，请在“账户”中添加你的用户令牌（listenbrainz.org → Settings）。</string>
+    <string name="listened_when">时间</string>
+    <string name="listened_finished_at">%1$s，%2$s 结束</string>
+    <string name="listened_started_at">%1$s，%2$s 开始</string>
+    <string name="listened_mode_finished">在此时结束</string>
+    <string name="listened_mode_started">在此时开始</string>
+    <string name="listened_lastfm_14">Last.fm 只接受最近 14 天内的收听。更早的日期请使用 ListenBrainz。</string>
+    <string name="listened_review_hint">取消勾选你跳过的歌曲。时间按歌曲时长依次排列。</string>
+    <string name="listened_skipped">已跳过</string>
+    <string name="listened_album_note">在 Last.fm 上，专辑名称会保留这里写的样子。</string>
+    <string name="listened_future">有些歌曲会落在未来：请选择更早的时间。</string>
+    <string name="listened_done">已标记：%1$s</string>
+    <string name="listened_done_lastfm">Last.fm 上 %1$d 条</string>
+    <string name="listened_done_listenbrainz">ListenBrainz 上 %1$d 条</string>
+    <plurals name="listened_see">
+        <item quantity="other">查看 %1$d 首歌</item>
+    </plurals>
+    <plurals name="listened_review_title">
+        <item quantity="other">%1$d 次收听</item>
+    </plurals>
+    <plurals name="listened_send">
+        <item quantity="other">标记 %1$d 次收听</item>
+    </plurals>
+    <plurals name="listened_too_old">
+        <item quantity="other">%1$d 次收听早于 14 天：Last.fm 不接受。</item>
+    </plurals>
 </resources>

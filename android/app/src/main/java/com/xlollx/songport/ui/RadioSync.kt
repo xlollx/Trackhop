@@ -275,7 +275,7 @@ internal fun RadioWindowPicker(days: List<Int>, start: Int, end: Int, onDays: (L
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RadioTimeDialog(minute: Int, onDismiss: () -> Unit, onPicked: (Int) -> Unit) {
+internal fun RadioTimeDialog(minute: Int, onDismiss: () -> Unit, onPicked: (Int) -> Unit) {
     val ctx = LocalContext.current
     val state = rememberTimePickerState(initialHour = minute / 60, initialMinute = minute % 60, is24Hour = DateFormat.is24HourFormat(ctx))
     FitDialog(

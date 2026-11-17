@@ -40,6 +40,9 @@ import androidx.compose.material.icons.filled.Lyrics
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.FilterNone
+import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.CardDefaults
@@ -121,7 +124,11 @@ private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVecto
     WANTED(Icons.Filled.Checklist, R.string.tools_wanted_title, R.string.tools_row_wanted, false),
     SERVER(Icons.Filled.Cloud, R.string.server_title, R.string.server_row_desc, false),
     SHARED(Icons.Filled.Groups, R.string.shared_title, R.string.shared_row_desc, false),
-    RECENT(Icons.Filled.History, R.string.recent_transfers_title, R.string.recent_transfers_row, false);
+    RECENT(Icons.Filled.History, R.string.recent_transfers_title, R.string.recent_transfers_row, false),
+    // 1.18 (Features.v2): offered only with the release switch on.
+    MATCHES(Icons.Filled.Link, R.string.saved_matches_title, R.string.tools_row_saved_matches, false),
+    TWINS(Icons.Filled.FilterNone, R.string.twins_title, R.string.tools_row_twins, true),
+    LISTENED(Icons.Filled.Headphones, R.string.listened_title, R.string.tools_row_listened, false);
 
     /** Works on the service chosen at the top of the list (Transfer picks its own two). */
     val usesSelectedService: Boolean get() = needsService && this != TRANSFER
@@ -221,6 +228,9 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
                     Tool.WANTED -> WantedCard(local)
                     Tool.SERVER -> ServerSyncsPage(local)
                     Tool.RECENT -> RecentTransfersPage(onReview)
+                    Tool.MATCHES -> SavedMatchesPage(local)
+                    Tool.TWINS -> provider?.let { PlaylistTwinsPage(it, local) }
+                    Tool.LISTENED -> MarkListenedPage(connected, local, onGoToAccounts)
                     else -> {}
                 }
             }
@@ -261,6 +271,8 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
             if (hasServerSync) ToolRow(Tool.WANTED, provider) { open = Tool.WANTED }
             // Only with "Coordinate with my server" set: the server's syncs, run and reviewed from here.
             if (serverOn && (v2 || hasHandedOver)) ToolRow(Tool.SERVER, provider) { open = Tool.SERVER }
+            // 1.18 (Features): listens Last.fm or ListenBrainz never saw, marked by hand.
+            if (v2) ToolRow(Tool.LISTENED, provider) { open = Tool.LISTENED }
         }
 
         PrefSection(stringResource(R.string.tools_section_move), accent = JobColor.TEAL, description = stringResource(R.string.tools_section_move_desc)) {
@@ -270,10 +282,14 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
             ToolRow(Tool.FILES, provider) { open = Tool.FILES }
             // The one-off transfers (a setlist to a playlist): not syncs, kept a week for their review.
             if (hasOneOffs) ToolRow(Tool.RECENT, provider) { open = Tool.RECENT }
+            // 1.18 (Features): what Trackhop remembers across all syncs, fixed once for all of them.
+            if (v2) ToolRow(Tool.MATCHES, provider) { open = Tool.MATCHES }
         }
 
         PrefSection(stringResource(R.string.tools_section_clean), accent = JobColor.ORANGE, description = stringResource(R.string.tools_section_clean_desc)) {
             ToolRow(Tool.DEDUPE, provider) { open = Tool.DEDUPE }
+            // 1.18 (Features): the copies of a playlist left by repeated transfers.
+            if (v2) ToolRow(Tool.TWINS, provider) { open = Tool.TWINS }
             ToolRow(Tool.UNPLAYABLE, provider) { onUnplayable(it!!) }
             // Only for who has a personal server: nobody else has files to tag.
             if (connected.any { it.matchesByMbid }) ToolRow(Tool.MBTAGS, provider) { open = Tool.MBTAGS }

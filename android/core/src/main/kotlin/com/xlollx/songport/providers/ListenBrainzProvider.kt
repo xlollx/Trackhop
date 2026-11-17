@@ -262,6 +262,32 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
         feedback(ctx, tracks, 0)
     }
 
+    /** Listens can be submitted: the user token was given at sign-in. */
+    fun canSubmit(ctx: Env) = token(ctx) != null
+
+    /**
+     * Mark as listened (1.18): [listens] sent as an import (submit-listens, listen_type "import"),
+     * [com.xlollx.songport.sync.Scrobbles.LISTENBRAINZ_BATCH] at a time. Answers how many were sent.
+     */
+    suspend fun submit(ctx: Env, listens: List<com.xlollx.songport.sync.Scrobbles.Listen>): Int {
+        val token = token(ctx) ?: throw ProviderException(ctx.text("listenbrainz_token_needed"))
+        listens.chunked(com.xlollx.songport.sync.Scrobbles.LISTENBRAINZ_BATCH).forEach { chunk ->
+            val payload = chunk.map { l ->
+                val info = mapOf(
+                    "duration_ms" to l.track.durationMs.takeIf { it > 0 },
+                    "recording_mbid" to l.track.mbids.firstOrNull(),
+                    "submission_client" to "Trackhop",
+                ).filterValues { it != null }
+                mapOf(
+                    "listened_at" to l.at / 1000,
+                    "track_metadata" to mapOf("artist_name" to l.track.artistLine, "track_name" to l.track.title, "release_name" to l.track.album.ifBlank { null }, "additional_info" to info).filterValues { it != null },
+                )
+            }
+            api(ctx, "/1/submit-listens", "POST", jsonObj("listen_type" to "import", "payload" to payload), token)
+        }
+        return listens.size
+    }
+
     companion object {
         const val SERVICE = "listenbrainz"
         private const val API = "https://api.listenbrainz.org"

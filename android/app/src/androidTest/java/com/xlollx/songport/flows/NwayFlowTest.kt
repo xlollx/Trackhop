@@ -24,15 +24,6 @@ import org.junit.runner.RunWith
 class NwayFlowTest : FlowTest() {
     override val preview2: Boolean = true
 
-    /** What Android does to an app left in the background: the activity made anew from its saved state. */
-    private fun remade() {
-        val before = main()
-        instr.runOnMainSync { before.recreate() }
-        val end = System.currentTimeMillis() + 15_000
-        while (System.currentTimeMillis() < end && (resumed() === before || resumed() !is MainActivity)) Thread.sleep(100)
-        compose.waitForIdle()
-    }
-
     private fun openCreate() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText(s(R.string.empty_syncs_title))

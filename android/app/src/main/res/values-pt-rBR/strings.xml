@@ -2761,4 +2761,138 @@
     <string name="nway_pause_desc">O grupo não sincroniza até você desativar isto.</string>
     <string name="nway_delete">Excluir grupo</string>
     <string name="nway_delete_confirm">O grupo e suas sincronizações são excluídos. Cada playlist fica como está.</string>
+    <string name="saved_matches_title">Correspondências salvas</string>
+    <string name="tools_row_saved_matches">Todas as escolhas que o Trackhop lembra, de todas as sincronizações: veja e corrija uma vez.</string>
+    <string name="saved_matches_search">Busque uma música ou um artista</string>
+    <string name="saved_matches_all">Todas</string>
+    <string name="saved_matches_chosen">Escolhidas por você</string>
+    <string name="saved_matches_not_found">Não encontradas</string>
+    <string name="saved_matches_ignored">Ignoradas</string>
+    <string name="saved_matches_to_all">Para: todos os serviços</string>
+    <string name="saved_matches_to">Para: %1$s</string>
+    <string name="saved_matches_all_services">Todos os serviços</string>
+    <string name="saved_matches_tag_chosen">Escolhida por você</string>
+    <string name="saved_matches_tag_auto">Automática</string>
+    <string name="saved_matches_tag_not_found">Não encontrada</string>
+    <string name="saved_matches_tag_ignored">Ignorada</string>
+    <string name="saved_matches_none_found">nenhuma música encontrada</string>
+    <string name="saved_matches_ignored_line">ignorada</string>
+    <string name="saved_matches_song_on">Uma música no %1$s</string>
+    <string name="saved_matches_empty">Ainda nada: a lista se enche conforme suas sincronizações rodam.</string>
+    <string name="saved_matches_no_results">Nada corresponde a esses filtros.</string>
+    <string name="saved_matches_reading">Lendo as playlists das sincronizações para os nomes das músicas…</string>
+    <string name="saved_matches_more">Ver mais</string>
+    <string name="saved_matches_on">No %1$s</string>
+    <string name="saved_matches_chosen_on">escolhida por você em %1$s</string>
+    <string name="saved_matches_matched_to">↓ correspondida a</string>
+    <string name="saved_matches_listen">Ouvir no %1$s</string>
+    <string name="saved_matches_change">Trocar música…</string>
+    <string name="saved_matches_not_there">Não está no %1$s (parar de procurar)</string>
+    <string name="saved_matches_forget">Esquecer (a próxima sincronização busca de novo)</string>
+    <string name="saved_matches_used_none">Nenhuma sincronização a usa agora.</string>
+    <string name="saved_matches_changed">Alterada: cada sincronização usa a nova música a partir da próxima execução.</string>
+    <string name="saved_matches_marked_absent">Pronto: nenhuma sincronização vai procurá-la no %1$s.</string>
+    <string name="saved_matches_forgotten">Esquecida: a próxima sincronização busca de novo.</string>
+    <plurals name="saved_matches_used_by">
+        <item quantity="one">Usada por %1$d sincronização: %2$s</item>
+        <item quantity="other">Usada por %1$d sincronizações: %2$s</item>
+    </plurals>
+    <string name="twins_title">Playlists duplicadas</string>
+    <string name="tools_row_twins">Cópias deixadas por transferências repetidas: mesmo nome ou quase as mesmas músicas.</string>
+    <string name="twins_reading">Lendo as playlists: %1$d de %2$d</string>
+    <string name="twins_none">Nenhuma playlist duplicada no %1$s.</string>
+    <string name="twins_cannot_delete">O Trackhop não pode excluir playlists no %1$s: exclua as cópias no app do %1$s.</string>
+    <string name="twins_changed">alterada %1$s</string>
+    <string name="twins_same_percent">%1$d%% igual</string>
+    <string name="twins_fewer">%1$d a menos</string>
+    <string name="twins_more">%1$d a mais</string>
+    <string name="twins_stays">fica</string>
+    <string name="twins_look_again">Procurar de novo</string>
+    <string name="twins_identical">cópia idêntica</string>
+    <string name="twins_add_then_delete">Adicionar e depois excluir</string>
+    <string name="twins_saved_note">Uma cópia de cada playlist excluída fica nos Arquivos do Trackhop: você pode devolvê-la ao serviço quando quiser.</string>
+    <string name="twins_deleted_copy">%1$s (cópia excluída)</string>
+    <plurals name="twins_tip">
+        <item quantity="one">%1$d grupo. Em cada grupo fique com a que tem o ponto; as outras serão excluídas. Antes, o Trackhop salva uma cópia nos Arquivos.</item>
+        <item quantity="other">%1$d grupos. Em cada grupo fique com a que tem o ponto; as outras serão excluídas. Antes, o Trackhop salva uma cópia nos Arquivos.</item>
+    </plurals>
+    <plurals name="twins_groups">
+        <item quantity="one">%1$d grupo.</item>
+        <item quantity="other">%1$d grupos.</item>
+    </plurals>
+    <plurals name="twins_same_name">
+        <item quantity="one">mesmo nome · %1$d cópia</item>
+        <item quantity="other">mesmo nome · %1$d cópias</item>
+    </plurals>
+    <plurals name="twins_same_songs">
+        <item quantity="one">mesmas músicas · %1$d cópia</item>
+        <item quantity="other">mesmas músicas · %1$d cópias</item>
+    </plurals>
+    <plurals name="twins_used_by">
+        <item quantity="one">usada por %1$d sincronização</item>
+        <item quantity="other">usada por %1$d sincronizações</item>
+    </plurals>
+    <plurals name="twins_delete_n">
+        <item quantity="one">Excluir %1$d cópia</item>
+        <item quantity="other">Excluir %1$d cópias</item>
+    </plurals>
+    <plurals name="twins_confirm_title">
+        <item quantity="one">Excluir %1$d playlist do %2$s?</item>
+        <item quantity="other">Excluir %1$d playlists do %2$s?</item>
+    </plurals>
+    <plurals name="twins_missing_line">
+        <item quantity="one">%1$d música que falta na outra</item>
+        <item quantity="other">%1$d músicas que faltam na outra</item>
+    </plurals>
+    <plurals name="twins_missing_tip">
+        <item quantity="one">%1$d música destas cópias não está na playlist que você mantém. Adicionar antes?</item>
+        <item quantity="other">%1$d músicas destas cópias não estão nas playlists que você mantém. Adicionar antes?</item>
+    </plurals>
+    <plurals name="twins_done">
+        <item quantity="one">%1$d playlist excluída; há uma cópia nos Arquivos.</item>
+        <item quantity="other">%1$d playlists excluídas; há uma cópia de cada nos Arquivos.</item>
+    </plurals>
+    <string name="listened_title">Marcar como ouvidas</string>
+    <string name="tools_row_listened">As audições que o Last.fm ou o ListenBrainz não viram: um vinil, um CD, uma viagem offline.</string>
+    <string name="listened_what">O que você ouviu</string>
+    <string name="listened_from_album">Álbum</string>
+    <string name="listened_from_playlist">Playlist</string>
+    <string name="listened_from_file">Arquivo</string>
+    <string name="listened_from_text">Texto</string>
+    <string name="listened_album_search">Álbum e artista</string>
+    <string name="listened_file_pick">Escolher um arquivo</string>
+    <string name="listened_text_hint">Uma música por linha: Artista - Título</string>
+    <string name="listened_where">Onde marcar</string>
+    <string name="listened_none_connected">Conecte o Last.fm ou o ListenBrainz em Contas para marcar audições.</string>
+    <string name="listened_lastfm_needs_password">Last.fm: conecte de novo em Contas também com sua senha para marcar audições.</string>
+    <string name="listened_listenbrainz_needs_token">ListenBrainz: adicione seu token de usuário em Contas (listenbrainz.org → Settings) para marcar audições.</string>
+    <string name="listened_when">Quando</string>
+    <string name="listened_finished_at">%1$s, terminou às %2$s</string>
+    <string name="listened_started_at">%1$s, começou às %2$s</string>
+    <string name="listened_mode_finished">Terminou neste horário</string>
+    <string name="listened_mode_started">Começou neste horário</string>
+    <string name="listened_lastfm_14">O Last.fm só aceita audições dos últimos 14 dias. Para datas mais antigas, use o ListenBrainz.</string>
+    <string name="listened_review_hint">Desmarque as que você pulou. Os horários seguem a duração das músicas.</string>
+    <string name="listened_skipped">pulada</string>
+    <string name="listened_album_note">No Last.fm o álbum fica com o nome escrito aqui.</string>
+    <string name="listened_future">Algumas músicas ficariam no futuro: escolha um horário anterior.</string>
+    <string name="listened_done">Marcadas: %1$s</string>
+    <string name="listened_done_lastfm">%1$d no Last.fm</string>
+    <string name="listened_done_listenbrainz">%1$d no ListenBrainz</string>
+    <plurals name="listened_see">
+        <item quantity="one">Ver %1$d música</item>
+        <item quantity="other">Ver as %1$d músicas</item>
+    </plurals>
+    <plurals name="listened_review_title">
+        <item quantity="one">%1$d audição</item>
+        <item quantity="other">%1$d audições</item>
+    </plurals>
+    <plurals name="listened_send">
+        <item quantity="one">Marcar %1$d audição</item>
+        <item quantity="other">Marcar %1$d audições</item>
+    </plurals>
+    <plurals name="listened_too_old">
+        <item quantity="one">%1$d audição tem mais de 14 dias: o Last.fm não a aceita.</item>
+        <item quantity="other">%1$d audições têm mais de 14 dias: o Last.fm não as aceita.</item>
+    </plurals>
 </resources>
