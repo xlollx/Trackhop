@@ -122,6 +122,23 @@ fun BackupScreen(onClose: () -> Unit) {
             }
         }
     }
+    // A restore started here ends whenever this screen is showing: its outcome is said once.
+    val restoreDone by com.xlollx.songport.sync.AppTasks.restore.finished.collectAsState()
+    LaunchedEffect(restoreDone) {
+        val done = restoreDone ?: return@LaunchedEffect
+        com.xlollx.songport.sync.AppTasks.restore.finished.value = null
+        // In the screen's scope: clearing [finished] restarts this effect, which would cancel the snackbar.
+        scope.launch {
+            done.onSuccess { r ->
+                // Scheduled syncs from another device arrive turned off: said here, and on their cards.
+                val paused = if (r.paused > 0) "\n" + ctx.getString(R.string.backup_config_paused, r.paused, r.from.ifBlank { ctx.getString(R.string.backup_device_other) }) else ""
+                snackbar.showSnackbar(
+                    ctx.getString(R.string.backup_config_restored, r.syncs) + paused,
+                    duration = if (r.paused > 0) androidx.compose.material3.SnackbarDuration.Long else androidx.compose.material3.SnackbarDuration.Short,
+                )
+            }.onFailure { snackbar.showSnackbar(it.userMessage(ctx)) }
+        }
+    }
     FullBackupDialogs(
         snackbar = snackbar,
         locked = pendingLocked,
@@ -143,21 +160,9 @@ fun BackupScreen(onClose: () -> Unit) {
             confirmButton = {
                 TextButton(onClick = {
                     pending = null
-                    scope.launch {
-                        val channels = pendingChannels
-                        val done = withContext(Dispatchers.IO) { runCatching { ConfigBackup.import(ctx.env, snap).also { com.xlollx.songport.notify.Notify.restore(ctx.env, channels) } } }
-                        done.onSuccess { r ->
-                            // The imported syncs' schedules start here as they would have where they came from.
-                            store.data.jobs.forEach { Scheduler.apply(ctx, it) }
-                            Scheduler.applyKeepAlive(ctx)
-                            // Scheduled syncs from another device arrive turned off: said here, and on their cards.
-                            val paused = if (r.paused > 0) "\n" + ctx.getString(R.string.backup_config_paused, r.paused, r.from.ifBlank { ctx.getString(R.string.backup_device_other) }) else ""
-                            snackbar.showSnackbar(
-                                ctx.getString(R.string.backup_config_restored, r.syncs) + paused,
-                                duration = if (r.paused > 0) androidx.compose.material3.SnackbarDuration.Long else androidx.compose.material3.SnackbarDuration.Short,
-                            )
-                        }.onFailure { snackbar.showSnackbar(it.userMessage(ctx)) }
-                    }
+                    // In the app's own scope (AppTasks): leaving this screen right away neither loses the
+                    // outcome nor leaves the imported syncs without their schedules until the next start.
+                    com.xlollx.songport.sync.AppTasks.restore(ctx, snap, pendingChannels)
                 }) { Text(stringResource(R.string.backup_config_restore_action)) }
             },
             dismissButton = { TextButton(onClick = { pending = null }) { Text(stringResource(R.string.cancel)) } },
