@@ -3172,4 +3172,120 @@
         <item quantity="one">%1$d playlist nuova</item>
         <item quantity="other">%1$d playlist nuove</item>
     </plurals>
+    <!-- 2.1: several syncs at once (#68) and saved schedules -->
+    <string name="bulk_schedule">Frequenza</string>
+    <string name="bulk_removals">Rimozioni</string>
+    <string name="bulk_on_off">Attiva / Disattiva</string>
+    <string name="bulk_color">Colore ed etichette</string>
+    <string name="bulk_different">Valori diversi</string>
+    <string name="bulk_will_change">Cambierà</string>
+    <string name="bulk_how_often">Ogni quanto</string>
+    <string name="bulk_time">Orario</string>
+    <string name="bulk_set_time">Imposta un orario</string>
+    <string name="bulk_time_untouched">Non toccato: ogni sync tiene il suo orario.</string>
+    <string name="bulk_was">Prima: %1$s</string>
+    <string name="bulk_undo">Annulla</string>
+    <string name="bulk_leave">Lascia com’è</string>
+    <string name="bulk_on_all">Attivo per tutte</string>
+    <string name="bulk_off_all">Disattivo per tutte</string>
+    <string name="bulk_removals_leave">Lascia ogni sync com’è (Rispecchia le rimozioni: %1$d, Solo aggiunte: %2$d).</string>
+    <string name="bulk_removals_mirror_desc">Un brano tolto dall’origine viene tolto anche dalla destinazione.</string>
+    <string name="bulk_add_only">Solo aggiunte</string>
+    <string name="bulk_add_only_desc">Nella destinazione non viene mai cancellato niente.</string>
+    <string name="bulk_removals_note">Le rimozioni grandi restano comunque in attesa della tua conferma, come oggi.</string>
+    <string name="bulk_removals_skipped">Le sync bidirezionali, gli archivi e le sync radio tengono la loro impostazione.</string>
+    <string name="bulk_onoff_leave">Lascia ogni sync com’è (Attive: %1$d, Disattivate: %2$d).</string>
+    <string name="bulk_on">Attiva</string>
+    <string name="bulk_on_desc">Partono secondo la loro pianificazione.</string>
+    <string name="bulk_off">Disattivata</string>
+    <string name="bulk_off_desc">Non partono da sole. “Esegui ora” funziona comunque.</string>
+    <string name="bulk_delete_text">Le sync vengono tolte da Trackhop. Le esecuzioni passate restano nel registro. Le tue playlist e i loro brani restano dove sono su ogni servizio.</string>
+    <string name="bulk_not_saved">Non è cambiato niente: non è stato possibile salvare la modifica. Riprova.</string>
+    <string name="bulk_not_scheduled">Salvato, ma Android non ha preso il nuovo orario di tutte le sync. Trackhop lo reimposta alla prossima apertura.</string>
+    <string name="bulk_radio_note">Le sync radio seguono la loro fascia oraria: il loro orario non cambia.</string>
+    <string name="bulk_not_here">Questa sync si modifica dal suo gruppo o sul tuo server, non da qui.</string>
+    <string name="bulk_linked_note">Se cambi un campo qui, le sync avranno un orario proprio, non collegato.</string>
+    <string name="bulk_use_saved">Usa una pianificazione salvata</string>
+    <string name="bulk_or_by_hand">oppure imposta a mano</string>
+    <string name="bulk_from">Da %1$s</string>
+    <string name="sched_title">Pianificazioni</string>
+    <string name="sched_intro">Una pianificazione salvata può far partire molte sync. Se la cambi qui, cambiano tutte le sync che la usano.</string>
+    <string name="sched_saved_tab">Pianificazioni salvate</string>
+    <string name="sched_by_hand_tab">Imposta a mano</string>
+    <string name="sched_not_used">Non usata da nessuna sync</string>
+    <string name="sched_no_name">Senza nome</string>
+    <string name="sched_new">Nuova pianificazione</string>
+    <string name="sched_manage">Gestisci</string>
+    <string name="sched_edit_title">Modifica pianificazione</string>
+    <string name="sched_name">Nome (facoltativo)</string>
+    <string name="sched_name_hint">Senza nome viene elencata con il suo orario.</string>
+    <string name="sched_next">Prossima esecuzione: %1$s</string>
+    <string name="sched_linked_note">Collegata. Se più avanti cambi %1$s, questa sync la segue.</string>
+    <string name="sched_wifi_note">“Solo Wi‑Fi” si imposta per ogni sync, non fa parte della pianificazione salvata.</string>
+    <string name="sched_linked">Collegata</string>
+    <string name="sched_pick_another">Scegline un’altra</string>
+    <string name="sched_detach">Stacca</string>
+    <string name="sched_detach_note">Stacca dà a questa sync una copia propria: %1$s, impostata a mano. Non segue più %2$s. Le altre sync non vengono toccate.</string>
+    <string name="sched_save_as">Salva come pianificazione</string>
+    <string name="sched_save_as_note">Senza nome viene elencata con il suo orario. Questa sync sarà collegata a lei.</string>
+    <string name="sched_not_now">Non ora</string>
+    <string name="sched_save">Salva pianificazione</string>
+    <string name="sched_edit_note">Salvando cambia quando partono tutte. Per cambiarne una sola, apri quella sync e tocca Stacca.</string>
+    <string name="sched_delete">Elimina pianificazione</string>
+    <string name="sched_delete_title">Eliminare “%1$s”?</string>
+    <string name="sched_delete_keep">Continuano a partire agli stessi orari, come pianificazione propria.</string>
+    <string name="sched_empty">Ancora nessuna pianificazione salvata. Salva un orario una volta e sceglilo per qualsiasi sync.</string>
+    <string name="sched_settings_desc">Orari salvati una volta, per tutte le sync che vuoi</string>
+    <plurals name="bulk_for_n">
+        <item quantity="one">Per la sync selezionata</item>
+        <item quantity="other">Per le %d sync selezionate</item>
+    </plurals>
+    <plurals name="bulk_apply_n">
+        <item quantity="one">Applica a %d sync</item>
+        <item quantity="other">Applica a %d sync</item>
+    </plurals>
+    <plurals name="bulk_delete_title">
+        <item quantity="one">Eliminare questa sync?</item>
+        <item quantity="other">Eliminare %d sync?</item>
+    </plurals>
+    <plurals name="bulk_delete_n">
+        <item quantity="one">Elimina %d sync</item>
+        <item quantity="other">Elimina %d sync</item>
+    </plurals>
+    <plurals name="bulk_done">
+        <item quantity="one">%d sync modificata</item>
+        <item quantity="other">%d sync modificate</item>
+    </plurals>
+    <plurals name="bulk_deleted">
+        <item quantity="one">%d sync eliminata</item>
+        <item quantity="other">%d sync eliminate</item>
+    </plurals>
+    <plurals name="bulk_started">
+        <item quantity="one">%d sync avviata</item>
+        <item quantity="other">%d sync avviate</item>
+    </plurals>
+    <plurals name="sched_used_by">
+        <item quantity="one">Usata da %d sync</item>
+        <item quantity="other">Usata da %d sync</item>
+    </plurals>
+    <plurals name="sched_within_hours">
+        <item quantity="one">Entro %d ora</item>
+        <item quantity="other">Entro %d ore</item>
+    </plurals>
+    <plurals name="sched_within_days">
+        <item quantity="one">Entro %d giorno</item>
+        <item quantity="other">Entro %d giorni</item>
+    </plurals>
+    <plurals name="sched_also_used">
+        <item quantity="one">Usata anche da %d altra sync</item>
+        <item quantity="other">Usata anche da altre %d sync</item>
+    </plurals>
+    <plurals name="sched_save_for">
+        <item quantity="one">Salva per %d sync</item>
+        <item quantity="other">Salva per %d sync</item>
+    </plurals>
+    <plurals name="sched_delete_used">
+        <item quantity="one">La usa %d sync:</item>
+        <item quantity="other">La usano %d sync:</item>
+    </plurals>
 </resources>

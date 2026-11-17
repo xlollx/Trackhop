@@ -189,7 +189,21 @@ data class SyncJob(
     val oneOff: Boolean = false,
     /** When a [oneOff] was made (epoch ms). */
     val createdEpoch: Long = 0,
+    /**
+     * The saved schedule ([SavedSchedule.id], Settings › Schedules) this sync is linked to: its timing
+     * ([everyMinutes], [at], [days]) is that schedule's and follows it when the schedule is edited.
+     * Null = a timing of its own, set by hand. See sync/Schedules.
+     */
+    val scheduleId: String? = null,
 )
+
+/**
+ * A timing saved once and used by many syncs ("Morning refresh": daily at 07:30): how often, the
+ * time of day, the days, as [SyncJob.everyMinutes], [SyncJob.at] and [SyncJob.days] hold them. Never
+ * "manual only". [name] may be empty: it is then listed by its timing. See sync/Schedules.
+ */
+@Serializable
+data class SavedSchedule(val id: String, val name: String = "", val everyMinutes: Int = 0, val at: String? = null, val days: List<Int> = emptyList())
 
 /**
  * A colour with a name ("Gym", "From Spotify"), shared by the syncs that wear it: renaming or

@@ -131,6 +131,8 @@ data class Settings(
     val roastAdultConfirmed: Boolean = false,
     /** The named colours the syncs can wear (SyncJob.label); see sync/Labels. */
     val labels: List<com.xlollx.songport.model.Label> = emptyList(),
+    /** The saved schedules the syncs can be linked to (SyncJob.scheduleId); see sync/Schedules. */
+    val savedSchedules: List<com.xlollx.songport.model.SavedSchedule> = emptyList(),
     /** The artists followed in Discover, and what to be told about each (sync/ArtistAlerts). */
     val followedArtists: List<com.xlollx.songport.sync.ArtistAlerts.Followed> = emptyList(),
     /** Alerts for the artists followed: the background look on or off, once a week instead of a day, Wi-Fi only. */
@@ -312,7 +314,7 @@ open class FileStore(dir: File) {
      * beside it (`store.json.before-restore`). False, and nothing changed, when the copy cannot be read.
      */
     fun restoreGoodCopy(): Boolean {
-        val restored = runCatching { com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(goodCopy.readText())) }.getOrNull() ?: return false
+        val restored = runCatching { com.xlollx.songport.sync.Schedules.normalized(null, com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(goodCopy.readText()))) }.getOrNull() ?: return false
         flush()
         runCatching { if (file.exists()) AtomicFiles.copy(file, File(file.parentFile, BEFORE_RESTORE)) }
         synchronized(lock) { _state.value = restored }
@@ -343,7 +345,7 @@ open class FileStore(dir: File) {
         if (!file.exists()) return StoreData()
         return try {
             val text = file.readText()
-            com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(text)).also { keepGoodCopy(text) }
+            com.xlollx.songport.sync.Schedules.normalized(null, com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(text))).also { keepGoodCopy(text) }
         } catch (e: Exception) {
             // The last good copy is kept as it is from here on, until the person decides.
             if (goodCopy.exists()) runCatching { goodCopyOffer.createNewFile() }
@@ -366,11 +368,33 @@ open class FileStore(dir: File) {
             val made = fn(before)
             // Whatever wrote the syncs or the labels, they are kept as Labels.normalized has them: a
             // label gives its colour to the card, a ready colour is its own label, tags are tidy.
-            next = if (made.jobs !== before.jobs || made.settings.labels !== before.settings.labels) com.xlollx.songport.sync.Labels.normalized(made) else made
+            val labelled = if (made.jobs !== before.jobs || made.settings.labels !== before.settings.labels) com.xlollx.songport.sync.Labels.normalized(made) else made
+            // And the syncs linked to a saved schedule follow it, whatever wrote either (sync/Schedules).
+            next = if (labelled.jobs !== before.jobs || labelled.settings.savedSchedules !== before.settings.savedSchedules) com.xlollx.songport.sync.Schedules.normalized(before, labelled) else labelled
             _state.value = next
         }
         Providers.configure(next.settings.extraAccounts, next.settings.connectorNames, next.settings.connectors)
         scheduleWrite()
+    }
+
+    /**
+     * [fn] as one change that is on disk before this answers: a change to many syncs at once (a saved
+     * schedule edited, several syncs changed or deleted together) reaches all of them or none. False:
+     * the file could not be written, and the store is as it was before, in memory too.
+     */
+    fun commit(fn: (StoreData) -> StoreData): Boolean {
+        synchronized(lock) {
+            val before = _state.value
+            update(fn)
+            if (_state.value === before) return true
+            pendingWrite?.cancel(false); pendingWrite = null
+            if (write()) return true
+            _state.value = before
+            // What was waiting to be written before this change still is.
+            scheduleWrite()
+        }
+        Providers.configure(data.settings.extraAccounts, data.settings.connectorNames, data.settings.connectors)
+        return false
     }
 
     /**
@@ -384,16 +408,29 @@ open class FileStore(dir: File) {
         }
     }
 
-    private fun writeNow() {
+    private fun writeNow() { write() }
+
+    /** Lets a test make the disk fail: what [commit] does then. */
+    internal var failWrites = false
+    private val writeLock = Any()
+
+    /**
+     * The state as it is now, to the file, whole or not at all ([AtomicFiles]): whether it got there. One write at a time,
+     * each taking the state once it holds the lock, so an older state never lands over a newer one.
+     */
+    private fun write(): Boolean = synchronized(writeLock) {
         val snapshot = _state.value
         // Whole or not at all (AtomicFiles): a write cut short leaves the last state saved in place.
         try {
+            if (failWrites) throw java.io.IOException("write failed")
             val text = json.encodeToString(snapshot)
             AtomicFiles.write(file, text)
             writeError = null
             keepGoodCopy(text)
+            true
         } catch (e: Exception) {
             writeError = e.message ?: e.javaClass.simpleName
+            false
         }
     }
 
@@ -426,6 +463,9 @@ open class FileStore(dir: File) {
     }
 
     fun deleteJob(id: String) = update { d -> withoutJob(d, id) }
+
+    /** Deletes several syncs as one change ([commit]): all of them or none. False: nothing was deleted. */
+    fun deleteJobs(ids: Collection<String>): Boolean = commit { d -> ids.fold(d) { acc, id -> withoutJob(acc, id) } }
 
     /** Deletes the one-off transfers over ([com.xlollx.songport.sync.OneOffs.over]); their target playlists are not touched. */
     fun dropOldOneOffs(now: Long = System.currentTimeMillis()) {

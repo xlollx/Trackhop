@@ -73,6 +73,8 @@ import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.ui.semantics.Role
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -179,6 +181,8 @@ import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Numbers
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.material.icons.outlined.Delete
 import com.xlollx.songport.R
 import com.xlollx.songport.data.StoreData
@@ -237,6 +241,13 @@ fun SyncsScreen(
     filterState: androidx.compose.runtime.MutableState<SyncFilter> = rememberSaveable(stateSaver = SyncFilterSaver) { mutableStateOf(SyncFilter()) },
     /** A group of the user's own playlists opened from its card (NwayScreen). */
     onOpenGroup: (String) -> Unit = {},
+    /**
+     * The syncs ticked to change several at once (#68, ui/SyncSelection): not empty = selecting. Held
+     * by the caller, which hides "New sync" meanwhile; kept across a rotation there.
+     */
+    selectionState: androidx.compose.runtime.MutableState<Set<String>> = rememberSaveable(stateSaver = SyncSelectionSaver) { mutableStateOf(emptySet()) },
+    /** What a change to several syncs has to say (done, or what went wrong): the caller's snackbar. */
+    onMessage: (String) -> Unit = {},
 ) {
     val ctx = LocalContext.current
     // One playlist on several services: each group is one card, and its own syncs are not cards. With
@@ -402,6 +413,19 @@ fun SyncsScreen(
         // Starred syncs first, then the others, each in the list's own order.
         com.xlollx.songport.sync.Labels.favoritesFirst(effective.select(data.syncs, data.reports, runningIds, data.settings.labels) { id -> Providers.byId(id)?.let { it.label(ctx) + " " + it.displayName } ?: id }, onTop)
     }
+    // Several syncs at once (#68): ticked by a long press or Select in a card's menu, then by a tap.
+    var selected by selectionState
+    val selecting = selected.isNotEmpty()
+    // A sync deleted or handed over meanwhile is no longer ticked.
+    LaunchedEffect(data.syncs, data.handedOver) { SyncSelection.pruned(selected, data).let { if (it != selected) selected = it } }
+    androidx.activity.compose.BackHandler(enabled = selecting) { selected = emptySet() }
+    val tickable = remember(shown, data.handedOver) { SyncSelection.tickable(data, shown) }
+    val notHere = stringResource(R.string.bulk_not_here)
+    val select: (SyncJob) -> Unit = { j ->
+        if (com.xlollx.songport.sync.BulkEdit.selectable(data, j)) { if (j.id !in selected) selected = selected + j.id } else onMessage(notHere)
+    }
+    // The sheet of the selection's action in hand ("schedule", "removals", "onoff", "color", "delete").
+    var bulkSheet by rememberSaveable { mutableStateOf<String?>(null) }
     // Pull to refresh = sync all. The indicator stays only while the gesture and the start are under
     // way: the cards show the progress. While syncs run, the pull is off (the pill says how many).
     val pullHaptic = rememberConfirmHaptic()
@@ -412,7 +436,7 @@ fun SyncsScreen(
         withTimeoutOrNull(1500) { SyncState.running.first { it.isNotEmpty() } }
         starting = false
     }
-    val pullOff = running.isNotEmpty() && !starting
+    val pullOff = (running.isNotEmpty() && !starting) || selecting
     // Cards or tiles: its button is at the end of the row of the pill.
     val viewToggle = data.syncs.size >= 2 || minimal
     // The row under the header: the pill (two syncs or more), the filter chips, the cards-or-tiles button.
@@ -433,6 +457,7 @@ fun SyncsScreen(
     }
     val pullGuard = remember { PullGuard() }
     SideEffect { pullGuard.blocked = pullOff }
+    androidx.compose.runtime.CompositionLocalProvider(LocalSyncSelect provides select) {
     PullToRefreshBox(
         isRefreshing = starting,
         onRefresh = { if (!pullOff) { pullHaptic(); starting = true; onRunAll() } },
@@ -512,6 +537,12 @@ fun SyncsScreen(
             // (while syncs run it says how many, and a tap brings the first running card into view), then
             // the filter chips and, at the row's end, cards or tiles. Pinned, only the pill is left.
             if (runAllRow) stickyHeader(key = "runall") {
+                // While selecting, the selection's header takes the row's place (same item, so every position after it stays).
+                if (selecting) SelectionHeader(
+                    selected.size, SyncSelection.allShown(selected, tickable), onClose = { selected = emptySet() },
+                    onToggleShown = { selected = SyncSelection.toggleShown(selected, tickable) },
+                    modifier = Modifier.onSizeChanged { pillHeight = it.height },
+                ) else {
                 val firstCardNoFilter = firstCardUnfiltered + (if (crowd != null) 1 else 0)
                 val firstCard = firstCardNoFilter + (if (filterLine) 1 else 0)
                 // A card brought into view lands just under the pinned pill, not beneath it.
@@ -550,6 +581,7 @@ fun SyncsScreen(
                         else -> onRunAll()
                     }
                 }
+                }
             }
             // With a filter on: how many cards are shown, and a way to clear it all. Under the row, with the list.
             if (filterLine) item(key = "filterline", span = wholeRow) { SyncFinderSummary(data.syncs.size, shown.size) { filter = SyncFilter() } }
@@ -574,7 +606,8 @@ fun SyncsScreen(
             }
             if (shown.isEmpty() && data.syncs.isNotEmpty()) item(key = "nomatch", span = wholeRow) { SyncFinderEmpty { filter = SyncFilter() } }
             // Dragging works on the whole list only: with a filter, the cards between are hidden.
-            val canDrag = !effective.isActive && shown.size >= 2
+            // Nor while selecting: a tap ticks a card, and a hold is not a drag.
+            val canDrag = !effective.isActive && shown.size >= 2 && !selecting
             val listed = dragOrder?.let { o -> shown.sortedBy { o.indexOf(it.id) } } ?: shown
             items(listed, key = { it.id }) { job -> ReorderableItem(reorder, key = job.id, enabled = canDrag && (dragStretch ?: job.favorite) == job.favorite) { isDragging ->
                 val flash = remember(job.id) { androidx.compose.animation.core.Animatable(0f) }
@@ -652,6 +685,8 @@ fun SyncsScreen(
                         // A tile held and let go without moving it: its menu, as a long press elsewhere.
                         // Moved (a drag), never: the menu would show on release, where the finger left it.
                         if (minimal && !swapped[0] && !fingerMoved[0]) tileMenu = job.id
+                        // A card held and let go without moving it starts a selection with it (#68).
+                        else if (!minimal && !swapped[0] && !fingerMoved[0]) select(job)
                         dragStretch = null
                         // Cleared once this release has been handled everywhere (the tile's own tap included).
                         scope.launch { heldTile[0] = null }
@@ -666,8 +701,17 @@ fun SyncsScreen(
                             scope.launch { kotlinx.coroutines.delay(400); if (!reorder.isAnyItemDragging) dragOrder = null }
                         } else dragOrder = null
                     },
+                ).then(
+                    // Where a card cannot be dragged (a search or a filter on, a single sync), a hold still starts a selection.
+                    if (!canDrag && !selecting && !minimal) Modifier.pointerInput(job.id) {
+                        detectTapGestures(onLongPress = {
+                            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress); select(job)
+                        })
+                    } else Modifier,
                 )) {
                     val run = if (running.containsKey(job.id)) SyncState.runOf(job.id, pausedSet, parkedSet, stoppingSet) else null
+                    // While selecting the card only shows: the tick over it is what a tap, and TalkBack, reach.
+                    Box(if (selecting) Modifier.clearAndSetSemantics { } else Modifier) {
                     if (minimal) JobTile(
                         job, data, running[job.id], run, menuOpen = tileMenu == job.id, onMenu = { tileMenu = if (it) job.id else null },
                         canDrag = canDrag, onOpen = {
@@ -690,9 +734,57 @@ fun SyncsScreen(
                         onEdit, onPreview, onRun, onDelete, onReview, onOpenLog, onToggleEnabled, onMove,
                     )
                     else JobCard(job, data, running[job.id], run, onEdit, onPreview, onRun, onDelete, onReview, onOpenTarget, onOpenLog, onToggleEnabled, onMove, size = cardSize, wide = wideCards)
+                    }
+                    if (selecting) SelectionTick(
+                        job.name.ifBlank { job.source.playlistName }, ticked = job.id in selected, tickable = job.id in tickable,
+                        onToggle = { selected = SyncSelection.toggle(selected, job.id) }, onNotHere = { onMessage(notHere) },
+                    )
                 }
             } }
         }
+        }
+        // The selection's actions, above the tabs' bar; each opens its sheet, Run now starts them.
+        if (selecting) SelectionBar(
+            onSchedule = { bulkSheet = "schedule" }, onRemovals = { bulkSheet = "removals" }, onOnOff = { bulkSheet = "onoff" },
+            onRun = {
+                val before = com.xlollx.songport.sync.OfflineQueue.waiting.value
+                val ids = com.xlollx.songport.sync.BulkEdit.selected(data, selected).map { it.id }
+                com.xlollx.songport.sync.Scheduler.runTogether(ctx, ids)
+                // No internet: they wait for it, as a single sync does.
+                val waits = (com.xlollx.songport.sync.OfflineQueue.waiting.value - before).isNotEmpty()
+                onMessage(if (waits) ctx.getString(R.string.offline_queued_all) else ctx.resources.getQuantityString(R.plurals.bulk_started, ids.size, ids.size))
+                selected = emptySet()
+            },
+            onColor = { bulkSheet = "color" }, onDelete = { bulkSheet = "delete" },
+            modifier = Modifier.align(Alignment.BottomCenter).padding(start = 12.dp, end = 12.dp, bottom = LocalBottomBarInset.current + 12.dp).widthIn(max = 560.dp),
+        )
+    }
+    }
+    // The sheet of the selection's action: what it changes is saved for all the selected syncs or for none (ManyChange).
+    if (selecting && bulkSheet != null) {
+        val picked = com.xlollx.songport.sync.BulkEdit.selected(data, selected)
+        val ids = picked.mapTo(LinkedHashSet()) { it.id }
+        val closeSheet = { bulkSheet = null }
+        fun change(fn: (StoreData) -> StoreData) {
+            val outcome = ManyChange.apply(ctx, fn)
+            onMessage(ManyChange.problem(ctx, outcome) ?: ctx.resources.getQuantityString(R.plurals.bulk_done, ids.size, ids.size))
+            // Not saved: the sheet stays, with what was chosen, to try again.
+            if (outcome != ManyChange.Outcome.NOT_SAVED) bulkSheet = null
+        }
+        when (bulkSheet) {
+            "schedule" -> BulkScheduleSheet(data, picked, closeSheet) { c ->
+                val weekday = java.time.LocalDate.now().dayOfWeek.value
+                change { com.xlollx.songport.sync.BulkEdit.schedule(it, ids, c, weekday) }
+            }
+            "removals" -> BulkRemovalsSheet(picked, closeSheet) { mirror -> change { com.xlollx.songport.sync.BulkEdit.removals(it, ids, mirror) } }
+            "onoff" -> BulkEnabledSheet(picked, closeSheet) { on -> change { com.xlollx.songport.sync.BulkEdit.enabled(it, ids, on) } }
+            "color" -> BulkColorSheet(data, picked, closeSheet) { pick -> change { com.xlollx.songport.sync.BulkEdit.color(it, ids, pick) } }
+            "delete" -> BulkDeleteDialog(SyncSelection.deleteNames(stored, ids), closeSheet) {
+                val n = SyncSelection.deleteNames(stored, ids).size
+                val outcome = ManyChange.delete(ctx, ids)
+                onMessage(ManyChange.problem(ctx, outcome) ?: ctx.resources.getQuantityString(R.plurals.bulk_deleted, n, n))
+                bulkSheet = null
+            }
         }
     }
     // A tile tapped: its whole card, as the list of cards shows it, in a sheet. Whatever leads to
@@ -710,6 +802,7 @@ fun SyncsScreen(
                 scaleX = 0.84f + 0.16f * p; scaleY = scaleX; alpha = p
             }.verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, bottom = 24.dp)) {
                 val run = if (running.containsKey(job.id)) SyncState.runOf(job.id, pausedSet, parkedSet, stoppingSet) else null
+                androidx.compose.runtime.CompositionLocalProvider(LocalSyncSelect provides { close(); select(it) }) {
                 JobCard(
                     job, data, running[job.id], run,
                     onEdit = { close(); onEdit(it) }, onPreview = { close(); onPreview(it) }, onRun = onRun,
@@ -717,6 +810,7 @@ fun SyncsScreen(
                     onOpenLog = { close(); onOpenLog() }, onToggleEnabled = onToggleEnabled, onMove = onMove, size = cardSize,
                     onLive = { close(); tileLive = job.id },
                 )
+                }
             }
         }
     }
@@ -987,6 +1081,8 @@ private fun JobMenuHost(
             if (onServer) null
             else sharedGroup?.let { gid -> MenuAction(stringResource(R.string.shared_open_group), { SharedUi.request.value = SharedUi.Request.Open(gid) }, icon = Icons.Outlined.Groups) }
                 ?: MenuAction(stringResource(R.string.edit), { onEdit(job) }, icon = Icons.Outlined.Edit),
+            // Several syncs at once (#68): this one ticked, the others by a tap.
+            LocalSyncSelect.current?.takeIf { !onServer && sharedGroup == null }?.let { sel -> MenuAction(stringResource(R.string.files_select), { sel(job) }, icon = Icons.Outlined.CheckCircle) },
             if (v2 && !onServer && sharedGroup == null && SharedUi.canShare(job)) MenuAction(stringResource(R.string.shared_share_from_sync), {
                 SharedUi.request.value = SharedUi.Request.Create(job.target, job.target.playlistName.ifBlank { job.name })
             }, icon = Icons.Outlined.GroupAdd) else null,
@@ -1948,6 +2044,10 @@ fun SyncEditorScreen(
     var everyM by rememberSaveable { mutableStateOf(if (isNew && job.shazam) 60 else com.xlollx.songport.sync.Timing.interval(job)) }
     var atStr by rememberSaveable { mutableStateOf(job.at ?: "09:00") }
     var daysCsv by rememberSaveable { mutableStateOf((job.days.ifEmpty { listOfNotNull(legacyWeeklyDay(job) ?: java.time.LocalDate.now().dayOfWeek.value.takeIf { !isNew && com.xlollx.songport.sync.Timing.interval(job) >= 10080 }) }).joinToString(",")) }
+    // The saved schedule this sync is linked to (Settings › Schedules), and which of "Saved schedules | Set by hand" is shown.
+    var scheduleId by rememberSaveable { mutableStateOf(job.scheduleId) }
+    // A new sync opens on the saved schedules once there are some (none picked: manual, as a new sync always was).
+    var scheduleSaved by rememberSaveable { mutableStateOf(job.scheduleId != null || (isNew && !job.shazam && Store.get(ctx).data.settings.savedSchedules.isNotEmpty())) }
     var mirror by rememberSaveable { mutableStateOf(job.mirrorRemovals) }
     var keepOrder by rememberSaveable { mutableStateOf(job.keepOrder) }
     var follows by rememberSaveable { mutableStateOf(job.followsChanges) }
@@ -1975,7 +2075,7 @@ fun SyncEditorScreen(
     // found by its name, liked songs as the target, Shazam's playlist) moves the starting line along.
     fun shape() = listOf(
         name, srcProvider, srcPlaylist?.id, linkMode, linkText, shazamMode, radioMode, radioStation, radioStream, radioHome, radioDays,
-        radioStart, radioEnd, dstProvider, createNew, dstPlaylist?.id, newName, schedule, everyM, atStr, daysCsv, mirror, keepOrder, follows,
+        radioStart, radioEnd, dstProvider, createNew, dstPlaylist?.id, newName, schedule, everyM, atStr, daysCsv, scheduleId.takeIf { scheduleSaved }, mirror, keepOrder, follows,
         archive, wifiOnly, enabled, color, tagDraft.all, accentStyle, bidirectional, twoWayRemovals, policy,
     ).joinToString("\u0001")
     var opened by rememberSaveable { mutableStateOf(shape()) }
@@ -2130,7 +2230,10 @@ fun SyncEditorScreen(
         val target = if (createNew) PlaylistRef(dstProvider, null, newName.ifBlank { if (linkMode) "" else srcName })
         else PlaylistRef(dstProvider, dp!!.id, dp.name)
         val source = PlaylistRef(srcProvider, sp.id, srcName, link = linkText.trim().takeIf { linkMode && it.isNotBlank() })
-        fun timed(j: SyncJob): SyncJob = com.xlollx.songport.sync.Timing.apply(j, everyM, atStr, daysCsv.split(",").mapNotNull { it.trim().toIntOrNull() })
+        // Linked to a saved schedule (still there): its timing, and the link. Otherwise the timing set by hand, its own.
+        val linkedTo = if (scheduleSaved && !radioMode) com.xlollx.songport.sync.Schedules.find(Store.get(ctx).data, scheduleId) else null
+        fun timed(j: SyncJob): SyncJob = if (linkedTo != null) com.xlollx.songport.sync.Schedules.link(j, linkedTo)
+            else com.xlollx.songport.sync.Timing.apply(j, everyM, atStr, daysCsv.split(",").mapNotNull { it.trim().toIntOrNull() }).copy(scheduleId = null)
         val main = job.copy(
             name = name.ifBlank { srcName },
             source = source,
@@ -2401,13 +2504,26 @@ fun SyncEditorScreen(
                     RadioAlarmHint()
                 } else Column(Modifier.tourTarget(TourTarget.EDITOR_SCHEDULE), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     HelpLabel(stringResource(R.string.editor_schedule)) { HelpButton(Helps.schedule) }
-                    // I chip vanno a capo da soli, quante righe servono per lo schermo.
-                    TimingPicker(everyM, atStr, daysCsv,
-                        onEvery = { everyM = it; schedule = com.xlollx.songport.sync.Timing.legacy(it) },
-                        onAt = { atStr = it }, onDays = { daysCsv = it })
-                    if (everyM > 0 || daysCsv.isNotBlank()) {
-                        // A sync at a time of day waits for that time; one by interval starts soon after saving.
-                        Text(stringResource(if (everyM >= 1440 || daysCsv.isNotBlank()) R.string.editor_schedule_desc_timed else R.string.editor_schedule_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    // A saved schedule picked from the library (the sync is linked to it), or the timing set by hand as ever.
+                    SchedulePicker(
+                        scheduleId, scheduleSaved, job.id,
+                        hand = com.xlollx.songport.sync.Schedules.spec(everyM, atStr, daysCsv.split(",").mapNotNull { it.trim().toIntOrNull() }),
+                        onTab = { scheduleSaved = it }, onPick = { scheduleId = it },
+                        onDetach = { t ->
+                            // Its own copy of the schedule's timing, set by hand from here on.
+                            everyM = t.everyMinutes; schedule = com.xlollx.songport.sync.Timing.legacy(t.everyMinutes)
+                            atStr = t.at ?: "09:00"; daysCsv = t.days.joinToString(",")
+                            scheduleId = null; scheduleSaved = false
+                        },
+                    ) {
+                        // I chip vanno a capo da soli, quante righe servono per lo schermo.
+                        TimingPicker(everyM, atStr, daysCsv,
+                            onEvery = { everyM = it; schedule = com.xlollx.songport.sync.Timing.legacy(it) },
+                            onAt = { atStr = it }, onDays = { daysCsv = it })
+                        if (everyM > 0 || daysCsv.isNotBlank()) {
+                            // A sync at a time of day waits for that time; one by interval starts soon after saving.
+                            Text(stringResource(if (everyM >= 1440 || daysCsv.isNotBlank()) R.string.editor_schedule_desc_timed else R.string.editor_schedule_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                     }
                 }
                 // Two-way and Mirror removals don't go together: a track added on the target could be

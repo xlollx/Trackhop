@@ -190,6 +190,8 @@ object ConfigBackup {
         preview2 = current.preview2,
         // The labels of both: the file's win by id, this device's others stay for the syncs that wear them.
         labels = incoming.labels + current.labels.filter { c -> incoming.labels.none { it.id == c.id } },
+        // The saved schedules of both, as the labels: the file's win by id (the syncs linked to them follow).
+        savedSchedules = incoming.savedSchedules + current.savedSchedules.filter { c -> incoming.savedSchedules.none { it.id == c.id } },
         deviceId = current.deviceId,
     )
 

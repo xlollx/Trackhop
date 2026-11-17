@@ -510,7 +510,12 @@ fun timingLabel(job: com.xlollx.songport.model.SyncJob): String {
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun TimingPicker(every: Int, at: String, daysCsv: String, onEvery: (Int) -> Unit, onAt: (String) -> Unit, onDays: (String) -> Unit) {
+fun TimingPicker(
+    every: Int, at: String, daysCsv: String, onEvery: (Int) -> Unit, onAt: (String) -> Unit, onDays: (String) -> Unit,
+    /** Off for a saved schedule: "Manual only" is not one, so neither its chip nor the slider's first stop is offered. */
+    manual: Boolean = true,
+) {
+    val first = if (manual) 0 else 1
     val steps = com.xlollx.songport.sync.Timing.STEPS
     val index = steps.indexOf(every).takeIf { it >= 0 } ?: steps.indexOfFirst { it >= every }.coerceAtLeast(0)
     val days = daysCsv.split(",").mapNotNull { it.trim().toIntOrNull() }
@@ -521,7 +526,7 @@ fun TimingPicker(every: Int, at: String, daysCsv: String, onEvery: (Int) -> Unit
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         // The usual choices one tap away; the slider in between for the rest.
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            listOf(0, 60, 360, 1440).forEach { m ->
+            listOf(0, 60, 360, 1440).filter { manual || it > 0 }.forEach { m ->
                 FilterChip(selected = every == m && days.isEmpty(), onClick = { onDays(""); onEvery(m) }, label = { Text(stepLabel(m)) })
             }
             FilterChip(selected = weekly, onClick = {
@@ -541,15 +546,15 @@ fun TimingPicker(every: Int, at: String, daysCsv: String, onEvery: (Int) -> Unit
             style = MaterialTheme.typography.titleMedium,
         )
         if (days.isEmpty()) Slider(
-            value = index.toFloat(),
+            value = index.coerceAtLeast(first).toFloat(),
             onValueChange = {
-                val m = steps[kotlin.math.round(it).toInt().coerceIn(0, steps.size - 1)]
+                val m = steps[kotlin.math.round(it).toInt().coerceIn(first, steps.size - 1)]
                 onEvery(m)
                 // The slider's last stop is a week: it runs on a day, today's until another is picked.
                 if (m >= 10080) onDays(today.toString())
             },
-            valueRange = 0f..(steps.size - 1).toFloat(),
-            steps = steps.size - 2,
+            valueRange = first.toFloat()..(steps.size - 1).toFloat(),
+            steps = steps.size - 2 - first,
         )
         if (every >= 1440 || days.isNotEmpty()) {
             OutlinedButton(onClick = {

@@ -3180,4 +3180,120 @@
         <item quantity="one">%1$d playlist nueva</item>
         <item quantity="other">%1$d playlists nuevas</item>
     </plurals>
+    <!-- 2.1: several syncs at once (#68) and saved schedules -->
+    <string name="bulk_schedule">Horario</string>
+    <string name="bulk_removals">Eliminaciones</string>
+    <string name="bulk_on_off">Activar / Desactivar</string>
+    <string name="bulk_color">Color y etiquetas</string>
+    <string name="bulk_different">Valores distintos</string>
+    <string name="bulk_will_change">Cambiará</string>
+    <string name="bulk_how_often">Cada cuánto</string>
+    <string name="bulk_time">Hora del día</string>
+    <string name="bulk_set_time">Fijar una hora</string>
+    <string name="bulk_time_untouched">Sin tocar: cada sincronización conserva su hora.</string>
+    <string name="bulk_was">Antes: %1$s</string>
+    <string name="bulk_undo">Deshacer</string>
+    <string name="bulk_leave">Dejar como está</string>
+    <string name="bulk_on_all">Activado en todas</string>
+    <string name="bulk_off_all">Desactivado en todas</string>
+    <string name="bulk_removals_leave">Dejar cada sincronización como está (Reflejar eliminaciones: %1$d, Solo añadir: %2$d).</string>
+    <string name="bulk_removals_mirror_desc">Una canción quitada del origen se quita también del destino.</string>
+    <string name="bulk_add_only">Solo añadir</string>
+    <string name="bulk_add_only_desc">En el destino nunca se borra nada.</string>
+    <string name="bulk_removals_note">Las eliminaciones grandes siguen esperando tu confirmación, como hoy.</string>
+    <string name="bulk_removals_skipped">Las sincronizaciones bidireccionales, de archivo y de radio conservan su ajuste.</string>
+    <string name="bulk_onoff_leave">Dejar cada sincronización como está (Activadas: %1$d, Desactivadas: %2$d).</string>
+    <string name="bulk_on">Activada</string>
+    <string name="bulk_on_desc">Se ejecutan según su horario.</string>
+    <string name="bulk_off">Desactivada</string>
+    <string name="bulk_off_desc">No se ejecutan solas. «Ejecutar ahora» sigue funcionando.</string>
+    <string name="bulk_delete_text">Las sincronizaciones se quitan de Trackhop. Sus ejecuciones pasadas quedan en el registro. Tus playlists y sus canciones se quedan donde están en cada servicio.</string>
+    <string name="bulk_not_saved">No se cambió nada: no se pudo guardar el cambio. Inténtalo de nuevo.</string>
+    <string name="bulk_not_scheduled">Guardado, pero Android no aplicó el nuevo horario a todas las sincronizaciones. Trackhop lo vuelve a fijar la próxima vez que se abra.</string>
+    <string name="bulk_radio_note">Las sincronizaciones de radio siguen su propia franja horaria: su horario no cambia.</string>
+    <string name="bulk_not_here">Esta sincronización se cambia desde su grupo o en tu servidor, no aquí.</string>
+    <string name="bulk_linked_note">Si cambias un campo aquí, las sincronizaciones tendrán su propio horario, sin vincular.</string>
+    <string name="bulk_use_saved">Usar un horario guardado</string>
+    <string name="bulk_or_by_hand">o fijarlo a mano</string>
+    <string name="bulk_from">De %1$s</string>
+    <string name="sched_title">Horarios</string>
+    <string name="sched_intro">Un horario guardado puede servir a muchas sincronizaciones. Cámbialo aquí y lo siguen todas las que lo usan.</string>
+    <string name="sched_saved_tab">Horarios guardados</string>
+    <string name="sched_by_hand_tab">A mano</string>
+    <string name="sched_not_used">No lo usa ninguna sincronización</string>
+    <string name="sched_no_name">Sin nombre</string>
+    <string name="sched_new">Nuevo horario</string>
+    <string name="sched_manage">Gestionar</string>
+    <string name="sched_edit_title">Editar horario</string>
+    <string name="sched_name">Nombre (opcional)</string>
+    <string name="sched_name_hint">Sin nombre aparece en la lista por su horario.</string>
+    <string name="sched_next">Próxima ejecución: %1$s</string>
+    <string name="sched_linked_note">Vinculada. Si más adelante cambias %1$s, esta sincronización lo sigue.</string>
+    <string name="sched_wifi_note">«Solo Wi‑Fi» se fija en cada sincronización, no forma parte del horario guardado.</string>
+    <string name="sched_linked">Vinculada</string>
+    <string name="sched_pick_another">Elegir otro</string>
+    <string name="sched_detach">Desvincular</string>
+    <string name="sched_detach_note">Desvincular da a esta sincronización su propia copia: %1$s, fijada a mano. Deja de seguir a %2$s. Las demás no se tocan.</string>
+    <string name="sched_save_as">Guardar como horario</string>
+    <string name="sched_save_as_note">Sin nombre aparece en la lista por su horario. Esta sincronización quedará vinculada a él.</string>
+    <string name="sched_not_now">Ahora no</string>
+    <string name="sched_save">Guardar horario</string>
+    <string name="sched_edit_note">Al guardar cambia cuándo se ejecutan todas. Para cambiar solo una, abre esa sincronización y toca Desvincular.</string>
+    <string name="sched_delete">Eliminar horario</string>
+    <string name="sched_delete_title">¿Eliminar «%1$s»?</string>
+    <string name="sched_delete_keep">Siguen ejecutándose a las mismas horas, como horario propio.</string>
+    <string name="sched_empty">Aún no hay horarios guardados. Guarda un horario una vez y elígelo para cualquier sincronización.</string>
+    <string name="sched_settings_desc">Horarios guardados una vez, para todas las sincronizaciones que quieras</string>
+    <plurals name="bulk_for_n">
+        <item quantity="one">Para la sincronización seleccionada</item>
+        <item quantity="other">Para las %d sincronizaciones seleccionadas</item>
+    </plurals>
+    <plurals name="bulk_apply_n">
+        <item quantity="one">Aplicar a %d sincronización</item>
+        <item quantity="other">Aplicar a %d sincronizaciones</item>
+    </plurals>
+    <plurals name="bulk_delete_title">
+        <item quantity="one">¿Eliminar esta sincronización?</item>
+        <item quantity="other">¿Eliminar %d sincronizaciones?</item>
+    </plurals>
+    <plurals name="bulk_delete_n">
+        <item quantity="one">Eliminar %d sincronización</item>
+        <item quantity="other">Eliminar %d sincronizaciones</item>
+    </plurals>
+    <plurals name="bulk_done">
+        <item quantity="one">%d sincronización cambiada</item>
+        <item quantity="other">%d sincronizaciones cambiadas</item>
+    </plurals>
+    <plurals name="bulk_deleted">
+        <item quantity="one">%d sincronización eliminada</item>
+        <item quantity="other">%d sincronizaciones eliminadas</item>
+    </plurals>
+    <plurals name="bulk_started">
+        <item quantity="one">%d sincronización iniciada</item>
+        <item quantity="other">%d sincronizaciones iniciadas</item>
+    </plurals>
+    <plurals name="sched_used_by">
+        <item quantity="one">Lo usa %d sincronización</item>
+        <item quantity="other">Lo usan %d sincronizaciones</item>
+    </plurals>
+    <plurals name="sched_within_hours">
+        <item quantity="one">En %d hora como máximo</item>
+        <item quantity="other">En %d horas como máximo</item>
+    </plurals>
+    <plurals name="sched_within_days">
+        <item quantity="one">En %d día como máximo</item>
+        <item quantity="other">En %d días como máximo</item>
+    </plurals>
+    <plurals name="sched_also_used">
+        <item quantity="one">También lo usa %d sincronización más</item>
+        <item quantity="other">También lo usan %d sincronizaciones más</item>
+    </plurals>
+    <plurals name="sched_save_for">
+        <item quantity="one">Guardar para %d sincronización</item>
+        <item quantity="other">Guardar para %d sincronizaciones</item>
+    </plurals>
+    <plurals name="sched_delete_used">
+        <item quantity="one">Lo usa %d sincronización:</item>
+        <item quantity="other">Lo usan %d sincronizaciones:</item>
+    </plurals>
 </resources>

@@ -3174,4 +3174,120 @@
         <item quantity="one">%1$d new playlist</item>
         <item quantity="other">%1$d new playlists</item>
     </plurals>
+    <!-- 2.1: several syncs at once (#68) and saved schedules -->
+    <string name="bulk_schedule">Schedule</string>
+    <string name="bulk_removals">Removals</string>
+    <string name="bulk_on_off">On / Off</string>
+    <string name="bulk_color">Colour &amp; labels</string>
+    <string name="bulk_different">Different values</string>
+    <string name="bulk_will_change">Will change</string>
+    <string name="bulk_how_often">How often</string>
+    <string name="bulk_time">Time of day</string>
+    <string name="bulk_set_time">Set a time</string>
+    <string name="bulk_time_untouched">Not touched: each sync keeps its own time.</string>
+    <string name="bulk_was">Was: %1$s</string>
+    <string name="bulk_undo">Undo</string>
+    <string name="bulk_leave">Leave as is</string>
+    <string name="bulk_on_all">On for all</string>
+    <string name="bulk_off_all">Off for all</string>
+    <string name="bulk_removals_leave">Leave each sync as it is (Mirror removals: %1$d, Add only: %2$d).</string>
+    <string name="bulk_removals_mirror_desc">A track removed from the source is removed from the target too.</string>
+    <string name="bulk_add_only">Add only</string>
+    <string name="bulk_add_only_desc">Nothing is ever deleted on the target.</string>
+    <string name="bulk_removals_note">Large removals are still held back for you to confirm, as they are today.</string>
+    <string name="bulk_removals_skipped">Two-way, archive and radio syncs keep their own setting.</string>
+    <string name="bulk_onoff_leave">Leave each sync as it is (On: %1$d, Off: %2$d).</string>
+    <string name="bulk_on">On</string>
+    <string name="bulk_on_desc">They run on their schedule.</string>
+    <string name="bulk_off">Off</string>
+    <string name="bulk_off_desc">They do not run by themselves. Run now still works.</string>
+    <string name="bulk_delete_text">The syncs are removed from Trackhop. Their past runs stay in the log. Your playlists and their tracks stay where they are on each service.</string>
+    <string name="bulk_not_saved">Nothing was changed: the change could not be saved. Try again.</string>
+    <string name="bulk_not_scheduled">Saved, but Android did not take the new timing of every sync. Trackhop sets it again the next time it opens.</string>
+    <string name="bulk_radio_note">Radio syncs run in their own time window: their timing is not changed.</string>
+    <string name="bulk_not_here">This sync is changed from its group or on your server, not here.</string>
+    <string name="bulk_linked_note">Change a field here and the syncs get their own timing, not linked.</string>
+    <string name="bulk_use_saved">Use a saved schedule</string>
+    <string name="bulk_or_by_hand">or set by hand</string>
+    <string name="bulk_from">From %1$s</string>
+    <string name="sched_title">Schedules</string>
+    <string name="sched_intro">A saved schedule can run many syncs. Change it here and every sync that uses it follows.</string>
+    <string name="sched_saved_tab">Saved schedules</string>
+    <string name="sched_by_hand_tab">Set by hand</string>
+    <string name="sched_not_used">Not used by any sync</string>
+    <string name="sched_no_name">No name</string>
+    <string name="sched_new">New schedule</string>
+    <string name="sched_manage">Manage</string>
+    <string name="sched_edit_title">Edit schedule</string>
+    <string name="sched_name">Name (optional)</string>
+    <string name="sched_name_hint">With no name it is listed by its timing.</string>
+    <string name="sched_next">Next run: %1$s</string>
+    <string name="sched_linked_note">Linked. If you change %1$s later, this sync follows it.</string>
+    <string name="sched_wifi_note">Wi‑Fi only is set for each sync, not part of a saved schedule.</string>
+    <string name="sched_linked">Linked</string>
+    <string name="sched_pick_another">Pick another</string>
+    <string name="sched_detach">Detach</string>
+    <string name="sched_detach_note">Detach gives this sync its own copy: %1$s, set by hand. It stops following %2$s. The other syncs are not touched.</string>
+    <string name="sched_save_as">Save this as a schedule</string>
+    <string name="sched_save_as_note">With no name it is listed by its timing. This sync will be linked to it.</string>
+    <string name="sched_not_now">Not now</string>
+    <string name="sched_save">Save schedule</string>
+    <string name="sched_edit_note">Saving changes when they all run. To change only one, open that sync and tap Detach.</string>
+    <string name="sched_delete">Delete schedule</string>
+    <string name="sched_delete_title">Delete “%1$s”?</string>
+    <string name="sched_delete_keep">They keep running at the same times, as their own schedule.</string>
+    <string name="sched_empty">No saved schedules yet. Save a timing once and pick it for any sync.</string>
+    <string name="sched_settings_desc">Timings saved once, for any number of syncs</string>
+    <plurals name="bulk_for_n">
+        <item quantity="one">For the selected sync</item>
+        <item quantity="other">For the %d selected syncs</item>
+    </plurals>
+    <plurals name="bulk_apply_n">
+        <item quantity="one">Apply to %d sync</item>
+        <item quantity="other">Apply to %d syncs</item>
+    </plurals>
+    <plurals name="bulk_delete_title">
+        <item quantity="one">Delete this sync?</item>
+        <item quantity="other">Delete %d syncs?</item>
+    </plurals>
+    <plurals name="bulk_delete_n">
+        <item quantity="one">Delete %d sync</item>
+        <item quantity="other">Delete %d syncs</item>
+    </plurals>
+    <plurals name="bulk_done">
+        <item quantity="one">%d sync changed</item>
+        <item quantity="other">%d syncs changed</item>
+    </plurals>
+    <plurals name="bulk_deleted">
+        <item quantity="one">%d sync deleted</item>
+        <item quantity="other">%d syncs deleted</item>
+    </plurals>
+    <plurals name="bulk_started">
+        <item quantity="one">%d sync started</item>
+        <item quantity="other">%d syncs started</item>
+    </plurals>
+    <plurals name="sched_used_by">
+        <item quantity="one">Used by %d sync</item>
+        <item quantity="other">Used by %d syncs</item>
+    </plurals>
+    <plurals name="sched_within_hours">
+        <item quantity="one">Within %d hour</item>
+        <item quantity="other">Within %d hours</item>
+    </plurals>
+    <plurals name="sched_within_days">
+        <item quantity="one">Within %d day</item>
+        <item quantity="other">Within %d days</item>
+    </plurals>
+    <plurals name="sched_also_used">
+        <item quantity="one">Also used by %d other sync</item>
+        <item quantity="other">Also used by %d other syncs</item>
+    </plurals>
+    <plurals name="sched_save_for">
+        <item quantity="one">Save for %d sync</item>
+        <item quantity="other">Save for %d syncs</item>
+    </plurals>
+    <plurals name="sched_delete_used">
+        <item quantity="one">%d sync uses it:</item>
+        <item quantity="other">%d syncs use it:</item>
+    </plurals>
 </resources>

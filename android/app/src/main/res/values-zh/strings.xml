@@ -3090,4 +3090,107 @@
     <plurals name="collection_new_n">
         <item quantity="other">%1$d 个新歌单</item>
     </plurals>
+    <!-- 2.1: several syncs at once (#68) and saved schedules -->
+    <string name="bulk_schedule">计划</string>
+    <string name="bulk_removals">移除方式</string>
+    <string name="bulk_on_off">开启 / 关闭</string>
+    <string name="bulk_color">颜色和标签</string>
+    <string name="bulk_different">值不相同</string>
+    <string name="bulk_will_change">将会更改</string>
+    <string name="bulk_how_often">频率</string>
+    <string name="bulk_time">时间</string>
+    <string name="bulk_set_time">设置时间</string>
+    <string name="bulk_time_untouched">未改动：每个同步保留各自的时间。</string>
+    <string name="bulk_was">原为：%1$s</string>
+    <string name="bulk_undo">撤销</string>
+    <string name="bulk_leave">保持不变</string>
+    <string name="bulk_on_all">全部开启</string>
+    <string name="bulk_off_all">全部关闭</string>
+    <string name="bulk_removals_leave">每个同步保持不变（镜像移除：%1$d，仅添加：%2$d）。</string>
+    <string name="bulk_removals_mirror_desc">从来源移除的曲目也会从目标移除。</string>
+    <string name="bulk_add_only">仅添加</string>
+    <string name="bulk_add_only_desc">目标中的内容永远不会被删除。</string>
+    <string name="bulk_removals_note">大量移除仍会像现在一样等待你确认。</string>
+    <string name="bulk_removals_skipped">双向、存档和电台同步保留各自的设置。</string>
+    <string name="bulk_onoff_leave">每个同步保持不变（开启：%1$d，关闭：%2$d）。</string>
+    <string name="bulk_on">开启</string>
+    <string name="bulk_on_desc">它们按计划运行。</string>
+    <string name="bulk_off">关闭</string>
+    <string name="bulk_off_desc">它们不会自动运行。“立即运行”仍然可用。</string>
+    <string name="bulk_delete_text">这些同步会从 Trackhop 中移除。过去的运行记录保留在日志中。你的播放列表及其曲目仍保留在各个服务上。</string>
+    <string name="bulk_not_saved">未做任何更改：无法保存更改。请重试。</string>
+    <string name="bulk_not_scheduled">已保存，但 Android 没有接受每个同步的新时间。Trackhop 下次打开时会重新设置。</string>
+    <string name="bulk_radio_note">电台同步按自己的时间段运行：它们的时间不会更改。</string>
+    <string name="bulk_not_here">这个同步需要在它的群组或你的服务器上更改，不能在这里更改。</string>
+    <string name="bulk_linked_note">在这里更改任一项后，这些同步会使用各自的时间，不再关联。</string>
+    <string name="bulk_use_saved">使用已保存的计划</string>
+    <string name="bulk_or_by_hand">或手动设置</string>
+    <string name="bulk_from">来自%1$s</string>
+    <string name="sched_title">计划</string>
+    <string name="sched_intro">一个已保存的计划可以用于多个同步。在这里更改后，使用它的每个同步都会跟着改。</string>
+    <string name="sched_saved_tab">已保存的计划</string>
+    <string name="sched_by_hand_tab">手动设置</string>
+    <string name="sched_not_used">没有同步使用</string>
+    <string name="sched_no_name">未命名</string>
+    <string name="sched_new">新建计划</string>
+    <string name="sched_manage">管理</string>
+    <string name="sched_edit_title">编辑计划</string>
+    <string name="sched_name">名称（可选）</string>
+    <string name="sched_name_hint">没有名称时，会按它的时间显示。</string>
+    <string name="sched_next">下次运行：%1$s</string>
+    <string name="sched_linked_note">已关联。以后更改%1$s时，这个同步会跟着改。</string>
+    <string name="sched_wifi_note">“仅 Wi‑Fi”是每个同步各自的设置，不属于已保存的计划。</string>
+    <string name="sched_linked">已关联</string>
+    <string name="sched_pick_another">另选一个</string>
+    <string name="sched_detach">取消关联</string>
+    <string name="sched_detach_note">取消关联后，这个同步会有自己的副本：%1$s，手动设置。它不再跟随%2$s。其他同步不受影响。</string>
+    <string name="sched_save_as">保存为计划</string>
+    <string name="sched_save_as_note">没有名称时，会按它的时间显示。这个同步会关联到它。</string>
+    <string name="sched_not_now">暂不</string>
+    <string name="sched_save">保存计划</string>
+    <string name="sched_edit_note">保存后会更改它们全部的运行时间。只想改一个时，请打开那个同步并点按“取消关联”。</string>
+    <string name="sched_delete">删除计划</string>
+    <string name="sched_delete_title">要删除“%1$s”吗？</string>
+    <string name="sched_delete_keep">它们会继续在相同时间运行，作为各自的计划。</string>
+    <string name="sched_empty">还没有已保存的计划。保存一次时间，就能在任何同步中选用。</string>
+    <string name="sched_settings_desc">保存一次的时间，可用于任意多个同步</string>
+    <plurals name="bulk_for_n">
+        <item quantity="other">所选的 %d 个同步</item>
+    </plurals>
+    <plurals name="bulk_apply_n">
+        <item quantity="other">应用到 %d 个同步</item>
+    </plurals>
+    <plurals name="bulk_delete_title">
+        <item quantity="other">要删除 %d 个同步吗？</item>
+    </plurals>
+    <plurals name="bulk_delete_n">
+        <item quantity="other">删除 %d 个同步</item>
+    </plurals>
+    <plurals name="bulk_done">
+        <item quantity="other">已更改 %d 个同步</item>
+    </plurals>
+    <plurals name="bulk_deleted">
+        <item quantity="other">已删除 %d 个同步</item>
+    </plurals>
+    <plurals name="bulk_started">
+        <item quantity="other">已开始 %d 个同步</item>
+    </plurals>
+    <plurals name="sched_used_by">
+        <item quantity="other">%d 个同步在使用</item>
+    </plurals>
+    <plurals name="sched_within_hours">
+        <item quantity="other">%d 小时内</item>
+    </plurals>
+    <plurals name="sched_within_days">
+        <item quantity="other">%d 天内</item>
+    </plurals>
+    <plurals name="sched_also_used">
+        <item quantity="other">另有 %d 个同步在使用</item>
+    </plurals>
+    <plurals name="sched_save_for">
+        <item quantity="other">为 %d 个同步保存</item>
+    </plurals>
+    <plurals name="sched_delete_used">
+        <item quantity="other">%d 个同步在使用：</item>
+    </plurals>
 </resources>

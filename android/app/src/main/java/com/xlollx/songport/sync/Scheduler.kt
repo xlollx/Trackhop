@@ -370,6 +370,28 @@ object Scheduler {
         wm.enqueueUniquePeriodicWork(name(job.id), ExistingPeriodicWorkPolicy.UPDATE, req)
     }
 
+    /**
+     * After a change to many syncs saved as one (a saved schedule edited, several syncs changed or
+     * deleted together: FileStore.commit): the work of every sync the change reached is brought in
+     * line, and that of the deleted ones cancelled. Answers how many could not be: the store is the
+     * truth, and [applyAll] at the next start of the app brings them in line (so a crash between the
+     * save and this leaves nothing behind either).
+     */
+    fun applyChanges(ctx: Context, before: com.xlollx.songport.data.StoreData, after: com.xlollx.songport.data.StoreData): Int {
+        var failed = 0
+        val now = after.jobs.associateBy { it.id }
+        val gone = before.jobs.filter { it.id !in now }
+        for (j in gone) runCatching { WorkManager.getInstance(ctx).cancelUniqueWork(name(j.id)) }.onFailure { failed++ }
+        val changed = com.xlollx.songport.sync.BulkEdit.rescheduled(before, after).mapNotNull { now[it] }
+        for (j in changed) runCatching { applyWork(ctx, j) }.onFailure {
+            failed++
+            Diagnostics.log(ctx, "schedule", "could not set the work of ${j.name}: ${it.message ?: it.javaClass.simpleName}")
+        }
+        // A radio sync among them: its listening and its alarm follow (as apply and cancel do).
+        if ((gone + changed).any { it.radio != null } || RadioService.running.value) runCatching { RadioPlan.refresh(ctx, start = changed.any { it.radio != null }) }
+        return failed
+    }
+
     fun cancel(ctx: Context, jobId: String) {
         WorkManager.getInstance(ctx).cancelUniqueWork(name(jobId))
         // A deleted radio sync stops listening (and its alarm goes) at once.
