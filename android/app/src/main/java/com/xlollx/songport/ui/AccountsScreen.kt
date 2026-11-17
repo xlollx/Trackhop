@@ -587,7 +587,7 @@ internal fun FilesCard(
         // In the card's scope: clearing pendingImport restarts this effect, which would cancel the import.
         scope.launch {
             // An Apple Music/iTunes library: read a piece at a time, then its playlists to pick (#67).
-            val name = displayName(ctx, uri)
+            val name = withContext(Dispatchers.IO) { displayName(ctx, uri) }
             if (withContext(Dispatchers.IO) { LibraryImport.isLibrary(ctx, uri) }) {
                 LibraryImport.start(ctx, uri, name)
                 return@launch
