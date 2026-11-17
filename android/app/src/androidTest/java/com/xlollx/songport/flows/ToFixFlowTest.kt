@@ -48,6 +48,9 @@ class ToFixFlowTest : FlowTest() {
     private fun key(t: Track) = FileStore.cacheKey("spotify", t.id, "deezer")
     private fun row(t: Track) = compose.onNode(hasTestTag(TO_FIX_ROW_TAG + key(t)))
 
+    /** The row scrolled to and moved above the glass bottom bar, which would take the swipe of a row under it. */
+    private fun rowInReach(t: Track) = row(t).also { it.performScrollTo(); clearOfBottomBar(it); compose.waitForIdle() }
+
     /**
      * Road Trip to Deezer's Workout: a loose match, a track with a candidate, one with nothing.
      * Chill Evening to Deezer's Evening: the track with a candidate again.
@@ -108,7 +111,7 @@ class ToFixFlowTest : FlowTest() {
         waitGone(s(R.string.to_fix_on_service, "Deezer"))
 
         // Nothing proposed: swiping right opens the search by hand, which stays open; "Ignore this track" is there.
-        row(absent).performScrollTo().performTouchInput { swipeRight() }
+        rowInReach(absent).performTouchInput { swipeRight() }
         waitText(s(R.string.to_fix_search_on, "Deezer"))
         remade()
         waitText(s(R.string.to_fix_search_on, "Deezer"))
@@ -120,7 +123,7 @@ class ToFixFlowTest : FlowTest() {
         waitTab(2)
 
         // Swiping left sets the loose match aside: nothing is decided, the row is gone until Road Trip runs again.
-        row(loose).performScrollTo().performTouchInput { swipeLeft() }
+        rowInReach(loose).performTouchInput { swipeLeft() }
         waitFor("the row set aside") { store.data.toFixLater["r-road"] == setOf(loose.id) }
         waitTab(1)
         assertTrue("no choice written by Later", store.data.reviewDecisions.keys.none { it == key(loose) })
