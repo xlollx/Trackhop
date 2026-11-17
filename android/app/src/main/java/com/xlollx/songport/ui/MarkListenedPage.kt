@@ -37,6 +37,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -75,6 +76,9 @@ internal object ListenedKept {
     @Volatile var from: String = ""
     @Volatile var albums: List<DeezerCatalog.Album> = emptyList()
 }
+
+/** One sending at a time, in the app's own scope: leaving the page does not stop it half way. */
+private val sending = com.xlollx.songport.sync.AppRun<Scrobbles.Sent>()
 
 private enum class ListenedFrom(val label: Int) { ALBUM(R.string.listened_from_album), PLAYLIST(R.string.listened_from_playlist), FILE(R.string.listened_from_file), TEXT(R.string.listened_from_text) }
 
@@ -115,7 +119,10 @@ fun MarkListenedPage(connected: List<MusicProvider>, snackbar: SnackbarHostState
     var pickingTime by rememberSaveable { mutableStateOf(false) }
     var reviewing by rememberSaveable { mutableStateOf(false) }
     var skipped by rememberSaveable { mutableStateOf(ArrayList<Int>()) }
-    var busy by remember { mutableStateOf(false) }
+    var reading by remember { mutableStateOf(false) }
+    val sendingNow by sending.running.collectAsState()
+    val sent by sending.finished.collectAsState()
+    val busy = reading || sendingNow
     var loaded by remember { mutableStateOf(ListenedKept.tracks) }
 
     // What the songs are read from now: those read before serve only while it is the same.
@@ -127,6 +134,23 @@ fun MarkListenedPage(connected: List<MusicProvider>, snackbar: SnackbarHostState
     }
     fun fail(e: Exception) { scope.launch { snackbar.showSnackbar(e.userMessage(ctx)) } }
     fun keep(k: String, tracks: List<Track>) { ListenedKept.tracks = tracks; ListenedKept.from = k; loaded = tracks }
+    // The outcome of a sending, said once it finished: also when the page was left and opened again meanwhile.
+    LaunchedEffect(sent) {
+        val r = sent ?: return@LaunchedEffect
+        sending.finished.value = null
+        r.onSuccess { done ->
+            val parts = listOfNotNull(
+                done.lastFm?.let { ctx.getString(R.string.listened_done_lastfm, it) },
+                done.listenBrainz?.let { ctx.getString(R.string.listened_done_listenbrainz, it) },
+            )
+            // One run, one listen per song: what was sent is cleared, it cannot go twice.
+            reviewing = false; skipped = ArrayList()
+            album = null; playlistId = null; fileName = null; text = ""
+            ListenedKept.tracks = null; ListenedKept.from = ""; loaded = null
+            // In the screen's scope: clearing [finished] restarts this effect, which would cancel the snackbar.
+            scope.launch { snackbar.showSnackbar(ctx.getString(R.string.listened_done, parts.joinToString(", "))) }
+        }.onFailure { e -> fail(e as? Exception ?: Exception(e)) }
+    }
     LaunchedEffect(key) {
         if (ListenedKept.from == key) return@LaunchedEffect
         val a = album
@@ -201,22 +225,10 @@ fun MarkListenedPage(connected: List<MusicProvider>, snackbar: SnackbarHostState
             if (busy) CircularProgressIndicator(Modifier.size(18.dp))
             OutlinedButton(onClick = { reviewing = false }, enabled = !busy) { Text(stringResource(R.string.nav_back)) }
             Button(enabled = !busy && sendable > 0, onClick = {
-                busy = true
-                scope.launch {
-                    try {
-                        val sent = Scrobbles.send(ctx.env, listens, lastFm?.takeIf { toLastFm }, listenBrainz?.takeIf { toListenBrainz })
-                        val parts = listOfNotNull(
-                            sent.lastFm?.let { ctx.getString(R.string.listened_done_lastfm, it) },
-                            sent.listenBrainz?.let { ctx.getString(R.string.listened_done_listenbrainz, it) },
-                        )
-                        // One run, one listen per song: what was sent is cleared, it cannot go twice.
-                        reviewing = false; skipped = ArrayList()
-                        album = null; playlistId = null; fileName = null; text = ""
-                        ListenedKept.tracks = null; ListenedKept.from = ""; loaded = null
-                        snackbar.showSnackbar(ctx.getString(R.string.listened_done, parts.joinToString(", ")))
-                    } catch (e: CancellationException) { throw e } catch (e: Exception) { fail(e) }
-                    busy = false
-                }
+                val env = ctx.applicationContext.env
+                val toLf = lastFm?.takeIf { toLastFm }
+                val toLb = listenBrainz?.takeIf { toListenBrainz }
+                sending.start { Scrobbles.send(env, listens, toLf, toLb) }
             }) { Text(pluralStringResource(R.plurals.listened_send, sendable, sendable)) }
         }
         return
@@ -239,10 +251,10 @@ fun MarkListenedPage(connected: List<MusicProvider>, snackbar: SnackbarHostState
                 Row(horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     if (busy) { CircularProgressIndicator(Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)) }
                     FilledTonalButton(enabled = !busy && albumQuery.isNotBlank(), onClick = {
-                        busy = true
+                        reading = true
                         scope.launch {
                             try { albums = DeezerCatalog.albums(albumQuery); ListenedKept.albums = albums } catch (e: CancellationException) { throw e } catch (e: Exception) { fail(e) }
-                            busy = false
+                            reading = false
                         }
                     }) { Text(stringResource(R.string.unmatched_search)) }
                 }
