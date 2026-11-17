@@ -1,6 +1,6 @@
 # The Google Play store listing from the repository (.github/scripts/play_listing.py): texts in
 # play/listing/<locale>/, phone screenshots in docs/store/play/<locale>/ (Screenshots workflow,
-# flavor play), feature graphics docs/store/feature_<lang>.png. By hand only.
+# flavor play) or, with "framed", docs/store/framed/<locale>/ (scripts/store_frames.mjs), feature graphics docs/store/feature_<lang>.png. By hand only.
 # "commit" off (the default): Google only validates the change and nothing is published.
 name: Google Play listing
 
@@ -15,6 +15,10 @@ on:
         description: Phone screenshots (the first 8 of each language)
         type: boolean
         default: true
+      framed:
+        description: The framed screenshots (docs/store/framed) instead of the plain ones
+        type: boolean
+        default: false
       feature:
         description: Feature graphics (where a docs/store/feature_<lang>.png exists)
         type: boolean
@@ -48,6 +52,7 @@ jobs:
           PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           TEXTS: ${{ inputs.texts }}
           SHOTS: ${{ inputs.screenshots }}
+          FRAMED: ${{ inputs.framed }}
           FEATURE: ${{ inputs.feature }}
           COMMIT: ${{ inputs.commit }}
           LOCALES: ${{ inputs.locales }}
@@ -55,6 +60,7 @@ jobs:
           args=()
           [ "$TEXTS" = true ] && args+=(--texts)
           [ "$SHOTS" = true ] && args+=(--screenshots)
+          [ "$FRAMED" = true ] && args+=(--framed)
           [ "$FEATURE" = true ] && args+=(--feature)
           [ "$COMMIT" = true ] && args+=(--commit)
           python .github/scripts/play_listing.py "${args[@]}" --locales "$LOCALES"

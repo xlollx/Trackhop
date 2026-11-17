@@ -1,7 +1,8 @@
 # AppGallery listing pictures. "inspect" (default) only reads the listing and prints its shape (keys,
 # languages, how many screenshots and their sizes), never a URL or a secret. "screenshots" replaces the
 # phone screenshots of each language with the store screenshots (docs/store/play/<lang>/, 1080x1920,
-# the store build without the Bridge), at most 5 per language, on the app's draft version.
+# the store build without the Bridge), at most 5 per language, on the app's draft version. With "framed" the
+# framed ones in docs/store/framed/<lang>/ (scripts/store_frames.mjs, also 1080x1920) instead.
 name: AppGallery pictures
 
 on:
@@ -12,6 +13,10 @@ on:
         type: choice
         options: [inspect, screenshots]
         default: inspect
+      framed:
+        description: The framed screenshots (docs/store/framed) instead of the plain ones
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -21,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MODE: ${{ inputs.mode }}
+      FRAMED: ${{ inputs.framed }}
       API: https://connect-api.cloud.huawei.com/api
       PACKAGE: com.xlollx.songport
       CLIENT_ID: ${{ secrets.AGC_CLIENT_ID }}
@@ -51,7 +57,7 @@ jobs:
           # Only the languages the listing has; their screenshots shown upright (showType 1, as the live listing has:
           # portrait boxes; the old 20:9 pictures were squeezed into them and looked stretched).
           for lang in $(jq -r '.languages[]?.lang' <<<"$info"); do
-            dir="docs/store/play/$lang/"
+            dir="docs/store/$([ "$FRAMED" = true ] && echo framed || echo play)/$lang/"
             [ -d "$dir" ] || { echo "::warning::$lang: no store screenshots in $dir"; continue; }
             files=$(ls "$dir"*.jpg | sort -V | head -8)
             items='[]'
