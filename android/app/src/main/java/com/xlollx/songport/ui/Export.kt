@@ -22,7 +22,6 @@ fun formatLabel(format: LocalFilesProvider.Export): String = when (format) {
     LocalFilesProvider.Export.OPML -> stringResource(R.string.format_opml)
     LocalFilesProvider.Export.WPL -> stringResource(R.string.format_wpl)
     LocalFilesProvider.Export.ZPL -> stringResource(R.string.format_zpl)
-    LocalFilesProvider.Export.REKORDBOX -> stringResource(R.string.format_rekordbox)
     else -> format.name
 }
 

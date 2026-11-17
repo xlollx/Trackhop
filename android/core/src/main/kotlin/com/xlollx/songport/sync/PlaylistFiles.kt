@@ -482,9 +482,6 @@ object PlaylistFiles {
     /** A rekordbox collection or playlist export as one list ([ItunesLibrary.asOneList]), read a piece at a time. */
     fun parseRekordboxXml(text: String): List<Track> = RekordboxXml.read(text).asOneList()
 
-    /** [tracks] as a rekordbox XML holding one playlist ([RekordboxXml.write]). */
-    fun toRekordboxXml(name: String, tracks: List<Track>): String = RekordboxXml.write(name, tracks)
-
     // ---------------------------------------------------------------- WPL / ZPL
 
     /**

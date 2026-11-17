@@ -238,7 +238,6 @@ en:
         jspf: JSPF
         wpl: WPL (Windows Media Player)
         zpl: ZPL (Zune)
-        rekordbox: rekordbox XML
         text: Text
       songs_n: ["{n} song", "{n} songs"]
       playlists_n: ["{n} playlist", "{n} playlists"]
@@ -597,7 +596,6 @@ it:
         jspf: JSPF
         wpl: WPL (Windows Media Player)
         zpl: ZPL (Zune)
-        rekordbox: rekordbox XML
         text: Testo
       songs_n: ["{n} brano", "{n} brani"]
       playlists_n: ["{n} playlist", "{n} playlist"]

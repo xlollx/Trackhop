@@ -12,8 +12,9 @@ import java.io.Reader
 
 /**
  * rekordbox XML (AlphaTheta's "XML file format for playlists sharing") and Windows Media Player's
- * WPL with Zune's ZPL (Microsoft's Windows Media Playlist reference): read, written, told by their
- * content, read a piece at a time and refused when cut short. The files are written by hand from
+ * WPL with Zune's ZPL (Microsoft's Windows Media Playlist reference): told by their content, read a
+ * piece at a time and refused when cut short; rekordbox XML is only read (a list of songs has no
+ * file locations for rekordbox to load), WPL and ZPL are written too. The files are written by hand from
  * the two specifications, as the programs lay them out; none comes from anyone's library.
  */
 class DjAndWindowsPlaylistsTest {
@@ -117,33 +118,6 @@ class DjAndWindowsPlaylistsTest {
         Track("3", "No artist\u0001 here"),
         Track("1", "Around the World", listOf("Daft Punk"), album = "Homework", durationMs = 429_000, year = 1997),
     )
-
-    @Test fun rekordboxIsWrittenAsTheFormatAsksAndReadBack() {
-        val xml = PlaylistFiles.toRekordboxXml("My <set> & \"more\"", sample)
-        assertTrue(xml.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"))
-        assertTrue(xml.contains("<DJ_PLAYLISTS Version=\"1.0.0\">"))
-        // A song once in the collection, twice in the playlist; the counts say so.
-        assertTrue(xml.contains("<COLLECTION Entries=\"3\">"))
-        assertTrue(xml.contains("<NODE Type=\"0\" Name=\"ROOT\" Count=\"1\">"))
-        assertTrue(xml.contains("<NODE Name=\"My &lt;set&gt; &amp; &quot;more&quot;\" Type=\"1\" KeyType=\"0\" Entries=\"4\">"))
-        assertEquals(listOf("1", "2", "3", "1"), Regex("""<TRACK Key="(\d+)"/>""").findAll(xml).map { it.groupValues[1] }.toList())
-        assertTrue(xml.contains("TrackID=\"1\" Name=\"Around the World\" Artist=\"Daft Punk\" Album=\"Homework\" TotalTime=\"429\" Year=\"1997\"/>"))
-        assertTrue(xml.contains("Name=\"Rhythm &amp; Sound &lt;Dub&gt; &quot;x&quot; &apos;y&apos;\""))
-        // No file behind a streaming playlist: no Location is made up.
-        assertFalse(xml.contains("Location="))
-        assertFalse(xml.contains("\u0001"))
-        assertEquals(PlaylistFiles.Format.REKORDBOX_XML, PlaylistFiles.detect("x", xml))
-
-        val back = PlaylistFiles.parse("set.xml", xml)
-        assertEquals(listOf("Around the World", "Rhythm & Sound <Dub> \"x\" 'y'", "No artist here", "Around the World"), back.map { it.title })
-        assertEquals(listOf("Basic Channel", "Tikiman"), back[1].artists)
-        assertEquals(388_000L, back[1].durationMs)
-        assertEquals("Homework", back[0].album)
-        assertEquals(xml, LocalFilesProvider.Export.REKORDBOX.encode("My <set> & \"more\"", sample))
-        assertEquals("xml", LocalFilesProvider.Export.REKORDBOX.extension)
-        // An empty list is still a whole file.
-        assertEquals(0, PlaylistFiles.parse("e.xml", PlaylistFiles.toRekordboxXml("", emptyList())).size)
-    }
 
     @Test fun aRekordboxFileCutShortIsRefused() {
         val xml = res("rekordbox-collection.xml")

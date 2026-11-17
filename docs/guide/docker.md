@@ -742,14 +742,14 @@ also reads the tour dates on Spotify's artist pages when you have **Spotify (web
 | `POST /api/v1/services/{service}/playlists/{playlist}/tracks/remove` | Remove tracks (for tools that cannot send a body with DELETE). |
 | `GET /api/v1/services/{service}/playlists/{playlist}/duplicates` | The tracks a playlist holds more than once. |
 | `POST /api/v1/services/{service}/playlists/{playlist}/duplicates/remove` | Remove the extra copies (a background task). |
-| `GET /api/v1/services/{service}/playlists/{playlist}/export` | A playlist as a file: csv, m3u, xspf, jspf, wpl, zpl, xml (rekordbox) or txt. |
+| `GET /api/v1/services/{service}/playlists/{playlist}/export` | A playlist as a file: csv, m3u, xspf, jspf, wpl, zpl or txt. |
 
 **Files**
 
 | Call | What it does |
 |---|---|
 | `GET /api/v1/files` | The File playlists. |
-| `GET /api/v1/files/{file}` | A File playlist, in a format: csv, m3u, xspf, jspf, wpl, zpl, xml (rekordbox) or txt. |
+| `GET /api/v1/files/{file}` | A File playlist, in a format: csv, m3u, xspf, jspf, wpl, zpl or txt. |
 | `PUT /api/v1/files/{file}` | Bring in a playlist file (CSV, M3U, PLS, XSPF, JSPF, WPL/ZPL, iTunes XML, rekordbox XML, JSON, text) as the body, of any size: it is read a piece at a time. From an Apple Music/iTunes library or a rekordbox collection each of your playlists becomes a file; `?playlists=A,B` picks them by name, `?whole=true` adds the library as one file. |
 | `POST /api/v1/files/{file}` | The same as PUT, for tools that only POST. |
 | `DELETE /api/v1/files/{file}` | Delete a File playlist. |

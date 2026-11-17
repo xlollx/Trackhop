@@ -330,7 +330,6 @@
     <string name="format_opml">OPML(팟캐스트)</string>
     <string name="format_wpl">WPL (Windows Media Player)</string>
     <string name="format_zpl">ZPL (Zune)</string>
-    <string name="format_rekordbox">rekordbox XML</string>
     <string name="opml_finding_feeds">피드 주소를 찾는 중: %1$d / %2$d</string>
     <string name="opml_feeds_missing">완료. Apple 팟캐스트 디렉터리에 피드 주소가 없는 팟캐스트: %1$d개. 이름만 적어 두었습니다.</string>
     <string name="tools_export_save">다른 이름으로 저장…</string>

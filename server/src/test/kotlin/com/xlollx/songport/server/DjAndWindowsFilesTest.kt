@@ -6,18 +6,18 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 
-/** rekordbox XML and WPL/ZPL on the server: the download formats, and a rekordbox collection taken as a library to pick from. */
+/** WPL/ZPL on the server as download formats, and a rekordbox collection taken as a library to pick from (read only: never a download format). */
 class DjAndWindowsFilesTest {
     private val tracks = listOf(Track("1", "Blue Monday", listOf("New Order"), album = "Substance", durationMs = 448_000), Track("2", "Solo <&>"))
 
     @Test fun theNewFormatsAreOfferedByTheirExtension() {
         assertEquals(ExportFormat.WPL, ExportFormat.of("wpl"))
         assertEquals(ExportFormat.ZPL, ExportFormat.of("ZPL"))
-        assertEquals(ExportFormat.REKORDBOX, ExportFormat.of("xml"))
-        assertTrue(ExportFormat.offered().containsAll(listOf(ExportFormat.WPL, ExportFormat.ZPL, ExportFormat.REKORDBOX)))
+        assertTrue(ExportFormat.offered().containsAll(listOf(ExportFormat.WPL, ExportFormat.ZPL)))
+        // rekordbox XML is read, never written: "xml" is not a download format.
+        assertTrue(ExportFormat.offered().none { it.ext == "xml" })
         assertTrue(ExportFormat.WPL.encode("Mix", tracks).startsWith("<?wpl version=\"1.0\"?>"))
         assertTrue(ExportFormat.ZPL.encode("Mix", tracks).startsWith("<?zpl version=\"2.0\"?>"))
-        assertTrue(ExportFormat.REKORDBOX.encode("Mix", tracks).contains("<DJ_PLAYLISTS Version=\"1.0.0\">"))
     }
 
     @Test fun aRekordboxCollectionIsALibraryWithPlaylistsToTick() {

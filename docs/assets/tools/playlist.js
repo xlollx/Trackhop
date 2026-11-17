@@ -5,7 +5,7 @@ import { ToolError, Lines, blobBytes, headText, streamText, own } from './io.js'
 import { JsonStream } from './json-stream.js';
 
 export const FORMATS = ['csv', 'm3u', 'pls', 'itunes', 'rekordbox', 'wpl', 'xspf', 'opml', 'json', 'text'];
-export const OUTPUTS = { csv: 'csv', m3u8: 'm3u8', xspf: 'xspf', jspf: 'jspf', wpl: 'wpl', zpl: 'zpl', rekordbox: 'xml', text: 'txt' };
+export const OUTPUTS = { csv: 'csv', m3u8: 'm3u8', xspf: 'xspf', jspf: 'jspf', wpl: 'wpl', zpl: 'zpl', text: 'txt' };
 
 // ---------------------------------------------------------------- small Kotlin look-alikes
 
@@ -1163,32 +1163,7 @@ export function toWpl(name, tracks, zune = false) {
   return out.join('');
 }
 
-/**
- * A rekordbox XML with one playlist, [name], under the root folder: each song once in the COLLECTION
- * (TrackID from 1), the playlist's entries by TrackID in order. No Location: there is no file behind
- * a list of songs, so rekordbox lists them but has nothing to load.
- */
-export function toRekordboxXml(name, tracks) {
-  const ids = new Map();
-  const unique = [];
-  const entries = tracks.map((t) => {
-    const key = [t.title, artistLine(t), t.album, Math.trunc(t.durationMs / 1000)].join('\u0001');
-    if (!ids.has(key)) { unique.push(t); ids.set(key, unique.length); }
-    return ids.get(key);
-  });
-  const attr = (s) => xmlAttr(s).replaceAll("'", '&apos;');
-  const out = ['<?xml version="1.0" encoding="UTF-8"?>\n\n<DJ_PLAYLISTS Version="1.0.0">\n  <PRODUCT Name="Trackhop" Version="1.0.0" Company="Trackhop"/>\n  <COLLECTION Entries="' + unique.length + '">\n'];
-  unique.forEach((t, i) => {
-    out.push('    <TRACK TrackID="' + (i + 1) + '" Name="' + attr(t.title) + '" Artist="' + attr(artistLine(t)) + '" Album="' + attr(t.album || '') +
-      '" TotalTime="' + (t.durationMs > 0 ? Math.trunc(t.durationMs / 1000) : 0) + '"/>\n');
-  });
-  out.push('  </COLLECTION>\n  <PLAYLISTS>\n    <NODE Type="0" Name="ROOT" Count="1">\n      <NODE Name="' + (attr(name) || 'Playlist') + '" Type="1" KeyType="0" Entries="' + entries.length + '">\n');
-  for (const id of entries) out.push('        <TRACK Key="' + id + '"/>\n');
-  out.push('      </NODE>\n    </NODE>\n  </PLAYLISTS>\n</DJ_PLAYLISTS>\n');
-  return out.join('');
-}
-
-/** A list in one of the output formats (csv, m3u8, xspf, jspf, wpl, zpl, rekordbox, text), as text. */
+/** A list in one of the output formats (csv, m3u8, xspf, jspf, wpl, zpl, text), as text. */
 export function encode(output, name, tracks) {
   switch (output) {
     case 'csv': return encodeCsv(tracks);
@@ -1197,7 +1172,6 @@ export function encode(output, name, tracks) {
     case 'jspf': return toJspf(name, tracks);
     case 'wpl': return toWpl(name, tracks);
     case 'zpl': return toWpl(name, tracks, true);
-    case 'rekordbox': return toRekordboxXml(name, tracks);
     case 'text': return toText(tracks);
     default: throw new ToolError('unreadable', 'output ' + output);
   }

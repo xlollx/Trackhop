@@ -332,7 +332,6 @@
     <string name="format_opml">OPML (podcast\'ler)</string>
     <string name="format_wpl">WPL (Windows Media Player)</string>
     <string name="format_zpl">ZPL (Zune)</string>
-    <string name="format_rekordbox">rekordbox XML</string>
     <string name="opml_finding_feeds">Akış adresleri aranıyor: %1$d / %2$d</string>
     <string name="opml_feeds_missing">Tamam. Apple\'ın podcast dizininde akış adresi olmayan podcast\'ler: %1$d. Yalnızca adlarıyla listelendi.</string>
     <string name="tools_export_save">Farklı kaydet…</string>

@@ -406,20 +406,17 @@ test('WPL and ZPL: paths from Windows Media Player, fields from Zune', () => {
   refuses(() => parseText('Road trip.zpl', ZUNE.slice(0, ZUNE.length - 9)), 'incomplete');
 });
 
-test('outputs: WPL, ZPL and rekordbox XML as the app writes them, and read back', () => {
+test('outputs: WPL and ZPL as the app writes them, and read back; rekordbox XML is not written', () => {
   const tracks = parseText('a.csv', 'title,artist,album,duration_ms,isrc\n"Hello, World",A; B,Alb,215999,\nSolo <&> \'x\',,,,\n"Hello, World",A; B,Alb,215999,\n').tracks;
   assert.equal(encode('wpl', 'M & M', tracks), '<?wpl version="1.0"?>\r\n<smil>\r\n  <head>\r\n    <meta name="Generator" content="Trackhop"/>\r\n    <meta name="ItemCount" content="3"/>\r\n    <title>M &amp; M</title>\r\n  </head>\r\n  <body>\r\n    <seq>\r\n' +
     '      <media src="A, B - Hello, World" trackTitle="Hello, World" trackArtist="A, B" albumTitle="Alb" duration="215999"/>\r\n' +
     '      <media src="Solo &lt;&amp;&gt; \'x\'" trackTitle="Solo &lt;&amp;&gt; \'x\'"/>\r\n' +
     '      <media src="A, B - Hello, World" trackTitle="Hello, World" trackArtist="A, B" albumTitle="Alb" duration="215999"/>\r\n    </seq>\r\n  </body>\r\n</smil>\r\n');
   assert.ok(encode('zpl', 'Mix', tracks).startsWith('<?zpl version="2.0"?>\r\n<smil>'));
-  assert.equal(encode('rekordbox', 'M & "M"', tracks), '<?xml version="1.0" encoding="UTF-8"?>\n\n<DJ_PLAYLISTS Version="1.0.0">\n  <PRODUCT Name="Trackhop" Version="1.0.0" Company="Trackhop"/>\n  <COLLECTION Entries="2">\n' +
-    '    <TRACK TrackID="1" Name="Hello, World" Artist="A, B" Album="Alb" TotalTime="215"/>\n' +
-    '    <TRACK TrackID="2" Name="Solo &lt;&amp;&gt; &apos;x&apos;" Artist="" Album="" TotalTime="0"/>\n  </COLLECTION>\n  <PLAYLISTS>\n    <NODE Type="0" Name="ROOT" Count="1">\n' +
-    '      <NODE Name="M &amp; &quot;M&quot;" Type="1" KeyType="0" Entries="3">\n        <TRACK Key="1"/>\n        <TRACK Key="2"/>\n        <TRACK Key="1"/>\n      </NODE>\n    </NODE>\n  </PLAYLISTS>\n</DJ_PLAYLISTS>\n');
-  for (const [out, name] of [['wpl', 'a.wpl'], ['zpl', 'a.zpl'], ['rekordbox', 'a.xml']]) {
-    const r = parseText(name, encode(out, 'Mix', tracks));
-    const back = r.library ? r.library.asOneList() : r.tracks;
+  // rekordbox XML is read only: a written one would have no file for rekordbox to load.
+  assert.throws(() => encode('rekordbox', 'Mix', tracks));
+  for (const [out, name] of [['wpl', 'a.wpl'], ['zpl', 'a.zpl']]) {
+    const back = parseText(name, encode(out, 'Mix', tracks)).tracks;
     assert.deepEqual(back.map((t) => [t.title, t.artists]), [['Hello, World', ['A', 'B']], ["Solo <&> 'x'", []], ['Hello, World', ['A', 'B']]], out);
   }
 });

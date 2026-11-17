@@ -7,7 +7,7 @@ the Docker image carried the app's version.
 
 ## Unreleased
 
-- **rekordbox XML**: a rekordbox collection (*File › Export Collection in xml format*) is read like an Apple Music library, of any size: its playlists are offered to tick, each becomes a file; any playlist can be downloaded as a rekordbox XML (no file locations: a list of songs has none).
+- **rekordbox XML**: a rekordbox collection (*File › Export Collection in xml format*) is read like an Apple Music library, of any size: its playlists are offered to tick, each becomes a file. It is read only: a list of songs has no file locations for rekordbox to load.
 - **WPL and ZPL**: Windows Media Player, Groove and Zune playlists are read (by their paths, or by the title, artist and album Zune writes) and written. A file of either kind that was cut short is refused, as the other XML files are.
 - **Apple Music daily and city charts**: the Charts source also lists Apple's Daily Top 100 (world and countries) and the cities' Top 25, from the Apple Music API's charts call, where an Apple Music developer token is set (Settings, or `APPLE_DEVELOPER_TOKEN`); without one the list is as before.
 - **Koel** (beta): your Koel server as a source and a target, on the Subsonic connector (Koel speaks OpenSubsonic): playlists read and written, favourites as liked songs. Sign in with your Koel email and the Subsonic API key from your Koel profile, not your Koel password.

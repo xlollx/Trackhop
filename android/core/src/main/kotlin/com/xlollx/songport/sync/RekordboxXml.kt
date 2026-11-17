@@ -1,6 +1,5 @@
 package com.xlollx.songport.sync
 
-import com.xlollx.songport.model.Track
 
 /**
  * rekordbox's XML (File › Export Collection in xml format; read back from Preferences › Advanced ›
@@ -92,51 +91,5 @@ object RekordboxXml {
         return ItunesLibrary.of(tracks, nodes.mapIndexed { i, n ->
             ItunesLibrary.Playlist("#$i", n.name, if (n.folder) ItunesLibrary.Kind.FOLDER else ItunesLibrary.Kind.USER, n.parent, n.ids.toArray())
         })
-    }
-
-    /** Characters XML 1.0 does not allow, even escaped (control characters but tab and line breaks). */
-    private val XML_INVALID = Regex("""[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]""")
-
-    /** An attribute's value: the five XML entities, as the format asks, and nothing XML refuses. */
-    private fun attr(s: String): String = XML_INVALID.replace(s, "").replace(Regex("""\s+"""), " ").trim()
-        .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&apos;")
-
-    /**
-     * [tracks] as a rekordbox XML with one playlist, [name], under the root folder: each song once in
-     * the COLLECTION (TrackID from 1), the playlist's entries by TrackID (KeyType 0) in order, a song
-     * that is there twice named twice. Numbers are written without a locale, as the format asks.
-     *
-     * A playlist that comes from a streaming service has no files: `Location` is left out, so
-     * rekordbox lists the songs under "rekordbox xml" but has no file to load for them.
-     */
-    fun write(name: String, tracks: List<Track>): String = buildString {
-        val ids = LinkedHashMap<String, Int>()
-        val unique = ArrayList<Track>()
-        val entries = tracks.map { t ->
-            val key = listOf(t.title, t.artistLine, t.album, t.durationMs / 1000).joinToString("\u0001")
-            ids.getOrPut(key) { unique += t; unique.size }
-        }
-        append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n")
-        append("<DJ_PLAYLISTS Version=\"1.0.0\">\n")
-        append("  <PRODUCT Name=\"Trackhop\" Version=\"1.0.0\" Company=\"Trackhop\"/>\n")
-        append("  <COLLECTION Entries=\"").append(unique.size).append("\">\n")
-        unique.forEachIndexed { i, t ->
-            append("    <TRACK TrackID=\"").append(i + 1).append('"')
-            append(" Name=\"").append(attr(t.title)).append('"')
-            append(" Artist=\"").append(attr(t.artistLine)).append('"')
-            append(" Album=\"").append(attr(t.album)).append('"')
-            append(" TotalTime=\"").append(if (t.durationMs > 0) t.durationMs / 1000 else 0).append('"')
-            if (t.year > 0) append(" Year=\"").append(t.year).append('"')
-            append("/>\n")
-        }
-        append("  </COLLECTION>\n")
-        append("  <PLAYLISTS>\n")
-        append("    <NODE Type=\"0\" Name=\"ROOT\" Count=\"1\">\n")
-        append("      <NODE Name=\"").append(attr(name).ifEmpty { "Playlist" }).append("\" Type=\"1\" KeyType=\"0\" Entries=\"").append(entries.size).append("\">\n")
-        for (id in entries) append("        <TRACK Key=\"").append(id).append("\"/>\n")
-        append("      </NODE>\n")
-        append("    </NODE>\n")
-        append("  </PLAYLISTS>\n")
-        append("</DJ_PLAYLISTS>\n")
     }
 }

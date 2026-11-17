@@ -10,7 +10,7 @@ const root = document.getElementById('convert-tool');
 const list = root.querySelector('.tool-files'), errors = root.querySelector('.tool-errors');
 const bar = progress(root.querySelector('.tool-progress'));
 const ICONS = { csv: 'CSV', m3u: 'M3U', pls: 'PLS', itunes: 'XML', rekordbox: 'XML', wpl: 'WPL', xspf: 'XSPF', opml: 'OPML', json: 'JSON', text: 'TXT' };
-const TYPES = { csv: 'text/csv', m3u8: 'audio/x-mpegurl', xspf: 'application/xspf+xml', jspf: 'application/json', wpl: 'application/vnd.ms-wpl', zpl: 'application/vnd.ms-wpl', rekordbox: 'application/xml', text: 'text/plain' };
+const TYPES = { csv: 'text/csv', m3u8: 'audio/x-mpegurl', xspf: 'application/xspf+xml', jspf: 'application/json', wpl: 'application/vnd.ms-wpl', zpl: 'application/vnd.ms-wpl', text: 'text/plain' };
 
 let busy = false, serial = 0;
 const count = (text, n) => fmt(text, { n }).replace(String(n), num(n));

@@ -330,7 +330,6 @@
     <string name="format_opml">OPML（播客）</string>
     <string name="format_wpl">WPL (Windows Media Player)</string>
     <string name="format_zpl">ZPL (Zune)</string>
-    <string name="format_rekordbox">rekordbox XML</string>
     <string name="opml_finding_feeds">正在查找订阅源地址：%1$d / %2$d</string>
     <string name="opml_feeds_missing">完成。在 Apple 播客目录中没有订阅源地址的播客：%1$d 个，仅按名称列出。</string>
     <string name="tools_export_save">保存为…</string>
