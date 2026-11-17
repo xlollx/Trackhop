@@ -44,6 +44,10 @@ internal fun Web.offlineBanner(): String {
     return """<p class="net-note" role="status"><span aria-hidden="true">☁︎</span> ${h(env.text("net_offline_server"))}</p>"""
 }
 
+/** The line under the header when the saved state could not be read or written ([ServerEnv.storageTrouble]); "" otherwise. */
+internal fun Web.storageBanner(): String =
+    env.storageTrouble()?.let { """<p class="net-note" role="alert"><span aria-hidden="true">⚠</span> ${h(it)}</p>""" }.orEmpty()
+
 /** The line under the header when a newer version is out. */
 internal fun Web.updateBanner(): String {
     if (!seesUpdates()) return ""

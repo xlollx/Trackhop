@@ -15,9 +15,39 @@ import java.nio.file.attribute.PosixFilePermissions
 internal fun writePrivate(file: File, text: String) {
     file.parentFile?.mkdirs()
     val tmp = File(file.parentFile, file.name + ".tmp")
-    tmp.writeText(text)
-    runCatching { Files.setPosixFilePermissions(tmp.toPath(), PosixFilePermissions.fromString("rw-------")) }
-    Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
+    try {
+        java.io.FileOutputStream(tmp).use { out ->
+            runCatching { Files.setPosixFilePermissions(tmp.toPath(), PosixFilePermissions.fromString("rw-------")) }
+            out.write(text.toByteArray(Charsets.UTF_8))
+            out.flush()
+            // On the disk before it takes the name: a power cut never leaves the name on an empty file.
+            runCatching { out.fd.sync() }
+        }
+        Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
+    } catch (e: Exception) {
+        // A full disk half way: the file keeps what it held, and no piece is left beside it.
+        tmp.delete()
+        throw e
+    }
+}
+
+/**
+ * [file] is there but cannot be read (cut short, damaged): a copy of it is kept beside it, as
+ * `<name>.damaged-<time>`, before anything is written over it, and the log says so. What it held
+ * (the sign-ins, the notification channels) starts empty; the copy is what a repair starts from.
+ */
+internal fun keepDamaged(file: File): File? = runCatching {
+    val keep = File(file.parentFile, "${file.name}.damaged-${System.currentTimeMillis()}")
+    file.copyTo(keep, overwrite = true)
+    keep
+}.getOrNull().also {
+    Log.add("storage", "${file.name} could not be read, so what it held starts empty" + (it?.let { k -> "; the unreadable file is kept as ${k.name}" } ?: ""))
+}
+
+/** [file]'s JSON read by [decode], or [empty] when it is not there; unreadable, it is kept aside ([keepDamaged]) and [onDamaged] told. */
+private fun <T> readOrKeep(file: File, empty: T, onDamaged: (File?) -> Unit = {}, decode: (String) -> T): T {
+    if (!file.exists()) return empty
+    return runCatching { decode(file.readText()) }.getOrElse { onDamaged(keepDamaged(file)); empty }
 }
 
 /**
@@ -29,9 +59,11 @@ class JsonTokenVault(private val file: File) : TokenVault {
     private val lock = Any()
     private var cache: Map<String, Tokens>? = null
 
-    private fun all(): Map<String, Tokens> = cache ?: (
-        if (file.exists()) runCatching { json.decodeFromString(serializer, file.readText()) }.getOrDefault(emptyMap()) else emptyMap()
-    ).also { cache = it }
+    /** True when the sign-ins were there but could not be read: every service has to be connected again, and the pages say so. */
+    @Volatile var damaged: Boolean = false
+        private set
+
+    private fun all(): Map<String, Tokens> = cache ?: readOrKeep(file, emptyMap(), { damaged = true }) { json.decodeFromString(serializer, it) }.also { cache = it }
 
     override fun get(providerId: String): Tokens? = synchronized(lock) { all()[providerId] }
 
@@ -55,8 +87,7 @@ class JsonTokenVault(private val file: File) : TokenVault {
 class JsonKeyValues(private val file: File) : KeyValues {
     private val serializer = MapSerializer(String.serializer(), String.serializer())
     private val lock = Any()
-    private var map: Map<String, String> =
-        if (file.exists()) runCatching { json.decodeFromString(serializer, file.readText()) }.getOrDefault(emptyMap()) else emptyMap()
+    private var map: Map<String, String> = readOrKeep(file, emptyMap()) { json.decodeFromString(serializer, it) }
 
     override fun get(key: String): String? = synchronized(lock) { map[key] }
 
