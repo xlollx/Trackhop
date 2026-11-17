@@ -415,6 +415,8 @@ private fun MainScreen(
             target = PlaylistRef(target?.id.orEmpty()),
         )
     }
+    // An Apple Music/iTunes library being read or picked from (#67): shown wherever the person is.
+    com.xlollx.songport.ui.LibraryImportHost(snackbar, onSendTo = sendToService)
     // The "↔" card whose Edit opened its original sync instead: the editor names it in a note.
     var editingTwinId by rememberSaveable { mutableStateOf<String?>(null) }
     var wizardFor by rememberSaveable(stateSaver = ProviderSaver) { mutableStateOf<MusicProvider?>(null) }

@@ -2711,4 +2711,41 @@
     <string name="nf_todo_removals">Trackhop\'ta senkronun önizlemesini aç ve gerçekten kaldırılmaları gerekiyorsa kaldırmaları onayla.</string>
     <string name="plugins_source_title">GitHub’da Trackhop</string>
     <string name="plugins_source_desc">Bağlayıcı arayüzü, Trackhop’un kaynak koduyla belgelenmiştir</string>
+    <!-- Apple Music/iTunes library import (#67) -->
+    <string name="library_cannot_open">Dosya açılamadı.</string>
+    <string name="library_incomplete">Dosya, arşiv bitmeden bitiyor: eksik olduğu için hiçbir şey eklenmedi. Müzik ya da iTunes\'tan yeniden dışa aktar.</string>
+    <string name="library_failed">Hiçbir şey eklenmedi: %1$s</string>
+    <string name="library_adding">Çalma listeleri ekleniyor…</string>
+    <string name="library_partial">%1$s eklendi, sonra durdu: %2$s</string>
+    <string name="library_reading">Arşiv okunuyor…</string>
+    <string name="library_hide">Gizle</string>
+    <string name="library_read_of">%2$s içinden %1$s okundu</string>
+    <string name="library_read">%1$s okundu</string>
+    <string name="library_reading_note">Parça parça okunur: çok büyük bir dosya bile telefonu yormaz. Bunu gizleyebilirsin, kendi kendine devam eder ve sonunda çalma listeleri görünür.</string>
+    <string name="library_title">Müzik arşivi</string>
+    <string name="library_summary">%1$s şarkı · %2$s çalma listesi</string>
+    <string name="library_pick_search">Çalma listesi ara</string>
+    <string name="library_select_all">Tümünü seç</string>
+    <string name="library_select_none">Hiçbiri</string>
+    <string name="library_folder">Klasör · %1$s</string>
+    <string name="library_smart">Akıllı</string>
+    <string name="library_all_at_once">Hepsi birden</string>
+    <string name="library_whole">Tüm arşiv tek dosya olarak</string>
+    <string name="library_smart_songs">%1$s · akıllı</string>
+    <plurals name="library_added">
+        <item quantity="one">%1$d çalma listesi eklendi: %2$s</item>
+        <item quantity="other">%1$d çalma listesi eklendi: %2$s</item>
+    </plurals>
+    <plurals name="library_import">
+        <item quantity="one">%d çalma listesini içe aktar</item>
+        <item quantity="other">%d çalma listesini içe aktar</item>
+    </plurals>
+    <plurals name="library_songs">
+        <item quantity="one">%1$s şarkı</item>
+        <item quantity="other">%1$s şarkı</item>
+    </plurals>
+    <plurals name="library_songs_as_before">
+        <item quantity="one">%1$s şarkı · eskisi gibi</item>
+        <item quantity="other">%1$s şarkı · eskisi gibi</item>
+    </plurals>
 </resources>

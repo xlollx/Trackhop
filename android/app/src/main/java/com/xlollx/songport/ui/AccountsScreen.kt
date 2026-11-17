@@ -530,7 +530,8 @@ internal fun FilesCard(
     val scope = rememberCoroutineScope()
     var lists by remember { mutableStateOf<List<Playlist>>(emptyList()) }
     var version by remember { mutableIntStateOf(0) }
-    LaunchedEffect(version) { lists = withContext(Dispatchers.IO) { LocalFilesProvider.playlists(ctx) } }
+    val libraryImports by LibraryImport.imported.collectAsState()
+    LaunchedEffect(version, libraryImports) { lists = withContext(Dispatchers.IO) { LocalFilesProvider.playlists(ctx) } }
 
     // "Send to a service" right after the import: the list is there, where should it go?
     fun offerSend(id: String, name: String, tracks: Int) {
@@ -551,6 +552,11 @@ internal fun FilesCard(
         pendingImport = null
         // In the card's scope: clearing pendingImport restarts this effect, which would cancel the import.
         scope.launch {
+            // An Apple Music/iTunes library: read a piece at a time, then its playlists to pick (#67).
+            if (withContext(Dispatchers.IO) { LibraryImport.isLibrary(ctx, uri) }) {
+                LibraryImport.start(ctx, uri, displayName(ctx, uri))
+                return@launch
+            }
             val result = withContext(Dispatchers.IO) {
                 runCatching {
                     // Bytes, not a UTF-8 reader: a BOM or a Windows-1252 .m3u decodes as written.

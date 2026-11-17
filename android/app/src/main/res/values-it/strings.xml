@@ -2713,4 +2713,41 @@
     <string name="nf_todo_removals">apri l\'anteprima della sync in Trackhop e conferma le rimozioni, se vanno tolte davvero.</string>
     <string name="plugins_source_title">Trackhop su GitHub</string>
     <string name="plugins_source_desc">L’interfaccia dei connettori, documentata con il codice di Trackhop</string>
+    <!-- Apple Music/iTunes library import (#67) -->
+    <string name="library_cannot_open">Non è stato possibile aprire il file.</string>
+    <string name="library_incomplete">Il file finisce prima della libreria: è incompleto, quindi non è stato aggiunto niente. Esportalo di nuovo da Musica o iTunes.</string>
+    <string name="library_failed">Non è stato aggiunto niente: %1$s</string>
+    <string name="library_adding">Aggiungo le playlist…</string>
+    <string name="library_partial">Aggiunte %1$s, poi si è fermato: %2$s</string>
+    <string name="library_reading">Leggo la libreria…</string>
+    <string name="library_hide">Nascondi</string>
+    <string name="library_read_of">%1$s letti su %2$s</string>
+    <string name="library_read">%1$s letti</string>
+    <string name="library_reading_note">Si legge un pezzo alla volta: anche un file molto grande non pesa sul telefono. Puoi nascondere questa finestra, continua da sola, e le playlist compaiono alla fine.</string>
+    <string name="library_title">Libreria di Musica</string>
+    <string name="library_summary">%1$s brani · %2$s playlist</string>
+    <string name="library_pick_search">Cerca una playlist</string>
+    <string name="library_select_all">Seleziona tutte</string>
+    <string name="library_select_none">Nessuna</string>
+    <string name="library_folder">Cartella · %1$s</string>
+    <string name="library_smart">Smart</string>
+    <string name="library_all_at_once">Tutto insieme</string>
+    <string name="library_whole">Tutta la libreria in un file</string>
+    <string name="library_smart_songs">%1$s · smart</string>
+    <plurals name="library_added">
+        <item quantity="one">%1$d playlist aggiunta: %2$s</item>
+        <item quantity="other">%1$d playlist aggiunte: %2$s</item>
+    </plurals>
+    <plurals name="library_import">
+        <item quantity="one">Importa %d playlist</item>
+        <item quantity="other">Importa %d playlist</item>
+    </plurals>
+    <plurals name="library_songs">
+        <item quantity="one">%1$s brano</item>
+        <item quantity="other">%1$s brani</item>
+    </plurals>
+    <plurals name="library_songs_as_before">
+        <item quantity="one">%1$s brano · come prima</item>
+        <item quantity="other">%1$s brani · come prima</item>
+    </plurals>
 </resources>

@@ -2721,4 +2721,41 @@
     <string name="nf_todo_removals">ouvre l\'aperçu de la synchro dans Trackhop et confirme les suppressions, si elles doivent vraiment partir.</string>
     <string name="plugins_source_title">Trackhop sur GitHub</string>
     <string name="plugins_source_desc">L’interface des connecteurs, documentée avec le code source de Trackhop</string>
+    <!-- Apple Music/iTunes library import (#67) -->
+    <string name="library_cannot_open">Le fichier n\'a pas pu être ouvert.</string>
+    <string name="library_incomplete">Le fichier s\'arrête avant la bibliothèque : il est incomplet, rien n\'a donc été ajouté. Exporte-le à nouveau depuis Musique ou iTunes.</string>
+    <string name="library_failed">Rien n\'a été ajouté : %1$s</string>
+    <string name="library_adding">Ajout des playlists…</string>
+    <string name="library_partial">%1$s ajoutées, puis ça s\'est arrêté : %2$s</string>
+    <string name="library_reading">Lecture de la bibliothèque…</string>
+    <string name="library_hide">Masquer</string>
+    <string name="library_read_of">%1$s lus sur %2$s</string>
+    <string name="library_read">%1$s lus</string>
+    <string name="library_reading_note">Elle est lue morceau par morceau : même un très gros fichier ne pèse pas sur le téléphone. Tu peux masquer ceci, ça continue tout seul, et les playlists s\'affichent à la fin.</string>
+    <string name="library_title">Bibliothèque Musique</string>
+    <string name="library_summary">%1$s titres · %2$s playlists</string>
+    <string name="library_pick_search">Chercher une playlist</string>
+    <string name="library_select_all">Tout sélectionner</string>
+    <string name="library_select_none">Aucune</string>
+    <string name="library_folder">Dossier · %1$s</string>
+    <string name="library_smart">Intelligentes</string>
+    <string name="library_all_at_once">Tout d\'un coup</string>
+    <string name="library_whole">Toute la bibliothèque en un fichier</string>
+    <string name="library_smart_songs">%1$s · intelligente</string>
+    <plurals name="library_added">
+        <item quantity="one">%1$d playlist ajoutée : %2$s</item>
+        <item quantity="other">%1$d playlists ajoutées : %2$s</item>
+    </plurals>
+    <plurals name="library_import">
+        <item quantity="one">Importer %d playlist</item>
+        <item quantity="other">Importer %d playlists</item>
+    </plurals>
+    <plurals name="library_songs">
+        <item quantity="one">%1$s titre</item>
+        <item quantity="other">%1$s titres</item>
+    </plurals>
+    <plurals name="library_songs_as_before">
+        <item quantity="one">%1$s titre · comme avant</item>
+        <item quantity="other">%1$s titres · comme avant</item>
+    </plurals>
 </resources>
