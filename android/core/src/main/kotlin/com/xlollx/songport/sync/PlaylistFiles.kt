@@ -387,33 +387,8 @@ object PlaylistFiles {
 
     // ---------------------------------------------------------------- iTunes / Apple Music XML
 
-    private val DICT_BLOCK = Regex("""<dict>((?:(?!<dict>|</dict>)[\s\S])*)</dict>""")
-    private val STRING_ENTRY = Regex("""<key>([^<]+)</key>\s*<(string|integer|date|real)>([\s\S]*?)</\2>""")
-
-    fun parseItunesXml(text: String): List<Track> {
-        val out = ArrayList<Track>()
-        for (block in DICT_BLOCK.findAll(text)) {
-            val body = block.groupValues[1]
-            val fields = HashMap<String, String>()
-            for (e in STRING_ENTRY.findAll(body)) {
-                fields[e.groupValues[1].lowercase().replace(" ", "")] = unescapeXml(e.groupValues[3])
-            }
-            // Solo i dizionari dei brani (hanno "Track ID"); gli altri sono playlist o metadati.
-            if (!fields.containsKey("trackid")) continue
-            val title = fields["name"]?.trim().orEmpty()
-            if (title.isEmpty()) continue
-            out += CsvCodec.withStableId(
-                Track(
-                    id = "",
-                    title = title,
-                    artists = CsvCodec.splitArtists(fields["artist"] ?: fields["albumartist"] ?: ""),
-                    album = fields["album"].orEmpty(),
-                    durationMs = fields["totaltime"]?.toLongOrNull() ?: 0,
-                )
-            )
-        }
-        return out
-    }
+    /** A library or playlist from Apple Music / iTunes as one list ([ItunesLibrary.asOneList]), read a piece at a time. */
+    fun parseItunesXml(text: String): List<Track> = ItunesLibrary.read(text).asOneList()
 
     private fun unescapeXml(s: String): String = s
         .replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", "\"")
