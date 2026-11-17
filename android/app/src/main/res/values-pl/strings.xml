@@ -2647,6 +2647,11 @@
     <string name="provider_note_jiosaavn">Publiczne playlisty, albumy i utwory JioSaavn, tylko do odczytu i bez logowania: wklej link (jiosaavn.com/featured/…, /album/…, /song/…) jako źródło synchronizacji. To nie jest oficjalny interfejs: może przestać działać, gdy strona się zmieni.</string>
     <string name="jiosaavn_not_public">Ten link JioSaavn jest prywatny lub nie istnieje: działają tylko publiczne linki</string>
     <string name="jiosaavn_changed">JioSaavn zmienił stronę; Trackhop wymaga aktualizacji</string>
+    <string name="gaana_label">Gaana (publiczne linki, nieoficjalnie)</string>
+    <string name="provider_note_gaana">Publiczne playlisty Gaana, tylko do odczytu i bez logowania: wklej link playlisty (gaana.com/playlist/…) jako źródło synchronizacji. To nie jest oficjalny interfejs: może przestać działać, gdy strona się zmieni.</string>
+    <string name="gaana_not_public">Ta playlista Gaana jest prywatna lub nie istnieje: działają tylko publiczne linki</string>
+    <string name="gaana_changed">Gaana zmieniła stronę; Trackhop wymaga aktualizacji</string>
+    <string name="provider_note_gaana_web">Gaana nie ma interfejsu dla innych aplikacji: zaloguj się na stronie Gaana, a Trackhop użyje sesji strony. To nie jest oficjalna droga, narusza warunki Gaana i może przestać działać. Alfa. Twoje playlisty i ulubione utwory (jako polubione), odczyt i zapis; dopasowanie po ISRC. Jeśli logowanie się nie kończy, skopiuj w narzędziach deweloperskich komputera żądanie do api.gaana.com (jako cURL: jego adres zawiera token=) i użyj Wklej.</string>
     <string name="discard_changes_title">Odrzucić zmiany?</string>
     <string name="discard_changes_body">To, co tu wpisano, nie zostało jeszcze zapisane.</string>
     <string name="discard_changes_discard">Odrzuć</string>

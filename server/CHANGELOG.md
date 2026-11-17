@@ -5,6 +5,10 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`, `v2.x`)
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## Unreleased
+
+- **Gaana** (unofficial, alpha): your playlists and favourite songs with the session of a browser signed in to gaana.com, read and written (create, add, remove, rename, delete), matched by ISRC where the source has one; and public Gaana playlists as a source, from their link, with no account.
+
 ## 2.0.0
 
 Released together with the app's 2.0. Discover from your music (new releases, concerts, setlists, records and

@@ -2541,6 +2541,11 @@
     <string name="provider_note_jiosaavn">Herkese açık JioSaavn listeleri, albümleri ve şarkıları, salt okunur ve giriş yapmadan: bağlantıyı (jiosaavn.com/featured/…, /album/…, /song/…) bir eşitlemenin kaynağı olarak yapıştırın. Resmî bir arayüz değildir: site değişirse çalışmayı bırakabilir.</string>
     <string name="jiosaavn_not_public">Bu JioSaavn bağlantısı gizli ya da yok: yalnızca herkese açık bağlantılar çalışır</string>
     <string name="jiosaavn_changed">JioSaavn sitesini değiştirdi; Trackhop güncellenmeli</string>
+    <string name="gaana_label">Gaana (herkese açık bağlantılar, resmî değil)</string>
+    <string name="provider_note_gaana">Herkese açık Gaana çalma listeleri, salt okunur ve giriş yapmadan: listenin bağlantısını (gaana.com/playlist/…) bir eşitlemenin kaynağı olarak yapıştırın. Resmî bir arayüz değildir: site değişirse çalışmayı bırakabilir.</string>
+    <string name="gaana_not_public">Bu Gaana çalma listesi gizli ya da yok: yalnızca herkese açık bağlantılar çalışır</string>
+    <string name="gaana_changed">Gaana sitesini değiştirdi; Trackhop güncellenmeli</string>
+    <string name="provider_note_gaana_web">Gaana\'nın başka uygulamalar için bir arayüzü yok: Gaana\'nın kendi sayfasında giriş yapın, Trackhop sitenin oturumunu kullanır. Resmi bir yol değildir, Gaana\'nın koşullarına aykırıdır, çalışmayı bırakabilir. Alfa. Kendi çalma listeleriniz ve favori şarkılarınız (beğenilen şarkılar olarak), okuma ve yazma; ISRC ile eşleştirme. Giriş tamamlanmazsa, bir bilgisayarın geliştirici araçlarından api.gaana.com\'a giden bir isteği kopyalayın (cURL olarak: adresinde token= bulunur) ve Yapıştır\'ı kullanın.</string>
     <string name="discard_changes_title">Değişikliklerden vazgeçilsin mi?</string>
     <string name="discard_changes_body">Buraya girilenler henüz kaydedilmedi.</string>
     <string name="discard_changes_discard">Vazgeç</string>

@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 
 /**
- * Shared sign-in screen for the web sessions (Spotify, Apple Music, Deezer, SoundCloud, LiveOne, Anghami, Qobuz). The user signs in on the
+ * Shared sign-in screen for the web sessions (Spotify, Apple Music, Deezer, SoundCloud, LiveOne, Anghami, Qobuz, Gaana). The user signs in on the
  * service's own page; the activity polls the cookie jar of the service's domain and, as soon as the
  * session cookie is there, stores the cookies encrypted and closes. Trackhop starts it with the
  * actions declared in the manifest.
@@ -74,6 +74,7 @@ class WebLoginActivity : ComponentActivity() {
             ACTION_LIVEONE -> LIVEONE
             ACTION_ANGHAMI -> ANGHAMI
             ACTION_QOBUZ -> QOBUZ
+            ACTION_GAANA -> GAANA
             else -> intent.getStringExtra(EXTRA_SERVICE) ?: SPOTIFY
         }
         // An extra account signs in inside its own WebView profile; SoundCloud serves one account.
@@ -83,7 +84,7 @@ class WebLoginActivity : ComponentActivity() {
             setResult(RESULT_CANCELED); finish(); return
         }
         // Deezer and SoundCloud came with a notice that names them: an acceptance of the older one does not cover them.
-        Disclaimer.require(this, if (service == DEEZER || service == SOUNDCLOUD || service == LIVEONE || service == ANGHAMI || service == QOBUZ) Disclaimer.VERSION else 1) { setup() }
+        Disclaimer.require(this, if (service == DEEZER || service == SOUNDCLOUD || service == LIVEONE || service == ANGHAMI || service == QOBUZ || service == GAANA) Disclaimer.VERSION else 1) { setup() }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -99,9 +100,9 @@ class WebLoginActivity : ComponentActivity() {
         })
         // LiveOne: where the in-app sign-in cannot finish (Google may refuse an embedded browser), the
         // player's `slackerUser` entry copied from a desktop browser works the same.
-        if (service == LIVEONE || service == ANGHAMI || service == QOBUZ) bar.addView(android.widget.Button(this).apply {
+        if (service == LIVEONE || service == ANGHAMI || service == QOBUZ || service == GAANA) bar.addView(android.widget.Button(this).apply {
             text = getString(android.R.string.paste)
-            setOnClickListener { when (service) { ANGHAMI -> pasteAnghami(); QOBUZ -> pasteQobuz(); else -> pasteLiveOne() } }
+            setOnClickListener { when (service) { ANGHAMI -> pasteAnghami(); QOBUZ -> pasteQobuz(); GAANA -> pasteGaana(); else -> pasteLiveOne() } }
         })
         bar.addView(android.widget.Button(this).apply {
             text = getString(R.string.bridge_login_done)
@@ -168,6 +169,7 @@ class WebLoginActivity : ComponentActivity() {
                     watchSoundCloud(request)
                     watchAnghami(request.url.toString(), request, "worker")
                     watchQobuz(request)
+                    watchGaana(request)
                     return null
                 }
             })
@@ -204,6 +206,8 @@ class WebLoginActivity : ComponentActivity() {
                 watchAnghami(request.url.toString(), request)
                 // Qobuz: the session travels as headers of the player's API calls, not in their address.
                 watchQobuz(request)
+                // Gaana: the token travels in the address of the site's signed calls.
+                watchGaana(request)
                 watchBotCheck(request.url.toString())
                 // Only watched: every request goes on as the page made it.
                 return null
@@ -279,6 +283,7 @@ class WebLoginActivity : ComponentActivity() {
             LIVEONE -> LiveOneBridge.LOGIN_URL
             ANGHAMI -> AnghamiWebClient.LOGIN_URL
             QOBUZ -> QobuzWebClient.LOGIN_URL
+            GAANA -> GaanaWebClient.LOGIN_URL
             else -> SpotifyBridge.LOGIN_URL
         })
         // Sign-in overlays (Apple ID) do not navigate: poll the cookie jar while the screen is open.
@@ -453,6 +458,7 @@ class WebLoginActivity : ComponentActivity() {
         LIVEONE -> "LiveOne"
         ANGHAMI -> "Anghami"
         QOBUZ -> "Qobuz"
+        GAANA -> "Gaana"
         else -> "Spotify"
     }
 
@@ -473,6 +479,7 @@ class WebLoginActivity : ComponentActivity() {
         if (service == SOUNDCLOUD) return checkSoundCloud()
         if (service == LIVEONE) return checkLiveOne()
         if (service == ANGHAMI || service == QOBUZ) return false
+        if (service == GAANA) return checkGaana()
         val origin = when (service) {
             APPLE -> "https://music.apple.com"
             DEEZER -> DeezerBridge.ORIGIN
@@ -690,6 +697,96 @@ class WebLoginActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Gaana: once signed in, the site names its session (`token=`) in the address of every signed
+     * call to api.gaana.com, and keeps it in its storage (`uToken`). The first one seen either way
+     * is tried (reading the playlists; the profile names the account) before the screen closes; one
+     * Gaana refuses is not tried again. Never logged: only that one was seen, and where.
+     */
+    @Volatile private var gaanaTrying = false
+    private var gaanaRefused: String? = null
+    private var gaanaReading = false
+    private val gaanaTries = HashMap<String, Int>()
+    /** What the page's own calls carried next to the token (its device id, its country), for the storage's token too. */
+    @Volatile private var gaanaDevice: String? = null
+    @Volatile private var gaanaCountry: String? = null
+    private fun watchGaana(request: WebResourceRequest) {
+        if (service != GAANA || done) return
+        val host = request.url.host.orEmpty()
+        if (host == "gaana.com" || host.endsWith(".gaana.com")) {
+            fun header(name: String) = request.requestHeaders?.entries?.firstOrNull { it.key.equals(name, ignoreCase = true) }?.value?.trim()?.takeIf { it.isNotEmpty() }
+            header("deviceId")?.let { gaanaDevice = it }
+            header("COUNTRY")?.let { gaanaCountry = it }
+        }
+        if (gaanaTrying) return
+        val seen = GaanaBridge.fromRequest(request.url.toString(), request.requestHeaders) ?: return
+        if (seen.token == gaanaRefused) return
+        gaanaTrying = true
+        handler.post { keepGaana(seen.token, seen.deviceId, seen.country, from = "a call of the page") }
+    }
+
+    /** The page's storage, read now and then while the screen is open: false until a session is kept. */
+    private fun checkGaana(): Boolean {
+        if (gaanaReading || gaanaTrying || !::web.isInitialized) return false
+        val host = runCatching { android.net.Uri.parse(web.url ?: "").host }.getOrNull().orEmpty()
+        if (host != "gaana.com" && !host.endsWith(".gaana.com")) return false
+        gaanaReading = true
+        web.evaluateJavascript(GaanaBridge.STORAGE_SCRIPT) { raw ->
+            gaanaReading = false
+            // evaluateJavascript answers with a JSON string literal ("null" where there is none).
+            val token = runCatching { parseJson(raw ?: "").str }.getOrNull()?.let { GaanaWebClient.sessionIn(it)?.token }
+            if (done || isFinishing || gaanaTrying || token == null || token == gaanaRefused) return@evaluateJavascript
+            gaanaTrying = true
+            keepGaana(token, gaanaDevice, gaanaCountry, from = "the page's storage")
+        }
+        return false
+    }
+
+    private fun pasteGaana() {
+        val cm = getSystemService(android.content.ClipboardManager::class.java)
+        val text = runCatching { cm?.primaryClip?.getItemAt(0)?.coerceToText(this)?.toString() }.getOrNull().orEmpty()
+        // A whole request copied from the developer tools (as cURL) carries the device id too.
+        val seen = GaanaWebClient.sessionIn(text)
+        if (seen == null) {
+            android.widget.Toast.makeText(this, "Gaana: no session in the clipboard", android.widget.Toast.LENGTH_LONG).show()
+            return
+        }
+        keepGaana(seen.token, seen.deviceId, seen.country, from = null)
+    }
+
+    /** [from]: where the page showed the session; null for a pasted one. */
+    private fun keepGaana(token: String, deviceId: String?, country: String?, from: String?) {
+        if (done) { gaanaTrying = false; return }
+        val app = applicationContext
+        thread {
+            var account: String? = null
+            val why = GaanaBridge.keep(app, token, deviceId ?: gaanaDevice, country ?: gaanaCountry, slot = slot) ?: runCatching { account = GaanaWebClient(app, slot).probe(); null }
+                .getOrElse { it.message ?: it.javaClass.simpleName }
+            handler.post {
+                gaanaTrying = false
+                if (done || isFinishing) return@post
+                if (why == null) {
+                    done = true
+                    account?.let { GaanaBridge.name(app, it, slot) }
+                    BridgeNet.log("gaana", "sign-in: session kept" + (from?.let { " (from $it)" } ?: " (pasted)"))
+                    setResult(RESULT_OK)
+                    finish()
+                    return@post
+                }
+                // Only what was kept: the page stays signed in for the next try.
+                GaanaBridge.session(slot).forgetStored(app)
+                // A session Gaana ended is not tried again; one that failed otherwise (no network, a
+                // timeout) gets a few more tries as the page goes on.
+                val tries = gaanaTries.merge(token, 1, Int::plus) ?: 1
+                if (from != null) {
+                    if (why == GaanaWebClient.EXPIRED || tries >= 3) gaanaRefused = token
+                    BridgeNet.log("gaana", "sign-in: the session from $from was refused ($why), try $tries")
+                }
+                else android.widget.Toast.makeText(this, "Gaana: $why", android.widget.Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     private fun keepLiveOne(value: String) {
         if (done) return
         val app = applicationContext
@@ -767,6 +864,7 @@ class WebLoginActivity : ComponentActivity() {
         const val ACTION_LIVEONE = "com.xlollx.songport.ytmbridge.LIVEONE_LOGIN"
         const val ACTION_ANGHAMI = "com.xlollx.songport.ytmbridge.ANGHAMI_LOGIN"
         const val ACTION_QOBUZ = "com.xlollx.songport.ytmbridge.QOBUZ_LOGIN"
+        const val ACTION_GAANA = "com.xlollx.songport.ytmbridge.GAANA_LOGIN"
         const val EXTRA_SERVICE = "service"
         const val SPOTIFY = "spotify"
         const val APPLE = "apple"
@@ -775,9 +873,10 @@ class WebLoginActivity : ComponentActivity() {
         const val LIVEONE = "liveone"
         const val ANGHAMI = "anghami"
         const val QOBUZ = "qobuz"
+        const val GAANA = "gaana"
 
         /** The services whose players may call their API from a service worker, watched there too. */
-        private val WATCHED_IN_WORKER = setOf(SOUNDCLOUD, ANGHAMI, QOBUZ)
+        private val WATCHED_IN_WORKER = setOf(SOUNDCLOUD, ANGHAMI, QOBUZ, GAANA)
 
         /** The sign-in of [service], for the primary account or for the extra account [slot] (see [Slots]). */
         fun intent(ctx: android.content.Context, service: String, slot: String = Slots.PRIMARY): Intent =
@@ -788,6 +887,7 @@ class WebLoginActivity : ComponentActivity() {
                 LIVEONE -> ACTION_LIVEONE
                 ANGHAMI -> ACTION_ANGHAMI
                 QOBUZ -> ACTION_QOBUZ
+                GAANA -> ACTION_GAANA
                 else -> ACTION_SPOTIFY
             }).apply { if (slot.isNotEmpty()) putExtra(Slots.EXTRA, slot) }
     }

@@ -31,7 +31,7 @@ object FullBackup {
     /** The web services as the connectors name their sessions, with the names people know. */
     private val SERVICE_NAMES = mapOf(
         "ytm" to "YouTube Music", "amazon" to "Amazon Music", "spotify" to "Spotify (web)", "apple" to "Apple Music",
-        "deezer" to "Deezer", "soundcloud" to "SoundCloud", "liveone" to "LiveOne", "anghami" to "Anghami", "qobuz" to "Qobuz",
+        "deezer" to "Deezer", "soundcloud" to "SoundCloud", "liveone" to "LiveOne", "anghami" to "Anghami", "qobuz" to "Qobuz", "gaana" to "Gaana",
     )
 
     /** [label] ("spotify", "spotify@2") as people read it. */

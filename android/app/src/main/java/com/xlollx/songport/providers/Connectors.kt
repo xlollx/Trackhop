@@ -21,10 +21,11 @@ fun installConnectors() = Providers.install(
         Factory(TidalProvider.SERVICE) { TidalProvider(it) },
         Factory(DeezerProvider.SERVICE) { DeezerProvider(it) },
         Factory(DeezerBridgeProvider.SERVICE) { DeezerBridgeProvider(it) },
-        // LiveOne, Anghami and Qobuz have no official route: built in, or (Google Play) through a plugin that has them.
+        // LiveOne, Anghami, Qobuz and Gaana have no official route: built in, or (Google Play) through a plugin that has them.
         Factory(LiveOneBridgeProvider.SERVICE) { LiveOneBridgeProvider(it) },
         Factory(AnghamiBridgeProvider.SERVICE) { AnghamiBridgeProvider(it) },
         Factory(QobuzBridgeProvider.SERVICE) { QobuzBridgeProvider(it) },
+        Factory(GaanaBridgeProvider.SERVICE) { GaanaBridgeProvider(it) },
         Factory(com.xlollx.songport.sync.SoundCloudPublic.SERVICE) { SoundCloudBridgeProvider(it) },
         Factory(SubsonicProvider.SERVICE) { SubsonicProvider(it) },
         Factory(JellyfinProvider.SERVICE) { JellyfinProvider(it) },
@@ -35,10 +36,10 @@ fun installConnectors() = Providers.install(
         Factory(LastFmProvider.SERVICE) { LastFmProvider(it) },
         Factory(ListenBrainzProvider.SERVICE) { ListenBrainzProvider(it) },
     ),
-    // The read-only link sources with no official route (NetEase Cloud Music, QQ Music, Anghami, JioSaavn): read
+    // The read-only link sources with no official route (NetEase Cloud Music, QQ Music, Anghami, JioSaavn, Gaana): read
     // here by the builds that carry unofficial connectors; on Google Play only through a plugin that
     // relays their requests (PluginRelay), and not offered without one.
-    singletons = listOf(LocalFilesProvider, ChartsProvider, NeteaseProvider, AnghamiProvider, QqMusicProvider, JioSaavnProvider),
+    singletons = listOf(LocalFilesProvider, ChartsProvider, NeteaseProvider, AnghamiProvider, QqMusicProvider, JioSaavnProvider, GaanaProvider),
 )
 
 /**

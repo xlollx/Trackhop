@@ -2492,6 +2492,11 @@
     <string name="provider_note_jiosaavn">JioSaavn の公開プレイリスト・アルバム・曲を読み取り専用・ログインなしで：リンク（jiosaavn.com/featured/…、/album/…、/song/…）を同期の元として貼り付けます。公式のインターフェースではないため、サイトが変わると動かなくなることがあります。</string>
     <string name="jiosaavn_not_public">この JioSaavn のリンクは非公開か存在しません：公開リンクのみ使えます</string>
     <string name="jiosaavn_changed">JioSaavn のサイトが変わりました。Trackhop の更新が必要です</string>
+    <string name="gaana_label">Gaana（公開リンク・非公式）</string>
+    <string name="provider_note_gaana">Gaana の公開プレイリストを読み取り専用・ログインなしで：プレイリストのリンク（gaana.com/playlist/…）を同期の元として貼り付けます。公式のインターフェースではないため、サイトが変わると動かなくなることがあります。</string>
+    <string name="gaana_not_public">この Gaana のプレイリストは非公開か存在しません：公開リンクのみ使えます</string>
+    <string name="gaana_changed">Gaana のサイトが変わりました。Trackhop の更新が必要です</string>
+    <string name="provider_note_gaana_web">Gaana には他のアプリ向けのインターフェースがありません。Gaana のページでサインインすると、Trackhop はサイトのセッションを使います。公式の方法ではなく、Gaana の規約に反し、動かなくなることがあります。アルファ版。自分のプレイリストとお気に入りの曲（お気に入りの曲として）を読み書きし、ISRC で照合します。サインインが終わらない場合は、パソコンの開発者ツールで api.gaana.com へのリクエストを（cURL として、アドレスに token= を含む）コピーし、「貼り付け」を使ってください。</string>
     <string name="discard_changes_title">変更を破棄しますか？</string>
     <string name="discard_changes_body">ここに入力した内容はまだ保存されていません。</string>
     <string name="discard_changes_discard">破棄</string>

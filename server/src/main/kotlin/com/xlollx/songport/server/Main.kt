@@ -10,6 +10,7 @@ import com.xlollx.songport.providers.LyrionProvider
 import com.xlollx.songport.providers.MopidyProvider
 import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.providers.AnghamiProvider
+import com.xlollx.songport.providers.GaanaProvider
 import com.xlollx.songport.providers.JioSaavnProvider
 import com.xlollx.songport.providers.NeteaseProvider
 import com.xlollx.songport.providers.QqMusicProvider
@@ -56,6 +57,7 @@ private fun installServerConnectorsOnly(officialOnly: Boolean) = Providers.insta
         Factory(LiveOneWebServerProvider.SERVICE) { LiveOneWebServerProvider(it) }.takeUnless { officialOnly },
         Factory(AnghamiWebServerProvider.SERVICE) { AnghamiWebServerProvider(it) }.takeUnless { officialOnly },
         Factory(QobuzWebServerProvider.SERVICE) { QobuzWebServerProvider(it) }.takeUnless { officialOnly },
+        Factory(GaanaWebServerProvider.SERVICE) { GaanaWebServerProvider(it) }.takeUnless { officialOnly },
         Factory(SubsonicProvider.SERVICE) { SubsonicProvider(it) },
         Factory(JellyfinProvider.SERVICE) { JellyfinProvider(it) },
         Factory(EmbyProvider.SERVICE) { EmbyProvider(it) },
@@ -74,6 +76,7 @@ private fun installServerConnectorsOnly(officialOnly: Boolean) = Providers.insta
         AnghamiProvider.takeUnless { officialOnly },
         QqMusicProvider.takeUnless { officialOnly },
         JioSaavnProvider.takeUnless { officialOnly },
+        GaanaProvider.takeUnless { officialOnly },
     ),
 )
 

@@ -106,6 +106,7 @@ class ServerEnv(
 private val SERVER_TEXTS = mapOf(
     "provider_note_liveone" to "LiveOne through its web player, signed in with the token of a browser session. Unofficial, beta: a free account syncs its presets (add only).",
     "provider_note_anghami_web" to "Anghami through its web player, signed in with the session of a browser. Unofficial, beta: playlists of your own and liked songs, read and written.",
+    "provider_note_gaana_web" to "Gaana through its website, signed in with the session of a browser. Unofficial, alpha: playlists of your own and favourite songs, read and written; matching by ISRC.",
     "provider_note_qobuz_web" to "Qobuz through its web player, signed in with the session of a browser. Unofficial, beta: playlists of your own and favourite tracks, read and written; search by ISRC.",
     "note_file_target" to "Saved inside Trackhop as a CSV file: download it from Services › File.",
     // The app says "from the preview"; here the sync's card has the button.

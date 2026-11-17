@@ -317,6 +317,50 @@ class WebConnectorsTest {
         assertEquals("playlist_id=7001&playlist_track_ids=901", seen.last().body)
     }
 
+    // ------------------------------------------------------------------ Gaana
+
+    private val gaanaToken = "tk_" + "a1B2".repeat(12)
+
+    private fun gaana(): (Seen) -> Answer? = { r ->
+        when {
+            r.host != "api.gaana.com" -> null
+            r.query["type"] == "myplaylists" -> Answer("""{"playlist":[{"playlist_id":"5550001","seokey":"mine-u1","title":"Mine","trackids":"1,2,3","trackcount":3}]}""")
+            r.query["type"] == "profile" -> Answer("""{"user_info":{"fullname":"Listener","email":"hidden@example.org"}}""")
+            r.query["type"] == "addtoplaylist" -> Answer("""{"Status":1,"Success":"Added"}""")
+            else -> null
+        }
+    }
+
+    @Test fun gaanaPasteWithoutATokenIsRefusedBeforeAnyCall() {
+        val env = env()
+        val p = GaanaWebServerProvider()
+        val e = failure { p.connect(env, "deviceId: abc", null) }
+        assertTrue(e is ProviderException)
+        assertTrue(e!!.message!!.contains("token="))
+        assertFalse(p.isConnected(env))
+        assertTrue(seen.isEmpty())
+    }
+
+    @Test fun gaanaPastedRequestIsCheckedStoredAndUsed() {
+        answer = gaana()
+        val env = env()
+        val p = GaanaWebServerProvider()
+        runBlocking { p.connect(env, "curl 'https://api.gaana.com/user.php?type=myplaylists&subtype=myplaylists&token=$gaanaToken' -H 'deviceId: dev-1'", null) }
+        assertTrue(p.isConnected(env))
+        assertEquals("Listener", p.accountName(env))
+        assertEquals(gaanaToken, seen.first().query["token"])
+        assertEquals("dev-1", seen.first().headers["deviceid"])
+
+        val lists = runBlocking { p.playlists(env) }
+        assertEquals(listOf("5550001"), lists.map { it.id })
+        assertEquals(3, lists.single().trackCount)
+
+        runBlocking { p.addTracks(env, "5550001", listOf(com.xlollx.songport.model.Track("11", "One"), com.xlollx.songport.model.Track("12", "Two"))) }
+        assertEquals("11,12", seen.last().query["trackids"])
+        assertEquals("5550001", seen.last().query["id"])
+        assertEquals(gaanaToken, seen.last().query["token"])
+    }
+
     // ------------------------------------------------------------------ the page
 
     @Test fun pageListsShowsAndConnectsTheCookieConnectors() {
@@ -340,6 +384,7 @@ class WebConnectorsTest {
             assertTrue(list.contains("Spotify (web) (unofficial, alpha)"))
             assertTrue(list.contains("Deezer (web) (unofficial, alpha)"))
             assertTrue(list.contains("Qobuz (web) (unofficial, beta)"))
+            assertTrue(list.contains("Gaana (web) (unofficial, alpha)"))
 
             val sp = get("/connectors/spotify_bridge").body()
             assertTrue(sp.contains("Cookies of open.spotify.com"))

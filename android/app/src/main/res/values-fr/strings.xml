@@ -2551,6 +2551,11 @@
     <string name="provider_note_jiosaavn">Playlists, albums et titres publics de JioSaavn, en lecture seule et sans connexion : colle le lien (jiosaavn.com/featured/…, /album/…, /song/…) comme source d\'une sync. Pas une interface officielle : elle peut cesser de fonctionner si le site change.</string>
     <string name="jiosaavn_not_public">Ce lien JioSaavn est privé ou n\'existe pas : seuls les liens publics fonctionnent</string>
     <string name="jiosaavn_changed">JioSaavn a changé son site ; Trackhop doit être mis à jour</string>
+    <string name="gaana_label">Gaana (liens publics, non officiel)</string>
+    <string name="provider_note_gaana">Playlists publiques de Gaana, en lecture seule et sans connexion : colle le lien de la playlist (gaana.com/playlist/…) comme source d\'une sync. Pas une interface officielle : elle peut cesser de fonctionner si le site change.</string>
+    <string name="gaana_not_public">Cette playlist Gaana est privée ou n\'existe pas : seuls les liens publics fonctionnent</string>
+    <string name="gaana_changed">Gaana a changé son site ; Trackhop doit être mis à jour</string>
+    <string name="provider_note_gaana_web">Gaana n\'a pas d\'interface pour les autres applis : connecte-toi sur la page de Gaana et Trackhop utilise la session du site. Pas une voie officielle, contraire aux conditions de Gaana, peut cesser de fonctionner. Alpha. Tes playlists et titres favoris (comme titres favoris), en lecture et écriture ; correspondance par ISRC. Si la connexion n\'aboutit pas, copie depuis les outils de développement d\'un ordinateur une requête vers api.gaana.com (en cURL : son adresse contient token=) et utilise Coller.</string>
     <string name="discard_changes_title">Abandonner les modifications ?</string>
     <string name="discard_changes_body">Ce que tu as saisi ici n\'est pas encore enregistré.</string>
     <string name="discard_changes_discard">Abandonner</string>

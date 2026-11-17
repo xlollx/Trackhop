@@ -18,6 +18,7 @@ description (architecture, matching, services and their limits) stays in the
 - [SoundCloud](soundcloud): a public SoundCloud set or likes page as the source of a sync, no account needed, or your own account.
 - [NetEase Cloud Music and QQ Music](netease-qq-music): a public 网易云音乐 or QQ音乐 playlist as the source of a sync, from its link, no Chinese account needed ([中文](netease-qq-music-zh)).
 - [JioSaavn](jiosaavn): a public JioSaavn playlist, album or song as the source of a sync, from its link, no account needed.
+- [Gaana](gaana): your Gaana playlists and favourite songs with a quick sign-in (alpha), or a public Gaana playlist as the source of a sync, from its link.
 - [Favourites, labels and tags](organise-syncs): star, colour, tag and arrange your syncs; card sizes, tiles, tablets.
 - [Notifications on Telegram, ntfy, Discord and more](notification-channels): a message when a sync changes something or fails.
 - [Troubleshooting](troubleshooting): the errors people actually meet, and what to do about each.

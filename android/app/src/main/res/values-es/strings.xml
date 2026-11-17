@@ -2551,6 +2551,11 @@
     <string name="provider_note_jiosaavn">Playlists, álbumes y canciones públicas de JioSaavn, solo lectura y sin iniciar sesión: pega el enlace (jiosaavn.com/featured/…, /album/…, /song/…) como origen de una sync. No es una interfaz oficial: puede dejar de funcionar si la web cambia.</string>
     <string name="jiosaavn_not_public">Este enlace de JioSaavn es privado o no existe: solo funcionan los enlaces públicos</string>
     <string name="jiosaavn_changed">JioSaavn ha cambiado su web; Trackhop necesita una actualización</string>
+    <string name="gaana_label">Gaana (enlaces públicos, no oficial)</string>
+    <string name="provider_note_gaana">Playlists públicas de Gaana, solo lectura y sin iniciar sesión: pega el enlace de la playlist (gaana.com/playlist/…) como origen de una sync. No es una interfaz oficial: puede dejar de funcionar si la web cambia.</string>
+    <string name="gaana_not_public">Esta playlist de Gaana es privada o no existe: solo funcionan los enlaces públicos</string>
+    <string name="gaana_changed">Gaana ha cambiado su web; Trackhop necesita una actualización</string>
+    <string name="provider_note_gaana_web">Gaana no tiene una interfaz para otras apps: inicia sesión en la página de Gaana y Trackhop usa la sesión de la web. No es una vía oficial, va contra los términos de Gaana y puede dejar de funcionar. Alfa. Tus playlists y canciones favoritas (como canciones que te gustan), en lectura y escritura; emparejamiento por ISRC. Si el inicio de sesión no termina, copia desde las herramientas de desarrollo de un ordenador una petición a api.gaana.com (como cURL: su dirección contiene token=) y usa Pegar.</string>
     <string name="discard_changes_title">¿Descartar los cambios?</string>
     <string name="discard_changes_body">Lo que has escrito aquí aún no se ha guardado.</string>
     <string name="discard_changes_discard">Descartar</string>

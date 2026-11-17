@@ -108,6 +108,7 @@ playlist files. Back that folder up and you have backed up Trackhop.
 | SoundCloud | yes, as a source (unofficial) | Nothing: pick it as the source of a new sync and paste a public set or likes link. [More](soundcloud) |
 | NetEase Cloud Music, QQ Music, Anghami | yes, as sources (unofficial) | Nothing: pick one as the source of a new sync and paste a public playlist link. [More](netease-qq-music) |
 | JioSaavn | yes, as a source (unofficial) | Nothing: pick it as the source of a new sync and paste a public playlist, album or song link |
+| Gaana | yes (unofficial, alpha; in the next update) | Paste the session of a browser signed in to gaana.com, see [below](#gaana-unofficial); or nothing: pick **Gaana (public links, unofficial)** as the source and paste a public playlist link. [More](gaana) |
 | CSV files | yes | Put them in `csv/` inside the data volume |
 | YouTube Music | yes (unofficial, alpha) | The cookies of a browser where you are signed in: [see below](#youtube-music-unofficial) |
 | Spotify (web) | yes (unofficial, alpha) | The `sp_dc` cookie of a browser where you are signed in: [see below](#spotify-and-deezer-without-a-key-unofficial) |
@@ -285,6 +286,23 @@ that browser, and it is as good as your password, so keep it to yourself.
 What works: your playlists and your favourite tracks, as a source and as a target (add, remove,
 create, rename, public or private, delete); search, by ISRC first.
 
+## Gaana (unofficial)
+
+Gaana has no interface for other apps: Trackhop goes through gaana.com's own website, unofficial and
+alpha, like the web connectors above. No developer key. In the next update.
+
+1. In a desktop browser, sign in to [gaana.com](https://gaana.com).
+2. Open the developer tools (F12), then **Network**; type `token=` in the filter and open your library.
+3. Right-click one of the requests to `api.gaana.com` › **Copy** › **Copy as cURL** (or copy the
+   `uToken` entry under **Application › Local storage**).
+4. In Trackhop, **Services › Add › Gaana (web)**, paste it and press **Connect**.
+
+What Trackhop keeps is the `token` of that request: it lasts until you sign out of Gaana in that
+browser, and it is as good as your password, so keep it to yourself.
+
+What works: your playlists and your favourite songs, as a source and as a target (add, remove,
+create, rename, delete); search, where a song with the same ISRC is the match. [More](gaana)
+
 ## Radio syncs
 
 A radio sync listens to an internet radio in the hours you choose and saves the songs it plays to a
@@ -339,7 +357,7 @@ Nobody sees the others'. Add `SONGPORT_MULTIUSER`:
 - **What each person may use**, ticked by the admin in **Users** and changed there at any time:
   - *Co-admin*: manages the others as the admin does (not themselves: another admin does that).
   - *Unofficial connectors*: YouTube Music, Spotify and Deezer with browser cookies; NetEase, QQ
-    Music, JioSaavn and SoundCloud links. Off, they are not even offered. A service may limit an account that
+    Music, JioSaavn, Gaana and SoundCloud links. Off, they are not even offered. A service may limit an account that
     uses them, so it is the admin's call.
   - *Radio syncs*: the server listens to a station for hours, with its bandwidth.
   - *Folders on the server*: backups copied to a folder of the server.
