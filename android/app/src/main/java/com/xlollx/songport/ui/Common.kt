@@ -174,6 +174,28 @@ fun StatusPill(text: String, tone: Tone, icon: ImageVector? = null, modifier: Mo
     }
 }
 
+/**
+ * The state of one entry inside a list: a small dot in the tone's strong colour and the word beside
+ * it, never the colour alone. [StatusPill] stays where the user must act at once or can tap it,
+ * and for the tones that are not a problem (connected, beta, roles, AI).
+ */
+@Composable
+fun StatusDot(text: String, tone: Tone, modifier: Modifier = Modifier) {
+    val dot = when (tone) {
+        Tone.Error -> MaterialTheme.colorScheme.error
+        Tone.Warning -> MaterialTheme.colorScheme.tertiary
+        Tone.Ok -> Tones.onSuccessContainer()
+        Tone.Accent -> MaterialTheme.colorScheme.primary
+        Tone.Neutral -> MaterialTheme.colorScheme.outline
+    }
+    // As tall as a pill, so the two sit on one line.
+    Row(modifier.padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(8.dp).clip(CircleShape).background(dot))
+        Spacer(Modifier.width(6.dp))
+        Text(text, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelMedium, maxLines = 1)
+    }
+}
+
 /** Schermata vuota: un'icona, una frase, al massimo un pulsante. */
 @Composable
 fun EmptyState(

@@ -365,7 +365,7 @@ private fun GroupCard(g: SharedGroup, onOpen: () -> Unit) {
                 Text(g.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     if (curator != null) StatusPill(stringResource(if (curator) R.string.shared_role_curator else R.string.shared_role_follower), if (curator) Tone.Accent else Tone.Neutral)
-                    if (runs.failed) StatusPill(stringResource(R.string.pill_error), Tone.Error, Icons.Filled.Warning)
+                    if (runs.failed) StatusDot(stringResource(R.string.pill_error), Tone.Error)
                 }
                 Text(
                     listOfNotNull(
@@ -778,7 +778,7 @@ private fun GroupPage(group: SharedGroup, snackbar: SnackbarHostState, onLeft: (
                 androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     StatusPill(stringResource(if (curator) R.string.shared_role_curator else R.string.shared_role_follower), if (curator) Tone.Accent else Tone.Neutral)
                     StatusPill(pluralStringResource(R.plurals.shared_members_n, count, count), Tone.Neutral, Icons.Filled.Groups)
-                    if (runs.failed) StatusPill(stringResource(R.string.pill_error), Tone.Error, Icons.Filled.Warning)
+                    if (runs.failed) StatusDot(stringResource(R.string.pill_error), Tone.Error)
                 }
                 Text(
                     if (runs.last > 0) stringResource(R.string.pill_last_run, relativeTime(runs.last)) else stringResource(R.string.last_run_never),
