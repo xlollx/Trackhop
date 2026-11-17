@@ -15,7 +15,7 @@ object TrackhopSigning {
     val CERTS: List<Cert> = listOf(
         Cert("21EADF268C72F85565961A6045BF4BE5ABAF256D680D1E0D808D93ED22D35032", "release upload key (GitHub, F-Droid)", release = true),
         Cert("410826F07FFC9270445AF76FFCAAC642BBE2C76E19328C83832693423E6BBCC5", "Google Play App Signing (Trackhop installed from Play)", release = true),
-        // PLACEHOLDER: the AppGallery signing certificate's SHA-256 goes here, as a release certificate, once the owner provides it.
+        // AppGallery serves our APK as uploaded, signed with the release key above (if Huawei App Signing is ever enabled, its certificate must be added here).
         // The CI debug key: the general provider check accepts it (test builds talk to the Bridge); never the sessions.
         Cert("8BEC806768B3789A40E741BBFCEC462C71950E32A7A1DA15665E95BB7A0AE754", "CI debug key", release = false),
     )
