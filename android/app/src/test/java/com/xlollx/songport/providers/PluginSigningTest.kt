@@ -36,6 +36,18 @@ class PluginSigningTest {
         assertTrue(PluginSigning.TRUSTED.all { it.matches(Regex("[0-9A-F]{64}")) })
     }
 
+    @Test fun aReleaseBuildRejectsAPluginSignedWithTheCiDebugKey() {
+        val ci = Signers(setOf(PluginSigning.CI_DEBUG))
+        val releaseSet = PluginSigning.allowed(debug = false)
+        assertFalse(PluginSigning.trusted(ci, allowed = releaseSet))
+        assertFalse("nor rotated from it", PluginSigning.trusted(Signers(setOf(other), past = setOf(PluginSigning.CI_DEBUG)), allowed = releaseSet))
+        assertTrue(PluginSigning.trusted(Signers(setOf(release)), allowed = releaseSet))
+        assertTrue(PluginSigning.trusted(Signers(setOf(play)), allowed = releaseSet))
+        // A debug build (made by the CI) still uses the CI-signed plugin, and a fork signed as itself is still trusted.
+        assertTrue(PluginSigning.trusted(ci, allowed = PluginSigning.allowed(debug = true)))
+        assertTrue(PluginSigning.trusted(ci, own = ci, allowed = releaseSet))
+    }
+
     @Test fun rotatedKeyIsTrustedThroughItsProvenHistory() {
         // The plugin moved from the release key to a new one: Android vouches for the lineage.
         assertTrue(PluginSigning.trusted(Signers(current = setOf(other), past = setOf(release))))

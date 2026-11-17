@@ -107,7 +107,9 @@ object BridgePlugin {
         val pm = ctx.packageManager
         val own = PluginSigning.read(pm, ctx.packageName)
         val seen = HashMap<String, Boolean>()
-        return { pkg -> seen.getOrPut(pkg) { PluginSigning.trusted(PluginSigning.read(pm, pkg), own) } }
+        // A release build never trusts the CI debug key; a plugin signed exactly as this app still is.
+        val allowed = PluginSigning.allowed(BuildConfig.DEBUG)
+        return { pkg -> seen.getOrPut(pkg) { PluginSigning.trusted(PluginSigning.read(pm, pkg), own, allowed) } }
     }
 
     fun installed(ctx: Context): Boolean = builtIn || find(ctx) != null

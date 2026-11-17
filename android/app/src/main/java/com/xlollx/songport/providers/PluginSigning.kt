@@ -14,11 +14,17 @@ import java.security.MessageDigest
  * stay stricter: [com.xlollx.songport.sync.FullBackup.BRIDGE_SHA256], release only.
  */
 object PluginSigning {
+    /** The CI debug key: its private key is in the CI, so a release build never trusts a plugin signed with it ([allowed]). */
+    const val CI_DEBUG = "8BEC806768B3789A40E741BBFCEC462C71950E32A7A1DA15665E95BB7A0AE754"
+
+    /** The certificates a plugin may be signed with in this build: [TRUSTED], less [CI_DEBUG] unless [debug]. */
+    fun allowed(debug: Boolean): Set<String> = if (debug) TRUSTED else TRUSTED - CI_DEBUG
+
     /** SHA-256 of each trusted certificate, upper-case hex without colons. */
     val TRUSTED: Set<String> = setOf(
         "21EADF268C72F85565961A6045BF4BE5ABAF256D680D1E0D808D93ED22D35032", // release upload key (GitHub, F-Droid; Trackhop Bridge releases)
         "410826F07FFC9270445AF76FFCAAC642BBE2C76E19328C83832693423E6BBCC5", // Google Play App Signing
-        "8BEC806768B3789A40E741BBFCEC462C71950E32A7A1DA15665E95BB7A0AE754", // CI debug key (test builds)
+        CI_DEBUG, // CI debug key (test builds)
         // AppGallery serves our APK as uploaded, signed with the release key above (if Huawei App Signing is
         // ever enabled, its certificate must be added here and in TrackhopSigning.kt).
     )
