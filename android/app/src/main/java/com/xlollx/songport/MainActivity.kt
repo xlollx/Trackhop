@@ -375,6 +375,20 @@ private fun MainScreen(
             if (r == androidx.compose.material3.SnackbarResult.ActionPerformed) queued.forEach { com.xlollx.songport.sync.OfflineQueue.cancel(ctx, it) }
         }
     }
+    // Google Play build only: when the syncs running with the app open have all ended well, Google Play may
+    // show its review prompt, rarely (update/ReviewPolicy.kt). The other builds' StoreReview does nothing.
+    val syncsRunning = com.xlollx.songport.sync.SyncState.running.collectAsState().value.isNotEmpty()
+    var syncsWereRunning by remember { mutableStateOf(false) }
+    LaunchedEffect(syncsRunning) {
+        if (syncsRunning) syncsWereRunning = true
+        else if (syncsWereRunning) {
+            syncsWereRunning = false
+            val activity = ctx as? androidx.activity.ComponentActivity
+            if (activity != null && activity.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
+                com.xlollx.songport.update.StoreReview.afterSyncs(activity, Store.get(ctx).data.reports)
+            }
+        }
+    }
     // "Back online", once, when the connection returns while the app is open.
     val online = com.xlollx.songport.ui.rememberOnline()
     var wasOffline by remember { mutableStateOf(false) }
