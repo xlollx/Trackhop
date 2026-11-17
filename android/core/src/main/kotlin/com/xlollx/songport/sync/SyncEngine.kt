@@ -918,6 +918,9 @@ class SyncEngine(
         // domani non le ripetono (le "non trovate" altrimenti si ricercavano ogni volta).
         val misses = ArrayList<String>()
         fun saveMisses() { store.putMisses(misses); misses.clear() }
+        // How each track found its match, for one line of the log when the search ends or stops.
+        val tally = MatchTally()
+        fun logTally() { tally.line()?.let { env.log("engine", "${dst.displayName}: $it") } }
         while (ci < chunks.size) {
             val chunk = chunks[ci]
             // The phone says the internet is gone (the system, not a guess): no more searches that could
@@ -1031,8 +1034,10 @@ class SyncEngine(
                     val systemic = consecutiveErrors >= 3 || (errors >= 10 && errors * 3 > searchedHere + errors) ||
                         msg.contains("quota", true) || msg.contains("reconnect", true) ||
                         msg.contains("sign in again", true) || isThrottle(msg) || offline
+                    tally.failed()
                     if (systemic) {
                         saveMisses()
+                        logTally()
                         env.log("engine", "${dst.displayName}: search stopped after $searchedHere searches and $errors failures: ${msg.take(200)}")
                         if (done - chunk.size + i <= 0) throw e
                         return if (offline) NetError.textName(NetError.Kind.OFFLINE, env.onServer)?.let { str(it) } ?: msg else msg
@@ -1047,6 +1052,12 @@ class SyncEngine(
                     // Same account or same catalogue: taken as it is, not a search (the log said "1328 searches in 0s").
                     if (direct && s.id.isNotBlank()) takenAsIs++
                     else if (score != MISS_SCORE && store.cachedMatch(src.id, s.id, dstKey) == null) searched++
+                    when {
+                        direct && s.id.isNotBlank() -> tally.direct()
+                        score == MISS_SCORE -> tally.searchedBefore()
+                        found != null && score == null -> tally.saved()
+                        else -> tally.searched(s, found)
+                    }
                     if (found == null && score != MISS_SCORE) misses += FileStore.cacheKey(src.id, s.id, dstKey)
                     if (misses.size >= 50) saveMisses()
                     onResult(s, found, if (score == MISS_SCORE) null else score)
@@ -1054,6 +1065,7 @@ class SyncEngine(
             }
         }
         saveMisses()
+        logTally()
         if (takenAsIs > 0) env.log("engine", "${dst.displayName}: $takenAsIs ${tracksWord(takenAsIs)} taken as they are, no search")
         if (searched > 0) {
             val secs = (System.currentTimeMillis() - startedAt) / 1000

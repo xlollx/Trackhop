@@ -115,10 +115,15 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
         val me = tokens(ctx).userId
         val out = ArrayList<Playlist>()
         var url: String? = "$API/me/playlists?limit=50"
+        // What Spotify declared and what could not be read (an entry with no id, or null): an answer
+        // that lists nothing readable is then told apart, in the log, from an account with no playlists (#64).
+        var total: Int? = null
+        var unreadable = 0
         while (url != null) {
             val j = api(ctx, "GET", url)
+            if (total == null) total = j["total"].int
             for (p in j["items"].arr) {
-                val pid = p["id"].str ?: continue
+                val pid = p["id"].str ?: run { unreadable++; null } ?: continue
                 out += Playlist(
                     id = pid,
                     name = p["name"].str ?: "",
@@ -130,6 +135,7 @@ open class SpotifyProvider(override val slot: String = "") : OAuthProvider() {
             }
             url = j["next"].str
         }
+        ConnectorLog.listed(ctx, this, "playlists", out.size, total, unreadable)
         return out
     }
 

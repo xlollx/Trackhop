@@ -132,18 +132,23 @@ object CustomColor {
 
 /** The colour itself in the current mode, or null for the default look. */
 @Composable
-fun jobAccent(key: String?): Color? {
-    val dark = LocalAppDark.current
+fun jobAccent(key: String?): Color? = jobAccentFor(key, LocalAppDark.current)
+
+/** [jobAccent] for a given mode, outside the app's theme (the home-screen widgets). */
+fun jobAccentFor(key: String?, dark: Boolean): Color? {
     JobColor.of(key)?.let { return if (dark) it.dark else it.light }
     return CustomColor.parse(key)?.let { CustomColor.tone(it, dark) }
 }
+
+/** How much of its colour a card's background takes ([jobContainer]). */
+fun jobContainerTint(dark: Boolean): Float = if (dark) 0.20f else 0.13f
 
 /** A card's background in that colour: the usual surface, tinted just enough to tell. */
 @Composable
 fun jobContainer(key: String?): Color {
     val base = MaterialTheme.colorScheme.surfaceContainerLow
     val accent = jobAccent(key) ?: return base
-    return lerp(base, accent, if (LocalAppDark.current) 0.20f else 0.13f)
+    return lerp(base, accent, jobContainerTint(LocalAppDark.current))
 }
 
 /**
@@ -168,9 +173,11 @@ fun jobControlBrush(key: String?): Brush? {
 
 /** Text and icons in the sync's colour, deep enough to read on its gradient. */
 @Composable
-fun jobInk(key: String?): Color? {
-    val accent = jobAccent(key) ?: return null
-    val dark = LocalAppDark.current
+fun jobInk(key: String?): Color? = jobInkFor(key, LocalAppDark.current)
+
+/** [jobInk] for a given mode, outside the app's theme (the home-screen widgets). */
+fun jobInkFor(key: String?, dark: Boolean): Color? {
+    val accent = jobAccentFor(key, dark) ?: return null
     if (JobColor.of(key) != null) return if (dark) accent else lerp(accent, Color.Black, 0.3f)
     // A colour of the user's own can be anything, a pale yellow too: moved until the text reads.
     var x = if (dark) accent else lerp(accent, Color.Black, 0.3f)

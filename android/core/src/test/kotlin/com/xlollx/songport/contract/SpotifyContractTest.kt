@@ -48,6 +48,18 @@ class SpotifyContractTest : ContractTest() {
 
     // ------------------------------------------------------------------ reading
 
+    /** #64: an answer whose entries cannot be read shows in the log as such, not as an account with no playlists. */
+    @Test fun playlistsCountWhatWasListedDeclaredAndUnreadable() = runBlocking {
+        json("""{"items":[{"id":"p1","name":"One","owner":{"id":"me_user"}},null,{"name":"no id","owner":{"id":"me_user"}}],"next":null,"total":3}""")
+        assertEquals(1, sp.playlists(env).size)
+        assertEquals("[spotify] playlists: 1 listed, total 3, 2 unreadable (account Me)", env.logs.last())
+        json("""{"items":[],"next":null,"total":0}""")
+        assertEquals(0, sp.playlists(env).size)
+        assertEquals("[spotify] playlists: 0 listed, total 0, 0 unreadable (account Me)", env.logs.last())
+        // Nothing of the session is ever written.
+        assertTrue(env.logs.none { "AT1" in it || "RT1" in it })
+    }
+
     @Test fun playlistsFollowNextAndReadOwnership() = runBlocking {
         val first = (0 until 50).map { i ->
             """{"id":"p$i","name":"List $i","collaborative":${i == 3},"public":${i % 2 == 0},"owner":{"id":"${if (i < 2) "me_user" else "someone"}"},

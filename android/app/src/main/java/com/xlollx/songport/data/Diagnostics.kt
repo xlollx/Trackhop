@@ -19,6 +19,8 @@ import java.util.Locale
 object Diagnostics {
     private const val MAX_LINES = 2000
     private const val MAX_CHARS = 1200
+    /** The most lines one area (a line's tag: a connector, "engine", "concerts"…) keeps when the file is trimmed. */
+    private const val PER_AREA = 500
     private val fmt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT)
     private val lock = Any()
     /** The last line written and how many times it came again since, folded into one line. */
@@ -41,9 +43,35 @@ object Diagnostics {
                 if (f.length() > 0 && f.inputStream().use { it.skip(f.length() - 1); it.read() } != '\n'.code) out.insert(0, "\n")
                 f.appendText(out.toString())
                 // Trimmed when it grows past the limit, not at every line: a sync writes many.
-                if (f.length() > MAX_LINES * 300L) f.writeText(f.readLines().takeLast(MAX_LINES * 3 / 4).joinToString("\n", postfix = "\n"))
+                if (f.length() > MAX_LINES * 300L) f.writeText(trim(f.readLines(), MAX_LINES * 3 / 4, PER_AREA).joinToString("\n", postfix = "\n"))
             } catch (_: Exception) { }
         }
+    }
+
+    private val TAG = Regex("""^\S+ \S+ \[([^\]]+)]""")
+
+    /**
+     * The lines kept when the log is trimmed, in their order: the newest [perArea] of each area and
+     * [total] in all, so that one talkative area (a long sync's engine lines) does not push the
+     * others' last lines out. A line without a tag (a repeat count) stays with the line before it.
+     */
+    internal fun trim(lines: List<String>, total: Int, perArea: Int): List<String> {
+        val kept = ArrayList<String>()
+        val perTag = HashMap<String, Int>()
+        val follow = ArrayList<String>() // untagged lines met on the way back, waiting for the line they follow
+        for (l in lines.asReversed()) {
+            if (l.isBlank()) continue
+            val tag = TAG.find(l)?.groupValues?.get(1)
+            if (tag == null) { follow += l; continue }
+            val n = perTag[tag] ?: 0
+            if (n < perArea && kept.size + follow.size < total) {
+                kept += follow; kept += l
+                perTag[tag] = n + 1
+            }
+            follow.clear()
+            if (kept.size >= total) break
+        }
+        return kept.asReversed()
     }
 
     /** Lines of the report's log by default: enough to read, short enough to paste or share whole. */

@@ -145,6 +145,9 @@ object Nway {
         // Read again: an earlier sync of this run may have written to it (its pair's other half).
         val job = env.store.job(j.id) ?: j
         engine.run(job, unattended) { onProgress(job, it) }
+    }.also { reports ->
+        env.log("shared", "${group.name}: on several services, ${reports.size} syncs run: +${reports.sumOf { it.added }} -${reports.sumOf { it.removed }}, " +
+            "${reports.sumOf { it.unmatched.size }} not found, ${reports.sumOf { it.heldBack }} removals held back, ${reports.count { !it.ok }} failed")
     }
 
     private fun usable(ref: PlaylistRef) {

@@ -290,6 +290,17 @@ object SharedGroups {
         }
         if (write) state = publish(env, group, state, transport)
         save(env, group.id, state)
+        // One line per read: the channel, how much came in, the last event, and what was set aside
+        // (events a member had no right to write, or dated ahead of this clock).
+        val had = before.events.mapTo(HashSet()) { it.id }
+        val arrived = events.count { it.id !in had }
+        val offered = files.sumOf { it.events.size }
+        val kept = events.mapTo(HashSet()) { it.id }
+        val setAside = files.asSequence().flatMap { it.events.asSequence() }.map { it.id }.distinct().count { it !in kept }
+        val last = events.maxByOrNull { it.at }
+        env.log("shared", "${group.name}: channel ${group.transport}, ${files.size} files read, $offered events offered, $arrived new, ${events.size} kept" +
+            (if (setAside > 0) ", $setAside set aside (not allowed or dated ahead)" else "") +
+            (last?.let { ", last event ${it.op} at ${java.time.Instant.ofEpochMilli(it.at)}" } ?: ", no event yet"))
         state
     }
 

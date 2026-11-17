@@ -40,6 +40,7 @@ import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
@@ -58,7 +59,6 @@ import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.sync.Scheduler
 import com.xlollx.songport.sync.SyncState
 import com.xlollx.songport.sync.SyncWorker
-import com.xlollx.songport.ui.JobColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -67,7 +67,8 @@ import java.text.DateFormat
 import java.util.Date
 
 /**
- * The home-screen widgets made with Glance, in the phone's own colours (Material You):
+ * The home-screen widgets made with Glance, in the phone's own colours (Material You); a sync with
+ * a colour shows in its card's colours and style ([CardLook]):
  * - [SyncListWidget]: every sync, a tap on ▶ runs it, a failed one shows in red;
  * - [OneSyncWidget]: one sync chosen when the widget is placed, with its last result and ▶;
  * - [SyncAllWidget]: one tile, "Sync all".
@@ -88,7 +89,9 @@ object Widgets {
     }
 
     /** A sync as the widgets show it. */
-    class Row(val id: String, val name: String, val color: androidx.compose.ui.graphics.Color?, val status: String, val failed: Boolean, val running: Boolean, val toCheck: Int,
+    class Row(val id: String, val name: String,
+        /** The sync's card colours and style; null for a sync with no colour. */
+        val look: CardLook?, val status: String, val failed: Boolean, val running: Boolean, val toCheck: Int,
         /** The services, "Spotify → TIDAL": syncs of one playlist to several services share a name. */
         val route: String, val target: String,
         /** The connectors' ids, for their marks. */
@@ -115,7 +118,7 @@ object Widgets {
         fun service(id: String) = com.xlollx.songport.providers.Providers.byId(id)?.familyName ?: id
         val from = job.radio?.station ?: service(job.source.provider)
         val to = service(job.target.provider)
-        return Row(job.id, job.name, JobColor.of(job.color)?.light ?: com.xlollx.songport.ui.CustomColor.parse(job.color)?.let { com.xlollx.songport.ui.CustomColor.tone(it, dark = false) }, status, last != null && !last.ok && job.id !in running, job.id in running,
+        return Row(job.id, job.name, CardLook.of(job, data.settings.cardAccent), status, last != null && !last.ok && job.id !in running, job.id in running,
             (last?.reviewTracks?.size ?: 0) + (last?.unmatched?.size ?: 0), "$from → $to", to,
             job.source.provider, job.target.provider)
     }
@@ -134,18 +137,48 @@ class RunSyncAction : ActionCallback {
 
 private val red = ColorProvider(Color(0xFFE5484D))
 
-@Composable
-private fun accent(c: androidx.compose.ui.graphics.Color?): ColorProvider = c?.let { ColorProvider(it) } ?: GlanceTheme.colors.primary
+/** A colour for the phone's light and dark mode. */
+private fun dayNight(light: Color, dark: Color): ColorProvider = androidx.glance.color.ColorProvider(day = light, night = dark)
 
+/** ▶ (or "sync all" without [job]); on a coloured sync's card, in the card's colour as its controls are in the app. */
 @Composable
-private fun RunButton(job: String?, size: Int = 40) {
+private fun RunButton(job: String?, size: Int = 40, look: CardLook? = null) {
     Box(
-        GlanceModifier.size(size.dp).cornerRadius((size / 2).dp).background(GlanceTheme.colors.primaryContainer)
+        GlanceModifier.size(size.dp).cornerRadius((size / 2).dp)
+            .background(look?.let { dayNight(it.light.copy(alpha = 0.30f), it.dark.copy(alpha = 0.40f)) } ?: GlanceTheme.colors.primaryContainer)
             .clickable(actionRunCallback<RunSyncAction>(if (job != null) actionParametersOf(Widgets.JOB to job) else actionParametersOf())),
         contentAlignment = Alignment.Center,
     ) {
         Image(ImageProvider(if (job == null) R.drawable.ic_widget_sync else R.drawable.ic_widget_play), LocalContext.current.getString(if (job == null) R.string.sync_all else R.string.widget_run),
-            GlanceModifier.size((size / 2).dp), colorFilter = ColorFilter.tint(GlanceTheme.colors.onPrimaryContainer))
+            GlanceModifier.size((size / 2).dp), colorFilter = ColorFilter.tint(look?.let { dayNight(it.inkLight, it.inkDark) } ?: GlanceTheme.colors.onPrimaryContainer))
+    }
+}
+
+/**
+ * A sync's surface on a widget: [base] as it always was for a sync with no colour; for a coloured
+ * one, the card's tint over it and the card's style: a band or a pill along the leading edge, or
+ * the colour all round (outline); the wash keeps the tint alone. [fill]: as tall as the widget.
+ */
+@Composable
+private fun CardSurface(look: CardLook?, base: ColorProvider, corner: Int, modifier: GlanceModifier, fill: Boolean = false, content: @Composable () -> Unit) {
+    val whole = if (fill) GlanceModifier.fillMaxSize() else GlanceModifier.fillMaxWidth()
+    if (look == null) {
+        Box(modifier.cornerRadius(corner.dp).background(base)) { content() }
+        return
+    }
+    val accent = dayNight(look.light, look.dark)
+    val border = if (look.outlined) 2 else 0
+    Box(modifier.cornerRadius(corner.dp).background(if (look.outlined) accent else base).padding(border.dp)) {
+        Box(whole.cornerRadius((corner - border).dp).background(base)) {
+            Row(whole.background(dayNight(look.tintLight, look.tintDark)), verticalAlignment = Alignment.CenterVertically) {
+                look.mark?.let { m ->
+                    if (m.insetDp > 0f) Spacer(GlanceModifier.width(m.insetDp.dp))
+                    if (m.short) Box(GlanceModifier.width(m.widthDp.dp).height(22.dp).cornerRadius((m.widthDp / 2).dp).background(accent)) {}
+                    else Box(GlanceModifier.width(m.widthDp.dp).fillMaxHeight().background(accent)) {}
+                }
+                Box(if (fill) GlanceModifier.defaultWeight().fillMaxHeight() else GlanceModifier.defaultWeight()) { content() }
+            }
+        }
     }
 }
 
@@ -192,8 +225,8 @@ class SyncListWidget : GlanceAppWidget() {
             } else LazyColumn {
                 items(rows, itemId = { it.id.hashCode().toLong() }) { r ->
                     Column(GlanceModifier.fillMaxWidth().padding(bottom = 6.dp)) {
-                        Row(GlanceModifier.fillMaxWidth().cornerRadius(16.dp).background(GlanceTheme.colors.secondaryContainer).padding(10.dp).clickable(openSync(ctx, r.id)),
-                            verticalAlignment = Alignment.CenterVertically) {
+                        CardSurface(r.look, GlanceTheme.colors.secondaryContainer, 16, GlanceModifier.fillMaxWidth().clickable(openSync(ctx, r.id))) {
+                          Row(GlanceModifier.fillMaxWidth().padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
                             Marks(r, 26)
                             Spacer(GlanceModifier.width(10.dp))
                             Column(GlanceModifier.defaultWeight()) {
@@ -201,7 +234,8 @@ class SyncListWidget : GlanceAppWidget() {
                                 Text(r.status, maxLines = 1, style = TextStyle(color = if (r.failed) red else GlanceTheme.colors.onSurfaceVariant, fontSize = 12.sp))
                             }
                             Spacer(GlanceModifier.width(8.dp))
-                            RunButton(r.id, 34)
+                            RunButton(r.id, 34, r.look)
+                          }
                         }
                     }
                 }
@@ -232,8 +266,8 @@ class OneSyncWidget : GlanceAppWidget() {
     private fun One(r: Widgets.Row?, job: SyncJob?) {
         val ctx = LocalContext.current
         val wide = LocalSize.current.width >= 200.dp
-        Column(GlanceModifier.fillMaxSize().cornerRadius(24.dp).background(GlanceTheme.colors.widgetBackground).padding(14.dp)
-            .clickable(if (r != null) openSync(ctx, r.id) else openApp(ctx))) {
+        CardSurface(r?.look, GlanceTheme.colors.widgetBackground, 24, GlanceModifier.fillMaxSize().clickable(if (r != null) openSync(ctx, r.id) else openApp(ctx)), fill = true) {
+          Column(GlanceModifier.fillMaxSize().padding(14.dp)) {
             if (r == null || job == null) {
                 Text(ctx.getString(R.string.widget_sync_gone), style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 13.sp))
                 return@Column
@@ -243,7 +277,7 @@ class OneSyncWidget : GlanceAppWidget() {
                 Spacer(GlanceModifier.width(10.dp))
                 Text(r.name, GlanceModifier.defaultWeight(), maxLines = 1,
                     style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 16.sp, fontWeight = FontWeight.Bold))
-                RunButton(r.id, 40)
+                RunButton(r.id, 40, r.look)
             }
             Spacer(GlanceModifier.height(6.dp))
             if (wide) Text(r.route, maxLines = 1,
@@ -251,6 +285,7 @@ class OneSyncWidget : GlanceAppWidget() {
             Text(r.status, maxLines = 2, style = TextStyle(color = if (r.failed) red else GlanceTheme.colors.onSurface, fontSize = 13.sp))
             if (r.toCheck > 0) Text(ctx.resources.getQuantityString(R.plurals.widget_to_check, r.toCheck, r.toCheck), maxLines = 1,
                 style = TextStyle(color = GlanceTheme.colors.tertiary, fontSize = 12.sp, fontWeight = FontWeight.Medium))
+          }
         }
     }
 }

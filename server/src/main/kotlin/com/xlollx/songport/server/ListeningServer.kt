@@ -64,7 +64,7 @@ internal object ServerListening {
      * What [p] ([s]'s connector) says the user listened to in [period]. Blocking calls behind
      * suspensions; throws [Listening.MissingScope], [Listening.Unavailable] or the service's error.
      */
-    suspend fun read(env: Env, s: Listening.Source, p: MusicProvider, period: Listening.Period): Listening.Report = when (s) {
+    suspend fun read(env: Env, s: Listening.Source, p: MusicProvider, period: Listening.Period): Listening.Report = Listening.logged(env, s, period) { when (s) {
         Listening.Source.LASTFM -> (p as LastFmProvider).listening(env, period)
         Listening.Source.LISTENBRAINZ -> (p as ListenBrainzProvider).listening(env, period)
         // One Spotify for the user: the official sign-in first; when it gives nothing, the web player's, where connected.
@@ -83,7 +83,7 @@ internal object ServerListening {
         Listening.Source.YTM -> Listening.fromHistory(p.tracks(env, MusicProvider.RECENT_ID)).let { r ->
             r.copy(tracks = r.tracks.map { it.copy(cover = DeezerCatalog.ownCover(it.track.id, p.serviceId).lastOrNull()) })
         }
-    }
+    } }
 
     private fun spotifyWeb(env: Env): SpotifyWebServerProvider? =
         Providers.connectors().filterIsInstance<SpotifyWebServerProvider>().firstOrNull { it.isConnected(env) }

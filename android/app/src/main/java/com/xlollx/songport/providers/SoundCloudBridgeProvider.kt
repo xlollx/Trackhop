@@ -1,5 +1,6 @@
 package com.xlollx.songport.providers
 
+import com.xlollx.songport.providers.ConnectorLog.logged
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -98,7 +99,7 @@ class SoundCloudBridgeProvider(override val slot: String = "") : MusicProvider, 
 
     // Start over: the Bridge forgets the session and the sites' data; an older one only signs out.
     override fun startOver(ctx: Env) { runCatching { call(ctx, "soundcloud.reset") }.onFailure { disconnect(ctx) } }
-    override suspend fun playlists(ctx: Env): List<Playlist> = io(ctx, "soundcloud.playlists") { j -> j.arr.mapNotNull { toPlaylist(it) } }
+    override suspend fun playlists(ctx: Env): List<Playlist> = io(ctx, "soundcloud.playlists") { j -> j.arr.mapNotNull { toPlaylist(it) }.logged(ctx, this, "playlists", j.arr.size) }
 
     override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist =
         if (isPage(playlistId) && readsLinksItself) SoundCloudProvider.playlistInfo(ctx, playlistId)

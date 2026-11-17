@@ -1,5 +1,6 @@
 package com.xlollx.songport.providers
 
+import com.xlollx.songport.providers.ConnectorLog.logged
 import android.content.Context
 import com.xlollx.songport.platform.Env
 import com.xlollx.songport.platform.android
@@ -121,7 +122,7 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider, Web
         j.arr.mapNotNull { p ->
             val id = p["id"].str ?: return@mapNotNull null
             Playlist(id, p["name"].str ?: id, p["count"].int ?: -1)
-        }
+        }.logged(ctx, this, "playlists", j.arr.size)
     }
 
     override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist = io(ctx, "playlistInfo", playlistId) { j ->

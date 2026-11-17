@@ -114,11 +114,12 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
     private suspend fun playlistPages(ctx: Env, first: String): List<Playlist> {
         val out = ArrayList<Playlist>()
         var url: String? = first
+        var unreadable = 0
         while (url != null) {
             val j = api(ctx, "GET", url)
             for (p in j["data"].arr) {
                 out += Playlist(
-                    id = p["id"].str ?: continue,
+                    id = p["id"].str ?: run { unreadable++; null } ?: continue,
                     name = p["attributes"]["name"].str ?: "",
                     trackCount = p["attributes"]["numberOfItems"].int ?: -1,
                     isPublic = p["attributes"]["accessType"].str?.let { it == "PUBLIC" },
@@ -126,6 +127,7 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
             }
             url = nextUrl(j)
         }
+        ConnectorLog.listed(ctx, this, "playlists", out.size, unreadable = unreadable)
         return out
     }
 

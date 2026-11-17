@@ -1,5 +1,6 @@
 package com.xlollx.songport.providers
 
+import com.xlollx.songport.providers.ConnectorLog.logged
 import android.net.Uri
 import android.os.Bundle
 import com.xlollx.songport.model.Playlist
@@ -68,7 +69,7 @@ class QobuzBridgeProvider(override val slot: String = "") : MusicProvider, WebAc
     override suspend fun playlists(ctx: Env): List<Playlist> = io(ctx, "qobuz.playlists") { j ->
         j.arr.mapNotNull { p ->
             p["id"].str?.let { Playlist(it, p["name"].str ?: "", p["count"]?.long?.toInt() ?: -1, ownedByMe = p["owned"].bool != false, description = p["description"].str.orEmpty()) }
-        }
+        }.logged(ctx, this, "playlists", j.arr.size)
     }
 
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> = withContext(Dispatchers.IO) {

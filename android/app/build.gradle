@@ -225,6 +225,12 @@ kotlin {
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.16.0'
+    // Play Console's "deprecated edge-to-edge APIs" notice (Window.setStatusBarColor, setNavigationBarColor,
+    // LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES) points at these two libraries, not at Trackhop's code, which
+    // calls none of them (checked 11/2026 with the Play build's R8 mapping): androidx.activity's own
+    // enableEdgeToEdge (EdgeToEdgeApi23–30, the branches for Android before 15) and core-splashscreen
+    // (SplashScreen$Impl31). Their latest releases (activity 1.13.0, core-splashscreen 1.2.0) still carry the
+    // same calls, so an update does not clear it. The app is already edge to edge with insets everywhere.
     implementation 'androidx.core:core-splashscreen:1.0.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.9.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.9.1'
@@ -264,6 +270,9 @@ dependencies {
 
     // Whether Google Play has a newer Trackhop (update/AppUpdates.kt): the top bar's arrow, Play build only.
     playImplementation 'com.google.android.play:app-update:2.1.0'
+    // Google Play's own review prompt, asked rarely after syncs that went well (update/StoreReview.kt,
+    // update/ReviewPolicy.kt). Play build only: no other build carries it.
+    playImplementation 'com.google.android.play:review:2.0.2'
 
     // Gemini Nano on the phone (ML Kit GenAI Prompt API, through Android's AICore): an AI with no key for
     // the Roast and the generator, on the phones that have it. Proprietary, in both builds by choice.

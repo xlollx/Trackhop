@@ -70,7 +70,7 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
     // prompt=consent garantisce il refresh token anche ai riaccessi successivi. select_account: Google's
     // chooser every time, where a brand account's channel is picked (#41; the API has no channel switch).
     override val extraAuthParams = mapOf("access_type" to "offline", "prompt" to "consent select_account")
-    // Extra accounts: Google shows the account chooser instead of reusing the signed-in one.
+    // Every sign-in: Google shows the account chooser instead of reusing the signed-in one.
     override val switchAccountParams = mapOf("prompt" to "consent select_account")
 
     // Client Android della build: Google impone lo schema "client id invertito" (nel manifest).
@@ -113,12 +113,15 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
     override suspend fun playlists(ctx: Env): List<Playlist> {
         val out = ArrayList<Playlist>()
         var page: String? = null
+        var total: Int? = null
+        var unreadable = 0
         do {
             val j = counted(ctx, QuotaMeter.COST_LIST) { api(ctx, "GET", "$API/playlists?part=snippet,contentDetails,status&mine=true&maxResults=50" +
                 (page?.let { "&pageToken=$it" } ?: "")) }
+            if (total == null) total = j["pageInfo"]["totalResults"].int
             for (p in j["items"].arr) {
                 out += Playlist(
-                    id = p["id"].str ?: continue,
+                    id = p["id"].str ?: run { unreadable++; null } ?: continue,
                     name = p["snippet"]["title"].str ?: "",
                     trackCount = p["contentDetails"]["itemCount"].int ?: -1,
                     isPublic = p["status"]["privacyStatus"].str?.let { it == "public" },
@@ -126,6 +129,7 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
             }
             page = j["nextPageToken"].str
         } while (page != null)
+        ConnectorLog.listed(ctx, this, "playlists", out.size, total, unreadable)
         return out
     }
 

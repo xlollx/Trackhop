@@ -270,6 +270,9 @@ object Records {
         }
         progress(list.size, list.size)
         if (slowed) env.log("records", "Discogs asked to slow down: stopped for now")
+        env.log("records", "${list.size} artists${if (list.size < asked.size) " of ${asked.size}" else ""}${if (background) " (background)" else ""}: " +
+            (if (look.records) "Discogs (${when { refused -> "token refused, anonymous"; hadToken -> "own token"; else -> "anonymous" }}) ${out.count { !it.records.isNullOrEmpty() }} with records, ${out.sumOf { it.records?.size ?: 0 }} records; " else "") +
+            "shops ${if (readShops) "read" else "left to the page"}: ${out.count { !it.merch.isNullOrEmpty() || !it.shopRecords.isNullOrEmpty() }} artists with items, ${out.sumOf { (it.merch?.size ?: 0) + (it.shopRecords?.size ?: 0) }} items")
         val at = if (look.records) list.mapNotNull { discogsAt(env, if (refused) null else token, it, cur) }.minOrNull() ?: startedAt else 0L
         return Result(ArtistPick.byName(out) { it.artist }, asked.size, hadToken, refused, slowed, cur, look, at)
     }

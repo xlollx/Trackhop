@@ -23,8 +23,10 @@ abstract class OAuthProvider : MusicProvider {
     protected abstract val scopes: String
     protected open val extraAuthParams: Map<String, String> = emptyMap()
     /**
-     * Parametri aggiunti solo per gli account oltre il primo: il browser e' quasi sempre gia' loggato
-     * con il primo account, e senza questi il servizio lo riuserebbe in silenzio.
+     * The parameters that make the service ask which account to use, added to every sign-in, the
+     * first account's too: the browser is almost always signed in already, and without them the
+     * service takes that account in silence (after a sign-out, or with another account in mind: #64).
+     * Empty for a service whose sign-in has no such parameter (TIDAL, Deezer).
      */
     protected open val switchAccountParams: Map<String, String> = emptyMap()
     protected open val apiAccept: String = "application/json"
@@ -71,7 +73,7 @@ abstract class OAuthProvider : MusicProvider {
             "state" to state,
             "code_challenge_method" to "S256",
             "code_challenge" to codeChallenge,
-        ) + extraAuthParams + (if (slot.isNotEmpty()) switchAccountParams else emptyMap())
+        ) + extraAuthParams + switchAccountParams
         return authorizeEndpoint + "?" + Http.query(params)
     }
 
@@ -132,11 +134,14 @@ abstract class OAuthProvider : MusicProvider {
             ),
         )
         if (!resp.ok) {
+            // The status alone: the answer's text is not logged, nor anything of the tokens.
+            ctx.log(id, "access not renewed (HTTP ${resp.code})" + if (resp.code == 400 || resp.code == 401) ": signed out, a new sign-in is needed" else "")
             // Refresh token revocato: l'utente dovra' ricollegare l'account.
             if (resp.code == 400 || resp.code == 401) ctx.tokens.clear(id)
             throw ProviderException("$displayName: session expired, please reconnect (${resp.code})")
         }
         val j = parseJson(resp.body)
+        ctx.log(id, "access renewed" + (j["expires_in"].long?.let { " for ${it / 60} min" } ?: ""))
         return t.copy(
             accessToken = j["access_token"].str ?: t.accessToken,
             refreshToken = j["refresh_token"].str ?: t.refreshToken,
@@ -160,7 +165,10 @@ abstract class OAuthProvider : MusicProvider {
             resp = raw(t, method, url, body, extraHeaders)
         }
         if (!resp.ok) {
-            ctx.log(id, "HTTP ${resp.code} $method ${url.substringBefore('?').take(120)}: ${errorMessage(resp).take(160)}")
+            // A 429 with what the service asks for: a pause in seconds (Retry-After), or a quota used up.
+            val limit = if (resp.code != 429) "" else " (too many requests" + (resp.header("Retry-After")?.trim()?.toLongOrNull()?.let { ", retry after ${it}s" } ?: "") +
+                (if (resp.body.contains("quota", ignoreCase = true)) ", quota" else "") + ")"
+            ctx.log(id, "HTTP ${resp.code}$limit $method ${url.substringBefore('?').take(120)}: ${errorMessage(resp).take(160)}")
             throw ProviderException(friendlyApiError(ctx, resp) ?: "$displayName API ${resp.code}: ${errorMessage(resp)}", code = resp.code)
         }
         return parseJson(resp.body)

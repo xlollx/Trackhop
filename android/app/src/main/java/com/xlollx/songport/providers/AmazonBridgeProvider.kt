@@ -1,5 +1,6 @@
 package com.xlollx.songport.providers
 
+import com.xlollx.songport.providers.ConnectorLog.logged
 import android.content.Context
 import com.xlollx.songport.platform.Env
 import com.xlollx.songport.platform.android
@@ -76,7 +77,7 @@ class AmazonBridgeProvider(override val slot: String = "") : MusicProvider {
     override fun disconnect(ctx: Env) { runCatching { call(ctx, "amazon.disconnect") } }
 
     override suspend fun playlists(ctx: Env): List<Playlist> = io(ctx, "amazon.playlists") { j ->
-        j.arr.mapNotNull { p -> Playlist(p["id"].str ?: return@mapNotNull null, p["name"].str ?: "", p["count"]?.long?.toInt() ?: -1) }
+        j.arr.mapNotNull { p -> Playlist(p["id"].str ?: return@mapNotNull null, p["name"].str ?: "", p["count"]?.long?.toInt() ?: -1) }.logged(ctx, this, "playlists", j.arr.size)
     } + listOfNotNull(purchased(ctx))
 
     /**

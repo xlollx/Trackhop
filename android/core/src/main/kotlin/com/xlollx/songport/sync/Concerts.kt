@@ -280,6 +280,8 @@ object Concerts {
         var refused = false
         var ticketOneRead = !background && c == TicketOne.COUNTRY && withContext(Dispatchers.IO) { TicketOne.enabled }
         val out = ArrayList<ArtistDates>()
+        // For the log: how many dates each kind of source gave, before they are merged.
+        var fromTm = 0; var fromMb = 0; var fromSites = 0
         list.forEachIndexed { i, artist ->
             progress(i, list.size)
             val (tm, mb, sites) = coroutineScope {
@@ -298,6 +300,7 @@ object Concerts {
                 Triple(tm, mb.await(), vt.await().orEmpty() + t1.await().orEmpty() + sp.await().orEmpty() + site.await().orEmpty())
             }
             val (off, on) = tm.orEmpty().partition { it.status == CANCELLED }
+            fromTm += on.size; fromMb += mb.orEmpty().size; fromSites += sites.size
             val events = merge(on, mb.orEmpty(), sites).filter { inRange(it, today, end) }
             out += ArtistDates(artist, events, if (events.isEmpty()) searches(artist, c) else emptyList(), off)
             // What is found so far: kept when the user stops the search.
@@ -305,6 +308,10 @@ object Concerts {
         }
         progress(list.size, list.size)
         if (quotaHit) env.log("concerts", "Ticketmaster: today's limit reached")
+        env.log("concerts", "${list.size} artists${if (list.size < asked.size) " of ${asked.size}" else ""} in $c${if (background) " (background)" else ""}: " +
+            "${out.count { it.events.isNotEmpty() }} with dates, ${out.sumOf { it.events.size }} dates; sources: Ticketmaster " +
+            (when { key == null -> "no key"; refused -> "key refused"; else -> "$fromTm" + if (own) " (own key)" else "" }) +
+            ", MusicBrainz $fromMb, ticket sites and artists' sites $fromSites")
         return result(c, out, asked.size, key != null, own, quotaHit, refused, range, ticketOneRead)
     }
 

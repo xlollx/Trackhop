@@ -336,14 +336,15 @@ fun UnplayableScreen(provider: MusicProvider, onClose: () -> Unit) {
 /** Why the service refuses the entry, in a word; nothing when it did not say. */
 @Composable
 private fun ReasonPill(reason: String) {
-    val res = when (reason) {
-        Unplayable.REASON_MARKET -> R.string.unplayable_reason_market
-        Unplayable.REASON_PRODUCT -> R.string.unplayable_reason_product
-        Unplayable.REASON_EXPLICIT -> R.string.unplayable_reason_explicit
-        Unplayable.REASON_PRIVATE -> R.string.unplayable_reason_private
-        Unplayable.REASON_DELETED -> R.string.unplayable_reason_deleted
-        else -> R.string.unplayable_reason_unknown
+    // An entry's state inside a list: a dot. Still there under other terms: a warning; gone: an error.
+    val (res, tone) = when (reason) {
+        Unplayable.REASON_MARKET -> R.string.unplayable_reason_market to Tone.Warning
+        Unplayable.REASON_PRODUCT -> R.string.unplayable_reason_product to Tone.Warning
+        Unplayable.REASON_EXPLICIT -> R.string.unplayable_reason_explicit to Tone.Warning
+        Unplayable.REASON_PRIVATE -> R.string.unplayable_reason_private to Tone.Error
+        Unplayable.REASON_DELETED -> R.string.unplayable_reason_deleted to Tone.Error
+        else -> R.string.unplayable_reason_unknown to Tone.Neutral
     }
-    StatusPill(stringResource(res), Tone.Error)
+    StatusDot(stringResource(res), tone)
     Spacer(Modifier.width(6.dp))
 }

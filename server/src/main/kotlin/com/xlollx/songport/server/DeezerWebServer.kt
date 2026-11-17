@@ -1,5 +1,6 @@
 package com.xlollx.songport.server
 
+import com.xlollx.songport.providers.ConnectorLog.logged
 import com.xlollx.songport.data.Tokens
 import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.model.ProviderException
@@ -85,7 +86,7 @@ class DeezerWebServerProvider(override val slot: String = "") : CookieConnector 
         forget(ctx, cache(ctx))
     }
 
-    override suspend fun playlists(ctx: Env): List<Playlist> = io(ctx) { c -> c.libraryPlaylists().map { toPlaylist(it) } }
+    override suspend fun playlists(ctx: Env): List<Playlist> = io(ctx) { c -> c.libraryPlaylists().map { toPlaylist(it) } }.logged(ctx, this, "playlists")
 
     override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist = io(ctx) { c -> toPlaylist(c.playlistInfo(playlistId)) }
 

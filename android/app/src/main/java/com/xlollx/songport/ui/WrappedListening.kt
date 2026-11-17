@@ -103,7 +103,7 @@ internal fun listeningSources(ctx: Context): List<Pair<Listening.Source, MusicPr
  */
 internal suspend fun readListening(ctx: Context, s: Listening.Source, p: MusicProvider, period: Listening.Period): Listening.Report {
     val env = ctx.env
-    return when (s) {
+    return Listening.logged(env, s, period) { when (s) {
         Listening.Source.LASTFM -> (p as LastFmProvider).listening(env, period)
         Listening.Source.LISTENBRAINZ -> (p as ListenBrainzProvider).listening(env, period)
         // One Spotify for the user: the official sign-in first; when it gives nothing (no permission
@@ -121,7 +121,7 @@ internal suspend fun readListening(ctx: Context, s: Listening.Source, p: MusicPr
         Listening.Source.PLEX, Listening.Source.LYRION -> Listening.fromCounts((p as PlayCounts).topPlays(env))
         Listening.Source.YTM -> Listening.fromHistory(p.tracks(ctx, MusicProvider.RECENT_ID))
         Listening.Source.APPLE -> (p as AppleMusicProvider).listening(env, period)
-    }
+    } }
 }
 
 /** The web player's Spotify connector, signed in, where the connectors are the full ones. */

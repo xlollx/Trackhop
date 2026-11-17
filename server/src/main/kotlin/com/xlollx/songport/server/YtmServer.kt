@@ -1,5 +1,6 @@
 package com.xlollx.songport.server
 
+import com.xlollx.songport.providers.ConnectorLog.logged
 import com.xlollx.songport.data.Tokens
 import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.model.ProviderException
@@ -124,7 +125,7 @@ class YtmServerProvider(override val slot: String = "") : CookieConnector {
 
     override suspend fun playlists(ctx: Env): List<Playlist> = io(ctx) { c ->
         c.playlists().map { Playlist(it.id, it.name, it.count) }
-    }
+    }.logged(ctx, this, "playlists")
 
     override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist = io(ctx) { c ->
         val p: PlaylistDto = c.playlistInfo(playlistId)

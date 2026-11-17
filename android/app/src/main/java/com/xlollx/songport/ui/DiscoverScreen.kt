@@ -60,6 +60,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.filled.Album
+import androidx.compose.material.icons.outlined.Album
+import androidx.compose.material.icons.outlined.ConfirmationNumber
+import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material.icons.outlined.NewReleases
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material.icons.filled.JoinInner
@@ -108,26 +112,36 @@ import com.xlollx.songport.providers.importTracks
 
 /**
  * The cards of the Discover tab, each opening its own page. The names are kept stable: a page
- * open survives a rotation by name. [emoji] and [tint] draw the tile's icon, [icon], [tint] and
+ * open survives a rotation by name. [emoji] (or [lineIcon], for the cards that have one) and [tint]
+ * draw the tile's icon, [icon], [tint] and
  * [gradient] the header of its page ([identity]); [ai] puts the "AI"
  * tag on the card (it then needs the user's own AI key, see [AiClient]).
  */
 internal enum class DiscoverCard(val emoji: String, val tint: Long, val titleRes: Int, val descRes: Int, val icon: ImageVector, val gradient: LongArray = LongArray(0), val ai: Boolean = false) {
     WRAPPED("✨", 0xFF6B4BD8, R.string.discover_wrapped_title, R.string.discover_wrapped_desc, Icons.Filled.AutoAwesome, longArrayOf(0xFF5B3FD9, 0xFFC2185B, 0xFFE0562F)),
-    RELEASES("🆕", 0xFF8E24AA, R.string.discover_releases_title, R.string.discover_releases_desc, Icons.Filled.NewReleases),
-    LINK("🔗", 0xFF1976D2, R.string.discover_link_title, R.string.discover_link_desc, Icons.Filled.Link, longArrayOf(0xFF0D47A1, 0xFF1976D2, 0xFF0097A7)),
+    RELEASES("", 0xFF8E24AA, R.string.discover_releases_title, R.string.discover_releases_desc, Icons.Filled.NewReleases),
+    LINK("", 0xFF1976D2, R.string.discover_link_title, R.string.discover_link_desc, Icons.Filled.Link, longArrayOf(0xFF0D47A1, 0xFF1976D2, 0xFF0097A7)),
     COMPAT("💞", 0xFFC2185B, R.string.tools_compat_title, R.string.discover_compat_desc, Icons.Filled.JoinInner, longArrayOf(0xFFC2185B, 0xFF7B1FA2, 0xFF1565C0)),
     ROAST("🔥", 0xFFD84315, R.string.discover_roast_title, R.string.discover_roast_desc, Icons.Filled.LocalFireDepartment, longArrayOf(0xFFB71C1C, 0xFFD84315, 0xFFEF6C00), ai = true),
     VANISHED("👻", 0xFF607D8B, R.string.discover_vanished_title, R.string.discover_vanished_desc, Icons.Filled.VisibilityOff, longArrayOf(0xFF263238, 0xFF455A64, 0xFF78909C)),
     SUBS("💸", 0xFF2E7D32, R.string.discover_subs_title, R.string.discover_subs_desc, Icons.Filled.Payments, longArrayOf(0xFF1B5E20, 0xFF2E7D32, 0xFF00796B)),
     POSTER("🖼️", 0xFFF9A825, R.string.tools_poster_title, R.string.discover_poster_desc, Icons.Filled.Palette, longArrayOf(0xFF3E2723, 0xFF8D5A2B, 0xFFC68A12)),
-    CONCERTS("🎟️", 0xFFAD1457, R.string.discover_concerts_title, R.string.discover_concerts_desc, Icons.Filled.ConfirmationNumber),
+    CONCERTS("", 0xFFAD1457, R.string.discover_concerts_title, R.string.discover_concerts_desc, Icons.Filled.ConfirmationNumber),
     SETLISTS("🎤", 0xFF3949AB, R.string.discover_setlists_title, R.string.discover_setlists_desc, Icons.Filled.Mic),
-    RECORDS("💿", 0xFF4E342E, R.string.discover_records_title, R.string.discover_records_desc, Icons.Filled.Album),
+    RECORDS("", 0xFF4E342E, R.string.discover_records_title, R.string.discover_records_desc, Icons.Filled.Album),
     FOLLOWED("🔔", 0xFF00695C, R.string.alerts_followed_title, R.string.alerts_followed_desc, Icons.Filled.Notifications),
     MYRECORDS("📀", 0xFF37474F, R.string.discover_myrecords_title, R.string.discover_myrecords_desc, Icons.Filled.Album),
     LIFETIME("📊", 0xFF1565C0, R.string.discover_lifetime_title, R.string.discover_lifetime_desc, Icons.Filled.QueryStats, longArrayOf(0xFF0D47A1, 0xFF1565C0, 0xFF6A1B9A)),
     ;
+
+    /** The tile's mark as a Material line icon instead of an emoji, drawn in the secondary text colour. */
+    val lineIcon: ImageVector? get() = when (this) {
+        RELEASES -> Icons.Outlined.NewReleases
+        LINK -> Icons.Outlined.Link
+        CONCERTS -> Icons.Outlined.ConfirmationNumber
+        RECORDS -> Icons.Outlined.Album
+        else -> null
+    }
 
     /** The tool's look on its page: this card's colour, its icon and its header's gradient ([DiscoverToolScaffold]). */
     val identity: ToolIdentity get() = ToolIdentity(icon, tint, *gradient)
@@ -376,7 +390,7 @@ private fun WrappedHero(onOpen: () -> Unit) {
     }
 }
 
-/** One card of the grid: its emoji on a tinted tile, name, one line of what it does; dimmed with the reason when it cannot be used yet (still tappable). */
+/** One card of the grid: its emoji or line icon on a tinted tile, name, one line of what it does; dimmed with the reason when it cannot be used yet (still tappable). */
 @Composable
 private fun DiscoverTile(card: DiscoverCard, disabledWhy: String?, modifier: Modifier, onMeasured: (Int) -> Unit = {}, onClick: () -> Unit) {
     val dark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
@@ -390,7 +404,11 @@ private fun DiscoverTile(card: DiscoverCard, disabledWhy: String?, modifier: Mod
                 Box(
                     Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(Color(card.tint).copy(alpha = if (dark) 0.45f else 0.16f)),
                     contentAlignment = Alignment.Center,
-                ) { Text(card.emoji, fontSize = 20.sp) }
+                ) {
+                    val line = card.lineIcon
+                    if (line != null) Icon(line, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(22.dp))
+                    else Text(card.emoji, fontSize = 20.sp)
+                }
                 Spacer(Modifier.height(8.dp))
                 val alpha = if (enabled) 1f else 0.6f
                 Text(stringResource(card.titleRes), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface.copy(alpha = alpha))
