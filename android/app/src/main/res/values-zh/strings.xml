@@ -2681,6 +2681,9 @@
     <string name="library_all_at_once">全部一起</string>
     <string name="library_whole">整个资料库作为一个文件</string>
     <string name="library_smart_songs">%1$s · 智能</string>
+    <string name="file_reading">正在读取文件…</string>
+    <string name="file_reading_note">分段读取：再大的文件也不会拖累手机。可以隐藏此窗口，读取会继续，完成后添加文件。</string>
+    <string name="file_incomplete">文件在列表结束前就断了：文件不完整，因此没有添加任何内容。请重新导出，或重新复制到手机。</string>
     <plurals name="library_added">
         <item quantity="other">已添加 %1$d 个歌单：%2$s</item>
     </plurals>

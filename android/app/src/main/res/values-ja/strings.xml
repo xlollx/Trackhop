@@ -2681,6 +2681,9 @@
     <string name="library_all_at_once">まとめて</string>
     <string name="library_whole">ライブラリ全体を1つのファイルに</string>
     <string name="library_smart_songs">%1$s · スマート</string>
+    <string name="file_reading">ファイルを読み込んでいます…</string>
+    <string name="file_reading_note">少しずつ読み込むので、とても大きなファイルでもスマホに負担がかかりません。この画面を隠しても続き、終わるとファイルが追加されます。</string>
+    <string name="file_incomplete">ファイルがリストの途中で終わっています。不完全なため、何も追加していません。もう一度書き出すか、スマホにコピーし直してください。</string>
     <plurals name="library_added">
         <item quantity="other">%1$d 件のプレイリストを追加しました：%2$s</item>
     </plurals>

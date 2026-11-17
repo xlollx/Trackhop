@@ -45,4 +45,16 @@ class LibraryImportFlowTest : FlowTest() {
         waitText(s(R.string.library_title))
         assertTrue("the untick is kept", exists(plural(R.plurals.library_import, 1, 1)))
     }
+
+    // Any other big playlist file is read behind the same dialog, with its own words, and can be stopped.
+    @Test
+    fun aBigPlaylistFileShowsItsReadingAndCanBeStopped() {
+        LibraryImport.state.value = LibraryImport.State.Reading("big.csv", 12_000_000, 48_000_000, library = false)
+        launch(tabIntent(MainActivity.TAB_ACCOUNTS))
+        waitText(s(R.string.file_reading))
+        assertTrue(exists(s(R.string.file_reading_note)))
+        click(s(android.R.string.cancel))
+        compose.waitForIdle()
+        assertTrue("stopped: nothing is being read", LibraryImport.state.value == LibraryImport.State.Idle)
+    }
 }

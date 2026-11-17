@@ -2734,6 +2734,9 @@
     <string name="library_all_at_once">Alles auf einmal</string>
     <string name="library_whole">Die ganze Mediathek als eine Datei</string>
     <string name="library_smart_songs">%1$s · intelligent</string>
+    <string name="file_reading">Datei wird gelesen…</string>
+    <string name="file_reading_note">Sie wird Stück für Stück gelesen: Auch eine sehr große Datei belastet das Handy nicht. Du kannst das ausblenden, es läuft weiter, und am Ende wird die Datei hinzugefügt.</string>
+    <string name="file_incomplete">Die Datei endet vor ihrer Liste: Sie ist unvollständig, deshalb wurde nichts hinzugefügt. Exportiere sie erneut oder kopiere sie noch einmal aufs Handy.</string>
     <plurals name="library_added">
         <item quantity="one">%1$d Playlist hinzugefügt: %2$s</item>
         <item quantity="other">%1$d Playlists hinzugefügt: %2$s</item>

@@ -2840,6 +2840,9 @@
     <string name="library_all_at_once">Всё сразу</string>
     <string name="library_whole">Вся медиатека одним файлом</string>
     <string name="library_smart_songs">%1$s · смарт</string>
+    <string name="file_reading">Читаю файл…</string>
+    <string name="file_reading_note">Он читается по частям: даже очень большой файл не нагружает телефон. Можно скрыть это окно, чтение продолжится, а в конце файл будет добавлен.</string>
+    <string name="file_incomplete">Файл обрывается раньше конца своего списка: он неполный, поэтому ничего не добавлено. Экспортируйте его заново или скопируйте на телефон ещё раз.</string>
     <plurals name="library_added">
         <item quantity="one">Добавлен плейлист (%1$d): %2$s</item>
         <item quantity="few">Добавлено плейлистов: %1$d — %2$s</item>

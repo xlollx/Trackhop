@@ -52,8 +52,10 @@ import androidx.compose.ui.window.DialogProperties
 import com.xlollx.songport.R
 import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.providers.LocalFilesProvider
+import com.xlollx.songport.providers.importStream
 import com.xlollx.songport.providers.importTracks
 import com.xlollx.songport.sync.ItunesLibrary
+import com.xlollx.songport.sync.PlaylistFiles
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -68,11 +70,15 @@ import java.text.NumberFormat
  * outside the screen (turning the phone or leaving the app does not stop it), then its playlists to
  * tick, each saved as a file. A file cut short, a read that fails or one stopped by the person adds
  * nothing; adding stops cleanly and says what was added (each file is written whole).
+ *
+ * Any other playlist file of some size is read the same way ([startFile]), with the same progress,
+ * and added as one file named after it.
  */
 object LibraryImport {
     sealed interface State {
         data object Idle : State
-        data class Reading(val name: String, val read: Long, val total: Long) : State
+        /** [library] is false for a playlist file that is not a library: only the words change. */
+        data class Reading(val name: String, val read: Long, val total: Long, val library: Boolean = true) : State
         /** [token] tells one library from the next, for the ticks kept across a turned screen. */
         class Picking(val token: Long, val name: String, val library: ItunesLibrary) : State
         class Adding(val name: String) : State
@@ -92,13 +98,49 @@ object LibraryImport {
         ctx.contentResolver.openInputStream(uri)?.use { ItunesLibrary.looksLike(String(it.readNBytes(4096), Charsets.UTF_8)) }
     }.getOrNull() == true
 
+    /** A file up to this size is read on the spot, without the progress: it takes a moment. */
+    const val SMALL_FILE = 5_000_000L
+
+    /** The size of [uri] in bytes, or -1 when its provider does not say. */
+    fun size(ctx: Context, uri: Uri): Long = runCatching {
+        ctx.contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.SIZE), null, null, null)?.use { c ->
+            if (c.moveToFirst() && !c.isNull(0)) c.getLong(0) else -1L
+        }
+    }.getOrNull() ?: -1L
+
+    /**
+     * A playlist file that is not a library (CSV, M3U, PLS, XSPF, OPML, JSON, text), read a piece at
+     * a time and added as one file named after it. Cut short, failed or stopped: nothing is added.
+     */
+    fun startFile(ctx: Context, uri: Uri, name: String) {
+        val app = ctx.applicationContext
+        val total = size(app, uri)
+        job?.cancel()
+        state.value = State.Reading(name, 0, total, library = false)
+        job = scope.launch {
+            val added = try {
+                val input = app.contentResolver.openInputStream(uri) ?: error(app.getString(R.string.library_cannot_open))
+                input.use { s ->
+                    LocalFilesProvider.importStream(
+                        app, name, PlaylistFiles.reader(s),
+                        progress = { state.value = State.Reading(name, it, total, library = false) }, cancelled = { !isActive },
+                    )
+                }
+            } catch (e: java.util.concurrent.CancellationException) {
+                return@launch
+            } catch (e: ItunesLibrary.Incomplete) {
+                state.value = State.Done(emptyList(), null, app.getString(R.string.file_incomplete)); return@launch
+            } catch (e: Throwable) {
+                state.value = State.Done(emptyList(), null, app.getString(R.string.library_failed, e.message ?: e.javaClass.simpleName)); return@launch
+            }
+            imported.value++
+            state.value = State.Done(listOf(added.id to added.trackCount), added, null)
+        }
+    }
+
     fun start(ctx: Context, uri: Uri, name: String) {
         val app = ctx.applicationContext
-        val total = runCatching {
-            app.contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.SIZE), null, null, null)?.use { c ->
-                if (c.moveToFirst() && !c.isNull(0)) c.getLong(0) else -1L
-            }
-        }.getOrNull() ?: -1L
+        val total = size(app, uri)
         job?.cancel()
         state.value = State.Reading(name, 0, total)
         job = scope.launch {
@@ -205,7 +247,7 @@ private fun ReadingDialog(s: LibraryImport.State.Reading) {
         onDismissRequest = { hidden = true },
         confirmButton = { TextButton(onClick = { hidden = true }) { Text(stringResource(R.string.library_hide)) } },
         dismissButton = { TextButton(onClick = { LibraryImport.stop() }) { Text(stringResource(android.R.string.cancel)) } },
-        title = { Text(stringResource(R.string.library_reading)) },
+        title = { Text(stringResource(if (s.library) R.string.library_reading else R.string.file_reading)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (s.total > 0) LinearProgressIndicator(progress = { (s.read.toFloat() / s.total).coerceIn(0f, 1f) }, modifier = Modifier.fillMaxWidth())
@@ -215,7 +257,7 @@ private fun ReadingDialog(s: LibraryImport.State.Reading) {
                     else stringResource(R.string.library_read, Formatter.formatShortFileSize(ctx, s.read)),
                     style = MaterialTheme.typography.bodyMedium,
                 )
-                Text(stringResource(R.string.library_reading_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(if (s.library) R.string.library_reading_note else R.string.file_reading_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         },
     )

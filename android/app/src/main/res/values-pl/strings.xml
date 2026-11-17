@@ -2842,6 +2842,9 @@
     <string name="library_all_at_once">Wszystko naraz</string>
     <string name="library_whole">Cała biblioteka w jednym pliku</string>
     <string name="library_smart_songs">%1$s · inteligentna</string>
+    <string name="file_reading">Odczyt pliku…</string>
+    <string name="file_reading_note">Jest czytany kawałek po kawałku: nawet bardzo duży plik nie obciąża telefonu. Możesz to ukryć, działa dalej, a plik zostanie dodany na końcu.</string>
+    <string name="file_incomplete">Plik kończy się przed końcem swojej listy: jest niekompletny, więc nic nie dodano. Wyeksportuj go ponownie albo skopiuj jeszcze raz na telefon.</string>
     <plurals name="library_added">
         <item quantity="one">Dodano %1$d playlistę: %2$s</item>
         <item quantity="few">Dodano playlisty (%1$d): %2$s</item>

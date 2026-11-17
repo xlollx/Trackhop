@@ -150,6 +150,8 @@ object LocalFilesProvider : MusicProvider {
     fun importStream(ctx: Env, fileName: String, reader: java.io.Reader, progress: (Long) -> Unit = {}, cancelled: () -> Boolean = { false }): Playlist {
         val settings = ctx.store.data.settings
         val tracks = PlaylistFiles.readStream(fileName, reader, PlaylistFiles.NameLayout.of(settings.fileNameLayout), NamePatterns.compileAll(settings.fileNamePatterns), progress, cancelled)
+        // Stopped while the last piece was read: still nothing is added.
+        if (cancelled()) throw java.util.concurrent.CancellationException("reading stopped")
         val base = CsvCodec.safeName(fileName.substringBeforeLast('.').ifBlank { "playlist" })
         var candidate = base
         var n = 2

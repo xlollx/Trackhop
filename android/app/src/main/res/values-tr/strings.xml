@@ -2732,6 +2732,9 @@
     <string name="library_all_at_once">Hepsi birden</string>
     <string name="library_whole">Tüm arşiv tek dosya olarak</string>
     <string name="library_smart_songs">%1$s · akıllı</string>
+    <string name="file_reading">Dosya okunuyor…</string>
+    <string name="file_reading_note">Parça parça okunur: çok büyük bir dosya bile telefonu yormaz. Bunu gizleyebilirsin, kendi kendine devam eder ve sonunda dosya eklenir.</string>
+    <string name="file_incomplete">Dosya, listesi bitmeden bitiyor: eksik olduğu için hiçbir şey eklenmedi. Yeniden dışa aktar ya da telefona yeniden kopyala.</string>
     <plurals name="library_added">
         <item quantity="one">%1$d çalma listesi eklendi: %2$s</item>
         <item quantity="other">%1$d çalma listesi eklendi: %2$s</item>
