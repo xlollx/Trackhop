@@ -1,5 +1,6 @@
 package com.xlollx.songport.sync
 
+import com.xlollx.songport.Features
 import com.xlollx.songport.model.MatchPolicy
 import com.xlollx.songport.model.Track
 import java.text.Normalizer
@@ -22,8 +23,9 @@ object Matcher {
     /**
      * Raised whenever matching or searching changes so that a track missed before may be found now:
      * the misses remembered under another revision are searched again on the next run (#57).
+     * 3 with the 1.18 switch, where names are compared across scripts too; 1.17 keeps its misses.
      */
-    const val REVISION = 2
+    val REVISION: Int get() = if (Features.v2) 3 else 2
 
     private val BRACKET_NOISE = Regex(
         """\s*[(\[][^)\]]*\b(feat\.?|ft\.?|featuring|remaster\w*|rimasterizzat\w*|version|versione|edit|(?<!re)mix|live|mono|stereo|deluxe|bonus|explicit|clean|official|video|audio|lyrics?|hd|4k|visuali[sz]er|radio|single|album|original|from|soundtrack|ost|anniversary|edition|\d{4})\b[^)\]]*[)\]]""",
@@ -359,8 +361,33 @@ object Matcher {
         }
     }
 
+    /**
+     * What a title in Hebrew or Arabic counts against a Latin one with the same consonants: with the
+     * same artist it is accepted, but under [REVIEW_THRESHOLD], so the user is asked to check it.
+     */
+    private const val ABJAD_TITLE = 0.75
+
+    /**
+     * How alike [a] and [b] are once both are in Latin letters, when exactly one of them is written in
+     * another script that [Translit] reads; 0 for every other pair, and for names too short to tell.
+     * Hebrew and Arabic write no vowels: the consonants must be the same ones, and that counts [abjad].
+     */
+    private fun acrossScripts(a: String, b: String, abjad: Double, normalize: (String) -> String): Double {
+        if (Translit.foreign(a) == Translit.foreign(b)) return 0.0
+        val x = normalize(Translit.latin(a) ?: return 0.0)
+        val y = normalize(Translit.latin(b) ?: return 0.0)
+        if (Translit.abjad(a) || Translit.abjad(b)) {
+            val kx = Translit.skeleton(x)
+            return if (kx.length >= 3 && similarity(kx, Translit.skeleton(y)) >= 1.0) abjad else 0.0
+        }
+        return if (minOf(x.length, y.length) >= 3) similarity(x, y) else 0.0
+    }
+
     /** Brano con titolo/artisti gia' normalizzati (evita di rifare le regex a ogni confronto). */
-    class Norm(val track: Track, val title: String, val artists: List<String>, val isrc: String?)
+    class Norm(val track: Track, val title: String, val artists: List<String>, val isrc: String?) {
+        /** Something of it is written in another script than Latin: only then is it compared across scripts. */
+        val foreign = Translit.foreign(track.title) || track.artists.any { Translit.foreign(it) }
+    }
 
     fun norm(t: Track) = Norm(t, normalizeTitle(t.title), t.artists.map { normalizeArtist(it) }.filter { it.isNotEmpty() }, t.isrcNorm)
 
@@ -379,11 +406,27 @@ object Matcher {
         // not "Equinoxe, Part 4", not even as the closest one (#57, 14/11): the titles are compared without it.
         // A title that is nothing but its part ("Pt. 2", "Part II") has nothing left to compare: as it is.
         val sb = PART_N.replace(st, " ").trim(); val cb = PART_N.replace(ct, " ").trim()
-        val title = if (partOf(st) != null && partOf(ct) != null && !(sb.isEmpty() && cb.isEmpty())) similarity(sb, cb).let { bare ->
+        var title = if (partOf(st) != null && partOf(ct) != null && !(sb.isEmpty() && cb.isEmpty())) similarity(sb, cb).let { bare ->
             if (bare >= 1.0 && partOf(st) == partOf(ct)) similarity(st, ct) else minOf(similarity(st, ct), bare)
         } else similarity(st, ct)
-        val artist = artistScoreN(s.artists, c.artists)
+        var artist = artistScoreN(s.artists, c.artists)
         val artistKnown = s.artists.isNotEmpty() && c.artists.isNotEmpty()
+        // One side in another writing system ("Кино — Группа крови" for "Kino — Gruppa krovi"): compared
+        // in Latin letters, and only to raise a score. As strict as the other names of #57: the artist
+        // must be the same one once both are in Latin letters, the lengths within a fifth where both are
+        // known; a shared title alone is another song. Two Latin names never come here.
+        var byConsonants = false
+        val sameLength = s.track.durationMs <= 0 || c.track.durationMs <= 0 ||
+            abs(s.track.durationMs - c.track.durationMs) * 5 <= max(s.track.durationMs, c.track.durationMs)
+        if ((s.foreign || c.foreign) && artistKnown && sameLength && Features.v2) {
+            val across = max(artist, s.track.artists.maxOf { a -> c.track.artists.maxOf { b -> acrossScripts(a, b, 1.0, ::normalizeArtist) } })
+            if (across >= 0.9) {
+                // The artist told by consonants alone (Hebrew, Arabic) can be another one: never taken unchecked.
+                byConsonants = artist < 0.9 && (s.track.artists + c.track.artists).any { Translit.abjad(it) }
+                artist = across
+                title = max(title, acrossScripts(s.track.title, c.track.title, ABJAD_TITLE, ::normalizeTitle))
+            }
+        }
         val base = if (artistKnown) 0.6 * title + 0.4 * artist else 0.85 * title + 0.15 * artist
         // "Part 4" against "Part 5", "No. 1" against "No. 2": close titles, different pieces.
         val na = numbers(st); val nb = numbers(ct)
@@ -400,9 +443,10 @@ object Matcher {
                 abs(s.track.durationMs - c.track.durationMs) * 3 <= max(s.track.durationMs, c.track.durationMs)
             if (pa != null && pa == pb && st == ct && artist >= 0.9 && near) max(d, 0.8) else d
         }
-        return base * numberFactor * partFactor * duration * versionFactor(s.track.title, c.track.title) *
+        val score = base * numberFactor * partFactor * duration * versionFactor(s.track.title, c.track.title) *
             albumFactor(s.track.album, c.track.album, policy) * policyFactor(s.track, c.track, policy) *
             liveAlbumFactor(s.track.album, c.track.album, policy)
+        return if (byConsonants) minOf(score, REVIEW_THRESHOLD - 0.01) else score
     }
 
     /**
@@ -477,10 +521,17 @@ object Matcher {
 
         init {
             items.forEachIndexed { i, n ->
-                n.title.split(' ').filter { it.isNotEmpty() }.toSet().forEach { byToken.getOrPut(it) { ArrayList() }.add(i) }
+                tokens(n).forEach { byToken.getOrPut(it) { ArrayList() }.add(i) }
                 n.isrc?.let { byIsrc.putIfAbsent(it, i) }
                 showKeys(n.track).forEach { byShow.putIfAbsent(it, i) }
             }
+        }
+
+        /** The words of a title, and in Latin letters too for one in another script: "Группа крови" meets "Gruppa krovi". */
+        private fun tokens(n: Norm): Set<String> {
+            val own = n.title.split(' ').filter { it.isNotEmpty() }.toSet()
+            if (!Translit.foreign(n.track.title) || !Features.v2) return own
+            return own + normalizeTitle(Translit.latin(n.track.title) ?: return own).split(' ').filter { it.isNotEmpty() }
         }
 
         private fun showKeys(t: Track): List<String> = listOfNotNull(
@@ -493,7 +544,7 @@ object Matcher {
             s.isrc?.let { isrc -> byIsrc[isrc]?.let { return items[it].track } }
             showKeys(src).firstNotNullOfOrNull { byShow[it] }?.let { return items[it].track }
             val candIdx = LinkedHashSet<Int>()
-            s.title.split(' ').filter { it.isNotEmpty() }.forEach { tok -> byToken[tok]?.let { candIdx.addAll(it) } }
+            tokens(s).forEach { tok -> byToken[tok]?.let { candIdx.addAll(it) } }
             var bestScore = 0.0
             var best: Track? = null
             for (i in candIdx) {
