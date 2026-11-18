@@ -3384,6 +3384,7 @@
     <string name="new_sync_multi_desc">Un origen, varios destinos</string>
     <string name="nway_editor_new">Nueva sincronización múltiple</string>
     <string name="nway_editor_edit">Editar sincronización múltiple</string>
+    <string name="nway_edit_busy">Esta sincronización múltiple está en curso: podrás guardar cuando termine.</string>
     <string name="nway_one_target">Un destino</string>
     <string name="nway_several_targets">Varios destinos</string>
     <string name="nway_choose_source">Elegir el origen</string>

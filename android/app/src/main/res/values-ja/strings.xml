@@ -3279,6 +3279,7 @@
     <string name="new_sync_multi_desc">1 つの同期元から複数の同期先へ</string>
     <string name="nway_editor_new">新しいマルチ同期</string>
     <string name="nway_editor_edit">マルチ同期を編集</string>
+    <string name="nway_edit_busy">このマルチ同期は実行中です。終了後に保存できます。</string>
     <string name="nway_one_target">同期先 1 つ</string>
     <string name="nway_several_targets">複数の同期先</string>
     <string name="nway_choose_source">同期元を選択</string>

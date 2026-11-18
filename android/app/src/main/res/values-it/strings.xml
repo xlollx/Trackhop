@@ -3376,6 +3376,7 @@
     <string name="new_sync_multi_desc">Un’origine, più destinazioni</string>
     <string name="nway_editor_new">Nuova sync multipla</string>
     <string name="nway_editor_edit">Modifica sync multipla</string>
+    <string name="nway_edit_busy">Questa sync multipla è in corso: potrai salvare quando avrà finito.</string>
     <string name="nway_one_target">Una destinazione</string>
     <string name="nway_several_targets">Più destinazioni</string>
     <string name="nway_choose_source">Scegli l’origine</string>

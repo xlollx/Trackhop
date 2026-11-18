@@ -3376,6 +3376,7 @@
     <string name="new_sync_multi_desc">Eine Quelle, mehrere Ziele</string>
     <string name="nway_editor_new">Neuer Multi-Sync</string>
     <string name="nway_editor_edit">Multi-Sync bearbeiten</string>
+    <string name="nway_edit_busy">Dieser Multi-Sync läuft gerade: Speichern ist möglich, sobald er fertig ist.</string>
     <string name="nway_one_target">Ein Ziel</string>
     <string name="nway_several_targets">Mehrere Ziele</string>
     <string name="nway_choose_source">Quelle wählen</string>

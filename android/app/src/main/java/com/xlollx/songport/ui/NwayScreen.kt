@@ -110,6 +110,16 @@ object NwayUi {
         return if (all.isEmpty()) all else all - Nway.anchors(d).keys
     }
 
+    /**
+     * The syncs the Syncs list shows as syncs: the classic ones and one per multi sync (the sync of its
+     * source), without the syncs behind a card. What the search counts ("Search 13 syncs") and what the
+     * filter's line counts ("1 of 13 syncs"): the same number.
+     */
+    fun listedSyncs(d: StoreData): List<SyncJob> {
+        val hidden = hiddenJobIds(d)
+        return if (hidden.isEmpty()) d.syncs else d.syncs.filter { it.id !in hidden }
+    }
+
     /** The syncs a card stands for: all the syncs of its group for a multi sync's card, else itself. */
     fun standsFor(d: StoreData): (SyncJob) -> List<SyncJob> {
         val anchors = Nway.anchors(d)

@@ -167,6 +167,12 @@ fun NwayEditorScreen(
     // The group deleted meanwhile (a file brought in): nothing to edit.
     if (!isNew && group == null) { androidx.compose.runtime.LaunchedEffect(Unit) { onClose() }; return }
 
+    // While any of its syncs runs (or a run of the whole group is under way) the group is not changed:
+    // its page and its card's menu keep Edit off then too; an editor already open waits, and says why.
+    val runningNow by com.xlollx.songport.sync.SyncState.running.collectAsState()
+    val batchesNow by com.xlollx.songport.sync.SyncState.batches.collectAsState()
+    val busy = group != null && (com.xlollx.songport.sync.SyncState.batchOf(group.id, batchesNow) != null ||
+        Nway.jobsOf(data, group.id).any { it.id in runningNow })
     val missing = when (NwayEdit.missing(draft)) {
         NwayEdit.Missing.SOURCE, NwayEdit.Missing.NEW_SOURCE -> stringResource(R.string.nway_need_source)
         NwayEdit.Missing.TARGET -> stringResource(R.string.nway_need_target)
@@ -183,6 +189,10 @@ fun NwayEditorScreen(
         val description = MusicProvider.description(ctx.getString(R.string.app_name))
         val app = ctx.applicationContext
         withContext(NonCancellable + Dispatchers.IO) {
+            // Checked again at the moment of saving: a run may have started since the button was tapped.
+            if (group != null && (com.xlollx.songport.sync.SyncState.batchOf(group.id) != null ||
+                    Nway.jobsOf(store.data, group.id).any { it.id in com.xlollx.songport.sync.SyncState.running.value }))
+                throw IllegalStateException(app.getString(R.string.nway_edit_busy))
             var ready = draft
             for ((i, t) in ready.targets.withIndex()) if (t.playlistId == null) {
                 val p = Providers.byId(t.provider) ?: throw IllegalStateException(t.provider)
@@ -219,10 +229,10 @@ fun NwayEditorScreen(
         bottomBar = {
             Surface(tonalElevation = 3.dp, shadowElevation = 6.dp) {
                 Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    missing?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    (if (busy) stringResource(R.string.nway_edit_busy) else missing)?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                         OutlinedButton(onClick = close, modifier = Modifier.weight(1f).height(52.dp)) { Text(stringResource(R.string.cancel)) }
-                        Button(onClick = { preview = true }, enabled = missing == null, modifier = Modifier.weight(1f).height(52.dp)) { Text(stringResource(R.string.preview)) }
+                        Button(onClick = { preview = true }, enabled = missing == null && !busy, modifier = Modifier.weight(1f).height(52.dp)) { Text(stringResource(R.string.preview)) }
                     }
                 }
             }

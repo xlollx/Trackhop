@@ -3384,6 +3384,7 @@
     <string name="new_sync_multi_desc">Une source, plusieurs cibles</string>
     <string name="nway_editor_new">Nouvelle sync multiple</string>
     <string name="nway_editor_edit">Modifier la sync multiple</string>
+    <string name="nway_edit_busy">Cette sync multiple est en cours : vous pourrez enregistrer une fois qu’elle sera terminée.</string>
     <string name="nway_one_target">Une cible</string>
     <string name="nway_several_targets">Plusieurs cibles</string>
     <string name="nway_choose_source">Choisir la source</string>

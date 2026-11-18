@@ -3279,6 +3279,7 @@
     <string name="new_sync_multi_desc">一个来源，多个目标</string>
     <string name="nway_editor_new">新建多目标同步</string>
     <string name="nway_editor_edit">编辑多目标同步</string>
+    <string name="nway_edit_busy">此多目标同步正在运行：运行结束后即可保存。</string>
     <string name="nway_one_target">一个目标</string>
     <string name="nway_several_targets">多个目标</string>
     <string name="nway_choose_source">选择来源</string>

@@ -3570,6 +3570,7 @@
     <string name="new_sync_multi_desc">Один источник, несколько целей</string>
     <string name="nway_editor_new">Новая мультисинхронизация</string>
     <string name="nway_editor_edit">Изменить мультисинхронизацию</string>
+    <string name="nway_edit_busy">Эта мультисинхронизация выполняется: сохранить можно будет после её завершения.</string>
     <string name="nway_one_target">Одна цель</string>
     <string name="nway_several_targets">Несколько целей</string>
     <string name="nway_choose_source">Выбрать источник</string>

@@ -25,6 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -207,8 +209,15 @@ internal fun GroupWorkBar(run: NwayRun.State, modifier: Modifier = Modifier, log
     val said = now?.let { stringResource(R.string.nway_run_now_desc, nwayService(it.provider)) }
     Row(modifier.testTag(GROUP_BAR_TAG).then(if (said != null) Modifier.semantics(mergeDescendants = true) { contentDescription = said } else Modifier), verticalAlignment = Alignment.CenterVertically) {
         if (now != null) {
-            // Said once, by the row: the logo itself is a picture of the same thing.
-            Box(Modifier.testTag("$GROUP_BAR_TAG:${now.provider}").clearAndSetSemantics { }) { ServiceLogo(Providers.byId(now.provider), logo) }
+            // Said once, by the row: the logo itself is a picture of the same thing. It takes no height of
+            // its own: the row is as tall as the bar (or as its caller makes it), so a running multi sync's
+            // card and tile are as tall as any other sync's (2.1.2); a larger logo reaches over the space around.
+            Box(
+                Modifier.testTag("$GROUP_BAR_TAG:${now.provider}").clearAndSetSemantics { }.layout { m, c ->
+                    val p = m.measure(c.copy(minHeight = 0, maxHeight = Constraints.Infinity))
+                    layout(p.width, 0) { p.place(0, -p.height / 2) }
+                },
+            ) { ServiceLogo(Providers.byId(now.provider), logo) }
             Spacer(Modifier.width(8.dp))
         }
         val f = run.fraction

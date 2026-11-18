@@ -3374,6 +3374,7 @@
     <string name="new_sync_multi_desc">Bir kaynak, birkaç hedef</string>
     <string name="nway_editor_new">Yeni çoklu senkronizasyon</string>
     <string name="nway_editor_edit">Çoklu senkronizasyonu düzenle</string>
+    <string name="nway_edit_busy">Bu çoklu senkronizasyon çalışıyor: bittiğinde kaydedebilirsiniz.</string>
     <string name="nway_one_target">Tek hedef</string>
     <string name="nway_several_targets">Birkaç hedef</string>
     <string name="nway_choose_source">Kaynağı seç</string>

@@ -97,6 +97,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.LayoutDirection
@@ -286,6 +287,8 @@ fun SyncsScreen(
     val stored = data
     @Suppress("NAME_SHADOWING")
     val data = if (nwayHidden.isEmpty()) data else remember(data, nwayHidden) { data.copy(jobs = data.jobs.filter { it.id !in nwayHidden }) }
+    // The same count as the search's ("Search N syncs"): NwayUi.listedSyncs.
+    val listedCount = remember(stored) { NwayUi.listedSyncs(stored).size }
     val running by SyncState.running.collectAsState()
     // Pause asked for, pause reached (the engine waiting), stop asked for: what each running card shows.
     val pausedSet by SyncState.paused.collectAsState()
@@ -604,7 +607,7 @@ fun SyncsScreen(
                 }
             }
             // With a filter on: how many cards are shown, and a way to clear it all. Under the row, with the list.
-            if (filterLine) item(key = "filterline", span = wholeRow) { SyncFinderSummary(data.syncs.size, shown.size) { filter = SyncFilter() } }
+            if (filterLine) item(key = "filterline", span = wholeRow) { SyncFinderSummary(listedCount, shown.size) { filter = SyncFilter() } }
             // Una volta sola, dopo la prima sync grande: il momento in cui si vede quanto tempo ha fatto risparmiare.
             if (support != null) item(key = "support", span = wholeRow) { SupportCard(support) }
             else if (nudge) item(key = "nudge", span = wholeRow) { CoffeeCard() }
@@ -1060,6 +1063,8 @@ private fun JobMenuHost(
     onToggleEnabled: (SyncJob) -> Unit, onMove: (SyncJob, Int, Boolean) -> Unit,
     /** The multi sync this card stands for: its menu is a sync's own, and what it does reaches every service of the group. */
     group: GroupCard? = null,
+    /** A multi sync's page: what its card's Preview opens (a group is previewed service by service there). */
+    onOpenGroup: (String) -> Unit = {},
     content: @Composable (List<MenuAction>) -> Unit,
 ) {
     val ctx = LocalContext.current
@@ -1130,11 +1135,14 @@ private fun JobMenuHost(
                 MenuAction(stringResource(R.string.files_select), { sel(job) }, icon = Icons.Outlined.CheckCircle, subtitle = stringResource(R.string.bulk_select_hint), highlighted = true)
             },
             if (job.aiPrompt != null) MenuAction(stringResource(R.string.ai_extend), { extendOpen = true }, icon = Icons.Outlined.AutoAwesome) else null,
-            MenuAction(stringResource(R.string.preview), { onPreview(job) }, icon = Icons.Outlined.Visibility),
+            // A multi sync: its page, never the preview of one of its syncs alone (whose Run would run that one only).
+            // Not while it runs, as on its page: its syncs are at work.
+            if (group != null) MenuAction(stringResource(R.string.preview), { onOpenGroup(group.group.id) }, enabled = group.run == null, icon = Icons.Outlined.Visibility)
+            else MenuAction(stringResource(R.string.preview), { onPreview(job) }, icon = Icons.Outlined.Visibility),
             // On the server: changed only once taken back. A shared playlist's syncs are made and changed from its group; anything else can become one.
             if (onServer) null
             else sharedGroup?.let { gid -> MenuAction(stringResource(R.string.shared_open_group), { SharedUi.request.value = SharedUi.Request.Open(gid) }, icon = Icons.Outlined.Groups) }
-                ?: MenuAction(stringResource(R.string.edit), { onEdit(job) }, icon = Icons.Outlined.Edit),
+                ?: MenuAction(stringResource(R.string.edit), { onEdit(job) }, enabled = group?.run == null, icon = Icons.Outlined.Edit),
             if (v2 && !onServer && sharedGroup == null && group == null && SharedUi.canShare(job)) MenuAction(stringResource(R.string.shared_share_from_sync), {
                 SharedUi.request.value = SharedUi.Request.Create(job.target, job.target.playlistName.ifBlank { job.name })
             }, icon = Icons.Outlined.GroupAdd) else null,
@@ -1271,7 +1279,7 @@ private fun JobCard(
     onLive: (() -> Unit)? = null,
     /** A multi sync: the card stands for the group, with its name, all its services and their state; a tap opens its page. */
     group: GroupCard? = null, onOpenGroup: (String) -> Unit = {},
-) = JobMenuHost(job, data, onEdit, onPreview, onDelete, onToggleEnabled, onMove, group) { menu ->
+) = JobMenuHost(job, data, onEdit, onPreview, onDelete, onToggleEnabled, onMove, group, onOpenGroup) { menu ->
     val ctx = LocalContext.current
     val isRunning = run != null
     val large = size == CardSize.LARGE
@@ -1292,14 +1300,21 @@ private fun JobCard(
     val dstName = job.target.playlistName.ifBlank { stringResource(R.string.editor_new_playlist) }
     val haptic = rememberConfirmHaptic()
     // The last run's figures: each opens what it counts (the tracks added, removed, not found, the playlist).
-    val statsShown = run == null && report != null && data.settings.newLook && report.ok
-    val onAdded = { listOpen = StatList(StatList.Kind.ADDED, report!!) }
-    val onRemoved = { listOpen = StatList(StatList.Kind.REMOVED, report!!) }
+    // A multi sync: its runs, each its services' reports added up (NwayHistory); the figures are its last run's.
+    val groupRuns = if (group == null) null else remember(data.reports, group.members) { NwayHistory.runs(data.reports, group.members) }
+    val shown = if (group != null) groupRuns?.lastOrNull() else report
+    val statsShown = run == null && shown != null && data.settings.newLook && shown.ok
+    val onAdded = { listOpen = StatList(StatList.Kind.ADDED, shown!!) }
+    val onRemoved = { listOpen = StatList(StatList.Kind.REMOVED, shown!!) }
+    // A multi sync's not found and its playlist: its page, where each service leads to its own.
     val onNotFound = {
-        if (report!!.unmatchedTracks.isNotEmpty() || report.reviewTracks.isNotEmpty()) onReview(report.id)
-        else listOpen = StatList(StatList.Kind.NOT_FOUND, report)
+        if (group != null) onOpenGroup(group.group.id)
+        else if (shown!!.unmatchedTracks.isNotEmpty() || shown.reviewTracks.isNotEmpty()) onReview(shown.id)
+        else listOpen = StatList(StatList.Kind.NOT_FOUND, shown)
     }
-    val onTracks = if (job.target.playlistId != null) ({ onOpenTarget(job) }) else null
+    val onTracks = if (group != null) ({ onOpenGroup(group.group.id) }) else if (job.target.playlistId != null) ({ onOpenTarget(job) }) else null
+    // "In playlist": a multi sync counts its source (what every service holds), when known.
+    val groupSize = if (group != null) groupTracks(group.group, group.status.last) ?: shown?.sourceCount else null
     val marksBeside = small && wide && statsShown
     Card(
         // While running, a tap opens the live list of tracks processed so far.
@@ -1372,7 +1387,7 @@ private fun JobCard(
                 }
                 if (marksBeside) {
                     Spacer(Modifier.width(12.dp))
-                    SmallStats(job.color, report!!, onAdded, onRemoved, onNotFound, onTracks, Modifier.width(240.dp))
+                    SmallStats(job.color, shown!!, onAdded, onRemoved, onNotFound, onTracks, Modifier.width(240.dp), inPlaylist = groupSize)
                 }
             }
             if (run != null) {
@@ -1408,7 +1423,7 @@ private fun JobCard(
                     }
                     IconButton(enabled = !stopping, modifier = Modifier.size(48.dp), onClick = { SyncState.stop(runId) }) { Icon(Icons.Filled.Stop, stringResource(R.string.sync_stop)) }
                 }
-            } else if (group != null) {
+            } else if (group != null && !statsShown) {
                 // What the group holds and what its services lack, in a line (each service's own figures are on its page).
                 val tracks = groupTracks(group.group, group.status.last)
                 val lacking = group.status.members.sumOf { m -> m.report?.takeIf { it.jobId == m.member.down.id }?.unmatchedTracks?.size ?: data.reports.firstOrNull { it.id == m.member.down.lastReportId }?.unmatchedTracks?.size ?: 0 }
@@ -1424,10 +1439,10 @@ private fun JobCard(
                 // Beside the name already.
             } else if (statsShown) {
                 Spacer(Modifier.height(when (size) { CardSize.LARGE -> 14.dp; CardSize.MEDIUM -> 12.dp; CardSize.SMALL -> if (low) 8.dp else 10.dp }))
-                if (small) SmallStats(job.color, report, onAdded, onRemoved, onNotFound, onTracks)
+                if (small) SmallStats(job.color, shown!!, onAdded, onRemoved, onNotFound, onTracks, inPlaylist = groupSize)
                 else RunStats(
-                    job.color, report, data.reports.filter { it.jobId == job.id && !it.partial }.sortedBy { it.startedEpoch }.takeLast(10),
-                    onAdded = onAdded, onRemoved = onRemoved, onNotFound = onNotFound, onTracks = onTracks, compact = !large,
+                    job.color, shown!!, groupRuns ?: data.reports.filter { it.jobId == job.id && !it.partial }.sortedBy { it.startedEpoch }.takeLast(10),
+                    onAdded = onAdded, onRemoved = onRemoved, onNotFound = onNotFound, onTracks = onTracks, compact = !large, inPlaylist = groupSize,
                 )
             } else if (report != null) {
                 Spacer(Modifier.height(if (small) 6.dp else 8.dp))
@@ -1599,7 +1614,7 @@ private fun JobTile(
     onReview: (String) -> Unit, onOpenLog: () -> Unit, onToggleEnabled: (SyncJob) -> Unit, onMove: (SyncJob, Int, Boolean) -> Unit,
     /** A multi sync: the tile stands for the group, with its name, its services (which one is being synced) and their state. */
     group: GroupCard? = null, onOpenGroup: (String) -> Unit = {},
-) = JobMenuHost(job, data, onEdit, onPreview, onDelete, onToggleEnabled, onMove, group) { menu ->
+) = JobMenuHost(job, data, onEdit, onPreview, onDelete, onToggleEnabled, onMove, group, onOpenGroup) { menu ->
     val ctx = LocalContext.current
     val isRunning = run != null
     val report = data.reports.firstOrNull { it.id == job.lastReportId }
@@ -1671,8 +1686,10 @@ private fun JobTile(
                     val pct = progress?.percent
                     // A long status ("Waiting for internet") glides rather than being cut.
                     Text(
-                        // A multi sync says which service and where the run stands ("TIDAL · 3 of 6"); its step is the line below.
-                        status.text + (if (isRunning && pct != null && group == null) " · $pct%" else ""),
+                        // A multi sync says which service, where the run stands and its step, in this one line
+                        // ("TIDAL · 3 of 6 · Reading target playlist…"): the tile keeps the height of any other.
+                        status.text + (if (isRunning && pct != null && group == null) " · $pct%" else "") +
+                            (group?.run?.progress?.takeIf { status.live }?.let { " · " + progressText(it) } ?: ""),
                         style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1, softWrap = false, modifier = Modifier.weight(1f, fill = false).cardMarquee(),
                     )
@@ -1685,22 +1702,17 @@ private fun JobTile(
                 Spacer(Modifier.height(4.dp))
                 // A starred sync shows its star in the tile's bottom corner.
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                // A multi sync at work: the step of the service being synced, then the bar with that service's small logo beside it.
-                if (group?.run != null) Column(Modifier.weight(1f)) {
-                    Text(
-                        progressText(group.run.progress), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1, softWrap = false, modifier = Modifier.cardMarquee(),
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    GroupWorkBar(group.run, Modifier.fillMaxWidth().padding(end = 6.dp), logo = 14.dp)
-                } else
                 Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                     Text(
                         if (!isRunning && next != null && job.radio == null) stringResource(R.string.tile_next_run, nextRunShort(ctx, next)) else "",
                         style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1, minLines = 1, softWrap = false, modifier = Modifier.cardMarquee(),
                     )
-                    if (isRunning) {
+                    // A multi sync at work: the bar with the small logo of the service being synced, as tall as the line.
+                    if (group?.run != null) {
+                        val line = with(LocalDensity.current) { MaterialTheme.typography.labelSmall.lineHeight.toDp() }.coerceAtMost(16.dp)
+                        GroupWorkBar(group.run, Modifier.fillMaxWidth().height(line).padding(end = 6.dp), logo = line)
+                    } else if (isRunning) {
                         val pct = progress?.percent
                         WorkBar(pct?.let { p -> { p / 100f } }, Modifier.fillMaxWidth().padding(end = 6.dp))
                     }
@@ -3214,6 +3226,8 @@ private fun RunStats(
     onAdded: () -> Unit, onRemoved: () -> Unit, onNotFound: () -> Unit, onTracks: (() -> Unit)?,
     /** A medium card: shorter tiles, closer to the run history. */
     compact: Boolean = false,
+    /** The playlist's size when the card knows it otherwise (a multi sync: its source's). */
+    inPlaylist: Int? = null,
 ) {
     val brush = jobControlBrush(color)
     val ink = jobInk(color)
@@ -3226,7 +3240,7 @@ private fun RunStats(
         // The tile opens the synced playlist, so it counts that one: what it held before the run, plus
         // and minus this run's changes. A source that replaces its songs (a daylist) without Mirror
         // removals leaves the target larger than the source: +43 on 50 reads 93, not 50.
-        val size = if (r.targetCount > 0 || r.added > 0 || r.removed > 0) (r.targetCount + r.added - r.removed).coerceAtLeast(0) else r.sourceCount
+        val size = inPlaylist ?: if (r.targetCount > 0 || r.added > 0 || r.removed > 0) (r.targetCount + r.added - r.removed).coerceAtLeast(0) else r.sourceCount
         // Apart from this run's figures: a thin rule, then the playlist's size in an outlined tile.
         androidx.compose.material3.VerticalDivider(Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
         Stat("$size", stringResource(R.string.stat_in_playlist), Modifier.weight(1f), onClick = onTracks, outlined = true, compact = compact)
@@ -3286,10 +3300,11 @@ internal fun Stat(value: String, label: String, modifier: Modifier, brush: Brush
 private fun SmallStats(
     color: String?, r: SyncReport, onAdded: () -> Unit, onRemoved: () -> Unit, onNotFound: () -> Unit, onTracks: (() -> Unit)?,
     modifier: Modifier = Modifier.fillMaxWidth(),
+    inPlaylist: Int? = null,
 ) {
     val brush = jobControlBrush(color)
     val ink = jobInk(color)
-    val size = if (r.targetCount > 0 || r.added > 0 || r.removed > 0) (r.targetCount + r.added - r.removed).coerceAtLeast(0) else r.sourceCount
+    val size = inPlaylist ?: if (r.targetCount > 0 || r.added > 0 || r.removed > 0) (r.targetCount + r.added - r.removed).coerceAtLeast(0) else r.sourceCount
     val line = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
     @Composable
     fun Mark(icon: ImageVector, value: Int, label: String, modifier: Modifier, tint: Color? = null, onClick: (() -> Unit)?, outlined: Boolean = false) {

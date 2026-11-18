@@ -3572,6 +3572,7 @@
     <string name="new_sync_multi_desc">Jedno źródło, kilka celów</string>
     <string name="nway_editor_new">Nowa synchronizacja wielokrotna</string>
     <string name="nway_editor_edit">Edytuj synchronizację wielokrotną</string>
+    <string name="nway_edit_busy">Ta synchronizacja wielokrotna trwa: zapiszesz po jej zakończeniu.</string>
     <string name="nway_one_target">Jeden cel</string>
     <string name="nway_several_targets">Kilka celów</string>
     <string name="nway_choose_source">Wybierz źródło</string>

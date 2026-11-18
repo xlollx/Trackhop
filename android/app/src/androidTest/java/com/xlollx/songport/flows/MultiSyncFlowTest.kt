@@ -141,7 +141,7 @@ class MultiSyncFlowTest : FlowTest() {
 
     private fun theServiceBeingSyncedShows() {
         // "Deezer · 2 of 2", a ring on its logo, a tick on the one done, and its small logo right beside the bar.
-        waitText(s(R.string.nway_run_place, deezer(), 2, 2))
+        waitText(s(R.string.nway_run_place, deezer(), 2, 2), substring = true)
         waitFor("the logo being synced") { tagged(groupLogoTag(NwayRun.Phase.NOW, "deezer")) }
         waitFor("the logo done") { tagged(groupLogoTag(NwayRun.Phase.DONE, "spotify")) }
         waitFor("the bar") { tagged(GROUP_BAR_TAG) }

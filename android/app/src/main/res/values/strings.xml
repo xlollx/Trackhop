@@ -3378,6 +3378,7 @@
     <string name="new_sync_multi_desc">One source, several targets</string>
     <string name="nway_editor_new">New multi sync</string>
     <string name="nway_editor_edit">Edit multi sync</string>
+    <string name="nway_edit_busy">This multi sync is running: you can save once the run has finished.</string>
     <string name="nway_one_target">One target</string>
     <string name="nway_several_targets">Several targets</string>
     <string name="nway_choose_source">Choose the source</string>

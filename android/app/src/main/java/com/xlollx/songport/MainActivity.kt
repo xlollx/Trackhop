@@ -935,7 +935,9 @@ private fun MainScreen(
                     beside = if (finder) ({
                         // No wider than reads well in a wide window; in a narrow one it is what gives way.
                         Box(Modifier.weight(1f).padding(end = 4.dp)) {
-                            com.xlollx.songport.ui.SyncSearchField(syncFilter.value, data.syncs.size, Modifier.widthIn(max = 520.dp).fillMaxWidth()) { f ->
+                            // As many as the list shows as syncs (a multi sync once), the number of its "1 of N syncs" line.
+                            val listed = androidx.compose.runtime.remember(data) { com.xlollx.songport.ui.NwayUi.listedSyncs(data).size }
+                            com.xlollx.songport.ui.SyncSearchField(syncFilter.value, listed, Modifier.widthIn(max = 520.dp).fillMaxWidth()) { f ->
                                 // The preview code (see PreviewCode) turns the 1.18 preview on and is not kept as a search.
                                 if (!BuildConfig.V2 && com.xlollx.songport.PreviewCode.matches(f.query)) {
                                     store.updateSettings { it.copy(preview2 = true) }
