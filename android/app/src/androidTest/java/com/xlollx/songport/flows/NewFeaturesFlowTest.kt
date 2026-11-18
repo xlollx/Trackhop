@@ -232,4 +232,24 @@ class NewFeaturesFlowTest : FlowTest() {
         waitText(s(R.string.tracks_removed, 1))
         assertEquals(listOf("album2"), FakeWorld.playlists.getValue("spotify").first { it.id == MusicProvider.ALBUMS_ID }.tracks.map { it.id })
     }
+
+    @Test
+    fun likedSongsAreTidiedFromManagePlaylists() {
+        FakeWorld.useLikes()
+        launch(tabIntent(MainActivity.TAB_TOOLS))
+        waitText(s(R.string.tools_manage_title))
+        click(s(R.string.tools_manage_title))
+        // Liked songs open on a tap, above the playlists, as the other library lists do.
+        waitText("Road Trip")
+        click(s(R.string.liked_songs))
+        val liked = FakeWorld.playlists.getValue("spotify").first { it.id == MusicProvider.LIKED_ID }
+        val first = liked.tracks.first()
+        waitText(first.title)
+        click(first.title)
+        click(s(R.string.library_remove_n, 1))
+        waitText(s(R.string.library_remove_confirm, 1, s(R.string.liked_songs), "Spotify"))
+        click(s(R.string.remove))
+        waitText(s(R.string.tracks_removed, 1))
+        assertTrue(liked.tracks.none { it.id == first.id })
+    }
 }

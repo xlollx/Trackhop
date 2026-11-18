@@ -22,6 +22,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.Podcasts
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Album
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -108,7 +109,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
 
     LaunchedEffect(version) {
         lists = null; error = null
-        // Saved albums, followed artists and podcasts first, where the service can write them; then the own playlists.
+        // Liked songs, saved albums, followed artists and podcasts first, where the service can write them; then the own playlists.
         lists = try { provider.libraryEntries(ctx, asTarget = true).filter { it.id in MANAGED_LIBRARY } + provider.playlists(ctx).filter { it.ownedByMe } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.userMessage(ctx); emptyList() }
     }
     fun fail(e: Exception) { scope.launch { snackbar.showSnackbar(e.userMessage(ctx)) } }
@@ -284,10 +285,11 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
     }
 }
 
-/** The library lists this screen manages: what is saved or followed, not liked songs or plays. */
-private val MANAGED_LIBRARY = setOf(MusicProvider.ALBUMS_ID, MusicProvider.ARTISTS_ID, MusicProvider.PODCASTS_ID)
+/** The library lists this screen manages: liked songs and what is saved or followed, not plays. */
+private val MANAGED_LIBRARY = setOf(MusicProvider.LIKED_ID, MusicProvider.ALBUMS_ID, MusicProvider.ARTISTS_ID, MusicProvider.PODCASTS_ID)
 
 private fun libraryIcon(id: String) = when (id) {
+    MusicProvider.LIKED_ID -> Icons.Filled.Favorite
     MusicProvider.ALBUMS_ID -> Icons.Filled.Album
     MusicProvider.ARTISTS_ID -> Icons.Filled.Person
     else -> Icons.Filled.Podcasts
