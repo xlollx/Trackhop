@@ -212,11 +212,13 @@ internal fun GroupWorkBar(run: NwayRun.State, modifier: Modifier = Modifier, log
             // Said once, by the row: the logo itself is a picture of the same thing. It takes no height of
             // its own: the row is as tall as the bar (or as its caller makes it), so a running multi sync's
             // card and tile are as tall as any other sync's (2.1.2); a larger logo reaches over the space around.
+            // Its tag and semantics come after that layout, on the logo as drawn: on the zero-height box
+            // around it they would have no bounds at all.
             Box(
-                Modifier.testTag("$GROUP_BAR_TAG:${now.provider}").clearAndSetSemantics { }.layout { m, c ->
+                Modifier.layout { m, c ->
                     val p = m.measure(c.copy(minHeight = 0, maxHeight = Constraints.Infinity))
                     layout(p.width, 0) { p.place(0, -p.height / 2) }
-                },
+                }.testTag("$GROUP_BAR_TAG:${now.provider}").clearAndSetSemantics { },
             ) { ServiceLogo(Providers.byId(now.provider), logo) }
             Spacer(Modifier.width(8.dp))
         }

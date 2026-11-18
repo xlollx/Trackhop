@@ -22,6 +22,7 @@ import com.xlollx.songport.platform.env
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.shared.Nway
 import com.xlollx.songport.shared.SharedGroup
+import com.xlollx.songport.sync.Timing
 import com.xlollx.songport.ui.GROUP_SCHEDULE_ROW_TAG
 import com.xlollx.songport.ui.GROUP_SCHEDULE_SAVE_TAG
 import com.xlollx.songport.ui.NWAY_EXACT_OK_TAG
@@ -115,7 +116,8 @@ class GroupScheduleFlowTest : FlowTest() {
         remade()
         waitText(s(R.string.nway_schedule_note))
         waitText(saturday)
-        assertTrue("nothing saved by choosing", jobs().all { it.everyMinutes == 360 })
+        // Every 6 hours as a group made before 2.1.2 holds it: the plain choice, no interval of its own.
+        assertTrue("nothing saved by choosing", jobs().all { Timing.interval(it) == 360 && it.days.isEmpty() && it.at == null && it.scheduleId == null })
         save()
 
         // Every sync of the group: weekly, Saturday, 07:30, set by hand.
