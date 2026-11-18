@@ -211,6 +211,8 @@ private fun RoleChoice(main: Boolean, keepMine: Boolean, onMain: (Boolean) -> Un
 internal fun NwayAddDialog(
     taken: List<Pair<String, String?>>, onDismiss: () -> Unit,
     title: String = stringResource(R.string.nway_add), roles: Boolean = true, allowNew: Boolean = true,
+    /** The role offered first: main (two-way), or one that follows and keeps the user's additions. */
+    asMain: Boolean = true,
     onAdd: (NwayDraft) -> Unit,
 ) {
     val ctx = LocalContext.current
@@ -220,7 +222,7 @@ internal fun NwayAddDialog(
     var playlistName by rememberSaveable { mutableStateOf("") }
     var playlistCount by rememberSaveable { mutableStateOf(-1) }
     var makeNew by rememberSaveable { mutableStateOf(false) }
-    var main by rememberSaveable { mutableStateOf(true) }
+    var main by rememberSaveable { mutableStateOf(asMain) }
     var keepMine by rememberSaveable { mutableStateOf(true) }
     var lists by remember { mutableStateOf<List<Playlist>?>(null) }
     val service = serviceId?.let { Providers.byId(it) }
@@ -320,7 +322,8 @@ fun NwayCreateScreen(onClose: () -> Unit, onDone: () -> Unit) {
             }
         }
     }
-    if (adding) NwayAddDialog(members.map { it.provider to it.playlistId }, onDismiss = { adding = false }) { members = members + it; adding = false }
+    // As in the editor: the first playlist is the main one, the next ones follow and keep the user's additions.
+    if (adding) NwayAddDialog(members.map { it.provider to it.playlistId }, onDismiss = { adding = false }, asMain = members.none { it.main }) { members = members + it; adding = false }
     members.getOrNull(editing)?.let { m ->
         FitDialog(
             onDismissRequest = { editing = -1 },
