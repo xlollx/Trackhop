@@ -8,6 +8,7 @@ import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.platform.Env
+import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.Providers
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -385,4 +386,68 @@ class TwoWayRemovalsTest {
         assertFalse(ab.notes.any { it.startsWith("note_two_way") })
     }
 
+
+    // ------------------------------------------------------------ Liked songs that leave some likes out (2.1.3)
+
+    /** Liked songs read and written; [listsAll] off, as YouTube Music's Liked music, which leaves a liked video ([hidden]) out. */
+    private class Likes(id: String, private val listsAll: Boolean) : MemoryService(id) {
+        val hidden = HashSet<String>()
+        override val supportsLikedSongs = true
+        override val supportsLikedTarget = true
+        override val listsEveryLike: Boolean get() = listsAll
+        override suspend fun tracks(ctx: Env, playlistId: String): List<Track> = super.tracks(ctx, playlistId).filter { it.id !in hidden }
+    }
+
+    private val liked = MusicProvider.LIKED_ID
+    private fun ty(n: String) = Track(id = "y-$n", title = title(n), artists = listOf("Band"), album = "Album", durationMs = 200_000)
+
+    /** A classic pair, playlist A ↔ Liked songs on [y], run once: both hold songs 1 to 8. */
+    private suspend fun likedPair(y: Likes) {
+        y.catalogue += ((1..40).map { it.toString() } + listOf("x", "y", "z")).map { ty(it) }
+        Providers.testDoubles = listOf(a, y)
+        a.lists["pa"] = (1..8).map { ta("$it") }.toMutableList()
+        y.lists[liked] = (1..8).map { ty("$it") }.toMutableList()
+        env.store.upsertJob(SyncJob(id = "ab", name = "likes", source = PlaylistRef("ma", "pa", "pa"), target = PlaylistRef(y.id, liked, "Liked songs"), linkedJobId = "ba", twoWayRemovals = true))
+        env.store.upsertJob(SyncJob(id = "ba", name = "likes ↔", source = PlaylistRef(y.id, liked, "Liked songs"), target = PlaylistRef("ma", "pa", "pa"), linkedJobId = "ab", twoWayRemovals = true, twin = true))
+        both()
+        assertEquals(8, state()!!.links.size)
+    }
+
+    @Test fun aLikeTheLikedListLeavesOutDoesNotTakeTheSongFromTheOtherSide() = runBlocking {
+        val y = Likes("my", listsAll = false)
+        likedPair(y)
+        // A song added to A is liked on Y, and Y files it where its Liked songs do not show it (a liked video).
+        listA += ta("x")
+        y.hidden += "y-x"
+        val (ab, ba) = both()
+        assertEquals(1, ab.added)
+        assertEquals("A keeps it", 0, ba.removed)
+        assertTrue(ba.notes.toString(), ba.notes.any { it == "note_two_way_likes_hidden(my,1)" })
+        assertTrue(env.logs.any { it == "[engine] likes ↔: my does not list every liked song: 1 track missing there not removed from ma" })
+        // Run after run.
+        repeat(3) { both() }
+        assertTrue(listA.any { it.id == "a-x" })
+        assertEquals(9, listA.size)
+        // Nor is a song taken from A when it goes from Y's list: Y cannot say it was unliked. Additions go on as ever.
+        y.lists[liked]!!.removeAll { it.id == "y-2" }
+        listA += ta("y")
+        val (ab2, ba2) = both()
+        assertEquals(0, ba2.removed)
+        assertEquals(1, ab2.added)
+        assertTrue(listA.any { it.id == "a-2" })
+        // From A to Y, removals go on: A lists every song.
+        listA.removeAll { it.id == "a-3" }
+        both()
+        assertFalse(y.lists[liked]!!.any { it.id == "y-3" })
+    }
+
+    @Test fun whereTheLikedListShowsEveryLikeAnUnlikeStillReachesTheOtherSide() = runBlocking {
+        val y = Likes("my", listsAll = true)
+        likedPair(y)
+        y.lists[liked]!!.removeAll { it.id == "y-2" }
+        val (_, ba) = both()
+        assertEquals(1, ba.removed)
+        assertFalse(listA.any { it.id == "a-2" })
+        assertTrue(ba.notes.none { it.startsWith("note_two_way_likes_hidden") })
+    }
 }

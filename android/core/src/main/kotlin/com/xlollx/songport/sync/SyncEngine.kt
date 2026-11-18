@@ -705,6 +705,13 @@ class SyncEngine(
             val large = if (pairOn) extra.size > 1 && extra.size * 4 >= links.size else extra.size > REMOVAL_CAP_MIN && extra.size * 4 > dstTracks.size
             when {
                 pairOn && extra.isEmpty() -> {}
+                // A half of a pair that reads Liked songs where the service leaves some likes out (YouTube
+                // Music's Liked music, without the liked videos): a song missing there may still be liked,
+                // so nothing is removed from the other side on that listing. Additions go on as ever.
+                pairOn && MusicProvider.hidesLikes(src, srcPlaylistId) -> {
+                    notes += str("note_two_way_likes_hidden", src.displayName, extra.size)
+                    env.log("engine", "${job.name}: ${src.displayName} does not list every liked song: ${extra.size} ${tracksWord(extra.size)} missing there not removed from ${dst.displayName}")
+                }
                 paired && !pairOn -> if (extra.isNotEmpty()) notes += str("note_two_way_no_removals", extra.size)
                 sharing.isNotEmpty() -> if (extra.isNotEmpty()) notes += str("note_shared_target_no_removals", extra.size, sharing.joinToString(", ") { it.name })
                 // Ricerca non completata: un brano della destinazione puo' corrispondere a uno

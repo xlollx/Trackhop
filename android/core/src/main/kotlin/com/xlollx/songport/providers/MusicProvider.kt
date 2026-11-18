@@ -480,6 +480,12 @@ interface MusicProvider {
         const val PODCASTS_ID = "__podcasts__"
         const val RECENT_ID = "__recent__"
 
+        /**
+         * [playlistId] is [p]'s Liked songs and [p] leaves some likes out of that list ([listsEveryLike]):
+         * a song missing there may still be liked, so a two-way sync reading it removes nothing on its listing.
+         */
+        fun hidesLikes(p: MusicProvider?, playlistId: String?): Boolean = playlistId == LIKED_ID && p != null && !p.listsEveryLike
+
         fun isLibrary(playlistId: String?): Boolean =
             playlistId == LIKED_ID || playlistId == ALBUMS_ID || playlistId == ARTISTS_ID || playlistId == PODCASTS_ID || playlistId == RECENT_ID
 

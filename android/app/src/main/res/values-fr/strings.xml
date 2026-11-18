@@ -2100,6 +2100,9 @@
     <string name="note_two_way_started">Les retraits dans les deux sens commencent à la prochaine exécution : celle-ci a noté les titres présents des deux côtés et n\'a rien retiré.</string>
     <string name="note_two_way_removals_held">Suppressions retenues : %1$d des %2$d titres que les deux côtés avaient ne sont plus dans la source. Touche l\'état de la sync pour ouvrir l\'aperçu et les voir ; s\'ils doivent vraiment partir, coches-y « Retirer ces titres » et lance-la. Si tu ne les as pas retirés, le service a lu la playlist à moitié et rien ne doit partir.</string>
     <string name="note_two_way_listed_short">Rien n\'a été retiré cette fois : %1$s a listé %2$d des %3$d titres qu\'il compte. Un titre que le service masque ou ne lit plus n\'est pas considéré comme retiré.</string>
+    <string name="note_two_way_likes_hidden">%1$s n\'affiche pas tous les titres likés : %2$d titres absents de ses Titres likés ne sont pas retirés de l\'autre côté, car ils sont peut-être encore likés.</string>
+    <string name="editor_bidirectional_likes_hidden">Pas avec les Titres likés de %1$s : il n\'affiche pas tous les titres qu\'il like, et un titre absent serait retiré de l\'autre côté.</string>
+    <string name="editor_bidirectional_likes_kept">Gardé pour cette synchronisation, mais rien n\'est retiré de l\'autre côté : %1$s n\'affiche pas tous les titres qu\'il like.</string>
     <string name="backup_config_paused">Synchros planifiées arrivées désactivées : %1$d. Ainsi elles ne tournent pas sur deux appareils à la fois. Si elles tournent encore sur %2$s, laisse-les désactivées ici ; sinon active-les.</string>
     <string name="job_scheduled_on">Planifiée sur %1$s</string>
     <string name="backup_device_other">l\'autre appareil</string>

@@ -1754,6 +1754,9 @@ const val JOB_TILE_TAG = "job-tile"
 /** A sync's card (for the UI tests). */
 const val JOB_CARD_TAG = "job-card"
 
+/** For the UI tests: the sync editor's Two-way switch. */
+const val EDITOR_TWO_WAY_TAG = "editor-two-way"
+
 /** The pinned Sync-all pill's background and where it ends (for the UI tests); the fade under it, inside a card's padding. */
 const val RUN_ALL_BAND_TAG = "run-all-band"
 val PILL_FADE = 10.dp
@@ -2746,29 +2749,40 @@ fun SyncEditorScreen(
                     // A public link or someone else's playlist can be read, not written: nothing to send back to.
                     val srcOwned = srcPlaylist?.ownedByMe == true && srcObj?.isConnected(ctx) == true
                     // Not into Shazam's own playlist: Shazam alone writes there.
-                    val biAllowed = !shazamMode && !createNew && srcObj?.canWrite == true && srcOwned &&
+                    val biPossible = !shazamMode && !createNew && srcObj?.canWrite == true && srcOwned &&
                         srcObj.supportsLibrary(srcPlaylist?.id, asTarget = true) &&
                         dstProviderObj?.supportsLibrary(dstPlaylist?.id, asTarget = false) == true
-                    if (!biAllowed && bidirectional) bidirectional = false
+                    // Liked songs whose list leaves some likes out (YouTube Music): a like it does not show would read
+                    // as an unlike, and the other side would lose that song. Not offered for a new pair; a pair saved
+                    // before stays, and the engine removes nothing on that listing (SyncEngine, MusicProvider.hidesLikes).
+                    val likesHiddenBy = listOf(srcObj to srcPlaylist?.id, dstProviderObj to dstPlaylist?.id)
+                        .firstOrNull { (p, id) -> MusicProvider.hidesLikes(p, id) }?.first
+                    val keptPair = biPossible && likesHiddenBy != null && job.linkedJobId != null
+                    val biAllowed = biPossible && likesHiddenBy == null
+                    if (!biAllowed && !keptPair && bidirectional) bidirectional = false
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                         Column(Modifier.weight(1f)) {
                             Text(stringResource(R.string.editor_bidirectional))
                             Text(
-                                stringResource(
-                                    when {
-                                        biAllowed -> R.string.editor_bidirectional_desc
-                                        srcPlaylist != null && !srcOwned -> R.string.editor_bidirectional_not_owned
-                                        else -> R.string.editor_bidirectional_unavailable
-                                    },
-                                ),
+                                when {
+                                    keptPair -> stringResource(R.string.editor_bidirectional_likes_kept, likesHiddenBy!!.label(ctx))
+                                    biPossible && likesHiddenBy != null -> stringResource(R.string.editor_bidirectional_likes_hidden, likesHiddenBy.label(ctx))
+                                    else -> stringResource(
+                                        when {
+                                            biAllowed -> R.string.editor_bidirectional_desc
+                                            srcPlaylist != null && !srcOwned -> R.string.editor_bidirectional_not_owned
+                                            else -> R.string.editor_bidirectional_unavailable
+                                        },
+                                    )
+                                },
                                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                         HelpButton(Helps.twoWay)
-                        Switch(checked = bidirectional, enabled = biAllowed, onCheckedChange = { bidirectional = it })
+                        Switch(checked = bidirectional, enabled = biAllowed || keptPair, onCheckedChange = { bidirectional = it }, modifier = Modifier.testTag(EDITOR_TWO_WAY_TAG))
                     }
                     // With Two-way: removals travel too, told from additions by what both sides had after the last run.
-                    if (bidirectional && biAllowed && !archive) SwitchRow(
+                    if (bidirectional && (biAllowed || keptPair) && !archive) SwitchRow(
                         stringResource(R.string.editor_two_way_removals), stringResource(R.string.editor_two_way_removals_desc), twoWayRemovals,
                         modifier = Modifier.testTag("editor_two_way_removals"),
                     ) { twoWayRemovals = it }

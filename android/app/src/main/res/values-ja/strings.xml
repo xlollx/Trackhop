@@ -2056,6 +2056,9 @@
     <string name="note_two_way_started">双方向の削除は次回の実行から始まります。今回は両方にある曲を記録しただけで、何も削除していません。</string>
     <string name="note_two_way_removals_held">削除を保留しました：両方にあった %2$d 曲のうち %1$d 曲が移動元からなくなっています。同期のステータスをタップしてプレビューを開き、確認してください。本当に削除してよい場合は、そこで「これらの曲を削除」にチェックを入れて実行します。自分で削除していないなら、サービスがプレイリストを途中までしか返さなかったということで、何も削除してはいけません。</string>
     <string name="note_two_way_listed_short">今回は何も削除していません：%1$s は %3$d 曲あるはずのうち %2$d 曲しか返しませんでした。サービスが非表示にした曲や再生できなくなった曲は、削除された曲として扱いません。</string>
+    <string name="note_two_way_likes_hidden">%1$s はお気に入りの曲をすべて表示しません: お気に入りの曲にない %2$d 曲は、まだお気に入りの可能性があるため、反対側から削除されません。</string>
+    <string name="editor_bidirectional_likes_hidden">%1$s のお気に入りの曲では使えません: お気に入りにしたすべての曲を表示しないため、表示されない曲が反対側から削除されてしまいます。</string>
+    <string name="editor_bidirectional_likes_kept">この同期では維持されますが、反対側からは何も削除されません: %1$s はお気に入りにしたすべての曲を表示しません。</string>
     <string name="backup_config_paused">スケジュール付きの同期 %1$d 件はオフの状態で取り込みました。2 台で同時に動かないようにするためです。%2$s でまだ動いているならここではオフのままに、そうでなければオンにしてください。</string>
     <string name="job_scheduled_on">%1$s でスケジュール中</string>
     <string name="backup_device_other">もう一方の端末</string>
