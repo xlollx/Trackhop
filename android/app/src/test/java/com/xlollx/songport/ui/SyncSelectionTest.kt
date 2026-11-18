@@ -34,6 +34,20 @@ class SyncSelectionTest {
         assertEquals(setOf("b"), SyncSelection.toggle(setOf("a", "b"), "a"))
     }
 
+    /** A sync held while selecting takes all those between it and the last one ticked, in the order shown, either way. */
+    @Test fun aHoldTicksEverySyncUpToTheLastOneTicked() {
+        val shown = listOf("a", "b", "c", "e", "f")
+        assertEquals(setOf("b", "c", "e"), SyncSelection.range(setOf("b"), shown, "b", "e"))
+        assertEquals("upwards too", setOf("f", "c", "e"), SyncSelection.range(setOf("f"), shown, "f", "c"))
+        assertEquals("what was ticked elsewhere stays", setOf("a", "e", "f"), SyncSelection.range(setOf("a", "e"), shown, "e", "f"))
+        // Nothing ticked before, or the last one no longer shown (a filter since): the one held, alone.
+        assertEquals(setOf("c"), SyncSelection.range(emptySet(), shown, null, "c"))
+        assertEquals(setOf("a", "c"), SyncSelection.range(setOf("a"), shown, "gone", "c"))
+        // One that cannot be ticked is not ticked by a hold either.
+        assertEquals(setOf("a"), SyncSelection.range(setOf("a"), shown, "a", "sh"))
+        assertEquals("the same one held", setOf("b"), SyncSelection.range(setOf("b"), shown, "b", "b"))
+    }
+
     @Test fun selectShownTakesWhatTheFiltersLeaveOnScreen() {
         // The search shows a, b and the shared one; the shared one and the one on the server cannot be ticked.
         val shown = listOf(a, b, shared, d)

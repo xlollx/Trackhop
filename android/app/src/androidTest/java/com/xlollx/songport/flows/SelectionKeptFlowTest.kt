@@ -1,7 +1,10 @@
 package com.xlollx.songport.flows
 
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasTestTag
@@ -21,10 +24,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * The selection of several syncs (#68) ends only when the user ends it: its X, back, the last tick
- * taken off, or an action that finishes it. Not by a scroll, a sync starting or ending under it, or
- * the list being written again by a run (owner's report on 2.1.0, minimal tiles: after two were
- * ticked the normal header seemed to come back by itself).
+ * Selecting several syncs (#68), made easier in 2.1.1 as the preview approved on 18/11 shows it: a
+ * tile held still opens its menu, with Select first and set apart; a "Select syncs" button beside
+ * the view's toggle starts with none ticked; while selecting a tap ticks and a hold ticks up to the
+ * last one ticked. And selecting ends only when the user ends it (its X, back, an action that
+ * finishes it): not by a scroll, a sync starting or ending under it, the list written again by a
+ * run, nor the last tick taken off (owner's report on 2.1.0, minimal tiles: after two were ticked
+ * the normal header came back by itself).
  */
 @RunWith(AndroidJUnit4::class)
 class SelectionKeptFlowTest : FlowTest() {
@@ -34,7 +40,8 @@ class SelectionKeptFlowTest : FlowTest() {
         store.update { d ->
             d.copy(
                 jobs = (1..n).map { i -> SyncJob("job-$i", "Sync number $i", PlaylistRef("spotify", "p$i", "Source $i"), PlaylistRef("deezer", "d$i", "Target $i")) },
-                settings = d.settings.copy(minimalSyncs = minimal),
+                // Small cards: four of them fit a phone's screen, for the hold that ticks a range.
+                settings = d.settings.copy(minimalSyncs = minimal, cardSize = com.xlollx.songport.ui.CardSize.SMALL.key),
             )
         }
         store.flush()
@@ -107,6 +114,99 @@ class SelectionKeptFlowTest : FlowTest() {
         clickDesc(s(R.string.cancel))
         waitGone(selectedCount(2))
         assertTrue("no tick left", compose.onAllNodes(hasTestTag(SELECTION_TICK_TAG)).fetchSemanticsNodes().isEmpty())
+    }
+
+    private fun tile(i: Int) = compose.onAllNodes(hasTestTag(com.xlollx.songport.ui.JOB_TILE_TAG) and androidx.compose.ui.test.hasText("Sync number $i")).onFirst()
+    private fun selectButton() = compose.onAllNodes(hasTestTag(com.xlollx.songport.ui.SELECT_SYNCS_TAG) and androidx.compose.ui.test.hasClickAction()).onFirst()
+    private fun newSyncOffered() = compose.onAllNodes(hasContentDescription(s(R.string.new_sync)) or androidx.compose.ui.test.hasText(s(R.string.new_sync))).fetchSemanticsNodes().isNotEmpty()
+
+    /** A tile held: its menu, as ever (the owner likes it so), with Select first and what it leads to; a tap on it and that sync is ticked. */
+    @Test
+    fun aTileHeldOpensItsMenuWithSelectFirst() {
+        seed(minimal = true)
+        launch(tabIntent(MainActivity.TAB_SYNCS))
+        waitText("Sync number 1")
+        tile(2).performTouchInput { longClick() }
+        waitText(s(R.string.bulk_select_hint))
+        // The menu's other entries are all still there, under it.
+        for (id in listOf(R.string.preview, R.string.edit, R.string.job_style, R.string.sync_menu_favorite, R.string.sync_menu_move_to, R.string.delete)) assertTrue(s(id), exists(s(id)))
+        val top = { text: String -> compose.onAllNodes(androidx.compose.ui.test.hasText(text), useUnmergedTree = true).fetchSemanticsNodes().minOf { it.positionInWindow.y } }
+        assertTrue("Select is the menu's first entry", top(s(R.string.files_select)) < top(s(R.string.preview)))
+        snapshot("select-1-menu")
+        click(s(R.string.files_select))
+        waitText(selectedCount(1))
+        tick(2).assertIsOn()
+        // Then a tap on the others adds them.
+        tap(tick(3), "Sync number 3")
+        waitText(selectedCount(2))
+    }
+
+    /** The button beside the view's toggle: selecting with none ticked, in both views, kept when Android makes the activity anew. */
+    private fun theButtonStartsWithNoneTicked() {
+        launch(tabIntent(MainActivity.TAB_SYNCS))
+        waitText("Sync number 1")
+        assertTrue("its name for a screen reader", compose.onAllNodes(hasContentDescription(s(R.string.bulk_select_syncs))).fetchSemanticsNodes().isNotEmpty())
+        tap(selectButton(), "Select syncs")
+        waitText(s(R.string.bulk_select_tap))
+        waitText(s(R.string.tracks_select_shown))
+        assertTrue("no tick yet", compose.onAllNodes(hasTestTag(SELECTION_TICK_TAG) and androidx.compose.ui.test.isOn()).fetchSemanticsNodes().isEmpty())
+        assertTrue("nothing to act on yet: no bar", !exists(s(R.string.bulk_removals)))
+        assertTrue("New sync is not offered while selecting", !newSyncOffered())
+        snapshot("select-2-none-ticked")
+
+        // Selecting with nothing ticked outlives the activity made anew.
+        remade()
+        waitText(s(R.string.bulk_select_tap))
+
+        // A tap ticks, a second one unticks: still selecting, with none ticked (it ended here until 2.1.0).
+        tap(tick(1), "Sync number 1")
+        waitText(selectedCount(1))
+        waitText(s(R.string.bulk_removals))
+        tap(tick(1), "Sync number 1")
+        waitText(s(R.string.bulk_select_tap))
+        tick(1).assertIsOff()
+
+        // A hold ticks from the last one ticked up to the one held, in the order shown.
+        tap(tick(1), "Sync number 1")
+        waitText(selectedCount(1))
+        tick(4).performTouchInput { longClick() }
+        waitText(selectedCount(4))
+        for (i in 1..4) tick(i).assertIsOn()
+        // And with the ticks, across the activity made anew.
+        remade()
+        waitText(selectedCount(4))
+
+        // Back ends it.
+        androidx.test.espresso.Espresso.pressBack()
+        waitGone(selectedCount(4))
+        waitFor("New sync is back") { newSyncOffered() }
+        assertTrue(!exists(s(R.string.bulk_select_tap)))
+    }
+
+    @Test
+    fun theSelectButtonStartsWithNoneTickedAndAHoldTicksARangeOnTiles() {
+        seed(minimal = true)
+        theButtonStartsWithNoneTicked()
+    }
+
+    @Test
+    fun theSelectButtonStartsWithNoneTickedAndAHoldTicksARangeOnCards() {
+        seed(minimal = false)
+        theButtonStartsWithNoneTicked()
+    }
+
+    /** Option B of the preview: a card held is selected straight away, as before. */
+    @Test
+    fun aCardHeldIsSelectedStraightAway() {
+        seed(minimal = false)
+        launch(tabIntent(MainActivity.TAB_SYNCS))
+        waitText("Sync number 2")
+        compose.onAllNodes(androidx.compose.ui.test.hasText("Sync number 2")).onFirst().performTouchInput {
+            down(androidx.compose.ui.geometry.Offset(12f, height / 2f)); advanceEventTime(viewConfiguration.longPressTimeoutMillis + 200); up()
+        }
+        compose.waitForIdle()
+        waitText(selectedCount(1))
+        tick(2).assertIsOn()
     }
 
     @Test

@@ -3374,4 +3374,8 @@
     <string name="nway_row_waiting">Aguardando</string>
     <string name="nway_row_failed">Falhou · %1$s</string>
     <string name="nway_targets">Destinos</string>
+    <string name="bulk_select_hint">Depois toque em outras sincronizações para adicioná-las</string>
+    <string name="bulk_select_tap">Toque nas sincronizações para selecionar</string>
+    <string name="bulk_select_syncs">Selecionar sincronizações</string>
+    <string name="bulk_select_range">Selecionar todas até aqui</string>
 </resources>

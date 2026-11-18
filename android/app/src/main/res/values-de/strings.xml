@@ -3366,4 +3366,8 @@
     <string name="nway_row_waiting">Wartet</string>
     <string name="nway_row_failed">Fehlgeschlagen · %1$s</string>
     <string name="nway_targets">Ziele</string>
+    <string name="bulk_select_hint">Tippe dann weitere Syncs an, um sie hinzuzufügen</string>
+    <string name="bulk_select_tap">Syncs zum Auswählen antippen</string>
+    <string name="bulk_select_syncs">Syncs auswählen</string>
+    <string name="bulk_select_range">Alle bis hierher auswählen</string>
 </resources>

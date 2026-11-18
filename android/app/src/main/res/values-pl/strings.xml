@@ -3562,4 +3562,8 @@
     <string name="nway_row_waiting">Czeka</string>
     <string name="nway_row_failed">Nie udało się · %1$s</string>
     <string name="nway_targets">Cele</string>
+    <string name="bulk_select_hint">Potem dotknij innych synchronizacji, aby je dodać</string>
+    <string name="bulk_select_tap">Dotknij synchronizacji, aby je zaznaczyć</string>
+    <string name="bulk_select_syncs">Zaznacz synchronizacje</string>
+    <string name="bulk_select_range">Zaznacz wszystkie aż dotąd</string>
 </resources>

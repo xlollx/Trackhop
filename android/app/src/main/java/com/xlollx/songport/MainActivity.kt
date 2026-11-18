@@ -361,6 +361,8 @@ private fun MainScreen(
     val syncFilter = rememberSaveable(stateSaver = com.xlollx.songport.ui.SyncFilterSaver) { mutableStateOf(com.xlollx.songport.sync.SyncFilter()) }
     // The syncs ticked on the Syncs tab to change several at once (#68): while there are any, its bar is where "New sync" was.
     val syncSelection = rememberSaveable(stateSaver = com.xlollx.songport.ui.SyncSelectionSaver) { mutableStateOf(emptySet<String>()) }
+    // Selecting, with or without a sync ticked yet: it ends when the user ends it (SyncsScreen).
+    val syncSelecting = rememberSaveable { mutableStateOf(false) }
     val snackbar = remember { SnackbarHostState() }
     val snackScope = rememberCoroutineScope()
     // A sync run by hand: started, or (no internet) waiting for the connection, said in a snackbar
@@ -959,7 +961,7 @@ private fun MainScreen(
         floatingActionButton = {
             // With the rail the action heads the rail instead.
             if (!layout.rail) when (tab) {
-                MainActivity.TAB_SYNCS -> if (syncSelection.value.isEmpty()) ExtendedFloatingActionButton(
+                MainActivity.TAB_SYNCS -> if (syncSelection.value.isEmpty() && !syncSelecting.value) ExtendedFloatingActionButton(
                     modifier = Modifier.tourTarget(com.xlollx.songport.ui.TourTarget.NEW_SYNC),
                     onClick = { startNewSync() },
                     // The extended button clears its text from the semantics: the icon names it for TalkBack.
@@ -1037,6 +1039,7 @@ private fun MainScreen(
                     onTips = { store.updateSettings { it.copy(tipsPillDismissed = true) }; tipsOpen = true },
                     filterState = syncFilter,
                     selectionState = syncSelection,
+                    selectModeState = syncSelecting,
                     onMessage = { msg -> snackScope.launch { snackbar.currentSnackbarData?.dismiss(); snackbar.showSnackbar(msg) } },
                     onOpenGroup = { nwayOpen = it },
                 )

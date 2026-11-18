@@ -246,6 +246,12 @@ fun SyncsScreen(
      * by the caller, which hides "New sync" meanwhile; kept across a rotation there.
      */
     selectionState: androidx.compose.runtime.MutableState<Set<String>> = rememberSaveable(stateSaver = SyncSelectionSaver) { mutableStateOf(emptySet()) },
+    /**
+     * Selecting, with or without a sync ticked yet (2.1.1: the "Select syncs" button starts with none).
+     * It ends when the user ends it (its X, back, an action that finishes it), never by itself: not
+     * when the last tick is taken off, nor when a ticked sync goes. Held by the caller with the ticks.
+     */
+    selectModeState: androidx.compose.runtime.MutableState<Boolean> = rememberSaveable { mutableStateOf(false) },
     /** What a change to several syncs has to say (done, or what went wrong): the caller's snackbar. */
     onMessage: (String) -> Unit = {},
     /** The caller's snackbar, for the notice of a damaged state drawn above the empty list. */
@@ -271,6 +277,8 @@ fun SyncsScreen(
         // The saved syncs could not be read and the app began empty: said here too, wherever the app opens.
         val store = remember { Store.get(ctx) }
         val damaged by store.notice.collectAsState()
+        // No sync left to select (the last ones deleted): selecting is over, and "New sync" is back.
+        LaunchedEffect(Unit) { selectModeState.value = false; selectionState.value = emptySet() }
         Column(Modifier.fillMaxSize()) {
             if (damaged != null && snackbar != null) Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 StateNotices(store, snackbar)
@@ -395,14 +403,21 @@ fun SyncsScreen(
     }
     // Several syncs at once (#68): ticked by a long press or Select in a card's menu, then by a tap.
     var selected by selectionState
-    val selecting = selected.isNotEmpty()
-    // A sync deleted or handed over meanwhile is no longer ticked.
+    var selectMode by selectModeState
+    val selecting = selectMode || selected.isNotEmpty()
+    // The last sync ticked: a hold on another ticks all those between the two, in the order shown.
+    var lastTicked by rememberSaveable { mutableStateOf<String?>(null) }
+    val endSelection = { selected = emptySet(); selectMode = false; lastTicked = null }
+    // A sync deleted or handed over meanwhile is no longer ticked; selecting goes on (until 2.1.0 the last
+    // ticked sync gone, or unticked, ended it, as if by itself).
     LaunchedEffect(data.syncs, data.handedOver) { SyncSelection.pruned(selected, data).let { if (it != selected) selected = it } }
-    androidx.activity.compose.BackHandler(enabled = selecting) { selected = emptySet() }
+    // Ticked from a menu or a hold: selecting from then on, whatever happens to that tick.
+    LaunchedEffect(selected.isNotEmpty()) { if (selected.isNotEmpty()) selectMode = true }
+    androidx.activity.compose.BackHandler(enabled = selecting) { endSelection() }
     val tickable = remember(shown, data.handedOver) { SyncSelection.tickable(data, shown) }
     val notHere = stringResource(R.string.bulk_not_here)
     val select: (SyncJob) -> Unit = { j ->
-        if (com.xlollx.songport.sync.BulkEdit.selectable(data, j)) { if (j.id !in selected) selected = selected + j.id } else onMessage(notHere)
+        if (com.xlollx.songport.sync.BulkEdit.selectable(data, j)) { selectMode = true; lastTicked = j.id; if (j.id !in selected) selected = selected + j.id } else onMessage(notHere)
     }
     // The sheet of the selection's action in hand ("schedule", "removals", "onoff", "color", "delete").
     var bulkSheet by rememberSaveable { mutableStateOf<String?>(null) }
@@ -519,7 +534,7 @@ fun SyncsScreen(
             if (runAllRow) stickyHeader(key = "runall") {
                 // While selecting, the selection's header takes the row's place (same item, so every position after it stays).
                 if (selecting) SelectionHeader(
-                    selected.size, SyncSelection.allShown(selected, tickable), onClose = { selected = emptySet() },
+                    selected.size, SyncSelection.allShown(selected, tickable), onClose = endSelection,
                     onToggleShown = { selected = SyncSelection.toggleShown(selected, tickable) },
                     modifier = Modifier.onSizeChanged { pillHeight = it.height },
                 ) else {
@@ -531,13 +546,20 @@ fun SyncsScreen(
                 RunAllRow(
                     tally.takeIf { data.syncs.size >= 2 }, pinned = pillPinned, modifier = Modifier.onSizeChanged { pillHeight = it.height },
                     chips = if (chipsShown) ({ SyncFinderChips(data.syncs, effective, counts, data.settings.labels) { filter = it } }) else null,
-                    // Cards or tiles, at a tap; remembered (also in Settings).
-                    trailing = if (viewToggle) ({
-                        IconButton(onClick = { Store.get(ctx).updateSettings { it.copy(minimalSyncs = !minimal) } }) {
-                            Icon(
-                                if (minimal) Icons.Filled.ViewAgenda else Icons.Filled.GridView,
-                                stringResource(if (minimal) R.string.syncs_view_cards else R.string.syncs_view_tiles), tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
+                    // Select syncs (2.1.1): selecting starts here with none ticked, in both views, without a menu.
+                    // Then cards or tiles, at a tap; remembered (also in Settings).
+                    trailing = if (viewToggle || tickable.size >= 2) ({
+                        Row {
+                            // From two syncs on: with one there is nothing to change "at once".
+                            if (tickable.size >= 2) IconButton(onClick = { haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress); selectMode = true }, modifier = Modifier.testTag(SELECT_SYNCS_TAG)) {
+                                Icon(Icons.Outlined.CheckCircle, stringResource(R.string.bulk_select_syncs), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            if (viewToggle) IconButton(onClick = { Store.get(ctx).updateSettings { it.copy(minimalSyncs = !minimal) } }) {
+                                Icon(
+                                    if (minimal) Icons.Filled.ViewAgenda else Icons.Filled.GridView,
+                                    stringResource(if (minimal) R.string.syncs_view_cards else R.string.syncs_view_tiles), tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
                         }
                     }) else null,
                 ) {
@@ -717,14 +739,25 @@ fun SyncsScreen(
                     }
                     if (selecting) SelectionTick(
                         job.name.ifBlank { job.source.playlistName }, ticked = job.id in selected, tickable = job.id in tickable,
-                        onToggle = { selected = SyncSelection.toggle(selected, job.id) }, onNotHere = { onMessage(notHere) },
+                        onToggle = {
+                            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                            selected = SyncSelection.toggle(selected, job.id)
+                            if (job.id in selected) lastTicked = job.id
+                        },
+                        onNotHere = { onMessage(notHere) },
+                        // Held: every sync from the last one ticked to this one, as a phone's gallery does.
+                        onRange = {
+                            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                            selected = SyncSelection.range(selected, tickable, lastTicked, job.id)
+                            lastTicked = job.id
+                        },
                     )
                 }
             } }
         }
         }
-        // The selection's actions, above the tabs' bar; each opens its sheet, Run now starts them.
-        if (selecting) SelectionBar(
+        // The selection's actions, above the tabs' bar; each opens its sheet, Run now starts them. With none ticked yet there is nothing to act on.
+        if (selected.isNotEmpty()) SelectionBar(
             onSchedule = { bulkSheet = "schedule" }, onRemovals = { bulkSheet = "removals" }, onOnOff = { bulkSheet = "onoff" },
             onRun = {
                 val before = com.xlollx.songport.sync.OfflineQueue.waiting.value
@@ -733,7 +766,7 @@ fun SyncsScreen(
                 // No internet: they wait for it, as a single sync does.
                 val waits = (com.xlollx.songport.sync.OfflineQueue.waiting.value - before).isNotEmpty()
                 onMessage(if (waits) ctx.getString(R.string.offline_queued_all) else ctx.resources.getQuantityString(R.plurals.bulk_started, ids.size, ids.size))
-                selected = emptySet()
+                endSelection()
             },
             onColor = { bulkSheet = "color" }, onDelete = { bulkSheet = "delete" },
             modifier = Modifier.align(Alignment.BottomCenter).padding(start = 12.dp, end = 12.dp, bottom = LocalBottomBarInset.current + 12.dp).widthIn(max = 560.dp),
@@ -741,7 +774,7 @@ fun SyncsScreen(
     }
     }
     // The sheet of the selection's action: what it changes is saved for all the selected syncs or for none (ManyChange).
-    if (selecting && bulkSheet != null) {
+    if (selected.isNotEmpty() && bulkSheet != null) {
         val picked = com.xlollx.songport.sync.BulkEdit.selected(data, selected)
         val ids = picked.mapTo(LinkedHashSet()) { it.id }
         val closeSheet = { bulkSheet = null }
@@ -764,6 +797,8 @@ fun SyncsScreen(
                 val outcome = ManyChange.delete(ctx, ids)
                 onMessage(ManyChange.problem(ctx, outcome) ?: ctx.resources.getQuantityString(R.plurals.bulk_deleted, n, n))
                 bulkSheet = null
+                // Deleted: the action is over, and so is the selection (not saved: it stays, to try again).
+                if (outcome != ManyChange.Outcome.NOT_SAVED) endSelection()
             }
         }
     }
@@ -1055,14 +1090,17 @@ private fun JobMenuHost(
     if (handOverOpen) HandOverDialog(job, back = onServer) { handOverOpen = false }
     content(
         listOfNotNull(
+            // Several syncs at once (#68): this one ticked, the others by a tap. First and set apart (2.1.1), so
+            // that selecting from a tile, where a hold opens this menu, is one tap away.
+            LocalSyncSelect.current?.takeIf { !onServer && sharedGroup == null }?.let { sel ->
+                MenuAction(stringResource(R.string.files_select), { sel(job) }, icon = Icons.Outlined.CheckCircle, subtitle = stringResource(R.string.bulk_select_hint), highlighted = true)
+            },
             if (job.aiPrompt != null) MenuAction(stringResource(R.string.ai_extend), { extendOpen = true }, icon = Icons.Outlined.AutoAwesome) else null,
             MenuAction(stringResource(R.string.preview), { onPreview(job) }, icon = Icons.Outlined.Visibility),
             // On the server: changed only once taken back. A shared playlist's syncs are made and changed from its group; anything else can become one.
             if (onServer) null
             else sharedGroup?.let { gid -> MenuAction(stringResource(R.string.shared_open_group), { SharedUi.request.value = SharedUi.Request.Open(gid) }, icon = Icons.Outlined.Groups) }
                 ?: MenuAction(stringResource(R.string.edit), { onEdit(job) }, icon = Icons.Outlined.Edit),
-            // Several syncs at once (#68): this one ticked, the others by a tap.
-            LocalSyncSelect.current?.takeIf { !onServer && sharedGroup == null }?.let { sel -> MenuAction(stringResource(R.string.files_select), { sel(job) }, icon = Icons.Outlined.CheckCircle) },
             if (v2 && !onServer && sharedGroup == null && SharedUi.canShare(job)) MenuAction(stringResource(R.string.shared_share_from_sync), {
                 SharedUi.request.value = SharedUi.Request.Create(job.target, job.target.playlistName.ifBlank { job.name })
             }, icon = Icons.Outlined.GroupAdd) else null,
@@ -1581,6 +1619,9 @@ private fun nextRunShort(ctx: android.content.Context, at: Long): String {
         DateUtils.FORMAT_SHOW_TIME or (if (today) 0 else DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_ABBREV_WEEKDAY),
     )
 }
+
+/** The "Select syncs" button of the row under the header (for the UI tests). */
+const val SELECT_SYNCS_TAG = "select-syncs"
 
 /** The tiles of the minimal view (for the UI tests). */
 const val JOB_TILE_TAG = "job-tile"

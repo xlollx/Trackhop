@@ -3269,4 +3269,8 @@
     <string name="nway_row_waiting">等待中</string>
     <string name="nway_row_failed">失败 · %1$s</string>
     <string name="nway_targets">目标</string>
+    <string name="bulk_select_hint">然后轻点其他同步即可添加</string>
+    <string name="bulk_select_tap">轻点同步以选择</string>
+    <string name="bulk_select_syncs">选择同步</string>
+    <string name="bulk_select_range">全选到此处</string>
 </resources>

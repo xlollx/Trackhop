@@ -3268,4 +3268,8 @@
     <string name="nway_row_waiting">대기 중</string>
     <string name="nway_row_failed">실패 · %1$s</string>
     <string name="nway_targets">대상</string>
+    <string name="bulk_select_hint">이어서 다른 동기화를 탭해 추가하세요</string>
+    <string name="bulk_select_tap">동기화를 탭해 선택</string>
+    <string name="bulk_select_syncs">동기화 선택</string>
+    <string name="bulk_select_range">여기까지 모두 선택</string>
 </resources>

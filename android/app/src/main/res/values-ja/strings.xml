@@ -3269,4 +3269,8 @@
     <string name="nway_row_waiting">待機中</string>
     <string name="nway_row_failed">失敗 · %1$s</string>
     <string name="nway_targets">同期先</string>
+    <string name="bulk_select_hint">続けてほかの同期をタップして追加</string>
+    <string name="bulk_select_tap">同期をタップして選択</string>
+    <string name="bulk_select_syncs">同期を選択</string>
+    <string name="bulk_select_range">ここまですべて選択</string>
 </resources>

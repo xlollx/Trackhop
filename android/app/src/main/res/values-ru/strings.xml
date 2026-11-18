@@ -3560,4 +3560,8 @@
     <string name="nway_row_waiting">Ожидает</string>
     <string name="nway_row_failed">Не удалось · %1$s</string>
     <string name="nway_targets">Цели</string>
+    <string name="bulk_select_hint">Затем нажимайте другие синхронизации, чтобы добавить их</string>
+    <string name="bulk_select_tap">Нажимайте синхронизации, чтобы выбрать</string>
+    <string name="bulk_select_syncs">Выбрать синхронизации</string>
+    <string name="bulk_select_range">Выбрать все до этой</string>
 </resources>

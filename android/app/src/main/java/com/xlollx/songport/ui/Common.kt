@@ -317,6 +317,10 @@ class MenuAction(
     val label: String, val onClick: () -> Unit, val destructive: Boolean = false, val enabled: Boolean = true,
     /** A leading icon; decorative, the label names the action. */
     val icon: ImageVector? = null,
+    /** A second, smaller line under the label: what the action leads to. */
+    val subtitle: String? = null,
+    /** Set apart from the others: a tinted row in the primary colour (a menu's first, most wanted action). */
+    val highlighted: Boolean = false,
 )
 
 /**
@@ -379,13 +383,22 @@ fun OverflowDropdown(
 @Composable
 private fun OverflowItem(a: MenuAction, iconTint: Color, onClick: () -> Unit) {
     val error = MaterialTheme.colorScheme.error
+    val primary = MaterialTheme.colorScheme.primary
+    val ink = if (a.destructive) error else if (a.highlighted) primary else Color.Unspecified
     DropdownMenuItem(
-        text = { Text(a.label, style = MaterialTheme.typography.bodyLarge, color = if (a.destructive) error else Color.Unspecified) },
-        leadingIcon = a.icon?.let { icon -> { Icon(icon, contentDescription = null, tint = if (a.destructive) error else iconTint) } },
+        text = {
+            if (a.subtitle == null) Text(a.label, style = MaterialTheme.typography.bodyLarge, color = ink)
+            else Column(Modifier.padding(vertical = 6.dp)) {
+                Text(a.label, style = MaterialTheme.typography.bodyLarge, color = ink, fontWeight = if (a.highlighted) androidx.compose.ui.text.font.FontWeight.SemiBold else null)
+                Text(a.subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        },
+        leadingIcon = a.icon?.let { icon -> { Icon(icon, contentDescription = null, tint = if (a.destructive) error else if (a.highlighted) primary else iconTint) } },
         enabled = a.enabled,
         onClick = onClick,
         // Rounded highlight inside the rounded sheet; 48 dp tall at least, as every touch target.
-        modifier = Modifier.heightIn(min = 48.dp).padding(horizontal = 6.dp).clip(RoundedCornerShape(12.dp)),
+        modifier = Modifier.heightIn(min = 48.dp).padding(horizontal = 6.dp).clip(RoundedCornerShape(12.dp))
+            .then(if (a.highlighted) Modifier.background(primary.copy(alpha = 0.12f)) else Modifier),
         contentPadding = PaddingValues(horizontal = 12.dp),
     )
 }

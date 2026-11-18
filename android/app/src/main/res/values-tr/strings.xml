@@ -3364,4 +3364,8 @@
     <string name="nway_row_waiting">Bekliyor</string>
     <string name="nway_row_failed">Başarısız · %1$s</string>
     <string name="nway_targets">Hedefler</string>
+    <string name="bulk_select_hint">Sonra eklemek için diğer senkronizasyonlara dokun</string>
+    <string name="bulk_select_tap">Seçmek için senkronizasyonlara dokun</string>
+    <string name="bulk_select_syncs">Senkronizasyonları seç</string>
+    <string name="bulk_select_range">Buraya kadar hepsini seç</string>
 </resources>

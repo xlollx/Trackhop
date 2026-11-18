@@ -4,11 +4,14 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Checkbox
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -95,6 +98,18 @@ object SyncSelection {
     fun toggleShown(selected: Set<String>, tickable: List<String>): Set<String> =
         if (allShown(selected, tickable)) selected - tickable.toSet() else selected + tickable
 
+    /**
+     * A sync held while selecting: [held] and every sync between it and [last], the one ticked before
+     * it, in the order shown ([tickable]), ticked as well. With no such sync shown, [held] alone.
+     */
+    fun range(selected: Set<String>, tickable: List<String>, last: String?, held: String): Set<String> {
+        val to = tickable.indexOf(held)
+        if (to < 0) return selected
+        val from = tickable.indexOf(last)
+        if (from < 0) return selected + held
+        return selected + tickable.subList(minOf(from, to), maxOf(from, to) + 1)
+    }
+
     /** Without the syncs that are gone or can no longer be ticked (deleted, handed over meanwhile). */
     fun pruned(selected: Set<String>, data: StoreData): Set<String> {
         if (selected.isEmpty()) return selected
@@ -144,7 +159,12 @@ val SyncSelectionSaver = listSaver<Set<String>, String>(save = { it.toList() }, 
  * and says so when tapped.
  */
 @Composable
-fun androidx.compose.foundation.layout.BoxScope.SelectionTick(name: String, ticked: Boolean, tickable: Boolean, onToggle: () -> Unit, onNotHere: () -> Unit) {
+fun androidx.compose.foundation.layout.BoxScope.SelectionTick(
+    name: String, ticked: Boolean, tickable: Boolean, onToggle: () -> Unit, onNotHere: () -> Unit,
+    /** Held down: this one and all those up to the last one ticked ([SyncSelection.range]). */
+    onRange: (() -> Unit)? = null,
+) {
+    val rangeLabel = stringResource(R.string.bulk_select_range)
     val shape = MaterialTheme.shapes.large
     Box(
         Modifier.matchParentSize().clip(shape)
@@ -152,7 +172,10 @@ fun androidx.compose.foundation.layout.BoxScope.SelectionTick(name: String, tick
             .then(if (!tickable) Modifier.background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)) else Modifier)
             .testTag(SELECTION_TICK_TAG)
             .then(
-                if (tickable) Modifier.toggleable(value = ticked, role = Role.Checkbox, onValueChange = { onToggle() })
+                // A tap ticks or unticks; a hold ticks up to here. A checkbox still, for TalkBack and the tests.
+                if (tickable && onRange != null) Modifier.semantics { role = Role.Checkbox; toggleableState = androidx.compose.ui.state.ToggleableState(ticked) }
+                    .combinedClickable(onClick = onToggle, onLongClickLabel = rangeLabel, onLongClick = onRange)
+                else if (tickable) Modifier.toggleable(value = ticked, role = Role.Checkbox, onValueChange = { onToggle() })
                 else Modifier.clickable(onClick = onNotHere),
             )
             .semantics { contentDescription = name },
@@ -188,7 +211,8 @@ fun SelectionHeader(count: Int, allShown: Boolean, onClose: () -> Unit, onToggle
         Row(Modifier.heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onClose) { Icon(Icons.Filled.Close, stringResource(R.string.cancel)) }
             Text(
-                pluralStringResource(R.plurals.files_selected, count, count), style = MaterialTheme.typography.titleMedium,
+                // Selecting with none ticked yet (the "Select syncs" button): what to do next.
+                if (count == 0) stringResource(R.string.bulk_select_tap) else pluralStringResource(R.plurals.files_selected, count, count), style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis,
             )
             TextButton(onClick = onToggleShown) { Text(stringResource(if (allShown) R.string.tracks_unselect_shown else R.string.tracks_select_shown)) }
