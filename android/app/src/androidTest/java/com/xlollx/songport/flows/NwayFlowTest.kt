@@ -2,6 +2,7 @@ package com.xlollx.songport.flows
 
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isEnabled
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.xlollx.songport.BuildConfig
@@ -43,7 +44,13 @@ class NwayFlowTest : FlowTest() {
         click(s(R.string.nway_add))
         waitText(s(R.string.shared_service))
         if (service != null) { click(s(R.string.shared_service)); click(service) }
+        // The service's playlists are read as the dialog opens (and again for another service): until
+        // they are in, the field is off, with a spinner, and a tap on it opens nothing.
+        waitFor("the playlists of the service read") {
+            compose.onAllNodes(hasText(s(R.string.shared_playlist)) and isEnabled()).fetchSemanticsNodes().isNotEmpty()
+        }
         click(s(R.string.shared_playlist))
+        waitText(playlist)
         click(playlist)
     }
 
