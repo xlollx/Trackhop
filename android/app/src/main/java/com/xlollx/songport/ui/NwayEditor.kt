@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -261,7 +263,7 @@ fun NwayEditorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(if (isNew) R.string.nway_editor_new else R.string.nway_editor_edit)) },
+                title = { MultiBetaTitle(stringResource(if (isNew) R.string.nway_editor_new else R.string.nway_editor_edit)) },
                 navigationIcon = { IconButton(onClick = close) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.cancel)) } },
             )
         },
@@ -401,7 +403,7 @@ fun NewSyncChooser(onDismiss: () -> Unit, onClassic: () -> Unit, onMulti: () -> 
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp).semantics { heading() },
             )
             PrefRow(Icons.AutoMirrored.Filled.QueueMusic, stringResource(R.string.new_sync_classic), stringResource(R.string.new_sync_classic_desc), Modifier.testTag(NEW_SYNC_CLASSIC_TAG), onClick = onClassic)
-            PrefRow(Icons.Filled.Hub, stringResource(R.string.new_sync_multi), stringResource(R.string.new_sync_multi_desc), Modifier.testTag(NEW_SYNC_MULTI_TAG), onClick = onMulti)
+            PrefRow(Icons.Filled.Hub, stringResource(R.string.new_sync_multi), stringResource(R.string.new_sync_multi_desc), Modifier.testTag(NEW_SYNC_MULTI_TAG), badge = { StatusPill(stringResource(R.string.beta), Tone.Neutral) }, onClick = onMulti)
         }
     }
 }
@@ -471,5 +473,15 @@ private fun NwayChangesSheet(changes: List<NwayEdit.Change>, newName: String?, o
             }
             Spacer(Modifier.height(1.dp))
         }
+    }
+}
+
+/** A multi sync's screen title with its "beta" mark: the feature is new, said wherever it is made or opened. */
+@Composable
+internal fun MultiBetaTitle(title: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+        Spacer(Modifier.width(8.dp))
+        StatusPill(stringResource(R.string.beta), Tone.Neutral)
     }
 }

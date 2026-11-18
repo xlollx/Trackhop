@@ -742,7 +742,7 @@ fun NwayGroupScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(group.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                title = { MultiBetaTitle(group.name) },
                 navigationIcon = { IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back)) } },
                 // Not while it runs: its syncs are at work.
                 actions = { if (onEdit != null && com.xlollx.songport.Features.v2(data.settings)) TextButton(onClick = onEdit, enabled = !busy) { Text(stringResource(R.string.edit)) } },
