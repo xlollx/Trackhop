@@ -168,7 +168,8 @@ class MultiSyncFlowTest : FlowTest() {
             compose.onAllNodes(hasTestTag(JOB_TILE_TAG) and hasText("Trip mix")).onFirst().performTouchInput { longClick() }
             waitText(s(R.string.files_select))
             assertFalse("no live sheet", compose.onAllNodes(hasContentDescription(s(R.string.live_help))).fetchSemanticsNodes().isNotEmpty())
-            back()
+            // A menu, not a page: no arrow to go back with; Back closes it.
+            androidx.test.espresso.Espresso.pressBack()
             waitGone(s(R.string.files_select))
 
             // The page: one row per service, where each stands.

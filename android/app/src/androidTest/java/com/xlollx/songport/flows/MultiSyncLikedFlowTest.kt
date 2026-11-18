@@ -6,7 +6,6 @@ import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onFirst
-import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.xlollx.songport.MainActivity
 import com.xlollx.songport.R
@@ -56,7 +55,10 @@ class MultiSyncLikedFlowTest : FlowTest() {
         click(s(R.string.shared_playlist))
         waitText(s(R.string.nway_liked_target_only, label("ytm")))
         snapshot("multi-liked-1-source-not-here")
-        Espresso.pressBack()
+        // Back closes the list. Its popup belongs to the dialog, which has lost focus to it, so Espresso
+        // finds no root to press Back on: the key goes to the focused window instead.
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
+        waitGone(s(R.string.nway_liked_target_only, label("ytm")))
         // Spotify's, first, as the classic editor lists it.
         service("spotify")
         click(s(R.string.shared_playlist))
