@@ -30,7 +30,7 @@ class FirstSyncFlowTest : FlowTest() {
     fun newSyncWithNothingConnectedLeadsToConnectingThenToTheFirstSync() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText(s(R.string.empty_syncs_title))
-        click(s(R.string.new_sync))
+        newSync()
         // The sheet, not the editor.
         waitText(s(R.string.first_sync_title))
         assertTrue(exists(s(R.string.first_sync_body)))
@@ -66,7 +66,7 @@ class FirstSyncFlowTest : FlowTest() {
     @Test
     fun seeAllServicesGoesToAccounts() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
-        click(s(R.string.new_sync))
+        newSync()
         waitText(s(R.string.first_sync_title))
         click(s(R.string.first_sync_see_all))
         waitText(s(R.string.connector_pick_title))
@@ -81,7 +81,7 @@ class OneServiceFlowTest : FlowTest() {
     @Test
     fun filesAreOfferedAsTheTargetAndASecondServiceIsSuggested() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
-        click(s(R.string.new_sync))
+        newSync()
         waitText(s(R.string.editor_title_new))
         assertFalse("no sheet with a service connected", exists(s(R.string.first_sync_title)))
         waitText(s(R.string.editor_one_service_hint))

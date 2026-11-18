@@ -455,6 +455,12 @@ private fun MainScreen(
     var sharedOpen by rememberSaveable { mutableStateOf(false) }
     // One playlist on several services: NwayUi.NEW for a new group, else the id of the group whose page is open.
     var nwayOpen by rememberSaveable { mutableStateOf<String?>(null) }
+    // The multi-sync editor (2.1.1): NwayUi.NEW for a new one, else the id of the group being edited; over the group's page.
+    var nwayEdit by rememberSaveable { mutableStateOf<String?>(null) }
+    // The source the classic editor had chosen when the user switched to a multi sync (and back): read once, as each editor opens.
+    var nwayStart by rememberSaveable(stateSaver = RefSaver) { mutableStateOf<PlaylistRef?>(null) }
+    // "New sync": which kind, classic or multi, before its editor.
+    var newSyncChooser by rememberSaveable { mutableStateOf(false) }
     val sharedAsk by com.xlollx.songport.ui.SharedUi.request.collectAsState()
     LaunchedEffect(sharedAsk) { if (sharedAsk != null) sharedOpen = true }
     // "Did you know?": widgets, shortcuts and automation (Syncs pill, Settings › Help).
@@ -505,9 +511,17 @@ private fun MainScreen(
     var firstSyncReady by rememberSaveable { mutableStateOf<String?>(null) }
     // Settings › About › What's new: the newest release's sheet, on demand.
     var whatsNewAsked by rememberSaveable { mutableStateOf(false) }
-    fun startNewSync() {
-        if (Providers.connectors().any { it.requiresAuth && it.isConnected(ctx) }) editing = newJob() else firstSheet = true
+    /** [ask]: the button itself was tapped, so which kind is asked first when a multi sync can be made (two services to write to); a shortcut or the tour go straight to the classic editor. */
+    fun startNewSync(ask: Boolean = false) {
+        if (!Providers.connectors().any { it.requiresAuth && it.isConnected(ctx) }) firstSheet = true
+        else if (ask && com.xlollx.songport.ui.Tour.step.value == null && com.xlollx.songport.Features.v2(data.settings) && com.xlollx.songport.ui.writableServices(ctx, needsCreate = false).size >= 2) newSyncChooser = true
+        else editing = newJob()
     }
+    if (newSyncChooser) com.xlollx.songport.ui.NewSyncChooser(
+        onDismiss = { newSyncChooser = false },
+        onClassic = { newSyncChooser = false; editing = newJob() },
+        onMulti = { newSyncChooser = false; nwayStart = null; nwayEdit = com.xlollx.songport.ui.NwayUi.NEW },
+    )
     // An idea for one service (ServiceIdeas), from the Syncs tab or the first sign-in: its page, filled in.
     var dedupeFor by rememberSaveable { mutableStateOf<String?>(null) }
     // "All tracks to fix" in a sync's review: Tools opens on Saved matches.
@@ -616,6 +630,7 @@ private fun MainScreen(
             transferOpen = false; statsOpen = false; backupOpen = false; tipsOpen = false; sharedOpen = false
             // A group's page closes too; one being made stays, like the sync editor.
             if (nwayOpen != com.xlollx.songport.ui.NwayUi.NEW) nwayOpen = null
+            newSyncChooser = false
             // Il registro non e' piu' una scheda: la notifica lo apre sopra le Opzioni, da cui si raggiunge.
             if (requestedTab == MainActivity.TAB_LOG) { tab = MainActivity.TAB_SETTINGS; logOpen = true } else tab = requestedTab
             tabRequests.value = -1
@@ -728,6 +743,7 @@ private fun MainScreen(
         statsOpen -> "stats"
         backupOpen -> "backup"
         sharedOpen -> "shared"
+        nwayEdit != null -> "nway-edit:$nwayEdit"
         nwayOpen != null -> "nway:$nwayOpen"
         tipsOpen -> "tips"
         current != null -> "edit:" + current.id
@@ -779,11 +795,20 @@ private fun MainScreen(
                 statsOpen -> com.xlollx.songport.ui.StatsScreen(data, onClose = { statsOpen = false })
                 backupOpen -> com.xlollx.songport.ui.BackupScreen(onClose = { backupOpen = false })
                 sharedOpen -> com.xlollx.songport.ui.SharedScreen(onClose = { sharedOpen = false })
+                nwayEdit != null -> com.xlollx.songport.ui.NwayEditorScreen(
+                    groupId = nwayEdit?.takeIf { it != com.xlollx.songport.ui.NwayUi.NEW }, startSource = nwayStart,
+                    onClose = { nwayEdit = null }, onDone = { nwayEdit = null; if (nwayOpen == null) tab = MainActivity.TAB_SYNCS },
+                    // "One target": the classic editor, with the source chosen here.
+                    onClassic = { ref -> nwayEdit = null; editing = newJob().let { j -> if (ref != null) j.copy(source = ref) else j } },
+                    // The screen before 2.1.1: making a group there, or the group's page with each playlist's own menu.
+                    onPrevious = { if (nwayEdit == com.xlollx.songport.ui.NwayUi.NEW) { nwayEdit = null; nwayOpen = com.xlollx.songport.ui.NwayUi.NEW } else { nwayOpen = nwayEdit; nwayEdit = null } },
+                )
                 nwayOpen != null -> if (nwayOpen == com.xlollx.songport.ui.NwayUi.NEW) com.xlollx.songport.ui.NwayCreateScreen(
                     onClose = { nwayOpen = null }, onDone = { nwayOpen = null; tab = MainActivity.TAB_SYNCS },
                 ) else com.xlollx.songport.ui.NwayGroupScreen(
                     nwayOpen.orEmpty(), onClose = { nwayOpen = null }, onReview = { unmatchedReport = it }, onPreview = { previewJob = it },
                     onAccounts = { nwayOpen = null; tab = MainActivity.TAB_ACCOUNTS }, onOpenLog = { logOpen = true },
+                    onEdit = { nwayEdit = nwayOpen },
                 )
                 tipsOpen -> com.xlollx.songport.ui.TipsScreen(data, onClose = { tipsOpen = false }, onOpenAutomation = {
                     tipsOpen = false; tab = MainActivity.TAB_SETTINGS; focusAutomation = true
@@ -794,7 +819,7 @@ private fun MainScreen(
                     // To Accounts with its service grid open; the sync not saved yet is left.
                     onConnectService = { editing = null; tab = MainActivity.TAB_ACCOUNTS; addConnector = true },
                     twinName = editingTwinId?.let { store.job(it) }?.takeIf { it.linkedJobId == current.id }?.name,
-                    onSeveral = if (com.xlollx.songport.Features.v2(data.settings)) ({ editing = null; nwayOpen = com.xlollx.songport.ui.NwayUi.NEW }) else null,
+                    onSeveral = if (com.xlollx.songport.Features.v2(data.settings)) ({ ref -> editing = null; nwayStart = ref; nwayEdit = com.xlollx.songport.ui.NwayUi.NEW }) else null,
                     onSave = { job, reverse ->
                         val previous = store.job(job.id)
                         saveJob(job)
@@ -848,7 +873,7 @@ private fun MainScreen(
             header = {
                 when (tab) {
                     MainActivity.TAB_SYNCS -> FloatingActionButton(
-                        onClick = { startNewSync() },
+                        onClick = { startNewSync(ask = true) },
                         modifier = Modifier.tourTarget(com.xlollx.songport.ui.TourTarget.NEW_SYNC),
                     ) { Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.new_sync)) }
                     MainActivity.TAB_ACCOUNTS -> FloatingActionButton(onClick = { addConnector = true }) {
@@ -963,7 +988,7 @@ private fun MainScreen(
             if (!layout.rail) when (tab) {
                 MainActivity.TAB_SYNCS -> if (syncSelection.value.isEmpty() && !syncSelecting.value) ExtendedFloatingActionButton(
                     modifier = Modifier.tourTarget(com.xlollx.songport.ui.TourTarget.NEW_SYNC),
-                    onClick = { startNewSync() },
+                    onClick = { startNewSync(ask = true) },
                     // The extended button clears its text from the semantics: the icon names it for TalkBack.
                     icon = { Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.new_sync)) },
                     text = { Text(stringResource(R.string.new_sync)) },
@@ -1003,7 +1028,8 @@ private fun MainScreen(
                         // A shared playlist's syncs are changed from their group's page.
                         val gid = com.xlollx.songport.shared.SharedGroups.sharedSide(j)
                         // A group of the user's own playlists has its page; a shared playlist, its group's.
-                        if (gid != null && store.data.groups.any { it.id == gid && com.xlollx.songport.shared.Nway.isGroup(it) }) nwayOpen = gid
+                        // A multi sync: its editor (its page is a tap on its card away).
+                        if (gid != null && store.data.groups.any { it.id == gid && com.xlollx.songport.shared.Nway.isGroup(it) }) nwayEdit = gid
                         else if (gid != null) com.xlollx.songport.ui.SharedUi.request.value = com.xlollx.songport.ui.SharedUi.Request.Open(gid)
                         else {
                             val original = twinOriginal(j, store.data.jobs)
@@ -1088,6 +1114,12 @@ private fun TabLabel(name: String) {
         autoSize = androidx.compose.foundation.text.TextAutoSize.StepBased(minFontSize = androidx.compose.ui.unit.TextUnit(9f, androidx.compose.ui.unit.TextUnitType.Sp), maxFontSize = style.fontSize, stepSize = androidx.compose.ui.unit.TextUnit(0.5f, androidx.compose.ui.unit.TextUnitType.Sp)),
     )
 }
+
+/** A playlist in the saved instance state: its service, its id and its name. */
+private val RefSaver = Saver<PlaylistRef?, String>(
+    save = { it?.let { r -> listOf(r.provider, r.playlistId.orEmpty(), r.playlistName).joinToString("\u001f") } },
+    restore = { v -> v.split("\u001f").takeIf { it.size == 3 }?.let { PlaylistRef(it[0], it[1].ifEmpty { null }, it[2]) } },
+)
 
 /** A sync job in the saved instance state, as the JSON the store already writes. */
 private val JobSaver = Saver<SyncJob?, String>(

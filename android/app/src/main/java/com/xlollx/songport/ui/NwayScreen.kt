@@ -186,9 +186,17 @@ private fun RoleChoice(main: Boolean, keepMine: Boolean, onMain: (Boolean) -> Un
     }
 }
 
-/** A playlist for the group: the service, one of its playlists or a new one, and its role. [taken]: the playlists already in. */
+/**
+ * A playlist for the group: the service, one of its playlists or a new one, and its role. [taken]:
+ * the playlists already in. The multi-sync editor asks for the playlist alone ([roles] off: how a
+ * target follows is chosen in its sheet), and for a source that exists ([allowNew] off).
+ */
 @Composable
-internal fun NwayAddDialog(taken: List<Pair<String, String?>>, onDismiss: () -> Unit, onAdd: (NwayDraft) -> Unit) {
+internal fun NwayAddDialog(
+    taken: List<Pair<String, String?>>, onDismiss: () -> Unit,
+    title: String = stringResource(R.string.nway_add), roles: Boolean = true, allowNew: Boolean = true,
+    onAdd: (NwayDraft) -> Unit,
+) {
     val ctx = LocalContext.current
     val services = remember { writableServices(ctx, needsCreate = false) }
     var serviceId by rememberSaveable { mutableStateOf(services.firstOrNull()?.id) }
@@ -209,18 +217,18 @@ internal fun NwayAddDialog(taken: List<Pair<String, String?>>, onDismiss: () -> 
     val already = !makeNew && playlistId != null && taken.any { it.first == serviceId && it.second == playlistId }
     FitDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.nway_add)) },
+        title = { Text(title) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (services.isEmpty()) Text(stringResource(R.string.shared_no_services), color = MaterialTheme.colorScheme.error)
                 ServiceDropdown(services, service) { if (it != serviceId) { serviceId = it; playlistId = null; playlistName = ""; makeNew = false } }
                 if (service != null) PlaylistDropdown(
-                    lists, playlistId?.let { Playlist(it, playlistName, playlistCount) }, makeNew, service.canCreatePlaylists,
+                    lists, playlistId?.let { Playlist(it, playlistName, playlistCount) }, makeNew, allowNew && service.canCreatePlaylists,
                     // A new, empty playlist has nothing to give the others: it follows unless told otherwise.
                     onNew = { makeNew = true; playlistId = null; playlistName = ""; main = false },
                 ) { makeNew = false; playlistId = it.id; playlistName = it.name; playlistCount = it.trackCount }
                 if (already) Text(stringResource(R.string.nway_already), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-                RoleChoice(main, keepMine, { main = it }, { keepMine = it })
+                if (roles) RoleChoice(main, keepMine, { main = it }, { keepMine = it })
             }
         },
         confirmButton = {
@@ -315,7 +323,26 @@ fun NwayCreateScreen(onClose: () -> Unit, onDone: () -> Unit) {
         )
     }
     if (pickSchedule) SchedulePicker(schedule, { pickSchedule = false }) { schedule = it; pickSchedule = false }
-    if (firstRun) NwayFirstRunSheet(name.trim(), members, schedule, onDismiss = { firstRun = false }, onDone = { firstRun = false; onDone() })
+    val env = ctx.env
+    if (firstRun) NwayFirstRunSheet(name.trim(), members, onDismiss = { firstRun = false }, onDone = { firstRun = false; onDone() }) {
+        val description = MusicProvider.description(ctx.getString(R.string.app_name))
+        val g = withContext(Dispatchers.IO) {
+            val refs = members.map { m ->
+                val p = Providers.byId(m.provider) ?: throw IllegalStateException(m.provider)
+                if (m.playlistId != null) PlaylistRef(p.id, m.playlistId, m.name)
+                else p.createPlaylist(env, name.trim(), description).let { PlaylistRef(p.id, it.id, it.name) }
+            }
+            val group = Nway.create(env, name.trim(), refs.zip(members.map { it.main }), schedule)
+            // An exact copy is a follower's other mode: the group makes followers that keep their additions.
+            Nway.members(env, group).forEach { mem ->
+                val draft = members[refs.indexOfFirst { it.provider == mem.playlist.provider && it.playlistId == mem.playlist.playlistId }]
+                if (!draft.main && !draft.keepMine) Nway.setKeepMine(env, mem, false)
+            }
+            group
+        }
+        Nway.members(env, g).forEach { m -> listOfNotNull(m.down.id, m.up?.id).forEach { id -> env.store.job(id)?.let { Scheduler.apply(ctx, it) } } }
+        NwayUi.run(ctx, g)
+    }
 }
 
 @Composable
@@ -363,10 +390,13 @@ private suspend fun firstRunOf(env: Env, members: List<NwayDraft>): FirstRun? = 
     }.getOrNull()
 }
 
-/** "What happens at the first sync", service by service, before anything is made: Back, or Create and sync. */
+/**
+ * "What happens at the first sync", service by service, before anything is made: Back, or Create and
+ * sync, which is [action] (the caller's own way of making the group; what it throws is said here).
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun NwayFirstRunSheet(name: String, members: List<NwayDraft>, schedule: Schedule, onDismiss: () -> Unit, onDone: () -> Unit) {
+internal fun NwayFirstRunSheet(name: String, members: List<NwayDraft>, onDismiss: () -> Unit, onDone: () -> Unit, action: suspend () -> Unit) {
     val ctx = LocalContext.current
     val env = ctx.env
     val scope = rememberCoroutineScope()
@@ -418,30 +448,10 @@ private fun NwayFirstRunSheet(name: String, members: List<NwayDraft>, schedule: 
                 OutlinedButton(onClick = onDismiss, enabled = !busy, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) { Text(stringResource(R.string.nav_back)) }
                 Button(enabled = !busy, modifier = Modifier.weight(1f).heightIn(min = 52.dp), onClick = {
                     busy = true; error = null
-                    val description = MusicProvider.description(ctx.getString(R.string.app_name))
                     scope.launch {
-                        val made = withContext(Dispatchers.IO) {
-                            runCatching {
-                                val refs = members.map { m ->
-                                    val p = Providers.byId(m.provider) ?: throw IllegalStateException(m.provider)
-                                    if (m.playlistId != null) PlaylistRef(p.id, m.playlistId, m.name)
-                                    else p.createPlaylist(env, name, description).let { PlaylistRef(p.id, it.id, it.name) }
-                                }
-                                val group = Nway.create(env, name, refs.zip(members.map { it.main }), schedule)
-                                // An exact copy is a follower's other mode: the group makes followers that keep their additions.
-                                Nway.members(env, group).forEach { mem ->
-                                    val draft = members[refs.indexOfFirst { it.provider == mem.playlist.provider && it.playlistId == mem.playlist.playlistId }]
-                                    if (!draft.main && !draft.keepMine) Nway.setKeepMine(env, mem, false)
-                                }
-                                group
-                            }
-                        }
+                        val made = runCatching { action() }
                         busy = false
-                        made.onSuccess { g ->
-                            Nway.members(env, g).forEach { m -> listOfNotNull(m.down.id, m.up?.id).forEach { id -> env.store.job(id)?.let { Scheduler.apply(ctx, it) } } }
-                            NwayUi.run(ctx, g)
-                            onDone()
-                        }.onFailure { error = it.userMessage(ctx) }
+                        made.onSuccess { onDone() }.onFailure { error = it.userMessage(ctx) }
                     }
                 }) { Text(stringResource(R.string.nway_create_sync), maxLines = 1, overflow = TextOverflow.Ellipsis) }
             }
@@ -503,6 +513,8 @@ fun NwayGroupScreen(
     groupId: String, onClose: () -> Unit, onReview: (String) -> Unit, onPreview: (SyncJob) -> Unit,
     /** A service that failed, tapped: to Accounts when it is signed out, else to the log, where the run says what went wrong. */
     onAccounts: () -> Unit = {}, onOpenLog: () -> Unit = {},
+    /** Edit: the multi-sync editor on this group (2.1.1). */
+    onEdit: (() -> Unit)? = null,
 ) {
     val ctx = LocalContext.current
     val env = ctx.env
@@ -545,6 +557,8 @@ fun NwayGroupScreen(
             TopAppBar(
                 title = { Text(group.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = { IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back)) } },
+                // Not while it runs: its syncs are at work.
+                actions = { if (onEdit != null && com.xlollx.songport.Features.v2(data.settings)) TextButton(onClick = onEdit, enabled = !busy) { Text(stringResource(R.string.edit)) } },
             )
         },
     ) { padding ->
@@ -582,11 +596,8 @@ fun NwayGroupScreen(
                     CardStatus.NEVER -> stringResource(R.string.last_run_never)
                     else -> stringResource(R.string.pill_ok)
                 }
-                val role = when {
-                    m.main -> stringResource(R.string.nway_role_main)
-                    m.keepMine -> stringResource(R.string.nway_role_follows) + " (" + stringResource(R.string.shared_mode_keep) + ")"
-                    else -> stringResource(R.string.nway_role_follows) + " (" + stringResource(R.string.shared_mode_exact) + ")"
-                }
+                // As the editor says it: the source is the source; a target is an exact copy, keeps its additions, or is two-way.
+                val role = if (m.down.id == source?.down?.id) null else modeLabel(com.xlollx.songport.shared.NwayEdit.modeOf(m))
                 val lastMain = m.main && members.count { it.main } == 1
                 val phase = run?.services?.firstOrNull { it.member.down.id == m.down.id }
                 // While it runs each service says where it stands; at rest, its role and how its last run went.
@@ -595,7 +606,7 @@ fun NwayGroupScreen(
                     NwayRun.Phase.DONE -> phase.result?.takeIf { it.added > 0 || it.removed > 0 }?.let { stringResource(R.string.nway_row_done_changes, it.added, it.removed) } ?: stringResource(R.string.nway_row_done)
                     NwayRun.Phase.WAITING -> stringResource(R.string.nway_row_waiting)
                     NwayRun.Phase.FAILED -> stringResource(R.string.nway_row_failed, fixText(m.playlist.provider, userText(ctx, phase.result?.error)))
-                    else -> "$role · $state"
+                    else -> listOfNotNull(role, state).joinToString(" · ")
                 }
                 NwayRow(
                     p, listOf(p?.label(env) ?: m.playlist.provider, m.playlist.playlistName).filter { it.isNotBlank() }.joinToString(" · "), summary, m.main,

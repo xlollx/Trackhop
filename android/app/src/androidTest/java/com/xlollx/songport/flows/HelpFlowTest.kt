@@ -23,7 +23,7 @@ class HelpFlowTest : FlowTest() {
     fun aQuestionMarkOpensTheSheetOfItsSetting() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText(s(R.string.empty_syncs_title))
-        click(s(R.string.new_sync))
+        newSync()
         waitText(s(R.string.editor_source))
 
         // Mirror removals: its own text, with an example, and not the text of the switch next to it.

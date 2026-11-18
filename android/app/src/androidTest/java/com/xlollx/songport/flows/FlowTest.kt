@@ -284,6 +284,21 @@ abstract class FlowTest {
         waitFor("the target picker closed") { compose.onAllNodesWithText(s(com.xlollx.songport.R.string.editor_target)).fetchSemanticsNodes().size < 2 }
     }
 
+    /**
+     * "New sync", for a classic sync: the button, then (from 2.1.1, where a multi sync can be made:
+     * two services to write to) "Classic sync" in the sheet that asks which kind. Where the sheet is
+     * not shown (one service, none, the tour) the button alone opened what it opens.
+     */
+    protected fun newSync() {
+        click(s(com.xlollx.songport.R.string.new_sync))
+        val classic = androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.NEW_SYNC_CLASSIC_TAG)
+        val asked = runCatching { compose.waitUntil(2_500) { compose.onAllNodes(classic).fetchSemanticsNodes().isNotEmpty() } }.isSuccess
+        if (asked) {
+            tap(compose.onAllNodes(classic).onFirst(), "Classic sync")
+            waitFor("the kind of sync chosen") { compose.onAllNodes(classic).fetchSemanticsNodes().isEmpty() }
+        }
+    }
+
     protected fun clickTile(label: String) {
         val tile = androidx.compose.ui.test.hasText(label)
         compose.onAllNodes(androidx.compose.ui.test.hasScrollToNodeAction()).fetchSemanticsNodes().indices.forEach { i ->
