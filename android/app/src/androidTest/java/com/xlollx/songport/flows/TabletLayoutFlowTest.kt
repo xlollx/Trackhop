@@ -155,7 +155,7 @@ class TabletLayoutFlowTest : FlowTest() {
     @Test
     fun aLinkPastedInTheEditorSurvivesARotation() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
-        click(s(R.string.new_sync))
+        newSync()
         waitText(s(R.string.editor_source))
         openSourcePicker()
         click(s(R.string.editor_source_link))

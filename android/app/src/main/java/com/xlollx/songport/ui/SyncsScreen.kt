@@ -2102,8 +2102,12 @@ private val PolicySaver = androidx.compose.runtime.saveable.Saver<com.xlollx.son
 @Composable
 fun SyncEditorScreen(
     job: SyncJob, onCancel: () -> Unit, onConnectService: () -> Unit = {}, twinName: String? = null,
-    /** New sync › One playlist on several services (1.18): set when it is offered. */
-    onSeveral: (() -> Unit)? = null,
+    /**
+     * New sync › Multi sync (one playlist on several services, 1.18): set when it is offered. From
+     * 2.1.1 "New sync" asks which kind first; here it stays as a second way, with the source chosen
+     * so far, which the multi-sync editor takes over.
+     */
+    onSeveral: ((PlaylistRef?) -> Unit)? = null,
     onSave: (SyncJob, SyncJob?) -> Unit,
 ) {
     val ctx = LocalContext.current
@@ -2431,7 +2435,16 @@ fun SyncEditorScreen(
                     )
                 }
             }
-            if (isNew && onSeveral != null && loginServices >= 2) NwayEntryCard(onSeveral)
+            if (isNew && onSeveral != null && loginServices >= 2) {
+                // The source as chosen so far, when it is a playlist of a service (not a link, Shazam or a radio).
+                val chosen = { srcPlaylist?.takeIf { !linkMode && !shazamMode && !radioMode }?.let { PlaylistRef(srcProvider, it.id, it.name) } }
+                // A shortcut to the other kind of sync: the same two buttons head the multi-sync editor.
+                SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                    SegmentedButton(selected = true, onClick = {}, shape = SegmentedButtonDefaults.itemShape(0, 2)) { Text(stringResource(R.string.nway_one_target), maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                    SegmentedButton(selected = false, onClick = { onSeveral(chosen()) }, shape = SegmentedButtonDefaults.itemShape(1, 2)) { Text(stringResource(R.string.nway_several_targets), maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                }
+                NwayEntryCard { onSeveral(chosen()) }
+            }
             // Nothing to sync from yet, or only one service to sync between: say so, with the way to connect one.
             if (loginServices == 0) {
                 ConnectServiceCard(stringResource(R.string.no_connected_providers), onConnectService)
@@ -2838,7 +2851,7 @@ private fun ConnectServiceCard(text: String, onConnect: () -> Unit, help: HelpTo
 
 /** One of the editor's three steps: a numbered card (source, target, options). */
 @Composable
-private fun EditorStep(
+internal fun EditorStep(
     number: Int, title: String, modifier: Modifier = Modifier, help: (@Composable () -> Unit)? = null,
     content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit,
 ) {

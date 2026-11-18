@@ -213,7 +213,7 @@ class ChromeFlowTest : FlowTest() {
             problems += clippedControlLabels(s(tab))
         }
         click(s(R.string.tab_syncs))
-        click(s(R.string.new_sync))
+        newSync()
         waitText(s(R.string.editor_source))
         problems += clippedControlLabels("editor")
         return problems

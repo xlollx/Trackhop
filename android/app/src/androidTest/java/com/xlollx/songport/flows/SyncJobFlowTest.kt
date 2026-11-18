@@ -55,7 +55,7 @@ class SyncJobFlowTest : FlowTest() {
     fun aNewSyncOpensWithNoTargetAndSaveSaysItIsMissing() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText(s(R.string.empty_syncs_title))
-        click(s(R.string.new_sync))
+        newSync()
         waitText(s(R.string.editor_title_new))
         // Source and target both say "Choose a playlist", and nothing offers to create one yet.
         waitFor("both fields empty") { compose.onAllNodesWithText(s(R.string.editor_choose_playlist)).fetchSemanticsNodes().size == 2 }
@@ -99,7 +99,7 @@ class SyncJobFlowTest : FlowTest() {
     fun createPreviewRunSeeResultAndHistoryThenEditAndDelete() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText(s(R.string.empty_syncs_title))
-        click(s(R.string.new_sync))
+        newSync()
         waitText(s(R.string.editor_title_new))
         // The three numbered cards.
         assertTrue(exists(s(R.string.editor_source)))
@@ -194,7 +194,7 @@ class SyncJobFlowTest : FlowTest() {
     @Test
     fun deleteCanBeCancelled() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
-        click(s(R.string.new_sync))
+        newSync()
         fillEditorWithRoadTrip()
         click(s(R.string.save))
         waitText(s(R.string.preview_add, 6), ms = 30_000)
@@ -210,7 +210,7 @@ class SyncJobFlowTest : FlowTest() {
     @Test
     fun editorKeepsWhatWasChosenAcrossARotation() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
-        click(s(R.string.new_sync))
+        newSync()
         fillEditorWithRoadTrip()
         val newName = compose.onAllNodes(hasSetTextAction() and hasText(s(R.string.editor_new_playlist_name))).onFirst()
         newName.performScrollTo()

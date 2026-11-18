@@ -52,7 +52,7 @@ class RadioSyncFlowTest : FlowTest() {
     fun aPastedStreamMakesARadioSyncThatWearsTheRadioOnItsCard() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText(s(R.string.empty_syncs_title))
-        click(s(R.string.new_sync))
+        newSync()
         waitText(s(R.string.editor_title_new))
         clickRadioTile()
         waitText(s(R.string.radio_stream_label))
@@ -102,7 +102,7 @@ class RadioSyncFlowTest : FlowTest() {
     fun aStreamNeedsAnAddressAndAName() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText(s(R.string.empty_syncs_title))
-        click(s(R.string.new_sync))
+        newSync()
         waitText(s(R.string.editor_title_new))
         // A target chosen first: what is missing is the station alone.
         chooseTarget("Deezer")

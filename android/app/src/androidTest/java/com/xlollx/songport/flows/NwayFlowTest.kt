@@ -28,9 +28,13 @@ class NwayFlowTest : FlowTest() {
     private fun openCreate() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText(s(R.string.empty_syncs_title))
-        click(s(R.string.new_sync))
+        // The screen before 2.1.1, still there with every option it had: New sync, the classic editor's
+        // card to a multi sync, then "Use the previous screen" at the foot of the new editor.
+        newSync()
         waitText(s(R.string.editor_title_new))
         click(s(R.string.nway_entry_title))
+        waitText(s(R.string.nway_editor_new))
+        click(s(R.string.nway_previous_screen))
         waitText(s(R.string.nway_members))
     }
 
@@ -151,7 +155,7 @@ class NwayHiddenFlowTest : FlowTest() {
     fun theEditorDoesNotOfferAGroupBefore118() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText(s(R.string.empty_syncs_title))
-        click(s(R.string.new_sync))
+        newSync()
         waitText(s(R.string.editor_title_new))
         // From 2.0 every build has the switch on (V2 defaults to true): offered exactly when the build is V2.
         assertEquals(BuildConfig.V2, exists(s(R.string.nway_entry_title)))

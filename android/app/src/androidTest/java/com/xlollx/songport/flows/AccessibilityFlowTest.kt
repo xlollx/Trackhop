@@ -86,7 +86,7 @@ class AccessibilityFlowTest : FlowTest() {
         androidx.test.espresso.Espresso.pressBack()
         waitGone(s(R.string.job_style))
 
-        click(s(R.string.new_sync))
+        newSync()
         waitText(s(R.string.editor_source))
         audit("Sync editor")
         back()

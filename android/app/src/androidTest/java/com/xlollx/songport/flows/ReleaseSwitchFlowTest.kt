@@ -115,7 +115,7 @@ open class ReleaseSwitchFlowTest : FlowTest() {
     protected fun checkPodcasts() {
         launch(tabIntent(MainActivity.TAB_SYNCS))
         waitText(s(R.string.new_sync))
-        click(s(R.string.new_sync))
+        newSync()
         waitText(s(R.string.editor_title_new))
         openSourcePicker()
         clickTile("YouTube Music")
