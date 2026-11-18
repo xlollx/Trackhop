@@ -6,9 +6,9 @@ import com.xlollx.songport.shared.SharedGroups
 import com.xlollx.songport.shared.SharedProvider
 
 /**
- * How the diagnostic log names a sync and a run. Never by a name the user gave: the log is sent to
- * get help, so it says ids (a sync's, a group's) and services, not playlists or people. Kotlin puro:
- * coperto dai test.
+ * What the diagnostic log says about a run and about a batch of them. A sync is named as everywhere
+ * in the log, by its own name; a batch by its group's name and its services' ids. Never an account
+ * or a user name, a token, a key or a cookie. Kotlin puro: coperto dai test.
  */
 object SyncLog {
     /** The multi sync or shared playlist [jobs] all belong to, when they do. */
@@ -25,12 +25,12 @@ object SyncLog {
         else -> "${job.source.provider}>${job.target.provider}"
     }
 
-    /** A sync in a log line: its group and its role there, or its own id and its services. */
-    fun tag(job: SyncJob): String =
-        SharedGroups.sharedSide(job)?.let { "group=$it ${role(job)}" } ?: "job=${job.id.take(8)} ${role(job)}"
+    /** A batch in a log line: its group by id and name, when it is one group's. */
+    private fun head(group: String?, name: String?): String =
+        (group?.let { " group=$it" } ?: "") + (name?.takeIf { it.isNotBlank() }?.let { " \"$it\"" } ?: "")
 
-    fun batchStart(group: String?, jobs: List<SyncJob>, scheduled: Boolean): String =
-        "batch start" + (group?.let { " group=$it" } ?: "") + " n=${jobs.size} (${if (scheduled) "scheduled" else "manual"}) order=" + jobs.joinToString(", ") { role(it) }
+    fun batchStart(group: String?, name: String?, jobs: List<SyncJob>, scheduled: Boolean): String =
+        "batch start" + head(group, name) + " n=${jobs.size} (${if (scheduled) "scheduled" else "manual"}) order=" + jobs.joinToString(", ") { role(it) }
 
     /** What the end line of a run says after the sync's tag. */
     fun end(r: SyncReport): String =
@@ -40,10 +40,10 @@ object SyncLog {
     fun result(r: SyncReport) = SyncState.JobResult(r.ok, r.offline, r.error, r.added, r.removed, r.unmatched.size, r.heldBack)
 
     /** The summary of a batch that is over ([stopped]: its worker was stopped before the end). */
-    fun batchEnd(b: SyncState.Batch, stopped: Boolean = false): String {
+    fun batchEnd(b: SyncState.Batch, name: String? = null, stopped: Boolean = false): String {
         val o = b.outcomes.values
         val ran = o.filter { it.skipped == null }
-        return "batch ${if (stopped) "stopped" else "end"}" + (b.group?.let { " group=$it" } ?: "") +
+        return "batch ${if (stopped) "stopped" else "end"}" + head(b.group, name) +
             " ran=${ran.size}/${b.order.size} ok=${ran.count { it.ok }} failed=${ran.count { it.failed }} offline=${ran.count { it.offline }}" +
             " skipped=${o.count { it.skipped != null }} left=${b.left.size} +${ran.sumOf { it.added }} -${ran.sumOf { it.removed }} nf=${ran.sumOf { it.notFound }} held=${ran.sumOf { it.held }}"
     }

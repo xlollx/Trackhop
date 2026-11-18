@@ -43,7 +43,7 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
         }
         val jobs = asked.filter {
             // Handed over to the user's server: it runs there, never here too (ServerLink).
-            (it.id !in store.data.handedOver).also { here -> if (!here) skip(SyncLog.tag(it), "handed over to the server") }
+            (it.id !in store.data.handedOver).also { here -> if (!here) skip(it.name, "handed over to the server") }
         }.filter {
             // A scheduled wake of a sync at a time of day: nothing to do until its time (every 15 minutes: not worth a line each).
             !scheduled || batch != null || jobId == ALL || !com.xlollx.songport.sync.Timing.timed(it) ||
@@ -53,9 +53,10 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
         // order, and how each ended, for the cards and the log (SyncState.Batch).
         val batchId = if (batch != null) jobId else null
         val batchGroup = if (batch != null) SyncLog.groupOf(jobs) else null
+        val batchName = batchGroup?.let { g -> store.data.groups.firstOrNull { it.id == g }?.name }
         if (batchId != null) {
             SyncState.batchStart(batchId, batchGroup, jobs.map { it.id })
-            Diagnostics.log(ctx, "sync", SyncLog.batchStart(batchGroup, jobs, scheduled))
+            Diagnostics.log(ctx, "sync", SyncLog.batchStart(batchGroup, batchName, jobs, scheduled))
         }
         var batchStopped = true
         // A playlist of a collection (shared/Collections): the collection's list is read for news when due.
@@ -71,14 +72,14 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
             // Several at once, never two on the same account (see ParallelRuns).
             com.xlollx.songport.sync.ParallelRuns.run(jobs) { job ->
                 if (job.id in SyncState.running.value) {
-                    skip(SyncLog.tag(job), "already running")
+                    skip(job.name, "already running")
                     batchId?.let { SyncState.batchDone(it, job.id, SyncState.JobResult(skipped = "already running")) }
                     return@run
                 }
                 SyncState.start(job.id)
                 com.xlollx.songport.widget.Widgets.refresh(ctx)
                 val engine = SyncEngine(ctx)
-                Diagnostics.log(ctx, "sync", "start ${SyncLog.tag(job)} (${if (scheduled) "scheduled" else "manual"})")
+                Diagnostics.log(ctx, "sync", "start ${job.name} (${if (scheduled) "scheduled" else "manual"})")
                 try {
                     val report = try {
                         // On IO, not on the worker's Default dispatcher: a paused sync waits by blocking
@@ -99,17 +100,17 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
                         val reason = if (Build.VERSION.SDK_INT >= 31) " (stop reason $stopReason)" else ""
                         // In a batch: how many of its syncs had not finished (this one among them).
                         val left = batchId?.let { id -> SyncState.batches.value[id]?.let { " (${it.left.size} of ${it.order.size} members left)" } }.orEmpty()
-                        Diagnostics.log(ctx, "sync", "paused by the system$reason ${SyncLog.tag(job)}$left: will resume")
+                        Diagnostics.log(ctx, "sync", "paused by the system$reason ${job.name}$left: will resume")
                         throw e
                     }
-                    Diagnostics.log(ctx, "sync", "end ${SyncLog.tag(job)}: ${SyncLog.end(report)}")
+                    Diagnostics.log(ctx, "sync", "end ${job.name}: ${SyncLog.end(report)}")
                     batchId?.let { SyncState.batchDone(it, job.id, SyncLog.result(report)) }
                     // Una sync programmata morta per mancanza di rete non ha "fallito": WorkManager la
                     // riprova col suo backoff, quindi niente notifica d'errore per una giornata persa.
                     val networkGone = scheduled && !report.ok && (report.netError != null || isTransientNetwork(report.error))
                     if (networkGone) {
                         retryLater.set(true)
-                        Diagnostics.log(ctx, "sync", "no network for ${SyncLog.tag(job)}: will retry")
+                        Diagnostics.log(ctx, "sync", "no network for ${job.name}: will retry")
                     }
                     // Started by hand and stopped because the internet went away: it waits for the
                     // connection and starts again by itself, rather than ending as a failure to retry.
@@ -135,7 +136,7 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
             batchStopped = false
         } finally {
             // Also when the worker is stopped: the record ends with it (its next start makes a new one).
-            batchId?.let { id -> SyncState.batchEnd(id)?.let { Diagnostics.log(ctx, "sync", SyncLog.batchEnd(it, batchStopped)) } }
+            batchId?.let { id -> SyncState.batchEnd(id)?.let { Diagnostics.log(ctx, "sync", SyncLog.batchEnd(it, batchName, batchStopped)) } }
             if (foreground) SyncNotice.leave(ctx)
             // Also when the system stops the worker: the matches found so far are on the disk before the process can go.
             store.flush()
@@ -407,7 +408,7 @@ object Scheduler {
         val changed = com.xlollx.songport.sync.BulkEdit.rescheduled(before, after).mapNotNull { now[it] }
         for (j in changed) runCatching { applyWork(ctx, j) }.onFailure {
             failed++
-            Diagnostics.log(ctx, "schedule", "could not set the work of ${SyncLog.tag(j)}: ${it.message ?: it.javaClass.simpleName}")
+            Diagnostics.log(ctx, "schedule", "could not set the work of ${j.name}: ${it.message ?: it.javaClass.simpleName}")
         }
         // A radio sync among them: its listening and its alarm follow (as apply and cancel do).
         if ((gone + changed).any { it.radio != null } || RadioService.running.value) runCatching { RadioPlan.refresh(ctx, start = changed.any { it.radio != null }) }

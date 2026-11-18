@@ -44,16 +44,15 @@ class SyncBatchTest {
         assertTrue(SyncState.JobResult(ok = false, error = "HTTP 500").failed)
     }
 
-    @Test fun theLogNamesASyncByItsGroupAndServiceNeverByItsName() {
-        assertEquals("group=0123456789abcdef up:spotify", SyncLog.tag(up))
-        assertEquals("group=0123456789abcdef down:tidal", SyncLog.tag(down))
-        assertEquals("job=12345678 spotify>ytmusic", SyncLog.tag(plain))
-        val start = SyncLog.batchStart(SyncLog.groupOf(listOf(up, down)), listOf(up, down), scheduled = false)
-        assertEquals("batch start group=0123456789abcdef n=2 (manual) order=up:spotify, down:tidal", start)
+    @Test fun theBatchLineSaysTheGroupItsNameAndItsServicesInOrder() {
+        assertEquals("up:spotify", SyncLog.role(up))
+        assertEquals("down:tidal", SyncLog.role(down))
+        assertEquals("spotify>ytmusic", SyncLog.role(plain))
+        val group = SyncLog.groupOf(listOf(up, down))
+        assertEquals("batch start group=0123456789abcdef \"Metal & More\" n=2 (manual) order=up:spotify, down:tidal", SyncLog.batchStart(group, "Metal & More", listOf(up, down), scheduled = false))
+        // A batch transfer of several syncs is no group's.
         assertNull(SyncLog.groupOf(listOf(up, plain)))
-        for (line in listOf(start, SyncLog.tag(up), SyncLog.tag(plain))) {
-            assertFalse(line, "Metal" in line || "Brani" in line)
-        }
+        assertEquals("batch start n=1 (scheduled) order=spotify>ytmusic", SyncLog.batchStart(null, null, listOf(plain), scheduled = true))
     }
 
     @Test fun theEndLineSaysWhatWasHeldInterruptedAndTheNetwork() {
@@ -68,6 +67,6 @@ class SyncBatchTest {
             mapOf("u1" to SyncState.JobResult(added = 2, held = 1), "d1" to SyncState.JobResult(ok = false, error = "x"), "d2" to SyncState.JobResult(skipped = "already running")),
         )
         assertEquals("batch end group=g ran=2/4 ok=1 failed=1 offline=0 skipped=1 left=1 +2 -0 nf=0 held=1", SyncLog.batchEnd(b))
-        assertTrue(SyncLog.batchEnd(b, stopped = true).startsWith("batch stopped group=g"))
+        assertTrue(SyncLog.batchEnd(b, "Mix", stopped = true).startsWith("batch stopped group=g \"Mix\" ran="))
     }
 }
