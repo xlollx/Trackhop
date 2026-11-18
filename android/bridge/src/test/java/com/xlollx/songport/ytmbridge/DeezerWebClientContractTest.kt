@@ -105,6 +105,23 @@ class DeezerWebClientContractTest {
         assertEquals(2, BridgeMock.calls.size)
     }
 
+    @Test fun aRefusedSessionIsRenewedOnceFromTheSignInThenNeedsASignIn() {
+        DeezerBridge.session.put(app, "sid", "fr-stale")
+        answer("", code = 401)
+        ok("987654")
+        assertEquals("987654", dz.createPlaylist("New", "").id)
+        assertEquals(2, userDataCalls())
+        // The renewed call goes without the refused short session; the sign-in's cookies stay.
+        assertTrue(!(call(1).getHeader("Cookie") ?: "").contains("fr-stale"))
+        assertTrue(DeezerBridge.session.isConnected(app))
+        // Refused again: "sign in again", without a loop.
+        answer("", code = 403)
+        answer("", code = 403)
+        try { dz.createPlaylist("New", ""); fail() } catch (e: BridgeException) { assertEquals(DeezerWebClient.EXPIRED, e.message) }
+        assertEquals(4, BridgeMock.calls.size)
+        assertTrue(DeezerBridge.session.isConnected(app))
+    }
+
     @Test fun aSignedOutSessionSaysWhatToDoAndNamesNoApp() {
         userData = """{"error":[],"results":{"USER":{"USER_ID":0},"checkForm":"visitor"}}"""
         try { dz.libraryPlaylists(); fail() } catch (e: BridgeException) {

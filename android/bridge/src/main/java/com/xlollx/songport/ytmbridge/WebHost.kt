@@ -25,6 +25,13 @@ interface WebHost {
      * so no session ever reads another's.
      */
     val cacheScope: String get() = slot
+    /**
+     * Renews the session the service refused ([refused]: the token it was refused with) without the
+     * person, the way the connector's site renews its own (a hidden page of it), and keeps the new
+     * one. True when there is a new session to make the call again with. Never clears anything.
+     * Default: no renewal (the server, a connector without one).
+     */
+    fun renewSession(refused: String?): Boolean = false
 
     companion object {
         /** The value of cookie [name] in a `Cookie` header; null when absent or empty. */

@@ -650,7 +650,7 @@ class YtmClient(private val host: YtmHost) {
 
     fun createPlaylist(name: String, description: String): PlaylistDto {
         val resp = call("playlist/create", mapOf("title" to name, "description" to description, "privacyStatus" to "PRIVATE"))
-        val id = resp["playlistId"].str ?: throw BridgeException("playlist not created: ${resp.toString().take(200)}")
+        val id = resp["playlistId"].str ?: throw BridgeException(refusal(resp, "playlist/create", "YouTube Music did not create the playlist"))
         return PlaylistDto(id, name, 0)
     }
 
@@ -759,15 +759,52 @@ class YtmClient(private val host: YtmHost) {
             videoIds.forEach { if (likeGoesElsewhere(call("like/like", mapOf("target" to mapOf("videoId" to it))))) elsewhere += it }
             return elsewhere
         }
-        videoIds.chunked(50).forEach { chunk ->
-            val resp = call(
-                "browse/edit_playlist",
-                mapOf("playlistId" to playlistId.removePrefix("VL"), "actions" to chunk.map { mapOf("action" to "ACTION_ADD_VIDEO", "addedVideoId" to it) }),
-            )
-            checkStatus(resp)
+        val refused = LinkedHashMap<String, String>()
+        var added = 0
+        for (chunk in videoIds.chunked(50)) {
+            val resp = addVideos(playlistId, chunk)
+            if (resp["status"].str == STATUS_OK) { added += chunk.size; continue }
+            val why = refusal(resp, "add", ADD_REFUSED)
+            if (chunk.size == 1) { refused[chunk[0]] = why; continue }
+            // YouTube refuses the whole call for one song it will not take: each is asked alone, the
+            // others go in. Five refused in a row with nothing added is the playlist or the session,
+            // not the songs: that stops here, as the call of all of them would have.
+            var inARow = 0
+            for (id in chunk) {
+                val one = addVideos(playlistId, listOf(id))
+                if (one["status"].str == STATUS_OK) { added++; inARow = 0; continue }
+                refused[id] = refusal(one, "add", ADD_REFUSED)
+                if (added == 0 && ++inARow >= REFUSED_IN_A_ROW) throw BridgeException(refused.getValue(id))
+            }
         }
-        return emptySet()
+        if (refused.isEmpty()) return emptySet()
+        // A song the playlist already holds is refused too (no dedupe option is sent): one read of
+        // the playlist tells which of the refused are there, so they count as present, not failed.
+        val present = try {
+            findEntries(playlistId, refused.keys).mapTo(LinkedHashSet()) { it.id }.filter { it in refused }.toSet()
+        } catch (e: Exception) {
+            host.log("add refused; the playlist could not be read to tell songs already in it (${e.javaClass.simpleName})")
+            emptySet()
+        }
+        if (present.isNotEmpty()) host.log("add refused ${present.size} song(s) the playlist already holds: counted as present")
+        present.forEach { refused.remove(it) }
+        if (refused.isEmpty()) return present
+        if (videoIds.size == 1) throw BridgeException(refused.values.first())
+        throw PartlyAdded(refused, present)
     }
+
+    private fun addVideos(playlistId: String, ids: List<String>): JsonElement = call(
+        "browse/edit_playlist",
+        mapOf("playlistId" to playlistId.removePrefix("VL"), "actions" to ids.map { mapOf("action" to "ACTION_ADD_VIDEO", "addedVideoId" to it) }),
+    )
+
+    /**
+     * Some of the songs of an [addTracks] of several were refused by YouTube Music and the rest
+     * added: [refused] (id to the plain reason) go to the caller as not added, [present] as already
+     * in the playlist; nothing is to be tried again.
+     */
+    class PartlyAdded(val refused: Map<String, String>, val present: Set<String>) :
+        BridgeException("YouTube Music did not add ${refused.size} track(s): ${refused.values.first()}")
 
     /**
      * Whether the answer to a like says the item went to Liked videos rather than Liked music.
@@ -814,10 +851,43 @@ class YtmClient(private val host: YtmHost) {
         }
     }
 
-    private fun checkStatus(resp: JsonElement) {
+    private fun checkStatus(resp: JsonElement, what: String = "edit") {
+        if (resp["status"].str != STATUS_OK) throw BridgeException(refusal(resp, what, "YouTube Music did not make the change"))
+    }
+
+    /**
+     * The message for an edit YouTube Music did not make: [plain] (or "did not confirm the change"
+     * when the answer has no status), then YouTube's own words when it has some (a toast, a dialog:
+     * the texts under its fields), never the answer itself (it carries the visitor's data). The
+     * fields and texts of each kind of answer are logged once (never an id), so a diagnostics
+     * report shows what YouTube said.
+     */
+    internal fun refusal(resp: JsonElement, what: String, plain: String): String {
         val status = resp["status"].str
-            ?: throw BridgeException("YouTube Music did not confirm the change: ${resp.toString().take(240)}")
-        if (status != "STATUS_SUCCEEDED") throw BridgeException("YouTube Music answered $status: ${resp.toString().take(200)}")
+        val body = (resp as? JsonObject)?.filterKeys { it != "responseContext" }.orEmpty()
+        val fields = body.keys.sorted()
+        // The kinds of action YouTube answered with (a toast, a dialog), for the log.
+        val actions = body["actions"].arr.flatMap { (it as? JsonObject)?.keys.orEmpty() }.distinct()
+        val pieces = HashSet<String>()
+        val texts = ArrayList<String>()
+        for (v in body.values) {
+            for (r in v.findAll("runs")) {
+                val parts = r.arr.mapNotNull { it["text"].str }
+                pieces += parts
+                parts.joinToString("").trim().takeIf { it.isNotEmpty() }?.let { texts += it }
+            }
+            for (k in listOf("text", "simpleText")) for (t in v.findAll(k)) t.str?.trim()?.takeIf { it.isNotEmpty() && it !in pieces }?.let { texts += it }
+        }
+        val said = texts.distinct()
+        val shape = "$what|$status|" + fields.joinToString(",") + "|" + actions.joinToString(",") + "|" + said.joinToString("/")
+        if (refusalShapes.size < 20 && refusalShapes.add(shape)) {
+            host.log("$what answered ${status ?: "no status"} with " +
+                (if (fields.isEmpty()) "no fields besides responseContext" else "fields " + fields.joinToString(", ")) +
+                (if (actions.isEmpty()) "" else "; actions " + actions.joinToString(", ")) +
+                if (said.isEmpty()) "" else "; says: " + said.joinToString(" / ").take(200))
+        }
+        val head = if (status == null) "YouTube Music did not confirm the change" else plain
+        return if (said.isEmpty()) head else "$head: " + said.joinToString(" / ").take(160)
     }
 
     // ------------------------------------------------------------------ parsing
@@ -878,6 +948,12 @@ class YtmClient(private val host: YtmHost) {
         const val LIKED = "__liked__"
         /** Kinds of like answers already logged, for this process. */
         private val likeShapes: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
+        /** Kinds of refused edit answers already logged, for this process. */
+        internal val refusalShapes: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
+        private const val STATUS_OK = "STATUS_SUCCEEDED"
+        private const val ADD_REFUSED = "YouTube Music did not add the track"
+        /** Songs refused one after the other, none added, before an add of several stops. */
+        private const val REFUSED_IN_A_ROW = 5
         /** Signed-in calls: what a person clicking around the player would produce. */
         private val SESSION_LANE = Lane(1_500, 6_000)
         /** Anonymous searches: several a second are fine, Trackhop also runs a few in parallel. */

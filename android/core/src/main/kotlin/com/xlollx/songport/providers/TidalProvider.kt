@@ -166,10 +166,16 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
         return out
     }
 
+    /**
+     * Tracks from [trackResources] (a search's included tracks, an ISRC lookup), each with its
+     * artists. They may come with only a link to their artists, as a playlist's do: those are asked
+     * for again with them ([withArtists]), or the track would have no artist and match poorly.
+     */
     private suspend fun resolve(ctx: Env, trackResources: List<JsonElement>): List<Track> {
-        val artistIds = trackResources.flatMap { r -> r["relationships"]["artists"]["data"].arr.mapNotNull { it["id"].str } }
-        val names = artistNames(ctx, artistIds)
-        return trackResources.mapNotNull { r -> trackFrom(r, names) }
+        val byId = LinkedHashMap<String, JsonElement>()
+        for (r in trackResources) byId[r["id"].str ?: continue] = r
+        val names = withArtists(ctx, byId)
+        return trackResources.mapNotNull { r -> trackFrom(byId[r["id"].str] ?: r, names) }
     }
 
     override suspend fun playlistVersion(ctx: Env, playlistId: String): String? {
@@ -200,9 +206,23 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
         return Track(id = id, title = name, artists = listOf(name), kind = Track.KIND_ARTIST)
     }
 
+    /**
+     * Albums from [resources], each with its artists. An album may come without its artists' ids
+     * (only a link: saved albums, a search, a barcode lookup): those are asked for again with their
+     * artists, twenty at a time, as for tracks.
+     */
     private suspend fun albumsOf(ctx: Env, resources: List<JsonElement>): List<Track> {
-        val names = artistNames(ctx, resources.flatMap { r -> r["relationships"]["artists"]["data"].arr.mapNotNull { it["id"].str } })
-        return resources.mapNotNull { albumFrom(it, names) }
+        val byId = LinkedHashMap<String, JsonElement>()
+        for (r in resources) byId[r["id"].str ?: continue] = r
+        val bare = byId.filterValues { r -> r["relationships"]["artists"]["data"].arr.isEmpty() }.keys
+        bare.chunked(20).forEach { chunk ->
+            // A lost connection is not an album without artists: it fails the read, which is tried again.
+            val j = runCatching { api(ctx, "GET", "$API/albums?countryCode=${cc(ctx)}&filter[id]=${chunk.joinToString(",")}&include=artists") }
+                .onFailure { if (com.xlollx.songport.net.NetError.isNetwork(it)) throw it }.getOrNull() ?: return@forEach
+            for (a in j["data"].arr) { val id = a["id"].str ?: continue; if (a["relationships"]["artists"]["data"].arr.isNotEmpty()) byId[id] = a }
+        }
+        val names = artistNames(ctx, byId.values.flatMap { r -> r["relationships"]["artists"]["data"].arr.mapNotNull { it["id"].str } })
+        return resources.mapNotNull { r -> albumFrom(byId[r["id"].str] ?: r, names) }
     }
 
     /**
@@ -210,7 +230,7 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
      * /userCollectionArtists/…). TIDAL split /userCollections/{userId}/relationships/{albums,artists}
      * into one resource per kind (spec 1.10, seen 11/2026; the old path answers 404 "Resource not found"). These
      * paths take no countryCode. An included album may come without its artists' ids (only a link):
-     * those are asked for again with their artists, twenty at a time, as for playlist tracks.
+     * [albumsOf] asks for those again with their artists.
      */
     private suspend fun collection(ctx: Env, kind: String): List<Track> {
         val order = ArrayList<String>()
@@ -221,15 +241,6 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
             for (d in j["data"].arr) if (d["type"].str == kind) order += d["id"].str ?: continue
             for (inc in j["included"].arr) if (inc["type"].str == kind) included[inc["id"].str ?: continue] = inc
             url = nextUrl(j)
-        }
-        if (kind == "albums") {
-            val bare = included.filterValues { r -> r["relationships"]["artists"]["data"].arr.isEmpty() }.keys
-            bare.chunked(20).forEach { chunk ->
-                // A lost connection is not an album without artists: it fails the read, which is tried again.
-                val j = runCatching { api(ctx, "GET", "$API/albums?countryCode=${cc(ctx)}&filter[id]=${chunk.joinToString(",")}&include=artists") }
-                    .onFailure { if (com.xlollx.songport.net.NetError.isNetwork(it)) throw it }.getOrNull() ?: return@forEach
-                for (a in j["data"].arr) { val id = a["id"].str ?: continue; if (a["relationships"]["artists"]["data"].arr.isNotEmpty()) included[id] = a }
-            }
         }
         val resources = order.mapNotNull { included[it] }
         return if (kind == "albums") albumsOf(ctx, resources) else resources.mapNotNull { artistFrom(it) }

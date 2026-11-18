@@ -220,7 +220,9 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider, Web
     /**
      * Towards Liked songs, the likes YouTube answered as going to Liked videos (the Bridge's
      * "present"): liked, but Liked music will not list them, so the sync counts them as present.
-     * An older Bridge app, and every playlist, report none.
+     * Towards a playlist, the songs YouTube refused because the playlist already holds them. An
+     * older Bridge app reports none. Songs YouTube refused while it added the others (the
+     * Bridge's "refused", with "refusedWhy") end as [com.xlollx.songport.model.TracksRefused].
      */
     override suspend fun addTracksReportingPresent(ctx: Env, playlistId: String, tracks: List<Track>): Set<String> {
         if (tracks.isEmpty()) return emptySet()
@@ -230,7 +232,14 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider, Web
                 // Albums are liked through their playlist id, which the row carried as uri when it had one.
                 if (playlistId == MusicProvider.ALBUMS_ID) putStringArray("uris", tracks.map { it.uri ?: "" }.toTypedArray())
             })
-            b.getStringArray("present")?.toSet() ?: emptySet()
+            val present = b.getStringArray("present")?.toSet() ?: emptySet()
+            val refused = b.getStringArray("refused")
+            if (!refused.isNullOrEmpty()) {
+                val why = b.getStringArray("refusedWhy")
+                throw com.xlollx.songport.model.TracksRefused(
+                    refused.withIndex().associate { (i, v) -> v to "YouTube Music: " + (why?.getOrNull(i) ?: "not added") }, present)
+            }
+            present
         }
     }
 

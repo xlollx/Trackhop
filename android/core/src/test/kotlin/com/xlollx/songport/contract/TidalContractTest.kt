@@ -337,6 +337,55 @@ class TidalContractTest : ContractTest() {
         assertCall(next(), "GET", api, "/v2/searchResults/sr-1/relationships/tracks")
     }
 
+    /** Regression (2.1.0): search tracks that carry only a link to their artists are asked for again with them, not shown without an artist. */
+    @Test fun searchTracksWithoutArtistIdsAreAskedForAgain() = runBlocking {
+        val bare = """{"id":"101","type":"tracks","attributes":{"title":"Song 1","isrc":"GBAAA0000001","duration":"PT3M16S"},"relationships":{"artists":{"links":{"self":"/tracks/101/relationships/artists"}}}}"""
+        json("""{"data":[{"id":"sr-1","type":"searchResults","relationships":{"tracks":{"data":[{"id":"101","type":"tracks"}]}}}],"included":[$bare]}""")
+        json("""{"data":[${inc(1)}],"included":[{"id":"8","type":"artists","attributes":{"name":"Beyoncé"}}]}""")
+        json(artists)
+        val r = td.search(env, Track("x", "Song 1", listOf("Beyoncé")))
+        assertEquals(listOf("Beyoncé"), r.single().artists)
+        assertCall(next(), "GET", api, "/v2/searchResults")
+        val again = next()
+        assertCall(again, "GET", api, "/v2/tracks")
+        assertEquals("101", again.query("filter[id]"))
+        assertEquals("artists", again.query("include"))
+        val a = next()
+        assertCall(a, "GET", api, "/v2/artists")
+        assertEquals("8", a.query("filter[id]"))
+        noMoreRequests()
+    }
+
+    @Test fun isrcLookupWithoutArtistIdsAsksForThemAgain() = runBlocking {
+        val bare = """{"id":"101","type":"tracks","attributes":{"title":"Song 1","isrc":"GBAAA0000001","duration":"PT3M16S"},"relationships":{"artists":{"links":{"self":"/tracks/101/relationships/artists"}}}}"""
+        json("""{"data":[$bare]}""")
+        json("""{"data":[${inc(1)}]}""")
+        json(artists)
+        val r = td.search(env, Track("x", "Song 1", listOf("Beyoncé"), isrc = "GBAAA0000001"))
+        assertEquals(listOf("Beyoncé"), r.single().artists)
+        assertEquals("GBAAA0000001", next().query("filter[isrc]"))
+        assertEquals("101", next().query("filter[id]"))
+        assertCall(next(), "GET", api, "/v2/artists")
+        noMoreRequests()
+    }
+
+    @Test fun searchAlbumsWithoutArtistIdsAreAskedForAgain() = runBlocking {
+        val bare = """{"id":"al1","type":"albums","attributes":{"title":"Album","barcodeId":"0000000000017","releaseDate":"2020-05-01"},"relationships":{"artists":{"links":{"self":"/albums/al1/relationships/artists"}}}}"""
+        json("""{"data":[{"id":"sr-1","type":"searchResults","relationships":{"albums":{"data":[{"id":"al1","type":"albums"}]}}}],"included":[$bare]}""")
+        val full = """{"id":"al1","type":"albums","attributes":{"title":"Album","barcodeId":"0000000000017","releaseDate":"2020-05-01"},"relationships":{"artists":{"data":[{"id":"7","type":"artists"}]}}}"""
+        json("""{"data":[$full]}""")
+        json(artists)
+        val r = td.search(env, Track("x", "Album", listOf("Måneskin"), kind = Track.KIND_ALBUM))
+        assertEquals(listOf("Måneskin"), r.single().artists)
+        assertCall(next(), "GET", api, "/v2/searchResults")
+        val again = next()
+        assertCall(again, "GET", api, "/v2/albums")
+        assertEquals("al1", again.query("filter[id]"))
+        assertEquals("artists", again.query("include"))
+        assertCall(next(), "GET", api, "/v2/artists")
+        noMoreRequests()
+    }
+
     // ------------------------------------------------------------------ a playlist's picture
 
     private val jpeg = byteArrayOf(-1, -40, -1, -32, 1, 2, 3)

@@ -30,14 +30,22 @@ class QobuzWebClientContractTest {
     private lateinit var c: QobuzWebClient
     private val token = "Ab3_" + "x".repeat(80) + "-Z"
 
+    private val realPage = QobuzRenewal.hiddenPage
+    private var pages = 0
+    private val logs = java.util.Collections.synchronizedList(ArrayList<String>())
+
     @Before fun setUp() {
+        QobuzRenewal.forget()
+        // No WebView here: a renewal's page gives nothing unless a test says otherwise.
+        QobuzRenewal.hiddenPage = { _, _, _ -> pages++; QobuzRenewal.Page(null, null, "no page in tests") }
+        BridgeNet.logSink = { tag, m -> logs += "[$tag] $m" }
         BridgeMock.start()
         app = RuntimeEnvironment.getApplication()
         assertNull(QobuzBridge.keep(app, token, "798273057"))
         c = QobuzWebClient(app)
     }
 
-    @After fun tearDown() { BridgeMock.stop() }
+    @After fun tearDown() { BridgeMock.stop(); QobuzRenewal.hiddenPage = realPage; QobuzRenewal.forget(); BridgeNet.logSink = null }
 
     private fun resource(name: String) = javaClass.getResource("/qobuz/$name")!!.readText()
     private fun call(i: Int): RecordedRequest = BridgeMock.calls[i]
@@ -191,6 +199,70 @@ class QobuzWebClientContractTest {
         try { c.playlists(); fail() } catch (e: BridgeException) { assertEquals(QobuzWebClient.EXPIRED, e.message) }
         BridgeMock.answer("""{"status":"error","code":401,"message":"User authentication is required."}""")
         try { c.playlists(); fail() } catch (e: BridgeException) { assertEquals(QobuzWebClient.EXPIRED, e.message) }
+    }
+
+    private val refused = """{"status":"error","code":401,"message":"User authentication is required."}"""
+    private val renewed = "Rn9_" + "y".repeat(80) + "-Q"
+    private fun jarCookie() = android.webkit.CookieManager.getInstance().getCookie("https://play.qobuz.com").orEmpty()
+
+    /** The owner's log of 18/11/2026: a refused token ended in "sign in again" while the player's own session was still good. */
+    @Test fun aRefusedSessionIsRenewedFromThePlayersPageAndTheCallMadeAgain() {
+        android.webkit.CookieManager.getInstance().setCookie("https://play.qobuz.com", "player_session=kept")
+        QobuzRenewal.hiddenPage = { _, slot, old -> pages++; assertEquals("", slot); assertEquals(token, old); QobuzRenewal.Page(renewed, "798273057", null) }
+        BridgeMock.answer(refused, code = 401)
+        BridgeMock.answer(playlists)
+        assertEquals(2, c.playlists().size)
+        assertEquals(1, pages)
+        assertEquals(token, call(0).getHeader("X-User-Auth-Token"))
+        assertEquals(renewed, call(1).getHeader("X-User-Auth-Token"))
+        assertEquals(renewed, QobuzBridge.session.get(app, QobuzWebClient.TOKEN))
+        // Nothing wiped: the session and the player's cookies stay.
+        assertTrue(QobuzBridge.session.isConnected(app))
+        assertTrue(jarCookie().contains("player_session=kept"))
+        assertTrue(logs.toString(), logs.any { it.startsWith("[qobuz] access renewed in a hidden page (new token") })
+        assertTrue(logs.toString(), logs.any { it == "[qobuz] session refused (401); access renewed and the call made again: ok" })
+        assertTrue(logs.none { it.contains(token) || it.contains(renewed) })
+    }
+
+    @Test fun aWriteRefusedForItsSessionIsSentAgainOnceRenewed() {
+        QobuzRenewal.hiddenPage = { _, _, _ -> pages++; QobuzRenewal.Page(renewed, null, null) }
+        BridgeMock.answer(refused, code = 401)
+        BridgeMock.answer("""{"id":7100}""")
+        c.add("7100", listOf("11"))
+        assertEquals(renewed, call(1).getHeader("X-User-Auth-Token"))
+        assertEquals(mapOf("playlist_id" to "7100", "track_ids" to "11", "no_duplicate" to "true"), call(1).form())
+    }
+
+    @Test fun aRenewedSessionRefusedAgainNeedsASignInWithoutAWipeOrALoop() {
+        android.webkit.CookieManager.getInstance().setCookie("https://play.qobuz.com", "player_session=kept")
+        QobuzRenewal.hiddenPage = { _, _, _ -> pages++; QobuzRenewal.Page(renewed, null, null) }
+        BridgeMock.answer(refused, code = 401)
+        BridgeMock.answer(refused, code = 401)
+        try { c.playlists(); fail() } catch (e: BridgeException) { assertEquals(QobuzWebClient.EXPIRED, e.message) }
+        assertEquals(2, BridgeMock.calls.size)
+        assertEquals(1, pages)
+        assertTrue(QobuzBridge.session.isConnected(app))
+        assertTrue(jarCookie().contains("player_session=kept"))
+        assertTrue(logs.any { it == "[qobuz] session refused (401); access renewed and the call made again: refused again" })
+    }
+
+    @Test fun aPageThatRenewsNothingNeedsASignInAndIsNotOpenedForEveryCall() {
+        android.webkit.CookieManager.getInstance().setCookie("https://play.qobuz.com", "player_session=kept")
+        repeat(2) { BridgeMock.answer(refused, code = 401) }
+        repeat(2) { try { c.search("x"); fail() } catch (e: BridgeException) { assertEquals(QobuzWebClient.EXPIRED, e.message) } }
+        // One page for the first refusal; the second waits out the pause.
+        assertEquals(1, pages)
+        assertEquals(2, BridgeMock.calls.size)
+        assertEquals(token, QobuzBridge.session.get(app, QobuzWebClient.TOKEN))
+        assertTrue(QobuzBridge.session.isConnected(app))
+        assertTrue(jarCookie().contains("player_session=kept"))
+        assertTrue(logs.toString(), logs.any { it == "[qobuz] access not renewed: no page in tests" })
+    }
+
+    @Test fun aSessionRenewedByAnotherCallMeanwhileIsUsedWithoutAPage() {
+        QobuzBridge.session.put(app, QobuzWebClient.TOKEN, renewed)
+        assertTrue(QobuzRenewal.renew(app, "", token))
+        assertEquals(0, pages)
     }
 
     @Test fun throttlingAndRefusalsSaySo() {

@@ -53,12 +53,38 @@ class QobuzWebClient(private val host: WebHost) {
     /** Qobuz's site turned a call away before the API saw it (a 403 that is not the API's JSON): it passes again later. */
     private class Refused(message: String) : Exception(message)
 
+    /** Qobuz refused the session (401): nothing was done, so the call can be made again once it is renewed. */
+    private class SessionRefused : Exception(EXPIRED)
+
+    /**
+     * [make]'s request, read. A refused session (401) is renewed once without the person
+     * ([WebHost.renewSession]: the player's own session, read again in a hidden page) and the call
+     * made again with the new one; refused again, or not renewed, it is [EXPIRED]: sign in again.
+     * A 401 means Qobuz did nothing, so a write is safe to send again too.
+     */
+    private fun exchange(make: () -> Request): JsonElement {
+        val sent = host.get(TOKEN)
+        try {
+            return read(make())
+        } catch (e: SessionRefused) {
+            if (sent == null || !host.renewSession(sent)) throw BridgeException(EXPIRED)
+        }
+        return try {
+            read(make()).also { BridgeNet.log("qobuz", "session refused (401); access renewed and the call made again: ok") }
+        } catch (e: SessionRefused) {
+            BridgeNet.log("qobuz", "session refused (401); access renewed and the call made again: refused again")
+            throw BridgeException(EXPIRED)
+        }
+    }
+
     private fun read(req: Request): JsonElement {
         pace()
         val (code, body, server) = http.newCall(req).execute().use { Triple(it.code, it.body?.string().orEmpty(), it.header("Server")) }
-        if (code == 401) throw BridgeException(EXPIRED)
+        if (code == 401) throw SessionRefused()
         if (code == 429) throw BridgeException("Qobuz asks to slow down (429): try again in a few minutes")
         val j = runCatching { parseJson(body) }.getOrNull()
+        // The API's own word for a refused session, whatever the HTTP status it came with.
+        if (problemIn(j) == EXPIRED) throw SessionRefused()
         if (code == 403 && problemIn(j) == null) {
             // Seen from 07/11/2026 (issue #56): a 403 now and then, several syncs in a row, then fine again.
             val page = body.replace(Regex("<[^>]*>"), " ").replace(Regex("\\s+"), " ").trim().take(80)
@@ -75,7 +101,7 @@ class QobuzWebClient(private val host: WebHost) {
         var attempt = 0
         while (true) {
             try {
-                return read(request(path, params, signed).get().build())
+                return exchange { request(path, params, signed).get().build() }
             } catch (e: Refused) {
                 val wait = retryWaitsMs.getOrNull(attempt++) ?: throw BridgeException("${e.message}, ${attempt} times: Qobuz's site refused the calls, the next sync tries again")
                 BridgeNet.log("qobuz", "${e.message}, asking again in ${wait / 1000} s")
@@ -87,7 +113,7 @@ class QobuzWebClient(private val host: WebHost) {
     /** A write, as a form: the way the open-source clients post to the same API. Never sent twice: a refused write is reported. */
     private fun post(path: String, form: Map<String, String>): JsonElement {
         val body = FormBody.Builder().apply { form.forEach { (k, v) -> add(k, v) } }.build()
-        return try { read(request(path).post(body).build()) } catch (e: Refused) { throw BridgeException(e.message ?: "Qobuz HTTP 403") }
+        return try { exchange { request(path).post(body).build() } } catch (e: Refused) { throw BridgeException(e.message ?: "Qobuz HTTP 403") }
     }
 
     /** Every item of a paged listing ({limit, offset, total, items}), the listing found by [section] in each answer. */

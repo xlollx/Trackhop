@@ -77,7 +77,18 @@ class DeezerWebClient(private val host: WebHost) {
             val pair = c.substringBefore(';')
             if (pair.substringBefore('=').trim() == "sid") pair.substringAfter('=', "").trim().takeIf { it.isNotEmpty() }?.let { host.put("sid", it) }
         }
-        if (resp.code == 401 || resp.code == 403) throw BridgeException(EXPIRED)
+        if (resp.code == 401 || resp.code == 403) {
+            // A refused gateway token or short session (sid): both are asked for again once from the
+            // account's lasting sign-in (its arl cookie), as the player does, before "sign in again".
+            if (retry && method != "deezer.getUserData") {
+                cachedUsers.remove(host.cacheScope)
+                host.put("sid", null)
+                val again = runCatching { gw(method, args, retry = false) }
+                BridgeNet.log("deezer", "session refused (HTTP ${resp.code}); access renewed and the call made again: ${if (again.isSuccess) "ok" else "failed"}")
+                return again.getOrThrow()
+            }
+            throw BridgeException(EXPIRED)
+        }
         if (resp.code == 429) throw BridgeException("Deezer asks to slow down (429): try again in a few minutes")
         if (resp.code !in 200..299) throw BridgeException("Deezer $method: HTTP ${resp.code} ${resp.text.take(160)}")
         val j = runCatching { parseJson(resp.text) }.getOrNull() ?: throw BridgeException("Deezer $method: unreadable answer")
@@ -86,6 +97,7 @@ class DeezerWebClient(private val host: WebHost) {
             val keys = (j["error"] as? JsonObject)?.keys.orEmpty()
             if (retry && (keys.any { it in TOKEN_ERRORS } || error.contains("CSRF", true))) {
                 cachedUsers.remove(host.cacheScope)
+                BridgeNet.log("deezer", "gateway token refused; access renewed and the call made again")
                 return gw(method, args, retry = false)
             }
             if (keys.any { it in AUTH_ERRORS } || keys.any { it in TOKEN_ERRORS }) throw BridgeException(EXPIRED)

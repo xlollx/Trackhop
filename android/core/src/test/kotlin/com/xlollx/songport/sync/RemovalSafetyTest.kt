@@ -306,6 +306,8 @@ open class MemoryService(override val serviceId: String) : MusicProvider {
     }
     /** Thrown by [addTracks] when set: a service that refuses every addition. */
     var addFailure: Exception? = null
+    /** Ids refused on adding (see [addTracks]). */
+    var refuseIds: Set<String> = emptySet()
     var addCalls = 0
     /** Whether each add came while the job keeps the order (MusicProvider.OrderedAdds). */
     val addsInOrder = ArrayList<Boolean>()
@@ -313,6 +315,13 @@ open class MemoryService(override val serviceId: String) : MusicProvider {
         addCalls++
         addsInOrder += MusicProvider.addsInOrder()
         addFailure?.let { throw it }
+        // As YouTube Music through the Bridge: a block of several takes all but the songs it refuses, named.
+        val (no, yes) = tracks.partition { it.id in refuseIds }
+        if (no.isNotEmpty() && tracks.size > 1) {
+            lists.getOrPut(playlistId) { ArrayList() } += yes
+            throw com.xlollx.songport.model.TracksRefused(no.associate { it.id to "refused" })
+        }
+        if (no.isNotEmpty()) throw ProviderException("refused")
         lists.getOrPut(playlistId) { ArrayList() } += tracks
     }
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
