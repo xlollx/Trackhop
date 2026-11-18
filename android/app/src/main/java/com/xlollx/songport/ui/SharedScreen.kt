@@ -12,6 +12,7 @@ import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Person
@@ -446,22 +447,32 @@ internal fun ServiceDropdown(services: List<MusicProvider>, selected: MusicProvi
 
 /**
  * The playlist a new group starts from, as the sync editor's picker: the user's own playlists on
- * the chosen service and, first, a new one named after the group ([canCreate]). [lists] null: loading.
+ * the chosen service and, first, a new one named after the group ([canCreate]; [newLabel] says it
+ * another way). [lists] null: loading. Liked songs, where a caller lists it, are named and marked as
+ * the sync editor's picker does ([provider]: Last.fm's are "Loved tracks"); [disabled]: the lists
+ * shown but not offered here, each with the reason under its name.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun PlaylistDropdown(lists: List<Playlist>?, selected: Playlist?, makeNew: Boolean, canCreate: Boolean, onNew: () -> Unit, onSelect: (Playlist) -> Unit) {
+internal fun PlaylistDropdown(
+    lists: List<Playlist>?, selected: Playlist?, makeNew: Boolean, canCreate: Boolean, onNew: () -> Unit,
+    provider: String? = null, newLabel: String? = null, disabled: Map<String, String> = emptyMap(),
+    onSelect: (Playlist) -> Unit,
+) {
     var open by rememberSaveable { mutableStateOf(false) }
+    val newText = newLabel ?: stringResource(R.string.shared_new_playlist)
     ExposedDropdownMenuBox(expanded = open, onExpandedChange = { open = it && lists != null }) {
         OutlinedTextField(
             value = when {
-                makeNew -> stringResource(R.string.shared_new_playlist)
-                else -> selected?.name.orEmpty()
+                makeNew -> newText
+                selected != null -> playlistDisplayName(selected.id, selected.name, provider).removePrefix("\u2665 ")
+                else -> ""
             },
-            onValueChange = {}, readOnly = true, singleLine = true, enabled = lists != null,
+            // The whole name, on two lines or more where it needs them: never cut in the middle of a phrase.
+            onValueChange = {}, readOnly = true, singleLine = false, enabled = lists != null,
             label = { Text(stringResource(R.string.shared_playlist)) },
             placeholder = { Text(stringResource(R.string.editor_choose_playlist)) },
-            leadingIcon = { Icon(if (makeNew) Icons.AutoMirrored.Filled.PlaylistAdd else Icons.AutoMirrored.Filled.QueueMusic, null) },
+            leadingIcon = { Icon(if (makeNew) Icons.AutoMirrored.Filled.PlaylistAdd else if (selected?.id == MusicProvider.LIKED_ID) Icons.Filled.Favorite else Icons.AutoMirrored.Filled.QueueMusic, null) },
             trailingIcon = {
                 if (lists == null) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
                 else ExposedDropdownMenuDefaults.TrailingIcon(open)
@@ -470,7 +481,7 @@ internal fun PlaylistDropdown(lists: List<Playlist>?, selected: Playlist?, makeN
         )
         ExposedDropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             if (canCreate) DropdownMenuItem(
-                text = { Text(stringResource(R.string.shared_new_playlist)) },
+                text = { Text(newText) },
                 leadingIcon = { Icon(Icons.AutoMirrored.Filled.PlaylistAdd, null) },
                 onClick = { open = false; onNew() },
                 contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
@@ -478,11 +489,14 @@ internal fun PlaylistDropdown(lists: List<Playlist>?, selected: Playlist?, makeN
             for (p in lists.orEmpty()) DropdownMenuItem(
                 text = {
                     Column {
-                        Text(p.name)
-                        if (p.trackCount >= 0) Text(stringResource(R.string.tracks_count, p.trackCount), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        // As the sync editor's picker: the heart is the icon, not in the name.
+                        Text(playlistDisplayName(p.id, p.name, provider).removePrefix("\u2665 "))
+                        val note = disabled[p.id] ?: p.trackCount.takeIf { it >= 0 }?.let { stringResource(R.string.tracks_count, it) }
+                        if (note != null) Text(note, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 },
-                leadingIcon = { Icon(Icons.AutoMirrored.Filled.QueueMusic, null) },
+                leadingIcon = { Icon(if (p.id == MusicProvider.LIKED_ID) Icons.Filled.Favorite else Icons.AutoMirrored.Filled.QueueMusic, null) },
+                enabled = p.id !in disabled,
                 onClick = { open = false; onSelect(p) },
                 contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
             )

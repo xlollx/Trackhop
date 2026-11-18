@@ -3588,6 +3588,11 @@
     <string name="nway_need_source">Wybierz playlistę źródłową.</string>
     <string name="nway_need_target">Dodaj co najmniej jeden cel.</string>
     <string name="nway_need_distinct">Ta sama playlista jest dwa razy.</string>
+    <string name="nway_liked_target_only">Tutaj tylko jako cel: %1$s nie pokazuje każdego polubionego utworu, a pominięty zostałby usunięty ze wszystkich pozostałych playlist.</string>
+    <string name="nway_liked_no_exact">Nie dla polubionych utworów: cofnęłoby polubienie każdego utworu, którego nie ma w tej synchronizacji.</string>
+    <string name="nway_liked_keep_desc">Utwory synchronizacji są tu polubione, a polubienie znika, gdy z niej wypadną. Pozostałe polubione utwory zostają bez zmian.</string>
+    <string name="nway_need_liked">Polubionych utworów nie można tu tak użyć: zostaw opcję „Zachowaj moje dodane” i wybierz inną playlistę jako źródło.</string>
+    <string name="nway_new_playlist_named">Nowa playlista: %1$s</string>
     <string name="nway_new_playlist">Nowa playlista</string>
     <string name="nway_changes_title">Co się zmieni po zapisaniu</string>
     <string name="nway_change_added">Nowa w tej synchronizacji</string>

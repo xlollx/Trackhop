@@ -3400,6 +3400,11 @@
     <string name="nway_need_source">Choisis la playlist source.</string>
     <string name="nway_need_target">Ajoute au moins une cible.</string>
     <string name="nway_need_distinct">La même playlist y est deux fois.</string>
+    <string name="nway_liked_target_only">Ici seulement comme cible : %1$s n\'affiche pas tous les titres qu\'il like, et un titre absent serait retiré de toutes les autres playlists.</string>
+    <string name="nway_liked_no_exact">Pas pour les Titres likés : cela retirerait le like de chaque titre qui n\'est pas dans cette synchronisation.</string>
+    <string name="nway_liked_keep_desc">Les titres de la synchronisation sont likés ici, et le like est retiré quand ils en sortent. Tes autres titres likés restent tels quels.</string>
+    <string name="nway_need_liked">Les Titres likés ne peuvent pas servir ainsi ici : laisse-les garder tes ajouts et choisis une autre playlist comme source.</string>
+    <string name="nway_new_playlist_named">Nouvelle playlist : %1$s</string>
     <string name="nway_new_playlist">Nouvelle playlist</string>
     <string name="nway_changes_title">Ce qui change à l’enregistrement</string>
     <string name="nway_change_added">Nouvelle dans cette sync</string>

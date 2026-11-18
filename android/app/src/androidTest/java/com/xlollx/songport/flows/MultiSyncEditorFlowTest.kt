@@ -14,6 +14,7 @@ import com.xlollx.songport.shared.Nway
 import com.xlollx.songport.shared.NwayEdit
 import com.xlollx.songport.ui.NEW_SYNC_CLASSIC_TAG
 import com.xlollx.songport.ui.NEW_SYNC_MULTI_TAG
+import com.xlollx.songport.ui.NWAY_EXACT_OK_TAG
 import com.xlollx.songport.ui.NWAY_SOURCE_ROW_TAG
 import com.xlollx.songport.ui.nwayModeTag
 import com.xlollx.songport.ui.nwayTargetTag
@@ -138,6 +139,53 @@ class MultiSyncEditorFlowTest : FlowTest() {
         // Back on Syncs: one card for it.
         waitFor("its card") { compose.onAllNodes(hasTestTag(com.xlollx.songport.ui.JOB_CARD_TAG)).fetchSemanticsNodes().size == 1 }
         waitFor("nothing running") { com.xlollx.songport.sync.SyncState.running.value.isEmpty() && com.xlollx.songport.sync.SyncState.batches.value.isEmpty() }
+    }
+
+    @Test
+    fun aTargetsWayIsChosenWhenItIsAddedAndKeptWhenRemade() {
+        launch(tabIntent(MainActivity.TAB_SYNCS))
+        waitText(s(R.string.empty_syncs_title))
+        click(s(R.string.new_sync))
+        tapTag(NEW_SYNC_MULTI_TAG)
+        waitText(s(R.string.nway_editor_new))
+        tapTag(NWAY_SOURCE_ROW_TAG)
+        pick(null, "Road Trip")
+        click(s(R.string.ok))
+        waitText(s(R.string.nway_need_target))
+
+        // "Add a target": the playlist, and its way among the three of its sheet; "Keep my additions" until told otherwise.
+        click(s(R.string.nway_add_target))
+        waitText(s(R.string.shared_service))
+        click(s(R.string.shared_service)); click("Deezer")
+        click(s(R.string.shared_playlist))
+        // A new playlist says the whole name it will get.
+        waitText(s(R.string.nway_new_playlist_named, "Road Trip"))
+        click("Workout")
+        waitText(s(R.string.nway_mode_keep_desc))
+        waitText(s(R.string.nway_mode_two_way_desc))
+        tapTag(nwayModeTag(NwayEdit.Mode.TWO_WAY))
+        snapshot("multi-editor-4-add-target-way")
+        // Made anew: the playlist and the way are still there.
+        remade()
+        waitFor("the playlist kept in the dialog") { compose.onAllNodes(hasText("Workout") and hasText(s(R.string.shared_playlist))).fetchSemanticsNodes().isNotEmpty() }
+        click(s(R.string.ok))
+        waitText(deezer() + " · " + s(R.string.editor_bidirectional))
+
+        // An exact copy of a playlist that exists is asked first, as on the group's page; the question survives the activity made anew.
+        click(s(R.string.nway_add_target))
+        waitText(s(R.string.shared_service))
+        click(s(R.string.shared_playlist))
+        click("Chill Evening")
+        tapTag(nwayModeTag(NwayEdit.Mode.EXACT))
+        waitFor("the question") { tagged(NWAY_EXACT_OK_TAG) }
+        waitText(s(R.string.nway_exact_desc))
+        remade()
+        waitFor("the question, made anew") { tagged(NWAY_EXACT_OK_TAG) }
+        tapTag(NWAY_EXACT_OK_TAG)
+        waitFor("the question answered") { !tagged(NWAY_EXACT_OK_TAG) }
+        click(s(R.string.ok))
+        waitText(Providers.byId("spotify")!!.label(app.env) + " · " + s(R.string.shared_mode_exact))
+        assertTrue("nothing made by choosing", Nway.groups(app.env).isEmpty())
     }
 
     private fun seeded() = Nway.create(app.env, "Trip mix", listOf(

@@ -99,8 +99,36 @@ internal fun modeLabel(mode: NwayEdit.Mode): String = stringResource(
     when (mode) { NwayEdit.Mode.EXACT -> R.string.shared_mode_exact; NwayEdit.Mode.KEEP -> R.string.shared_mode_keep; NwayEdit.Mode.TWO_WAY -> R.string.editor_bidirectional },
 )
 
+/** A playlist of the sync by its name, as the sync editor says it: "♥ Liked songs" for that list. */
 @Composable
-private fun itemTitle(i: NwayEdit.Item): String = if (i.playlistId == null) stringResource(R.string.nway_new_playlist) else i.name
+private fun itemTitle(i: NwayEdit.Item): String =
+    if (i.playlistId == null) stringResource(R.string.nway_new_playlist) else playlistDisplayName(i.playlistId, i.name, Providers.byId(i.provider)?.serviceId)
+
+/**
+ * A target's three ways to follow, as its sheet and "Add a target" offer them ([nwayModeTag]). Liked
+ * songs follows only the ways the sync can take it ([NwayEdit.modes]): the others are shown off, with why.
+ */
+@Composable
+internal fun NwayModeRows(provider: String, playlistId: String?, selected: NwayEdit.Mode, onPick: (NwayEdit.Mode) -> Unit) {
+    val ok = NwayEdit.modes(provider, playlistId)
+    val liked = NwayEdit.isLiked(playlistId)
+    for ((mode, desc) in listOf(
+        NwayEdit.Mode.EXACT to R.string.nway_mode_exact_desc, NwayEdit.Mode.KEEP to R.string.nway_mode_keep_desc, NwayEdit.Mode.TWO_WAY to R.string.nway_mode_two_way_desc,
+    )) {
+        val can = mode in ok
+        val text = when {
+            !liked -> stringResource(desc)
+            mode == NwayEdit.Mode.EXACT -> stringResource(R.string.nway_liked_no_exact)
+            mode == NwayEdit.Mode.KEEP -> stringResource(R.string.nway_liked_keep_desc)
+            !can -> stringResource(R.string.nway_liked_target_only, nwayService(provider))
+            else -> stringResource(desc)
+        }
+        PrefRow(
+            null, modeLabel(mode), text, Modifier.testTag(nwayModeTag(mode)), enabled = can, chevron = false,
+            trailing = { RadioButton(selected = selected == mode, onClick = { onPick(mode) }, enabled = can) },
+        ) { onPick(mode) }
+    }
+}
 
 /**
  * New sync › Multi sync, and Edit on a multi sync (2.1.1): the classic editor's look and steps for a
@@ -136,8 +164,11 @@ fun NwayEditorScreen(
 
     var name by rememberSaveable { mutableStateOf(opened?.second?.name.orEmpty()) }
     var source by rememberSaveable(stateSaver = ItemSaver) {
-        mutableStateOf(opened?.second?.source ?: startSource?.takeIf { !it.playlistId.isNullOrBlank() && writableServices(ctx, false).any { p -> p.id == it.provider } }
-            ?.let { NwayEdit.Item(it.provider, it.playlistId, it.playlistName) })
+        // The classic editor's source: a playlist, or Liked songs where the multi sync can take it as its source; no other library list.
+        mutableStateOf(opened?.second?.source ?: startSource?.takeIf {
+            !it.playlistId.isNullOrBlank() && writableServices(ctx, false).any { p -> p.id == it.provider } &&
+                (!MusicProvider.isLibrary(it.playlistId) || NwayEdit.canBeSource(it.provider, it.playlistId))
+        }?.let { NwayEdit.Item(it.provider, it.playlistId, it.playlistName.ifBlank { if (NwayEdit.isLiked(it.playlistId)) ctx.getString(R.string.liked_songs) else "" }) })
     }
     var targets by rememberSaveable(stateSaver = ItemsSaver) { mutableStateOf(opened?.second?.targets.orEmpty()) }
     // Options, as the classic editor holds them: the card's colour or label, its tags, and when it runs.
@@ -184,6 +215,7 @@ fun NwayEditorScreen(
         NwayEdit.Missing.SOURCE, NwayEdit.Missing.NEW_SOURCE -> stringResource(R.string.nway_need_source)
         NwayEdit.Missing.TARGET -> stringResource(R.string.nway_need_target)
         NwayEdit.Missing.TWICE -> stringResource(R.string.nway_need_distinct)
+        NwayEdit.Missing.LIKED -> stringResource(R.string.nway_need_liked)
         null -> null
     }
 
@@ -296,14 +328,16 @@ fun NwayEditorScreen(
         NwayAddDialog(
             taken, onDismiss = { picking = null },
             title = stringResource(if (forSource) R.string.nway_choose_source else if (changing != null) R.string.nway_change_playlist else R.string.nway_add_target),
-            roles = false, allowNew = !forSource,
+            roles = false, allowNew = !forSource, pick = if (forSource) NwayPick.SOURCE else NwayPick.TARGET,
+            // A new target: its way to follow is chosen here too (2.1.3), and changed later in its sheet.
+            modes = !forSource && changing == null, newName = draft.name,
         ) { d ->
             val item = NwayEdit.Item(d.provider, d.playlistId, d.name, d.count)
             when {
                 forSource -> source = item
-                // Another playlist for this target: it follows the same way; the one it replaces leaves the sync.
-                changing != null -> targets = targets.toMutableList().also { l -> if (changing in l.indices) l[changing] = item.copy(mode = l[changing].mode) }
-                else -> targets = targets + item
+                // Another playlist for this target: it follows the same way where it can (Liked songs: keeping its additions); the one it replaces leaves the sync.
+                changing != null -> targets = targets.toMutableList().also { l -> if (changing in l.indices) l[changing] = NwayEdit.fitted(item, l[changing].mode) }
+                else -> targets = targets + NwayEdit.fitted(item, if (d.main) NwayEdit.Mode.TWO_WAY else if (d.keepMine) NwayEdit.Mode.KEEP else NwayEdit.Mode.EXACT)
             }
             picking = null
         }
@@ -319,16 +353,11 @@ fun NwayEditorScreen(
                     nwayService(t.provider) + " · " + itemTitle(t), style = MaterialTheme.typography.titleLarge, maxLines = 2, overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp).semantics { heading() },
                 )
-                for ((mode, desc) in listOf(
-                    NwayEdit.Mode.EXACT to R.string.nway_mode_exact_desc, NwayEdit.Mode.KEEP to R.string.nway_mode_keep_desc, NwayEdit.Mode.TWO_WAY to R.string.nway_mode_two_way_desc,
-                )) PrefRow(
-                    null, modeLabel(mode), stringResource(desc), Modifier.testTag(nwayModeTag(mode)), chevron = false,
-                    trailing = { RadioButton(selected = t.mode == mode, onClick = { set(mode) }) },
-                ) { set(mode) }
+                NwayModeRows(t.provider, t.playlistId, t.mode) { set(it) }
                 androidx.compose.material3.HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 PrefRow(Icons.AutoMirrored.Filled.QueueMusic, stringResource(R.string.nway_change_playlist), null) { sheetFor = -1; picking = "change:$index" }
-                // A new, empty playlist has nothing to give the others: only one that exists can be the source.
-                PrefRow(Icons.Filled.SwapVert, stringResource(R.string.nway_make_source), null, chevron = false, enabled = t.playlistId != null) {
+                // A new, empty playlist has nothing to give the others: only one that exists can be the source (Liked songs, where it can send its changes).
+                PrefRow(Icons.Filled.SwapVert, stringResource(R.string.nway_make_source), null, chevron = false, enabled = t.playlistId != null && NwayEdit.canBeSource(t.provider, t.playlistId)) {
                     val next = draft.withSource(index)
                     source = next.source; targets = next.targets; sheetFor = -1
                 }

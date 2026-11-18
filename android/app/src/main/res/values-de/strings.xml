@@ -3392,6 +3392,11 @@
     <string name="nway_need_source">Wähle die Quell-Playlist.</string>
     <string name="nway_need_target">Füge mindestens ein Ziel hinzu.</string>
     <string name="nway_need_distinct">Dieselbe Playlist ist zweimal dabei.</string>
+    <string name="nway_liked_target_only">Hier nur als Ziel: %1$s listet nicht jeden Song, den es liked, und einer, der fehlt, würde aus allen anderen Playlists entfernt.</string>
+    <string name="nway_liked_no_exact">Nicht für Lieblingssongs: Jeder gelikte Song, der nicht in dieser Synchronisierung ist, würde entliked.</string>
+    <string name="nway_liked_keep_desc">Die Songs der Synchronisierung werden hier geliked und wieder entliked, wenn sie sie verlassen. Deine anderen Lieblingssongs bleiben, wie sie sind.</string>
+    <string name="nway_need_liked">Lieblingssongs können hier nicht so verwendet werden: Lass sie deine Ergänzungen behalten und wähle eine andere Playlist als Quelle.</string>
+    <string name="nway_new_playlist_named">Neue Playlist: %1$s</string>
     <string name="nway_new_playlist">Neue Playlist</string>
     <string name="nway_changes_title">Was sich beim Speichern ändert</string>
     <string name="nway_change_added">Neu in diesem Sync</string>

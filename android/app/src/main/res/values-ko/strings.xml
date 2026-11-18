@@ -3294,6 +3294,11 @@
     <string name="nway_need_source">원본 플레이리스트를 선택하세요.</string>
     <string name="nway_need_target">대상을 하나 이상 추가하세요.</string>
     <string name="nway_need_distinct">같은 플레이리스트가 두 번 들어 있습니다.</string>
+    <string name="nway_liked_target_only">여기서는 대상으로만 쓸 수 있습니다: %1$s은(는) 좋아요 표시한 곡을 모두 보여주지 않아, 빠진 곡이 다른 모든 플레이리스트에서 삭제될 수 있습니다.</string>
+    <string name="nway_liked_no_exact">좋아요 표시한 곡에는 쓸 수 없습니다: 이 동기화에 없는 모든 곡의 좋아요가 취소됩니다.</string>
+    <string name="nway_liked_keep_desc">동기화의 곡은 여기에서 좋아요가 표시되고, 동기화에서 빠지면 좋아요가 취소됩니다. 다른 좋아요 곡은 그대로 유지됩니다.</string>
+    <string name="nway_need_liked">여기서는 좋아요 표시한 곡을 이렇게 쓸 수 없습니다: \'내가 추가한 곡 유지\'로 두고 다른 플레이리스트를 원본으로 선택하세요.</string>
+    <string name="nway_new_playlist_named">새 플레이리스트: %1$s</string>
     <string name="nway_new_playlist">새 플레이리스트</string>
     <string name="nway_changes_title">저장하면 바뀌는 내용</string>
     <string name="nway_change_added">이 동기화에 새로 추가</string>

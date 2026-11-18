@@ -9,6 +9,7 @@ import com.xlollx.songport.model.Schedule
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.platform.Env
+import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.sync.SyncEngine
 import java.util.UUID
@@ -145,10 +146,12 @@ object Nway {
         downId: String = UUID.randomUUID().toString(), upId: String = UUID.randomUUID().toString(),
     ): StoreData {
         usable(ref)
+        fits(ref, main, keepMine)
         require(members(d.jobs, group.id).none { it.down.id != downId && it.playlist.provider == ref.provider && it.playlist.playlistId == ref.playlistId }) { "Already in the group" }
         val (down, up) = SharedGroups.jobsFor(group.copy(jobId = downId, twinId = upId), ref)
-        // Told apart in reports and notifications by the member's service.
-        val name = "${group.name} · ${Providers.byId(ref.provider)?.displayName ?: ref.provider}"
+        // Told apart in reports and notifications by the member's service, and Liked songs by its name.
+        val name = "${group.name} · ${Providers.byId(ref.provider)?.displayName ?: ref.provider}" +
+            if (NwayEdit.isLiked(ref.playlistId)) " · " + ref.playlistName.ifBlank { "Liked songs" } else ""
         val jobs = if (main) listOf(timed(down.copy(name = name, schedule = schedule), like), timed(up.copy(name = "$name ↔", schedule = schedule), like))
             else listOf(timed(follower(down.copy(name = name, schedule = schedule), keepMine), like))
         return d.copy(jobs = d.jobs.filter { it.id != downId && it.id != upId } + jobs)
@@ -173,6 +176,7 @@ object Nway {
         val g = d.groups.firstOrNull { it.id == groupId } ?: return d
         val all = members(d.jobs, groupId)
         val m = all.firstOrNull { it.down.id == downId } ?: return d
+        if (main != m.main || (!main && keepMine != m.keepMine)) fits(m.playlist, main, keepMine)
         val down = m.down
         // What a follower remembered of the group, under its own id alone, is not the new role's state.
         fun forgotten(x: StoreData) = x.copy(pairStates = x.pairStates - FileStore.pairKey(down.id, down.linkedJobId ?: down.id))
@@ -221,7 +225,7 @@ object Nway {
             val start = withMember(d, group, first.first, true, schedule = schedule, downId = group.jobId, upId = group.twinId)
             members.filter { it !== first }.fold(start) { acc, (ref, main) -> withMember(acc, group, ref, main, schedule = schedule) }
         }
-        log(env, group.id, "created, ${members.size} members: " + members.joinToString(", ") { (ref, main) -> "${ref.provider} ${role(main, true)}" })
+        log(env, group.id, "created, ${members.size} members: " + members.joinToString(", ") { (ref, main) -> "${who(ref)} ${role(main, true)}" })
         return group
     }
 
@@ -234,14 +238,14 @@ object Nway {
         usable(ref)
         require(members(env, group).none { it.playlist.provider == ref.provider && it.playlist.playlistId == ref.playlistId }) { "Already in the group" }
         env.store.update { d -> withMember(d, group, ref, main, keepMine, like = anchor(d, group) ?: jobsOf(d, group.id).firstOrNull(), schedule = schedule) }
-        log(env, group.id, "member added: ${ref.provider} ${role(main, keepMine)}")
+        log(env, group.id, "member added: ${who(ref)} ${role(main, keepMine)}")
     }
 
     /** Takes [member] out of [group]; its playlist stays as it is. Answers the ids of the syncs removed, for the platform to cancel their schedules. */
     fun remove(env: Env, group: SharedGroup, member: Member): List<String> {
         require(!member.main || members(env, group).count { it.main } > 1) { "A group needs a main member" }
         env.store.update { d -> withoutMember(d, group.id, member.down.id) }
-        log(env, group.id, "member removed: ${member.playlist.provider} ${role(member)}")
+        log(env, group.id, "member removed: ${who(member.playlist)} ${role(member)}")
         return listOfNotNull(member.down.id, member.up?.id)
     }
 
@@ -251,7 +255,7 @@ object Nway {
         env.store.job(member.down.id) ?: return
         if (!main) require(members(env, group).count { it.main } > 1) { "A group needs a main member" }
         env.store.update { d -> withRole(d, group.id, member.down.id, main, keepMine) }
-        log(env, group.id, "role changed: ${member.playlist.provider} ${role(member)} -> ${role(main, keepMine)}")
+        log(env, group.id, "role changed: ${who(member.playlist)} ${role(member)} -> ${role(main, keepMine)}")
     }
 
     /** A follower's choice: keep the user's own additions there ([keep]) or an exact copy of the group. */
@@ -260,18 +264,22 @@ object Nway {
         val down = env.store.job(member.down.id) ?: return
         val gid = SharedGroups.sharedSide(down) ?: return
         env.store.update { d -> withRole(d, gid, down.id, main = false, keepMine = keep) }
-        log(env, gid, "role changed: ${member.playlist.provider} ${role(member)} -> ${role(false, keep)}")
+        log(env, gid, "role changed: ${who(member.playlist)} ${role(member)} -> ${role(false, keep)}")
     }
 
     /** Makes [member] the group's source ([withSource]). */
     fun setSource(env: Env, group: SharedGroup, member: Member) {
         env.store.update { d -> withSource(d, group.id, member.down.id) }
-        log(env, group.id, "source changed: ${member.playlist.provider}, was ${role(member)}")
+        log(env, group.id, "source changed: ${who(member.playlist)}, was ${role(member)}")
     }
 
     /** A member's role as the log says it: main, or a follower that keeps its additions or is an exact copy. */
     fun role(main: Boolean, keepMine: Boolean): String = if (main) "main" else if (keepMine) "follows-keep" else "follows-exact"
     fun role(member: Member): String = role(member.main, member.keepMine)
+
+    /** A member as the log names it: its service, and "liked songs" for that list (never a playlist's own name). */
+    fun who(provider: String, playlistId: String?): String = if (NwayEdit.isLiked(playlistId)) "$provider liked songs" else provider
+    fun who(ref: PlaylistRef): String = who(ref.provider, ref.playlistId)
 
     /** One line of the diagnostic log about a group: by its id and its services, never by a playlist's name. */
     fun log(env: Env, groupId: String, message: String) = env.log("shared", "multi sync group=$groupId: $message")
@@ -316,5 +324,13 @@ object Nway {
     private fun usable(ref: PlaylistRef) {
         require(!ref.playlistId.isNullOrBlank()) { "A member is an existing playlist" }
         require(ref.provider != SharedProvider.ID) { "A group cannot be a member" }
+        // Of a service's library lists, Liked songs alone holds songs that a group can share.
+        require(!MusicProvider.isLibrary(ref.playlistId) || NwayEdit.isLiked(ref.playlistId)) { "Not a list of songs" }
+    }
+
+    /** [ref] can be a main member, or follow keeping its additions or as an exact copy: Liked songs only where it is safe ([NwayEdit.modes]). */
+    private fun fits(ref: PlaylistRef, main: Boolean, keepMine: Boolean) {
+        val mode = if (main) NwayEdit.Mode.TWO_WAY else if (keepMine) NwayEdit.Mode.KEEP else NwayEdit.Mode.EXACT
+        require(mode in NwayEdit.modes(ref.provider, ref.playlistId)) { "Liked songs cannot be ${role(main, keepMine)} here" }
     }
 }

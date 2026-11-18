@@ -43,6 +43,8 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider, Web
     override val noteName = "provider_note_ytm"
     override val supportsLikedSongs = true
     override val supportsLikedTarget = true
+    // Liked music lists the songs: a liked video goes to Liked videos (YtmClient.likeGoesElsewhere).
+    override val listsEveryLike = false
     /** Saved albums and subscribed artists: the built-in connectors know them, an old plugin may not. */
     override val supportsAlbums: Boolean get() = BridgePlugin.full
     override val supportsArtists: Boolean get() = BridgePlugin.full

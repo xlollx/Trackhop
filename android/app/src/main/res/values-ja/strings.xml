@@ -3295,6 +3295,11 @@
     <string name="nway_need_source">同期元のプレイリストを選んでください。</string>
     <string name="nway_need_target">同期先を 1 つ以上追加してください。</string>
     <string name="nway_need_distinct">同じプレイリストが 2 回入っています。</string>
+    <string name="nway_liked_target_only">ここでは同期先としてのみ使えます: %1$s はお気に入りにしたすべての曲を表示しないため、表示されない曲がほかのすべてのプレイリストから削除されてしまいます。</string>
+    <string name="nway_liked_no_exact">お気に入りの曲には使えません: この同期にない曲のお気に入りがすべて解除されてしまいます。</string>
+    <string name="nway_liked_keep_desc">同期の曲はここでお気に入りに追加され、同期から外れるとお気に入りが解除されます。ほかのお気に入りの曲はそのままです。</string>
+    <string name="nway_need_liked">お気に入りの曲はここではこの使い方ができません: 「自分の追加を残す」にして、別のプレイリストを同期元にしてください。</string>
+    <string name="nway_new_playlist_named">新しいプレイリスト: %1$s</string>
     <string name="nway_new_playlist">新しいプレイリスト</string>
     <string name="nway_changes_title">保存すると変わること</string>
     <string name="nway_change_added">この同期に追加</string>

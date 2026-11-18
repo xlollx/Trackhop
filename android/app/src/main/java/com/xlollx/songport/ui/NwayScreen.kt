@@ -202,15 +202,22 @@ private fun RoleChoice(main: Boolean, keepMine: Boolean, onMain: (Boolean) -> Un
     }
 }
 
+/** What the multi-sync editor's playlist picker is for: Liked songs is offered by it ([NwayAddDialog]). */
+internal enum class NwayPick { SOURCE, TARGET }
+
 /**
  * A playlist for the group: the service, one of its playlists or a new one, and its role. [taken]:
- * the playlists already in. The multi-sync editor asks for the playlist alone ([roles] off: how a
- * target follows is chosen in its sheet), and for a source that exists ([allowNew] off).
+ * the playlists already in. The multi-sync editor asks for the playlist alone ([roles] off), for a
+ * source that exists ([allowNew] off), and, adding a target ([modes] on), for its way to follow
+ * too, as its sheet offers them. [pick]: the editor's, which offers the service's Liked songs, first,
+ * as the sync editor's picker does, where the multi sync can take it that way (NwayEdit). [newName]:
+ * the name a new playlist gets.
  */
 @Composable
 internal fun NwayAddDialog(
     taken: List<Pair<String, String?>>, onDismiss: () -> Unit,
     title: String = stringResource(R.string.nway_add), roles: Boolean = true, allowNew: Boolean = true,
+    pick: NwayPick? = null, modes: Boolean = false, newName: String? = null,
     onAdd: (NwayDraft) -> Unit,
 ) {
     val ctx = LocalContext.current
@@ -222,35 +229,86 @@ internal fun NwayAddDialog(
     var makeNew by rememberSaveable { mutableStateOf(false) }
     var main by rememberSaveable { mutableStateOf(true) }
     var keepMine by rememberSaveable { mutableStateOf(true) }
+    // A target's way, as its sheet sets it (keeps its additions until told otherwise); Exact copy of an existing playlist is asked first.
+    var mode by rememberSaveable { mutableStateOf(com.xlollx.songport.shared.NwayEdit.Mode.KEEP) }
+    var askExact by rememberSaveable { mutableStateOf(false) }
     var lists by remember { mutableStateOf<List<Playlist>?>(null) }
     val service = serviceId?.let { Providers.byId(it) }
     LaunchedEffect(serviceId) {
         lists = null
         val p = service ?: return@LaunchedEffect
-        lists = withContext(Dispatchers.IO) { runCatching { p.playlists(ctx.env).filter { it.ownedByMe && !MusicProvider.isLibrary(it.id) } }.getOrDefault(emptyList()) }
+        lists = withContext(Dispatchers.IO) {
+            runCatching {
+                // Liked songs first, as the sync editor lists it (MusicProvider.libraryEntries), then the user's own playlists.
+                // As the source only where it can send its changes; where its list leaves likes out, shown with why (notHere).
+                val liked = if (pick == null) emptyList() else p.libraryEntries(ctx.env, asTarget = pick == NwayPick.TARGET).filter {
+                    it.id == MusicProvider.LIKED_ID && (pick == NwayPick.TARGET || !p.listsEveryLike || com.xlollx.songport.shared.NwayEdit.canBeSource(p.id, it.id))
+                }
+                liked + p.playlists(ctx.env).filter { it.ownedByMe && !MusicProvider.isLibrary(it.id) }
+            }.getOrDefault(emptyList())
+        }
     }
+    // Liked songs where the service does not list every like: shown, not offered as the source, and said why.
+    val notHere = if (pick == NwayPick.SOURCE && service != null && !com.xlollx.songport.shared.NwayEdit.canBeSource(service.id, MusicProvider.LIKED_ID))
+        mapOf(MusicProvider.LIKED_ID to stringResource(R.string.nway_liked_target_only, service.label(ctx.env))) else emptyMap()
     val chosen = makeNew || playlistId != null
     val already = !makeNew && playlistId != null && taken.any { it.first == serviceId && it.second == playlistId }
+    /** Another playlist: a way it cannot follow (Liked songs) is "keep my additions"; an exact copy of an existing one is asked again. */
+    fun fit(id: String?) {
+        val ok = service?.let { com.xlollx.songport.shared.NwayEdit.modes(it.id, id) } ?: com.xlollx.songport.shared.NwayEdit.Mode.entries
+        if (mode !in ok || (mode == com.xlollx.songport.shared.NwayEdit.Mode.EXACT && id != null)) mode = com.xlollx.songport.shared.NwayEdit.Mode.KEEP
+    }
     FitDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (services.isEmpty()) Text(stringResource(R.string.shared_no_services), color = MaterialTheme.colorScheme.error)
-                ServiceDropdown(services, service) { if (it != serviceId) { serviceId = it; playlistId = null; playlistName = ""; makeNew = false } }
+                ServiceDropdown(services, service) { if (it != serviceId) { serviceId = it; playlistId = null; playlistName = ""; makeNew = false; fit(null) } }
                 if (service != null) PlaylistDropdown(
                     lists, playlistId?.let { Playlist(it, playlistName, playlistCount) }, makeNew, allowNew && service.canCreatePlaylists,
                     // A new, empty playlist has nothing to give the others: it follows unless told otherwise.
-                    onNew = { makeNew = true; playlistId = null; playlistName = ""; main = false },
-                ) { makeNew = false; playlistId = it.id; playlistName = it.name; playlistCount = it.trackCount }
+                    onNew = { makeNew = true; playlistId = null; playlistName = ""; main = false; fit(null) },
+                    provider = service.id,
+                    newLabel = if (pick == null) null else newName?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.nway_new_playlist_named, it) } ?: stringResource(R.string.nway_new_playlist),
+                    disabled = notHere,
+                ) { makeNew = false; playlistId = it.id; playlistName = it.name; playlistCount = it.trackCount; fit(it.id) }
                 if (already) Text(stringResource(R.string.nway_already), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                 if (roles) RoleChoice(main, keepMine, { main = it }, { keepMine = it })
+                if (modes && service != null) NwayModeRows(service.id, if (makeNew) null else playlistId, mode) { to ->
+                    // Exact copy of a playlist that exists removes what is only there: asked, as on the group's page. A new one has nothing to lose.
+                    if (to == com.xlollx.songport.shared.NwayEdit.Mode.EXACT && !makeNew && playlistId != null && mode != to) askExact = true else mode = to
+                }
             }
         },
         confirmButton = {
             TextButton(enabled = service != null && chosen && !already, onClick = {
-                onAdd(NwayDraft(service!!.id, if (makeNew) null else playlistId, if (makeNew) "" else playlistName, if (makeNew) 0 else playlistCount, main, keepMine))
+                val m = if (modes) mode != com.xlollx.songport.shared.NwayEdit.Mode.KEEP && mode != com.xlollx.songport.shared.NwayEdit.Mode.EXACT else main
+                val k = if (modes) mode != com.xlollx.songport.shared.NwayEdit.Mode.EXACT else keepMine
+                onAdd(NwayDraft(service!!.id, if (makeNew) null else playlistId, if (makeNew) "" else playlistName, if (makeNew) 0 else playlistCount, m, k))
             }) { Text(stringResource(R.string.ok)) }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+    )
+    if (askExact && service != null) NwayExactConfirm(service.label(ctx.env), onDismiss = { askExact = false }) {
+        askExact = false; mode = com.xlollx.songport.shared.NwayEdit.Mode.EXACT
+    }
+}
+
+/**
+ * "Exact copy?" of a playlist that exists, as the group's page asks it since 2.1.2: what the user
+ * added only there is removed at its next run. Yes ([NWAY_EXACT_OK_TAG]) or Cancel.
+ */
+@Composable
+internal fun NwayExactConfirm(service: String, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    FitDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.shared_mode_exact) + " · " + service) },
+        text = { Text(stringResource(R.string.nway_exact_desc)) },
+        confirmButton = {
+            TextButton(onClick = onConfirm, modifier = Modifier.testTag(NWAY_EXACT_OK_TAG)) {
+                Text(stringResource(R.string.shared_mode_exact), color = MaterialTheme.colorScheme.error)
+            }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
@@ -494,7 +552,7 @@ internal fun NwayFirstRunSheet(name: String, members: List<NwayDraft>, onDismiss
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(members) { figures = firstRunOf(env, members); loaded = true }
-    fun label(m: NwayDraft) = Providers.byId(m.provider)?.label(env) ?: m.provider
+    fun label(m: NwayDraft) = nwayMemberLabel(ctx, m.provider, m.playlistId)
     ModalBottomSheet(onDismissRequest = { if (!busy) onDismiss() }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.verticalScroll(rememberScrollState()).padding(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
@@ -554,6 +612,20 @@ private fun statusOf(d: StoreData, members: List<Nway.Member>): NwayStatus.Group
 /** A service's name as the cards say it. */
 @Composable
 internal fun nwayService(provider: String): String = Providers.byId(provider)?.label(LocalContext.current.env) ?: provider
+
+/** A playlist of a multi sync as the cards name it: its service, and "♥ Liked songs" when it is that list (2.1.3). */
+internal fun nwayMemberLabel(ctx: android.content.Context, provider: String, playlistId: String?): String {
+    val p = Providers.byId(provider)
+    val service = p?.label(ctx.env) ?: provider
+    if (!com.xlollx.songport.shared.NwayEdit.isLiked(playlistId)) return service
+    return service + " · \u2665 " + ctx.getString(if (p?.serviceId == com.xlollx.songport.providers.LastFmProvider.SERVICE) R.string.lastfm_loved else R.string.liked_songs)
+}
+
+@Composable
+internal fun nwayMember(provider: String, playlistId: String?): String = nwayMemberLabel(LocalContext.current, provider, playlistId)
+
+@Composable
+internal fun nwayMember(m: Nway.Member): String = nwayMember(m.playlist.provider, m.playlist.playlistId)
 
 /**
  * A group's state in a few words, as a card's pill says its own, with the service it is about when
@@ -713,7 +785,7 @@ fun NwayGroupScreen(
                     else -> listOfNotNull(role, state).joinToString(" · ")
                 }
                 NwayRow(
-                    p, listOf(p?.label(env) ?: m.playlist.provider, m.playlist.playlistName).filter { it.isNotBlank() }.joinToString(" · "), summary, m.main,
+                    p, listOf(p?.label(env) ?: m.playlist.provider, playlistDisplayName(m.playlist.playlistId, m.playlist.playlistName, p?.serviceId)).filter { it.isNotBlank() }.joinToString(" · "), summary, m.main,
                     modifier = Modifier.testTag(groupRowTag(phase?.phase, m.playlist.provider, pinned)),
                     onClick = when {
                         phase?.phase == NwayRun.Phase.NOW -> ({ live = phase.job?.id })
@@ -732,13 +804,13 @@ fun NwayGroupScreen(
                             // As the editor offers it: a target follows one of three ways, can be made the source, or leaves.
                             // The source has none of these: it changes only by making a target the source (here or in the editor).
                             val mode = com.xlollx.songport.shared.NwayEdit.modeOf(m)
-                            OverflowMenu(if (m.down.id == source?.down?.id) emptyList() else listOf(
-                                com.xlollx.songport.shared.NwayEdit.Mode.EXACT, com.xlollx.songport.shared.NwayEdit.Mode.KEEP, com.xlollx.songport.shared.NwayEdit.Mode.TWO_WAY,
-                            ).filter { it != mode }.map { to ->
+                            // Liked songs only the ways it can follow, and the source only where it can be (NwayEdit).
+                            OverflowMenu(if (m.down.id == source?.down?.id) emptyList() else com.xlollx.songport.shared.NwayEdit.modes(m.playlist.provider, m.playlist.playlistId).filter { it != mode }.map { to ->
                                 // An exact copy removes what the user added there at its next run: asked first.
                                 MenuAction(modeLabel(to), { if (to == com.xlollx.songport.shared.NwayEdit.Mode.EXACT) exactFor = i else setMode(m, to) })
                             } + listOf(
-                                MenuAction(stringResource(R.string.nway_make_source), { change { Nway.setSource(env, group, m); emptyList() } }),
+                                MenuAction(stringResource(R.string.nway_make_source), { change { Nway.setSource(env, group, m); emptyList() } },
+                                    enabled = com.xlollx.songport.shared.NwayEdit.canBeSource(m.playlist.provider, m.playlist.playlistId)),
                                 // The only main one stays in: a group with none would never change.
                                 MenuAction(stringResource(R.string.nway_remove_member), { removing = i }, destructive = true, enabled = !lastMain),
                             ), enabled = !busy, title = p?.label(env))
@@ -782,17 +854,7 @@ fun NwayGroupScreen(
         }
     }
     members.getOrNull(exactFor)?.let { m ->
-        FitDialog(
-            onDismissRequest = { exactFor = -1 },
-            title = { Text(stringResource(R.string.shared_mode_exact) + " · " + nwayService(m.playlist.provider)) },
-            text = { Text(stringResource(R.string.nway_exact_desc)) },
-            confirmButton = {
-                TextButton(onClick = { exactFor = -1; setMode(m, com.xlollx.songport.shared.NwayEdit.Mode.EXACT) }, modifier = Modifier.testTag(NWAY_EXACT_OK_TAG)) {
-                    Text(stringResource(R.string.shared_mode_exact), color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = { TextButton(onClick = { exactFor = -1 }) { Text(stringResource(R.string.cancel)) } },
-        )
+        NwayExactConfirm(nwayService(m.playlist.provider), onDismiss = { exactFor = -1 }) { exactFor = -1; setMode(m, com.xlollx.songport.shared.NwayEdit.Mode.EXACT) }
     }
     members.getOrNull(removing)?.let { m ->
         FitDialog(

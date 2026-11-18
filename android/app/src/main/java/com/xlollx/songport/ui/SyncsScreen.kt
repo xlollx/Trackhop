@@ -1368,7 +1368,7 @@ private fun JobCard(
                     }
                     Text(
                         // A multi sync: its source, then every service it reaches.
-                        if (group != null) nwayService(group.sourceProvider.orEmpty()) + "  →  " + group.members.drop(1).map { nwayService(it.playlist.provider) }.joinToString(", ") else
+                        if (group != null) (group.members.firstOrNull()?.let { nwayMember(it) } ?: "") + "  →  " + group.members.drop(1).map { nwayMember(it) }.joinToString(", ") else
                         // A radio sync's source is its station, not the File playlist that keeps what it heard.
                         (job.radio?.let { stringResource(R.string.editor_source_radio) + " · " + it.station }
                             ?: ((sharedLabel(job.source.provider) ?: src?.label(ctx) ?: job.source.provider).let { if (job.source.link != null) stringResource(R.string.source_link_label, it) else it } + " · " + srcName)) +

@@ -46,6 +46,8 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
     // costs 50 quota units, as a playlist write does.
     override val supportsLikedSongs = true
     override val supportsLikedTarget = true
+    // A liked video that does not look like a song (category, title) is left out of that list.
+    override val listsEveryLike = false
 
     override val setupGuide = SetupGuide(
         dashboardUrl = "https://console.cloud.google.com/apis/credentials",

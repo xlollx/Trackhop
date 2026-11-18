@@ -3586,6 +3586,11 @@
     <string name="nway_need_source">Выберите плейлист-источник.</string>
     <string name="nway_need_target">Добавьте хотя бы одну цель.</string>
     <string name="nway_need_distinct">Один и тот же плейлист указан дважды.</string>
+    <string name="nway_liked_target_only">Здесь только как цель: %1$s показывает не все треки, которые отмечает лайком, а пропущенный трек был бы удалён из всех остальных плейлистов.</string>
+    <string name="nway_liked_no_exact">Не для любимых треков: лайк снялся бы со всех треков, которых нет в этой синхронизации.</string>
+    <string name="nway_liked_keep_desc">Треки синхронизации здесь получают лайк, а когда уходят из неё, лайк снимается. Остальные любимые треки остаются как есть.</string>
+    <string name="nway_need_liked">Любимые треки здесь нельзя использовать так: оставьте «Оставлять мои добавления» и выберите другой плейлист источником.</string>
+    <string name="nway_new_playlist_named">Новый плейлист: %1$s</string>
     <string name="nway_new_playlist">Новый плейлист</string>
     <string name="nway_changes_title">Что изменится при сохранении</string>
     <string name="nway_change_added">Добавляется в синхронизацию</string>

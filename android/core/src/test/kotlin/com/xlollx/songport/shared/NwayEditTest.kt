@@ -6,6 +6,7 @@ import com.xlollx.songport.model.PlaylistRef
 import com.xlollx.songport.model.SavedSchedule
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.model.Track
+import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.shared.NwayEdit.Mode
 import com.xlollx.songport.sync.MemoryService
@@ -285,5 +286,107 @@ class NwayEditTest {
         assertTrue(made.isFailure)
         assertTrue("no group, no sync", now().groups.isEmpty() && now().jobs.isEmpty())
         assertTrue("nor its key", env.tokens.ids().none { it.startsWith("shared:") })
+    }
+
+    // ------------------------------------------------------------ Liked songs (2.1.3)
+
+    private val liked = MusicProvider.LIKED_ID
+    /** Liked songs read and written; [listsAll] off, as YouTube Music, whose Liked music leaves a liked video out. */
+    private class LikedService(id: String, private val listsAll: Boolean) : MemoryService(id) {
+        override val supportsLikedSongs = true
+        override val supportsLikedTarget = true
+        override val listsEveryLike: Boolean get() = listsAll
+    }
+    private val l = LikedService("nel", listsAll = true)
+    private val y = LikedService("ney", listsAll = false)
+    private fun likedItem(s: MemoryService, mode: Mode = Mode.KEEP) = NwayEdit.Item(s.id, liked, "Liked songs", mode = mode)
+
+    private fun withLikes() {
+        for (s in listOf(l, y)) {
+            s.catalogue += (1..20).map { Track("${s.id}$it", "Song $it", listOf("Band"), "Album", 200_000, isrc = "QZABC26" + it.toString().padStart(5, '0')) }
+            s.lists[liked] = (1..3).map { n -> s.catalogue.first { it.title == "Song $n" } }.toMutableList()
+        }
+        Providers.testDoubles = listOf(a, b, c, d, l, y)
+    }
+
+    @Test fun likedSongsIsOfferedOnlyTheWaysThatLoseNothing() {
+        withLikes()
+        // A playlist: every way, and the source.
+        assertEquals(Mode.entries, NwayEdit.modes(b.id, "mix"))
+        assertTrue(NwayEdit.canBeSource(b.id, "mix"))
+        // Liked songs that list every like: the source, two-way or keeping its additions; never an exact copy (it would unlike the rest).
+        assertEquals(listOf(Mode.KEEP, Mode.TWO_WAY), NwayEdit.modes(l.id, liked))
+        assertTrue(NwayEdit.canBeSource(l.id, liked))
+        // Liked songs that leave some likes out: only a target that keeps its additions.
+        assertEquals(listOf(Mode.KEEP), NwayEdit.modes(y.id, liked))
+        assertFalse(NwayEdit.canBeSource(y.id, liked))
+        // A service without liked songs offers none.
+        assertFalse(NwayEdit.canBeSource(a.id, liked))
+        // The draft says why it cannot be saved, and changing a playlist keeps the way where it can.
+        assertNull(NwayEdit.missing(NwayEdit.Draft("x", likedItem(l), listOf(item(b, Mode.EXACT), likedItem(y)))))
+        assertNull(NwayEdit.missing(NwayEdit.Draft("x", item(a), listOf(likedItem(l, Mode.TWO_WAY)))))
+        assertEquals(NwayEdit.Missing.LIKED, NwayEdit.missing(NwayEdit.Draft("x", likedItem(y), listOf(item(b)))))
+        assertEquals(NwayEdit.Missing.LIKED, NwayEdit.missing(NwayEdit.Draft("x", item(a), listOf(likedItem(y, Mode.TWO_WAY)))))
+        assertEquals(NwayEdit.Missing.LIKED, NwayEdit.missing(NwayEdit.Draft("x", item(a), listOf(likedItem(l, Mode.EXACT)))))
+        assertEquals(Mode.KEEP, NwayEdit.fitted(likedItem(y), Mode.TWO_WAY).mode)
+        assertEquals(Mode.TWO_WAY, NwayEdit.fitted(likedItem(l), Mode.TWO_WAY).mode)
+        assertEquals(Mode.EXACT, NwayEdit.fitted(item(b), Mode.EXACT).mode)
+        // Nor can the store be given one another way.
+        assertTrue(runCatching { NwayEdit.create(env, NwayEdit.Draft("x", likedItem(y), listOf(item(b)))) }.isFailure)
+        assertTrue(now().groups.isEmpty() && now().jobs.isEmpty())
+    }
+
+    @Test fun aSyncWithLikedSongsAsTheSourceIsMadeEditedAndRun() {
+        withLikes()
+        val g = NwayEdit.create(env, NwayEdit.Draft("My likes", likedItem(l), listOf(item(b), likedItem(y))))
+        val read = draft()
+        assertEquals(l.id to liked, read.source!!.provider to read.source!!.playlistId)
+        assertEquals(listOf(b.id to Mode.KEEP, y.id to Mode.KEEP), read.targets.map { it.provider to it.mode })
+        assertNull(NwayEdit.missing(read))
+        assertTrue(env.logs.any { it.contains("created, 3 members: nel liked songs source, neb keep, ney liked songs keep") })
+        // Saved untouched: the very same store.
+        val before = now()
+        assertSame(before, NwayEdit.applied(before, g.id, read))
+        runBlocking { Nway.run(env, SyncEngine(env), g) }.forEach { assertTrue(it.error, it.ok) }
+        assertEquals(listOf(1, 2, 3), songs(b))
+        // Edited: b two-way, a playlist made the source; Liked songs goes on sending its changes, as an old source does.
+        val edited = read.copy(targets = listOf(item(b, Mode.TWO_WAY).copy(downId = read.targets[0].downId), read.targets[1])).withSource(0)
+        assertTrue(env.store.commit { NwayEdit.applied(it, g.id, edited) })
+        val after = draft()
+        assertEquals(b.id, after.source!!.provider)
+        assertEquals(setOf(l.id to Mode.TWO_WAY, y.id to Mode.KEEP), after.targets.map { it.provider to it.mode }.toSet())
+        // A Liked songs that hides likes made two-way: not saved.
+        val bad = after.copy(targets = after.targets.map { if (it.provider == y.id) it.copy(mode = Mode.TWO_WAY) else it })
+        assertEquals(NwayEdit.Missing.LIKED, NwayEdit.missing(bad))
+        assertTrue(runCatching { NwayEdit.applied(now(), g.id, bad) }.isFailure)
+        // Run again: nothing lost, the likes everywhere.
+        repeat(2) { runBlocking { Nway.run(env, SyncEngine(env), g) }.forEach { assertTrue(it.error, it.ok) } }
+        assertEquals(listOf(1, 2, 3), songs(b))
+        assertEquals(listOf(1, 2, 3), l.lists[liked]!!.map { it.title.removePrefix("Song ").toInt() }.sorted())
+    }
+
+    @Test fun likedSongsIsAddedAsATargetAndChangesItsWayInAnExistingGroup() {
+        withLikes()
+        val g = NwayEdit.create(env, NwayEdit.Draft("Trip", item(a), listOf(item(b))))
+        val start = draft()
+        assertTrue(env.store.commit { NwayEdit.applied(it, g.id, start.copy(targets = start.targets + likedItem(l))) })
+        assertEquals(listOf(b.id to "mix", l.id to liked), draft().targets.map { it.provider to it.playlistId })
+        val member = members().first { it.playlist.playlistId == liked }
+        assertTrue(member.keepMine)
+        assertTrue(member.down.name.endsWith("· Liked songs"))
+        // Two-way, then back to keeping its additions; never an exact copy.
+        val two = draft().let { d -> d.copy(targets = d.targets.map { if (it.provider == l.id) it.copy(mode = Mode.TWO_WAY) else it }) }
+        assertTrue(env.store.commit { NwayEdit.applied(it, g.id, two) })
+        assertTrue(members().first { it.playlist.playlistId == liked }.main)
+        val exact = draft().let { d -> d.copy(targets = d.targets.map { if (it.provider == l.id) it.copy(mode = Mode.EXACT) else it }) }
+        assertTrue(runCatching { NwayEdit.applied(now(), g.id, exact) }.isFailure)
+        assertTrue(runCatching { Nway.withRole(now(), g.id, member.down.id, main = false, keepMine = false) }.isFailure)
+        val keep = draft().let { d -> d.copy(targets = d.targets.map { if (it.provider == l.id) it.copy(mode = Mode.KEEP) else it }) }
+        // The log names it as "liked songs", never by an id.
+        assertEquals("saved: nel liked songs two_way -> keep", NwayEdit.logLine(NwayEdit.changes(g, members(), keep)))
+        assertTrue(env.store.commit { NwayEdit.applied(it, g.id, keep) })
+        assertTrue(members().first { it.playlist.playlistId == liked }.keepMine)
+        // The same member all along: its sync, its review, its history.
+        assertEquals(member.down.id, members().first { it.playlist.playlistId == liked }.down.id)
     }
 }

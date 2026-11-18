@@ -3394,6 +3394,11 @@
     <string name="nway_need_source">Choose the source playlist.</string>
     <string name="nway_need_target">Add at least one target.</string>
     <string name="nway_need_distinct">The same playlist is there twice.</string>
+    <string name="nway_liked_target_only">Only as a target here: %1$s doesn\'t list every song it likes, and one it leaves out would be removed from every other playlist.</string>
+    <string name="nway_liked_no_exact">Not for Liked songs: it would unlike every song you liked that isn\'t in this sync.</string>
+    <string name="nway_liked_keep_desc">The sync\'s songs are liked here, and unliked when they leave it. Your other liked songs stay as they are.</string>
+    <string name="nway_need_liked">Liked songs can\'t be used this way here: let it keep your additions, with another playlist as the source.</string>
+    <string name="nway_new_playlist_named">New playlist: %1$s</string>
     <string name="nway_new_playlist">New playlist</string>
     <string name="nway_changes_title">What changes when you save</string>
     <string name="nway_change_added">New in this sync</string>

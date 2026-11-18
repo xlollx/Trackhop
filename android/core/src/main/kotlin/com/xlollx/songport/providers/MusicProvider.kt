@@ -25,6 +25,13 @@ interface MusicProvider {
     val supportsLikedSongs: Boolean get() = false
     /** Se si puo' anche scrivere nei "brani preferiti" (sync preferiti -> preferiti). */
     val supportsLikedTarget: Boolean get() = false
+    /**
+     * The liked songs list every song this app likes there. False where the list leaves some out
+     * (YouTube Music lists the songs, not a liked video): read back by a two-way sync, a like it does
+     * not list looks like an unlike. A multi sync then takes Liked songs here only as a target that
+     * follows (shared/NwayEdit), never as a playlist whose changes reach the others.
+     */
+    val listsEveryLike: Boolean get() = true
     /** Album salvati (id speciale ALBUMS_ID) e artisti seguiti (ARTISTS_ID), in lettura e scrittura. */
     val supportsAlbums: Boolean get() = false
     val supportsArtists: Boolean get() = false

@@ -6,6 +6,8 @@ import com.xlollx.songport.model.PlaylistRef
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.model.Track
+import com.xlollx.songport.platform.Env
+import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.sync.MemoryService
 import com.xlollx.songport.sync.SyncEngine
@@ -490,5 +492,85 @@ class NwayTest {
         sync()
         everywhere(1, 2, 3, 4, 5, 6)
         assertFalse(Nway.isHub(env, ref(a)))
+    }
+
+    // ------------------------------------------------------------ Liked songs (2.1.3)
+
+    private val liked = MusicProvider.LIKED_ID
+    private fun likedRef(s: MemoryService) = PlaylistRef(s.id, liked, "Liked songs")
+    private fun likes(s: MemoryService) = s.lists[liked]!!.map { it.title.removePrefix("Song ").toInt() }.sorted()
+
+    /** A service with Liked songs, read and written; [listsAll] off, it leaves out of the list the likes in [hidden] (YouTube Music's liked videos). */
+    private class LikedService(id: String, private val listsAll: Boolean = true) : MemoryService(id) {
+        val hidden = HashSet<String>()
+        override val supportsLikedSongs = true
+        override val supportsLikedTarget = true
+        override val listsEveryLike: Boolean get() = listsAll
+        override suspend fun tracks(ctx: Env, playlistId: String): List<Track> = super.tracks(ctx, playlistId).filter { it.id !in hidden }
+    }
+
+    private fun likedService(id: String, listsAll: Boolean = true, likes: List<Int> = emptyList()) = LikedService(id, listsAll).also { l ->
+        l.catalogue += (1..30).map { Track("$id$it", "Song $it", listOf("Band"), "Album", 200_000, isrc = isrc(it)) }
+        l.lists[liked] = likes.map { n -> l.catalogue.first { it.title == "Song $n" } }.toMutableList()
+        Providers.testDoubles = listOf(a, b, c, l)
+    }
+
+    @Test fun likedSongsAsTheSourceReachesEveryPlaylistAndHearsBackFromATwoWayOne() {
+        val l = likedService("nwl", likes = listOf(1, 2, 3, 4))
+        a.lists["mix"]!!.clear()
+        group = Nway.create(env, "My likes", listOf(likedRef(l) to true, ref(b) to false, ref(c) to true))
+        sync()
+        assertEquals(listOf(1, 2, 3, 4), songs(b))
+        assertEquals(listOf(1, 2, 3, 4), songs(c))
+        // Told apart in reports and the log by its name, never by an id.
+        assertTrue(Nway.members(env, group)[0].down.name.endsWith("· Liked songs"))
+        assertTrue(env.logs.any { it.contains("created, 3 members: nwl liked songs main") })
+        // A song added on the two-way target is liked at the source, and reaches the follower.
+        add(c, 7)
+        sync()
+        assertEquals(listOf(1, 2, 3, 4, 7), likes(l))
+        assertEquals(listOf(1, 2, 3, 4, 7), songs(b))
+        // Unliked at the source: out of every playlist; and nothing bounces after.
+        l.lists[liked]!!.removeAll { it.title == "Song 2" }
+        sync()
+        assertEquals(listOf(1, 3, 4, 7), songs(b))
+        assertEquals(listOf(1, 3, 4, 7), songs(c))
+        repeat(2) {
+            val again = sync()
+            assertEquals(0, again.sumOf { it.added } + again.sumOf { it.removed })
+        }
+        assertEquals(listOf(1, 3, 4, 7), likes(l))
+    }
+
+    @Test fun likedSongsAsATargetLikesTheGroupsSongsAndUnlikesOnlyThem() {
+        val l = likedService("nwl", likes = listOf(20, 21))
+        group = Nway.create(env, "Road trip", listOf(ref(a) to true, ref(b) to true, likedRef(l) to false))
+        sync()
+        // The group's songs liked; the user's own likes stay, and go nowhere.
+        assertEquals(listOf(1, 2, 3, 4, 5, 20, 21), likes(l))
+        assertEquals(listOf(1, 2, 3, 4, 5), songs(a))
+        // A song the group drops is unliked; the user's own likes are not touched.
+        remove(a, 2)
+        repeat(2) { sync() }
+        assertEquals(listOf(1, 3, 4, 5, 20, 21), likes(l))
+        assertEquals(listOf(1, 3, 4, 5), songs(b))
+    }
+
+    @Test fun likedSongsThatHideSomeLikesOnlyFollowAndNothingIsLostElsewhere() {
+        val y = likedService("nwy", listsAll = false)
+        // Never the source, never two-way, never an exact copy: a like the list leaves out would read as an unlike.
+        assertTrue(runCatching { Nway.create(env, "x", listOf(likedRef(y) to true, ref(b) to false)) }.isFailure)
+        group = Nway.create(env, "Road trip", listOf(ref(a) to true, ref(b) to true, likedRef(y) to false))
+        val member = Nway.members(env, group)[2]
+        assertTrue(runCatching { Nway.setMain(env, group, member, true) }.isFailure)
+        assertTrue(runCatching { Nway.setKeepMine(env, member, false) }.isFailure)
+        assertTrue(runCatching { Nway.setSource(env, group, member) }.isFailure)
+        assertTrue("nothing changed", Nway.members(env, group)[2].keepMine)
+        // Song 3 is liked, and the list never shows it (YouTube Music's Liked videos): the others keep it, run after run.
+        y.hidden += "nwy3"
+        repeat(3) { sync() }
+        assertEquals(listOf(1, 2, 3, 4, 5), songs(a))
+        assertEquals(listOf(1, 2, 3, 4, 5), songs(b))
+        assertEquals(listOf(1, 2, 3, 4, 5), y.lists[liked]!!.map { it.title.removePrefix("Song ").toInt() }.sorted())
     }
 }

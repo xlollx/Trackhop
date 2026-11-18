@@ -3400,6 +3400,11 @@
     <string name="nway_need_source">Elige la playlist de origen.</string>
     <string name="nway_need_target">Añade al menos un destino.</string>
     <string name="nway_need_distinct">La misma playlist está dos veces.</string>
+    <string name="nway_liked_target_only">Aquí solo como destino: %1$s no muestra todas las canciones que marca con me gusta, y una que deje fuera se quitaría de todas las demás playlists.</string>
+    <string name="nway_liked_no_exact">No para Canciones que te gustan: quitaría el me gusta a cada canción que no esté en esta sincronización.</string>
+    <string name="nway_liked_keep_desc">Las canciones de la sincronización se marcan con me gusta aquí, y se desmarcan cuando salen de ella. Tus otras canciones que te gustan quedan como están.</string>
+    <string name="nway_need_liked">Canciones que te gustan no se puede usar así aquí: deja que conserve tus añadidos y elige otra playlist como origen.</string>
+    <string name="nway_new_playlist_named">Nueva playlist: %1$s</string>
     <string name="nway_new_playlist">Nueva playlist</string>
     <string name="nway_changes_title">Qué cambia al guardar</string>
     <string name="nway_change_added">Nueva en esta sincronización</string>

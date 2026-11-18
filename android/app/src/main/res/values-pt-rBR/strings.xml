@@ -3400,6 +3400,11 @@
     <string name="nway_need_source">Escolha a playlist de origem.</string>
     <string name="nway_need_target">Adicione pelo menos um destino.</string>
     <string name="nway_need_distinct">A mesma playlist aparece duas vezes.</string>
+    <string name="nway_liked_target_only">Aqui só como destino: %1$s não lista todas as músicas que curte, e uma que ficar de fora seria removida de todas as outras playlists.</string>
+    <string name="nway_liked_no_exact">Não para Músicas curtidas: descurtiria todas as músicas que não estão nesta sincronização.</string>
+    <string name="nway_liked_keep_desc">As músicas da sincronização são curtidas aqui, e descurtidas quando saem dela. Suas outras músicas curtidas ficam como estão.</string>
+    <string name="nway_need_liked">Músicas curtidas não pode ser usada assim aqui: deixe em Manter minhas adições e escolha outra playlist como origem.</string>
+    <string name="nway_new_playlist_named">Nova playlist: %1$s</string>
     <string name="nway_new_playlist">Nova playlist</string>
     <string name="nway_changes_title">O que muda ao salvar</string>
     <string name="nway_change_added">Nova nesta sincronização</string>

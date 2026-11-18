@@ -34,6 +34,15 @@ object FakeWorld {
     @Volatile var hold: kotlinx.coroutines.CompletableDeferred<Unit>? = null
     /** Spotify's saved albums (a list with id ALBUMS_ID in [playlists]): only the tests that turn it on see them. */
     @Volatile var savedAlbums = false
+    /** Liked songs on Spotify and YouTube Music (a list with id LIKED_ID in [playlists]): only the tests that call [useLikes] see them. */
+    @Volatile var likes = false
+
+    /** Spotify's and YouTube Music's Liked songs, read and written; YouTube Music's, as the real one, does not list every like. */
+    fun useLikes() {
+        likes = true
+        playlists.getValue("spotify") += FakePlaylist(MusicProvider.LIKED_ID, "Liked songs", songs("spotify", 2 until 6))
+        playlists.getValue("ytm") += FakePlaylist(MusicProvider.LIKED_ID, "Liked songs", songs("ytm", 10 until 12))
+    }
 
     // ---- the seed every test starts from
 
@@ -58,7 +67,7 @@ object FakeWorld {
 
     fun reset() {
         playlists.clear(); public.clear(); connected.clear(); missing.clear(); coversSet.clear()
-        hold?.complete(Unit); hold = null; savedAlbums = false
+        hold?.complete(Unit); hold = null; savedAlbums = false; likes = false
         playlists["spotify"] = mutableListOf(
             FakePlaylist(SPOTIFY_ROAD, "Road Trip", songs("spotify", 0 until 8)),
             FakePlaylist(SPOTIFY_CHILL, "Chill Evening", songs("spotify", 8 until 13)),
@@ -144,6 +153,9 @@ class FakeProvider(
 ) : MusicProvider, com.xlollx.songport.providers.PlayCounts {
     override val supportsPodcasts: Boolean get() = podcasts
     override val supportsAlbums: Boolean get() = FakeWorld.savedAlbums && serviceId == "spotify"
+    override val supportsLikedSongs: Boolean get() = FakeWorld.likes && (serviceId == "spotify" || serviceId == "ytm")
+    override val supportsLikedTarget: Boolean get() = supportsLikedSongs
+    override val listsEveryLike: Boolean get() = serviceId != "ytm"
     override fun supportsLibrary(playlistId: String?, asTarget: Boolean): Boolean =
         if (playlistId == MusicProvider.PODCASTS_ID && asTarget) false else super.supportsLibrary(playlistId, asTarget)
     override fun libraryIsV2(playlistId: String, asTarget: Boolean): Boolean = playlistId == MusicProvider.PODCASTS_ID

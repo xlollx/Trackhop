@@ -3392,6 +3392,11 @@
     <string name="nway_need_source">Scegli la playlist di origine.</string>
     <string name="nway_need_target">Aggiungi almeno una destinazione.</string>
     <string name="nway_need_distinct">La stessa playlist c’è due volte.</string>
+    <string name="nway_liked_target_only">Qui solo come destinazione: %1$s non elenca tutti i brani a cui metti mi piace, e uno che lascia fuori verrebbe tolto da tutte le altre playlist.</string>
+    <string name="nway_liked_no_exact">Non per i Brani preferiti: toglierebbe dai preferiti ogni brano che non è in questa sincronizzazione.</string>
+    <string name="nway_liked_keep_desc">I brani della sincronizzazione vanno nei preferiti qui, e ne escono quando lasciano la sincronizzazione. Gli altri tuoi preferiti restano come sono.</string>
+    <string name="nway_need_liked">I Brani preferiti non si possono usare così qui: lasciali con «Tieni le mie aggiunte» e scegli un’altra playlist come origine.</string>
+    <string name="nway_new_playlist_named">Nuova playlist: %1$s</string>
     <string name="nway_new_playlist">Nuova playlist</string>
     <string name="nway_changes_title">Cosa cambia quando salvi</string>
     <string name="nway_change_added">Nuova in questa sync</string>

@@ -187,7 +187,7 @@ internal fun GroupLogos(members: List<Nway.Member>, run: NwayRun.State?, size: D
 /** "TIDAL · 3 of 6": the service being synced and where the run stands; the service alone when it runs by itself. */
 @Composable
 internal fun groupRunText(run: NwayRun.State): String {
-    val name = run.now?.let { nwayService(it.provider) }
+    val name = run.now?.let { nwayMember(it.member) }
     return when {
         name != null && run.place > 0 -> stringResource(R.string.nway_run_place, name, run.place, run.total)
         name != null -> name
@@ -206,7 +206,7 @@ internal const val GROUP_BAR_TAG = "group-bar"
 @Composable
 internal fun GroupWorkBar(run: NwayRun.State, modifier: Modifier = Modifier, logo: Dp = 16.dp) {
     val now = run.now
-    val said = now?.let { stringResource(R.string.nway_run_now_desc, nwayService(it.provider)) }
+    val said = now?.let { stringResource(R.string.nway_run_now_desc, nwayMember(it.member)) }
     Row(modifier.testTag(GROUP_BAR_TAG).then(if (said != null) Modifier.semantics(mergeDescendants = true) { contentDescription = said } else Modifier), verticalAlignment = Alignment.CenterVertically) {
         if (now != null) {
             // Said once, by the row: the logo itself is a picture of the same thing. It takes no height of

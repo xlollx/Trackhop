@@ -3295,6 +3295,11 @@
     <string name="nway_need_source">请选择来源歌单。</string>
     <string name="nway_need_target">请至少添加一个目标。</string>
     <string name="nway_need_distinct">同一个歌单出现了两次。</string>
+    <string name="nway_liked_target_only">这里只能作为目标：%1$s 不会列出它喜欢的每首歌，漏掉的歌会从其他所有歌单中删除。</string>
+    <string name="nway_liked_no_exact">不适用于喜欢的歌曲：这会取消喜欢所有不在此同步中的歌曲。</string>
+    <string name="nway_liked_keep_desc">同步中的歌曲会在这里标为喜欢，离开同步时取消喜欢。你其他喜欢的歌曲保持不变。</string>
+    <string name="nway_need_liked">这里不能这样使用喜欢的歌曲：保持“保留我添加的”，并选择另一个歌单作为来源。</string>
+    <string name="nway_new_playlist_named">新歌单：%1$s</string>
     <string name="nway_new_playlist">新歌单</string>
     <string name="nway_changes_title">保存后的变化</string>
     <string name="nway_change_added">新加入此同步</string>

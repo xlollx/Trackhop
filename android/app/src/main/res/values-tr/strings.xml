@@ -3390,6 +3390,11 @@
     <string name="nway_need_source">Kaynak çalma listesini seç.</string>
     <string name="nway_need_target">En az bir hedef ekle.</string>
     <string name="nway_need_distinct">Aynı çalma listesi iki kez var.</string>
+    <string name="nway_liked_target_only">Burada yalnızca hedef olarak: %1$s beğendiği her şarkıyı listelemiyor ve dışarıda kalan bir şarkı diğer tüm çalma listelerinden kaldırılırdı.</string>
+    <string name="nway_liked_no_exact">Beğenilen şarkılar için değil: bu eşitlemede olmayan her şarkının beğenisini kaldırırdı.</string>
+    <string name="nway_liked_keep_desc">Eşitlemenin şarkıları burada beğenilir, eşitlemeden çıkınca beğenisi kaldırılır. Diğer beğendiğin şarkılar olduğu gibi kalır.</string>
+    <string name="nway_need_liked">Beğenilen şarkılar burada bu şekilde kullanılamaz: Eklediklerimi tut olarak bırak ve kaynak olarak başka bir çalma listesi seç.</string>
+    <string name="nway_new_playlist_named">Yeni çalma listesi: %1$s</string>
     <string name="nway_new_playlist">Yeni çalma listesi</string>
     <string name="nway_changes_title">Kaydedince ne değişir</string>
     <string name="nway_change_added">Bu senkronizasyonda yeni</string>

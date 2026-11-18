@@ -5,6 +5,7 @@ import com.xlollx.songport.data.StoreData
 import com.xlollx.songport.model.PlaylistRef
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.platform.Env
+import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.sync.Schedules
 import com.xlollx.songport.sync.Timing
@@ -46,8 +47,8 @@ object NwayEdit {
         }
     }
 
-    /** What keeps a draft from being saved, the first thing first; null when it can be. */
-    enum class Missing { SOURCE, NEW_SOURCE, TARGET, TWICE }
+    /** What keeps a draft from being saved, the first thing first; null when it can be. [LIKED]: Liked songs where it cannot be ([allowed]). */
+    enum class Missing { SOURCE, NEW_SOURCE, TARGET, TWICE, LIKED }
 
     fun missing(d: Draft): Missing? = when {
         d.source == null -> Missing.SOURCE
@@ -55,8 +56,49 @@ object NwayEdit {
         d.source.playlistId == null -> Missing.NEW_SOURCE
         d.targets.isEmpty() -> Missing.TARGET
         d.items.any { a -> d.items.count { it.same(a) } > 1 } -> Missing.TWICE
+        d.items.any { !allowed(it, asSource = it === d.source) } -> Missing.LIKED
         else -> null
     }
+
+    // ------------------------------------------------------------ Liked songs (2.1.3)
+    //
+    // A service's Liked songs ([MusicProvider.LIKED_ID]) is a playlist of the sync as in the classic
+    // editor, where it is safe. Every playlist of a multi sync is written to; one that sends its
+    // changes (the source, a two-way target) is read back too, and a song it no longer lists leaves
+    // the group, and so every other playlist. So Liked songs is:
+    //  - never an exact copy: that would unlike every song the user liked that the sync does not hold;
+    //  - the source or two-way only where the service reads and writes its liked songs and lists every
+    //    like ([MusicProvider.listsEveryLike]): YouTube Music leaves a liked video out of Liked music,
+    //    which the pair would read as an unlike, taking the song from every other playlist;
+    //  - a target that keeps its additions wherever it can be written: the sync's songs are liked
+    //    there, and unliked when they leave the sync; the other liked songs stay as they are.
+
+    fun isLiked(playlistId: String?): Boolean = playlistId == MusicProvider.LIKED_ID
+
+    /** The Liked songs of [provider] can send their changes to the others: as the source, or a two-way target. */
+    fun likedSends(provider: String): Boolean {
+        val p = Providers.byId(provider) ?: return false
+        return p.listsEveryLike && listOf(false, true).all { asTarget ->
+            p.supportsLibrary(MusicProvider.LIKED_ID, asTarget) && Features.libraryOffered(p, MusicProvider.LIKED_ID, asTarget)
+        }
+    }
+
+    /** The ways a target, [playlistId] on [provider], can follow: all three for a playlist. */
+    fun modes(provider: String, playlistId: String?): List<Mode> = when {
+        !isLiked(playlistId) -> Mode.entries
+        likedSends(provider) -> listOf(Mode.KEEP, Mode.TWO_WAY)
+        else -> listOf(Mode.KEEP)
+    }
+
+    /** [playlistId] on [provider] can be the source: any playlist, and Liked songs where it can send its changes ([likedSends]). */
+    fun canBeSource(provider: String, playlistId: String?): Boolean = !isLiked(playlistId) || likedSends(provider)
+
+    /** [item] can be in the sync as the draft has it: as the source ([asSource]), or as a target its way. */
+    fun allowed(item: Item, asSource: Boolean): Boolean =
+        if (asSource) canBeSource(item.provider, item.playlistId) else item.mode in modes(item.provider, item.playlistId)
+
+    /** [item] following [mode] where its playlist can, else keeping its additions, which every playlist can. */
+    fun fitted(item: Item, mode: Mode = item.mode): Item = item.copy(mode = if (mode in modes(item.provider, item.playlistId)) mode else Mode.KEEP)
 
     fun modeOf(m: Nway.Member): Mode = if (m.main) Mode.TWO_WAY else if (m.keepMine) Mode.KEEP else Mode.EXACT
 
@@ -193,17 +235,19 @@ object NwayEdit {
             runCatching { SharedGroups.forgetDeleted(env, group) }
             throw saved.exceptionOrNull() ?: IllegalStateException(env.text("bulk_not_saved"))
         }
-        Nway.log(env, group.id, "created, ${draft.items.size} members: ${source.provider} source, " + draft.targets.joinToString(", ") { "${it.provider} ${it.mode.name.lowercase()}" })
+        Nway.log(env, group.id, "created, ${draft.items.size} members: ${Nway.who(source.provider, source.playlistId)} source, " +
+            draft.targets.joinToString(", ") { "${Nway.who(it.provider, it.playlistId)} ${it.mode.name.lowercase()}" })
         return group
     }
 
     /** One line of the log for a draft saved over [group]: what changed, by service and role. */
     fun logLine(changes: List<Change>): String = if (changes.isEmpty()) "saved, members as they were" else "saved: " + changes.joinToString(", ") { c ->
+        val who = Nway.who(c.item.provider, c.item.playlistId)
         when (c.kind) {
-            Change.Kind.ADDED -> "${c.item.provider} added ${c.item.mode.name.lowercase()}"
-            Change.Kind.REMOVED -> "${c.item.provider} removed"
-            Change.Kind.SOURCE -> "${c.item.provider} is the source"
-            Change.Kind.MODE -> "${c.item.provider} ${c.was?.name?.lowercase()} -> ${c.item.mode.name.lowercase()}"
+            Change.Kind.ADDED -> "$who added ${c.item.mode.name.lowercase()}"
+            Change.Kind.REMOVED -> "$who removed"
+            Change.Kind.SOURCE -> "$who is the source"
+            Change.Kind.MODE -> "$who ${c.was?.name?.lowercase()} -> ${c.item.mode.name.lowercase()}"
         }
     }
 }
