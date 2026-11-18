@@ -2,7 +2,7 @@
 // The framed store screenshots ("B · Luce"): each plain store screenshot in docs/store/play/<locale>/<n>.jpg
 // (1080x1920, Screenshots workflow) placed in a phone on a light ground, with a short headline and one line
 // under it (docs/store/frames/titles.json), the Trackhop mark at the top, the beam as a coloured ribbon behind
-// the phone and a few round service-letter chips around it. The ribbon tilts -14° on odd shots and +14° on
+// the phone. The ribbon tilts -14° on odd shots and +14° on
 // even ones, so the pictures side by side join into one zigzag. Output: docs/store/framed/<locale>/<n>.jpg,
 // 1080x1920 (9:16: Google Play phone screenshots and Huawei AppGallery). The plain screenshots stay for
 // F-Droid and the site.
@@ -40,22 +40,6 @@ const TITLES = JSON.parse(readFileSync(join(ROOT, 'docs/store/frames/titles.json
 const LOCALES = Object.keys(TITLES);
 const SHOTS = 10;
 
-// Chips per shot: [letter, x %, y %] of the frame (centres). They sit on the phone's bezel, left or right,
-// outside the screen, below the headline; a chip that would still touch the headline is moved down. Where two
-// shots meet, the right chips of one and the left chips of the next are at different heights.
-const CHIPS = {
-  1: [['S', 9, 41], ['Y', 90, 35], ['T', 91, 72]],
-  2: [['D', 10, 58], ['S', 90, 44]],
-  3: [['Y', 9, 66], ['S', 91, 50]],
-  4: [['A', 10, 38], ['Y', 90, 70]],
-  5: [['T', 9, 52], ['D', 91, 40]],
-  6: [['Y', 9, 66], ['S', 90, 42]],
-  7: [['S', 9, 58], ['T', 91, 72]],
-  8: [['S', 9, 50], ['T', 90, 39]],
-  9: [['Y', 10, 62], ['D', 90, 44]],
-  10: [['D', 9, 68], ['Y', 91, 46]],
-};
-const COVER_CHIPS = [['S', 12, 16], ['Y', 80, 22], ['D', 16, 72], ['T', 78, 70]];
 
 const MARK = `<svg viewBox="0 0 66 66" aria-hidden="true"><g transform="translate(-21 -21)" fill="currentColor" stroke="currentColor" stroke-linecap="round"><path d="M30.6,40.5 A27,27 0 0 1 77.4,40.5" fill="none" stroke-width="5.5"/><path d="M77.4,67.5 A27,27 0 0 1 30.6,67.5" fill="none" stroke-width="5.5"/><path d="M81.85,36.2 L71.45,42.2 L81.4,47.4 Z" stroke="none"/><path d="M26.15,71.8 L36.55,65.8 L26.6,60.6 Z" stroke="none"/><g transform="translate(2.1 1.5)"><path d="M54.08,61.11 A7,5.6 -20 1 1 40.92,65.89 A7,5.6 -20 1 1 54.08,61.11 Z" stroke="none"/><path d="M52.6,62.5 L52.6,37.5" fill="none" stroke-width="3.6"/><path d="M52.6,37.2 C58.5,38.6 63.4,42.4 63.2,49.6 C61.6,45.2 58,42.9 52.6,42.6 Z" stroke="none"/></g></g></svg>`;
 
@@ -72,21 +56,16 @@ const FACE = [[500, 'Medium'], [700, 'Bold'], [800, 'ExtraBold']]
   .join('\n');
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
-// Shared by the frame and the cover: units, ribbon, chips. --u is one mock-up unit in CSS pixels.
+// Shared by the frame and the cover: units and ribbon. --u is one mock-up unit in CSS pixels.
 const BASE = `${FACE}
 :root{--violet:#421AFF;--cyan:#59FFFF;--red:#990000}
 html,body{margin:0;width:100vw;height:100vh;overflow:hidden}
 body{position:relative;background:#f6f4fa;color:#17141c;-webkit-font-smoothing:antialiased}
 .beam{position:absolute;left:-25%;width:150%;top:calc(var(--y) - var(--u) * 34);height:calc(var(--u) * 68);transform:rotate(var(--r));z-index:1;
   background:linear-gradient(180deg,var(--red) 0 30%,var(--violet) 30% 52%,var(--cyan) 52% 80%,#fff 80%)}
-.chip{position:absolute;width:calc(var(--u) * 34);height:calc(var(--u) * 34);margin:calc(var(--u) * -17) 0 0 calc(var(--u) * -17);border-radius:50%;
-  display:grid;place-items:center;font-weight:800;font-size:calc(var(--u) * 15);line-height:1;z-index:3;
-  background:#fff;color:var(--violet);box-shadow:0 calc(var(--u) * 4) calc(var(--u) * 14) rgba(66,26,255,.18)}
 :lang(ja) h1,:lang(ja) p{word-break:auto-phrase}
 :lang(ko) h1,:lang(ko) p{word-break:keep-all}
 `;
-
-const chipsHtml = (list) => list.map(([l, x, y]) => `<span class="chip" style="left:${x}%;top:${y}%">${esc(l)}</span>`).join('');
 
 function frameHtml(locale, n, img) {
   const lang = locale.split('-')[0];
@@ -104,7 +83,7 @@ p{margin:calc(var(--u) * 6) 0 0;font-size:calc(var(--u) * 11.5);line-height:1.4;
   background:#0b0b0d;z-index:2;box-shadow:0 calc(var(--u) * 18) calc(var(--u) * 40) rgba(0,0,0,.35)}
 .phone img{display:block;width:100%;border-radius:calc(var(--u) * 17)}
 </style><body><div class="beam"></div>
-<div class="head"><h1>${esc(t.title).replace(/\n/g, '<br>')}</h1><p>${esc(t.sub)}</p></div>${chipsHtml(CHIPS[n])}
+<div class="head"><h1>${esc(t.title).replace(/\n/g, '<br>')}</h1><p>${esc(t.sub)}</p></div>
 <div class="phone"><img src="data:image/jpeg;base64,${img}" alt=""></div>
 <div class="stamp"><span class="mk">${MARK}</span>Trackhop</div></body></html>`;
 }
@@ -118,12 +97,12 @@ body{font-family:${fontStack(locale.split('-')[0])}}
 .bigmk{width:calc(var(--u) * 84);height:calc(var(--u) * 84);display:inline-flex;color:var(--violet)}.bigmk svg{width:100%;height:100%}
 h1{margin:calc(var(--u) * 6) 0 0;font-size:calc(var(--u) * 34);line-height:1.1;font-weight:800;letter-spacing:-.02em;text-wrap:balance}
 p{margin:0;font-size:calc(var(--u) * 14);line-height:1.35;font-weight:500;opacity:.85;text-wrap:balance}
-</style><body><div class="beam"></div>${chipsHtml(COVER_CHIPS)}
+</style><body><div class="beam"></div>
 <div class="cin"><span class="bigmk">${MARK}</span><h1>${esc(title).replace(/\n/g, '<br>')}</h1><p>${esc(subtitle)}</p></div></body></html>`;
 }
 
 // In the page, after fonts and image are ready: the headline at most two lines and the line under it one
-// (both shrink until they fit, nothing is ever cut), then chips moved down off the headline. Returns notes.
+// (both shrink until they fit, nothing is ever cut). Returns notes.
 async function settle(page, { titleLines, subLines }) {
   return page.evaluate(async ({ titleLines, subLines }) => {
     await document.fonts.ready;
@@ -142,18 +121,6 @@ async function settle(page, { titleLines, subLines }) {
     const p = document.querySelector('p');
     fit(h1, titleLines, parseFloat(getComputedStyle(h1).lineHeight) / parseFloat(getComputedStyle(h1).fontSize));
     fit(p, subLines, parseFloat(getComputedStyle(p).lineHeight) / parseFloat(getComputedStyle(p).fontSize));
-    // Text boxes as drawn (line by line), padded a little.
-    const boxes = [h1, p].flatMap((el) => { const r = document.createRange(); r.selectNodeContents(el); return [...r.getClientRects()]; });
-    const pad = innerWidth * 0.015;
-    const hits = (c) => boxes.some((b) => c.left < b.right + pad && c.right > b.left - pad && c.top < b.bottom + pad && c.bottom > b.top - pad);
-    for (const chip of document.querySelectorAll('.chip')) {
-      let moved = 0;
-      while (hits(chip.getBoundingClientRect()) && moved < 40) {
-        chip.style.top = `${parseFloat(chip.style.top) + 1}%`;
-        moved++;
-      }
-      if (moved) notes.push(`chip ${chip.textContent} moved down ${moved}%`);
-    }
     const lines = Math.round(h1.getBoundingClientRect().height / parseFloat(getComputedStyle(h1).lineHeight));
     return { notes, lines };
   }, { titleLines, subLines });
@@ -194,7 +161,7 @@ async function main() {
     for (const l of locales) for (const n of shots) {
       const src = join(IN, l, `${n}.jpg`);
       if (!existsSync(src)) { console.warn(`skip ${l}/${n}: no ${src}`); continue; }
-      if (!TITLES[l][n] || !CHIPS[n]) throw new Error(`no title or chips for ${l} shot ${n}`);
+      if (!TITLES[l][n]) throw new Error(`no title for ${l} shot ${n}`);
       jobs.push([l, n, src]);
     }
     // A few pages at once; each job is independent.
