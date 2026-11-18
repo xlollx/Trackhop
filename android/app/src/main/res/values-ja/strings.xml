@@ -3301,4 +3301,5 @@
     <string name="nway_change_removed">この同期から外れます。プレイリストはそのまま残ります</string>
     <string name="nway_change_source">同期元になります</string>
     <string name="nway_change_none">プレイリストと追従のしかたは変わりません。</string>
+    <string name="nway_schedule_note">このマルチ同期のすべてのプレイリストがこのスケジュールで実行されます。</string>
 </resources>

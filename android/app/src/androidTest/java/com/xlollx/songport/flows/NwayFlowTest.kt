@@ -119,8 +119,8 @@ class NwayFlowTest : FlowTest() {
         waitText(s(R.string.nway_delete))
         snapshot("nway-page")
 
-        // Removing a playlist asks first; the question survives the activity made anew.
-        clickDesc(s(R.string.more_actions), index = 1)
+        // Removing a playlist asks first; the question survives the activity made anew. The source has no menu: Workout's is the only one.
+        clickDesc(s(R.string.more_actions), index = 0)
         click(s(R.string.nway_remove_member))
         waitText(s(R.string.nway_remove_member_note))
         remade()
@@ -128,13 +128,15 @@ class NwayFlowTest : FlowTest() {
         click(s(R.string.cancel))
         assertEquals(2, Nway.members(app.env, made).size)
 
-        // So does the schedule's choice.
-        click(s(R.string.schedule_6h))
-        waitText(s(R.string.schedule_daily))
+        // So does the schedule's chooser (the sync editors' own: GroupScheduleFlowTest goes through it).
+        tap(compose.onNode(androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.GROUP_SCHEDULE_ROW_TAG)), "Automatic schedule")
+        waitText(s(R.string.nway_schedule_note))
         remade()
-        waitText(s(R.string.schedule_daily))
+        waitText(s(R.string.nway_schedule_note))
         click(s(R.string.schedule_daily))
-        waitFor("the schedule on every sync of the group") { Nway.members(app.env, made).all { it.down.schedule == com.xlollx.songport.model.Schedule.DAILY } }
+        tap(compose.onNode(androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.GROUP_SCHEDULE_SAVE_TAG)), "Save")
+        waitFor("the schedule on every sync of the group") { Nway.jobsOf(store.data, made.id).all { it.everyMinutes == 1440 && it.at == "09:00" } }
+        waitGone(s(R.string.nway_schedule_note))
 
         // And deleting the group: asked, kept across the activity made anew, then done. The playlists stay.
         click(s(R.string.nway_delete))

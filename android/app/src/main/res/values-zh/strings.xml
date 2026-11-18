@@ -3301,4 +3301,5 @@
     <string name="nway_change_removed">退出此同步；歌单保持不变</string>
     <string name="nway_change_source">成为来源</string>
     <string name="nway_change_none">歌单及其跟随方式保持不变。</string>
+    <string name="nway_schedule_note">此多目标同步中的每个歌单都按此计划运行。</string>
 </resources>

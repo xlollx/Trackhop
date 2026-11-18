@@ -3592,4 +3592,5 @@
     <string name="nway_change_removed">Выходит из синхронизации; сам плейлист остаётся как есть</string>
     <string name="nway_change_source">Становится источником</string>
     <string name="nway_change_none">Плейлисты и то, как они следуют, остаются как есть.</string>
+    <string name="nway_schedule_note">Все плейлисты этой мультисинхронизации работают по этому расписанию.</string>
 </resources>

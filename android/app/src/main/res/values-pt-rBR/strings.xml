@@ -3406,4 +3406,5 @@
     <string name="nway_change_removed">Sai desta sincronização; a playlist fica como está</string>
     <string name="nway_change_source">Passa a ser a origem</string>
     <string name="nway_change_none">As playlists e a forma como seguem ficam como estão.</string>
+    <string name="nway_schedule_note">Todas as playlists desta sincronização múltipla seguem este agendamento.</string>
 </resources>

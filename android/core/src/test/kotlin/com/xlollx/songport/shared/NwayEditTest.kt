@@ -3,11 +3,13 @@ package com.xlollx.songport.shared
 import com.xlollx.songport.Features
 import com.xlollx.songport.contract.ContractEnv
 import com.xlollx.songport.model.PlaylistRef
+import com.xlollx.songport.model.SavedSchedule
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.shared.NwayEdit.Mode
 import com.xlollx.songport.sync.MemoryService
+import com.xlollx.songport.sync.Schedules
 import com.xlollx.songport.sync.SyncEngine
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -201,6 +203,56 @@ class NwayEditTest {
         assertEquals("the look is the card's alone", listOf(g.jobId), jobs.filter { it.color == "teal" }.map { it.id })
         assertTrue(jobs.all { it.name.startsWith("Metal & More · ") })
         assertTrue(jobs.all { (if (it.source.provider == SharedProvider.ID) it.source else it.target).playlistName == "Metal & More" })
+    }
+
+    /**
+     * The group's page, "Automatic schedule" (2.1.2): a timing by hand or a saved schedule reaches every
+     * sync of the group as one change, with its days, its time and its link; 2.1.1 kept only "Weekly".
+     */
+    @Test fun aTimedOrLinkedScheduleReachesEverySyncWithItsDayTimeAndLink() {
+        val g = old()
+        env.store.update { x -> x.copy(jobs = x.jobs + SyncJob("other", "Other", ref(a, "x"), ref(b, "y"))) }
+        val other = now().jobs.single { it.id == "other" }
+        // Paused, with Wi-Fi only: neither is the schedule's to change.
+        env.store.update { x -> x.copy(jobs = x.jobs.map { if (it.id == "other") it else it.copy(enabled = false, wifiOnly = true) }) }
+        val members = Nway.jobsOf(now(), g.id).map { it.id }.toSet()
+        assertEquals("both halves of each main member and each follower", 6, members.size)
+
+        // By hand: every Saturday at 07:30.
+        assertTrue(env.store.commit { NwayEdit.scheduled(it, g.id, null, Schedules.spec(10080, "07:30", listOf(6))) })
+        for (j in Nway.jobsOf(now(), g.id)) {
+            assertEquals(j.id, listOf(6), j.days); assertEquals(j.id, "07:30", j.at); assertEquals(j.id, 10080, j.everyMinutes)
+            assertNull(j.scheduleId); assertFalse(j.enabled); assertTrue(j.wifiOnly)
+        }
+        assertEquals("Saturday · 07:30", Schedules.spec(10080, "07:30", listOf(6)), Schedules.specOf(Nway.anchor(now(), g)!!))
+
+        // Linked to a saved schedule: Mon and Thu at 06:45, the link kept by the store.
+        val early = SavedSchedule("early", "Early", 1440, "06:45", listOf(1, 4))
+        assertTrue(env.store.commit { Schedules.save(it, early) })
+        assertTrue(env.store.commit { NwayEdit.scheduled(it, g.id, "early", Schedules.spec(60, null, emptyList())) })
+        for (j in Nway.jobsOf(now(), g.id)) {
+            assertEquals(j.id, "early", j.scheduleId); assertEquals(j.id, listOf(1, 4), j.days); assertEquals(j.id, "06:45", j.at)
+        }
+        assertEquals(now().jobs.single { it.id == "other" }, other)
+        // The schedule edited later: the whole group follows it, still linked.
+        assertTrue(env.store.commit { Schedules.save(it, early.copy(at = "05:15", days = listOf(6))) })
+        assertTrue(Nway.jobsOf(now(), g.id).all { it.scheduleId == "early" && it.days == listOf(6) && it.at == "05:15" })
+
+        // Set by hand again (Detach): the link goes, the timing stays as given.
+        assertTrue(env.store.commit { NwayEdit.scheduled(it, g.id, null, Schedules.spec(360, null, emptyList())) })
+        assertTrue(Nway.jobsOf(now(), g.id).all { it.scheduleId == null && it.everyMinutes == 360 && it.days.isEmpty() })
+        assertTrue(Schedules.usedBy(now(), "early").isEmpty())
+    }
+
+    /** The store refuses the change: not one sync of the group is changed. */
+    @Test fun aScheduleThatCannotBeSavedChangesNoSync() {
+        val g = old()
+        val before = now()
+        env.store.failWrites = true
+        val saved = env.store.commit { NwayEdit.scheduled(it, g.id, null, Schedules.spec(10080, "07:30", listOf(6))) }
+        env.store.failWrites = false
+        assertFalse(saved)
+        assertSame(before, now())
     }
 
     @Test fun aDraftThatCannotBeSavedSaysWhy() {

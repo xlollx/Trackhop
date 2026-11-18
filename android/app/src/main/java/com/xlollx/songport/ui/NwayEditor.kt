@@ -75,6 +75,9 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/** For the UI tests: the multi-sync editor's Wi-Fi only switch. */
+const val NWAY_WIFI_TAG = "nway-wifi"
+
 /** For the UI tests: the multi-sync editor's source row, a target's row by its place, and a target sheet's choice by its way. */
 const val NWAY_SOURCE_ROW_TAG = "nway-source"
 fun nwayTargetTag(index: Int) = "nway-target-$index"
@@ -113,6 +116,8 @@ private fun itemTitle(i: NwayEdit.Item): String = if (i.playlistId == null) stri
 @Composable
 fun NwayEditorScreen(
     groupId: String?, startSource: PlaylistRef? = null,
+    /** Opened by the group page's "Add a target": the playlist picker for one more target, at once. */
+    addTarget: Boolean = false,
     onClose: () -> Unit, onDone: () -> Unit,
     onClassic: ((PlaylistRef?) -> Unit)? = null, onPrevious: () -> Unit = {},
 ) {
@@ -143,20 +148,22 @@ fun NwayEditorScreen(
     var daysCsv by rememberSaveable { mutableStateOf(card?.days.orEmpty().joinToString(",")) }
     var scheduleId by rememberSaveable { mutableStateOf(card?.scheduleId) }
     var scheduleSaved by rememberSaveable { mutableStateOf(card?.scheduleId != null || (isNew && store.data.settings.savedSchedules.isNotEmpty())) }
+    // Wi-Fi only, as the classic editor offers it: each sync's own, the same on every sync of the group.
+    var wifi by rememberSaveable { mutableStateOf(card?.wifiOnly ?: false) }
 
     // What is open: the playlist picker ("source", "add" or "change:<target>"), a target's sheet, the preview.
-    var picking by rememberSaveable { mutableStateOf<String?>(null) }
+    var picking by rememberSaveable { mutableStateOf(if (addTarget && groupId != null) "add" else null) }
     var sheetFor by rememberSaveable { mutableIntStateOf(-1) }
     var preview by rememberSaveable { mutableStateOf(false) }
 
     val draft = NwayEdit.Draft(name.trim().ifEmpty { source?.name.orEmpty() }.take(Invite.MAX_NAME), source, targets)
     val days = daysCsv.split(",").mapNotNull { it.trim().toIntOrNull() }
     val linkedTo = if (scheduleSaved) Schedules.find(data, scheduleId) else null
-    /** The timing chosen, given to a sync of the group. */
-    fun timed(j: SyncJob): SyncJob = if (linkedTo != null) Schedules.link(j, linkedTo) else Timing.apply(j, everyM, atStr, days).copy(scheduleId = null)
+    /** The timing chosen, given to a sync of the group, with Wi-Fi only. */
+    fun timed(j: SyncJob): SyncJob = (if (linkedTo != null) Schedules.link(j, linkedTo) else Timing.apply(j, everyM, atStr, days).copy(scheduleId = null)).copy(wifiOnly = wifi)
     fun styled(j: SyncJob): SyncJob = j.copy(color = pickedColor(color, data.settings.labels), label = pickedLabel(color), tags = tagDraft.all)
     // Only what was touched is written: a group opened and saved as it is stays the very same.
-    val timingTouched = card == null || timed(card).let { Schedules.specOf(it) != Schedules.specOf(card) || it.scheduleId != card.scheduleId }
+    val timingTouched = card == null || timed(card).let { Schedules.specOf(it) != Schedules.specOf(card) || it.scheduleId != card.scheduleId || it.wifiOnly != card.wifiOnly }
     val lookTouched = card == null || (card.label ?: card.color) != color || card.tags != tagDraft.all
     val changed = if (opened == null) source != null || targets.isNotEmpty() || name.isNotBlank() else draft != opened.second || timingTouched || lookTouched
 
@@ -273,6 +280,7 @@ fun NwayEditorScreen(
                 ) {
                     TimingPicker(everyM, atStr, daysCsv, onEvery = { everyM = it }, onAt = { atStr = it }, onDays = { daysCsv = it })
                 }
+                SwitchRow(stringResource(R.string.editor_wifi_only), stringResource(R.string.editor_wifi_only_desc), wifi, modifier = Modifier.testTag(NWAY_WIFI_TAG)) { wifi = it }
             }
             // The screen this one takes the place of: every option it had is still there.
             TextButton(onClick = toPrevious, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.nway_previous_screen)) }
@@ -378,6 +386,13 @@ private fun PlaylistRow(item: NwayEdit.Item, summary: String, modifier: Modifier
     )
 }
 
+/** For the UI tests: the save preview's line about a playlist becoming an exact copy. */
+const val NWAY_EXACT_WARNING_TAG = "nway-exact-warning"
+
+/** A change that makes an existing playlist an exact copy: its own additions go at the next run. */
+internal fun exactWarning(c: NwayEdit.Change): Boolean = c.item.mode == NwayEdit.Mode.EXACT && c.item.playlistId != null &&
+    (c.kind == NwayEdit.Change.Kind.MODE || c.kind == NwayEdit.Change.Kind.ADDED)
+
 /** Preview of an edited multi sync: what saving changes, playlist by playlist, before anything is; Back, or Save. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -402,6 +417,12 @@ private fun NwayChangesSheet(changes: List<NwayEdit.Change>, newName: String?, o
                     NwayEdit.Change.Kind.MODE -> (c.was?.let { modeLabel(it) + "  →  " } ?: "") + modeLabel(c.item.mode)
                 },
                 chevron = false, leading = { ServiceLogo(Providers.byId(c.item.provider), 36.dp) },
+            )
+            // A playlist that becomes an exact copy loses what the user added there at the next run: said before saving.
+            for (c in changes.filter { exactWarning(it) }) Text(
+                nwayService(c.item.provider) + " · " + itemTitle(c.item) + ": " + stringResource(R.string.nway_mode_exact_desc),
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(horizontal = 16.dp).testTag(NWAY_EXACT_WARNING_TAG),
             )
             if (changes.isEmpty()) Text(
                 stringResource(R.string.nway_change_none), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,

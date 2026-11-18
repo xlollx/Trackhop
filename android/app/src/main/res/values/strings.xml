@@ -3400,4 +3400,5 @@
     <string name="nway_change_removed">Leaves this sync; the playlist stays as it is</string>
     <string name="nway_change_source">Becomes the source</string>
     <string name="nway_change_none">The playlists and how they follow stay as they are.</string>
+    <string name="nway_schedule_note">Every playlist of this multi sync runs on this schedule.</string>
 </resources>

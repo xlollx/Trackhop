@@ -1,6 +1,12 @@
 package com.xlollx.songport.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.xlollx.songport.sync.Schedules
+import com.xlollx.songport.sync.Timing
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -146,11 +152,11 @@ object NwayUi {
         return rest.getOrNull(at)?.let { next -> d.jobs.filter { it.id != id }.indexOfFirst { it.id == next.id } } ?: d.jobs.size
     }
 
-    /** "Sync now" on a group: its syncs in the group's order, one after the other. */
+    /** "Sync now" on a group: its syncs in the group's order, one after the other; paused or not, as Sync now on a paused classic sync. */
     fun run(ctx: android.content.Context, group: SharedGroup) {
-        val order = Nway.order(ctx.env, group).map { it.id }
-        // Nothing skipped in silence: a paused group says so in the log.
-        if (order.isEmpty()) Nway.log(ctx.env, group.id, "sync now skipped: every sync of the group is paused")
+        val order = Nway.order(ctx.env, group, manual = true).map { it.id }
+        // Nothing skipped in silence.
+        if (order.isEmpty()) Nway.log(ctx.env, group.id, "sync now skipped: the group has no sync")
         Scheduler.runInSequence(ctx, order)
     }
 }
@@ -361,6 +367,79 @@ private fun SchedulePicker(selected: Schedule, onDismiss: () -> Unit, onSelect: 
     ChoiceDialog(stringResource(R.string.editor_schedule), options, selected, onDismiss, onSelect = onSelect)
 }
 
+/** For the UI tests: the group page's schedule row, and its chooser's Save. */
+internal const val GROUP_SCHEDULE_ROW_TAG = "group-schedule-row"
+internal const val GROUP_SCHEDULE_SAVE_TAG = "group-schedule-save"
+
+/** For the UI tests: the yes of "Exact copy?" on the group's page. */
+internal const val NWAY_EXACT_OK_TAG = "nway-exact-ok"
+
+/** A group's timing as its card says it ("Every Saturday at 09:00", "Every 6 hours"), after its saved schedule's name when it follows one. */
+@Composable
+private fun groupScheduleLabel(d: StoreData, job: SyncJob?): String {
+    if (job == null) return ""
+    val name = Schedules.find(d, job.scheduleId)?.name?.takeIf { it.isNotBlank() }
+    return listOfNotNull(name, timingLabel(job)).joinToString(" · ")
+}
+
+/**
+ * The group page's "Automatic schedule": the sync editors' own chooser ([SchedulePicker]), a saved
+ * schedule or a timing by hand with its days and time, and Detach. It opens on the group's timing
+ * ([timing], the sync of its card); [onSave] gets the schedule picked (null: by hand) and the timing
+ * by hand, and answers whether it was saved. What is chosen is kept when Android makes the screen anew.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GroupScheduleDialog(timing: SyncJob, onDismiss: () -> Unit, onSave: (String?, Schedules.Spec) -> Boolean) {
+    val ctx = LocalContext.current
+    val data by Store.get(ctx).state.collectAsState()
+    var everyM by rememberSaveable { mutableIntStateOf(Timing.interval(timing)) }
+    var atStr by rememberSaveable { mutableStateOf(timing.at ?: "09:00") }
+    // A weekly sync saved before days could be chosen: the day it has been running on.
+    var daysCsv by rememberSaveable { mutableStateOf(timing.days.ifEmpty { listOfNotNull(legacyWeeklyDay(timing)) }.joinToString(",")) }
+    var scheduleId by rememberSaveable { mutableStateOf(timing.scheduleId) }
+    var scheduleSaved by rememberSaveable { mutableStateOf(timing.scheduleId != null) }
+    val days = daysCsv.split(",").mapNotNull { it.trim().toIntOrNull() }
+    val linkedTo = if (scheduleSaved) Schedules.find(data, scheduleId) else null
+    val chosen = if (linkedTo != null) Schedules.link(timing, linkedTo) else Timing.apply(timing, everyM, atStr, days).copy(scheduleId = null)
+    val changed = Schedules.specOf(chosen) != Schedules.specOf(timing) || chosen.scheduleId != timing.scheduleId
+    val leave = rememberDiscardGuard(changed, onClose = onDismiss)
+    Dialog(onDismissRequest = leave, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(Modifier.fillMaxSize()) {
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = { Text(stringResource(R.string.editor_schedule)) },
+                        navigationIcon = { IconButton(onClick = leave) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back)) } },
+                    )
+                },
+                bottomBar = {
+                    Surface(tonalElevation = 3.dp, shadowElevation = 6.dp) {
+                        Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(onClick = leave, modifier = Modifier.weight(1f).height(52.dp)) { Text(stringResource(R.string.cancel)) }
+                            Button(
+                                onClick = { if (onSave(linkedTo?.id, Schedules.spec(everyM, atStr, days))) onDismiss() },
+                                modifier = Modifier.weight(1f).height(52.dp).testTag(GROUP_SCHEDULE_SAVE_TAG),
+                            ) { Text(stringResource(R.string.save)) }
+                        }
+                    }
+                },
+            ) { padding ->
+                Column(Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(stringResource(R.string.nway_schedule_note), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    SchedulePicker(
+                        scheduleId, scheduleSaved, timing.id, hand = Schedules.spec(everyM, atStr, days),
+                        onTab = { scheduleSaved = it }, onPick = { scheduleId = it },
+                        onDetach = { t -> everyM = t.everyMinutes; atStr = t.at ?: "09:00"; daysCsv = t.days.joinToString(","); scheduleId = null; scheduleSaved = false },
+                    ) {
+                        TimingPicker(everyM, atStr, daysCsv, onEvery = { everyM = it }, onAt = { atStr = it }, onDays = { daysCsv = it })
+                    }
+                }
+            }
+        }
+    }
+}
+
 /** For the UI tests: the head of a running group's page, and a service's row by where it stands ("group-row-now:tidal"; "pinned-" before it when it is on top). */
 internal const val GROUP_RUN_HEAD_TAG = "group-run-head"
 internal fun groupRowTag(phase: NwayRun.Phase?, provider: String, pinned: Boolean = false) =
@@ -472,15 +551,13 @@ internal fun NwayFirstRunSheet(name: String, members: List<NwayDraft>, onDismiss
 /** [NwayStatus] of a group, and when it runs. */
 private fun statusOf(d: StoreData, members: List<Nway.Member>): NwayStatus.Group = NwayStatus.group(d, members)
 
-private fun scheduleOf(members: List<Nway.Member>): Schedule? = members.firstOrNull()?.down?.schedule
-
 /** A service's name as the cards say it. */
 @Composable
 internal fun nwayService(provider: String): String = Providers.byId(provider)?.label(LocalContext.current.env) ?: provider
 
 /**
  * A group's state in a few words, as a card's pill says its own, with the service it is about when
- * it is one: "Needs attention · Qobuz", "Removals on hold · TIDAL", "Not found: 12".
+ * it is one: "Needs attention · Qobuz", "Removals on hold · TIDAL", "1 to check · Amazon Music", "Not found: 12".
  */
 @Composable
 internal fun groupStatusText(g: NwayStatus.Group): String {
@@ -492,6 +569,7 @@ internal fun groupStatusText(g: NwayStatus.Group): String {
         CardStatus.HELD_BACK -> stringResource(R.string.pill_held_back)
         CardStatus.INCOMPLETE -> stringResource(R.string.pill_incomplete)
         CardStatus.NOT_FOUND -> stringResource(R.string.pill_not_found, g.count)
+        CardStatus.TO_CHECK -> toCheckText(g.count)
         else -> stringResource(R.string.pill_ok)
     }
     // Songs not found are counted over all the services: the count says more than one name.
@@ -501,7 +579,7 @@ internal fun groupStatusText(g: NwayStatus.Group): String {
 
 internal fun groupStatusTone(s: CardStatus): Tone = when (s) {
     CardStatus.ERROR -> Tone.Error
-    CardStatus.HELD_BACK, CardStatus.INCOMPLETE, CardStatus.NOT_FOUND -> Tone.Warning
+    CardStatus.HELD_BACK, CardStatus.INCOMPLETE, CardStatus.NOT_FOUND, CardStatus.TO_CHECK -> Tone.Warning
     CardStatus.OK -> Tone.Ok
     else -> Tone.Neutral
 }
@@ -525,6 +603,8 @@ fun NwayGroupScreen(
     onAccounts: () -> Unit = {}, onOpenLog: () -> Unit = {},
     /** Edit: the multi-sync editor on this group (2.1.1). */
     onEdit: (() -> Unit)? = null,
+    /** "Add a target": the multi-sync editor on this group, its playlist picker open (2.1.2). */
+    onAddTarget: (() -> Unit)? = null,
 ) {
     val ctx = LocalContext.current
     val env = ctx.env
@@ -546,11 +626,12 @@ fun NwayGroupScreen(
     val run = NwayRun.of(ordered, running, com.xlollx.songport.sync.SyncState.batchOf(group.id, batches))
     // The run of one service, live (its row tapped while it is being synced).
     var live by rememberSaveable { mutableStateOf<String?>(null) }
-    var adding by rememberSaveable { mutableStateOf(false) }
     var pickSchedule by rememberSaveable { mutableStateOf(false) }
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
     // The playlist asked to be taken out, by its place in the list.
     var removing by rememberSaveable { mutableStateOf(-1) }
+    // The playlist asked to be made an exact copy, by its place in the list: asked first.
+    var exactFor by rememberSaveable { mutableStateOf(-1) }
     var error by remember { mutableStateOf<String?>(null) }
     /** A change to the group's syncs, then their schedules brought in line (those gone are cancelled). */
     fun change(block: suspend () -> List<String>) {
@@ -562,6 +643,16 @@ fun NwayGroupScreen(
         }
     }
     fun jobsOf() = Nway.members(env, group).flatMap { listOfNotNull(it.down, it.up) }
+    /** A target's way to follow, as the editor sets it: two-way is a main member; an exact copy and "keep my additions" follow. */
+    fun setMode(m: Nway.Member, to: com.xlollx.songport.shared.NwayEdit.Mode) = change {
+        val keep = to == com.xlollx.songport.shared.NwayEdit.Mode.KEEP
+        when {
+            to == com.xlollx.songport.shared.NwayEdit.Mode.TWO_WAY -> Nway.setMain(env, group, m, true)
+            m.main -> Nway.setMain(env, group, m, false, keepMine = keep)
+            else -> Nway.setKeepMine(env, m, keep)
+        }
+        emptyList()
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -595,7 +686,9 @@ fun NwayGroupScreen(
                 val up = m.up?.let { u -> data.reports.firstOrNull { it.id == u.lastReportId } }
                 // The sync whose removals wait for a yes: its preview is where they are confirmed.
                 val held = listOfNotNull(m.down.takeIf { (down?.heldBack ?: 0) > 0 }, m.up?.takeIf { (up?.heldBack ?: 0) > 0 }).firstOrNull()
-                val notFound = down?.unmatchedTracks?.size ?: 0
+                // Songs not found or matches to check: the run that left them is where they are reviewed, as from a card.
+                val review = st.report?.takeIf { st.status == CardStatus.NOT_FOUND || st.status == CardStatus.TO_CHECK }
+                    ?: down?.takeIf { it.unmatchedTracks.isNotEmpty() || it.reviewTracks.isNotEmpty() }
                 val state = when (st.status) {
                     // No internet is not a failure of the service: said as on a card.
                     CardStatus.ERROR -> stringResource(R.string.pill_error) + " · " + fixText(m.playlist.provider, userText(ctx, st.report?.error))
@@ -603,6 +696,7 @@ fun NwayGroupScreen(
                     CardStatus.HELD_BACK -> stringResource(R.string.nway_held, st.count)
                     CardStatus.INCOMPLETE -> stringResource(R.string.pill_incomplete)
                     CardStatus.NOT_FOUND -> stringResource(R.string.nway_not_found_review, st.count)
+                    CardStatus.TO_CHECK -> toCheckText(st.count)
                     CardStatus.NEVER -> stringResource(R.string.last_run_never)
                     else -> stringResource(R.string.pill_ok)
                 }
@@ -626,7 +720,7 @@ fun NwayGroupScreen(
                         phase?.phase == NwayRun.Phase.FAILED || (phase == null && st.status == CardStatus.ERROR) -> ({ fix(m.playlist.provider) })
                         phase != null && phase.phase != NwayRun.Phase.IDLE -> null
                         held != null -> ({ onPreview(held) })
-                        notFound > 0 && down != null -> ({ onReview(down.id) })
+                        review != null -> ({ onReview(review.id) })
                         else -> null
                     },
                     trailing = when (phase?.phase) {
@@ -635,12 +729,17 @@ fun NwayGroupScreen(
                         NwayRun.Phase.FAILED -> ({ Icon(Icons.Filled.Warning, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.error) })
                         NwayRun.Phase.WAITING -> ({ Spacer(Modifier.width(20.dp)) })
                         else -> ({
-                            OverflowMenu(listOfNotNull(
-                                // The only main one stays main, and stays in: a group with none would never change.
-                                if (m.main) MenuAction(stringResource(R.string.nway_make_follow), { change { Nway.setMain(env, group, m, false); emptyList() } }, enabled = !lastMain)
-                                else MenuAction(stringResource(R.string.nway_make_main), { change { Nway.setMain(env, group, m, true); emptyList() } }),
-                                if (!m.main && !m.keepMine) MenuAction(stringResource(R.string.shared_mode_keep), { change { Nway.setKeepMine(env, m, true); emptyList() } }) else null,
-                                if (!m.main && m.keepMine) MenuAction(stringResource(R.string.shared_mode_exact), { change { Nway.setKeepMine(env, m, false); emptyList() } }) else null,
+                            // As the editor offers it: a target follows one of three ways, can be made the source, or leaves.
+                            // The source has none of these: it changes only by making a target the source (here or in the editor).
+                            val mode = com.xlollx.songport.shared.NwayEdit.modeOf(m)
+                            OverflowMenu(if (m.down.id == source?.down?.id) emptyList() else listOf(
+                                com.xlollx.songport.shared.NwayEdit.Mode.EXACT, com.xlollx.songport.shared.NwayEdit.Mode.KEEP, com.xlollx.songport.shared.NwayEdit.Mode.TWO_WAY,
+                            ).filter { it != mode }.map { to ->
+                                // An exact copy removes what the user added there at its next run: asked first.
+                                MenuAction(modeLabel(to), { if (to == com.xlollx.songport.shared.NwayEdit.Mode.EXACT) exactFor = i else setMode(m, to) })
+                            } + listOf(
+                                MenuAction(stringResource(R.string.nway_make_source), { change { Nway.setSource(env, group, m); emptyList() } }),
+                                // The only main one stays in: a group with none would never change.
                                 MenuAction(stringResource(R.string.nway_remove_member), { removing = i }, destructive = true, enabled = !lastMain),
                             ), enabled = !busy, title = p?.label(env))
                         })
@@ -658,10 +757,12 @@ fun NwayGroupScreen(
             if (first.isNotEmpty()) PrefSection(stringResource(R.string.editor_source), accent = JobColor.BLUE) { first.forEach { row(it) } }
             PrefSection(stringResource(R.string.nway_targets), accent = JobColor.BLUE) {
                 rest.forEach { row(it) }
-                if (com.xlollx.songport.Features.v2(data.settings)) PrefRow(Icons.AutoMirrored.Filled.PlaylistAdd, stringResource(R.string.nway_add), null, chevron = false, enabled = !busy) { adding = true }
+                // In the editor, as a target is added there: it follows as chosen, and runs as the group does.
+                if (onAddTarget != null && com.xlollx.songport.Features.v2(data.settings)) PrefRow(Icons.AutoMirrored.Filled.PlaylistAdd, stringResource(R.string.nway_add_target), null, chevron = false, enabled = !busy, onClick = onAddTarget)
             }
             PrefSection(stringResource(R.string.editor_schedule), accent = JobColor.TEAL) {
-                PrefRow(Icons.Filled.Schedule, scheduleOf(members)?.let { scheduleLabel(it) }.orEmpty(), null) { pickSchedule = true }
+                // The whole timing, as a card says it, after the saved schedule's name when it follows one.
+                PrefRow(Icons.Filled.Schedule, groupScheduleLabel(data, Nway.anchor(data, group) ?: members.firstOrNull()?.down), null, Modifier.testTag(GROUP_SCHEDULE_ROW_TAG)) { pickSchedule = true }
                 PrefSwitch(Icons.Filled.Pause, stringResource(R.string.nway_pause), stringResource(R.string.nway_pause_desc), status.paused) { paused ->
                     change { jobsOf().forEach { env.store.upsertJob(it.copy(enabled = !paused)) }; emptyList() }
                 }
@@ -671,20 +772,27 @@ fun NwayGroupScreen(
     }
     // One service's run, live, as a sync's card shows its own.
     members.flatMap { listOfNotNull(it.up, it.down) }.firstOrNull { it.id == live }?.let { j -> LiveSheet(j, onReview) { live = null } }
-    if (adding) NwayAddDialog(members.map { it.playlist.provider to it.playlist.playlistId }, onDismiss = { adding = false }) { d ->
-        adding = false
-        val description = MusicProvider.description(ctx.getString(R.string.app_name))
-        change {
-            val p = Providers.byId(d.provider) ?: throw IllegalStateException(d.provider)
-            val ref = if (d.playlistId != null) PlaylistRef(p.id, d.playlistId, d.name)
-                else p.createPlaylist(env, group.name, description).let { PlaylistRef(p.id, it.id, it.name) }
-            Nway.add(env, group, ref, d.main, scheduleOf(members) ?: Schedule.HOURLY, d.keepMine)
-            emptyList()
+    // The schedule chooser of the sync editors: a saved schedule (linked) or a timing by hand, with its days and time.
+    // Every sync of the group takes it in one change of the store, or none does; then their work is set again, as after any change here.
+    if (pickSchedule) (Nway.anchor(data, group) ?: members.firstOrNull()?.down)?.let { timing ->
+        GroupScheduleDialog(timing, onDismiss = { pickSchedule = false }) { scheduleId, spec ->
+            val saved = ManyChange.applyOrSay(ctx) { d -> com.xlollx.songport.shared.NwayEdit.scheduled(d, group.id, scheduleId, spec) }
+            if (saved) jobsOf().forEach { j -> runCatching { Scheduler.apply(ctx, j) } }
+            saved
         }
     }
-    if (pickSchedule) SchedulePicker(scheduleOf(members) ?: Schedule.HOURLY, { pickSchedule = false }) { s ->
-        pickSchedule = false
-        change { jobsOf().forEach { env.store.upsertJob(it.copy(schedule = s, everyMinutes = null, at = null, days = emptyList())) }; emptyList() }
+    members.getOrNull(exactFor)?.let { m ->
+        FitDialog(
+            onDismissRequest = { exactFor = -1 },
+            title = { Text(stringResource(R.string.shared_mode_exact) + " · " + nwayService(m.playlist.provider)) },
+            text = { Text(stringResource(R.string.nway_exact_desc)) },
+            confirmButton = {
+                TextButton(onClick = { exactFor = -1; setMode(m, com.xlollx.songport.shared.NwayEdit.Mode.EXACT) }, modifier = Modifier.testTag(NWAY_EXACT_OK_TAG)) {
+                    Text(stringResource(R.string.shared_mode_exact), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = { TextButton(onClick = { exactFor = -1 }) { Text(stringResource(R.string.cancel)) } },
+        )
     }
     members.getOrNull(removing)?.let { m ->
         FitDialog(
@@ -705,8 +813,10 @@ fun NwayGroupScreen(
             TextButton(onClick = {
                 confirmDelete = false
                 scope.launch {
-                    withContext(Dispatchers.IO) { runCatching { Nway.delete(env, group) } }.getOrNull()?.forEach { Scheduler.cancel(ctx, it) }
-                    onClose()
+                    // Not saved: the group stays whole, with its key and its list, and the page says so.
+                    withContext(Dispatchers.IO) { runCatching { Nway.delete(env, group) } }
+                        .onSuccess { ids -> ids.forEach { Scheduler.cancel(ctx, it) }; onClose() }
+                        .onFailure { error = it.userMessage(ctx) }
                 }
             }) { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) }
         },

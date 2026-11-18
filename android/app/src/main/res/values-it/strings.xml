@@ -3398,4 +3398,5 @@
     <string name="nway_change_removed">Esce da questa sync; la playlist resta com’è</string>
     <string name="nway_change_source">Diventa l’origine</string>
     <string name="nway_change_none">Le playlist e il modo in cui seguono restano come sono.</string>
+    <string name="nway_schedule_note">Ogni playlist di questa sync multipla segue questa esecuzione.</string>
 </resources>

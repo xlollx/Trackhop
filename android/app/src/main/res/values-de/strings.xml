@@ -3398,4 +3398,5 @@
     <string name="nway_change_removed">Verlässt diesen Sync; die Playlist bleibt, wie sie ist</string>
     <string name="nway_change_source">Wird zur Quelle</string>
     <string name="nway_change_none">Die Playlists und wie sie folgen bleiben, wie sie sind.</string>
+    <string name="nway_schedule_note">Jede Playlist dieses Multi-Syncs läuft nach diesem Zeitplan.</string>
 </resources>

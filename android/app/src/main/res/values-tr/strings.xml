@@ -3396,4 +3396,5 @@
     <string name="nway_change_removed">Bu senkronizasyondan çıkar; çalma listesi olduğu gibi kalır</string>
     <string name="nway_change_source">Kaynak olur</string>
     <string name="nway_change_none">Çalma listeleri ve takip biçimleri olduğu gibi kalır.</string>
+    <string name="nway_schedule_note">Bu çoklu senkronizasyondaki her çalma listesi bu zamanlamayla çalışır.</string>
 </resources>

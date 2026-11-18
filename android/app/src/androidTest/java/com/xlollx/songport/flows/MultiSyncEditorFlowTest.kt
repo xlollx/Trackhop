@@ -217,8 +217,9 @@ class MultiSyncEditorFlowTest : FlowTest() {
         // "Use the previous screen": the group's page, with each playlist's own menu, as before.
         click(s(R.string.nway_previous_screen))
         waitText(s(R.string.nway_delete))
-        clickDesc(s(R.string.more_actions), index = 1)
-        waitText(s(R.string.nway_make_main))
+        // The source has none: the target's menu, with the editor's ways to follow.
+        clickDesc(s(R.string.more_actions), index = 0)
+        waitText(s(R.string.nway_make_source))
         Espresso.pressBack()
 
         // With something changed in the editor, leaving it asks first; the question survives the activity made anew.

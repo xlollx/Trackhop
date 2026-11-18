@@ -466,6 +466,8 @@ private fun MainScreen(
     var nwayOpen by rememberSaveable { mutableStateOf<String?>(null) }
     // The multi-sync editor (2.1.1): NwayUi.NEW for a new one, else the id of the group being edited; over the group's page.
     var nwayEdit by rememberSaveable { mutableStateOf<String?>(null) }
+    // The editor opened by the group page's "Add a target": its playlist picker open at once (read once, as it opens).
+    var nwayAddTarget by rememberSaveable { mutableStateOf(false) }
     // The source the classic editor had chosen when the user switched to a multi sync (and back): read once, as each editor opens.
     var nwayStart by rememberSaveable(stateSaver = RefSaver) { mutableStateOf<PlaylistRef?>(null) }
     // "New sync": which kind, classic or multi, before its editor.
@@ -805,19 +807,20 @@ private fun MainScreen(
                 backupOpen -> com.xlollx.songport.ui.BackupScreen(onClose = { backupOpen = false })
                 sharedOpen -> com.xlollx.songport.ui.SharedScreen(onClose = { sharedOpen = false })
                 nwayEdit != null -> com.xlollx.songport.ui.NwayEditorScreen(
-                    groupId = nwayEdit?.takeIf { it != com.xlollx.songport.ui.NwayUi.NEW }, startSource = nwayStart,
-                    onClose = { nwayEdit = null }, onDone = { nwayEdit = null; if (nwayOpen == null) tab = MainActivity.TAB_SYNCS },
+                    groupId = nwayEdit?.takeIf { it != com.xlollx.songport.ui.NwayUi.NEW }, startSource = nwayStart, addTarget = nwayAddTarget,
+                    onClose = { nwayEdit = null; nwayAddTarget = false }, onDone = { nwayEdit = null; nwayAddTarget = false; if (nwayOpen == null) tab = MainActivity.TAB_SYNCS },
                     // "One target": the classic editor, with the source chosen here.
                     onClassic = { ref -> nwayEdit = null; editing = newJob().let { j -> if (ref != null) j.copy(source = ref) else j } },
                     // The screen before 2.1.1: making a group there, or the group's page with each playlist's own menu.
-                    onPrevious = { if (nwayEdit == com.xlollx.songport.ui.NwayUi.NEW) { nwayEdit = null; nwayOpen = com.xlollx.songport.ui.NwayUi.NEW } else { nwayOpen = nwayEdit; nwayEdit = null } },
+                    onPrevious = { nwayAddTarget = false; if (nwayEdit == com.xlollx.songport.ui.NwayUi.NEW) { nwayEdit = null; nwayOpen = com.xlollx.songport.ui.NwayUi.NEW } else { nwayOpen = nwayEdit; nwayEdit = null } },
                 )
                 nwayOpen != null -> if (nwayOpen == com.xlollx.songport.ui.NwayUi.NEW) com.xlollx.songport.ui.NwayCreateScreen(
                     onClose = { nwayOpen = null }, onDone = { nwayOpen = null; tab = MainActivity.TAB_SYNCS },
                 ) else com.xlollx.songport.ui.NwayGroupScreen(
                     nwayOpen.orEmpty(), onClose = { nwayOpen = null }, onReview = { unmatchedReport = it }, onPreview = { previewJob = it },
                     onAccounts = { nwayOpen = null; tab = MainActivity.TAB_ACCOUNTS }, onOpenLog = { logOpen = true },
-                    onEdit = { nwayEdit = nwayOpen },
+                    onEdit = { nwayAddTarget = false; nwayEdit = nwayOpen },
+                    onAddTarget = { nwayAddTarget = true; nwayEdit = nwayOpen },
                 )
                 tipsOpen -> com.xlollx.songport.ui.TipsScreen(data, onClose = { tipsOpen = false }, onOpenAutomation = {
                     tipsOpen = false; tab = MainActivity.TAB_SETTINGS; focusAutomation = true
