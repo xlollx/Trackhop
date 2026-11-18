@@ -102,7 +102,7 @@ jobs:
           esac
           "$app" --background &
           for i in $(seq 1 60); do curl -sf http://127.0.0.1:8642/health && break; sleep 1; done
-          curl -sf http://127.0.0.1:8642/ | grep -q "Trackhop Desktop"
+          curl -sf http://127.0.0.1:8642/ -o page.html && grep -q "Trackhop Desktop" page.html
           test "$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: evil.example' http://127.0.0.1:8642/)" = 403
           "$cli" status | tee cli.txt
           grep -q "0 syncs" cli.txt
