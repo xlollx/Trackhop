@@ -342,7 +342,7 @@ reports are what make it better: if something does not work as it should, say so
 
 ## New in 2.1
 
-In Trackhop 2.1, in the app and in Desktop and Docker 2.1.0. Thanks to JPMarcelino (#66) and raykai (#67).
+In Trackhop 2.1, in the app and in Desktop and Docker 2.1.0. Thanks to JPMarcelino (#66), raykai (#67) and ingoau (#68, #69).
 
 | Area | Feature | Notes |
 |------|---------|-------|

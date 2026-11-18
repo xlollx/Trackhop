@@ -10,7 +10,7 @@ the Docker image carried the app's version.
 Released together with the app's 2.1. Apple Music/iTunes libraries and playlist files of any size, a server that
 picks up cleanly after a restart, Saved matches, concert alerts with a calendar to subscribe to, Koel, Gaana,
 Apple Music's daily and city charts, rekordbox XML, WPL and ZPL; then matching across alphabets, a richer
-diagnostic log and security fixes. Thanks to JPMarcelino (#66) and raykai (#67).
+diagnostic log and security fixes. Thanks to JPMarcelino (#66), raykai (#67) and ingoau (#68, #69).
 
 - **Libraries and playlist files of any size** (#67): the page's form, the API and `trackhop import` write an upload to the data folder as it arrives and read it a piece at a time, so the space on the disk is the only limit. An Apple Music/iTunes library (or a rekordbox collection) lists its playlists to tick, each becoming a file; the API takes `?playlists=` and `?whole=true`. A file or an upload cut short adds nothing and is said to be incomplete.
 - **Interrupted by a restart**: a sync run by hand or a long tool cut short by a restart is said at the next start, with Retry on the page, in the API and in the command line's status; it is never started again by itself. A new playlist filled half way shows in Tools with **Continue**, which adds only the tracks that are missing; *Remove duplicates* cut short puts the song back in its playlist at the next start and says which.
