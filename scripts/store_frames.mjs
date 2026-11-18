@@ -12,6 +12,12 @@
 //   node scripts/store_frames.mjs --format png                     # PNG instead of JPEG (about 4x larger)
 //   node scripts/store_frames.mjs cover --title "Trackhop 2.1" --subtitle "…" [--locale it-IT] OUT.png
 //                                  # the Instagram carousel cover, 1080x1350 (PNG or, by extension, JPEG)
+//   node scripts/store_frames.mjs slide --title "…" [--sub "…"] --shot SHOT.png [--bleed bottom|top] [--tilt -14] OUT.jpg
+//                                  # a carousel page, 1080x1350: a headline and the phone with SHOT, the phone running
+//                                  # off the bottom edge (the screen's top shows) or, with --bleed top, off the top
+//                                  # edge (its bottom shows, the headline under it)
+//   node scripts/store_frames.mjs end --title "…" --site trackhop.org [--thanks "…"] OUT.jpg
+//                                  # the carousel's last page: where to get it, and the thanks
 //
 // Needs Node and Playwright with its Chromium. Locally `require('playwright')` and `chromium.launch()` are
 // enough; in CI: `npm install --no-save playwright && npx playwright install chromium` first.
@@ -101,6 +107,50 @@ p{margin:0;font-size:calc(var(--u) * 14);line-height:1.35;font-weight:500;opacit
 <div class="cin"><span class="bigmk">${MARK}</span><h1>${esc(title).replace(/\n/g, '<br>')}</h1><p>${esc(subtitle)}</p></div></body></html>`;
 }
 
+// A carousel page (1080x1350, in the cover's units): the mark and name at the top, the headline, and
+// the phone large enough to read, cut by the page's edge rather than shrunk. The ribbon runs behind it.
+function slideHtml(title, sub, img, mime, { bleed = 'bottom', tilt = -14, locale = 'en-US' } = {}) {
+  const top = bleed === 'top';
+  // One column: the stamp and the headline at one end, then the phone, which runs on past the other end.
+  const words = `<div class="stamp"><span class="mk">${MARK}</span>Trackhop</div>
+<div class="head"><h1>${esc(title).replace(/\n/g, '<br>')}</h1>${sub ? `<p>${esc(sub)}</p>` : '<p hidden></p>'}</div>`;
+  const phone = `<div class="phone"><img src="data:${mime};base64,${img}" alt=""></div>`;
+  return `<!doctype html><html lang="${locale}"><meta charset="utf-8"><style>${BASE}
+:root{--u:calc(100vw / 300);--y:${top ? 38 : 64}%;--r:${tilt}deg}
+body{font-family:${fontStack(locale.split('-')[0])}}
+.col{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:${top ? 'flex-end' : 'flex-start'};
+  padding:${top ? '0 0 calc(var(--u) * 15)' : 'calc(var(--u) * 15) 0 0'};z-index:2}
+.stamp{display:flex;justify-content:center;align-items:center;gap:calc(var(--u) * 5);font-size:calc(var(--u) * 11);font-weight:700;line-height:1;flex:none;
+  ${top ? 'order:3;margin-top:calc(var(--u) * 12)' : 'margin-bottom:calc(var(--u) * 12)'}}
+.mk{width:calc(var(--u) * 15);height:calc(var(--u) * 15);display:inline-flex;color:var(--violet)}.mk svg{width:100%;height:100%}
+.head{text-align:center;padding:0 calc(var(--u) * 18);flex:none;align-self:stretch;${top ? 'order:2' : ''}}
+h1{margin:0;font-size:calc(var(--u) * 21);line-height:1.1;font-weight:800;letter-spacing:-.02em;text-wrap:balance}
+p{margin:calc(var(--u) * 5) 0 0;font-size:calc(var(--u) * 11.5);line-height:1.35;font-weight:500;color:#5d5866;text-wrap:balance}
+.phone{flex:none;width:62%;border-radius:calc(var(--u) * 25);padding:calc(var(--u) * 5.5);background:#0b0b0d;
+  ${top ? 'order:1;margin-bottom:calc(var(--u) * 14)' : 'margin-top:calc(var(--u) * 14)'};box-shadow:0 calc(var(--u) * 14) calc(var(--u) * 36) rgba(23,20,28,.32)}
+.phone img{display:block;width:100%;border-radius:calc(var(--u) * 19.5)}
+</style><body><div class="beam"></div><div class="col">${words}${phone}</div></body></html>`;
+}
+
+// The carousel's last page: the mark, "Get Trackhop 2.1", the site large, and the thanks under it.
+function endHtml(title, site, thanks, locale) {
+  return `<!doctype html><html lang="${locale}"><meta charset="utf-8"><style>${BASE}
+:root{--u:calc(100vw / 300);--y:9%;--r:-6deg}
+body{font-family:${fontStack(locale.split('-')[0])}}
+.cin{position:absolute;inset:14% 0 6% 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(var(--u) * 6);
+  text-align:center;z-index:2;padding:0 calc(var(--u) * 20)}
+.bigmk{width:calc(var(--u) * 62);height:calc(var(--u) * 62);display:inline-flex;color:var(--violet)}.bigmk svg{width:100%;height:100%}
+.kick{margin:calc(var(--u) * 8) 0 0;font-size:calc(var(--u) * 13);font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--violet)}
+h1{margin:0;font-size:calc(var(--u) * 36);line-height:1.05;font-weight:800;letter-spacing:-.03em}
+.card{margin-top:calc(var(--u) * 16);background:#fff;border-radius:calc(var(--u) * 8);padding:calc(var(--u) * 12) calc(var(--u) * 16);
+  box-shadow:0 calc(var(--u) * 4) calc(var(--u) * 16) rgba(66,26,255,.08);max-width:calc(var(--u) * 236)}
+.card b{display:block;font-size:calc(var(--u) * 14);font-weight:800;margin-bottom:calc(var(--u) * 4)}
+p{margin:0;font-size:calc(var(--u) * 10.5);line-height:1.45;font-weight:500;color:#5d5866;text-wrap:balance}
+</style><body><div class="beam"></div>
+<div class="cin"><span class="bigmk">${MARK}</span><div class="kick">${esc(title)}</div><h1>${esc(site)}</h1>
+${thanks ? `<div class="card"><b>Thank you</b><p>${esc(thanks)}</p></div>` : '<p hidden></p>'}</div></body></html>`;
+}
+
 // In the page, after fonts and image are ready: the headline at most two lines and the line under it one
 // (both shrink until they fit, nothing is ever cut). Returns notes.
 async function settle(page, { titleLines, subLines }) {
@@ -150,6 +200,22 @@ async function main() {
       const jpg = /\.jpe?g$/i.test(out);
       await page.screenshot({ path: out, type: jpg ? 'jpeg' : 'png', ...(jpg ? { quality: 92 } : {}) });
       console.log(`${out}${notes.length ? ` (${notes.join('; ')})` : ''}`);
+      return;
+    }
+    if (args._[0] === 'slide' || args._[0] === 'end') {
+      const out = args._[1];
+      const slide = args._[0] === 'slide';
+      if (!out || !args.title || (slide && !args.shot)) throw new Error('usage: store_frames.mjs slide --title T [--sub S] --shot IMG [--bleed bottom|top] [--tilt DEG] OUT.jpg | end --title T --site S [--thanks S] OUT.jpg');
+      const page = await browser.newPage({ viewport: { width: 1080, height: 1350 } });
+      const locale = args.locale || 'en-US';
+      await page.setContent(slide
+        ? slideHtml(args.title, args.sub || '', b64(args.shot), /\.png$/i.test(args.shot) ? 'image/png' : 'image/jpeg', { bleed: args.bleed, tilt: Number(args.tilt ?? -14), locale })
+        : endHtml(args.title, args.site || 'trackhop.org', args.thanks || '', locale));
+      const { notes, lines } = await settle(page, { titleLines: 2, subLines: slide ? 1 : 4 });
+      mkdirSync(dirname(resolve(out)), { recursive: true });
+      const jpg = /\.jpe?g$/i.test(out);
+      await page.screenshot({ path: out, type: jpg ? 'jpeg' : 'png', ...(jpg ? { quality: Number(args.quality || 92) } : {}) });
+      console.log(`${out} ${lines} line${lines > 1 ? 's' : ''}${notes.length ? ` (${notes.join('; ')})` : ''}`);
       return;
     }
     const locales = args.locales ? args.locales.split(',').filter(Boolean) : LOCALES;
