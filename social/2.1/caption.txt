@@ -1,0 +1,28 @@
+Trackhop 2.1 is here.
+
+The headline: share more, fix once. Several shared playlists behind one invite, and one list of songs to fix for every sync.
+
+Android app
+• Shared collections: follow them all, new ones included, or pick some, each with its own switch
+• Select several syncs and change, run, colour, label or delete them together
+• Saved schedules: change one and every sync using it follows
+• One To fix list in Tools › Saved matches: choose once, for every sync with that song
+• One playlist kept the same on several of your services
+• Syncs that stop part way pick up where they left off, nothing half written
+• Lifetime stats from your Spotify, YouTube or Deezer export, read on the phone
+• A concert diary, your Discogs collection and wantlist, Mark as listened, and a clean-up for duplicate playlists
+• Matching across alphabets, Koel (beta), Apple Music's daily and city charts, rekordbox, WPL and ZPL
+
+Desktop (Windows, macOS, Linux) and Docker
+• A Saved matches page, to read and to forget
+• Apple Music and iTunes libraries, rekordbox collections and playlist files of any size
+• Concert alerts and a calendar to subscribe to
+• Koel (beta), Gaana (alpha) and Apple Music's daily and city charts
+• After a restart, Retry and Continue pick up what was cut short, and nothing is half written
+• Safer syncs, a richer log that never holds names or keys, and security fixes
+
+Free, no subscription. On Google Play, F-Droid and GitHub, and every download is at trackhop.org
+
+Thank you to JPMarcelino, raykai and ingoau, and to every user who sent an idea or a report: much of 2.1 started there. Keep them coming.
+
+#trackhop #playlists #playlisttransfer #musicsync #musicapp #android #androidapp #opensource #selfhosted #docker #homelab #windows #macos #linux #concerts #newmusic #musiclovers #newrelease
