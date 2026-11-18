@@ -296,6 +296,125 @@ class NwayTest {
         assertEquals(listOf("Song 10", "Song 12", "Song 14"), b.lists["dst"]!!.map { it.title }.sorted())
     }
 
+    // ------------------------------------------------------------ the card's sync (the source's)
+
+    private fun member(s: MemoryService) = Nway.members(env, group).first { it.playlist.provider == s.id }
+    private fun plain(id: String) = SyncJob(id, id, PlaylistRef("nwa", "other-$id", id), PlaylistRef("nwb", "other-$id", id))
+    private fun look(j: SyncJob) = listOf(j.color, j.label, j.tags, j.accentStyle, j.routeGlow, j.favorite)
+    private val bare = look(SyncJob("x", "x", PlaylistRef("nwa", "p"), PlaylistRef("nwb", "p")))
+    private fun now() = env.store.data
+    private fun theGroup() = now().groups.single()
+
+    /** The group between two other syncs, its card (the sync of its source, "a") coloured, styled, tagged and starred. Answers how the card looks. */
+    private fun styled(): List<Any?> {
+        env.store.update { d ->
+            d.copy(jobs = listOf(plain("before")) + d.jobs.map {
+                if (it.id == group.jobId) it.copy(color = "teal", accentStyle = "pill", routeGlow = false, favorite = true, tags = mapOf("genre" to "metal")) else it
+            } + plain("after"))
+        }
+        return look(env.store.job(group.jobId)!!).also { assertTrue("the card has a look of its own", it != bare) }
+    }
+
+    @Test fun theSyncOfTheSourceStandsForTheGroup() {
+        create(bMain = true)
+        assertEquals("nwa", Nway.source(group, Nway.members(env, group))!!.playlist.provider)
+        assertEquals(group.jobId, Nway.anchor(now(), group)!!.id)
+        assertEquals(mapOf(group.jobId to group.id), Nway.anchors(now()).mapValues { it.value.id })
+        assertEquals(group.id, Nway.anchored(now(), env.store.job(group.jobId)!!)!!.id)
+        // No other sync of the group does, nor a sync of its own.
+        assertEquals(null, Nway.anchored(now(), member(b).down))
+        assertEquals(null, Nway.anchored(now(), member(a).up!!))
+        assertEquals(null, Nway.anchored(now(), plain("x")))
+    }
+
+    @Test fun aTargetMadeTheSourceTakesTheCardItsLookAndItsPlace() {
+        create(bMain = false)
+        val card = styled()
+        val at = now().jobs.indexOfFirst { it.id == group.jobId }
+        val old = group.jobId
+        Nway.setSource(env, group, member(c))
+        val c2 = member(c)
+        assertEquals(c2.down.id, theGroup().jobId)
+        assertEquals(c2.up!!.id, theGroup().twinId)
+        assertEquals("the card's colour, style, tags and star follow it", card, look(c2.down))
+        assertEquals("the sync that was the card keeps none of it", bare, look(env.store.job(old)!!))
+        assertEquals("in the same place of the list", at, now().jobs.indexOfFirst { it.id == c2.down.id })
+        assertEquals(c2.down.id, Nway.anchor(now(), theGroup())!!.id)
+        // The source it took the place of still sends its changes: it is a two-way target until the user says otherwise.
+        assertTrue(member(a).main && c2.main)
+        assertEquals(listOf("before", "after"), now().jobs.filter { SharedGroups.sharedSide(it) == null }.map { it.id })
+        assertTrue(now().jobs.first().id == "before" && now().jobs.last().id == "after")
+        // And the group still syncs.
+        add(c, 6); sync(); everywhere(1, 2, 3, 4, 5, 6)
+    }
+
+    @Test fun theSourceTakenOutHandsTheCardToTheNextMainMember() {
+        create(bMain = true)
+        val card = styled()
+        val at = now().jobs.indexOfFirst { it.id == group.jobId }
+        val gone = Nway.remove(env, group, member(a))
+        assertEquals(2, gone.size)
+        assertTrue(gone.none { id -> now().jobs.any { it.id == id } })
+        val b2 = member(b)
+        assertEquals(b2.down.id, theGroup().jobId)
+        assertEquals(b2.up!!.id, theGroup().twinId)
+        assertEquals(card, look(b2.down))
+        assertEquals(at, now().jobs.indexOfFirst { it.id == b2.down.id })
+        assertEquals(listOf("nwb", "nwc"), Nway.members(env, theGroup()).map { it.playlist.provider })
+    }
+
+    @Test fun theSourceMadeToFollowHandsTheCardOverToo() {
+        create(bMain = true)
+        val card = styled()
+        Nway.setMain(env, group, member(a), main = false)
+        assertEquals(member(b).down.id, theGroup().jobId)
+        assertEquals(card, look(member(b).down))
+        assertEquals(bare, look(member(a).down))
+        assertFalse(member(a).main)
+    }
+
+    @Test fun aTargetTakenOutOrChangedLeavesTheCardWhereItIs() {
+        create(bMain = true)
+        val card = styled()
+        Nway.setKeepMine(env, member(c), false)
+        Nway.setMain(env, group, member(b), main = false)
+        Nway.remove(env, group, member(c))
+        assertEquals(group.jobId, theGroup().jobId)
+        assertEquals(card, look(env.store.job(group.jobId)!!))
+    }
+
+    /** A group left by an older version with its first sync gone or no longer main: the first main member's sync stands for it. */
+    @Test fun aGroupWhoseOwnSyncIsNoLongerMainStandsOnItsFirstMainMember() {
+        create(bMain = true)
+        env.store.update { d -> d.copy(groups = d.groups.map { it.copy(jobId = "gone", twinId = "gone-too") }) }
+        assertEquals(member(a).down.id, Nway.anchor(now(), theGroup())!!.id)
+        env.store.update { d -> Nway.settled(d, group.id) }
+        assertEquals(member(a).down.id, theGroup().jobId)
+        assertEquals(member(a).up!!.id, theGroup().twinId)
+    }
+
+    @Test fun aMemberComesAndGoesWithAllItsSyncsAsOneChange() {
+        create(bMain = false, cMain = false)
+        val before = now()
+        // Not a change at all when it cannot be made: the only main member stays.
+        assertTrue(runCatching { Nway.withoutMember(before, group.id, group.jobId) }.isFailure)
+        assertTrue(runCatching { Nway.withRole(before, group.id, group.jobId, main = false) }.isFailure)
+        assertTrue(runCatching { Nway.withMember(before, group, ref(b), main = false) }.isFailure)
+        assertEquals(before.jobs, now().jobs)
+        // A target becomes two-way and back: one sync more, one less, its own sync the same one.
+        val down = member(b).down.id
+        val two = Nway.withRole(before, group.id, down, main = true)
+        assertEquals(before.jobs.size + 1, two.jobs.size)
+        assertTrue(Nway.members(two.jobs, group.id).first { it.down.id == down }.main)
+        val back = Nway.withRole(two, group.id, down, main = false, keepMine = false)
+        assertEquals(before.jobs.map { it.id }, back.jobs.map { it.id })
+        assertFalse(Nway.members(back.jobs, group.id).first { it.down.id == down }.keepMine)
+        // A new member runs when the group does.
+        val timed = before.copy(jobs = before.jobs.map { it.copy(everyMinutes = 180, wifiOnly = true, enabled = false) })
+        val more = Nway.withMember(timed, group, PlaylistRef("nwc", "other", "other"), main = true, like = timed.jobs.first { it.id == group.jobId })
+        assertTrue(more.jobs.takeLast(2).all { it.everyMinutes == 180 && it.wifiOnly && !it.enabled })
+    }
+
     @Test fun withoutTheReleaseSwitchNoGroupIsMadeAndAnExistingOneKeepsRunning() {
         create()
         Features.build = false

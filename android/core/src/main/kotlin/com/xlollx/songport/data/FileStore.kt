@@ -478,20 +478,15 @@ open class FileStore(dir: File) {
     /** Deletes several syncs as one change ([commit]): all of them or none. False: nothing was deleted. */
     fun deleteJobs(ids: Collection<String>): Boolean = commit { d -> ids.fold(d) { acc, id -> withoutJob(acc, id) } }
 
+    /** [deleteJobs], and the groups [groups] (their syncs are among [ids]) with them: all of it or nothing. */
+    fun deleteJobs(ids: Collection<String>, groups: Set<String>): Boolean =
+        commit { d -> ids.fold(d) { acc, id -> withoutJob(acc, id) }.let { n -> if (groups.isEmpty()) n else n.copy(groups = n.groups.filter { it.id !in groups }) } }
+
     /** Deletes the one-off transfers over ([com.xlollx.songport.sync.OneOffs.over]); their target playlists are not touched. */
     fun dropOldOneOffs(now: Long = System.currentTimeMillis()) {
         if (com.xlollx.songport.sync.OneOffs.over(data, now).isEmpty()) return
         update { d -> com.xlollx.songport.sync.OneOffs.over(d, now).fold(d) { acc, id -> withoutJob(acc, id) } }
     }
-
-    private fun withoutJob(d: StoreData, id: String) =
-        d.copy(
-            jobs = d.jobs.filter { it.id != id }, removalConfirmations = d.removalConfirmations - id, shrinkConfirmations = d.shrinkConfirmations - id,
-            pairStates = d.pairStates.filterKeys { id !in it.split('|') },
-            // Handed over: the card goes, the sync stays on the server (deleted there on its page).
-            handedOver = d.handedOver - id,
-            serverPairs = d.serverPairs - id,
-        )
 
     /**
      * The common state of the pair [job] is half of, when it is still about [job]'s two playlists; null otherwise.
@@ -720,6 +715,16 @@ open class FileStore(dir: File) {
          */
         fun matchTarget(dstProvider: String, targetPlaylistId: String?): String =
             com.xlollx.songport.providers.MusicProvider.libraryKind(targetPlaylistId)?.let { "$dstProvider#$it" } ?: dstProvider
+
+        /** [d] without the sync [id] and what was kept about it. */
+        fun withoutJob(d: StoreData, id: String) =
+            d.copy(
+                jobs = d.jobs.filter { it.id != id }, removalConfirmations = d.removalConfirmations - id, shrinkConfirmations = d.shrinkConfirmations - id,
+                pairStates = d.pairStates.filterKeys { id !in it.split('|') },
+                // Handed over: the card goes, the sync stays on the server (deleted there on its page).
+                handedOver = d.handedOver - id,
+                serverPairs = d.serverPairs - id,
+            )
 
         /** Key of [StoreData.pairStates]: the two halves' ids, the same whichever half asks. */
         fun pairKey(jobId: String, otherId: String) = listOf(jobId, otherId).sorted().joinToString("|")

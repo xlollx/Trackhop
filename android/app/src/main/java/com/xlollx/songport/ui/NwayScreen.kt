@@ -91,8 +91,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * One playlist on several services (shared/Nway): making a group, its one card in the Syncs list,
- * and its page. The group's own syncs never show as cards: they run and are changed through it.
+ * One playlist on several services (shared/Nway), a "multi sync": making a group, and its page. In
+ * the Syncs list it is a card like any other, on the sync of its source ([Nway.anchor]); the
+ * group's other syncs never show as cards: they run and are changed through it.
  */
 object NwayUi {
     /** What MainActivity keeps as the open page: this for a new group, else a group's id. */
@@ -100,7 +101,24 @@ object NwayUi {
 
     fun groups(d: StoreData): List<SharedGroup> = d.groups.filter { Nway.isGroup(it) }
 
-    /** The syncs that belong to a group of the user's own playlists: behind the group's card, not cards themselves. */
+    /**
+     * The syncs the Syncs list does not show: those of a group but the one that stands for it (its
+     * card, drawn as any sync's: [Nway.anchor]), and those of a collection's playlists.
+     */
+    fun hiddenJobIds(d: StoreData): Set<String> {
+        val all = memberJobIds(d)
+        return if (all.isEmpty()) all else all - Nway.anchors(d).keys
+    }
+
+    /** The syncs a card stands for: all the syncs of its group for a multi sync's card, else itself. */
+    fun standsFor(d: StoreData): (SyncJob) -> List<SyncJob> {
+        val anchors = Nway.anchors(d)
+        if (anchors.isEmpty()) return { listOf(it) }
+        val byGroup = anchors.values.associate { g -> g.id to Nway.jobsOf(d, g.id) }
+        return { j -> anchors[j.id]?.let { byGroup[it.id] } ?: listOf(j) }
+    }
+
+    /** Every sync that belongs to a group of the user's own playlists or to a collection: one card for them all (the widgets list none of them). */
     fun memberJobIds(d: StoreData): Set<String> {
         // So are the syncs of a collection's playlists: behind the collection's one card (CollectionUi).
         val collected = CollectionUi.memberJobIds(d)
@@ -111,7 +129,7 @@ object NwayUi {
 
     /** [Labels.storeIndex] for a place among the syncs the list shows, as a place in the stored list, which holds the groups' syncs too. */
     fun storeIndex(d: StoreData, id: String, shownIndex: Int): Int {
-        val hidden = memberJobIds(d)
+        val hidden = hiddenJobIds(d)
         val shown = d.jobs.filter { it.id !in hidden }
         val rest = shown.filter { it.id != id }
         val at = Labels.storeIndex(shown, id, shownIndex, d.settings.favoritesOnTop)
@@ -119,7 +137,12 @@ object NwayUi {
     }
 
     /** "Sync now" on a group: its syncs in the group's order, one after the other. */
-    fun run(ctx: android.content.Context, group: SharedGroup) = Scheduler.runInSequence(ctx, Nway.order(ctx.env, group).map { it.id })
+    fun run(ctx: android.content.Context, group: SharedGroup) {
+        val order = Nway.order(ctx.env, group).map { it.id }
+        // Nothing skipped in silence: a paused group says so in the log.
+        if (order.isEmpty()) Nway.log(ctx.env, group.id, "sync now skipped: every sync of the group is paused")
+        Scheduler.runInSequence(ctx, order)
+    }
 }
 
 /** A playlist of a group being made: [playlistId] null is a new one, made with the group and named after it. */
@@ -465,76 +488,12 @@ internal fun groupStatusTone(s: CardStatus): Tone = when (s) {
 
 /** The songs the group holds now; null until read (and before its first run it holds none). */
 @Composable
-private fun groupTracks(group: SharedGroup, lastRun: Long): Int? {
+internal fun groupTracks(group: SharedGroup, lastRun: Long): Int? {
     val env = LocalContext.current.env
     val n by produceState<Int?>(null, group.id, lastRun) {
         value = withContext(Dispatchers.IO) { runCatching { GroupLog(group.id, group.creator).live(SharedGroups.load(env, group.id).events).size }.getOrNull() }
     }
     return n
-}
-
-/** A group's one card in the Syncs list: its services by role, the last run, what it holds, and its two buttons. */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-internal fun NwayCard(group: SharedGroup, data: StoreData, running: Set<String>, onOpen: () -> Unit) {
-    val ctx = LocalContext.current
-    val members = remember(data.jobs, group.id) { Nway.members(ctx.env, group) }
-    val status = remember(data.jobs, data.reports, members) { statusOf(data, members) }
-    val busy = members.any { it.down.id in running || it.up?.id in running }
-    // While it runs: which service is being synced, the step, and the bar with that service's logo beside it.
-    val progress by com.xlollx.songport.sync.SyncState.running.collectAsState()
-    val batches by com.xlollx.songport.sync.SyncState.batches.collectAsState()
-    val ordered = remember(members, group.jobId) { NwayRun.sourceFirst(members, Nway.source(group, members)?.down?.id) }
-    val run = NwayRun.of(ordered, progress, com.xlollx.songport.sync.SyncState.batchOf(group.id, batches))
-    val tracks = groupTracks(group, status.last)
-    val dark = LocalAppDark.current
-    Card(
-        onClick = onOpen, modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = if (dark) MaterialTheme.colorScheme.surfaceContainer else MaterialTheme.colorScheme.surfaceContainerLowest),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (dark) 0.dp else 1.dp),
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(group.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            Text(
-                listOfNotNull(
-                    scheduleOf(members)?.let { scheduleLabel(it) },
-                    if (status.last > 0) stringResource(R.string.pill_last_run, relativeTime(status.last)) else stringResource(R.string.last_run_never),
-                ).joinToString(" · "),
-                style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                val (mains, followers) = members.partition { it.main }
-                mains.forEach { ServiceLogo(Providers.byId(it.playlist.provider), 28.dp) }
-                Text(stringResource(R.string.nway_card_main), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.align(Alignment.CenterVertically))
-                if (followers.isNotEmpty()) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowForward, null, Modifier.size(16.dp).align(Alignment.CenterVertically), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    followers.forEach { ServiceLogo(Providers.byId(it.playlist.provider), 28.dp) }
-                    Text(stringResource(R.string.nway_card_follow), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.align(Alignment.CenterVertically))
-                }
-            }
-            if (run != null) {
-                GroupLogos(ordered, run, 28.dp, max = 5)
-                Text(groupRunText(run), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                Text(progressText(run.progress), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                GroupWorkBar(run, Modifier.fillMaxWidth())
-            }
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                if (tracks != null && status.last > 0) StatusPill(stringResource(R.string.tracks_count, tracks), Tone.Neutral)
-                // One state, the most serious, as on every other card (no internet is not "Needs attention").
-                if (status.last > 0 || status.paused) StatusPill(
-                    groupStatusText(status), groupStatusTone(status.status),
-                    when (status.status) { CardStatus.DISABLED -> Icons.Filled.Pause; CardStatus.OK, CardStatus.NEVER -> null; else -> Icons.Filled.Warning },
-                )
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                FilledTonalButton(onClick = onOpen, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text(stringResource(R.string.settings_open)) }
-                Button(onClick = { NwayUi.run(ctx, group) }, enabled = !busy, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) {
-                    Icon(Icons.Filled.Sync, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp))
-                    Text(stringResource(if (busy) R.string.running else R.string.shared_sync_now), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                }
-            }
-        }
-    }
 }
 
 /** A group's page: each playlist with its role and how its last run went, then when it runs, pausing it, and deleting it. */

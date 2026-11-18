@@ -1,6 +1,7 @@
 package com.xlollx.songport.ui
 
 import android.content.Context
+import com.xlollx.songport.platform.env
 import android.text.format.DateUtils
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -84,11 +85,20 @@ object ManyChange {
         return if (Scheduler.applyChanges(ctx, before, store.data) > 0) Outcome.NOT_SCHEDULED else Outcome.DONE
     }
 
-    /** The syncs [ids] deleted, both halves of a pair together, the same way: all of them or none. */
+    /**
+     * The syncs [ids] deleted, both halves of a pair together, the same way: all of them or none. A
+     * multi sync among them goes whole, with its group; the playlists stay as they are.
+     */
     fun delete(ctx: Context, ids: Set<String>): Outcome {
         val store = Store.get(ctx)
         val before = store.data
-        if (!store.deleteJobs(com.xlollx.songport.sync.BulkEdit.reach(before, ids))) return Outcome.NOT_SAVED
+        val groups = com.xlollx.songport.sync.BulkEdit.groups(before, ids)
+        if (!store.deleteJobs(com.xlollx.songport.sync.BulkEdit.reach(before, ids), groups)) return Outcome.NOT_SAVED
+        // Gone from the store: its key and its saved list go too.
+        before.groups.filter { it.id in groups }.forEach { g ->
+            runCatching { com.xlollx.songport.shared.SharedGroups.forgetDeleted(ctx.env, g) }
+            com.xlollx.songport.shared.Nway.log(ctx.env, g.id, "deleted")
+        }
         return if (Scheduler.applyChanges(ctx, before, store.data) > 0) Outcome.NOT_SCHEDULED else Outcome.DONE
     }
 

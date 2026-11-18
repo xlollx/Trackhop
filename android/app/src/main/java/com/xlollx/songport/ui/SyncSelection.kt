@@ -120,7 +120,11 @@ object SyncSelection {
     /** The names a deletion lists: the ticked syncs and the other halves of their two-way pairs, in the list's order. */
     fun deleteNames(data: StoreData, selected: Set<String>): List<String> {
         val reach = BulkEdit.reach(data, selected)
-        return data.jobs.filter { it.id in reach }.map { it.name.ifBlank { it.source.playlistName } }
+        // A multi sync is one line, by its own name: its services' syncs are not listed one by one.
+        val anchors = com.xlollx.songport.shared.Nway.anchors(data)
+        val whole = BulkEdit.groups(data, selected)
+        return data.jobs.filter { it.id in reach && (com.xlollx.songport.shared.SharedGroups.sharedSide(it) !in whole || it.id in anchors) }
+            .map { j -> anchors[j.id]?.name ?: j.name.ifBlank { j.source.playlistName } }
     }
 
     /**

@@ -649,6 +649,9 @@ object SharedGroups {
         return group
     }
 
+    /** The key and the saved list of a group that is no longer in the store (its syncs and itself deleted as one change). */
+    fun forgetDeleted(env: Env, group: SharedGroup) { if (env.store.data.groups.none { it.id == group.id }) forget(env, group) }
+
     private fun forget(env: Env, group: SharedGroup) {
         env.tokens.clear(tokenKey(group.id))
         synchronized(lockOf(group.id)) { stateFile(env, group.id).delete(); SharedTransports.forget(env, group) }
@@ -667,8 +670,8 @@ object SharedGroups {
             }
         }.onFailure { env.log("shared", "${group.name}: leaving without a word in the folder: ${it.message?.take(120)}") }
         val ids = env.store.data.jobs.filter { sharedSide(it) == group.id }.map { it.id }
-        ids.forEach { env.store.deleteJob(it) }
-        env.store.update { d -> d.copy(groups = d.groups.filter { it.id != group.id }) }
+        // One change: the syncs and the group go together, never a group left with half its syncs.
+        env.store.deleteJobs(ids, setOf(group.id))
         forget(env, group)
         env.log("shared", "${group.name}: left")
         return ids

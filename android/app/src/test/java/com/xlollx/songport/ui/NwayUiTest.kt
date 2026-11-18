@@ -28,6 +28,27 @@ class NwayUiTest {
         assertEquals(emptySet<String>(), NwayUi.memberJobIds(data.copy(groups = emptyList())))
     }
 
+    /** A group with a source: the sync of its source is its card in the list, like any other; the rest of its syncs stay behind it. */
+    @Test fun theSyncOfAGroupsSourceIsItsCardAndIsNotHidden() {
+        val hub = PlaylistRef(SharedProvider.ID, "local", "g")
+        val src = SyncJob("src", "Road trip · Spotify", hub, PlaylistRef("spotify", "p", "Road trip"), linkedJobId = "src-up", twoWayRemovals = true)
+        val up = SyncJob("src-up", "Road trip · Spotify ↔", PlaylistRef("spotify", "p", "Road trip"), hub, linkedJobId = "src", twin = true)
+        val d = data.copy(jobs = listOf(job("a"), src, up, down("g1", "local"), job("b")), groups = listOf(group("local", Invite.LOCAL).copy(jobId = "src", twinId = "src-up")))
+        assertEquals(setOf("src", "src-up", "g1"), NwayUi.memberJobIds(d))
+        assertEquals(setOf("src-up", "g1"), NwayUi.hiddenJobIds(d))
+        assertEquals(listOf("a", "src", "b"), d.jobs.map { it.id }.filter { it !in NwayUi.hiddenJobIds(d) })
+        // The card stands for all three syncs; any other for itself.
+        assertEquals(listOf("src", "src-up", "g1"), NwayUi.standsFor(d)(src).map { it.id })
+        assertEquals(listOf("a"), NwayUi.standsFor(d)(d.jobs[0]).map { it.id })
+        // Deleting it names the group once, not its services' syncs.
+        assertEquals(listOf("a", "Road trip"), SyncSelection.deleteNames(d, setOf("a", "src")))
+        // A card dropped after it lands after it in the store too, past the syncs behind it or not: the list shows the same.
+        val store = FileStore(Files.createTempDirectory("nway-ui").toFile())
+        store.update { d }
+        store.moveJob("src", NwayUi.storeIndex(store.data, "src", 2))
+        assertEquals(listOf("a", "b", "src"), store.data.jobs.map { it.id }.filter { it !in NwayUi.hiddenJobIds(store.data) })
+    }
+
     /** The list shows a, b, s1, c: each drop, done on a real store, gives the order the list showed. */
     @Test fun aCardDroppedAmongTheShownOnesLandsThereInTheStore() {
         fun shownAfter(id: String, to: Int): List<String> {

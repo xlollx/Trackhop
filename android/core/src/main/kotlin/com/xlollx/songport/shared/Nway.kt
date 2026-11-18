@@ -1,6 +1,8 @@
 package com.xlollx.songport.shared
 
 import com.xlollx.songport.Features
+import com.xlollx.songport.data.FileStore
+import com.xlollx.songport.data.StoreData
 import com.xlollx.songport.model.PlaylistRef
 import com.xlollx.songport.model.Progress
 import com.xlollx.songport.model.Schedule
@@ -66,6 +68,134 @@ object Nway {
     fun source(group: SharedGroup, members: List<Member>): Member? =
         members.firstOrNull { it.down.id == group.jobId && it.main } ?: members.firstOrNull { it.main }
 
+    // ------------------------------------------------------------------ the card's sync
+    //
+    // In the Syncs list a group is one card like any other: the sync that brings the group to its
+    // source (the "anchor") stands for it there, with its colour, style, label, tags, star and place
+    // in the list. The group's other syncs are behind it.
+
+    /** The sync that stands for [group] in the list: its source's, when the group has one. */
+    fun anchor(d: StoreData, group: SharedGroup): SyncJob? = source(group, members(d.jobs, group.id))?.down
+
+    /** Every group of the user's own playlists by the id of the sync that stands for it. */
+    fun anchors(d: StoreData): Map<String, SharedGroup> =
+        d.groups.filter { isGroup(it) }.mapNotNull { g -> anchor(d, g)?.let { it.id to g } }.toMap()
+
+    /** The group [job] stands for in the list; null for any other sync. */
+    fun anchored(d: StoreData, job: SyncJob): SharedGroup? {
+        val gid = SharedGroups.sharedSide(job) ?: return null
+        val g = d.groups.firstOrNull { it.id == gid && isGroup(it) } ?: return null
+        return g.takeIf { anchor(d, it)?.id == job.id }
+    }
+
+    /** The syncs of [groupId], the one that stands for it included. */
+    fun jobsOf(d: StoreData, groupId: String): List<SyncJob> = d.jobs.filter { SharedGroups.sharedSide(it) == groupId }
+
+    /** What a card looks like and where it is: this is what follows the source when it changes. */
+    private fun styled(j: SyncJob, like: SyncJob?) = j.copy(
+        color = like?.color, label = like?.label, tags = like?.tags.orEmpty(), accentStyle = like?.accentStyle, routeGlow = like?.routeGlow, favorite = like?.favorite ?: false,
+    )
+
+    /**
+     * [d] with the sync [toDownId] standing for the group in place of the one that did: it takes the
+     * card's colour, style, label, tags, star and place in the list, and the group points to it.
+     */
+    fun reanchored(d: StoreData, groupId: String, toDownId: String): StoreData {
+        val g = d.groups.firstOrNull { it.id == groupId } ?: return d
+        val to = d.jobs.firstOrNull { it.id == toDownId && SharedGroups.sharedSide(it) == groupId } ?: return d
+        val twin = to.linkedJobId ?: g.twinId
+        val groups = d.groups.map { if (it.id == groupId) it.copy(jobId = to.id, twinId = twin) else it }
+        val from = d.jobs.firstOrNull { it.id == g.jobId && SharedGroups.sharedSide(it) == groupId }
+        if (from == null || from.id == to.id) return d.copy(groups = groups)
+        val moved = d.jobs.filter { it.id != to.id }.flatMap { if (it.id == from.id) listOf(styled(to, from), styled(from, null)) else listOf(it) }
+        return d.copy(groups = groups, jobs = moved)
+    }
+
+    /** [d] with the group pointing to its source ([source]): after a member left or changed its role. */
+    fun settled(d: StoreData, groupId: String): StoreData {
+        val g = d.groups.firstOrNull { it.id == groupId } ?: return d
+        val src = source(g, members(d.jobs, groupId)) ?: return d
+        return if (src.down.id == g.jobId && (src.up?.id ?: g.twinId) == g.twinId) d else reanchored(d, groupId, src.down.id)
+    }
+
+    // ------------------------------------------------------------------ changes, each one change of the store
+    //
+    // Each answers the whole data with the change made, for FileStore.update or commit: a member
+    // comes, goes or changes its role with all its syncs or with none.
+
+    /** When a member's syncs run: all the syncs of a group share it. */
+    private fun timed(j: SyncJob, like: SyncJob?): SyncJob = if (like == null) j else j.copy(
+        schedule = like.schedule, everyMinutes = like.everyMinutes, at = like.at, days = like.days, scheduleId = like.scheduleId,
+        wifiOnly = like.wifiOnly, enabled = like.enabled, scheduledOn = like.scheduledOn,
+    )
+
+    /**
+     * [d] with one more member of [group], [ref]: a main member's pair, or a follower's one sync
+     * ([keepMine] or an exact copy). It runs when [like] does (a sync of the group), else by [schedule].
+     */
+    fun withMember(
+        d: StoreData, group: SharedGroup, ref: PlaylistRef, main: Boolean, keepMine: Boolean = true, like: SyncJob? = null, schedule: Schedule = Schedule.EVERY_6H,
+        downId: String = UUID.randomUUID().toString(), upId: String = UUID.randomUUID().toString(),
+    ): StoreData {
+        usable(ref)
+        require(members(d.jobs, group.id).none { it.down.id != downId && it.playlist.provider == ref.provider && it.playlist.playlistId == ref.playlistId }) { "Already in the group" }
+        val (down, up) = SharedGroups.jobsFor(group.copy(jobId = downId, twinId = upId), ref)
+        // Told apart in reports and notifications by the member's service.
+        val name = "${group.name} · ${Providers.byId(ref.provider)?.displayName ?: ref.provider}"
+        val jobs = if (main) listOf(timed(down.copy(name = name, schedule = schedule), like), timed(up.copy(name = "$name ↔", schedule = schedule), like))
+            else listOf(timed(follower(down.copy(name = name, schedule = schedule), keepMine), like))
+        return d.copy(jobs = d.jobs.filter { it.id != downId && it.id != upId } + jobs)
+    }
+
+    /** [d] without the member whose sync is [downId]; the group then stands on its source ([settled]). A group keeps a main member. */
+    fun withoutMember(d: StoreData, groupId: String, downId: String): StoreData {
+        val all = members(d.jobs, groupId)
+        val m = all.firstOrNull { it.down.id == downId } ?: return d
+        require(!m.main || all.count { it.main } > 1) { "A group needs a main member" }
+        val g = d.groups.firstOrNull { it.id == groupId }
+        // The card's style and place go to the next source before its sync goes.
+        val next = if (g != null && g.jobId == downId) all.firstOrNull { it.main && it.down.id != downId }?.let { reanchored(d, groupId, it.down.id) } ?: d else d
+        return settled(listOfNotNull(m.down.id, m.up?.id).fold(next) { acc, id -> FileStore.withoutJob(acc, id) }, groupId)
+    }
+
+    /**
+     * [d] with the member whose sync is [downId] a main member or a follower ([keepMine] or an exact
+     * copy). The sync that brings the hub in stays the same one (its review, its history).
+     */
+    fun withRole(d: StoreData, groupId: String, downId: String, main: Boolean, keepMine: Boolean = true, upId: String = UUID.randomUUID().toString()): StoreData {
+        val g = d.groups.firstOrNull { it.id == groupId } ?: return d
+        val all = members(d.jobs, groupId)
+        val m = all.firstOrNull { it.down.id == downId } ?: return d
+        val down = m.down
+        // What a follower remembered of the group, under its own id alone, is not the new role's state.
+        fun forgotten(x: StoreData) = x.copy(pairStates = x.pairStates - FileStore.pairKey(down.id, down.linkedJobId ?: down.id))
+        return when {
+            main && !m.main -> {
+                val up = SharedGroups.jobsFor(g.copy(jobId = down.id, twinId = upId), down.target).second
+                val n = forgotten(d)
+                // Its other half right after it, behind the same card.
+                n.copy(jobs = n.jobs.flatMap {
+                    if (it.id == down.id) listOf(down.copy(linkedJobId = upId, twoWayRemovals = true, mirrorRemovals = false), timed(up.copy(name = "${down.name} ↔"), down)) else listOf(it)
+                })
+            }
+            !main && m.main -> {
+                require(all.count { it.main } > 1) { "A group needs a main member" }
+                val n = m.up?.let { FileStore.withoutJob(d, it.id) } ?: d
+                settled(n.copy(jobs = n.jobs.map { if (it.id == down.id) follower(down, keepMine) else it }), groupId)
+            }
+            // Kept again later, it starts from what the playlist and the group hold then.
+            !main && m.keepMine != keepMine -> forgotten(d).let { n -> n.copy(jobs = n.jobs.map { if (it.id == down.id) follower(down, keepMine) else it }) }
+            else -> d
+        }
+    }
+
+    /**
+     * [d] with the member whose sync is [downId] as the group's source: a main member if it was not,
+     * and the one the card stands on. The source it takes the place of stays a main member (what
+     * changes there still reaches the others) until the user says otherwise.
+     */
+    fun withSource(d: StoreData, groupId: String, downId: String): StoreData = reanchored(withRole(d, groupId, downId, main = true), groupId, downId)
+
     /**
      * A new group of [members] (a playlist, and whether it is a main member), each an existing
      * playlist; at least one is main. Nothing is written to any service until the first run: then
@@ -79,8 +209,11 @@ object Nway {
         members.forEach { usable(it.first) }
         require(members.map { it.first.provider to it.first.playlistId }.toSet().size == members.size) { "The same playlist twice" }
         val group = SharedGroups.create(env, name, "", "", "", "", first.first, Invite.LOCAL)
-        put(env, group, first.first, true, schedule, group.jobId, group.twinId)
-        members.filter { it !== first }.forEach { (ref, main) -> put(env, group, ref, main, schedule) }
+        // The first main member's pair and all the others, as one change.
+        env.store.update { d ->
+            val start = withMember(d, group, first.first, true, schedule = schedule, downId = group.jobId, upId = group.twinId)
+            members.filter { it !== first }.fold(start) { acc, (ref, main) -> withMember(acc, group, ref, main, schedule = schedule) }
+        }
         log(env, group.id, "created, ${members.size} members: " + members.joinToString(", ") { (ref, main) -> "${ref.provider} ${role(main, true)}" })
         return group
     }
@@ -90,33 +223,24 @@ object Nway {
         check(Features.v2) { "Not available in this version" }
         usable(ref)
         require(members(env, group).none { it.playlist.provider == ref.provider && it.playlist.playlistId == ref.playlistId }) { "Already in the group" }
-        put(env, group, ref, main, schedule, keepMine = keepMine)
+        env.store.update { d -> withMember(d, group, ref, main, keepMine, schedule = schedule) }
         log(env, group.id, "member added: ${ref.provider} ${role(main, keepMine)}")
     }
 
     /** Takes [member] out of [group]; its playlist stays as it is. Answers the ids of the syncs removed, for the platform to cancel their schedules. */
     fun remove(env: Env, group: SharedGroup, member: Member): List<String> {
         require(!member.main || members(env, group).count { it.main } > 1) { "A group needs a main member" }
-        return listOfNotNull(member.down.id, member.up?.id).onEach { env.store.deleteJob(it) }
-            .also { log(env, group.id, "member removed: ${member.playlist.provider} ${role(member)}") }
+        env.store.update { d -> withoutMember(d, group.id, member.down.id) }
+        log(env, group.id, "member removed: ${member.playlist.provider} ${role(member)}")
+        return listOfNotNull(member.down.id, member.up?.id)
     }
 
     /** Makes [member] a main member or a follower ([keepMine] or an exact copy). The sync that brings the hub in stays the same one (its review, its history). */
     fun setMain(env: Env, group: SharedGroup, member: Member, main: Boolean, keepMine: Boolean = true) {
         if (member.main == main) return
-        val down = env.store.job(member.down.id) ?: return
-        if (main) {
-            // What the follower remembered of the group is not the new pair's state.
-            env.store.dropPairState(down)
-            val upId = UUID.randomUUID().toString()
-            val up = SharedGroups.jobsFor(group.copy(jobId = down.id, twinId = upId), down.target).second
-            env.store.upsertJob(down.copy(linkedJobId = upId, twoWayRemovals = true, mirrorRemovals = false))
-            env.store.upsertJob(up.copy(name = "${down.name} ↔", schedule = down.schedule))
-        } else {
-            require(members(env, group).count { it.main } > 1) { "A group needs a main member" }
-            member.up?.let { env.store.deleteJob(it.id) }
-            env.store.upsertJob(follower(down, keepMine))
-        }
+        env.store.job(member.down.id) ?: return
+        if (!main) require(members(env, group).count { it.main } > 1) { "A group needs a main member" }
+        env.store.update { d -> withRole(d, group.id, member.down.id, main, keepMine) }
         log(env, group.id, "role changed: ${member.playlist.provider} ${role(member)} -> ${role(main, keepMine)}")
     }
 
@@ -124,10 +248,15 @@ object Nway {
     fun setKeepMine(env: Env, member: Member, keep: Boolean) {
         if (member.main || member.keepMine == keep) return
         val down = env.store.job(member.down.id) ?: return
-        // Kept again later, it starts from what the playlist and the group hold then.
-        env.store.dropPairState(down)
-        env.store.upsertJob(follower(down, keep))
-        log(env, SharedGroups.sharedSide(down).orEmpty(), "role changed: ${member.playlist.provider} ${role(member)} -> ${role(false, keep)}")
+        val gid = SharedGroups.sharedSide(down) ?: return
+        env.store.update { d -> withRole(d, gid, down.id, main = false, keepMine = keep) }
+        log(env, gid, "role changed: ${member.playlist.provider} ${role(member)} -> ${role(false, keep)}")
+    }
+
+    /** Makes [member] the group's source ([withSource]). */
+    fun setSource(env: Env, group: SharedGroup, member: Member) {
+        env.store.update { d -> withSource(d, group.id, member.down.id) }
+        log(env, group.id, "source changed: ${member.playlist.provider}, was ${role(member)}")
     }
 
     /** A member's role as the log says it: main, or a follower that keeps its additions or is an exact copy. */
@@ -135,7 +264,7 @@ object Nway {
     fun role(member: Member): String = role(member.main, member.keepMine)
 
     /** One line of the diagnostic log about a group: by its id and its services, never by a playlist's name. */
-    private fun log(env: Env, groupId: String, message: String) = env.log("shared", "multi sync group=$groupId: $message")
+    fun log(env: Env, groupId: String, message: String) = env.log("shared", "multi sync group=$groupId: $message")
 
     /** Brings in the local groups of a configuration file ([com.xlollx.songport.data.ConfigBackup]); one this device still holds the key of stays as it is. */
     fun restore(env: Env, groups: List<SharedGroup>) {
@@ -175,18 +304,5 @@ object Nway {
     private fun usable(ref: PlaylistRef) {
         require(!ref.playlistId.isNullOrBlank()) { "A member is an existing playlist" }
         require(ref.provider != SharedProvider.ID) { "A group cannot be a member" }
-    }
-
-    /** Writes the syncs of one member: a main member's pair, or a follower's one mirror. */
-    private fun put(
-        env: Env, group: SharedGroup, ref: PlaylistRef, main: Boolean, schedule: Schedule,
-        downId: String = UUID.randomUUID().toString(), upId: String = UUID.randomUUID().toString(), keepMine: Boolean = true,
-    ) {
-        val (down, up) = SharedGroups.jobsFor(group.copy(jobId = downId, twinId = upId), ref)
-        // Told apart in reports and notifications by the member's service.
-        val name = "${group.name} · ${Providers.byId(ref.provider)?.displayName ?: ref.provider}"
-        val jobs = if (main) listOf(down.copy(name = name, schedule = schedule), up.copy(name = "$name ↔", schedule = schedule))
-            else listOf(follower(down.copy(name = name, schedule = schedule), keepMine))
-        env.store.update { d -> d.copy(jobs = d.jobs.filter { it.id != downId && it.id != upId } + jobs) }
     }
 }

@@ -2,6 +2,7 @@ package com.xlollx.songport.sync
 
 import com.xlollx.songport.data.StoreData
 import com.xlollx.songport.model.SyncJob
+import com.xlollx.songport.shared.Nway
 import com.xlollx.songport.shared.SharedGroups
 
 /**
@@ -14,16 +15,27 @@ object BulkEdit {
     /** The "How often" choices of the selection's Schedule sheet, in minutes: manual, hourly, every 6 hours, daily, weekly. */
     val FREQUENCIES = listOf(0, 60, 360, 1440, 10080)
 
-    /** A sync the selection can take: not one of a shared playlist (changed from its group) nor one handed over to the server. */
-    fun selectable(d: StoreData, job: SyncJob): Boolean = !job.oneOff && SharedGroups.sharedSide(job) == null && job.id !in d.handedOver
+    /**
+     * A sync the selection can take: not one of a shared playlist (changed from its group) nor one
+     * handed over to the server. A multi sync is taken by the sync that stands for it in the list
+     * ([Nway.anchored]): what is changed there reaches all its services ([reach]).
+     */
+    fun selectable(d: StoreData, job: SyncJob): Boolean =
+        !job.oneOff && (SharedGroups.sharedSide(job) == null || Nway.anchored(d, job) != null) && job.id !in d.handedOver
 
     /** The selected syncs, in the list's order, without what cannot be selected. */
     fun selected(d: StoreData, ids: Set<String>): List<SyncJob> = d.syncs.filter { it.id in ids && selectable(d, it) }
 
-    /** [ids] and the other halves of their two-way pairs: what a change or a deletion reaches. */
+    /** The multi syncs among [ids] (each by the sync that stands for it), by their group's id. */
+    fun groups(d: StoreData, ids: Set<String>): Set<String> =
+        selected(d, ids).mapNotNullTo(LinkedHashSet()) { Nway.anchored(d, it)?.id }
+
+    /** [ids], the other halves of their two-way pairs and every sync of their multi syncs: what a change or a deletion reaches. */
     fun reach(d: StoreData, ids: Set<String>): Set<String> {
         val mine = selected(d, ids).mapTo(LinkedHashSet()) { it.id }
         d.jobs.forEach { j -> if (j.id in mine) j.linkedJobId?.let { mine += it } else if (j.linkedJobId in mine) mine += j.id }
+        val whole = groups(d, ids)
+        if (whole.isNotEmpty()) d.jobs.forEach { j -> if (SharedGroups.sharedSide(j) in whole) mine += j.id }
         return d.jobs.filter { it.id in mine }.mapTo(LinkedHashSet()) { it.id }
     }
 
@@ -83,6 +95,14 @@ object BulkEdit {
             val t = Schedules.specOf(half)
             made[j.id] = Timing.apply(j, t.everyMinutes, t.at, t.days).copy(scheduleId = half.scheduleId, wifiOnly = half.wifiOnly)
         }
+        // Every service of a multi sync runs when the group does: its syncs take the timing of the one selected.
+        for ((anchorId, g) in Nway.anchors(d)) {
+            val lead = made[anchorId] ?: continue
+            val t = Schedules.specOf(lead)
+            for (j in d.jobs) if (j.id != anchorId && SharedGroups.sharedSide(j) == g.id) {
+                made[j.id] = Timing.apply(j, t.everyMinutes, t.at, t.days).copy(scheduleId = lead.scheduleId, wifiOnly = lead.wifiOnly)
+            }
+        }
         return d.copy(jobs = d.jobs.map { made[it.id] ?: it })
     }
 
@@ -110,9 +130,12 @@ object BulkEdit {
     /** [d] with [jobs], or [d] itself when nothing changed. */
     private fun with(d: StoreData, jobs: List<SyncJob>): StoreData = if (jobs == d.jobs) d else d.copy(jobs = jobs)
 
-    /** The colour or label [pick] ([Labels.styled]) for the syncs [ids], both halves of a pair together. */
-    fun color(d: StoreData, ids: Set<String>, pick: String?): StoreData =
-        Labels.styled(d, reach(d, ids), pick, Labels.find(d.settings.labels, pick)?.name.orEmpty())
+    /** The colour or label [pick] ([Labels.styled]) for the syncs [ids], both halves of a pair together. A multi sync wears it on the sync that stands for it. */
+    fun color(d: StoreData, ids: Set<String>, pick: String?): StoreData {
+        val whole = groups(d, ids)
+        val mine = reach(d, ids).filterTo(LinkedHashSet()) { id -> id in ids || d.jobs.firstOrNull { it.id == id }?.let { SharedGroups.sharedSide(it) } !in whole }
+        return Labels.styled(d, mine, pick, Labels.find(d.settings.labels, pick)?.name.orEmpty())
+    }
 
     /** The ids whose scheduled work has to be brought in line after [before] became [after]. */
     fun rescheduled(before: StoreData, after: StoreData): List<String> {

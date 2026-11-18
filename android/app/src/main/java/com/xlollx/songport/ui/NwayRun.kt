@@ -18,6 +18,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -102,6 +105,28 @@ internal object NwayRun {
     /** The members with the group's source first ([sourceJobId]: the sync the group's card stands on), the others in their order. */
     fun sourceFirst(members: List<Nway.Member>, sourceJobId: String?): List<Nway.Member> =
         members.sortedBy { if (it.down.id == sourceJobId) 0 else 1 }
+}
+
+/**
+ * A multi sync as its card and its tile show it ([JobCard], [JobTile] with this over them): the
+ * group, its services with the source first, how they stand at rest and, while it runs, where the
+ * run is.
+ */
+internal class GroupCard(val group: com.xlollx.songport.shared.SharedGroup, val members: List<Nway.Member>, val status: NwayStatus.Group, val run: NwayRun.State?) {
+    /** The sync being run now, when a service is being synced. */
+    val runningJob: SyncJob? get() = run?.now?.job
+    val sourceProvider: String? get() = members.firstOrNull()?.playlist?.provider
+    /** The first target: with the source, the two colours of the card's glow. */
+    val targetProvider: String? get() = members.getOrNull(1)?.playlist?.provider
+}
+
+/** [GroupCard] of [group] from the store's data ([d], with every sync of the group) and the syncs running. */
+@Composable
+internal fun rememberGroupCard(group: com.xlollx.songport.shared.SharedGroup, d: com.xlollx.songport.data.StoreData, running: Map<String, Progress?>): GroupCard {
+    val batches by SyncState.batches.collectAsState()
+    val members = remember(d.jobs, group.id, group.jobId) { Nway.members(d.jobs, group.id).let { all -> NwayRun.sourceFirst(all, Nway.source(group, all)?.down?.id) } }
+    val status = remember(d.jobs, d.reports, members) { NwayStatus.group(d, members) }
+    return GroupCard(group, members, status, NwayRun.of(members, running, SyncState.batchOf(group.id, batches)))
 }
 
 /** How many logos a multi sync's tile shows before "+N": the source, two targets. */

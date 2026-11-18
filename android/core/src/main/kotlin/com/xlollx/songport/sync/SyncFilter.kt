@@ -54,8 +54,8 @@ data class SyncFilter(
      * Without the services, labels and tags no sync uses any more (a sync deleted or changed since):
      * their chips are gone, so they could not be turned off and would hide every card.
      */
-    fun pruned(jobs: List<SyncJob>): SyncFilter {
-        val s = services.intersect(servicesInUse(jobs).toSet())
+    fun pruned(jobs: List<SyncJob>, standsFor: (SyncJob) -> List<SyncJob> = { listOf(it) }): SyncFilter {
+        val s = services.intersect(servicesInUse(jobs, standsFor).toSet())
         val c = labels.intersect(Labels.inUse(jobs).toSet())
         val i = ids.intersect(jobs.map { it.id }.toSet())
         val f = favorite && jobs.any { it.favorite }
@@ -77,27 +77,46 @@ data class SyncFilter(
         reports: List<SyncReport>,
         running: Set<String>,
         labelList: List<Label> = emptyList(),
+        /**
+         * The syncs a card stands for: itself, but for a multi sync, whose one card is all its
+         * services' syncs. Its status, its services and its words are theirs together.
+         */
+        standsFor: (SyncJob) -> List<SyncJob> = { listOf(it) },
         serviceName: (String) -> String = { it },
     ): List<SyncJob> {
         if (!isActive) return jobs
         val terms = terms(query)
-        val last = lastReports(jobs, reports)
+        val last = lastReports(jobs.flatMap(standsFor), reports)
         return jobs.filter { job ->
-            (statuses.isEmpty() || statuses.any { s -> has(job, s, last, running) }) &&
-                (services.isEmpty() || job.source.provider in services || job.target.provider in services) &&
+            val all = standsFor(job)
+            (statuses.isEmpty() || statuses.any { s -> has(all, s, last, running) }) &&
+                (services.isEmpty() || all.any { it.source.provider in services || it.target.provider in services }) &&
                 (labels.isEmpty() || job.label in labels) &&
                 (!favorite || job.favorite) &&
                 tags.all { (k, vs) -> if (vs.isEmpty()) Labels.hasTag(job, k) else vs.any { Labels.hasTag(job, k, it) } } &&
                 (ids.isEmpty() || job.id in ids) &&
-                (terms.isEmpty() || haystack(job, labelList, serviceName).let { h -> terms.all { matches(job, h, it) } })
+                (terms.isEmpty() || all.joinToString(" ") { haystack(it, labelList, serviceName) }.let { h -> terms.all { matches(job, h, it) } })
         }
     }
 
     companion object {
         /** How many syncs each status holds now, for the numbers on the chips. */
-        fun counts(jobs: List<SyncJob>, reports: List<SyncReport>, running: Set<String>): Map<Status, Int> {
-            val last = lastReports(jobs, reports)
-            return Status.entries.associateWith { s -> jobs.count { has(it, s, last, running) } }
+        fun counts(
+            jobs: List<SyncJob>, reports: List<SyncReport>, running: Set<String>, standsFor: (SyncJob) -> List<SyncJob> = { listOf(it) },
+        ): Map<Status, Int> {
+            val last = lastReports(jobs.flatMap(standsFor), reports)
+            return Status.entries.associateWith { s -> jobs.count { has(standsFor(it), s, last, running) } }
+        }
+
+        /**
+         * A card that stands for several syncs: running, failed or with something to fix when one of
+         * them is; up to date, never run or turned off when they all are.
+         */
+        private fun has(all: List<SyncJob>, s: Status, last: Map<String, SyncReport>, running: Set<String>): Boolean = when (s) {
+            Status.ERROR, Status.NEEDS_FIX, Status.RUNNING -> all.any { has(it, s, last, running) }
+            // A service added since the last run has not run yet: the others still say how the group stands.
+            Status.UP_TO_DATE -> all.any { has(it, s, last, running) } && all.none { has(it, Status.ERROR, last, running) || has(it, Status.NEEDS_FIX, last, running) }
+            Status.NEVER_RUN, Status.DISABLED -> all.isNotEmpty() && all.all { has(it, s, last, running) }
         }
 
         private fun lastReports(jobs: List<SyncJob>, reports: List<SyncReport>): Map<String, SyncReport> {
@@ -120,8 +139,8 @@ data class SyncFilter(
         private fun needsFix(r: SyncReport) = r.unmatched.isNotEmpty() || r.reviewTracks.isNotEmpty() || r.heldBack > 0
 
         /** The services the syncs use, each once, in the order the list shows them. */
-        fun servicesInUse(jobs: List<SyncJob>): List<String> =
-            jobs.flatMap { listOf(it.source.provider, it.target.provider) }.filter { it.isNotBlank() }.distinct()
+        fun servicesInUse(jobs: List<SyncJob>, standsFor: (SyncJob) -> List<SyncJob> = { listOf(it) }): List<String> =
+            jobs.flatMap(standsFor).flatMap { listOf(it.source.provider, it.target.provider) }.filter { it.isNotBlank() }.distinct()
 
         /**
          * Lower case, without accents, split on spaces: "Café  Mix" -> [cafe, mix]. Double quotes keep

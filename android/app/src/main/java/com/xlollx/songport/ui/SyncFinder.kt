@@ -169,7 +169,10 @@ const val SYNC_SEARCH_TAG = "sync-search"
 @Composable
 fun SyncFinderChips(
     jobs: List<SyncJob>, filter: SyncFilter, counts: Map<SyncFilter.Status, Int> = emptyMap(),
-    labels: List<com.xlollx.songport.model.Label> = emptyList(), onChange: (SyncFilter) -> Unit,
+    labels: List<com.xlollx.songport.model.Label> = emptyList(),
+    /** The syncs a card stands for (a multi sync's card: all its services' syncs): its services have their chips too. */
+    standsFor: (SyncJob) -> List<SyncJob> = { listOf(it) },
+    onChange: (SyncFilter) -> Unit,
 ) {
     val ctx = LocalContext.current
     // The starred syncs, when there are any.
@@ -190,7 +193,11 @@ fun SyncFinderChips(
             StatusChip(if (counts.isEmpty()) text else "$text · $n", icon, s in filter.statuses) { onChange(filter.toggle(s)) }
         }
     }
-    val services = SyncFilter.servicesInUse(jobs)
+    // A multi sync's own list is not a service to filter by: only where a shared playlist's sync is a card.
+    val own = jobs.filter { standsFor(it).size > 1 }.flatMap(standsFor).mapTo(HashSet()) { it.id }
+    val services = SyncFilter.servicesInUse(jobs, standsFor).filter { id ->
+        id != com.xlollx.songport.shared.SharedProvider.ID || jobs.any { it.id !in own && (it.source.provider == id || it.target.provider == id) }
+    }
     if (services.size > 1) {
         services.forEach { id ->
             val p = Providers.byId(id)

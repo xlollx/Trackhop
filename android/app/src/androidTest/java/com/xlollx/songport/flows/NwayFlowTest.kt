@@ -18,7 +18,7 @@ import org.junit.runner.RunWith
 
 /**
  * One playlist on several services (1.18): made from New sync, with its first-run sheet; one card in
- * Syncs in place of its syncs; its page. Every dialog and sheet on the way is still there, as it
+ * Syncs in place of its syncs (from 2.1.1 a card like any other: MultiSyncFlowTest); its page. Every dialog and sheet on the way is still there, as it
  * was, when Android makes the activity anew (owner's rule, 14/11).
  */
 @RunWith(AndroidJUnit4::class)
@@ -95,9 +95,9 @@ class NwayFlowTest : FlowTest() {
         assertEquals(listOf(true, false), members.map { it.main })
         assertFalse("the follower is an exact copy, as chosen", members[1].keepMine)
 
-        // One card for the group; its three syncs are not cards.
-        waitText(s(R.string.nway_card_main))
-        assertTrue(exists("Trip mix"))
+        // One card for the group, a card like any other; its three syncs are not cards.
+        waitText("Trip mix")
+        waitFor("one card") { compose.onAllNodes(androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.JOB_CARD_TAG)).fetchSemanticsNodes().size == 1 }
         assertFalse(exists("Trip mix · Spotify"))
         snapshot("nway-card")
     }
@@ -109,8 +109,9 @@ class NwayFlowTest : FlowTest() {
             PlaylistRef("deezer", FakeWorld.DEEZER_WORKOUT, "Workout") to false,
         ))
         launch(tabIntent(MainActivity.TAB_SYNCS))
-        waitText(s(R.string.nway_card_main))
-        click(s(R.string.settings_open))
+        // Its card, tapped: the group's page.
+        waitText("Road Trip")
+        click("Road Trip")
         waitText(s(R.string.nway_delete))
         snapshot("nway-page")
 

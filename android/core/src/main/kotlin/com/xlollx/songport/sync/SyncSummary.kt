@@ -30,7 +30,11 @@ data class SyncSummary(val kind: Kind, val first: Int = 0, val second: Int = 0, 
          * [changed]: a source was seen changed since its sync's last run (Freshness), so "all up to
          * date" would not be true even though every last run ended well.
          */
-        fun of(jobs: List<SyncJob>, reports: List<SyncReport>, tally: SyncState.Tally, running: Set<String>, changed: Boolean = false): SyncSummary {
+        fun of(
+            jobs: List<SyncJob>, reports: List<SyncReport>, tally: SyncState.Tally, running: Set<String>, changed: Boolean = false,
+            /** The syncs a card stands for ([SyncFilter.select]). */
+            standsFor: (SyncJob) -> List<SyncJob> = { listOf(it) },
+        ): SyncSummary {
             if (tally.total > 0) {
                 val show = setOf(SyncFilter.Status.RUNNING)
                 return when {
@@ -39,14 +43,14 @@ data class SyncSummary(val kind: Kind, val first: Int = 0, val second: Int = 0, 
                     else -> SyncSummary(Kind.RUNNING, tally.total, filter = show)
                 }
             }
-            val counts = SyncFilter.counts(jobs, reports, running)
+            val counts = SyncFilter.counts(jobs, reports, running, standsFor)
             val failed = counts[SyncFilter.Status.ERROR] ?: 0
             val toFix = counts[SyncFilter.Status.NEEDS_FIX] ?: 0
             if (failed > 0 || toFix > 0) {
                 return SyncSummary(Kind.ATTENTION, failed, toFix, setOfNotNull(SyncFilter.Status.ERROR.takeIf { failed > 0 }, SyncFilter.Status.NEEDS_FIX.takeIf { toFix > 0 }))
             }
             // Every sync up to date or turned off, and one at least up to date.
-            val settled = SyncFilter(statuses = setOf(SyncFilter.Status.UP_TO_DATE, SyncFilter.Status.DISABLED)).select(jobs, reports, running).size == jobs.size
+            val settled = SyncFilter(statuses = setOf(SyncFilter.Status.UP_TO_DATE, SyncFilter.Status.DISABLED)).select(jobs, reports, running, standsFor = standsFor).size == jobs.size
             return if (settled && !changed && (counts[SyncFilter.Status.UP_TO_DATE] ?: 0) > 0) SyncSummary(Kind.ALL_OK) else SyncSummary(Kind.IDLE)
         }
     }
