@@ -907,6 +907,8 @@ class StoreScreenshots {
         // added to the demo here and taken out after, so the pictures below are as they were.
         run {
             val before = store.data
+            // No other brand's mark on these: initials on plain circles, as on the Play listing.
+            com.xlollx.songport.ui.LogoMode.neutral = true
             val morning = com.xlollx.songport.model.SavedSchedule("carousel-morning", "Morning refresh", 1440, "07:30")
             val often = com.xlollx.songport.model.SavedSchedule("carousel-often", "Every 6 hours", 360)
             val weekly = com.xlollx.songport.model.SavedSchedule("carousel-weekly", "Sunday night", 10080, "21:00")
@@ -1064,6 +1066,7 @@ class StoreScreenshots {
             }
             step("21 back") {
                 com.xlollx.songport.ui.SharedUi.request.value = null
+                com.xlollx.songport.ui.LogoMode.neutral = play
                 store.update { before }
                 store.flush()
                 shell("cmd uimode night yes"); store.updateSettings { it.copy(themeMode = "DARK") }; store.flush(); Thread.sleep(1500)
