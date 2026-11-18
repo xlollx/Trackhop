@@ -54,11 +54,17 @@ object AnghamiBridge {
         return AnghamiWebClient.sessionIn(url)?.takeIf { url.contains("sid=") }
     }
 
-    /** Keeps the sid in [pasted] (with the player's fingerprint, when known); what is wrong, or null. */
-    fun keep(ctx: Context, pasted: String, fingerprint: String? = null, slot: String = Slots.PRIMARY): String? {
+    /**
+     * Keeps the sid in [pasted] (with the player's fingerprint, when known); what is wrong, or null.
+     * [fromPage]: read from the player in the sign-in's page, whose cookies are its site session and
+     * stay (a refused sid is renewed from them, see [renewal]); a pasted session clears them, so a
+     * renewal never picks up another account the page was signed in with.
+     */
+    fun keep(ctx: Context, pasted: String, fingerprint: String? = null, slot: String = Slots.PRIMARY, fromPage: Boolean = false): String? {
         val sid = AnghamiWebClient.sidIn(pasted) ?: AnghamiWebClient.sidValue(pasted) ?: return "no Anghami session in it"
         val sess = session(slot)
-        sess.clear(ctx)
+        if (fromPage) sess.forgetStored(ctx) else sess.clear(ctx)
+        renewal.forget(sess.slot)
         sess.put(ctx, AnghamiWebClient.SID, sid)
         fingerprint?.let { sess.put(ctx, AnghamiWebClient.FP, it) }
         sess.save(ctx, MARK, "Anghami")
@@ -66,7 +72,8 @@ object AnghamiBridge {
     }
 
     /** The app's side of [AnghamiWebClient]: the session kept at sign-in. */
-    fun host(ctx: Context, slot: String = Slots.PRIMARY): WebHost = object : WebHost {
+    /** [renews]: a refused session is renewed in a hidden page; not while the sign-in tries the one it just read. */
+    fun host(ctx: Context, slot: String = Slots.PRIMARY, renews: Boolean = true): WebHost = object : WebHost {
         private val sess = session(slot)
         override fun cookies(): String? = sess.cookies(ctx)
         override fun account(): String? = sess.account(ctx)
@@ -74,6 +81,28 @@ object AnghamiBridge {
         override fun put(key: String, value: String?) = sess.put(ctx, key, value)
         override val userAgent: String get() = BridgeUa.desktop(ctx)
         override val slot: String get() = sess.slot
+        override fun renewSession(refused: String?): Boolean = renews && renewal.renew(ctx, sess.slot, refused)
+    }
+
+    /**
+     * The session renewed without the person when Anghami refuses the sid: the player at
+     * play.anghami.com, opened hidden in the account's profile, names its sid in the address of its
+     * gateway calls, as at sign-in ([fromRequest]).
+     */
+    val renewal = SessionRenewal(
+        service = "anghami",
+        session = { session(it) },
+        tokenKey = AnghamiWebClient.SID,
+        labels = mapOf(AnghamiWebClient.SID to "sid"),
+    ) { slot ->
+        HiddenSessionPage.Spec(
+            profile = "anghami", slot = slot, url = AnghamiWebClient.SITE + "/", widePage = true,
+            fromRequest = { r ->
+                fromRequest(r.url.toString())?.let { (sid, fp) ->
+                    listOfNotNull(AnghamiWebClient.SID to sid, fp?.let { AnghamiWebClient.FP to it }).toMap()
+                }
+            },
+        )
     }
 }
 
@@ -82,7 +111,7 @@ object AnghamiBridge {
  * through the account's browser engine ([AnghamiBridge.engine]): Anghami answers plain HTTP with a
  * 406 (#53). An engine that cannot start in this process leaves the client on plain HTTP.
  */
-fun AnghamiWebClient(ctx: Context, slot: String = Slots.PRIMARY): AnghamiWebClient {
+fun AnghamiWebClient(ctx: Context, slot: String = Slots.PRIMARY, renews: Boolean = true): AnghamiWebClient {
     val engine = AnghamiBridge.engine(slot)
-    return AnghamiWebClient(AnghamiBridge.host(ctx, slot), if (engine.usable()) AnghamiBridge.transport(ctx, engine) else null)
+    return AnghamiWebClient(AnghamiBridge.host(ctx, slot, renews), if (engine.usable()) AnghamiBridge.transport(ctx, engine) else null)
 }

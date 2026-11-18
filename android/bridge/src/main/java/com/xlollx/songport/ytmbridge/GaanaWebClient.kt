@@ -83,18 +83,29 @@ class GaanaWebClient(private val host: WebHost) {
         return j
     }
 
-    /** A read. The site makes some of its writes with a GET too: those go through [write]. */
-    private fun get(path: String, params: List<Pair<String, String>> = emptyList(), signed: Boolean = true, base: String = API): JsonElement =
+    /**
+     * A signed call: a session Gaana refused is renewed once from the site's own ([WebHost.renewSession],
+     * a hidden page of gaana.com) and the call made again with it (a refused call did nothing, so a
+     * write too); the address is built anew, with the new token.
+     */
+    private fun <T> signed(call: () -> T): T =
+        host.renewing("gaana", host.get(TOKEN), EXPIRED, { it is BridgeException && it.message == EXPIRED }, call)
+
+    private fun getOnce(path: String, params: List<Pair<String, String>>, signed: Boolean, base: String): JsonElement =
         read(request(base, path, params, signed).get().build(), signed, again = true)
 
-    /** A write the site makes with a GET (create, add): never sent twice. */
+    /** A read. The site makes some of its writes with a GET too: those go through [write]. */
+    private fun get(path: String, params: List<Pair<String, String>> = emptyList(), signed: Boolean = true, base: String = API): JsonElement =
+        if (signed) signed { getOnce(path, params, true, base) } else getOnce(path, params, false, base)
+
+    /** A write the site makes with a GET (create, add): never sent twice, but for a refused session. */
     private fun write(path: String, params: List<Pair<String, String>>): JsonElement =
-        read(request(API, path, params, signed = true).get().build(), signed = true)
+        signed { read(request(API, path, params, signed = true).get().build(), signed = true) }
 
     /** A write the site makes as a form (`application/x-www-form-urlencoded`, the default of its calls). */
-    private fun post(path: String, params: List<Pair<String, String>>, form: Map<String, String>): JsonElement {
+    private fun post(path: String, params: List<Pair<String, String>>, form: Map<String, String>): JsonElement = signed {
         val body = FormBody.Builder().apply { form.forEach { (k, v) -> add(k, v) } }.build()
-        return read(request(API, path, params, signed = true).post(body).build(), signed = true)
+        read(request(API, path, params, signed = true).post(body).build(), signed = true)
     }
 
     // ---- reading
@@ -107,13 +118,16 @@ class GaanaWebClient(private val host: WebHost) {
     /** A playlist as the site answers it: by its id (digits), or by the `seokey` of its link. */
     private fun detail(playlistId: String, signed: Boolean = true): JsonElement {
         val key = if (playlistId.all(Char::isDigit)) "playlist_id" else "seokey"
-        val j = get("/playlist/detail", listOf(key to playlistId, "request_type" to "playlist"), signed)
-        if (j["playlist"] !is JsonObject) {
-            // Signed, a token the site no longer knows comes back as "0" next to an empty answer.
-            if (signed && j["user_token_status"].num == 0L && j["status"].num != 2L) throw BridgeException(EXPIRED)
-            throw BridgeException("Gaana: " + (j["error"].str?.takeIf { it.isNotBlank() } ?: "the playlist was not found"))
+        fun once(): JsonElement {
+            val j = getOnce("/playlist/detail", listOf(key to playlistId, "request_type" to "playlist"), signed, API)
+            if (j["playlist"] !is JsonObject) {
+                // Signed, a token the site no longer knows comes back as "0" next to an empty answer.
+                if (signed && j["user_token_status"].num == 0L && j["status"].num != 2L) throw BridgeException(EXPIRED)
+                throw BridgeException("Gaana: " + (j["error"].str?.takeIf { it.isNotBlank() } ?: "the playlist was not found"))
+            }
+            return j
         }
-        return j
+        return if (signed) signed { once() } else once()
     }
 
     fun tracks(playlistId: String): List<TrackDto> {

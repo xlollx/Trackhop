@@ -393,6 +393,9 @@ object BridgeCore {
                         putString("storefront", runCatching { AppleBridge.storefront(ctx, slot) }.getOrNull())
                     }
                 }
+                // The user token Apple refused (arg): renewed from the player's own session in a hidden page.
+                // An older Bridge answers "unknown method": the app then asks for a sign-in, as before.
+                "apple.renew" -> Bundle().apply { putBoolean("renewed", AppleBridge.renewal.renew(ctx, slot, arg)) }
                 // ---- Deezer web session: the web player's gateway; catalogue search through the public API.
                 "deezer.status" -> Bundle().apply {
                     putBoolean("connected", DeezerBridge.session(slot).isConnected(ctx))

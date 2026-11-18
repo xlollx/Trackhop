@@ -54,6 +54,13 @@ class AppleBridgeProvider(slot: String = "") : AppleMusicProvider(slot), WebAcco
         return b
     }
 
+    /** Asks the Bridge to renew the refused user token from the player's own session (`apple.renew`); an older Bridge cannot. */
+    override fun renewUserToken(ctx: Env, refused: String): Boolean {
+        val renewed = runCatching { call(ctx, "apple.renew", refused).getBoolean("renewed", false) }.getOrDefault(false)
+        if (renewed) cache = null
+        return renewed
+    }
+
     override fun usesOwnCredentials(ctx: Env) = false
     // The Bridge's own reason (not signed in, token not found) is more useful than "no developer token".
     override fun developerToken(ctx: Env): String =
@@ -92,7 +99,7 @@ class AppleBridgeProvider(slot: String = "") : AppleMusicProvider(slot), WebAcco
     override val canRenamePlaylists: Boolean get() = true
     override val canDeletePlaylists: Boolean get() = true
 
-    private suspend fun amp(ctx: Env, method: String, path: String, body: kotlinx.serialization.json.JsonElement? = null) {
+    private suspend fun amp(ctx: Env, method: String, path: String, body: kotlinx.serialization.json.JsonElement? = null, renewed: Boolean = false) {
         val (dev, user) = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { developerToken(ctx) to userToken(ctx) }
         if (dev.isBlank() || user == null) throw ProviderException(ctx.text("error_not_connected", displayName))
         val headers = mapOf(
@@ -101,6 +108,9 @@ class AppleBridgeProvider(slot: String = "") : AppleMusicProvider(slot), WebAcco
         )
         val resp = com.xlollx.songport.net.Http.send(method, "$AMP$path", headers, body?.let { com.xlollx.songport.net.Http.jsonBody(it.toString()) })
         if (!resp.ok) {
+            // A refused user token is renewed once from the player's session, and the call made again.
+            if (resp.code == 401 && !renewed && kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { renewUserToken(ctx, user) })
+                return amp(ctx, method, path, body, renewed = true)
             val detail = com.xlollx.songport.net.parseJson(resp.body)["errors"][0]["detail"].str ?: resp.body.take(200)
             if (resp.code == 403 || detail.contains("subscription tier", ignoreCase = true) || detail.contains("CloudLibrary"))
                 throw ProviderException(ctx.text("apple_subscription_needed", displayName, detail))

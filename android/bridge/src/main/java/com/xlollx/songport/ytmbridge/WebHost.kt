@@ -39,3 +39,25 @@ interface WebHost {
             ?.map { it.trim() }?.firstOrNull { it.startsWith("$name=") }?.substringAfter('=')?.takeIf { it.isNotEmpty() }
     }
 }
+
+/**
+ * [call], made again once with a renewed session ([WebHost.renewSession]) when the service refused
+ * the one it carried: [refused] tells such a failure, [sent] is the session the call went with
+ * (null: none, nothing to renew). Not renewed, or refused again: [expired] ("sign in again"), as
+ * before. A refusal means the service did nothing, so a write is safe to make again too. [tag]: the log's.
+ */
+fun <T> WebHost.renewing(tag: String, sent: String?, expired: String, refused: (Exception) -> Boolean, call: () -> T): T {
+    try {
+        return call()
+    } catch (e: Exception) {
+        if (!refused(e)) throw e
+        if (sent == null || !renewSession(sent)) throw BridgeException(expired)
+    }
+    return try {
+        call().also { BridgeNet.log(tag, "session refused; access renewed and the call made again: ok") }
+    } catch (e: Exception) {
+        if (!refused(e)) throw e
+        BridgeNet.log(tag, "session refused; access renewed and the call made again: refused again")
+        throw BridgeException(expired)
+    }
+}
