@@ -38,7 +38,8 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
         fun skip(what: String, why: String) = Diagnostics.log(ctx, "sync", "skip $what: $why")
         val asked = when {
             batch != null -> batch.mapNotNull { id -> store.job(id).also { if (it == null) skip("job=${id.take(8)}", "no longer in the list") } }
-            jobId == ALL -> store.data.syncs.filter { it.enabled }
+            // Sync all: the classic syncs; each multi sync runs as one batch of its own (Scheduler.runNow).
+            jobId == ALL -> SyncAll.classic(store.data)
             else -> listOfNotNull(store.job(jobId).also { if (it == null) skip("job=${jobId.take(8)}", "no longer in the list") })
         }
         val jobs = asked.filter {
@@ -486,6 +487,8 @@ object Scheduler {
             }
         }
         com.xlollx.songport.NotificationAsk.onUse()
+        // Sync all: each multi sync in its group's order, one batch per group, as its own Sync now runs it.
+        if (jobId == SyncWorker.ALL) SyncAll.groups(Store.get(ctx).data).forEach { (groupId, ids) -> runInSequence(ctx, ids, key = "all-$groupId") }
         val req = OneTimeWorkRequestBuilder<SyncWorker>()
             .setInputData(workDataOf(SyncWorker.KEY_JOB to jobId, SyncWorker.KEY_SCHEDULED to false))
             .addTag("sync")
@@ -498,14 +501,15 @@ object Scheduler {
      * Several syncs in one worker: a batch transfer of many playlists would otherwise start them all
      * at once and hit the services' rate limits together. Those on the same account run in turn.
      */
-    fun runInSequence(ctx: Context, jobIds: List<String>) {
+    /** [key]: the batch's own name, so that asking again while it waits or runs starts no second one. */
+    fun runInSequence(ctx: Context, jobIds: List<String>, key: String? = null) {
         if (jobIds.isEmpty()) return
         val batchId = "batch-" + java.util.UUID.randomUUID()
         val req = OneTimeWorkRequestBuilder<SyncWorker>()
             .setInputData(workDataOf(SyncWorker.KEY_JOB to batchId, SyncWorker.KEY_JOBS to jobIds.toTypedArray(), SyncWorker.KEY_SCHEDULED to false))
             .addTag("sync")
             .build()
-        WorkManager.getInstance(ctx).enqueueUniqueWork("run-$batchId", ExistingWorkPolicy.KEEP, req)
+        WorkManager.getInstance(ctx).enqueueUniqueWork("run-${key ?: batchId}", ExistingWorkPolicy.KEEP, req)
     }
 
     /**
@@ -519,5 +523,25 @@ object Scheduler {
         val (batch, alone) = jobIds.partition { !offline && it !in OfflineQueue.waiting.value && ServerLink.handedOver(ctx, it) == null }
         alone.forEach { runNow(ctx, it) }
         if (batch.size > 1) runInSequence(ctx, batch) else batch.forEach { runNow(ctx, it) }
+    }
+}
+
+/**
+ * "Sync all": the classic syncs together in one worker, as always, and each multi sync as one batch
+ * of its own, its syncs one after the other in the group's order ([Nway.order]), as its Sync now
+ * runs it. Kotlin puro: coperto dai test.
+ */
+internal object SyncAll {
+    /** Each multi sync's syncs that are on, in the group's order, by the group's id; a group with none left out. */
+    fun groups(d: com.xlollx.songport.data.StoreData): List<Pair<String, List<String>>> =
+        d.groups.filter { com.xlollx.songport.shared.Nway.isGroup(it) }.mapNotNull { g ->
+            val all = com.xlollx.songport.shared.Nway.members(d.jobs, g.id)
+            (all.mapNotNull { it.up } + all.map { it.down }).filter { it.enabled }.map { it.id }.takeIf { it.isNotEmpty() }?.let { g.id to it }
+        }
+
+    /** The syncs that are on but those of a multi sync: what the Sync all worker runs itself. */
+    fun classic(d: com.xlollx.songport.data.StoreData): List<SyncJob> {
+        val grouped = d.groups.filter { com.xlollx.songport.shared.Nway.isGroup(it) }.mapTo(HashSet()) { it.id }
+        return d.syncs.filter { it.enabled && com.xlollx.songport.shared.SharedGroups.sharedSide(it) !in grouped }
     }
 }
