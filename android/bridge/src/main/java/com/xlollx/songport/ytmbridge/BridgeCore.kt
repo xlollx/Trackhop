@@ -141,15 +141,29 @@ object BridgeCore {
                 "add" -> {
                     val id = arg ?: return err("missing playlist id")
                     val ids = extras?.getStringArray("ids")?.toList() ?: emptyList()
-                    // Liked, but said by YouTube to go to Liked videos: Trackhop counts them as present, not added.
-                    val elsewhere = when (id) {
-                        ALBUMS -> { client.rateAlbums(ids, extras?.getStringArray("uris")?.toList() ?: emptyList(), like = true); emptySet() }
-                        ARTISTS -> { client.subscribeArtists(ids, on = true); emptySet() }
-                        PODCASTS -> { client.savePodcasts(ids, on = true); emptySet() }
-                        else -> client.addTracks(id, ids)
+                    // Liked, but said by YouTube to go to Liked videos, or already in the playlist: Trackhop
+                    // counts them as present, not added. Some refused and the rest added: "refused" (with
+                    // "refusedWhy", the same order) lists those not added, which are not to be tried again.
+                    var refused: Map<String, String> = emptyMap()
+                    val elsewhere = try {
+                        when (id) {
+                            ALBUMS -> { client.rateAlbums(ids, extras?.getStringArray("uris")?.toList() ?: emptyList(), like = true); emptySet() }
+                            ARTISTS -> { client.subscribeArtists(ids, on = true); emptySet() }
+                            PODCASTS -> { client.savePodcasts(ids, on = true); emptySet() }
+                            else -> client.addTracks(id, ids)
+                        }
+                    } catch (e: YtmClient.PartlyAdded) {
+                        refused = e.refused
+                        e.present
                     }
                     invalidate(id, slot)
-                    Bundle().apply { if (elsewhere.isNotEmpty()) putStringArray("present", elsewhere.toTypedArray()) }
+                    Bundle().apply {
+                        if (elsewhere.isNotEmpty()) putStringArray("present", elsewhere.toTypedArray())
+                        if (refused.isNotEmpty()) {
+                            putStringArray("refused", refused.keys.toTypedArray())
+                            putStringArray("refusedWhy", refused.values.toTypedArray())
+                        }
+                    }
                 }
                 "rename" -> { client.renamePlaylist(arg ?: return err("missing playlist id"), extras?.getString("name") ?: ""); Bundle() }
                 "delete" -> { client.deletePlaylist(arg ?: return err("missing playlist id")); invalidate(arg, slot); Bundle() }

@@ -1430,6 +1430,23 @@ class SyncEngine(
                         // the service: the run ends here and starts again later. Taken for a failed block
                         // it would be tried track by track, each one listed as not added.
                         throw e
+                    } catch (e: com.xlollx.songport.model.TracksRefused) {
+                        // The service took the block but for some tracks, which it named: those are not
+                        // added, the rest are. Nothing is tried again (the added would go in twice).
+                        val (refused, rest) = chunk.partition { it.id in e.refused }
+                        val (there, fresh) = rest.partition { it.id in e.present }
+                        added += fresh.size
+                        addedList += fresh
+                        alreadyThere += there
+                        fresh.forEach { SyncState.item(job.id, SyncState.LiveItem(it.live(), null, SyncState.Outcome.ADDED)) }
+                        there.forEach { SyncState.item(job.id, SyncState.LiveItem(it.live(), it.live(), SyncState.Outcome.CACHED)) }
+                        refused.forEach { t ->
+                            val why = e.refused[t.id].orEmpty()
+                            failed += "$t ($why)"
+                            SyncState.item(job.id, SyncState.LiveItem(t.live(), why.take(80), SyncState.Outcome.ADD_FAILED))
+                        }
+                        env.log("engine", "${job.name}: ${dst.displayName} refused ${refused.size} of ${chunk.size} tracks and took the rest")
+                        break
                     } catch (e: Exception) {
                         // Il servizio ha bloccato l'indirizzo e dice quanto aspettare: si aspetta, come
                         // nella ricerca, invece di dare per falliti brani che sono solo in attesa.

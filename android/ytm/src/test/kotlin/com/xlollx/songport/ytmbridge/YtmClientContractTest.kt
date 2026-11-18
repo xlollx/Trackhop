@@ -48,6 +48,7 @@ class YtmClientContractTest {
     private val logs = Collections.synchronizedList(ArrayList<String>())
 
     @Before fun start() {
+        YtmClient.refusalShapes.clear()
         server = MockWebServer()
         server.dispatcher = object : Dispatcher() {
             override fun dispatch(request: RecordedRequest): MockResponse {
@@ -156,9 +157,67 @@ class YtmClientContractTest {
         assertEquals(ids, sent)
     }
 
-    @Test fun unconfirmedEditIsAnError() {
-        answer("""{"status":"STATUS_FAILED"}""")
-        try { client.addTracks("PL1", listOf("a")); fail() } catch (e: BridgeException) { assertTrue(e.message!!.contains("STATUS_FAILED")) }
+    /** A refused add as YouTube answers one: its status, its visitor data, maybe its own words. */
+    private fun failed(says: String? = null) = """{"responseContext":{"visitorData":"Cgsya2lSECRETVISITOR","serviceTrackingParams":[{"service":"GFEEDBACK","params":[{"key":"e","value":"1"}]}]},
+        "status":"STATUS_FAILED"${says?.let { ""","actions":[{"confirmDialogEndpoint":{"content":{"confirmDialogRenderer":{"dialogMessages":[{"runs":[{"text":${q(it)}}]}]}}}}]""" } ?: ""}}"""
+    private val ok = """{"status":"STATUS_SUCCEEDED","playlistEditResults":[]}"""
+
+    /** Regression (2.1.0): a refused add showed the answer itself ("answered STATUS_FAILED: {"responseContext":{"visitorData":…"). */
+    @Test fun aRefusedAddIsAPlainMessageWithYouTubesOwnWordsNeverTheAnswer() {
+        answer(failed("This song can't be added"))
+        answer(shelf(row("other", "S1")))
+        try { client.addTracks("PL1", listOf("vidA")); fail() } catch (e: BridgeException) {
+            assertEquals("YouTube Music did not add the track: This song can't be added", e.message)
+        }
+        assertEquals(2, calls.size)
+        assertEquals(1, logs.count { it.startsWith("add answered STATUS_FAILED with fields actions, status; actions confirmDialogEndpoint; says: This song can't be added") })
+        assertTrue(logs.toString(), logs.none { it.contains("vidA") || it.contains("SECRETVISITOR") || it.contains("{") })
+    }
+
+    @Test fun aRefusedAddWithoutWordsIsPlainAndEachKindIsLoggedOnce() {
+        repeat(2) { answer(failed()); answer(shelf(row("other", "S1"))) }
+        repeat(2) {
+            try { client.addTracks("PL1", listOf("vidA")); fail() } catch (e: BridgeException) { assertEquals("YouTube Music did not add the track", e.message) }
+        }
+        assertEquals(1, logs.count { it.startsWith("add answered") })
+    }
+
+    @Test fun anUnconfirmedEditIsPlain() {
+        answer("""{"responseContext":{"visitorData":"Cgsya2lSECRETVISITOR"}}""")
+        try { client.renamePlaylist("PL1", "x"); fail() } catch (e: BridgeException) { assertEquals("YouTube Music did not confirm the change", e.message) }
+        assertTrue(logs.none { it.contains("SECRETVISITOR") })
+    }
+
+    @Test fun aSongTheRefusedAddFindsInThePlaylistCountsAsPresent() {
+        answer(failed())
+        answer(shelf(row("other", "S1"), row("vidA", "S2")))
+        assertEquals(setOf("vidA"), client.addTracks("PL1", listOf("vidA")))
+        assertEquals("VLPL1", take(1).json()["browseId"].str)
+    }
+
+    @Test fun oneRefusedSongInABlockIsSkippedAndTheOthersAdded() {
+        answer(failed())
+        answer(ok); answer(failed("Not available")); answer(ok); answer(failed())
+        // The playlist after: v0 and v2 added, v3 was there already, v1 is not.
+        answer(shelf(row("v0", "S0"), row("v2", "S2"), row("v3", "S3")))
+        try { client.addTracks("PL1", listOf("v0", "v1", "v2", "v3")); fail() } catch (e: YtmClient.PartlyAdded) {
+            assertEquals(mapOf("v1" to "YouTube Music did not add the track: Not available"), e.refused)
+            assertEquals(setOf("v3"), e.present)
+        }
+        assertEquals(4, take(0).json()["actions"].arr.size)
+        assertEquals(listOf("v0", "v1", "v2", "v3"), (1..4).map { take(it).json()["actions"].arr.single()["addedVideoId"].str })
+        assertEquals("/youtubei/v1/browse", take(5).requestUrl!!.encodedPath)
+        assertEquals(6, calls.size)
+    }
+
+    @Test fun fiveRefusedInARowWithNothingAddedStopsTheBlock() {
+        answer(failed())
+        repeat(5) { answer(failed()) }
+        try { client.addTracks("PL1", (0 until 8).map { "v$it" }); fail() } catch (e: BridgeException) {
+            assertFalse(e is YtmClient.PartlyAdded)
+            assertEquals("YouTube Music did not add the track", e.message)
+        }
+        assertEquals(6, calls.size)
     }
 
     @Test fun removeBySetIdKeepsTheOtherCopy() {

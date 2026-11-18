@@ -402,3 +402,11 @@ data class Progress(val step: Step, val done: Int = 0, val total: Int = 0, val l
 
 /** [code]: the HTTP status behind the message, when there is one (0 otherwise). */
 class ProviderException(message: String, cause: Throwable? = null, val code: Int = 0) : Exception(message, cause)
+
+/**
+ * An add of several tracks where the service refused some ([refused]: track id to the reason it
+ * gave) and added the rest; [present] were already there. The sync lists the refused as not added
+ * and does not try the others again (they would go in twice).
+ */
+class TracksRefused(val refused: Map<String, String>, val present: Set<String> = emptySet()) :
+    Exception("${refused.size} track(s) refused: ${refused.values.firstOrNull().orEmpty()}")

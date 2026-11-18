@@ -45,6 +45,18 @@ class AddFailuresTest {
         assertEquals(6, dst.addCalls)
     }
 
+    @Test fun aBlockWithSomeTracksRefusedAddsTheRestOnceAndListsTheRefused() = runBlocking {
+        dst.refuseIds = setOf("ds3", "ds40")
+        val r = SyncEngine(env).run(job())
+        assertEquals(null, r.error)
+        assertEquals(43, r.added)
+        // One call: the refused are not tried again, the added never go in twice.
+        assertEquals(1, dst.addCalls)
+        assertEquals(43, dst.lists["t"]!!.size)
+        assertEquals(43, dst.lists["t"]!!.map { it.id }.distinct().size)
+        assertTrue(r.unmatched.toString(), r.unmatched.any { it.contains("Song 3 (refused)") } && r.unmatched.any { it.contains("Song 40 (refused)") })
+    }
+
     @Test fun additionsThatWorkAreNotStopped() = runBlocking {
         val r = SyncEngine(env).run(job())
         assertEquals(null, r.error)
