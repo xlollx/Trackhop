@@ -195,6 +195,10 @@ internal fun ToFixTab(items: List<ToFix.Item>, snackbar: SnackbarHostState, onSe
         }
     }
 
+    /** Where a track comes from: through a multi sync, the group's source service (its hub is no service); null when not known. */
+    fun sourceOf(item: ToFix.Item): MusicProvider? =
+        if (item.source != com.xlollx.songport.shared.SharedProvider.ID) providerOf(item.source, ctx = ctx)
+        else data.jobs.firstOrNull { it.id == item.places.first().jobId }?.let { NwayUi.sourceOf(data, it) }?.let { providerOf(com.xlollx.songport.data.FileStore.family(it), ctx = ctx) }
     val groups = if (byService) ToFix.byService(items, ::nameOf) else ToFix.bySync(items)
     var left = shown
     for (group in groups) {
@@ -205,8 +209,11 @@ internal fun ToFixTab(items: List<ToFix.Item>, snackbar: SnackbarHostState, onSe
             if (byService) ServiceLogo(providerOf(group.id, ctx = ctx), 24.dp)
             else data.jobs.firstOrNull { it.id == group.id }?.let { job ->
                 Row(Modifier.clearAndSetSemantics {}, verticalAlignment = Alignment.CenterVertically) {
-                    ServiceLogo(Providers.byId(job.source.provider), 24.dp)
-                    Icon(Icons.AutoMirrored.Filled.ArrowForward, null, Modifier.padding(horizontal = 2.dp).size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    // A multi sync's: the group's source service, not its hub; none when it is not known.
+                    NwayUi.sourceOf(data, job)?.let { from ->
+                        ServiceLogo(Providers.byId(from), 24.dp)
+                        Icon(Icons.AutoMirrored.Filled.ArrowForward, null, Modifier.padding(horizontal = 2.dp).size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                     ServiceLogo(Providers.byId(job.target.provider), 24.dp)
                 }
             }
@@ -219,7 +226,7 @@ internal fun ToFixTab(items: List<ToFix.Item>, snackbar: SnackbarHostState, onSe
         for (item in rows) {
             androidx.compose.runtime.key(item.key) {
                 ToFixRow(
-                    item = item, sourceProvider = providerOf(item.source, ctx = ctx), targetName = nameOf(item.targetService), showSyncs = byService,
+                    item = item, sourceProvider = sourceOf(item), targetName = nameOf(item.targetService), showSyncs = byService,
                     onAccept = { item.suggestion?.let { fix(item, it) } }, onLater = { later(item) }, onSearch = { searching = item.key },
                     onIgnore = { if (item.kind == ToFix.Kind.UNCERTAIN) removing = item.key else ignore(item) },
                 )
@@ -333,8 +340,11 @@ private fun ToFixRow(
                     Column(Modifier.weight(1f)) {
                         Text(item.track.title, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            ServiceLogo(sourceProvider, 14.dp, Modifier.clearAndSetSemantics {})
-                            Spacer(Modifier.width(6.dp))
+                            // Not known: no mark rather than an empty one.
+                            if (sourceProvider != null) {
+                                ServiceLogo(sourceProvider, 14.dp, Modifier.clearAndSetSemantics {})
+                                Spacer(Modifier.width(6.dp))
+                            }
                             Text(item.track.artistLine, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
                     }

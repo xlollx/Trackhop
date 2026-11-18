@@ -274,8 +274,11 @@ fun UnmatchedScreen(reportId: String, onAllToFix: (() -> Unit)? = null, onClose:
                         // From where to where, then what is left to do.
                         val route: @Composable () -> Unit = {
                             Row(Modifier.clearAndSetSemantics {}, verticalAlignment = Alignment.CenterVertically) {
-                                ServiceLogo(Providers.byId(job.source.provider), 36.dp)
-                                Icon(Icons.AutoMirrored.Filled.ArrowForward, null, Modifier.padding(horizontal = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                // A multi sync's: the group's source service, not its hub; none when it is not known.
+                                NwayUi.sourceOf(data, job)?.let { from ->
+                                    ServiceLogo(Providers.byId(from), 36.dp)
+                                    Icon(Icons.AutoMirrored.Filled.ArrowForward, null, Modifier.padding(horizontal = 4.dp).size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
                                 ServiceLogo(dst, 36.dp)
                             }
                         }

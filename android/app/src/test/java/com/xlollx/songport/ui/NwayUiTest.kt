@@ -49,6 +49,22 @@ class NwayUiTest {
         assertEquals(listOf("a", "b", "src"), store.data.jobs.map { it.id }.filter { it !in NwayUi.hiddenJobIds(store.data) })
     }
 
+    /** To fix and a run's review name where a multi sync's songs come from: the group's source service, never its hub. */
+    @Test fun aMembersSongsComeFromTheGroupsSourceService() {
+        val hub = PlaylistRef(SharedProvider.ID, "local", "g")
+        val src = SyncJob("src", "Rap · Spotify", hub, PlaylistRef("spotify", "p", "Rap"), linkedJobId = "src-up", twoWayRemovals = true)
+        val up = SyncJob("src-up", "Rap · Spotify ↔", PlaylistRef("spotify", "p", "Rap"), hub, linkedJobId = "src", twin = true)
+        val amazon = SyncJob("am", "Rap · Amazon Music", hub, PlaylistRef("amazon", "a", "Rap"), twoWayRemovals = true)
+        val d = data.copy(jobs = listOf(job("a"), src, up, amazon, down("s1", "friends")), groups = listOf(group("local", Invite.LOCAL).copy(jobId = "src", twinId = "src-up"), group("friends", Invite.FOLDER)))
+        assertEquals("spotify", NwayUi.sourceOf(d, amazon))
+        assertEquals("spotify", NwayUi.sourceOf(d, src))
+        // A classic sync: its own source.
+        assertEquals("spotify", NwayUi.sourceOf(d, d.jobs[0]))
+        // A shared playlist with friends, or a group gone: not known, so no mark at all.
+        assertEquals(null, NwayUi.sourceOf(d, d.jobs.last()))
+        assertEquals(null, NwayUi.sourceOf(d.copy(groups = emptyList()), amazon))
+    }
+
     /** The list shows a, b, s1, c: each drop, done on a real store, gives the order the list showed. */
     @Test fun aCardDroppedAmongTheShownOnesLandsThereInTheStore() {
         fun shownAfter(id: String, to: Int): List<String> {

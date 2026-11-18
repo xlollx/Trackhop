@@ -152,6 +152,17 @@ object NwayUi {
         return rest.getOrNull(at)?.let { next -> d.jobs.filter { it.id != id }.indexOfFirst { it.id == next.id } } ?: d.jobs.size
     }
 
+    /**
+     * The service [job]'s songs come from, as the person knows it: for a sync of a multi sync, whose
+     * source is the group's hub, the service of the group's source; for any other sync its own
+     * source. Null where it is not known (a hub with no group, or no source left).
+     */
+    fun sourceOf(d: StoreData, job: SyncJob): String? {
+        if (job.source.provider != com.xlollx.songport.shared.SharedProvider.ID) return job.source.provider
+        val g = d.groups.firstOrNull { it.id == job.source.playlistId && Nway.isGroup(it) } ?: return null
+        return Nway.source(g, Nway.members(d.jobs, g.id))?.playlist?.provider
+    }
+
     /** "Sync now" on a group: its syncs in the group's order, one after the other; paused or not, as Sync now on a paused classic sync. */
     fun run(ctx: android.content.Context, group: SharedGroup) {
         val order = Nway.order(ctx.env, group, manual = true).map { it.id }
