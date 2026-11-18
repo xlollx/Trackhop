@@ -238,7 +238,7 @@ class AmazonClient(private val ctx: Context) {
             playerHeader("music-territory").length == 2 -> "the player's header"
             else -> "from the domain"
         }}); marketplace ${c.raw["marketplaceId"].str?.takeIf { it.length in 10..16 && it.all(Char::isLetterOrDigit) } ?: describe(c.raw["marketplaceId"])}; device type ${if (c.deviceType.isBlank()) "missing" else "present"}; " +
-            "configuration fields: ${c.fields.joinToString(",").take(600)}")
+            fieldsNote(c, fieldsNamed.compareAndSet(false, true)))
         if (built["csrf-token"] != null) return built
         // The configuration no longer carries the CSRF triple where it used to (October 2026: sent
         // without it, Amazon answers AUTH_INVALID_CUSTOMER_ID): the player's own values fill it.
@@ -1033,6 +1033,21 @@ class AmazonClient(private val ctx: Context) {
         /** Until when calls go straight through the player page, after it was the only way in. */
         @Volatile private var pageModeUntil = 0L
         private val logged = java.util.concurrent.ConcurrentHashMap<String, Long>()
+        /** The configuration's field names went to the log in this run of the app: from then on only their count. */
+        private val fieldsNamed = java.util.concurrent.atomic.AtomicBoolean(false)
+
+        /**
+         * The configuration's fields for the log, never a value: their names the [first] time in a run
+         * of the app, then how many there are and which of those the calls need are missing.
+         */
+        internal fun fieldsNote(c: Config, first: Boolean): String {
+            if (first) return "configuration fields: ${c.fields.joinToString(",").take(600)}"
+            val missing = listOfNotNull(
+                "customer".takeIf { !c.signedIn }, "deviceId".takeIf { c.deviceId.isBlank() }, "deviceType".takeIf { c.deviceType.isBlank() },
+                "sessionId".takeIf { c.sessionId.isBlank() }, "csrf".takeIf { c.csrfToken.isBlank() },
+            )
+            return "${c.fields.size} configuration fields, " + if (missing.isEmpty()) "the needed ones present" else "missing: ${missing.joinToString(",")}"
+        }
         private const val PAGE_MODE_MS = 30 * 60_000L
         fun forgetConfig() { cachedConfig = null; libraryCounts = null; specSearchUntil = 0; WITH_TEXT.clear(); ON_FALLBACK.clear() }
 
