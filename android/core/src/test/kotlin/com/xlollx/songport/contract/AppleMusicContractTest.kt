@@ -110,6 +110,45 @@ class AppleMusicContractTest : ContractTest() {
         assertNull(env.tokens.get("apple"))
     }
 
+    /** A route that can renew the user token (the web player's session, in the Bridge): [renews] says whether it does. */
+    private inner class Renewing(val renews: Boolean) : AppleMusicProvider() {
+        var asked = ArrayList<String>()
+        override fun renewUserToken(ctx: com.xlollx.songport.platform.Env, refused: String): Boolean {
+            asked += refused
+            if (renews) env.tokens.set("apple", Tokens("MUT2", userName = "Apple Music", extra = mapOf("storefront" to "it")))
+            return renews
+        }
+    }
+
+    @Test fun aRefusedUserTokenIsRenewedOnceAndTheCallMadeAgain() = runBlocking {
+        val am = Renewing(renews = true)
+        server.enqueue(okhttp3.mockwebserver.MockResponse().setResponseCode(401))
+        json("""{"data":[]}""")
+        assertEquals(0, am.playlists(env).size)
+        assertEquals(listOf("MUT"), am.asked)
+        assertEquals("MUT", next().getHeader("Music-User-Token"))
+        assertEquals("MUT2", next().getHeader("Music-User-Token"))
+        assertEquals("MUT2", env.tokens.get("apple")?.accessToken)
+    }
+
+    @Test fun aRenewedUserTokenRefusedAgainClearsTheSessionWithoutALoop() = runBlocking {
+        val am = Renewing(renews = true)
+        repeat(2) { server.enqueue(okhttp3.mockwebserver.MockResponse().setResponseCode(401)) }
+        try { am.playlists(env); fail() } catch (e: ProviderException) { assertEquals("Apple Music API 401: no detail", e.message) }
+        assertEquals(1, am.asked.size)
+        assertNull(env.tokens.get("apple"))
+        repeat(2) { next() }
+        noMoreRequests()
+    }
+
+    @Test fun aUserTokenNotRenewedClearsTheSession() = runBlocking {
+        val am = Renewing(renews = false)
+        server.enqueue(okhttp3.mockwebserver.MockResponse().setResponseCode(401))
+        try { am.playlists(env); fail() } catch (e: ProviderException) { assertEquals("Apple Music API 401: no detail", e.message) }
+        assertEquals(1, am.asked.size)
+        assertNull(env.tokens.get("apple"))
+    }
+
     @Test fun noSubscriptionIsSaidPlainly() = runBlocking {
         json("""{"errors":[{"id":"X","title":"Forbidden","detail":"Forbidden","status":"403","code":"40300"}]}""", 403)
         try { am.playlists(env); fail() } catch (e: ProviderException) { assertEquals("apple_subscription_needed(Apple Music,Forbidden)", e.message) }

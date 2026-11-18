@@ -131,7 +131,14 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
      * "No related resources found for tracks" (code 40403); a playlist that is gone answers 40400 on
      * itself. The first is an empty list, not an error.
      */
-    private suspend fun api(ctx: Env, method: String, url: String, body: JsonElement? = null, emptyOn40403: Boolean = false): JsonElement {
+    /**
+     * Renews the music user token Apple refused ([refused]) without the person, where the route can
+     * (the web player's session, in the Bridge); true when there is a new one to make the call again
+     * with. Blocking: called off the main thread. Default: no renewal, the token is cleared.
+     */
+    protected open fun renewUserToken(ctx: Env, refused: String): Boolean = false
+
+    private suspend fun api(ctx: Env, method: String, url: String, body: JsonElement? = null, emptyOn40403: Boolean = false, renewed: Boolean = false): JsonElement {
         // The web route fetches its tokens over the network: never on the caller's (main) thread.
         val dev = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { developerToken(ctx) }
         if (dev.isBlank()) throw ProviderException(ctx.text("apple_token_missing"))
@@ -139,10 +146,12 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
         headers["Authorization"] = "Bearer $dev"
         headers["Accept"] = "application/json"
         val needsUser = "/v1/me/" in url
+        var sentUser: String? = null
         if (needsUser) {
             val mut = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { userToken(ctx) }
                 ?: throw ProviderException(ctx.text("error_not_connected", displayName))
             headers["Music-User-Token"] = mut
+            sentUser = mut
         }
         headers.putAll(apiHeaders(ctx, needsUser))
         val resp = Http.send(method, apiUrl(url), headers, body?.let { Http.jsonBody(it.toString()) })
@@ -150,6 +159,13 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
             return parseJson("""{"data":[]}""")
         if (!resp.ok) {
             val detail = runCatching { parseJson(resp.body)["errors"][0]["detail"].str }.getOrNull() ?: resp.body.take(200).ifBlank { "no detail" }
+            // A refused user token is renewed once where the route can, and the call made again;
+            // only then is it cleared (a sign-in is needed).
+            if (resp.code == 401 && sentUser != null && !renewed &&
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { runCatching { renewUserToken(ctx, sentUser) }.getOrDefault(false) }) {
+                ctx.log(id, "user token refused (401); access renewed and the call made again")
+                return api(ctx, method, url, body, emptyOn40403, renewed = true)
+            }
             // 401 sul developer token = scaduto; 403 con user token = sessione da rifare.
             if (resp.code == 401 && needsUser) ctx.tokens.clear(id)
             // An Apple ID without an Apple Music subscription: 403 from the public API, or a 400 saying

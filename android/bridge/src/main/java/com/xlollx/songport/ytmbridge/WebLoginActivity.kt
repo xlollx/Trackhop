@@ -636,7 +636,7 @@ class WebLoginActivity : ComponentActivity() {
         if (done) return
         val app = applicationContext
         thread {
-            val why = AnghamiBridge.keep(app, sid, fingerprint, slot) ?: runCatching { AnghamiWebClient(app, slot).playlists(); null }
+            val why = AnghamiBridge.keep(app, sid, fingerprint, slot, fromPage = fromPage) ?: runCatching { AnghamiWebClient(app, slot, renews = false).playlists(); null }
                 .getOrElse { it.message ?: it.javaClass.simpleName }
             handler.post {
                 anghamiTrying = false
@@ -696,7 +696,7 @@ class WebLoginActivity : ComponentActivity() {
         val app = applicationContext
         thread {
             var account: String? = null
-            val why = QobuzBridge.keep(app, token, appId, slot = slot, fromPage = fromPage) ?: runCatching { account = QobuzWebClient(app, slot).probe(); null }
+            val why = QobuzBridge.keep(app, token, appId, slot = slot, fromPage = fromPage) ?: runCatching { account = QobuzWebClient(app, slot, renews = false).probe(); null }
                 .getOrElse { it.message ?: it.javaClass.simpleName }
             handler.post {
                 qobuzTrying = false
@@ -779,7 +779,7 @@ class WebLoginActivity : ComponentActivity() {
         val app = applicationContext
         thread {
             var account: String? = null
-            val why = GaanaBridge.keep(app, token, deviceId ?: gaanaDevice, country ?: gaanaCountry, slot = slot) ?: runCatching { account = GaanaWebClient(app, slot).probe(); null }
+            val why = GaanaBridge.keep(app, token, deviceId ?: gaanaDevice, country ?: gaanaCountry, slot = slot, fromPage = from != null) ?: runCatching { account = GaanaWebClient(app, slot, renews = false).probe(); null }
                 .getOrElse { it.message ?: it.javaClass.simpleName }
             handler.post {
                 gaanaTrying = false

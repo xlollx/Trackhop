@@ -79,12 +79,21 @@ class AnghamiWebClient(private val host: WebHost, private val transport: Transpo
         return http.newCall(req).execute().use { it.code to it.body?.string().orEmpty() }
     }
 
-    private fun get(type: String, params: Map<String, String> = emptyMap(), signed: Boolean = true): JsonElement =
-        read(request(gatewayUrl(type, params, signed)).get().build())
+    /**
+     * A signed call: a session Anghami refused is renewed once from the player's own ([WebHost.renewSession],
+     * a hidden page of play.anghami.com) and the call made again with it; the address is built anew,
+     * with the new sid.
+     */
+    private fun <T> signed(call: () -> T): T =
+        host.renewing("anghami", host.get(SID), EXPIRED, { it is BridgeException && it.message == EXPIRED }, call)
 
-    private fun post(type: String, form: Map<String, String>): JsonElement {
+    private fun get(type: String, params: Map<String, String> = emptyMap(), signed: Boolean = true): JsonElement =
+        if (!signed) read(request(gatewayUrl(type, params, false)).get().build())
+        else signed { read(request(gatewayUrl(type, params, true)).get().build()) }
+
+    private fun post(type: String, form: Map<String, String>): JsonElement = signed {
         val body = FormBody.Builder().apply { add("type", type); form.forEach { (k, v) -> add(k, v) } }.build()
-        return read(request(gatewayUrl(type, typeInQuery = false)).post(body).build())
+        read(request(gatewayUrl(type, typeInQuery = false)).post(body).build())
     }
 
     // ---- reading

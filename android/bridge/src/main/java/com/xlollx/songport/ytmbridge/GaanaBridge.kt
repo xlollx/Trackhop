@@ -24,11 +24,17 @@ object GaanaBridge {
     /** The session of a page's request to [url] with [headers], when it carries a signed-in one. */
     fun fromRequest(url: String, headers: Map<String, String>?): GaanaWebClient.Seen? = GaanaWebClient.sessionOf(url, headers)
 
-    /** Keeps the session in [pasted] (with the page's device id and country, when known); what is wrong, or null. */
-    fun keep(ctx: Context, pasted: String, deviceId: String? = null, country: String? = null, account: String? = null, slot: String = Slots.PRIMARY): String? {
+    /**
+     * Keeps the session in [pasted] (with the page's device id and country, when known); what is
+     * wrong, or null. [fromPage]: read from the sign-in's page, whose cookies and storage are the
+     * site's session and stay (a refused token is renewed from them, see [renewal]); a pasted
+     * session clears them, so a renewal never picks up another account the page was signed in with.
+     */
+    fun keep(ctx: Context, pasted: String, deviceId: String? = null, country: String? = null, account: String? = null, slot: String = Slots.PRIMARY, fromPage: Boolean = false): String? {
         val seen = GaanaWebClient.sessionIn(pasted) ?: return "no Gaana session in it"
         val sess = session(slot)
-        sess.clear(ctx)
+        if (fromPage) sess.forgetStored(ctx) else sess.clear(ctx)
+        renewal.forget(sess.slot)
         sess.put(ctx, GaanaWebClient.TOKEN, seen.token)
         (deviceId ?: seen.deviceId)?.let { sess.put(ctx, GaanaWebClient.DEVICE_ID, it) }
         (country ?: seen.country)?.let { sess.put(ctx, GaanaWebClient.COUNTRY, it) }
@@ -40,7 +46,8 @@ object GaanaBridge {
     fun name(ctx: Context, account: String, slot: String = Slots.PRIMARY) { val sess = session(slot); if (sess.isConnected(ctx)) sess.save(ctx, MARK, account) }
 
     /** The app's side of [GaanaWebClient]: the session kept at sign-in. */
-    fun host(ctx: Context, slot: String = Slots.PRIMARY): WebHost = object : WebHost {
+    /** [renews]: a refused session is renewed in a hidden page; not while the sign-in tries the one it just read. */
+    fun host(ctx: Context, slot: String = Slots.PRIMARY, renews: Boolean = true): WebHost = object : WebHost {
         private val sess = session(slot)
         override fun cookies(): String? = sess.cookies(ctx)
         override fun account(): String? = sess.account(ctx)
@@ -48,8 +55,31 @@ object GaanaBridge {
         override fun put(key: String, value: String?) = sess.put(ctx, key, value)
         override val userAgent: String get() = BridgeUa.desktop(ctx)
         override val slot: String get() = sess.slot
+        override fun renewSession(refused: String?): Boolean = renews && renewal.renew(ctx, sess.slot, refused)
     }
+
+    /**
+     * The session renewed without the person when Gaana refuses the token: gaana.com, opened hidden
+     * in the account's profile, names its token in the address of its signed calls and keeps it in
+     * its storage (`uToken`), both read as at sign-in.
+     */
+    val renewal = SessionRenewal(
+        service = "gaana",
+        session = { session(it) },
+        tokenKey = GaanaWebClient.TOKEN,
+    ) { slot ->
+        HiddenSessionPage.Spec(
+            profile = "gaana", slot = slot, url = GaanaWebClient.SITE + "/",
+            fromRequest = { r -> fromRequest(r.url.toString(), r.requestHeaders)?.let { values(it) } },
+            storageScript = STORAGE_SCRIPT,
+            fromStorage = { raw -> GaanaWebClient.sessionIn(raw)?.let { mapOf(GaanaWebClient.TOKEN to it.token) } },
+        )
+    }
+
+    private fun values(s: GaanaWebClient.Seen): Map<String, String> = listOfNotNull(
+        GaanaWebClient.TOKEN to s.token, s.deviceId?.let { GaanaWebClient.DEVICE_ID to it }, s.country?.let { GaanaWebClient.COUNTRY to it },
+    ).toMap()
 }
 
 /** The client as the app builds it, from a Context; [slot] names an extra account. */
-fun GaanaWebClient(ctx: Context, slot: String = Slots.PRIMARY): GaanaWebClient = GaanaWebClient(GaanaBridge.host(ctx, slot))
+fun GaanaWebClient(ctx: Context, slot: String = Slots.PRIMARY, renews: Boolean = true): GaanaWebClient = GaanaWebClient(GaanaBridge.host(ctx, slot, renews))

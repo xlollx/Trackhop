@@ -42,7 +42,8 @@ object QobuzBridge {
     fun name(ctx: Context, account: String, slot: String = Slots.PRIMARY) { val sess = session(slot); if (sess.isConnected(ctx)) sess.save(ctx, MARK, account) }
 
     /** The app's side of [QobuzWebClient]: the session kept at sign-in. */
-    fun host(ctx: Context, slot: String = Slots.PRIMARY): WebHost = object : WebHost {
+    /** [renews]: a refused session is renewed in a hidden page; not while the sign-in tries the one it just read. */
+    fun host(ctx: Context, slot: String = Slots.PRIMARY, renews: Boolean = true): WebHost = object : WebHost {
         private val sess = session(slot)
         override fun cookies(): String? = sess.cookies(ctx)
         override fun account(): String? = sess.account(ctx)
@@ -50,9 +51,9 @@ object QobuzBridge {
         override fun put(key: String, value: String?) = sess.put(ctx, key, value)
         override val userAgent: String get() = BridgeUa.desktop(ctx)
         override val slot: String get() = sess.slot
-        override fun renewSession(refused: String?): Boolean = QobuzRenewal.renew(ctx, sess.slot, refused)
+        override fun renewSession(refused: String?): Boolean = renews && QobuzRenewal.renew(ctx, sess.slot, refused)
     }
 }
 
 /** The client as the app builds it, from a Context; [slot] names an extra account. */
-fun QobuzWebClient(ctx: Context, slot: String = Slots.PRIMARY): QobuzWebClient = QobuzWebClient(QobuzBridge.host(ctx, slot))
+fun QobuzWebClient(ctx: Context, slot: String = Slots.PRIMARY, renews: Boolean = true): QobuzWebClient = QobuzWebClient(QobuzBridge.host(ctx, slot, renews))

@@ -34,6 +34,28 @@ object AppleBridge {
 
     fun signedIn(cookies: String?): Boolean = userToken(cookies) != null
 
+    /**
+     * The music user token renewed without the person when Apple refuses it (401): music.apple.com,
+     * opened hidden in the account's profile, renews its `media-user-token` cookie from the Apple
+     * ID session the sign-in left; the jar, read every second, then holds another one, which is kept
+     * with the jar as the sign-in keeps it. Nothing is cleared.
+     */
+    val renewal = SessionRenewal(
+        service = "apple",
+        session = { session(it) },
+        tokenKey = USER_TOKEN,
+        labels = mapOf(USER_TOKEN to "user token"),
+        stored = { ctx, s -> mapOf(USER_TOKEN to userToken(s.cookies(ctx))) },
+        keep = { ctx, s, v -> v[JAR]?.let { s.save(ctx, it, s.account(ctx)) } },
+    ) { slot ->
+        HiddenSessionPage.Spec(
+            profile = PROFILE, slot = slot, url = HOME, desktop = false, cookieSite = "https://music.apple.com",
+            fromCookies = { jar -> userToken(jar)?.let { mapOf(USER_TOKEN to it, JAR to jar!!) } },
+        )
+    }
+    private const val USER_TOKEN = "userToken"
+    private const val JAR = "jar"
+
     /** The music user token, URL-decoded when the cookie stores it encoded. */
     fun userToken(cookies: String?): String? {
         val raw = WebSession.cookieValue(cookies, "media-user-token") ?: return null
