@@ -3260,4 +3260,13 @@
     <string name="whats_new_21_widgets_body">小组件按同步卡片的颜色和样式显示。</string>
     <string name="whats_new_21_gaana_title">Gaana</string>
     <string name="whats_new_21_gaana_body">你的 Gaana 歌单和收藏的歌曲（alpha），以及通过链接读取的 Gaana 公开歌单。</string>
+    <string name="nway_run_place">%1$s · %2$d/%3$d</string>
+    <string name="nway_run_services">正在同步 · 第 %1$d 个服务，共 %2$d 个</string>
+    <string name="nway_run_now_desc">正在同步 %1$s</string>
+    <string name="nway_row_done">已完成</string>
+    <string name="nway_row_done_changes">已完成 · 添加 %1$d，删除 %2$d</string>
+    <string name="nway_row_now">进行中 · %1$s</string>
+    <string name="nway_row_waiting">等待中</string>
+    <string name="nway_row_failed">失败 · %1$s</string>
+    <string name="nway_targets">目标</string>
 </resources>

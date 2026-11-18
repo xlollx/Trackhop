@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Hub
 import androidx.compose.material.icons.filled.Pause
@@ -58,6 +59,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -299,13 +301,19 @@ private fun SchedulePicker(selected: Schedule, onDismiss: () -> Unit, onSelect: 
     ChoiceDialog(stringResource(R.string.editor_schedule), options, selected, onDismiss, onSelect = onSelect)
 }
 
+/** For the UI tests: the head of a running group's page, and a service's row by where it stands ("group-row-now:tidal"; "pinned-" before it when it is on top). */
+internal const val GROUP_RUN_HEAD_TAG = "group-run-head"
+internal fun groupRowTag(phase: NwayRun.Phase?, provider: String, pinned: Boolean = false) =
+    (if (pinned) "pinned-" else "") + "group-row-" + (phase?.name?.lowercase() ?: "rest") + ":" + provider
+
 /** A playlist of a group: its service's mark, what it is, its role at the end (or [trailing]). */
 @Composable
 private fun NwayRow(
-    p: MusicProvider?, title: String, summary: String, main: Boolean, onClick: (() -> Unit)? = null, trailing: (@Composable () -> Unit)? = null,
+    p: MusicProvider?, title: String, summary: String, main: Boolean, modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null, trailing: (@Composable () -> Unit)? = null,
 ) {
     PrefRow(
-        null, title, summary, chevron = false, leading = { ServiceLogo(p, 36.dp) },
+        null, title, summary, modifier, chevron = false, leading = { ServiceLogo(p, 36.dp) },
         trailing = trailing ?: { StatusPill(roleLabel(main), if (main) Tone.Accent else Tone.Neutral) }, onClick = onClick,
     )
 }
@@ -473,6 +481,11 @@ internal fun NwayCard(group: SharedGroup, data: StoreData, running: Set<String>,
     val members = remember(data.jobs, group.id) { Nway.members(ctx.env, group) }
     val status = remember(data.jobs, data.reports, members) { statusOf(data, members) }
     val busy = members.any { it.down.id in running || it.up?.id in running }
+    // While it runs: which service is being synced, the step, and the bar with that service's logo beside it.
+    val progress by com.xlollx.songport.sync.SyncState.running.collectAsState()
+    val batches by com.xlollx.songport.sync.SyncState.batches.collectAsState()
+    val ordered = remember(members, group.jobId) { NwayRun.sourceFirst(members, Nway.source(group, members)?.down?.id) }
+    val run = NwayRun.of(ordered, progress, com.xlollx.songport.sync.SyncState.batchOf(group.id, batches))
     val tracks = groupTracks(group, status.last)
     val dark = LocalAppDark.current
     Card(
@@ -499,6 +512,12 @@ internal fun NwayCard(group: SharedGroup, data: StoreData, running: Set<String>,
                     Text(stringResource(R.string.nway_card_follow), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.align(Alignment.CenterVertically))
                 }
             }
+            if (run != null) {
+                GroupLogos(ordered, run, 28.dp, max = 5)
+                Text(groupRunText(run), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                Text(progressText(run.progress), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                GroupWorkBar(run, Modifier.fillMaxWidth())
+            }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 if (tracks != null && status.last > 0) StatusPill(stringResource(R.string.tracks_count, tracks), Tone.Neutral)
                 // One state, the most serious, as on every other card (no internet is not "Needs attention").
@@ -521,7 +540,11 @@ internal fun NwayCard(group: SharedGroup, data: StoreData, running: Set<String>,
 /** A group's page: each playlist with its role and how its last run went, then when it runs, pausing it, and deleting it. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NwayGroupScreen(groupId: String, onClose: () -> Unit, onReview: (String) -> Unit, onPreview: (SyncJob) -> Unit) {
+fun NwayGroupScreen(
+    groupId: String, onClose: () -> Unit, onReview: (String) -> Unit, onPreview: (SyncJob) -> Unit,
+    /** A service that failed, tapped: to Accounts when it is signed out, else to the log, where the run says what went wrong. */
+    onAccounts: () -> Unit = {}, onOpenLog: () -> Unit = {},
+) {
     val ctx = LocalContext.current
     val env = ctx.env
     val scope = rememberCoroutineScope()
@@ -535,6 +558,13 @@ fun NwayGroupScreen(groupId: String, onClose: () -> Unit, onReview: (String) -> 
     val members = remember(data.jobs, group.id) { Nway.members(env, group) }
     val status = remember(data.jobs, data.reports, members) { statusOf(data, members) }
     val busy = members.any { it.down.id in running.keys || it.up?.id in running.keys }
+    val batches by com.xlollx.songport.sync.SyncState.batches.collectAsState()
+    // The source first, then the targets; while it runs, where each service stands.
+    val source = Nway.source(group, members)
+    val ordered = remember(members, source?.down?.id) { NwayRun.sourceFirst(members, source?.down?.id) }
+    val run = NwayRun.of(ordered, running, com.xlollx.songport.sync.SyncState.batchOf(group.id, batches))
+    // The run of one service, live (its row tapped while it is being synced).
+    var live by rememberSaveable { mutableStateOf<String?>(null) }
     var adding by rememberSaveable { mutableStateOf(false) }
     var pickSchedule by rememberSaveable { mutableStateOf(false) }
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
@@ -565,37 +595,66 @@ fun NwayGroupScreen(groupId: String, onClose: () -> Unit, onReview: (String) -> 
                 Text(stringResource(if (busy) R.string.running else R.string.shared_sync_now))
             }
             error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(horizontal = 16.dp)) }
-            PrefSection(stringResource(R.string.nway_members), accent = JobColor.BLUE) {
-                members.forEachIndexed { i, m ->
-                    val p = Providers.byId(m.playlist.provider)
-                    val down = data.reports.firstOrNull { it.id == m.down.lastReportId }
-                    val up = m.up?.let { u -> data.reports.firstOrNull { it.id == u.lastReportId } }
-                    // The sync whose removals wait for a yes: its preview is where they are confirmed.
-                    val held = listOfNotNull(m.down.takeIf { (down?.heldBack ?: 0) > 0 }, m.up?.takeIf { (up?.heldBack ?: 0) > 0 }).firstOrNull()
-                    val notFound = down?.unmatchedTracks?.size ?: 0
-                    val state = when {
-                        // No internet is not a failure of the service: said as on a card.
-                        listOfNotNull(down, up).any { !it.ok && !it.offline } -> stringResource(R.string.pill_error)
-                        listOfNotNull(down, up).any { it.offline } -> stringResource(R.string.pill_stopped_offline)
-                        held != null -> stringResource(R.string.nway_held, maxOf(down?.heldBack ?: 0, up?.heldBack ?: 0))
-                        notFound > 0 -> stringResource(R.string.nway_not_found_review, notFound)
-                        down == null -> stringResource(R.string.last_run_never)
-                        else -> stringResource(R.string.pill_ok)
-                    }
-                    val role = when {
-                        m.main -> stringResource(R.string.nway_role_main)
-                        m.keepMine -> stringResource(R.string.nway_role_follows) + " (" + stringResource(R.string.shared_mode_keep) + ")"
-                        else -> stringResource(R.string.nway_role_follows) + " (" + stringResource(R.string.shared_mode_exact) + ")"
-                    }
-                    val lastMain = m.main && members.count { it.main } == 1
-                    NwayRow(
-                        p, listOf(p?.label(env) ?: m.playlist.provider, m.playlist.playlistName).filter { it.isNotBlank() }.joinToString(" · "), "$role · $state", m.main,
-                        onClick = when {
-                            held != null -> ({ onPreview(held) })
-                            notFound > 0 && down != null -> ({ onReview(down.id) })
-                            else -> null
-                        },
-                        trailing = {
+            if (run != null && run.place > 0) Text(
+                stringResource(R.string.nway_run_services, run.place, run.total), style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.padding(horizontal = 16.dp).testTag(GROUP_RUN_HEAD_TAG),
+            )
+            /** A service signed out is fixed in Accounts; anything else says what went wrong in the log. */
+            fun signedOut(provider: String) = Providers.byId(provider)?.let { it.requiresAuth && !it.isConnected(env) } == true
+            fun fix(provider: String) = if (signedOut(provider)) onAccounts() else onOpenLog()
+            @Composable fun fixText(provider: String, reason: String?) =
+                listOfNotNull(reason?.takeIf { it.isNotBlank() }, stringResource(if (signedOut(provider)) R.string.sign_in_again else R.string.settings_log)).joinToString(" › ")
+            @Composable fun row(st: NwayStatus.Member, pinned: Boolean = false) {
+                val m = st.member
+                val i = members.indexOf(m)
+                val p = Providers.byId(m.playlist.provider)
+                val down = data.reports.firstOrNull { it.id == m.down.lastReportId }
+                val up = m.up?.let { u -> data.reports.firstOrNull { it.id == u.lastReportId } }
+                // The sync whose removals wait for a yes: its preview is where they are confirmed.
+                val held = listOfNotNull(m.down.takeIf { (down?.heldBack ?: 0) > 0 }, m.up?.takeIf { (up?.heldBack ?: 0) > 0 }).firstOrNull()
+                val notFound = down?.unmatchedTracks?.size ?: 0
+                val state = when (st.status) {
+                    // No internet is not a failure of the service: said as on a card.
+                    CardStatus.ERROR -> stringResource(R.string.pill_error) + " · " + fixText(m.playlist.provider, userText(ctx, st.report?.error))
+                    CardStatus.OFFLINE -> stringResource(R.string.pill_stopped_offline)
+                    CardStatus.HELD_BACK -> stringResource(R.string.nway_held, st.count)
+                    CardStatus.INCOMPLETE -> stringResource(R.string.pill_incomplete)
+                    CardStatus.NOT_FOUND -> stringResource(R.string.nway_not_found_review, st.count)
+                    CardStatus.NEVER -> stringResource(R.string.last_run_never)
+                    else -> stringResource(R.string.pill_ok)
+                }
+                val role = when {
+                    m.main -> stringResource(R.string.nway_role_main)
+                    m.keepMine -> stringResource(R.string.nway_role_follows) + " (" + stringResource(R.string.shared_mode_keep) + ")"
+                    else -> stringResource(R.string.nway_role_follows) + " (" + stringResource(R.string.shared_mode_exact) + ")"
+                }
+                val lastMain = m.main && members.count { it.main } == 1
+                val phase = run?.services?.firstOrNull { it.member.down.id == m.down.id }
+                // While it runs each service says where it stands; at rest, its role and how its last run went.
+                val summary = when (phase?.phase) {
+                    NwayRun.Phase.NOW -> stringResource(R.string.nway_row_now, progressText(running[phase.job?.id]))
+                    NwayRun.Phase.DONE -> phase.result?.takeIf { it.added > 0 || it.removed > 0 }?.let { stringResource(R.string.nway_row_done_changes, it.added, it.removed) } ?: stringResource(R.string.nway_row_done)
+                    NwayRun.Phase.WAITING -> stringResource(R.string.nway_row_waiting)
+                    NwayRun.Phase.FAILED -> stringResource(R.string.nway_row_failed, fixText(m.playlist.provider, userText(ctx, phase.result?.error)))
+                    else -> "$role · $state"
+                }
+                NwayRow(
+                    p, listOf(p?.label(env) ?: m.playlist.provider, m.playlist.playlistName).filter { it.isNotBlank() }.joinToString(" · "), summary, m.main,
+                    modifier = Modifier.testTag(groupRowTag(phase?.phase, m.playlist.provider, pinned)),
+                    onClick = when {
+                        phase?.phase == NwayRun.Phase.NOW -> ({ live = phase.job?.id })
+                        phase?.phase == NwayRun.Phase.FAILED || (phase == null && st.status == CardStatus.ERROR) -> ({ fix(m.playlist.provider) })
+                        phase != null && phase.phase != NwayRun.Phase.IDLE -> null
+                        held != null -> ({ onPreview(held) })
+                        notFound > 0 && down != null -> ({ onReview(down.id) })
+                        else -> null
+                    },
+                    trailing = when (phase?.phase) {
+                        NwayRun.Phase.NOW -> ({ CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp) })
+                        NwayRun.Phase.DONE -> ({ Icon(Icons.Filled.Check, null, Modifier.size(20.dp), tint = Tones.onSuccessContainer()) })
+                        NwayRun.Phase.FAILED -> ({ Icon(Icons.Filled.Warning, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.error) })
+                        NwayRun.Phase.WAITING -> ({ Spacer(Modifier.width(20.dp)) })
+                        else -> ({
                             OverflowMenu(listOfNotNull(
                                 // The only main one stays main, and stays in: a group with none would never change.
                                 if (m.main) MenuAction(stringResource(R.string.nway_make_follow), { change { Nway.setMain(env, group, m, false); emptyList() } }, enabled = !lastMain)
@@ -604,9 +663,21 @@ fun NwayGroupScreen(groupId: String, onClose: () -> Unit, onReview: (String) -> 
                                 if (!m.main && m.keepMine) MenuAction(stringResource(R.string.shared_mode_exact), { change { Nway.setKeepMine(env, m, false); emptyList() } }) else null,
                                 MenuAction(stringResource(R.string.nway_remove_member), { removing = i }, destructive = true, enabled = !lastMain),
                             ), enabled = !busy, title = p?.label(env))
-                        },
-                    )
-                }
+                        })
+                    },
+                )
+            }
+            val states = status.members.sortedBy { st -> ordered.indexOfFirst { it.down.id == st.member.down.id } }
+            // What failed is on top, at rest and while it runs: it is the row that leads to the fix.
+            val failing = states.filter { st ->
+                val phase = run?.services?.firstOrNull { it.member.down.id == st.member.down.id }?.phase
+                phase == NwayRun.Phase.FAILED || (run == null && st.status == CardStatus.ERROR)
+            }
+            if (failing.isNotEmpty()) PrefSection(stringResource(R.string.pill_error), accent = JobColor.RED) { failing.forEach { row(it, pinned = true) } }
+            val (first, rest) = states.filter { it !in failing }.partition { it.member.down.id == source?.down?.id }
+            if (first.isNotEmpty()) PrefSection(stringResource(R.string.editor_source), accent = JobColor.BLUE) { first.forEach { row(it) } }
+            PrefSection(stringResource(R.string.nway_targets), accent = JobColor.BLUE) {
+                rest.forEach { row(it) }
                 if (com.xlollx.songport.Features.v2(data.settings)) PrefRow(Icons.AutoMirrored.Filled.PlaylistAdd, stringResource(R.string.nway_add), null, chevron = false, enabled = !busy) { adding = true }
             }
             PrefSection(stringResource(R.string.editor_schedule), accent = JobColor.TEAL) {
@@ -618,6 +689,8 @@ fun NwayGroupScreen(groupId: String, onClose: () -> Unit, onReview: (String) -> 
             }
         }
     }
+    // One service's run, live, as a sync's card shows its own.
+    members.flatMap { listOfNotNull(it.up, it.down) }.firstOrNull { it.id == live }?.let { j -> LiveSheet(j, onReview) { live = null } }
     if (adding) NwayAddDialog(members.map { it.playlist.provider to it.playlist.playlistId }, onDismiss = { adding = false }) { d ->
         adding = false
         val description = MusicProvider.description(ctx.getString(R.string.app_name))

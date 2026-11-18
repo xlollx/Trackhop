@@ -3551,4 +3551,13 @@
     <string name="whats_new_21_widgets_body">Виджет показывает синхронизацию в цветах и стиле её карточки.</string>
     <string name="whats_new_21_gaana_title">Gaana</string>
     <string name="whats_new_21_gaana_body">Ваши плейлисты и любимые треки Gaana (альфа) и публичные плейлисты Gaana по ссылке.</string>
+    <string name="nway_run_place">%1$s · %2$d из %3$d</string>
+    <string name="nway_run_services">Синхронизация · %1$d из %2$d сервисов</string>
+    <string name="nway_run_now_desc">Сейчас синхронизируется %1$s</string>
+    <string name="nway_row_done">Готово</string>
+    <string name="nway_row_done_changes">Готово · добавлено %1$d, удалено %2$d</string>
+    <string name="nway_row_now">Сейчас · %1$s</string>
+    <string name="nway_row_waiting">Ожидает</string>
+    <string name="nway_row_failed">Не удалось · %1$s</string>
+    <string name="nway_targets">Цели</string>
 </resources>

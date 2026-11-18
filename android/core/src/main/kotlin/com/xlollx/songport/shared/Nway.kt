@@ -60,6 +60,13 @@ object Nway {
     }
 
     /**
+     * The member the group's one card stands for, its source: the one of [SharedGroup.jobId] (the
+     * sync that brings the group to it) while it is still a main member, else the first main one.
+     */
+    fun source(group: SharedGroup, members: List<Member>): Member? =
+        members.firstOrNull { it.down.id == group.jobId && it.main } ?: members.firstOrNull { it.main }
+
+    /**
      * A new group of [members] (a playlist, and whether it is a main member), each an existing
      * playlist; at least one is main. Nothing is written to any service until the first run: then
      * the main members' tracks are merged into the hub, and every member gets the hub's. Followers

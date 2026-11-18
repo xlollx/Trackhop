@@ -3260,4 +3260,13 @@
     <string name="whats_new_21_widgets_body">ウィジェットが同期をカードの色とスタイルで表示します。</string>
     <string name="whats_new_21_gaana_title">Gaana</string>
     <string name="whats_new_21_gaana_body">Gaana のプレイリストとお気に入りの曲（アルファ版）、リンクからの Gaana 公開プレイリスト。</string>
+    <string name="nway_run_place">%1$s · %2$d/%3$d</string>
+    <string name="nway_run_services">同期中 · %2$d サービス中 %1$d 番目</string>
+    <string name="nway_run_now_desc">%1$s を同期中</string>
+    <string name="nway_row_done">完了</string>
+    <string name="nway_row_done_changes">完了 · 追加 %1$d、削除 %2$d</string>
+    <string name="nway_row_now">実行中 · %1$s</string>
+    <string name="nway_row_waiting">待機中</string>
+    <string name="nway_row_failed">失敗 · %1$s</string>
+    <string name="nway_targets">同期先</string>
 </resources>

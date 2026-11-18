@@ -3259,4 +3259,13 @@
     <string name="whats_new_21_widgets_body">위젯이 동기화를 카드의 색과 스타일로 보여 줘요.</string>
     <string name="whats_new_21_gaana_title">Gaana</string>
     <string name="whats_new_21_gaana_body">Gaana 플레이리스트와 좋아하는 곡(알파), 그리고 링크로 여는 Gaana 공개 플레이리스트.</string>
+    <string name="nway_run_place">%1$s · %2$d/%3$d</string>
+    <string name="nway_run_services">동기화 중 · 서비스 %2$d개 중 %1$d번째</string>
+    <string name="nway_run_now_desc">지금 %1$s 동기화 중</string>
+    <string name="nway_row_done">완료</string>
+    <string name="nway_row_done_changes">완료 · 추가 %1$d, 삭제 %2$d</string>
+    <string name="nway_row_now">진행 중 · %1$s</string>
+    <string name="nway_row_waiting">대기 중</string>
+    <string name="nway_row_failed">실패 · %1$s</string>
+    <string name="nway_targets">대상</string>
 </resources>

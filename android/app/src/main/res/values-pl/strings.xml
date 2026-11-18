@@ -3553,4 +3553,13 @@
     <string name="whats_new_21_widgets_body">Widżet pokazuje synchronizację w kolorach i stylu jej karty.</string>
     <string name="whats_new_21_gaana_title">Gaana</string>
     <string name="whats_new_21_gaana_body">Twoje playlisty i ulubione utwory z Gaana (alfa) oraz publiczne playlisty Gaana z linku.</string>
+    <string name="nway_run_place">%1$s · %2$d z %3$d</string>
+    <string name="nway_run_services">Synchronizowanie · %1$d z %2$d usług</string>
+    <string name="nway_run_now_desc">Teraz synchronizuje się %1$s</string>
+    <string name="nway_row_done">Gotowe</string>
+    <string name="nway_row_done_changes">Gotowe · dodano %1$d, usunięto %2$d</string>
+    <string name="nway_row_now">Teraz · %1$s</string>
+    <string name="nway_row_waiting">Czeka</string>
+    <string name="nway_row_failed">Nie udało się · %1$s</string>
+    <string name="nway_targets">Cele</string>
 </resources>

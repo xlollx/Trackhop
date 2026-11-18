@@ -3365,4 +3365,13 @@
     <string name="whats_new_21_widgets_body">Um widget mostra uma sync com as cores e o estilo do seu cartão.</string>
     <string name="whats_new_21_gaana_title">Gaana</string>
     <string name="whats_new_21_gaana_body">Suas playlists e músicas favoritas do Gaana (alfa), e playlists públicas do Gaana pelo link.</string>
+    <string name="nway_run_place">%1$s · %2$d de %3$d</string>
+    <string name="nway_run_services">Sincronizando · %1$d de %2$d serviços</string>
+    <string name="nway_run_now_desc">Sincronizando %1$s agora</string>
+    <string name="nway_row_done">Concluído</string>
+    <string name="nway_row_done_changes">Concluído · %1$d adicionadas, %2$d removidas</string>
+    <string name="nway_row_now">Agora · %1$s</string>
+    <string name="nway_row_waiting">Aguardando</string>
+    <string name="nway_row_failed">Falhou · %1$s</string>
+    <string name="nway_targets">Destinos</string>
 </resources>

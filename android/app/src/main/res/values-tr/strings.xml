@@ -3355,4 +3355,13 @@
     <string name="whats_new_21_widgets_body">Bir widget, eşitlemeyi kartının renkleri ve stiliyle gösterir.</string>
     <string name="whats_new_21_gaana_title">Gaana</string>
     <string name="whats_new_21_gaana_body">Gaana çalma listelerin ve favori şarkıların (alfa) ve bağlantısından herkese açık Gaana listeleri.</string>
+    <string name="nway_run_place">%1$s · %2$d/%3$d</string>
+    <string name="nway_run_services">Senkronize ediliyor · %2$d hizmetten %1$d.</string>
+    <string name="nway_run_now_desc">Şimdi %1$s senkronize ediliyor</string>
+    <string name="nway_row_done">Tamam</string>
+    <string name="nway_row_done_changes">Tamam · %1$d eklendi, %2$d kaldırıldı</string>
+    <string name="nway_row_now">Şimdi · %1$s</string>
+    <string name="nway_row_waiting">Bekliyor</string>
+    <string name="nway_row_failed">Başarısız · %1$s</string>
+    <string name="nway_targets">Hedefler</string>
 </resources>

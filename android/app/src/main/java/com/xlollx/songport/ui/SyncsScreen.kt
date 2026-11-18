@@ -1627,7 +1627,7 @@ fun twinOriginal(job: SyncJob, jobs: List<SyncJob>): SyncJob? {
 /** Live view of a running sync: what was searched, found, taken from the cache or not found. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LiveSheet(job: SyncJob, onReview: (String) -> Unit = {}, onRun: (SyncJob) -> Unit = {}, onDismiss: () -> Unit) {
+internal fun LiveSheet(job: SyncJob, onReview: (String) -> Unit = {}, onRun: (SyncJob) -> Unit = {}, onDismiss: () -> Unit) {
     if (com.xlollx.songport.Features.v2) { LiveSheet2(job, onReview, onRun, onDismiss); return }
     val all by SyncState.items.collectAsState()
     val running by SyncState.running.collectAsState()
@@ -1918,7 +1918,7 @@ private fun LiveSummary(job: SyncJob, r: SyncReport, onReview: () -> Unit, onRet
 }
 
 @Composable
-private fun progressText(p: Progress?): String = when (p?.step) {
+internal fun progressText(p: Progress?): String = when (p?.step) {
     null -> stringResource(R.string.running)
     Progress.Step.FETCH_SOURCE -> stringResource(R.string.progress_fetch_source)
     Progress.Step.CREATE_TARGET -> stringResource(R.string.progress_create_target)

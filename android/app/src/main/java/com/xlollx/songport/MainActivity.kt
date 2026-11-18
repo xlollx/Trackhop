@@ -781,6 +781,7 @@ private fun MainScreen(
                     onClose = { nwayOpen = null }, onDone = { nwayOpen = null; tab = MainActivity.TAB_SYNCS },
                 ) else com.xlollx.songport.ui.NwayGroupScreen(
                     nwayOpen.orEmpty(), onClose = { nwayOpen = null }, onReview = { unmatchedReport = it }, onPreview = { previewJob = it },
+                    onAccounts = { nwayOpen = null; tab = MainActivity.TAB_ACCOUNTS }, onOpenLog = { logOpen = true },
                 )
                 tipsOpen -> com.xlollx.songport.ui.TipsScreen(data, onClose = { tipsOpen = false }, onOpenAutomation = {
                     tipsOpen = false; tab = MainActivity.TAB_SETTINGS; focusAutomation = true
