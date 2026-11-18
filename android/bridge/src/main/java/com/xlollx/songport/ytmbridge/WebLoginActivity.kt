@@ -696,7 +696,7 @@ class WebLoginActivity : ComponentActivity() {
         val app = applicationContext
         thread {
             var account: String? = null
-            val why = QobuzBridge.keep(app, token, appId, slot = slot) ?: runCatching { account = QobuzWebClient(app, slot).probe(); null }
+            val why = QobuzBridge.keep(app, token, appId, slot = slot, fromPage = fromPage) ?: runCatching { account = QobuzWebClient(app, slot).probe(); null }
                 .getOrElse { it.message ?: it.javaClass.simpleName }
             handler.post {
                 qobuzTrying = false

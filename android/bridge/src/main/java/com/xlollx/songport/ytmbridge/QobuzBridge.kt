@@ -21,11 +21,17 @@ object QobuzBridge {
     /** The token and app id of a player request to [url] with [headers], when it carries a signed-in session. */
     fun fromRequest(url: String, headers: Map<String, String>?): Pair<String, String?>? = QobuzWebClient.sessionOf(url, headers)
 
-    /** Keeps the token in [pasted] (with the player's app id, when known); what is wrong, or null. */
-    fun keep(ctx: Context, pasted: String, appId: String? = null, account: String? = null, slot: String = Slots.PRIMARY): String? {
+    /**
+     * Keeps the token in [pasted] (with the player's app id, when known); what is wrong, or null.
+     * [fromPage]: read from the player in the sign-in's page, whose cookies are its site session
+     * and stay (a refused token is renewed from them, see [QobuzRenewal]); a pasted session clears
+     * them, so a renewal never picks up another account the page was signed in with.
+     */
+    fun keep(ctx: Context, pasted: String, appId: String? = null, account: String? = null, slot: String = Slots.PRIMARY, fromPage: Boolean = false): String? {
         val (token, seenApp) = QobuzWebClient.sessionIn(pasted) ?: return "no Qobuz session in it"
         val sess = session(slot)
-        sess.clear(ctx)
+        if (fromPage) sess.forgetStored(ctx) else sess.clear(ctx)
+        QobuzRenewal.forget(sess.slot)
         sess.put(ctx, QobuzWebClient.TOKEN, token)
         (appId ?: seenApp)?.let { sess.put(ctx, QobuzWebClient.APP_ID, it) }
         sess.save(ctx, MARK, account ?: "Qobuz")
@@ -44,6 +50,7 @@ object QobuzBridge {
         override fun put(key: String, value: String?) = sess.put(ctx, key, value)
         override val userAgent: String get() = BridgeUa.desktop(ctx)
         override val slot: String get() = sess.slot
+        override fun renewSession(refused: String?): Boolean = QobuzRenewal.renew(ctx, sess.slot, refused)
     }
 }
 
