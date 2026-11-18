@@ -32,7 +32,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class MultiSyncEditorFlowTest : FlowTest() {
-    override val preview2: Boolean = true
 
     private fun deezer() = Providers.byId("deezer")!!.label(app.env)
     private fun tagged(tag: String) = compose.onAllNodes(hasTestTag(tag)).fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty()

@@ -44,6 +44,7 @@ import com.xlollx.songport.data.StoreData
 import com.xlollx.songport.net.Http
 import org.junit.Before
 import org.junit.Rule
+import org.junit.AssumptionViolatedException
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -513,6 +514,9 @@ abstract class FlowTest {
             override fun evaluate() {
                 try {
                     base.evaluate()
+                } catch (skipped: AssumptionViolatedException) {
+                    // A skipped test is not a failure: no screenshot, no dump of the screen.
+                    throw skipped
                 } catch (t: Throwable) {
                     val name = "${description.testClass.simpleName}.${description.methodName}"
                     runCatching {

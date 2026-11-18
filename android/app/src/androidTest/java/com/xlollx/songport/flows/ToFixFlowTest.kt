@@ -35,7 +35,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class ToFixFlowTest : FlowTest() {
-    override val preview2: Boolean = true
 
     private val evening = "777000111"
     private val loose = FakeWorld.song("spotify", 0)

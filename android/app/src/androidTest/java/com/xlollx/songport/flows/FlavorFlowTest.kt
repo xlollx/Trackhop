@@ -87,18 +87,7 @@ class FlavorFlowTest : FlowTest() {
     @Test
     fun deezerWebIsAlphaAndSoundCloudAccountIsBeta() {
         installConnectors()
-        // The flags themselves, in both builds: Deezer (web) alpha and not also beta; SoundCloud
-        // with an account came out of alpha after real-account use (1.3.7) and is beta.
-        val deezer = Providers.byId("deezer_bridge")
-        assertNotNull(deezer)
-        assertTrue(deezer!!.alpha)
-        assertFalse(deezer.beta)
-        val sc = Providers.byId("soundcloud")
-        assertNotNull(sc)
-        assertFalse("soundcloud is out of alpha", sc!!.alpha)
-        assertTrue("soundcloud is beta", sc.beta)
-        assertFalse("the official Deezer route is not alpha", Providers.byId("deezer")!!.alpha)
-        // Each one's card in Accounts.
+        // The flags themselves are ProviderFlagsTest's (a unit test); here, how each one's card in Accounts shows them.
         store.updateSettings { it.copy(connectors = listOf("deezer_bridge")) }
         store.flush()
         launch(tabIntent(MainActivity.TAB_ACCOUNTS))

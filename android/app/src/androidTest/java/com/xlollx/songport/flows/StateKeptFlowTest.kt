@@ -65,22 +65,11 @@ class StateKeptFlowTest : FlowTest() {
             compose.waitForIdle()
             snapshot("ai-setup-after-home-gesture")
             waitText(s(R.string.ai_vendor))
+            // And when Android makes the activity anew.
+            remade()
+            waitText(s(R.string.ai_vendor))
         } finally {
             shell("cmd overlay disable $gestural")
         }
-    }
-
-    @Test
-    fun theAiSetupStaysOpenAfterHome() {
-        launch(tabIntent(MainActivity.TAB_SETTINGS))
-        waitText(s(R.string.settings_theme))
-        scrollTo(compose.onNode(hasText(s(R.string.ai_setup_title))))
-        click(s(R.string.ai_setup_title))
-        waitText(s(R.string.ai_vendor))
-        homeAndBack()
-        snapshot("ai-setup-after-home")
-        waitText(s(R.string.ai_vendor))
-        remade()
-        waitText(s(R.string.ai_vendor))
     }
 }

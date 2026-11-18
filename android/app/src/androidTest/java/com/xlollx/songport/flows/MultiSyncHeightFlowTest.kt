@@ -36,7 +36,6 @@ import kotlin.math.abs
  */
 @RunWith(AndroidJUnit4::class)
 class MultiSyncHeightFlowTest : FlowTest() {
-    override val preview2: Boolean = true
 
     private lateinit var group: SharedGroup
     private fun members() = Nway.members(app.env, group)

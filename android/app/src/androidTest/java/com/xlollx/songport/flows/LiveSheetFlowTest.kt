@@ -20,7 +20,6 @@ import org.junit.runner.RunWith
 /** 1.18's Sync activity: figures that filter, problems first, and the run's summary at the end. */
 @RunWith(AndroidJUnit4::class)
 class LiveSheetFlowTest : FlowTest() {
-    override val preview2: Boolean = true
 
     @Test
     fun theFiguresFilterAndTheSheetStaysWithTheSummary() {

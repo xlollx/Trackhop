@@ -106,7 +106,11 @@ class NewFeaturesFlowTest : FlowTest() {
         waitFor("both halves enabled") { store.data.jobs.all { it.enabled } }
         for (id in listOf("job-0", "job-1")) waitFor("$id scheduled") { work(id).any { it == WorkInfo.State.ENQUEUED || it == WorkInfo.State.RUNNING } }
         // A periodic sync runs once at once: let those first runs end, the menu is off while a card runs.
-        runCatching { waitFor("the first scheduled runs", 30_000) { store.data.jobs.filter { it.id == "job-0" || it.id == "job-1" }.none { it.lastReportId == "r" + it.id.removePrefix("job-") } } }
+        // The work waits for a network (Scheduler's CONNECTED constraint): on the offline emulator it never
+        // starts, so there is no first run to wait for.
+        if (app.getSystemService(android.net.ConnectivityManager::class.java).activeNetwork != null) {
+            waitFor("the first scheduled runs", 30_000) { store.data.jobs.filter { it.id == "job-0" || it.id == "job-1" }.none { it.lastReportId == "r" + it.id.removePrefix("job-") } }
+        }
         waitFor("nothing running", 60_000) { com.xlollx.songport.sync.SyncState.running.value.isEmpty() && listOf("job-0", "job-1").none { WorkInfo.State.RUNNING in work(it) } }
 
         // Off again from the same menu, which now says Disable: both halves off, their work cancelled.

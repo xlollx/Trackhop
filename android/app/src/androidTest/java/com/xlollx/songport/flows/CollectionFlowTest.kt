@@ -35,7 +35,6 @@ import java.io.File
  */
 @RunWith(AndroidJUnit4::class)
 class CollectionFlowTest : FlowTest() {
-    override val preview2: Boolean = true
 
     /** The curator's device: the app's own services and texts, with a store, a vault and files of its own. */
     private class OtherDevice(base: Env, dir: File) : Env by base {

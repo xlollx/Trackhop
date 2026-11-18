@@ -39,7 +39,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class MultiSyncFlowTest : FlowTest() {
-    override val preview2: Boolean = true
 
     private lateinit var group: SharedGroup
     private fun deezer() = Providers.byId("deezer")!!.label(app.env)

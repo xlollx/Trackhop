@@ -21,7 +21,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class NewToolsFlowTest : FlowTest() {
-    override val preview2: Boolean = true
 
     /** What the pages keep for the process: nothing left from the test before. */
     @Before fun nothingKept() {

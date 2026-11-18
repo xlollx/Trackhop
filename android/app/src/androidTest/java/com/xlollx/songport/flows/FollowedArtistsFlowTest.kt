@@ -18,9 +18,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class FollowedArtistsFlowTest : FlowTest() {
-    /** 1.18's features, hidden in the build: shown here with the developer's preview. */
-    override val preview2: Boolean = true
-
     private val id = "a".repeat(8) + "-" + "1".repeat(4) + "-" + "2".repeat(4) + "-" + "3".repeat(4) + "-" + "b".repeat(12)
 
     @After

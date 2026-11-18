@@ -53,7 +53,6 @@ private fun tripMix(env: com.xlollx.songport.platform.Env): SharedGroup = Nway.c
  */
 @RunWith(AndroidJUnit4::class)
 class GroupScheduleFlowTest : FlowTest() {
-    override val preview2: Boolean = true
 
     private lateinit var group: SharedGroup
     private fun jobs() = Nway.jobsOf(store.data, group.id)
@@ -164,7 +163,6 @@ class GroupScheduleFlowTest : FlowTest() {
  */
 @RunWith(AndroidJUnit4::class)
 class GroupPageFlowTest : FlowTest() {
-    override val preview2: Boolean = true
 
     private fun deezer() = Providers.byId("deezer")!!.label(app.env)
 
