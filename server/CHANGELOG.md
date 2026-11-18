@@ -5,6 +5,14 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`, `v2.x`)
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 2.1.1
+
+Fixes, released with the app's 2.1.2.
+
+- **TIDAL**: search and ISRC results have their artists again, so suggestions show them and matching scores are fair.
+- **Sessions renewed by themselves**: Qobuz, Anghami, Gaana and Apple Music renew a refused session from the still valid web session and try again; Deezer tries once more on a refused session. A sign-in no longer clears the site's cookies when it keeps the session read from the page.
+- **YouTube Music**: a song refused on add no longer stops the others; the message is plain words, never YouTube's raw answer.
+
 ## 2.1.0
 
 Released together with the app's 2.1. Apple Music/iTunes libraries and playlist files of any size, a server that
