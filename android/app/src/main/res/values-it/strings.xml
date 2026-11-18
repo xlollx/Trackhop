@@ -1161,6 +1161,7 @@
     <string name="pill_held_back">Rimozioni in attesa</string>
     <string name="pill_not_found">Non trovati: %1$d</string>
     <string name="pill_incomplete">Non finita</string>
+    <string name="pill_not_added">Da aggiungere al prossimo giro: %1$d</string>
     <string name="onboarding_docs_title">Documentazione e codice</string>
     <string name="onboarding_docs_body">Vuoi saperne di più su ogni funzione, o sul codice? Guide e novità sono sul sito, il codice sorgente su GitHub.</string>
     <!-- Contextual help: the "?" sheets -->
@@ -2099,6 +2100,8 @@
     <string name="job_scheduled_on">Programmata su %1$s</string>
     <string name="backup_device_other">l\'altro dispositivo</string>
     <string name="note_duplicates_repaired">Doppioni tolti dalla destinazione: %1$d. Ognuno di questi brani c\'era due volte, e nell\'origine c\'è una volta sola.</string>
+    <string name="note_not_added_limited">%1$d brani non aggiunti questa volta (%2$s ha limitato le richieste): il prossimo giro aggiunge il resto.</string>
+    <string name="note_not_added_refused">%1$d brani non aggiunti questa volta (%2$s li ha rifiutati): il prossimo giro li riprova.</string>
     <string name="note_running_elsewhere">In corso su %1$s: saltata</string>
     <string name="server_locks_title">Coordina con il mio server</string>
     <string name="server_locks_desc">Questo telefono e il tuo server Trackhop si danno il turno su ogni playlist, così i brani non vengono aggiunti due volte</string>

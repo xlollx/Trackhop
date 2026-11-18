@@ -311,10 +311,25 @@ open class MemoryService(override val serviceId: String) : MusicProvider {
     var addCalls = 0
     /** Whether each add came while the job keeps the order (MusicProvider.OrderedAdds). */
     val addsInOrder = ArrayList<Boolean>()
+    /**
+     * When set, the service takes this many more tracks and then limits the requests, as Deezer's
+     * likes do: with [limitAnswer] (by default the Bridge's partial answer, the ids it did not take),
+     * on this call and every later one until it is set back to null.
+     */
+    var limitAfter: Int? = null
+    var limitAnswer: (notAdded: List<String>) -> Exception = { com.xlollx.songport.model.AddsLimited(it.toSet(), "$serviceId: too many requests") }
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         addCalls++
         addsInOrder += MusicProvider.addsInOrder()
         addFailure?.let { throw it }
+        limitAfter?.let { room ->
+            if (tracks.size > room) {
+                lists.getOrPut(playlistId) { ArrayList() } += tracks.take(room)
+                limitAfter = 0
+                throw limitAnswer(tracks.drop(room).map { it.id })
+            }
+            limitAfter = room - tracks.size
+        }
         // As YouTube Music through the Bridge: a block of several takes all but the songs it refuses, named.
         val (no, yes) = tracks.partition { it.id in refuseIds }
         if (no.isNotEmpty() && tracks.size > 1) {

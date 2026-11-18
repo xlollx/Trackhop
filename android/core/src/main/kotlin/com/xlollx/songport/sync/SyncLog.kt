@@ -35,6 +35,8 @@ object SyncLog {
     /** What the end line of a run says after the sync's tag. */
     fun end(r: SyncReport): String =
         "+${r.added} -${r.removed} nf=${r.unmatched.size} src=${r.sourceCount} dst=${r.targetCount} held=${r.heldBack} interrupted=${r.searchInterrupted} net=${r.netError ?: "-"}" +
+            // Matched songs the target did not take this time (2.1.4): never part of nf.
+            (if (r.notAdded.isNotEmpty()) " notAdded=${r.notAdded.size}" else "") +
             (r.error?.let { " ERR $it" } ?: "")
 
     fun result(r: SyncReport) = SyncState.JobResult(r.ok, r.offline, r.error, r.added, r.removed, r.unmatched.size, r.heldBack)

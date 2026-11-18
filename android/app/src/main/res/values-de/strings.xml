@@ -1161,6 +1161,7 @@
     <string name="pill_held_back">Entfernungen warten</string>
     <string name="pill_not_found">Nicht gefunden: %1$d</string>
     <string name="pill_incomplete">Nicht fertig</string>
+    <string name="pill_not_added">Beim nächsten Lauf hinzuzufügen: %1$d</string>
     <string name="onboarding_docs_title">Dokumentation und Code</string>
     <string name="onboarding_docs_body">Mehr über jede Funktion oder den Code lesen? Anleitungen und Neuigkeiten stehen auf der Website, der Quellcode auf GitHub.</string>
     <!-- Contextual help: the "?" sheets -->
@@ -2099,6 +2100,8 @@
     <string name="job_scheduled_on">Geplant auf %1$s</string>
     <string name="backup_device_other">dem anderen Gerät</string>
     <string name="note_duplicates_repaired">Duplikate aus dem Ziel entfernt: %1$d. Jeder dieser Titel war dort doppelt und ist in der Quelle einmal.</string>
+    <string name="note_not_added_limited">%1$d Titel diesmal nicht hinzugefügt (%2$s hat die Anfragen begrenzt): Der nächste Lauf fügt den Rest hinzu.</string>
+    <string name="note_not_added_refused">%1$d Titel diesmal nicht hinzugefügt (%2$s hat sie abgelehnt): Der nächste Lauf versucht es erneut.</string>
     <string name="note_running_elsewhere">Läuft auf %1$s: übersprungen</string>
     <string name="server_locks_title">Mit meinem Server abstimmen</string>
     <string name="server_locks_desc">Dieses Handy und dein Trackhop-Server wechseln sich bei jeder Playlist ab, damit keine Songs doppelt hinzugefügt werden</string>

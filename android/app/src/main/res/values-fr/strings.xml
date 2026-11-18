@@ -1168,6 +1168,7 @@
     <string name="pill_held_back">Retraits en attente</string>
     <string name="pill_not_found">Introuvables : %1$d</string>
     <string name="pill_incomplete">Inachevée</string>
+    <string name="pill_not_added">À ajouter au prochain passage : %1$d</string>
     <string name="onboarding_docs_title">Documentation et code</string>
     <string name="onboarding_docs_body">Envie d\'en savoir plus sur chaque fonction, ou sur le code ? Guides et nouveautés sont sur le site, le code source sur GitHub.</string>
     <!-- Contextual help: the "?" sheets -->
@@ -2107,6 +2108,8 @@
     <string name="job_scheduled_on">Planifiée sur %1$s</string>
     <string name="backup_device_other">l\'autre appareil</string>
     <string name="note_duplicates_repaired">Doublons retirés de la destination : %1$d. Chacun de ces titres y était deux fois et n\'est qu\'une fois dans la source.</string>
+    <string name="note_not_added_limited">%1$d titres non ajoutés cette fois (%2$s a limité les requêtes) : le prochain passage ajoute le reste.</string>
+    <string name="note_not_added_refused">%1$d titres non ajoutés cette fois (%2$s les a refusés) : le prochain passage réessaie.</string>
     <string name="note_running_elsewhere">En cours sur %1$s : ignorée</string>
     <string name="server_locks_title">Se coordonner avec mon serveur</string>
     <string name="server_locks_desc">Ce téléphone et ton serveur Trackhop écrivent chacun leur tour dans une playlist : aucun titre n\'est ajouté deux fois</string>

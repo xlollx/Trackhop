@@ -1159,6 +1159,7 @@
     <string name="pill_held_back">Kaldırmalar bekliyor</string>
     <string name="pill_not_found">Bulunamadı: %1$d</string>
     <string name="pill_incomplete">Tamamlanmadı</string>
+    <string name="pill_not_added">Sonraki çalıştırmada eklenecek: %1$d</string>
     <string name="onboarding_docs_title">Belgeler ve kod</string>
     <string name="onboarding_docs_body">Her özellik ya da kod hakkında okumak mı istiyorsunuz? Kılavuzlar ve haberler web sitesinde, kaynak kodu GitHub\'da.</string>
     <!-- Contextual help: the "?" sheets -->
@@ -2097,6 +2098,8 @@
     <string name="job_scheduled_on">Zamanlandığı cihaz: %1$s</string>
     <string name="backup_device_other">diğer cihaz</string>
     <string name="note_duplicates_repaired">Hedeften kaldırılan yinelenenler: %1$d. Bu parçaların her biri orada iki kez vardı, kaynakta ise bir kez var.</string>
+    <string name="note_not_added_limited">Bu sefer %1$d şarkı eklenmedi (%2$s istekleri sınırladı): sonraki çalıştırma kalanları ekler.</string>
+    <string name="note_not_added_refused">Bu sefer %1$d şarkı eklenmedi (%2$s reddetti): sonraki çalıştırma yeniden dener.</string>
     <string name="note_running_elsewhere">%1$s üzerinde çalışıyor: atlandı</string>
     <string name="server_locks_title">Sunucumla eşgüdüm sağla</string>
     <string name="server_locks_desc">Bu telefon ve Trackhop sunucun her çalma listesine sırayla yazar, böylece şarkılar iki kez eklenmez</string>

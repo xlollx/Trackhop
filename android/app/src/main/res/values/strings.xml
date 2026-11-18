@@ -1161,6 +1161,7 @@
     <string name="pill_held_back">Removals on hold</string>
     <string name="pill_not_found">Not found: %1$d</string>
     <string name="pill_incomplete">Not finished</string>
+    <string name="pill_not_added">To add next run: %1$d</string>
     <string name="onboarding_docs_title">Documentation and code</string>
     <string name="onboarding_docs_body">Want to read about every feature, or the code? Guides and news are on the website, the source code on GitHub.</string>
     <!-- Contextual help: the "?" sheets -->
@@ -2100,6 +2101,8 @@
     <string name="job_scheduled_on">Scheduled on %1$s</string>
     <string name="backup_device_other">the other device</string>
     <string name="note_duplicates_repaired">Duplicates removed from the target: %1$d. Each of these tracks was there twice and is in the source once.</string>
+    <string name="note_not_added_limited">%1$d songs not added this time (%2$s limited the requests): the next run adds the rest.</string>
+    <string name="note_not_added_refused">%1$d songs not added this time (%2$s refused them): the next run tries them again.</string>
     <string name="note_running_elsewhere">Running on %1$s: skipped</string>
     <string name="server_locks_title">Coordinate with my server</string>
     <string name="server_locks_desc">This phone and your Trackhop server take turns on each playlist, so songs are not added twice</string>

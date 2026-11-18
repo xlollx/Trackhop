@@ -654,6 +654,7 @@ internal fun groupStatusText(g: NwayStatus.Group): String {
         CardStatus.OFFLINE -> stringResource(R.string.pill_stopped_offline)
         CardStatus.HELD_BACK -> stringResource(R.string.pill_held_back)
         CardStatus.INCOMPLETE -> stringResource(R.string.pill_incomplete)
+        CardStatus.NOT_ADDED -> stringResource(R.string.pill_not_added, g.count)
         CardStatus.NOT_FOUND -> stringResource(R.string.pill_not_found, g.count)
         CardStatus.TO_CHECK -> toCheckText(g.count)
         else -> stringResource(R.string.pill_ok)
@@ -665,7 +666,7 @@ internal fun groupStatusText(g: NwayStatus.Group): String {
 
 internal fun groupStatusTone(s: CardStatus): Tone = when (s) {
     CardStatus.ERROR -> Tone.Error
-    CardStatus.HELD_BACK, CardStatus.INCOMPLETE, CardStatus.NOT_FOUND, CardStatus.TO_CHECK -> Tone.Warning
+    CardStatus.HELD_BACK, CardStatus.INCOMPLETE, CardStatus.NOT_ADDED, CardStatus.NOT_FOUND, CardStatus.TO_CHECK -> Tone.Warning
     CardStatus.OK -> Tone.Ok
     else -> Tone.Neutral
 }
@@ -781,6 +782,7 @@ fun NwayGroupScreen(
                     CardStatus.OFFLINE -> stringResource(R.string.pill_stopped_offline)
                     CardStatus.HELD_BACK -> stringResource(R.string.nway_held, st.count)
                     CardStatus.INCOMPLETE -> stringResource(R.string.pill_incomplete)
+                    CardStatus.NOT_ADDED -> stringResource(R.string.pill_not_added, st.count)
                     CardStatus.NOT_FOUND -> stringResource(R.string.nway_not_found_review, st.count)
                     CardStatus.TO_CHECK -> toCheckText(st.count)
                     CardStatus.NEVER -> stringResource(R.string.last_run_never)

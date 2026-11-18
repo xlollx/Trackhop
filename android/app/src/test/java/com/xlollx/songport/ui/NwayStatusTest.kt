@@ -131,4 +131,15 @@ class NwayStatusTest {
         // A target added since the last run has not run yet: the others still speak.
         assertEquals(CardStatus.OK, group(ok("spotify"), down("tidal", null) to null).status)
     }
+
+    /** 2.1.4: a member whose service limited the adds says so on the group's card, with the count and the service. */
+    @Test fun songsNotAddedThisTimeShowOnTheGroup() {
+        val left = report("d-deezer_bridge").copy(notAdded = (1..1776).map { "Band – Song $it" })
+        val g = group(ok("spotify"), with("deezer_bridge", left))
+        assertEquals(CardStatus.NOT_ADDED, g.status)
+        assertEquals("deezer_bridge", g.provider)
+        assertEquals(1776, g.count)
+        // A few songs not found elsewhere do not hide it.
+        assertEquals(CardStatus.NOT_ADDED, group(with("tidal", report("d-tidal", notFound = 17)), with("deezer_bridge", left)).status)
+    }
 }

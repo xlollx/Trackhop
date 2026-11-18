@@ -872,7 +872,7 @@ fun SyncsScreen(
 }
 
 /** What a sync card's pill says. */
-internal enum class CardStatus { RUNNING, PAUSING, PAUSED, DISABLED, NEVER, ERROR, HELD_BACK, INCOMPLETE, NOT_FOUND, TO_CHECK, EMPTY_SOURCE, OK, OFFLINE }
+internal enum class CardStatus { RUNNING, PAUSING, PAUSED, DISABLED, NEVER, ERROR, HELD_BACK, INCOMPLETE, NOT_ADDED, NOT_FOUND, TO_CHECK, EMPTY_SOURCE, OK, OFFLINE }
 
 /**
  * The pill for a card, the most important first. Removals on hold come before "Not found: N": a few
@@ -891,6 +891,9 @@ internal fun cardStatus(isRunning: Boolean, enabled: Boolean, report: SyncReport
     !report.ok -> CardStatus.ERROR
     report.heldBack > 0 -> CardStatus.HELD_BACK
     report.searchInterrupted -> CardStatus.INCOMPLETE
+    // Matched songs the service did not take this time (it limited the requests): a partial run,
+    // never "Up to date"; the next run adds them (2.1.4).
+    report.notAdded.isNotEmpty() -> CardStatus.NOT_ADDED
     report.unmatchedTracks.isNotEmpty() -> CardStatus.NOT_FOUND
     // Matches to double-check: something left to fix, as the header counts it (SyncFilter.needsFix), not "Up to date".
     report.reviewTracks.isNotEmpty() -> CardStatus.TO_CHECK
@@ -1198,7 +1201,7 @@ private fun groupStatusInfo(g: GroupCard, run: SyncState.Run?, onPreview: (SyncJ
         CardStatus.ERROR -> CardStatusInfo(text, Tone.Error, Icons.Filled.Warning, onClick = onOpen)
         CardStatus.OFFLINE -> CardStatusInfo(text, Tone.Neutral, Icons.Filled.CloudOff)
         CardStatus.HELD_BACK -> CardStatusInfo(text, Tone.Warning, Icons.Filled.Warning) { if (one != null) onPreview(one.job) else onOpen() }
-        CardStatus.INCOMPLETE -> CardStatusInfo(text, Tone.Warning, Icons.Filled.Warning, onClick = onOpen)
+        CardStatus.INCOMPLETE, CardStatus.NOT_ADDED -> CardStatusInfo(text, Tone.Warning, Icons.Filled.Warning, onClick = onOpen)
         CardStatus.NOT_FOUND, CardStatus.TO_CHECK -> CardStatusInfo(text, Tone.Warning, Icons.Filled.Warning) { one?.report?.let { onReview(it.id) } ?: onOpen() }
         else -> CardStatusInfo(text, Tone.Ok, Icons.Filled.CheckCircle)
     }
@@ -1244,6 +1247,7 @@ private fun statusInfo(
         CardStatus.OFFLINE -> CardStatusInfo(stringResource(R.string.pill_stopped_offline), Tone.Neutral, Icons.Filled.CloudOff)
         CardStatus.HELD_BACK -> CardStatusInfo(stringResource(R.string.pill_held_back), Tone.Warning, Icons.Filled.Warning) { onPreview(job) }
         CardStatus.INCOMPLETE -> CardStatusInfo(stringResource(R.string.pill_incomplete), Tone.Warning, Icons.Filled.Warning, onClick = onOpenLog)
+        CardStatus.NOT_ADDED -> CardStatusInfo(stringResource(R.string.pill_not_added, report!!.notAdded.size), Tone.Warning, Icons.Filled.Warning, onClick = onOpenLog)
         CardStatus.NOT_FOUND -> CardStatusInfo(stringResource(R.string.pill_not_found, report!!.unmatchedTracks.size), Tone.Warning, Icons.Filled.Warning) { onReview(report.id) }
         CardStatus.TO_CHECK -> CardStatusInfo(toCheckText(report!!.reviewTracks.size), Tone.Warning, Icons.Filled.Warning) { onReview(report.id) }
         CardStatus.EMPTY_SOURCE -> CardStatusInfo(stringResource(R.string.pill_source_empty), Tone.Warning, Icons.Filled.Info)

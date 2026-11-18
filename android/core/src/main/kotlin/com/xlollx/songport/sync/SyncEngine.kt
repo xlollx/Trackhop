@@ -330,6 +330,8 @@ class SyncEngine(
      * cover the user chose is not replaced until the source changes its own. Never fails the run.
      */
     private val SYSTEMIC_ADD_FAILURES = 5
+    /** Refusals in a row, one by one, once some tracks went in, that stop adding until the next run. */
+    private val SYSTEMIC_REFUSALS_AFTER_ADDS = 20
     private val SELF_NAMING_WINDOW_MS = 3L * 24 * 3600 * 1000
 
     private suspend fun followSource(job: SyncJob, src: MusicProvider, srcId: String, dst: MusicProvider, targetId: String) {
@@ -1354,6 +1356,18 @@ class SyncEngine(
     /** A refusal that lasts an hour or more (Apple's web backend: 429 "Request is forbidden"). */
     private fun isLongBlock(msg: String?): Boolean = msg?.contains("Request is forbidden", ignoreCase = true) == true
 
+    /**
+     * An add the service refused for the pace of the requests, not for the track: a 429, a quota,
+     * "too many requests", "slow down". A 403 alone is not one: on adding it is most often a closed
+     * path or a missing scope (issue #34), which stops the run with its answer.
+     */
+    private fun isAddLimit(e: Exception): Boolean {
+        if (e is com.xlollx.songport.model.AddsLimited) return true
+        val m = e.message ?: return false
+        return m.contains("429") || m.contains("too many", true) || m.contains("rate limit", true) ||
+            m.contains("quota", true) || m.contains("slow down", true)
+    }
+
     /** Il servizio sta limitando le richieste (non un errore dell'app). */
     private fun isThrottle(msg: String?): Boolean {
         val m = msg ?: return false
@@ -1378,6 +1392,12 @@ class SyncEngine(
         // instead of listing every track as not found (issue #34).
         var addStopped: String? = null
         var singleFails = 0
+        // The service limited the requests part way (Deezer's likes: a quota, "too many requests"), or
+        // went on refusing one track after another once some were added: adding stops cleanly, the
+        // service's reason is logged, and what is left is "not added this time", for the next run.
+        // Matched tracks: never counted as not found (2.1.4).
+        var limitedWhy: String? = null
+        val notAdded = ArrayList<Track>()
         // The internet went away while writing: the run stops where it is. What was added stays; nothing
         // more is written (no removals, no repairs, no reordering) until a run that can read and write again.
         var offline = false
@@ -1418,6 +1438,8 @@ class SyncEngine(
             kotlinx.coroutines.withContext(if (job.keepOrder) MusicProvider.OrderedAdds else kotlin.coroutines.EmptyCoroutineContext) {
             for (chunk in additions.chunked(chunkSize)) {
                 if (addStopped != null || offline) break
+                // Limited: the rest waits for the next run, not one more request now.
+                if (limitedWhy != null) { notAdded += chunk; continue }
                 // The internet gone, known to the phone: stop here; what was added stays, nothing is removed.
                 if (NetError.knownOffline() && dst.serviceId != LocalFilesProvider.serviceId) { offline = true; break }
                 // Cosa si sta aggiungendo adesso, in scheda e nella vista dal vivo, come per la ricerca.
@@ -1454,6 +1476,19 @@ class SyncEngine(
                         }
                         env.log("engine", "${job.name}: ${dst.displayName} refused ${refused.size} of ${chunk.size} tracks and took the rest")
                         break
+                    } catch (e: com.xlollx.songport.model.AddsLimited) {
+                        // The service took part of the block and stopped (its limit): what it took is
+                        // added, the rest is left for the next run, and nothing more is asked now.
+                        val (left, rest) = chunk.partition { it.id in e.notAdded }
+                        val (there, fresh) = rest.partition { it.id in e.present }
+                        added += fresh.size
+                        addedList += fresh
+                        alreadyThere += there
+                        fresh.forEach { SyncState.item(job.id, SyncState.LiveItem(it.live(), null, SyncState.Outcome.ADDED)) }
+                        there.forEach { SyncState.item(job.id, SyncState.LiveItem(it.live(), it.live(), SyncState.Outcome.CACHED)) }
+                        notAdded += left
+                        limitedWhy = e.why
+                        break
                     } catch (e: Exception) {
                         // Il servizio ha bloccato l'indirizzo e dice quanto aspettare: si aspetta, come
                         // nella ricerca, invece di dare per falliti brani che sono solo in attesa.
@@ -1471,9 +1506,17 @@ class SyncEngine(
                             env.log("engine", "${job.name}: connection lost while adding to ${dst.displayName} (${describe(e)}): stopped, $added added so far")
                             break
                         }
+                        // The service limits the requests (an older connector says so as an error): trying
+                        // the block track by track would only hammer it and list each as failed. Stop here.
+                        if (isAddLimit(e)) {
+                            notAdded += chunk
+                            limitedWhy = e.message ?: e.javaClass.simpleName
+                            break
+                        }
                         // Un blocco fallito (id non piu' valido, ecc.): riprova brano per brano.
-                        for (t in chunk) {
+                        for ((i, t) in chunk.withIndex()) {
                             if (addStopped != null || offline) break
+                            if (limitedWhy != null) { notAdded += chunk.subList(i, chunk.size); break }
                             try {
                                 if (t.id in dst.addTracksReportingPresent(env, targetId, listOf(t))) {
                                     alreadyThere += t
@@ -1491,12 +1534,22 @@ class SyncEngine(
                                     env.log("engine", "${job.name}: connection lost while adding to ${dst.displayName} (${describe(e2)}): stopped, $added added so far")
                                     break
                                 }
+                                if (e2 is com.xlollx.songport.model.AddsLimited || isAddLimit(e2)) {
+                                    notAdded += chunk.subList(i, chunk.size)
+                                    limitedWhy = (e2 as? com.xlollx.songport.model.AddsLimited)?.why ?: e2.message ?: e2.javaClass.simpleName
+                                    break
+                                }
                                 failed += "$t (${e2.message})"
                                 SyncState.item(job.id, SyncState.LiveItem(t.live(), e2.message?.take(80), SyncState.Outcome.ADD_FAILED))
                                 singleFails++
                                 if (singleFails >= SYSTEMIC_ADD_FAILURES && added == 0 && alreadyThere.isEmpty()) {
                                     addStopped = e2.message ?: e2.javaClass.simpleName
                                     env.log("engine", "${job.name}: adding stopped, ${dst.displayName} refused the first $singleFails tracks one by one: ${addStopped?.take(300)}")
+                                } else if (singleFails >= SYSTEMIC_REFUSALS_AFTER_ADDS) {
+                                    // Refused one after another after some went in: the service, not the tracks
+                                    // (a few bad ids in a row are not that many). The rest waits for the next
+                                    // run instead of a request per track.
+                                    limitedWhy = e2.message ?: e2.javaClass.simpleName
                                 }
                             }
                         }
@@ -1506,6 +1559,14 @@ class SyncEngine(
                 onProgress(Progress(Progress.Step.ADDING, added + alreadyThere.size, toAdd.size))
             }
             }
+        }
+        if (limitedWhy != null) {
+            env.log("engine", "${job.name}: adding stopped, ${dst.displayName} limited the requests: ${limitedWhy?.take(300)}; " +
+                "$added added, ${notAdded.size} ${tracksWord(notAdded.size)} left for the next run")
+        }
+        when {
+            limitedWhy != null -> notes += str("note_not_added_limited", failed.size + notAdded.size, dst.displayName)
+            failed.isNotEmpty() -> notes += str("note_not_added_refused", failed.size, dst.displayName)
         }
         if (alreadyThere.isNotEmpty()) {
             store.putPresentUnlisted(dst.id, targetId, alreadyThere.map { it.id })
@@ -1598,7 +1659,8 @@ class SyncEngine(
             id = reportId, jobId = job.id, jobName = job.name, startedEpoch = started,
             durationMs = System.currentTimeMillis() - started,
             sourceCount = plan.sourceCount, targetCount = plan.targetCount, targetId = plan.targetPlaylistId, added = added, removed = removed,
-            unmatched = unmatched.map { it.toString() } + failed,
+            // Matched but not added (refused, limited) are not "not found": they have their own list.
+            unmatched = unmatched.map { it.toString() },
             unmatchedTracks = unmatched,
             ignored = plan.ignored,
             reviewTracks = reviews,
@@ -1614,6 +1676,7 @@ class SyncEngine(
             heldBack = plan.heldBackRemovals,
             searchInterrupted = plan.searchInterrupted,
             sourceEmpty = plan.sourceCount == 0 && plan.ignored == 0,
+            notAdded = failed + notAdded.map { it.toString() },
         )
     }
 

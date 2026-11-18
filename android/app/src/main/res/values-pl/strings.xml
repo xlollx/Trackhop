@@ -1219,6 +1219,7 @@
     <string name="pill_held_back">Usunięcia czekają</string>
     <string name="pill_not_found">Nieznalezione: %1$d</string>
     <string name="pill_incomplete">Niedokończona</string>
+    <string name="pill_not_added">Do dodania przy następnym razie: %1$d</string>
     <string name="onboarding_docs_title">Dokumentacja i kod</string>
     <string name="onboarding_docs_body">Chcesz poczytać o każdej funkcji albo o kodzie? Poradniki i nowości są na stronie, kod źródłowy na GitHubie.</string>
     <!-- Contextual help: the "?" sheets -->
@@ -2173,6 +2174,8 @@
     <string name="job_scheduled_on">Zaplanowana na: %1$s</string>
     <string name="backup_device_other">drugim urządzeniu</string>
     <string name="note_duplicates_repaired">Duplikaty usunięte z celu: %1$d. Każdy z tych utworów był tam dwa razy, a w źródle jest raz.</string>
+    <string name="note_not_added_limited">Tym razem nie dodano %1$d utworów (%2$s ograniczył zapytania): następne uruchomienie doda resztę.</string>
+    <string name="note_not_added_refused">Tym razem nie dodano %1$d utworów (%2$s je odrzucił): następne uruchomienie spróbuje ponownie.</string>
     <string name="note_running_elsewhere">Działa na %1$s: pominięto</string>
     <string name="server_locks_title">Uzgadniaj z moim serwerem</string>
     <string name="server_locks_desc">Ten telefon i Twój serwer Trackhop zapisują do każdej playlisty po kolei, więc utwory nie są dodawane dwa razy</string>

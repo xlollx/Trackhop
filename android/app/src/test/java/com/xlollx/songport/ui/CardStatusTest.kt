@@ -76,4 +76,13 @@ class CardStatusTest {
         assertEquals(CardStatus.ERROR, cardStatus(false, true, report(error = "HTTP 500")))
         assertEquals(CardStatus.RUNNING, cardStatus(true, true, report(error = "x").copy(netError = "OFFLINE")))
     }
+
+    /** 2.1.4: Deezer limited the likes; 1776 matched songs left for the next run. Never "Up to date", never "not found". */
+    @Test fun songsNotAddedThisTimeAreNotUpToDate() {
+        val left = report().copy(notAdded = (1..1776).map { "Band – Song $it" })
+        assertEquals(CardStatus.NOT_ADDED, cardStatus(false, true, left))
+        // They come before the few not found, which wait for the user anyway.
+        assertEquals(CardStatus.NOT_ADDED, cardStatus(false, true, report(notFound = 17).copy(notAdded = listOf("Band – Song"))))
+        assertEquals(CardStatus.HELD_BACK, cardStatus(false, true, report(heldBack = 2).copy(notAdded = listOf("Band – Song"))))
+    }
 }
