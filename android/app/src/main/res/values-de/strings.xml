@@ -25,6 +25,7 @@
     <string name="last_run_at">Letzter Lauf: %1$s</string>
     <string name="result_added_removed">%1$d hinzugefügt, %2$d entfernt</string>
     <string name="result_unmatched">%1$d nicht gefunden</string>
+    <string name="result_not_added">%1$d beim nächsten Lauf hinzuzufügen</string>
     <string name="result_error">Fehler: %1$s</string>
     <string name="result_ok">Aktuell</string>
 
@@ -2101,7 +2102,6 @@
     <string name="backup_device_other">dem anderen Gerät</string>
     <string name="note_duplicates_repaired">Duplikate aus dem Ziel entfernt: %1$d. Jeder dieser Titel war dort doppelt und ist in der Quelle einmal.</string>
     <string name="note_not_added_limited">%1$d Titel diesmal nicht hinzugefügt (%2$s hat die Anfragen begrenzt): Der nächste Lauf fügt den Rest hinzu.</string>
-    <string name="note_not_added_refused">%1$d Titel diesmal nicht hinzugefügt (%2$s hat sie abgelehnt): Der nächste Lauf versucht es erneut.</string>
     <string name="note_running_elsewhere">Läuft auf %1$s: übersprungen</string>
     <string name="server_locks_title">Mit meinem Server abstimmen</string>
     <string name="server_locks_desc">Dieses Handy und dein Trackhop-Server wechseln sich bei jeder Playlist ab, damit keine Songs doppelt hinzugefügt werden</string>

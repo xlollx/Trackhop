@@ -69,4 +69,15 @@ class NwayHistoryTest {
         assertEquals(listOf("d-spotify", "other"), NwayUi.listedSyncs(d).map { it.id })
         assertEquals(jobs.size, NwayUi.listedSyncs(d.copy(groups = emptyList())).size)
     }
+
+    /** 2.1.4: a run's songs left for the next run (a service's limit) stay in the group's run. */
+    @Test fun songsNotAddedAddUpInTheGroupsRun() {
+        val run = NwayHistory.sum(listOf(
+            r("b1", "u-spotify", 0, added = 2),
+            r("b4", "d-deezer", 2_000, added = 321).copy(notAdded = (1..1776).map { "Song $it" }),
+        ))
+        assertEquals(1776, run.notAdded.size)
+        assertEquals(323, run.added)
+        assertEquals(0, run.unmatched.size)
+    }
 }

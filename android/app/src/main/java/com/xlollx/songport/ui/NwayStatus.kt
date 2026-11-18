@@ -130,6 +130,7 @@ internal object NwayHistory {
             reviewTracks = batch.flatMap { it.reviewTracks },
             addedTracks = batch.flatMap { it.addedTracks }, removedTracks = batch.flatMap { it.removedTracks },
             heldBack = batch.sumOf { it.heldBack },
+            notAdded = batch.flatMap { it.notAdded },
             error = failed?.error, netError = failed?.netError,
         )
     }

@@ -25,6 +25,7 @@
     <string name="last_run_at">Son çalıştırma: %1$s</string>
     <string name="result_added_removed">%1$d eklendi, %2$d kaldırıldı</string>
     <string name="result_unmatched">%1$d bulunamadı</string>
+    <string name="result_not_added">Sonraki çalıştırmada %1$d eklenecek</string>
     <string name="result_error">Hata: %1$s</string>
     <string name="result_ok">Güncel</string>
 
@@ -2099,7 +2100,6 @@
     <string name="backup_device_other">diğer cihaz</string>
     <string name="note_duplicates_repaired">Hedeften kaldırılan yinelenenler: %1$d. Bu parçaların her biri orada iki kez vardı, kaynakta ise bir kez var.</string>
     <string name="note_not_added_limited">Bu sefer %1$d şarkı eklenmedi (%2$s istekleri sınırladı): sonraki çalıştırma kalanları ekler.</string>
-    <string name="note_not_added_refused">Bu sefer %1$d şarkı eklenmedi (%2$s reddetti): sonraki çalıştırma yeniden dener.</string>
     <string name="note_running_elsewhere">%1$s üzerinde çalışıyor: atlandı</string>
     <string name="server_locks_title">Sunucumla eşgüdüm sağla</string>
     <string name="server_locks_desc">Bu telefon ve Trackhop sunucun her çalma listesine sırayla yazar, böylece şarkılar iki kez eklenmez</string>

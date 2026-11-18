@@ -78,16 +78,17 @@ class AddsLimitedTest {
         assertEquals(2, dst.addCalls)
     }
 
-    @Test fun refusalsInARowAfterSomeWentInStopTheRunCleanly() = runBlocking {
+    @Test fun refusalsInARowAfterSomeWentInStopTheRunWithItsAnswer() = runBlocking {
         // The block fails, and so does every track tried alone (a session that went bad mid-run).
         dst.limitAfter = 50
         dst.limitAnswer = { ProviderException("Deezer (web): the Deezer web session has expired") }
         val r = SyncEngine(env).run(job())
-        assertNull(r.error)
+        // An error to fix (sign in again), not songs to add next run.
+        assertTrue(r.error.toString(), r.error?.contains("session has expired") == true)
         assertEquals(50, r.added)
-        assertEquals(emptyList<String>(), r.unmatched)
-        // Every matched song not added is listed as such: none lost, none as not found.
-        assertEquals(70, r.notAdded.size)
+        // The 20 refused one by one are listed as before; those never asked are left over.
+        assertEquals(20, r.unmatched.size)
+        assertEquals(50, r.notAdded.size)
         // The block, then 20 one by one, then nothing more.
         assertEquals(2 + 20, dst.addCalls)
     }

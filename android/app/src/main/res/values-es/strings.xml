@@ -25,6 +25,7 @@
     <string name="last_run_at">Última ejecución: %1$s</string>
     <string name="result_added_removed">%1$d añadidas, %2$d eliminadas</string>
     <string name="result_unmatched">%1$d no encontradas</string>
+    <string name="result_not_added">%1$d por añadir en la próxima</string>
     <string name="result_error">Error: %1$s</string>
     <string name="result_ok">Al día</string>
 
@@ -2109,7 +2110,6 @@
     <string name="backup_device_other">el otro dispositivo</string>
     <string name="note_duplicates_repaired">Duplicados quitados del destino: %1$d. Cada una de estas pistas estaba dos veces y en el origen está una sola.</string>
     <string name="note_not_added_limited">%1$d canciones no añadidas esta vez (%2$s limitó las peticiones): la próxima sincronización añade el resto.</string>
-    <string name="note_not_added_refused">%1$d canciones no añadidas esta vez (%2$s las rechazó): la próxima sincronización lo vuelve a intentar.</string>
     <string name="note_running_elsewhere">En curso en %1$s: omitida</string>
     <string name="server_locks_title">Coordinar con mi servidor</string>
     <string name="server_locks_desc">Este teléfono y tu servidor Trackhop se turnan en cada playlist, así las canciones no se añaden dos veces</string>

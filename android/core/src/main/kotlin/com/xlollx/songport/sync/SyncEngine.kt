@@ -1392,10 +1392,9 @@ class SyncEngine(
         // instead of listing every track as not found (issue #34).
         var addStopped: String? = null
         var singleFails = 0
-        // The service limited the requests part way (Deezer's likes: a quota, "too many requests"), or
-        // went on refusing one track after another once some were added: adding stops cleanly, the
-        // service's reason is logged, and what is left is "not added this time", for the next run.
-        // Matched tracks: never counted as not found (2.1.4).
+        // The service limited the requests part way (Deezer's likes: a quota, "too many requests"):
+        // adding stops cleanly, the service's reason is logged, and what is left is "not added this
+        // time", for the next run. Matched tracks: never counted as not found (2.1.4).
         var limitedWhy: String? = null
         val notAdded = ArrayList<Track>()
         // The internet went away while writing: the run stops where it is. What was added stays; nothing
@@ -1437,9 +1436,9 @@ class SyncEngine(
             // saves one track at a time; without it, in batches at full speed (MusicProvider.addsInOrder).
             kotlinx.coroutines.withContext(if (job.keepOrder) MusicProvider.OrderedAdds else kotlin.coroutines.EmptyCoroutineContext) {
             for (chunk in additions.chunked(chunkSize)) {
-                if (addStopped != null || offline) break
-                // Limited: the rest waits for the next run, not one more request now.
-                if (limitedWhy != null) { notAdded += chunk; continue }
+                // Stopped or limited: the rest waits for the next run, not one more request now.
+                if (addStopped != null || limitedWhy != null) { notAdded += chunk; continue }
+                if (offline) break
                 // The internet gone, known to the phone: stop here; what was added stays, nothing is removed.
                 if (NetError.knownOffline() && dst.serviceId != LocalFilesProvider.serviceId) { offline = true; break }
                 // Cosa si sta aggiungendo adesso, in scheda e nella vista dal vivo, come per la ricerca.
@@ -1547,9 +1546,11 @@ class SyncEngine(
                                     env.log("engine", "${job.name}: adding stopped, ${dst.displayName} refused the first $singleFails tracks one by one: ${addStopped?.take(300)}")
                                 } else if (singleFails >= SYSTEMIC_REFUSALS_AFTER_ADDS) {
                                     // Refused one after another after some went in: the service, not the tracks
-                                    // (a few bad ids in a row are not that many). The rest waits for the next
-                                    // run instead of a request per track.
-                                    limitedWhy = e2.message ?: e2.javaClass.simpleName
+                                    // (a session gone mid-run; a few bad ids in a row are not that many). Adding
+                                    // stops with its answer as the run's error; what was not tried is left over.
+                                    addStopped = e2.message ?: e2.javaClass.simpleName
+                                    notAdded += chunk.subList(i + 1, chunk.size)
+                                    env.log("engine", "${job.name}: adding stopped, ${dst.displayName} refused $singleFails tracks in a row: ${addStopped?.take(300)}")
                                 }
                             }
                         }
@@ -1564,10 +1565,7 @@ class SyncEngine(
             env.log("engine", "${job.name}: adding stopped, ${dst.displayName} limited the requests: ${limitedWhy?.take(300)}; " +
                 "$added added, ${notAdded.size} ${tracksWord(notAdded.size)} left for the next run")
         }
-        when {
-            limitedWhy != null -> notes += str("note_not_added_limited", failed.size + notAdded.size, dst.displayName)
-            failed.isNotEmpty() -> notes += str("note_not_added_refused", failed.size, dst.displayName)
-        }
+        if (limitedWhy != null && notAdded.isNotEmpty()) notes += str("note_not_added_limited", notAdded.size, dst.displayName)
         if (alreadyThere.isNotEmpty()) {
             store.putPresentUnlisted(dst.id, targetId, alreadyThere.map { it.id })
             env.log("engine", "${job.name}: ${alreadyThere.size} tracks already on ${dst.displayName} but missing from its playlist listing: " +
@@ -1659,8 +1657,9 @@ class SyncEngine(
             id = reportId, jobId = job.id, jobName = job.name, startedEpoch = started,
             durationMs = System.currentTimeMillis() - started,
             sourceCount = plan.sourceCount, targetCount = plan.targetCount, targetId = plan.targetPlaylistId, added = added, removed = removed,
-            // Matched but not added (refused, limited) are not "not found": they have their own list.
-            unmatched = unmatched.map { it.toString() },
+            // Songs the service refused one by one stay listed here, as they always were; those it
+            // limited, or never asked once adding stopped, have their own list (notAdded).
+            unmatched = unmatched.map { it.toString() } + failed,
             unmatchedTracks = unmatched,
             ignored = plan.ignored,
             reviewTracks = reviews,
@@ -1676,7 +1675,7 @@ class SyncEngine(
             heldBack = plan.heldBackRemovals,
             searchInterrupted = plan.searchInterrupted,
             sourceEmpty = plan.sourceCount == 0 && plan.ignored == 0,
-            notAdded = failed + notAdded.map { it.toString() },
+            notAdded = notAdded.map { it.toString() },
         )
     }
 

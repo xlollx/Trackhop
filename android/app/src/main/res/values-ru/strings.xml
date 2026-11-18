@@ -25,6 +25,7 @@
     <string name="last_run_at">Последний запуск: %1$s</string>
     <string name="result_added_removed">Добавлено: %1$d, удалено: %2$d</string>
     <string name="result_unmatched">Не найдено: %1$d</string>
+    <string name="result_not_added">Добавить в следующий раз: %1$d</string>
     <string name="result_error">Ошибка: %1$s</string>
     <string name="result_ok">Актуально</string>
 
@@ -2173,7 +2174,6 @@
     <string name="backup_device_other">другом устройстве</string>
     <string name="note_duplicates_repaired">Дубликаты удалены из цели: %1$d. Каждый из этих треков был там дважды, а в источнике он один.</string>
     <string name="note_not_added_limited">На этот раз не добавлено треков: %1$d (%2$s ограничил запросы): следующий запуск добавит остальное.</string>
-    <string name="note_not_added_refused">На этот раз не добавлено треков: %1$d (%2$s их отклонил): следующий запуск попробует снова.</string>
     <string name="note_running_elsewhere">Выполняется на %1$s: пропущено</string>
     <string name="server_locks_title">Согласовывать с моим сервером</string>
     <string name="server_locks_desc">Этот телефон и ваш сервер Trackhop пишут в каждый плейлист по очереди, чтобы треки не добавлялись дважды</string>

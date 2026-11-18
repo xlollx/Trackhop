@@ -25,6 +25,7 @@
     <string name="last_run_at">Ostatnie uruchomienie: %1$s</string>
     <string name="result_added_removed">Dodano: %1$d, usunięto: %2$d</string>
     <string name="result_unmatched">Nie znaleziono: %1$d</string>
+    <string name="result_not_added">Do dodania następnym razem: %1$d</string>
     <string name="result_error">Błąd: %1$s</string>
     <string name="result_ok">Aktualna</string>
 
@@ -2175,7 +2176,6 @@
     <string name="backup_device_other">drugim urządzeniu</string>
     <string name="note_duplicates_repaired">Duplikaty usunięte z celu: %1$d. Każdy z tych utworów był tam dwa razy, a w źródle jest raz.</string>
     <string name="note_not_added_limited">Tym razem nie dodano %1$d utworów (%2$s ograniczył zapytania): następne uruchomienie doda resztę.</string>
-    <string name="note_not_added_refused">Tym razem nie dodano %1$d utworów (%2$s je odrzucił): następne uruchomienie spróbuje ponownie.</string>
     <string name="note_running_elsewhere">Działa na %1$s: pominięto</string>
     <string name="server_locks_title">Uzgadniaj z moim serwerem</string>
     <string name="server_locks_desc">Ten telefon i Twój serwer Trackhop zapisują do każdej playlisty po kolei, więc utwory nie są dodawane dwa razy</string>

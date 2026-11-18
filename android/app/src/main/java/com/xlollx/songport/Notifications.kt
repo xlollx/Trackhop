@@ -225,12 +225,22 @@ object Notifications {
         // on as text, gets them here.
         if (!r.ok && r.netError != null) return r.error.orEmpty()
         if (!r.ok) return context.getString(R.string.result_error, com.xlollx.songport.ui.userText(context, r.error))
-        val parts = ArrayList<String>()
-        if (r.added > 0 || r.removed > 0) parts += context.getString(R.string.result_added_removed, r.added, r.removed)
-        if (r.unmatched.isNotEmpty()) parts += context.getString(R.string.result_unmatched, r.unmatched.size)
-        if (r.ignored > 0) parts += context.getString(R.string.result_ignored, r.ignored)
-        if (parts.isEmpty()) parts += context.getString(R.string.result_ok)
-        return parts.joinToString(", ")
+        return summaryParts(r).joinToString(", ") { (res, args) -> context.getString(res, *args.toTypedArray()) }
+    }
+
+    /**
+     * The parts of [summary] for a run that went through, as string ids and their numbers. Songs the
+     * service did not take this time (it limited the requests) are said: a run that added none of
+     * them is not "Up to date" (2.1.4).
+     */
+    internal fun summaryParts(r: SyncReport): List<Pair<Int, List<Int>>> {
+        val parts = ArrayList<Pair<Int, List<Int>>>()
+        if (r.added > 0 || r.removed > 0) parts += R.string.result_added_removed to listOf(r.added, r.removed)
+        if (r.notAdded.isNotEmpty()) parts += R.string.result_not_added to listOf(r.notAdded.size)
+        if (r.unmatched.isNotEmpty()) parts += R.string.result_unmatched to listOf(r.unmatched.size)
+        if (r.ignored > 0) parts += R.string.result_ignored to listOf(r.ignored)
+        if (parts.isEmpty()) parts += R.string.result_ok to emptyList()
+        return parts
     }
 
     /** A one-line notice that opens the app on its Settings (the backup folder gone, and the like). */

@@ -25,6 +25,7 @@
     <string name="last_run_at">Last run: %1$s</string>
     <string name="result_added_removed">%1$d added, %2$d removed</string>
     <string name="result_unmatched">%1$d not found</string>
+    <string name="result_not_added">%1$d to add next run</string>
     <string name="result_error">Error: %1$s</string>
     <string name="result_ok">Up to date</string>
 
@@ -2102,7 +2103,6 @@
     <string name="backup_device_other">the other device</string>
     <string name="note_duplicates_repaired">Duplicates removed from the target: %1$d. Each of these tracks was there twice and is in the source once.</string>
     <string name="note_not_added_limited">%1$d songs not added this time (%2$s limited the requests): the next run adds the rest.</string>
-    <string name="note_not_added_refused">%1$d songs not added this time (%2$s refused them): the next run tries them again.</string>
     <string name="note_running_elsewhere">Running on %1$s: skipped</string>
     <string name="server_locks_title">Coordinate with my server</string>
     <string name="server_locks_desc">This phone and your Trackhop server take turns on each playlist, so songs are not added twice</string>

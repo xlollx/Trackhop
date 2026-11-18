@@ -54,10 +54,9 @@ class AddFailuresTest {
         assertEquals(1, dst.addCalls)
         assertEquals(43, dst.lists["t"]!!.size)
         assertEquals(43, dst.lists["t"]!!.map { it.id }.distinct().size)
-        // Matched but refused: listed as not added, never as not found (2.1.4).
-        assertTrue(r.notAdded.toString(), r.notAdded.any { it.contains("Song 3 (refused)") } && r.notAdded.any { it.contains("Song 40 (refused)") })
-        assertEquals(emptyList<String>(), r.unmatched)
-        assertTrue(r.notes.toString(), "note_not_added_refused(2,mdst)" in r.notes)
+        assertTrue(r.unmatched.toString(), r.unmatched.any { it.contains("Song 3 (refused)") } && r.unmatched.any { it.contains("Song 40 (refused)") })
+        // Refused for good, not limited: nothing "to add next run" (2.1.4).
+        assertEquals(emptyList<String>(), r.notAdded)
     }
 
     @Test fun additionsThatWorkAreNotStopped() = runBlocking {

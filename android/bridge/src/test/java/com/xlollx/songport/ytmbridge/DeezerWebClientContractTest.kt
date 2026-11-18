@@ -47,6 +47,7 @@ class DeezerWebClientContractTest {
         DeezerWebClient.quotaWaitMs = 1
         DeezerWebClient.pauseMs = 0
         DeezerWebClient.limitWaitMs = 1
+        DeezerWebClient.limitBudgetMs = 90_000
         dz = DeezerWebClient(app)
     }
 
@@ -335,9 +336,40 @@ class DeezerWebClientContractTest {
         assertNull(b.getString("error"))
         assertEquals(listOf("2", "3"), b.getStringArray("notAdded")!!.toList())
         assertTrue(b.getString("notAddedWhy")!!.contains("429"))
-        // Trackhop 2.1.3 and older: the error it always had, never a silent "all added".
-        ok("true"); limited()
+        // Trackhop 2.1.3 and older: the error it always had, at once, without a single wait.
+        BridgeMock.calls.clear()
+        DeezerWebClient.limitWaitMs = 60_000
+        ok("true"); answer("", code = 429)
+        val started = System.currentTimeMillis()
         assertTrue(BridgeCore.call(app, "deezer.add", "__liked__", ids(partial = false)).getString("error")!!.contains("429"))
+        assertEquals(2, BridgeMock.calls.size)
+        assertTrue(System.currentTimeMillis() - started < 10_000)
+    }
+
+    @Test fun theWaitsAreCountedForTheWholeCallNotForEachSong() {
+        // Every song limited once, then taken: three waits in all, then the rest is handed back.
+        repeat(4) { answer("", code = 429); ok("true") }
+        val l = dz.like(listOf("1", "2", "3", "4", "5"), on = true)
+        assertEquals(listOf("1", "2", "3"), l.done)
+        assertEquals(listOf("4", "5"), l.left)
+        assertEquals(3 * 2 + 1, BridgeMock.calls.size)
+    }
+
+    @Test fun theWaitsStopAtTheirTotalTime() {
+        DeezerWebClient.limitWaitMs = 40
+        DeezerWebClient.limitBudgetMs = 100
+        // 40 ms, then 80 ms would pass the 100 ms in all: the rest is handed back after one wait.
+        answer("", code = 429); ok("true"); answer("", code = 429)
+        val l = dz.like(listOf("1", "2", "3"), on = true)
+        assertEquals(listOf("1"), l.done)
+        assertEquals(listOf("2", "3"), l.left)
+        assertEquals(3, BridgeMock.calls.size)
+    }
+
+    @Test fun aSessionGoneAfterSomeLikesIsAnErrorNotSongsLeftForLater() {
+        ok("true")
+        answer("", code = 401); answer("", code = 401)
+        try { dz.like(listOf("1", "2", "3"), on = true); fail() } catch (e: BridgeException) { assertEquals(DeezerWebClient.EXPIRED, e.message) }
     }
 
     @Test fun aRefusalBeforeAnyLikeIsAnErrorAsBefore() {

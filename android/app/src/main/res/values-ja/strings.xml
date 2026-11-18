@@ -25,6 +25,7 @@
     <string name="last_run_at">前回の実行：%1$s</string>
     <string name="result_added_removed">%1$d 曲追加、%2$d 曲削除</string>
     <string name="result_unmatched">%1$d 曲が見つかりません</string>
+    <string name="result_not_added">次回追加 %1$d 曲</string>
     <string name="result_error">エラー：%1$s</string>
     <string name="result_ok">最新の状態</string>
 
@@ -2065,7 +2066,6 @@
     <string name="backup_device_other">もう一方の端末</string>
     <string name="note_duplicates_repaired">同期先から重複を削除しました：%1$d 件。どの曲も同期先に 2 回あり、移動元には 1 回だけです。</string>
     <string name="note_not_added_limited">今回は %1$d 曲を追加できませんでした（%2$s がリクエストを制限しました）。残りは次回の同期で追加します。</string>
-    <string name="note_not_added_refused">今回は %1$d 曲を追加できませんでした（%2$s が拒否しました）。次回の同期でもう一度試します。</string>
     <string name="note_running_elsewhere">%1$s で実行中のためスキップしました</string>
     <string name="server_locks_title">自分のサーバーと調整</string>
     <string name="server_locks_desc">このスマホと Trackhop サーバーがプレイリストごとに順番に書き込むので、曲が二重に追加されません</string>

@@ -25,6 +25,7 @@
     <string name="last_run_at">마지막 실행: %1$s</string>
     <string name="result_added_removed">%1$d곡 추가, %2$d곡 삭제</string>
     <string name="result_unmatched">%1$d곡 찾지 못함</string>
+    <string name="result_not_added">다음 실행에 %1$d곡 추가</string>
     <string name="result_error">오류: %1$s</string>
     <string name="result_ok">최신 상태</string>
 
@@ -2064,7 +2065,6 @@
     <string name="backup_device_other">다른 기기</string>
     <string name="note_duplicates_repaired">대상에서 중복을 삭제했어요: %1$d개. 이 곡들은 대상에 두 번 있었고 원본에는 한 번만 있어요.</string>
     <string name="note_not_added_limited">이번에는 %1$d곡을 추가하지 못했어요(%2$s에서 요청을 제한했어요). 나머지는 다음 실행에서 추가해요.</string>
-    <string name="note_not_added_refused">이번에는 %1$d곡을 추가하지 못했어요(%2$s에서 거부했어요). 다음 실행에서 다시 시도해요.</string>
     <string name="note_running_elsewhere">%1$s에서 실행 중이라 건너뛰었어요</string>
     <string name="server_locks_title">내 서버와 조율하기</string>
     <string name="server_locks_desc">이 폰과 Trackhop 서버가 플레이리스트마다 번갈아 쓰기 때문에 곡이 두 번 추가되지 않아요</string>

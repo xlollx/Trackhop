@@ -421,10 +421,12 @@ object BridgeCore {
                     // Likes Deezer stopped taking part way (its limit): an app that asks for it ("partial",
                     // Trackhop 2.1.4 on) gets those not added as "notAdded", with Deezer's answer as
                     // "notAddedWhy", and leaves them for its next run. An older app gets the error, as before.
-                    val liked = if (id == LIKED) DeezerWebClient(ctx, slot).like(ids, on = true) else { DeezerWebClient(ctx, slot).addToPlaylist(id, ids); null }
-                    deezerCache.invalidate(ck(slot, id))
+                    // An older app is answered as before: the first refusal, at once, without waiting.
+                    val partial = extras?.getBoolean("partial") == true
+                    val liked = try {
+                        if (id == LIKED) DeezerWebClient(ctx, slot).like(ids, on = true, patient = partial) else { DeezerWebClient(ctx, slot).addToPlaylist(id, ids); null }
+                    } finally { deezerCache.invalidate(ck(slot, id)) }
                     if (liked != null && liked.left.isNotEmpty()) {
-                        if (extras?.getBoolean("partial") != true) return err(liked.why ?: "Deezer did not take every favourite")
                         return Bundle().apply {
                             putStringArray("notAdded", liked.left.toTypedArray())
                             putString("notAddedWhy", liked.why)

@@ -273,41 +273,58 @@ class DeezerWebClient(private val host: WebHost) {
 
     /**
      * Favourite tracks, one call each as the player does (the gateway's `favorite_song.add` takes one
-     * SNG_ID; no batch form is known), [pauseMs] apart. Deezer limiting the requests ([Limited]) is
-     * waited out (its Retry-After, else [limitWaitMs], doubling) at most [LIMIT_RETRIES] times, and
-     * the pace halves from then on; still limited, the run stops and says what is left. Another
-     * refusal once some went in stops it the same way; before any, it is thrown as it always was.
+     * SNG_ID; no batch form is known), [pauseMs] apart.
+     *
+     * [patient] (an app that takes back what is left, Trackhop 2.1.4 on): Deezer limiting the requests
+     * ([Limited]) is waited out (its Retry-After, else [limitWaitMs], doubling) at most [LIMIT_RETRIES]
+     * times in the whole call and [limitBudgetMs] in all, the pace halving from the first; past
+     * that, the call stops and hands back what is left. Another refusal of one song once some went in
+     * stops it the same way. A session gone (sign in again) or the network lost is thrown as it is:
+     * an error, never "to add next run".
+     *
+     * Not [patient] (an older app, which tries a refused block again song by song): the first refusal
+     * is thrown at once, without waiting, as the Bridge always did.
      */
-    fun like(songIds: List<String>, on: Boolean): Liked {
+    fun like(songIds: List<String>, on: Boolean, patient: Boolean = true): Liked {
         val method = if (on) "favorite_song.add" else "favorite_song.remove"
         val done = ArrayList<String>(songIds.size)
         var pause = pauseMs
+        var waits = 0
+        var waited = 0L
         for ((i, s) in songIds.withIndex()) {
             if (i > 0) Thread.sleep(pause)
-            var waits = 0
             while (true) {
                 try {
                     gw(method, jsonObj("SNG_ID" to num(s)))
                     done += s
                     break
-                } catch (e: Limited) {
-                    if (waits >= LIMIT_RETRIES) {
-                        BridgeNet.log("deezer", "favourites: still limited after $waits waits, ${done.size} of ${songIds.size} done, ${songIds.size - i} left for the next run")
-                        return Liked(done, songIds.subList(i, songIds.size).toList(), "Deezer limited the requests (${e.message})")
+                } catch (e: BridgeException) {
+                    if (!patient || isFatal(e)) throw e
+                    fun left(why: String): Liked {
+                        BridgeNet.log("deezer", "favourites: stopped after ${done.size} of ${songIds.size} ($waits waits, ${waited / 1000} s), ${songIds.size - i} left for the next run: ${why.take(160)}")
+                        return Liked(done, songIds.subList(i, songIds.size).toList(), why)
+                    }
+                    if (e !is Limited) {
+                        if (done.isEmpty()) throw e
+                        return left(e.message ?: "refused")
                     }
                     val wait = e.waitMs ?: (limitWaitMs shl waits)
+                    if (waits >= LIMIT_RETRIES || waited + wait > limitBudgetMs) return left("Deezer limited the requests (${e.message})")
                     waits++
+                    waited += wait
                     BridgeNet.log("deezer", "favourites: Deezer limited the requests after ${done.size} of ${songIds.size}; waiting ${wait / 1000} s ($waits of $LIMIT_RETRIES)")
                     Thread.sleep(wait)
                     pause = (pause * 2).coerceIn(pauseMs, MAX_PAUSE_MS)
-                } catch (e: BridgeException) {
-                    if (done.isEmpty()) throw e
-                    BridgeNet.log("deezer", "favourites: refused after ${done.size} of ${songIds.size}: ${e.message?.take(160)}")
-                    return Liked(done, songIds.subList(i, songIds.size).toList(), e.message ?: "refused")
                 }
             }
         }
         return Liked(done, emptyList(), null)
+    }
+
+    /** A session gone or the network lost: said as an error, whatever was liked before it. */
+    private fun isFatal(e: BridgeException): Boolean {
+        val m = e.message.orEmpty()
+        return e.cause is java.io.IOException || m == EXPIRED || m == "not connected" || m.startsWith("Deezer did not hand out")
     }
 
     // ---- shapes
@@ -374,8 +391,9 @@ class DeezerWebClient(private val host: WebHost) {
         private val JSON = "application/json".toMediaType()
         private val TOKEN_ERRORS = setOf("VALID_TOKEN_REQUIRED", "INVALID_CSRF_TOKEN")
         private val AUTH_ERRORS = setOf("NEED_USER_AUTH_REQUIRED", "USER_AUTH_REQUIRED", "GATEWAY_ERROR_AUTH")
-        /** How many times a limit is waited out in one run of likes, and the longest wait asked that is honoured. */
+        /** How many times a limit is waited out in one call of likes, all songs together, and for how long at most in all. */
         const val LIMIT_RETRIES = 3
+        @Volatile var limitBudgetMs = 90_000L
         private const val MAX_LIMIT_WAIT_S = 120L
         /** After a limit the likes go twice as far apart, up to this. */
         private const val MAX_PAUSE_MS = 2_000L
