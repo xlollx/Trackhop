@@ -22,6 +22,7 @@ import com.xlollx.songport.sync.Durations
 import com.xlollx.songport.sync.Listening
 import com.xlollx.songport.sync.Matcher
 import com.xlollx.songport.sync.Reorder
+import kotlinx.coroutines.async
 import kotlinx.serialization.json.JsonElement
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -255,24 +256,71 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
         }
     }
 
-    override suspend fun tracks(ctx: Env, playlistId: String): List<Track> {
-        if (playlistId == MusicProvider.ALBUMS_ID) return collection(ctx, "albums")
-        if (playlistId == MusicProvider.ARTISTS_ID) return collection(ctx, "artists")
-        if (playlistId == MusicProvider.LIKED_ID) return likedTracks(ctx)
+    /**
+     * The playlist's items, a page at a time as TIDAL sends them (its page size is its own: the API
+     * takes no size for this path). The tracks of a page that came without their artists' ids are
+     * asked for again ([again]) while the next page is read: two calls at a time at most, one of
+     * them the page.
+     */
+    override suspend fun tracks(ctx: Env, playlistId: String): List<Track> = kotlinx.coroutines.coroutineScope {
+        if (playlistId == MusicProvider.ALBUMS_ID) return@coroutineScope collection(ctx, "albums")
+        if (playlistId == MusicProvider.ARTISTS_ID) return@coroutineScope collection(ctx, "artists")
+        if (playlistId == MusicProvider.LIKED_ID) return@coroutineScope likedTracks(ctx)
         val order = ArrayList<Pair<String, String?>>() // (trackId, itemId) nell'ordine della playlist
         val included = LinkedHashMap<String, JsonElement>()
         var url: String? = "$API/playlists/$playlistId/relationships/items?countryCode=${cc(ctx)}&include=items"
+        var asking: kotlinx.coroutines.Deferred<Map<String, JsonElement>>? = null
         while (url != null) {
             val j = api(ctx, "GET", url)
             for (d in j["data"].arr) {
                 if (d["type"].str != "tracks") continue
                 order += (d["id"].str ?: continue) to d["meta"]["itemId"].str
             }
-            for (inc in j["included"].arr) if (inc["type"].str == "tracks") included[inc["id"].str ?: continue] = inc
+            val page = LinkedHashMap<String, JsonElement>()
+            for (inc in j["included"].arr) if (inc["type"].str == "tracks") page[inc["id"].str ?: continue] = inc
+            val bare = bareOf(page)
+            included += page
             url = nextUrl(j)
+            asking?.let { included += it.await() }
+            asking = if (bare.isEmpty()) null else async { again(ctx, bare) }
         }
-        val names = withArtists(ctx, included)
-        return order.mapNotNull { (tid, itemId) -> included[tid]?.let { trackFrom(it, names, itemId) } }
+        asking?.let { included += it.await() }
+        val names = artistNames(ctx, included.values.flatMap { r -> r["relationships"]["artists"]["data"].arr.mapNotNull { it["id"].str } })
+        order.mapNotNull { (tid, itemId) -> included[tid]?.let { trackFrom(it, names, itemId) } }
+    }
+
+    /**
+     * The tracks of [included] that came without their artists' ids (only a link to them), but those
+     * asked for again before in this process: those are put back in [included] as they came then.
+     */
+    private fun bareOf(included: MutableMap<String, JsonElement>): List<String> =
+        included.filterValues { r -> r["relationships"]["artists"]["data"].arr.isEmpty() }.keys
+            .filter { id -> trackCache[id]?.let { included[id] = it; false } ?: true }
+
+    /**
+     * [ids] asked for again with their artists, twenty at a time (the most `filter[id]` takes): the
+     * tracks that came with artists, by id. The artists' names come in the same answers and are kept,
+     * so they are not asked for apart.
+     */
+    private suspend fun again(ctx: Env, ids: List<String>): Map<String, JsonElement> {
+        val out = HashMap<String, JsonElement>()
+        ids.chunked(20).forEach { chunk ->
+            // A lost connection is not a song without artists (it would match nothing): it fails the read, which is tried again.
+            val j = runCatching { api(ctx, "GET", "$API/tracks?countryCode=${cc(ctx)}&filter[id]=${chunk.joinToString(",")}&include=artists") }
+                .onFailure { if (com.xlollx.songport.net.NetError.isNetwork(it)) throw it }.getOrNull() ?: return@forEach
+            for (t in j["data"].arr) {
+                val id = t["id"].str ?: continue
+                if (t["relationships"]["artists"]["data"].arr.isEmpty()) continue
+                out[id] = t
+                if (trackCache.size < CACHE_MAX) trackCache[id] = t
+            }
+            for (a in j["included"].arr) {
+                if (a["type"].str != "artists") continue
+                val name = a["attributes"]["name"].str ?: continue
+                if (name.isNotEmpty() && artistNameCache.size < CACHE_MAX) artistNameCache[a["id"].str ?: continue] = name
+            }
+        }
+        return out
     }
 
     /**
@@ -281,20 +329,7 @@ class TidalProvider(override val slot: String = "") : OAuthProvider() {
      * at a time, and replaced in [included], so every track has its names.
      */
     private suspend fun withArtists(ctx: Env, included: MutableMap<String, JsonElement>): Map<String, String> {
-        val bare = included.filterValues { r -> r["relationships"]["artists"]["data"].arr.isEmpty() }.keys.toList()
-        // A track already asked for again in this process is taken as it came then.
-        val left = bare.filter { id -> trackCache[id]?.let { included[id] = it; false } ?: true }
-        left.chunked(20).forEach { chunk ->
-            // A lost connection is not a song without artists (it would match nothing): it fails the read, which is tried again.
-            val j = runCatching { api(ctx, "GET", "$API/tracks?countryCode=${cc(ctx)}&filter[id]=${chunk.joinToString(",")}&include=artists") }
-                .onFailure { if (com.xlollx.songport.net.NetError.isNetwork(it)) throw it }.getOrNull() ?: return@forEach
-            for (t in j["data"].arr) {
-                val id = t["id"].str ?: continue
-                if (t["relationships"]["artists"]["data"].arr.isEmpty()) continue
-                included[id] = t
-                if (trackCache.size < CACHE_MAX) trackCache[id] = t
-            }
-        }
+        included += again(ctx, bareOf(included))
         return artistNames(ctx, included.values.flatMap { r -> r["relationships"]["artists"]["data"].arr.mapNotNull { it["id"].str } })
     }
 

@@ -44,7 +44,6 @@ class TidalContractTest : ContractTest() {
         val bare = """{"id":"100","type":"tracks","attributes":{"title":"Song 0","isrc":"GBAAA0000000","duration":"PT3M0S"},"relationships":{"artists":{"links":{"self":"/tracks/100/relationships/artists"}}}}"""
         json("""{"data":[${ref(0)}],"included":[$bare],"links":{"self":"x"}}""")
         json("""{"data":[${inc(0)}],"included":[{"id":"7","type":"artists","attributes":{"name":"Måneskin"}}]}""")
-        json(artists)
         val ts = td.tracks(env, "P")
         assertEquals(listOf("Måneskin"), ts.single().artists)
         next()
@@ -52,7 +51,7 @@ class TidalContractTest : ContractTest() {
         assertCall(again, "GET", api, "/v2/tracks")
         assertEquals("100", again.query("filter[id]"))
         assertEquals("artists", again.query("include"))
-        next()
+        // The artists' names came with the tracks: not asked for apart.
         noMoreRequests()
     }
 
@@ -90,13 +89,58 @@ class TidalContractTest : ContractTest() {
         val bare = """{"id":"100","type":"tracks","attributes":{"title":"Song 0","isrc":"GBAAA0000000","duration":"PT3M0S"},"relationships":{"artists":{"links":{"self":"/tracks/100/relationships/artists"}}}}"""
         json("""{"data":[${ref(0)}],"included":[$bare],"links":{"self":"x"}}""")
         json("""{"data":[${inc(0)}],"included":[{"id":"7","type":"artists","attributes":{"name":"Måneskin"}}]}""")
-        json(artists)
         assertEquals(listOf("Måneskin"), td.tracks(env, "P").single().artists)
-        repeat(3) { next() }
+        repeat(2) { next() }
         json("""{"data":[${ref(0)}],"included":[$bare],"links":{"self":"x"}}""")
         assertEquals(listOf("Måneskin"), td.tracks(env, "P").single().artists)
         assertCall(next(), "GET", api, "/v2/playlists/P/relationships/items")
         noMoreRequests()
+    }
+
+    /**
+     * A big playlist: page after page by cursor, each page's tracks without artists asked for again
+     * twenty at a time while the next page is read, their artists' names taken from those answers.
+     * Answered by path: a page and a track lookup may be under way together.
+     */
+    @Test fun pagesAndTheirTracksAgainWithoutAskingForTheArtistsApart() = runBlocking {
+        fun bare(i: Int) = """{"id":"${100 + i}","type":"tracks","attributes":{"title":"Song $i","duration":"PT3M0S"},"relationships":{"artists":{"links":{"self":"/tracks/${100 + i}/relationships/artists"}}}}"""
+        val pages = 3
+        val perPage = 20
+        val inFlight = java.util.concurrent.atomic.AtomicInteger()
+        val most = java.util.concurrent.atomic.AtomicInteger()
+        server.dispatcher = object : okhttp3.mockwebserver.Dispatcher() {
+            override fun dispatch(request: okhttp3.mockwebserver.RecordedRequest): okhttp3.mockwebserver.MockResponse {
+                most.accumulateAndGet(inFlight.incrementAndGet(), ::maxOf)
+                try {
+                    Thread.sleep(30)
+                    val body = when (request.requestUrl!!.encodedPath) {
+                        "/v2/playlists/P/relationships/items" -> {
+                            val p = request.requestUrl!!.queryParameter("page[cursor]")?.removePrefix("c")?.toInt() ?: 0
+                            val range = (p * perPage) until ((p + 1) * perPage)
+                            val next = if (p + 1 < pages) ""","next":"/playlists/P/relationships/items?countryCode=IT&include=items&page%5Bcursor%5D=c${p + 1}"""" else ""
+                            """{"data":[${range.joinToString(",") { ref(it) }}],"included":[${range.joinToString(",") { bare(it) }}],"links":{"self":"x"$next}}"""
+                        }
+                        "/v2/tracks" -> {
+                            val ids = request.requestUrl!!.queryParameter("filter[id]")!!.split(',').map { it.toInt() - 100 }
+                            """{"data":[${ids.joinToString(",") { inc(it) }}],"included":${artists.removePrefix("{\"data\":").removeSuffix("}")}}"""
+                        }
+                        else -> return okhttp3.mockwebserver.MockResponse().setResponseCode(404)
+                    }
+                    return okhttp3.mockwebserver.MockResponse().setHeader("Content-Type", "application/json").setBody(body)
+                } finally { inFlight.decrementAndGet() }
+            }
+        }
+        val ts = td.tracks(env, "P")
+        assertEquals((0 until pages * perPage).map { "${100 + it}" }, ts.map { it.id })
+        assertEquals(listOf("Måneskin"), ts[0].artists)
+        assertEquals(listOf("Ñ"), ts[59].artists)
+        val calls = (0 until server.requestCount).map { next() }
+        assertEquals(pages, calls.count { it.pathOnly() == "/v2/playlists/P/relationships/items" })
+        val lookups = calls.filter { it.pathOnly() == "/v2/tracks" }
+        assertEquals(pages, lookups.size)
+        assertTrue(lookups.all { it.query("filter[id]")!!.split(',').size <= 20 && it.query("include") == "artists" })
+        assertTrue("no artist asked for apart", calls.none { it.pathOnly() == "/v2/artists" })
+        assertTrue("two calls at a time at most, not ${most.get()}", most.get() <= 2)
     }
 
     @Test fun artistLookupsInTwenties() = runBlocking {
@@ -342,7 +386,6 @@ class TidalContractTest : ContractTest() {
         val bare = """{"id":"101","type":"tracks","attributes":{"title":"Song 1","isrc":"GBAAA0000001","duration":"PT3M16S"},"relationships":{"artists":{"links":{"self":"/tracks/101/relationships/artists"}}}}"""
         json("""{"data":[{"id":"sr-1","type":"searchResults","relationships":{"tracks":{"data":[{"id":"101","type":"tracks"}]}}}],"included":[$bare]}""")
         json("""{"data":[${inc(1)}],"included":[{"id":"8","type":"artists","attributes":{"name":"Beyoncé"}}]}""")
-        json(artists)
         val r = td.search(env, Track("x", "Song 1", listOf("Beyoncé")))
         assertEquals(listOf("Beyoncé"), r.single().artists)
         assertCall(next(), "GET", api, "/v2/searchResults")
@@ -350,9 +393,7 @@ class TidalContractTest : ContractTest() {
         assertCall(again, "GET", api, "/v2/tracks")
         assertEquals("101", again.query("filter[id]"))
         assertEquals("artists", again.query("include"))
-        val a = next()
-        assertCall(a, "GET", api, "/v2/artists")
-        assertEquals("8", a.query("filter[id]"))
+        // The artist's name came with the track: not asked for apart.
         noMoreRequests()
     }
 
