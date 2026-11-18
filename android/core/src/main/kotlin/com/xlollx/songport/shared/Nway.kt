@@ -225,12 +225,15 @@ object Nway {
         return group
     }
 
-    /** Adds [ref] to [group]. A main member's own tracks join the group on the next run; a follower gets the group's, and keeps its own unless [keepMine] is off. */
+    /**
+     * Adds [ref] to [group]. A main member's own tracks join the group on the next run; a follower gets the group's, and keeps its own unless [keepMine] is off.
+     * It runs as the group does ([anchor]): its timing, days and time, saved schedule, Wi-Fi only, and paused when the group is; [schedule] only for a group with no sync.
+     */
     fun add(env: Env, group: SharedGroup, ref: PlaylistRef, main: Boolean, schedule: Schedule = Schedule.EVERY_6H, keepMine: Boolean = true) {
         check(Features.v2) { "Not available in this version" }
         usable(ref)
         require(members(env, group).none { it.playlist.provider == ref.provider && it.playlist.playlistId == ref.playlistId }) { "Already in the group" }
-        env.store.update { d -> withMember(d, group, ref, main, keepMine, schedule = schedule) }
+        env.store.update { d -> withMember(d, group, ref, main, keepMine, like = anchor(d, group) ?: jobsOf(d, group.id).firstOrNull(), schedule = schedule) }
         log(env, group.id, "member added: ${ref.provider} ${role(main, keepMine)}")
     }
 
@@ -292,14 +295,16 @@ object Nway {
      * The group's syncs in the order one run takes them: every main member's changes into the hub
      * first, then the hub into every member, so one pass carries a change everywhere. Each is an
      * ordinary sync and may also run alone, on its own schedule: the group then settles a run later.
+     * Paused syncs are left out, but for a run asked for by hand ([manual]): "Sync now" runs a paused
+     * group whole, as it runs a paused classic sync; only its schedule waits.
      */
-    fun order(env: Env, group: SharedGroup): List<SyncJob> =
-        members(env, group).let { all -> all.mapNotNull { it.up } + all.map { it.down } }.filter { it.enabled }
+    fun order(env: Env, group: SharedGroup, manual: Boolean = false): List<SyncJob> =
+        members(env, group).let { all -> all.mapNotNull { it.up } + all.map { it.down } }.filter { manual || it.enabled }
 
     /** "Sync now" on the group: one report per sync run, in [order]. */
     suspend fun run(
         env: Env, engine: SyncEngine, group: SharedGroup, unattended: Boolean = false, onProgress: (SyncJob, Progress) -> Unit = { _, _ -> },
-    ): List<SyncReport> = order(env, group).map { j ->
+    ): List<SyncReport> = order(env, group, manual = !unattended).map { j ->
         // Read again: an earlier sync of this run may have written to it (its pair's other half).
         val job = env.store.job(j.id) ?: j
         engine.run(job, unattended) { onProgress(job, it) }

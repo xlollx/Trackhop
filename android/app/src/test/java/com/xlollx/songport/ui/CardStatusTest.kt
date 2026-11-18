@@ -28,6 +28,14 @@ class CardStatusTest {
         assertEquals(CardStatus.OK, cardStatus(false, true, report()))
     }
 
+    /** Matches to double-check and nothing else: something to fix, as the header counts it; not found says more. */
+    @Test fun matchesToCheckAreNotUpToDate() {
+        val review = listOf(com.xlollx.songport.model.MatchReview(Track(id = "s", title = "Song"), Track(id = "c", title = "Song"), 0.7))
+        assertEquals(CardStatus.TO_CHECK, cardStatus(false, true, report().copy(reviewTracks = review)))
+        assertEquals(CardStatus.NOT_FOUND, cardStatus(false, true, report(notFound = 1).copy(reviewTracks = review)))
+        assertEquals(CardStatus.HELD_BACK, cardStatus(false, true, report(heldBack = 2).copy(reviewTracks = review)))
+    }
+
     @Test fun runningDisabledNeverAndErrorComeFirst() {
         assertEquals(CardStatus.RUNNING, cardStatus(true, true, report(heldBack = 5)))
         assertEquals(CardStatus.DISABLED, cardStatus(false, false, report(heldBack = 5)))

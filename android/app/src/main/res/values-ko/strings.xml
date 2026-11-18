@@ -3299,4 +3299,5 @@
     <string name="nway_change_removed">이 동기화에서 빠집니다. 플레이리스트는 그대로 남습니다</string>
     <string name="nway_change_source">원본이 됩니다</string>
     <string name="nway_change_none">플레이리스트와 따라가는 방식은 그대로입니다.</string>
+    <string name="nway_schedule_note">이 멀티 동기화의 모든 플레이리스트가 이 주기로 실행됩니다.</string>
 </resources>

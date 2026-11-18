@@ -14,7 +14,7 @@ internal object NwayStatus {
     /** One service of the group: the state its card would show, the sync and the run it comes from, and the count that goes with it. */
     data class Member(
         val member: Nway.Member, val status: CardStatus, val job: SyncJob, val report: SyncReport?,
-        /** Removals on hold ([CardStatus.HELD_BACK]) or songs not found ([CardStatus.NOT_FOUND]); else 0. */
+        /** Removals on hold ([CardStatus.HELD_BACK]), songs not found ([CardStatus.NOT_FOUND]) or matches to check ([CardStatus.TO_CHECK]); else 0. */
         val count: Int = 0,
     ) {
         val provider: String get() = member.playlist.provider
@@ -22,7 +22,7 @@ internal object NwayStatus {
 
     /**
      * The group: [status] is its most serious state, [about] the services in it (one: the card names
-     * it), [count] their removals on hold or songs not found added up.
+     * it), [count] their removals on hold, songs not found or matches to check added up.
      */
     data class Group(
         val status: CardStatus, val about: List<Member>, val count: Int, val members: List<Member>,
@@ -37,7 +37,7 @@ internal object NwayStatus {
      * removals on hold, as on a card; no internet is not a failure (the sync runs again by itself),
      * so it only shows when nothing else is waiting.
      */
-    private val SERIOUS = listOf(CardStatus.ERROR, CardStatus.HELD_BACK, CardStatus.INCOMPLETE, CardStatus.NOT_FOUND, CardStatus.OFFLINE)
+    private val SERIOUS = listOf(CardStatus.ERROR, CardStatus.HELD_BACK, CardStatus.INCOMPLETE, CardStatus.NOT_FOUND, CardStatus.TO_CHECK, CardStatus.OFFLINE)
 
     private fun rank(s: CardStatus): Int = SERIOUS.indexOf(s).let { if (it < 0) SERIOUS.size else it }
 
@@ -56,6 +56,8 @@ internal object NwayStatus {
             CardStatus.HELD_BACK -> listOfNotNull(report(d, m.down), m.up?.let { report(d, it) }).maxOf { it.heldBack }
             // What the service lacks is in the report of the sync that brings the group to it.
             CardStatus.NOT_FOUND -> r?.unmatchedTracks?.size ?: 0
+            // Matches to double-check, as a card counts them (SyncFilter's "to fix" counts them too).
+            CardStatus.TO_CHECK -> r?.reviewTracks?.size ?: 0
             else -> 0
         }
         return Member(m, status, job, r, count)

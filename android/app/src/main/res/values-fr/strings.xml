@@ -3405,4 +3405,5 @@
     <string name="nway_change_removed">Quitte cette sync ; la playlist reste telle quelle</string>
     <string name="nway_change_source">Devient la source</string>
     <string name="nway_change_none">Les playlists et leur façon de suivre restent telles quelles.</string>
+    <string name="nway_schedule_note">Chaque playlist de cette sync multiple suit cette planification.</string>
 </resources>

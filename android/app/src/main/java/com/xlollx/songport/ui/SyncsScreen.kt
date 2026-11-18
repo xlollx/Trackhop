@@ -869,7 +869,7 @@ fun SyncsScreen(
 }
 
 /** What a sync card's pill says. */
-internal enum class CardStatus { RUNNING, PAUSING, PAUSED, DISABLED, NEVER, ERROR, HELD_BACK, INCOMPLETE, NOT_FOUND, EMPTY_SOURCE, OK, OFFLINE }
+internal enum class CardStatus { RUNNING, PAUSING, PAUSED, DISABLED, NEVER, ERROR, HELD_BACK, INCOMPLETE, NOT_FOUND, TO_CHECK, EMPTY_SOURCE, OK, OFFLINE }
 
 /**
  * The pill for a card, the most important first. Removals on hold come before "Not found: N": a few
@@ -889,6 +889,8 @@ internal fun cardStatus(isRunning: Boolean, enabled: Boolean, report: SyncReport
     report.heldBack > 0 -> CardStatus.HELD_BACK
     report.searchInterrupted -> CardStatus.INCOMPLETE
     report.unmatchedTracks.isNotEmpty() -> CardStatus.NOT_FOUND
+    // Matches to double-check: something left to fix, as the header counts it (SyncFilter.needsFix), not "Up to date".
+    report.reviewTracks.isNotEmpty() -> CardStatus.TO_CHECK
     // The source listed nothing at all (no loved tracks yet, an emptied playlist): said, not a silent "+0".
     // A radio sync with nothing new on air is normal.
     !radio && report.sourceEmpty -> CardStatus.EMPTY_SOURCE
@@ -1189,7 +1191,7 @@ private fun groupStatusInfo(g: GroupCard, run: SyncState.Run?, onPreview: (SyncJ
         CardStatus.OFFLINE -> CardStatusInfo(text, Tone.Neutral, Icons.Filled.CloudOff)
         CardStatus.HELD_BACK -> CardStatusInfo(text, Tone.Warning, Icons.Filled.Warning) { if (one != null) onPreview(one.job) else onOpen() }
         CardStatus.INCOMPLETE -> CardStatusInfo(text, Tone.Warning, Icons.Filled.Warning, onClick = onOpen)
-        CardStatus.NOT_FOUND -> CardStatusInfo(text, Tone.Warning, Icons.Filled.Warning) { one?.report?.let { onReview(it.id) } ?: onOpen() }
+        CardStatus.NOT_FOUND, CardStatus.TO_CHECK -> CardStatusInfo(text, Tone.Warning, Icons.Filled.Warning) { one?.report?.let { onReview(it.id) } ?: onOpen() }
         else -> CardStatusInfo(text, Tone.Ok, Icons.Filled.CheckCircle)
     }
 }
@@ -1235,6 +1237,7 @@ private fun statusInfo(
         CardStatus.HELD_BACK -> CardStatusInfo(stringResource(R.string.pill_held_back), Tone.Warning, Icons.Filled.Warning) { onPreview(job) }
         CardStatus.INCOMPLETE -> CardStatusInfo(stringResource(R.string.pill_incomplete), Tone.Warning, Icons.Filled.Warning, onClick = onOpenLog)
         CardStatus.NOT_FOUND -> CardStatusInfo(stringResource(R.string.pill_not_found, report!!.unmatchedTracks.size), Tone.Warning, Icons.Filled.Warning) { onReview(report.id) }
+        CardStatus.TO_CHECK -> CardStatusInfo(toCheckText(report!!.reviewTracks.size), Tone.Warning, Icons.Filled.Warning) { onReview(report.id) }
         CardStatus.EMPTY_SOURCE -> CardStatusInfo(stringResource(R.string.pill_source_empty), Tone.Warning, Icons.Filled.Info)
         // Up to date only once checked: the source seen unchanged since the last run. Changed:
         // a tap runs it. Not checkable (no version from the service, offline) or not checked
@@ -1548,6 +1551,10 @@ private fun ServerCardStatus(serverId: String, small: Boolean) {
         }
     }
 }
+
+/** A card's pill for matches to double-check and nothing not found: "1 to check". */
+@Composable
+internal fun toCheckText(n: Int): String = pluralStringResource(R.plurals.widget_to_check, n, n)
 
 /** The review button: both counts when there are both, so it adds up with the card's "not found". */
 @Composable

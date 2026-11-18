@@ -6,6 +6,8 @@ import com.xlollx.songport.model.PlaylistRef
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.platform.Env
 import com.xlollx.songport.providers.Providers
+import com.xlollx.songport.sync.Schedules
+import com.xlollx.songport.sync.Timing
 import java.util.UUID
 
 /**
@@ -147,6 +149,23 @@ object NwayEdit {
         for (m in Nway.members(n.jobs, groupId)) if (m.down.id !in kept) n = Nway.withoutMember(n, groupId, m.down.id)
         n = n.copy(jobs = n.jobs.map { j -> if (SharedGroups.sharedSide(j) == groupId) timed(j).let { if (it.id == sourceId) styled(it) else it } else j })
         return if (n == d) d else n
+    }
+
+    /**
+     * [d] with every sync of the group [groupId] on one timing, as one change (the group's page,
+     * "Automatic schedule"): linked to the saved schedule [scheduleId] while it exists, else [timing]
+     * as each sync's own, days and time of day included. On or off (Pause), Wi-Fi only and the rest stay.
+     */
+    fun scheduled(d: StoreData, groupId: String, scheduleId: String?, timing: Schedules.Spec): StoreData {
+        val linked = Schedules.find(d, scheduleId)
+        val jobs = d.jobs.map { j ->
+            when {
+                SharedGroups.sharedSide(j) != groupId -> j
+                linked != null -> Schedules.link(j, linked)
+                else -> Timing.apply(j, timing.everyMinutes, timing.at, timing.days).copy(scheduleId = null)
+            }
+        }
+        return if (jobs == d.jobs) d else d.copy(jobs = jobs)
     }
 
     /**

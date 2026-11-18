@@ -1,12 +1,18 @@
 package com.xlollx.songport.ui
 
 import com.xlollx.songport.data.StoreData
+import com.xlollx.songport.model.MatchReview
 import com.xlollx.songport.model.PlaylistRef
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.model.Track
+import com.xlollx.songport.shared.Invite
 import com.xlollx.songport.shared.Nway
+import com.xlollx.songport.shared.SharedGroup
 import com.xlollx.songport.shared.SharedProvider
+import com.xlollx.songport.sync.SyncFilter
+import com.xlollx.songport.sync.SyncState
+import com.xlollx.songport.sync.SyncSummary
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -76,6 +82,42 @@ class NwayStatusTest {
         assertEquals(CardStatus.NOT_FOUND, g.status)
         assertEquals(12, g.count)
         assertNull("two services: none is named", g.provider)
+    }
+
+    /**
+     * The owner's "Metal & More" (2.1.1): Amazon Music's last run left one match to check and nothing
+     * not found. The header said "1 to fix" while the card and the page said "Up to date". The group
+     * says what a classic sync's card says for the same run, names the service, and is counted once.
+     */
+    @Test fun aMatchToCheckIsWhatTheCardSaysAndTheHeaderCountsItOnce() {
+        val toCheck = report("d-amazon").copy(reviewTracks = listOf(MatchReview(Track(id = "s1", title = "Song"), Track(id = "a1", title = "Song (Live)"), 0.72)))
+        val src = report("d-spotify")
+        val srcUp = report("u-spotify")
+        val jobs = listOf(down("spotify", src, up = "u-spotify"), up("spotify", srcUp), down("amazon", toCheck))
+        val d = StoreData(
+            jobs = jobs, reports = listOf(src, srcUp, toCheck),
+            groups = listOf(SharedGroup("g1", "Metal & More", "k", "k", "", transport = Invite.LOCAL).copy(jobId = "d-spotify", twinId = "u-spotify")),
+        )
+        val g = NwayStatus.group(d, Nway.members(d.jobs, "g1"))
+        // The same state as a classic sync's card for the same run, with its count and the service it is about.
+        assertEquals(cardStatus(isRunning = false, enabled = true, report = toCheck), g.status)
+        assertEquals(CardStatus.TO_CHECK, g.status)
+        assertEquals(1, g.count)
+        assertEquals("amazon", g.provider)
+        assertEquals("d-amazon", g.about.single().report?.id)
+        // Its row on the page says the same.
+        assertEquals(CardStatus.TO_CHECK, g.members.first { it.provider == "amazon" }.status)
+
+        // The header, as the Syncs list counts it: the shown syncs (the group's card only), each card standing for its syncs.
+        val hidden = NwayUi.hiddenJobIds(d)
+        val shown = d.syncs.filter { it.id !in hidden }
+        assertEquals(listOf("d-spotify"), shown.map { it.id })
+        val summary = SyncSummary.of(shown, d.reports, SyncState.Tally(0, 0), emptySet(), standsFor = NwayUi.standsFor(d))
+        assertEquals(SyncSummary.Kind.ATTENTION, summary.kind)
+        assertEquals(0, summary.first)
+        assertEquals("one card to fix, counted once", 1, summary.second)
+        // Its tap shows that card, which says the same.
+        assertEquals(listOf("d-spotify"), SyncFilter(statuses = summary.filter).select(shown, d.reports, emptySet(), standsFor = NwayUi.standsFor(d)).map { it.id })
     }
 
     @Test fun anUnfinishedSearchComesBeforeNotFound() {

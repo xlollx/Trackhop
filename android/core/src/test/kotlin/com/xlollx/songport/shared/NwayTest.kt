@@ -268,6 +268,71 @@ class NwayTest {
         assertTrue(env.store.data.jobs.isEmpty())
     }
 
+    /**
+     * A playlist added to a paused group (2.1.2): it stays paused and runs when the group does, its days,
+     * time, saved schedule and Wi-Fi only included; 2.1.1 gave it "Every 6 hours", on.
+     */
+    @Test fun aMemberAddedToAPausedGroupStaysPausedAndKeepsTheTiming() {
+        group = Nway.create(env, "Road trip", listOf(ref(a) to true, ref(b) to false))
+        val sat = com.xlollx.songport.model.SavedSchedule("sat", "Saturday", 10080, "07:30", listOf(6))
+        env.store.update { d -> com.xlollx.songport.sync.Schedules.save(d, sat) }
+        env.store.update { d ->
+            d.copy(jobs = d.jobs.map { j -> if (SharedGroups.sharedSide(j) == group.id) com.xlollx.songport.sync.Schedules.link(j, sat).copy(enabled = false, wifiOnly = true) else j })
+        }
+        Nway.add(env, group, ref(c), main = true)
+        val added = Nway.members(env, group).first { it.playlist.provider == c.id }
+        for (j in listOfNotNull(added.down, added.up)) {
+            assertFalse("${j.name} paused as the group is", j.enabled)
+            assertTrue(j.wifiOnly)
+            assertEquals("sat", j.scheduleId)
+            assertEquals(listOf(6), j.days)
+            assertEquals("07:30", j.at)
+            assertEquals(10080, j.everyMinutes)
+        }
+    }
+
+    /** "Sync now" on a paused group runs all of it, in the group's order (2.1.2); its schedule still waits. */
+    @Test fun syncNowRunsAPausedGroupWholeAndScheduledRunsSkipIt() {
+        group = Nway.create(env, "Road trip", listOf(ref(a) to true, ref(b) to false, ref(c) to true))
+        env.store.update { d -> d.copy(jobs = d.jobs.map { if (SharedGroups.sharedSide(it) == group.id) it.copy(enabled = false) else it }) }
+        val all = Nway.order(env, group, manual = true).map { it.id }
+        assertEquals("every sync: each main member's way up, then the hub into each", 5, all.size)
+        assertEquals(Nway.members(env, group).mapNotNull { it.up?.id }, all.take(2))
+        assertTrue("left to its schedule, nothing runs", Nway.order(env, group).isEmpty())
+        assertTrue(Nway.jobsOf(env.store.data, group.id).none { com.xlollx.songport.sync.Timing.scheduled(it) })
+        val reports = runBlocking { Nway.run(env, engine, group) }
+        assertEquals(5, reports.size)
+        reports.forEach { assertTrue(it.error, it.ok) }
+        everywhere(1, 2, 3, 4, 5)
+        assertTrue("still paused", Nway.jobsOf(env.store.data, group.id).none { it.enabled })
+        // Unattended (a schedule): nothing.
+        assertTrue(runBlocking { Nway.run(env, engine, group, unattended = true) }.isEmpty())
+    }
+
+    /** A delete the store could not save (2.1.2): the group stays whole, its key and list too, and it says so; tried again, it goes. */
+    @Test fun aDeleteThatCannotBeSavedKeepsTheGroupItsKeyAndItsList() {
+        create()
+        val before = env.store.data
+        val key = env.tokens.ids().filter { it.startsWith("shared:") }
+        assertTrue("the group has a key", key.isNotEmpty())
+        val events = SharedGroups.load(env, group.id).events
+        env.store.failWrites = true
+        val gone = runCatching { Nway.delete(env, group) }
+        env.store.failWrites = false
+        assertTrue("the failure is said", gone.isFailure)
+        assertEquals(before.groups, env.store.data.groups)
+        assertEquals(before.jobs, env.store.data.jobs)
+        assertEquals("its key kept", key, env.tokens.ids().filter { it.startsWith("shared:") })
+        assertEquals("its list kept", events, SharedGroups.load(env, group.id).events)
+        // Still a working group.
+        add(a, 7)
+        sync()
+        everywhere(1, 2, 3, 4, 5, 7)
+        assertEquals(5, Nway.delete(env, group).size)
+        assertTrue(env.store.data.groups.isEmpty() && env.store.data.jobs.isEmpty())
+        assertTrue(env.tokens.ids().none { it.startsWith("shared:") })
+    }
+
     /** A plain sync and a plain two-way pair next to a group, on the same services: as they always were. */
     @Test fun pairSyncsNextToAGroupRunAsBefore() = runBlocking {
         create()

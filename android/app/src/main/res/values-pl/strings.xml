@@ -3593,4 +3593,5 @@
     <string name="nway_change_removed">Opuszcza tę synchronizację; playlista zostaje bez zmian</string>
     <string name="nway_change_source">Staje się źródłem</string>
     <string name="nway_change_none">Playlisty i sposób, w jaki podążają, zostają bez zmian.</string>
+    <string name="nway_schedule_note">Każda playlista tej synchronizacji wielokrotnej działa według tego harmonogramu.</string>
 </resources>

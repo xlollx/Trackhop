@@ -660,7 +660,8 @@ object SharedGroups {
     /**
      * Leaves the group: this member's file says so (and keeps relaying the group's history), the
      * syncs and the key go. The playlist on the member's service stays as it is. Answers the ids of
-     * the syncs removed, for the platform to cancel their schedules.
+     * the syncs removed, for the platform to cancel their schedules. The store not saved: nothing
+     * goes, the key and the group's list stay, and it throws, to be said to the user.
      */
     fun leave(env: Env, group: SharedGroup): List<String> {
         runCatching {
@@ -671,7 +672,11 @@ object SharedGroups {
         }.onFailure { env.log("shared", "${group.name}: leaving without a word in the folder: ${it.message?.take(120)}") }
         val ids = env.store.data.jobs.filter { sharedSide(it) == group.id }.map { it.id }
         // One change: the syncs and the group go together, never a group left with half its syncs.
-        env.store.deleteJobs(ids, setOf(group.id))
+        if (!env.store.deleteJobs(ids, setOf(group.id))) {
+            env.log("shared", "${group.name}: not left, the change could not be saved; its key and list stay")
+            throw ProviderException(env.text("bulk_not_saved"))
+        }
+        // Only once the syncs and the group are gone from the store: the key and the list.
         forget(env, group)
         env.log("shared", "${group.name}: left")
         return ids

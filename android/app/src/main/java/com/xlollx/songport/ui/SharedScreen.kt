@@ -953,7 +953,10 @@ private fun GroupPage(group: SharedGroup, snackbar: SnackbarHostState, onLeft: (
             TextButton(onClick = {
                 confirmLeave = false
                 scope.launch {
-                    val ids = withContext(Dispatchers.IO) { SharedGroups.leave(env, group) }
+                    // Not saved: still in the group, with its key; said, not a crash.
+                    val ids = withContext(Dispatchers.IO) { runCatching { SharedGroups.leave(env, group) } }
+                        .onFailure { android.widget.Toast.makeText(ctx, it.userMessage(ctx), android.widget.Toast.LENGTH_LONG).show() }
+                        .getOrNull() ?: return@launch
                     ids.forEach { Scheduler.cancel(ctx, it) }
                     releaseFolder(ctx, group.folder)
                     onLeft()
