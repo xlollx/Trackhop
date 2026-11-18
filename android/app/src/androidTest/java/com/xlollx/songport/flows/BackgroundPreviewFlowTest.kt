@@ -14,7 +14,6 @@ import org.junit.runner.RunWith
 /** 1.18: a preview left half way goes on; the card says so and opens it again with its result. */
 @RunWith(AndroidJUnit4::class)
 class BackgroundPreviewFlowTest : FlowTest() {
-    override val preview2: Boolean = true
 
     @After fun forget() = Previews.clear("job-bg")
 

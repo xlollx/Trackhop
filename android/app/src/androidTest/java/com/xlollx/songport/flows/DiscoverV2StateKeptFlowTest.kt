@@ -19,7 +19,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class DiscoverV2StateKeptFlowTest : FlowTest() {
-    override val preview2: Boolean = true
 
     private fun openConcerts() {
         launch(tabIntent(MainActivity.TAB_DISCOVER))

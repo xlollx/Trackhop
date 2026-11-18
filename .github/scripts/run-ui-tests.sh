@@ -18,10 +18,21 @@ adb shell svc data disable || true
 adb shell rm -rf /sdcard/ui-test-failures || true
 adb logcat -G 16M || true
 adb logcat -c || true
-# ONLY: one class of the flows package (the workflow's "only" input), or all of them.
-if [ -n "${ONLY:-}" ]; then FILTER="-Pandroid.testInstrumentationRunnerArguments.class=com.xlollx.songport.flows.${ONLY}"
-else FILTER="-Pandroid.testInstrumentationRunnerArguments.package=com.xlollx.songport.flows"; fi
-gradle "$TASK" "$FILTER" \
+# ONLY: one class of the flows package (the workflow's "only" input), unsharded. Else CLASSES: a
+# comma-separated list of classes of the flows package (a job's subset). Else the whole package, in
+# NUM_SHARDS shards of which this job runs SHARD_INDEX (AndroidJUnitRunner's own sharding).
+P="com.xlollx.songport.flows"
+ARGS=()
+if [ -n "${ONLY:-}" ]; then ARGS+=("-Pandroid.testInstrumentationRunnerArguments.class=$P.${ONLY}")
+elif [ -n "${CLASSES:-}" ]; then ARGS+=("-Pandroid.testInstrumentationRunnerArguments.class=$(sed "s/\([^,]\+\)/$P.\1/g" <<< "$CLASSES")")
+else
+  ARGS+=("-Pandroid.testInstrumentationRunnerArguments.package=$P")
+  if [ "${NUM_SHARDS:-1}" -gt 1 ]; then
+    ARGS+=("-Pandroid.testInstrumentationRunnerArguments.numShards=$NUM_SHARDS" "-Pandroid.testInstrumentationRunnerArguments.shardIndex=${SHARD_INDEX:-0}")
+  fi
+fi
+echo "Test arguments: ${ARGS[*]}" | tee ui-out/args.txt
+gradle "$TASK" "${ARGS[@]}" \
   --no-daemon --stacktrace --continue 2>&1 | tee ui-out/gradle.log
 status=${PIPESTATUS[0]}
 # Bounded: if the emulator has gone (it happens), adb would wait for the device until the job's

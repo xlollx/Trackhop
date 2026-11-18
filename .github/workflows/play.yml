@@ -50,6 +50,7 @@ jobs:
           git fetch -q --depth 1 origin "refs/tags/$TAG:refs/tags/$TAG"
           code=$(git show "$TAG:android/app/build.gradle" | sed -n 's/.*versionCode \([0-9]*\).*/\1/p' | head -1)
           echo "Version code $code"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
           if [ -n "$code" ] && ls "play/whatsnew/$code"/whatsnew-* >/dev/null 2>&1; then
             echo "notes=play/whatsnew/$code" >> "$GITHUB_OUTPUT"
             ls "play/whatsnew/$code"
@@ -57,8 +58,45 @@ jobs:
             echo "::warning::No Play notes in play/whatsnew/$code: uploaded without release notes."
           fi
 
+      # Play refuses a versionCode it has already (a re-run, or an upload made by hand): then there is
+      # nothing to do, and the run stays green. If Play cannot be asked, the upload goes ahead as before.
+      - name: Already on Google Play?
+        id: play
+        if: ${{ env.HAS_KEY == 'true' && steps.files.outputs.code != '' }}
+        env:
+          KEY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          CODE: ${{ steps.files.outputs.code }}
+        run: |
+          pip install -q google-auth requests || exit 0
+          python3 - <<'PY' || true
+          import json, os
+          from google.oauth2 import service_account
+          from google.auth.transport.requests import AuthorizedSession
+          creds = service_account.Credentials.from_service_account_info(
+              json.loads(os.environ["KEY"]), scopes=["https://www.googleapis.com/auth/androidpublisher"])
+          s = AuthorizedSession(creds)
+          base = "https://androidpublisher.googleapis.com/androidpublisher/v3/applications/com.xlollx.songport/edits"
+          r = s.post(base); r.raise_for_status(); edit = r.json()["id"]
+          try:
+              codes = set()
+              for kind in ("bundles", "apks"):
+                  r = s.get(f"{base}/{edit}/{kind}"); r.raise_for_status()
+                  codes |= {int(x["versionCode"]) for x in r.json().get(kind, [])}
+          finally:
+              s.delete(f"{base}/{edit}")
+          code = int(os.environ["CODE"])
+          print(f"Version codes on Play: {max(codes) if codes else 'none'} at most; this release: {code}")
+          if code in codes:
+              with open(os.environ["GITHUB_OUTPUT"], "a") as f: f.write("present=true\n")
+          PY
+
+      - name: Already there
+        if: ${{ steps.play.outputs.present == 'true' }}
+        run: |
+          echo "::notice::Google Play has version code ${{ steps.files.outputs.code }} already: $TAG not uploaded again."
+
       - name: Upload with release notes
-        if: ${{ env.HAS_KEY == 'true' && steps.files.outputs.notes != '' }}
+        if: ${{ env.HAS_KEY == 'true' && steps.files.outputs.notes != '' && steps.play.outputs.present != 'true' }}
         uses: r0adkll/upload-google-play@v1.1.5
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
@@ -70,7 +108,7 @@ jobs:
           whatsNewDirectory: ${{ steps.files.outputs.notes }}
 
       - name: Upload without release notes
-        if: ${{ env.HAS_KEY == 'true' && steps.files.outputs.notes == '' }}
+        if: ${{ env.HAS_KEY == 'true' && steps.files.outputs.notes == '' && steps.play.outputs.present != 'true' }}
         uses: r0adkll/upload-google-play@v1.1.5
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}

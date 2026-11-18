@@ -26,6 +26,11 @@ on:
 permissions:
   contents: write
 
+# One run at a time per branch, none cancelled: a release's run is never cut off by the next push.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   check:
     runs-on: ubuntu-latest

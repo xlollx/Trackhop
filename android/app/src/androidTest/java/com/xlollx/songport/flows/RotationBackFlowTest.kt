@@ -31,10 +31,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class RotationBackFlowTest : FlowTest() {
-    /** 1.18's features, hidden in the build: shown here with the developer's preview. */
-    override val preview2: Boolean = true
-
-
     @Test
     fun aRecordsLookupStartedBeforeTheScreenTurnsStillShowsItsResults() {
         // Reading the playlist waits until the test lets it go: the lookup is under way while the phone turns.
