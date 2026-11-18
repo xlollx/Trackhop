@@ -3149,6 +3149,7 @@
     <string name="bulk_add_only_desc">目标中的内容永远不会被删除。</string>
     <string name="bulk_removals_note">大量移除仍会像现在一样等待你确认。</string>
     <string name="bulk_removals_skipped">双向、存档和电台同步保留各自的设置。</string>
+    <string name="bulk_removals_multi">多目标同步保留各自的方式：在其编辑器中为每个目标单独设置。</string>
     <string name="bulk_onoff_leave">每个同步保持不变（开启：%1$d，关闭：%2$d）。</string>
     <string name="bulk_on">开启</string>
     <string name="bulk_on_desc">它们按计划运行。</string>

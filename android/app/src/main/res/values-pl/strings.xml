@@ -3403,6 +3403,7 @@
     <string name="bulk_add_only_desc">W celu nic nigdy nie jest usuwane.</string>
     <string name="bulk_removals_note">Duże usunięcia nadal czekają na Twoje potwierdzenie, tak jak dziś.</string>
     <string name="bulk_removals_skipped">Synchronizacje dwukierunkowe, archiwalne i radiowe zachowują własne ustawienie.</string>
+    <string name="bulk_removals_multi">Synchronizacje wielokrotne zachowują własny sposób: ustawia się go dla każdego celu w ich edytorze.</string>
     <string name="bulk_onoff_leave">Zostaw każdą synchronizację bez zmian (Włączone: %1$d, Wyłączone: %2$d).</string>
     <string name="bulk_on">Włączona</string>
     <string name="bulk_on_desc">Uruchamiają się według harmonogramu.</string>

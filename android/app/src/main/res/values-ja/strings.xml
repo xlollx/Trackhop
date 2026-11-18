@@ -3149,6 +3149,7 @@
     <string name="bulk_add_only_desc">同期先では何も削除されません。</string>
     <string name="bulk_removals_note">大量の削除は、これまでどおり確認するまで保留されます。</string>
     <string name="bulk_removals_skipped">双方向・アーカイブ・ラジオの同期は、それぞれの設定のままです。</string>
+    <string name="bulk_removals_multi">マルチ同期は独自の方法のままです。ターゲットごとにエディタで設定します。</string>
     <string name="bulk_onoff_leave">各同期をそのままにする（オン: %1$d、オフ: %2$d）。</string>
     <string name="bulk_on">オン</string>
     <string name="bulk_on_desc">スケジュールどおりに実行されます。</string>

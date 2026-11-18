@@ -3241,6 +3241,7 @@
     <string name="bulk_add_only_desc">Rien n’est jamais supprimé dans la destination.</string>
     <string name="bulk_removals_note">Les suppressions importantes attendent toujours ta confirmation, comme aujourd’hui.</string>
     <string name="bulk_removals_skipped">Les synchros bidirectionnelles, d’archive et de radio gardent leur propre réglage.</string>
+    <string name="bulk_removals_multi">Les syncs multiples gardent leur propre mode : il se règle pour chaque cible dans leur éditeur.</string>
     <string name="bulk_onoff_leave">Laisser chaque synchro telle quelle (Activées : %1$d, Désactivées : %2$d).</string>
     <string name="bulk_on">Activée</string>
     <string name="bulk_on_desc">Elles se lancent selon leur planification.</string>
