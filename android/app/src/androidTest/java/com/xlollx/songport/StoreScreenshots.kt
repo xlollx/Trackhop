@@ -902,6 +902,176 @@ class StoreScreenshots {
             }
             store.updateSettings { it.copy(onboardingDone = true) }; store.flush()
         }
+        // 2.1 first, dark then light: several syncs ticked together, saved schedules, one To fix list, a
+        // multi sync and a shared collection. carousel/21_<theme>_<nn>_<what>.png. What these pages need is
+        // added to the demo here and taken out after, so the pictures below are as they were.
+        run {
+            val before = store.data
+            // No other brand's mark on these: initials on plain circles, as on the Play listing.
+            com.xlollx.songport.ui.LogoMode.neutral = true
+            val morning = com.xlollx.songport.model.SavedSchedule("carousel-morning", "Morning refresh", 1440, "07:30")
+            val often = com.xlollx.songport.model.SavedSchedule("carousel-often", "Every 6 hours", 360)
+            val weekly = com.xlollx.songport.model.SavedSchedule("carousel-weekly", "Sunday night", 10080, "21:00")
+            val workout = Demo.PLAYLISTS[3]
+            step("21 demo") {
+                store.update { d ->
+                    // The song "Metal & More" misses is missed by "Summer Vibes" too (Spotify to YouTube Music both): one row, two syncs.
+                    val metal = d.reports.first { it.id == "job-metal-9" }
+                    val both = metal.unmatchedTracks[1]
+                    val reports = d.reports.map { r ->
+                        if (r.id != "job-summer-7") r
+                        else r.copy(unmatched = listOf(both.toString()), unmatchedTracks = listOf(both), suggestions = metal.suggestions.filterKeys { it == both.id })
+                    }
+                    // Three syncs on saved schedules; "Workout" becomes a multi sync below.
+                    val jobs = d.jobs.filter { it.id != "job-workout" }.map { j ->
+                        when (j.id) {
+                            "job-metal", "job-chill" -> com.xlollx.songport.sync.Schedules.link(j, morning)
+                            "job-summer" -> com.xlollx.songport.sync.Schedules.link(j, often)
+                            else -> j
+                        }
+                    }
+                    d.copy(jobs = jobs, reports = reports, settings = d.settings.copy(savedSchedules = listOf(morning, often, weekly)))
+                }
+                // "Workout" kept the same on four services: Spotify and YouTube Music both ways, Deezer and the fourth following.
+                val group = com.xlollx.songport.shared.Nway.create(app.env, workout.second, listOf(
+                    PlaylistRef("spotify", workout.first, workout.second) to true,
+                    PlaylistRef(yt, workout.first, workout.second) to true,
+                    PlaylistRef("deezer", workout.first, workout.second) to false,
+                    PlaylistRef(fourth, workout.first, workout.second) to false,
+                ))
+                store.update { d ->
+                    val anchor = com.xlollx.songport.shared.Nway.anchor(d, group)?.id
+                    d.copy(jobs = d.jobs.map { if (it.id == anchor) it.copy(label = "purple", color = "purple") else it })
+                }
+                store.flush()
+            }
+            // A collection shared from another phone (a folder both reach): joined here, waiting for the choice.
+            var collectionId: String? = null
+            step("21 collection") {
+                val folder = File(app.cacheDir, "carousel-collection").apply { deleteRecursively(); mkdirs() }
+                val curator = CuratorDevice(app.env, File(app.cacheDir, "carousel-curator").apply { deleteRecursively(); mkdirs() })
+                val ids = listOf(Demo.PLAYLISTS[1].first, Demo.PLAYLISTS[2].first, Demo.PLAYLISTS[0].first, Demo.CAROUSEL_SRC)
+                val lists = kotlinx.coroutines.runBlocking { spotify.playlists(curator) }.filter { it.id in ids }.sortedBy { ids.indexOf(it.id) }
+                val (c, _) = kotlinx.coroutines.runBlocking {
+                    com.xlollx.songport.shared.Collections.create(curator, "Friday Club", "Sam", "spotify", lists, folder.path, "Trackhop")
+                }
+                val link = com.xlollx.songport.shared.Collections.invite(curator, c).link()
+                collectionId = com.xlollx.songport.shared.Collections.join(app.env, com.xlollx.songport.shared.Invite.parse(link)!!, folder.path, "Trackhop", "Alex").id
+            }
+            fun tick(name: String) {
+                compose.onAllNodes(androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.SELECTION_TICK_TAG) and androidx.compose.ui.test.hasContentDescription(name))
+                    .onFirst().performSemanticsAction(SemanticsActions.OnClick)
+                compose.waitForIdle()
+            }
+            fun selecting() {
+                waitText(firstJob)
+                compose.onNode(androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.SELECT_SYNCS_TAG)).performSemanticsAction(SemanticsActions.OnClick)
+                compose.waitForIdle()
+                listOf(firstJob, workout.second, Demo.CAROUSEL_NAME).forEach { tick(it) }
+                waitText(s(R.string.bulk_schedule))
+            }
+            for (theme in listOf("DARK", "LIGHT")) {
+                step("21 theme $theme") { shell("cmd uimode night " + if (theme == "DARK") "yes" else "no"); store.updateSettings { it.copy(themeMode = theme) }; store.flush(); Thread.sleep(1500) }
+                val t = "21_" + theme.lowercase()
+                // 1 The grid of tiles, three ticked, the selection's bar; 2 the same as cards.
+                store.updateSettings { it.copy(minimalSyncs = true) }; store.flush()
+                open(tab(MainActivity.TAB_SYNCS), "21 select tiles") { selecting() }
+                snap("${t}_01_select_tiles")
+                // 3 Their Schedule sheet, a saved schedule picked.
+                step("21 bulk schedule") { click(s(R.string.bulk_schedule)); waitText(s(R.string.bulk_use_saved)); click(morning.name) }
+                snap("${t}_03_bulk_schedule")
+                store.updateSettings { it.copy(minimalSyncs = false) }; store.flush()
+                open(tab(MainActivity.TAB_SYNCS), "21 select cards") { selecting() }
+                snap("${t}_02_select_cards")
+                // 4 Settings › Schedules: the library, each with the syncs that use it.
+                open(tab(MainActivity.TAB_SETTINGS), "21 schedules") {
+                    waitText(s(R.string.settings_theme))
+                    compose.onAllNodes(androidx.compose.ui.test.hasClickAction() and hasText(s(R.string.sched_title))).onFirst().performScrollTo()
+                    click(s(R.string.sched_title))
+                    waitText(s(R.string.sched_intro))
+                }
+                snap("${t}_04_schedules")
+                // 5 A sync's editor: its schedule linked, and who else follows it.
+                open(tab(MainActivity.TAB_SYNCS), "21 linked") {
+                    waitText(firstJob)
+                    compose.onAllNodes(androidx.compose.ui.test.hasContentDescription(s(R.string.more_actions)) and androidx.compose.ui.test.hasClickAction()).onFirst().performSemanticsAction(SemanticsActions.OnClick)
+                    compose.waitForIdle()
+                    click(s(R.string.edit))
+                    waitText(s(R.string.editor_title_edit))
+                    compose.onNode(androidx.compose.ui.test.hasTestTag("schedule_detach")).performScrollTo()
+                }
+                snap("${t}_05_linked")
+                // 6 Tools › Saved matches › To fix: one list for every sync.
+                open(tab(MainActivity.TAB_TOOLS), "21 to fix") {
+                    compose.onAllNodesWithText(s(R.string.saved_matches_title)).onFirst().performScrollTo()
+                    click(s(R.string.saved_matches_title))
+                    waitText(s(R.string.to_fix_once))
+                }
+                snap("${t}_06_to_fix")
+                // 7 New sync: which kind.
+                open(tab(MainActivity.TAB_SYNCS), "21 new sync") {
+                    waitText(firstJob)
+                    click(s(R.string.new_sync))
+                    compose.waitUntil(10_000) { compose.onAllNodes(androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.NEW_SYNC_MULTI_TAG)).fetchSemanticsNodes().isNotEmpty() }
+                }
+                snap("${t}_07_new_sync")
+                // 8 The multi sync's page, 9 its editor (Source, Targets).
+                open(tab(MainActivity.TAB_SYNCS), "21 multi page") {
+                    waitText(firstJob)
+                    bringIn(workout.second)
+                    click(workout.second)
+                    waitText(s(R.string.nway_delete))
+                }
+                snap("${t}_08_multi_page")
+                step("21 multi editor") { click(s(R.string.edit)); waitText(s(R.string.nway_editor_edit)) }
+                snap("${t}_09_multi_editor")
+                // 10 The new multi sync, empty.
+                open(tab(MainActivity.TAB_SYNCS), "21 multi new") {
+                    waitText(firstJob)
+                    click(s(R.string.new_sync))
+                    compose.waitUntil(10_000) { compose.onAllNodes(androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.NEW_SYNC_MULTI_TAG)).fetchSemanticsNodes().isNotEmpty() }
+                    compose.onAllNodes(androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.NEW_SYNC_MULTI_TAG)).onFirst().performSemanticsAction(SemanticsActions.OnClick)
+                    waitText(s(R.string.nway_editor_new))
+                }
+                snap("${t}_10_multi_new")
+                // 11 The collection's card on Syncs, 12 its choice (all of them), 13 some picked, on two services.
+                collectionId?.let { cid ->
+                    open(tab(MainActivity.TAB_SYNCS), "21 collection card") { waitText(s(R.string.collection_choose_pending)) }
+                    snap("${t}_11_collection_card")
+                    open(tab(MainActivity.TAB_SYNCS), "21 collection choice") {
+                        waitText(firstJob)
+                        com.xlollx.songport.ui.SharedUi.request.value = com.xlollx.songport.ui.SharedUi.Request.Collection(cid)
+                        waitText(s(R.string.collection_where))
+                    }
+                    snap("${t}_12_collection_all")
+                    step("21 collection pick") {
+                        click(s(R.string.collection_pick))
+                        click("Metal & More")
+                        click("YouTube Music")
+                        waitText(s(R.string.collection_where_several))
+                    }
+                    snap("${t}_13_collection_pick")
+                }
+                // 14 A new collection: several playlists behind one invite.
+                open(tab(MainActivity.TAB_SYNCS), "21 collection new") {
+                    waitText(firstJob)
+                    com.xlollx.songport.ui.SharedUi.request.value = com.xlollx.songport.ui.SharedUi.Request.List
+                    waitText(s(R.string.shared_create))
+                    click(s(R.string.shared_create))
+                    waitText(s(R.string.collection_several_desc))
+                    click(s(R.string.collection_several))
+                    waitText(s(R.string.collection_new))
+                }
+                snap("${t}_14_collection_new")
+            }
+            step("21 back") {
+                com.xlollx.songport.ui.SharedUi.request.value = null
+                com.xlollx.songport.ui.LogoMode.neutral = play
+                store.update { before }
+                store.flush()
+                shell("cmd uimode night yes"); store.updateSettings { it.copy(themeMode = "DARK") }; store.flush(); Thread.sleep(1500)
+            }
+        }
         for (theme in listOf("DARK", "LIGHT")) {
             step("theme $theme") { shell("cmd uimode night " + if (theme == "DARK") "yes" else "no"); store.updateSettings { it.copy(themeMode = theme) }; store.flush(); Thread.sleep(1500) }
             val t = theme.lowercase()
@@ -1299,6 +1469,19 @@ class StoreScreenshots {
         }
     }
     private val discoverArtists = HashMap<String, Bitmap>()
+
+    /** The phone of whoever shares a collection: the app's own services and texts, with a store, a vault and files of its own. */
+    private class CuratorDevice(base: com.xlollx.songport.platform.Env, dir: File) : com.xlollx.songport.platform.Env by base {
+        override val dataDir: File = dir
+        override val store = com.xlollx.songport.data.FileStore(dir)
+        private val vault = HashMap<String, com.xlollx.songport.data.Tokens>()
+        override val tokens = object : com.xlollx.songport.data.TokenVault {
+            override fun get(providerId: String) = vault[providerId]
+            override fun set(providerId: String, tokens: com.xlollx.songport.data.Tokens) { vault[providerId] = tokens }
+            override fun clear(providerId: String) { vault.remove(providerId) }
+            override fun ids(): Set<String> = vault.keys.toSet()
+        }
+    }
 
     /** One fallible part of a picture: a miss is logged and the picture is taken anyway. */
     private fun step(what: String, body: () -> Unit) {
