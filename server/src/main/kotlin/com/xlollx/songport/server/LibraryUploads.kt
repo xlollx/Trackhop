@@ -100,27 +100,33 @@ internal fun Web.uploadToDisk(ex: HttpExchange, type: String) {
         return runCatching { redirect(ex, "/connectors/csv?err=${q("The upload stopped before the end, so nothing was added: try again.")}") }.getOrElse { }
     }
     val file = parts.files["file"]
-    try {
-        if (file == null) return redirect(ex, "/connectors/csv?err=${q("Choose a file.")}")
-        if (!saveNameChoice(ex, parts.fields)) return
-        if (LibraryUploads.isLibrary(file.file)) {
-            val lib = runCatching { LibraryUploads.readLibrary(file.file) }
-                .getOrElse { return redirect(ex, "/connectors/csv?err=${q("Nothing was added from ${file.name}: ${it.message ?: "it is not an Apple Music/iTunes file"}")}") }
-            if (!lib.worthPicking) {
-                val added = LibraryUploads.add(env, lib, file.name, emptyList(), whole = true)
-                val n = added.sumOf { it.second }
-                if (n == 0) return redirect(ex, "/connectors/csv?err=${q("No tracks found in ${file.name}.")}")
-                env.log("files", "imported ${file.name}: $n tracks")
-                return redirect(ex, "/connectors/csv?ok=${q("Added ${file.name}: $n tracks.")}")
-            }
-            val token = LibraryUploads.keep(LibraryUploads.Pending(env.owner, file.name, lib))
-            return redirect(ex, "/files/library?t=$token")
-        }
-        file.file.inputStream().use { importUploaded(ex, file.name, it) }
+    // The answer is worked out first and sent only once the upload is off the disk: whoever reads it
+    // (a browser, a script, a test) never finds the file still there. Sent from inside, the page could
+    // arrive before the delete below, and on Windows a check of the folder found the file (2.1.1).
+    val to = try {
+        if (file == null) "/connectors/csv?err=${q("Choose a file.")}"
+        else nameChoiceRefused(parts.fields)
+            ?: if (LibraryUploads.isLibrary(file.file)) addLibrary(file) else file.file.inputStream().use { importUploaded(file.name, it) }
     } finally {
         // Every part that came as a file, not only the one used.
         parts.files.values.forEach { it.file.delete() }
     }
+    redirect(ex, to)
+}
+
+/** An uploaded Apple Music/iTunes library: added whole when small, else kept to pick from. @return the page to go to. */
+private fun Web.addLibrary(file: MultipartToDisk.DiskFile): String {
+    val lib = runCatching { LibraryUploads.readLibrary(file.file) }
+        .getOrElse { return "/connectors/csv?err=${q("Nothing was added from ${file.name}: ${it.message ?: "it is not an Apple Music/iTunes file"}")}" }
+    if (!lib.worthPicking) {
+        val added = LibraryUploads.add(env, lib, file.name, emptyList(), whole = true)
+        val n = added.sumOf { it.second }
+        if (n == 0) return "/connectors/csv?err=${q("No tracks found in ${file.name}.")}"
+        env.log("files", "imported ${file.name}: $n tracks")
+        return "/connectors/csv?ok=${q("Added ${file.name}: $n tracks.")}"
+    }
+    val token = LibraryUploads.keep(LibraryUploads.Pending(env.owner, file.name, lib))
+    return "/files/library?t=$token"
 }
 
 /** GET /files/library?t=…: the playlists of an uploaded library, to tick. */

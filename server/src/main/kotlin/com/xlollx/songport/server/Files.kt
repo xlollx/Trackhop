@@ -163,40 +163,41 @@ internal fun Web.tryPatterns(r: Web.Req) {
 
 internal fun Web.upload(r: Web.Req) {
     val file = r.files["file"] ?: return redirect(r.ex, "/connectors/csv?err=${q("Choose a file.")}")
-    if (!saveNameChoice(r.ex, r.form)) return
-    importUploaded(r.ex, file.name, file.bytes.inputStream())
+    nameChoiceRefused(r.form)?.let { return redirect(r.ex, it) }
+    redirect(r.ex, importUploaded(file.name, file.bytes.inputStream()))
 }
 
 /**
  * The choice of how names are read, from the upload form: kept for the next upload, as the app keeps
- * it; bad patterns are refused, with why. False when it answered with an error.
+ * it; bad patterns are refused, with why. The page that says why when it is refused, else null.
  */
-internal fun Web.saveNameChoice(ex: com.sun.net.httpserver.HttpExchange, form: Map<String, String>): Boolean {
+internal fun Web.nameChoiceRefused(form: Map<String, String>): String? {
     form["patterns"]?.let { raw ->
         val lines = raw.lines().map { it.trim() }.filter { it.isNotEmpty() }
         lines.forEachIndexed { i, l ->
-            NamePatterns.compile(l).exceptionOrNull()?.let { redirect(ex, "/connectors/csv?err=${q("Pattern on line ${i + 1}: ${it.message}")}"); return false }
+            NamePatterns.compile(l).exceptionOrNull()?.let { return "/connectors/csv?err=${q("Pattern on line ${i + 1}: ${it.message}")}" }
         }
         env.store.updateSettings { it.copy(fileNamePatterns = lines) }
     }
     form["names"]?.let { PlaylistFiles.NameLayout.of(it).name }?.let { v ->
-        if (v == "CUSTOM" && env.store.data.settings.fileNamePatterns.isEmpty()) { redirect(ex, "/connectors/csv?err=${q("Write at least one pattern under “Your own patterns”.")}"); return false }
+        if (v == "CUSTOM" && env.store.data.settings.fileNamePatterns.isEmpty()) return "/connectors/csv?err=${q("Write at least one pattern under “Your own patterns”.")}"
         env.store.updateSettings { it.copy(fileNameLayout = v) }
     }
-    return true
+    return null
 }
 
 /**
  * A playlist file of any format and size added as one file, read from [input] a piece at a time
  * (#67). One that is cut short or cannot be read adds nothing, and the page says why.
+ * @return the page to go to, which says what was added or why nothing was.
  */
-internal fun Web.importUploaded(ex: com.sun.net.httpserver.HttpExchange, fileName: String, input: java.io.InputStream) {
+internal fun Web.importUploaded(fileName: String, input: java.io.InputStream): String {
     val name = fileName.substringAfterLast('/').substringAfterLast('\\')
     val n = runCatching { LocalFilesProvider.importStream(env, name, PlaylistFiles.reader(input)).trackCount }
-        .getOrElse { return redirect(ex, "/connectors/csv?err=${q("Nothing was added from $name: ${it.message ?: "could not read the file"}")}") }
-    if (n == 0) return redirect(ex, "/connectors/csv?err=${q("No tracks found in $name.")}")
+        .getOrElse { return "/connectors/csv?err=${q("Nothing was added from $name: ${it.message ?: "could not read the file"}")}" }
+    if (n == 0) return "/connectors/csv?err=${q("No tracks found in $name.")}"
     env.log("files", "imported $name: $n tracks")
-    redirect(ex, "/connectors/csv?ok=${q("Added $name: $n tracks.")}")
+    return "/connectors/csv?ok=${q("Added $name: $n tracks.")}"
 }
 
 // ------------------------------------------------------------------ tools
