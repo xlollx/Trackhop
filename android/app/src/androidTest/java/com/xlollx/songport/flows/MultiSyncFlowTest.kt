@@ -164,6 +164,13 @@ class MultiSyncFlowTest : FlowTest() {
             // The other sync's tile is as ever: no ring, no logo by a bar.
             assertEquals(1, compose.onAllNodes(hasTestTag(GROUP_BAR_TAG), useUnmergedTree = true).fetchSemanticsNodes().size)
 
+            // Held while it runs: the group's menu, as at rest, with Select; not the live view of one of its services.
+            compose.onAllNodes(hasTestTag(JOB_TILE_TAG) and hasText("Trip mix")).onFirst().performTouchInput { longClick() }
+            waitText(s(R.string.files_select))
+            assertFalse("no live sheet", compose.onAllNodes(hasContentDescription(s(R.string.live_help))).fetchSemanticsNodes().isNotEmpty())
+            back()
+            waitGone(s(R.string.files_select))
+
             // The page: one row per service, where each stands.
             click("Trip mix")
             waitFor("the page's head") { tagged(GROUP_RUN_HEAD_TAG) }

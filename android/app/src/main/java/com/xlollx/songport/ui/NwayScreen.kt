@@ -152,6 +152,17 @@ object NwayUi {
         return rest.getOrNull(at)?.let { next -> d.jobs.filter { it.id != id }.indexOfFirst { it.id == next.id } } ?: d.jobs.size
     }
 
+    /**
+     * The service [job]'s songs come from, as the person knows it: for a sync of a multi sync, whose
+     * source is the group's hub, the service of the group's source; for any other sync its own
+     * source. Null where it is not known (a hub with no group, or no source left).
+     */
+    fun sourceOf(d: StoreData, job: SyncJob): String? {
+        if (job.source.provider != com.xlollx.songport.shared.SharedProvider.ID) return job.source.provider
+        val g = d.groups.firstOrNull { it.id == job.source.playlistId && Nway.isGroup(it) } ?: return null
+        return Nway.source(g, Nway.members(d.jobs, g.id))?.playlist?.provider
+    }
+
     /** "Sync now" on a group: its syncs in the group's order, one after the other; paused or not, as Sync now on a paused classic sync. */
     fun run(ctx: android.content.Context, group: SharedGroup) {
         val order = Nway.order(ctx.env, group, manual = true).map { it.id }
@@ -218,6 +229,8 @@ internal fun NwayAddDialog(
     taken: List<Pair<String, String?>>, onDismiss: () -> Unit,
     title: String = stringResource(R.string.nway_add), roles: Boolean = true, allowNew: Boolean = true,
     pick: NwayPick? = null, modes: Boolean = false, newName: String? = null,
+    /** The role offered first: main (two-way), or one that follows and keeps the user's additions. */
+    asMain: Boolean = true,
     onAdd: (NwayDraft) -> Unit,
 ) {
     val ctx = LocalContext.current
@@ -227,7 +240,7 @@ internal fun NwayAddDialog(
     var playlistName by rememberSaveable { mutableStateOf("") }
     var playlistCount by rememberSaveable { mutableStateOf(-1) }
     var makeNew by rememberSaveable { mutableStateOf(false) }
-    var main by rememberSaveable { mutableStateOf(true) }
+    var main by rememberSaveable { mutableStateOf(asMain) }
     var keepMine by rememberSaveable { mutableStateOf(true) }
     // A target's way, as its sheet sets it (keeps its additions until told otherwise); Exact copy of an existing playlist is asked first.
     var mode by rememberSaveable { mutableStateOf(com.xlollx.songport.shared.NwayEdit.Mode.KEEP) }
@@ -378,7 +391,8 @@ fun NwayCreateScreen(onClose: () -> Unit, onDone: () -> Unit) {
             }
         }
     }
-    if (adding) NwayAddDialog(members.map { it.provider to it.playlistId }, onDismiss = { adding = false }) { members = members + it; adding = false }
+    // As in the editor: the first playlist is the main one, the next ones follow and keep the user's additions.
+    if (adding) NwayAddDialog(members.map { it.provider to it.playlistId }, onDismiss = { adding = false }, asMain = members.none { it.main }) { members = members + it; adding = false }
     members.getOrNull(editing)?.let { m ->
         FitDialog(
             onDismissRequest = { editing = -1 },

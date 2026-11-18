@@ -3238,6 +3238,7 @@
     <string name="bulk_add_only_desc">Nothing is ever deleted on the target.</string>
     <string name="bulk_removals_note">Large removals are still held back for you to confirm, as they are today.</string>
     <string name="bulk_removals_skipped">Two-way, archive and radio syncs keep their own setting.</string>
+    <string name="bulk_removals_multi">Multi syncs keep their own way: it is set for each target in their editor.</string>
     <string name="bulk_onoff_leave">Leave each sync as it is (On: %1$d, Off: %2$d).</string>
     <string name="bulk_on">On</string>
     <string name="bulk_on_desc">They run on their schedule.</string>

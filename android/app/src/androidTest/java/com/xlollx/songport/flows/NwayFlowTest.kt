@@ -72,8 +72,9 @@ class NwayFlowTest : FlowTest() {
         click(s(R.string.ok))
         waitText(s(R.string.nway_role_main))
 
-        // A second one, which follows.
+        // A second one, which follows: offered first, keeping the user's additions, as in the editor.
         pick("Deezer", "Workout")
+        waitText(s(R.string.nway_follow_mode))
         click(s(R.string.nway_role_follows))
         click(s(R.string.ok))
         waitGone(s(R.string.nway_need_two))

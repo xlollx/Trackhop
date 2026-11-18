@@ -3236,6 +3236,7 @@
     <string name="bulk_add_only_desc">Im Ziel wird nie etwas gelöscht.</string>
     <string name="bulk_removals_note">Große Entfernungen warten weiterhin auf deine Bestätigung, wie bisher.</string>
     <string name="bulk_removals_skipped">Zwei-Wege-, Archiv- und Radio-Syncs behalten ihre eigene Einstellung.</string>
+    <string name="bulk_removals_multi">Multi-Syncs behalten ihre eigene Art: Sie wird für jedes Ziel in ihrem Editor festgelegt.</string>
     <string name="bulk_onoff_leave">Jeden Sync so lassen (Ein: %1$d, Aus: %2$d).</string>
     <string name="bulk_on">Ein</string>
     <string name="bulk_on_desc">Sie laufen nach ihrem Zeitplan.</string>

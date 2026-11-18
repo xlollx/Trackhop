@@ -1728,11 +1728,13 @@ private fun JobTile(
                 }
             }
         }
-        OverflowDropdown(menuOpen && !isRunning, { onMenu(false) }, menu, jobMenuContainer(job.color), ink ?: MaterialTheme.colorScheme.onSurfaceVariant, name)
-        // While it runs the menu stays shut, as on the card: a hold shows the run live instead (it did nothing before).
-        if (menuOpen && isRunning) LiveSheet(group?.runningJob ?: job) { onMenu(false) }
+        // A multi sync's menu opens while it runs too, as at rest: Select works, Edit and Preview wait for the run
+        // (JobMenuHost). One of its services' live view alone would not be the group's.
+        OverflowDropdown(menuOpen && (!isRunning || group != null), { onMenu(false) }, menu, jobMenuContainer(job.color), ink ?: MaterialTheme.colorScheme.onSurfaceVariant, name)
+        // While a classic sync runs the menu stays shut, as on the card: a hold shows the run live instead (it did nothing before).
+        if (menuOpen && isRunning && group == null) LiveSheet(job) { onMenu(false) }
         // The run ending under the live view closes it, rather than turning it into the menu.
-        LaunchedEffect(isRunning) { if (!isRunning && menuOpen) onMenu(false) }
+        LaunchedEffect(isRunning) { if (!isRunning && menuOpen && group == null) onMenu(false) }
     }
 }
 

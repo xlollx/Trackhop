@@ -3236,6 +3236,7 @@
     <string name="bulk_add_only_desc">Nella destinazione non viene mai cancellato niente.</string>
     <string name="bulk_removals_note">Le rimozioni grandi restano comunque in attesa della tua conferma, come oggi.</string>
     <string name="bulk_removals_skipped">Le sync bidirezionali, gli archivi e le sync radio tengono la loro impostazione.</string>
+    <string name="bulk_removals_multi">Le sync multiple tengono il loro modo: si sceglie per ogni destinazione nel loro editor.</string>
     <string name="bulk_onoff_leave">Lascia ogni sync com’è (Attive: %1$d, Disattivate: %2$d).</string>
     <string name="bulk_on">Attiva</string>
     <string name="bulk_on_desc">Partono secondo la loro pianificazione.</string>

@@ -450,17 +450,26 @@ private fun ChoiceRow(title: String, desc: String, selected: Boolean, tag: Strin
     }
 }
 
-/** Removals for the selected syncs: Mirror removals or Add only; the pairs, archives and radio syncs keep their own. */
+/**
+ * Removals for the selected syncs: Mirror removals or Add only; the pairs, archives and radio syncs keep
+ * their own, and so do multi syncs (each target follows its own way, set in the multi sync's editor).
+ */
 @Composable
 fun BulkRemovalsSheet(jobs: List<SyncJob>, onDismiss: () -> Unit, onApply: (Boolean) -> Unit) {
     val mine = jobs.filter { BulkEdit.takesRemovals(it) }
     val mirror = mine.count { it.mirrorRemovals }
+    // A selected multi sync is its card's sync: the only syncs of a group that can be selected.
+    val (multi, classic) = jobs.partition { com.xlollx.songport.shared.SharedGroups.sharedSide(it) != null }
     BulkChoiceSheet(
         stringResource(R.string.bulk_removals), jobs.size, BulkEdit.common(mine) { it.mirrorRemovals },
         leave = stringResource(R.string.bulk_removals_leave, mirror, mine.size - mirror),
         yes = stringResource(R.string.editor_mirror) to stringResource(R.string.bulk_removals_mirror_desc),
         no = stringResource(R.string.bulk_add_only) to stringResource(R.string.bulk_add_only_desc),
-        notes = listOfNotNull(stringResource(R.string.bulk_removals_note), stringResource(R.string.bulk_removals_skipped).takeIf { mine.size < jobs.size }),
+        notes = listOfNotNull(
+            stringResource(R.string.bulk_removals_note),
+            stringResource(R.string.bulk_removals_skipped).takeIf { classic.any { !BulkEdit.takesRemovals(it) } },
+            stringResource(R.string.bulk_removals_multi).takeIf { multi.isNotEmpty() },
+        ),
         onDismiss = onDismiss, onApply = onApply,
     )
 }

@@ -3234,6 +3234,7 @@
     <string name="bulk_add_only_desc">Hedefte hiçbir şey silinmez.</string>
     <string name="bulk_removals_note">Büyük kaldırmalar bugünkü gibi yine onayını bekler.</string>
     <string name="bulk_removals_skipped">İki yönlü, arşiv ve radyo eşitlemeleri kendi ayarını korur.</string>
+    <string name="bulk_removals_multi">Çoklu senkronizasyonlar kendi yöntemini korur: her hedef için kendi düzenleyicisinde ayarlanır.</string>
     <string name="bulk_onoff_leave">Her eşitlemeyi olduğu gibi bırak (Açık: %1$d, Kapalı: %2$d).</string>
     <string name="bulk_on">Açık</string>
     <string name="bulk_on_desc">Zamanlamalarına göre çalışırlar.</string>

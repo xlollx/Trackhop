@@ -121,14 +121,29 @@ fun ServiceLogo(serviceId: String?, brandColor: Long?, name: String, size: Dp = 
         when {
             glyph != null -> Image(glyph, null, Modifier.size(size * 0.56f), colorFilter = ColorFilter.tint(fg))
             generic != null -> Icon(generic, null, tint = fg, modifier = Modifier.size(size * 0.56f))
-            else -> Text(
-                name.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                color = fg,
-                fontWeight = FontWeight.Bold,
-                fontSize = (size.value * 0.46f).sp,
-            )
+            // No letter or digit to show (a name that is empty or starts with punctuation): the circle alone.
+            else -> monogram(name)?.let { Text(it, color = fg, fontWeight = FontWeight.Bold, style = monogramStyle(size)) }
         }
     }
+}
+
+/** The initial a service without a mark shows: the first letter or digit of its name, or null when it has none. */
+internal fun monogram(name: String): String? = name.firstOrNull { it.isLetterOrDigit() }?.uppercaseChar()?.toString()
+
+/**
+ * The initial's text at [size]: its type in proportion to the circle, one line exactly as tall as
+ * the type, trimmed and centred, without the font's extra padding. With the screen's usual line
+ * height (24sp) a 16dp circle had its letter sit low and to the side.
+ */
+internal fun monogramStyle(size: Dp): androidx.compose.ui.text.TextStyle {
+    val type = (size.value * 0.46f).sp
+    return androidx.compose.ui.text.TextStyle(
+        fontSize = type, lineHeight = type, textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+        lineHeightStyle = androidx.compose.ui.text.style.LineHeightStyle(
+            androidx.compose.ui.text.style.LineHeightStyle.Alignment.Center, androidx.compose.ui.text.style.LineHeightStyle.Trim.Both,
+        ),
+        platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false),
+    )
 }
 
 /**

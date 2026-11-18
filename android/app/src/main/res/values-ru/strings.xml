@@ -3404,6 +3404,7 @@
     <string name="bulk_add_only_desc">В цели никогда ничего не удаляется.</string>
     <string name="bulk_removals_note">Крупные удаления по-прежнему ждут вашего подтверждения, как и сейчас.</string>
     <string name="bulk_removals_skipped">Двусторонние, архивные и радиосинхронизации сохраняют свою настройку.</string>
+    <string name="bulk_removals_multi">Мультисинхронизации сохраняют свой режим: он задаётся для каждой цели в их редакторе.</string>
     <string name="bulk_onoff_leave">Оставить каждую синхронизацию как есть (Включено: %1$d, Выключено: %2$d).</string>
     <string name="bulk_on">Включена</string>
     <string name="bulk_on_desc">Они запускаются по своему расписанию.</string>
