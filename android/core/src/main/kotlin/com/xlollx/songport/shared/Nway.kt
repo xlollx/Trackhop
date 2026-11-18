@@ -50,8 +50,11 @@ object Nway {
 
     fun groups(env: Env): List<SharedGroup> = env.store.data.groups.filter { isGroup(it) }
 
-    fun members(env: Env, group: SharedGroup): List<Member> {
-        val jobs = env.store.data.jobs.filter { SharedGroups.sharedSide(it) == group.id }
+    fun members(env: Env, group: SharedGroup): List<Member> = members(env.store.data.jobs, group.id)
+
+    /** The members of the group [groupId] among [all] the syncs, in the list's order. */
+    fun members(all: List<SyncJob>, groupId: String): List<Member> {
+        val jobs = all.filter { SharedGroups.sharedSide(it) == groupId }
         return jobs.filter { it.source.provider == SharedProvider.ID }
             .map { down -> Member(down.target, down, jobs.firstOrNull { it.id == down.linkedJobId }) }
     }
@@ -71,6 +74,7 @@ object Nway {
         val group = SharedGroups.create(env, name, "", "", "", "", first.first, Invite.LOCAL)
         put(env, group, first.first, true, schedule, group.jobId, group.twinId)
         members.filter { it !== first }.forEach { (ref, main) -> put(env, group, ref, main, schedule) }
+        log(env, group.id, "created, ${members.size} members: " + members.joinToString(", ") { (ref, main) -> "${ref.provider} ${role(main, true)}" })
         return group
     }
 
@@ -80,12 +84,14 @@ object Nway {
         usable(ref)
         require(members(env, group).none { it.playlist.provider == ref.provider && it.playlist.playlistId == ref.playlistId }) { "Already in the group" }
         put(env, group, ref, main, schedule, keepMine = keepMine)
+        log(env, group.id, "member added: ${ref.provider} ${role(main, keepMine)}")
     }
 
     /** Takes [member] out of [group]; its playlist stays as it is. Answers the ids of the syncs removed, for the platform to cancel their schedules. */
     fun remove(env: Env, group: SharedGroup, member: Member): List<String> {
         require(!member.main || members(env, group).count { it.main } > 1) { "A group needs a main member" }
         return listOfNotNull(member.down.id, member.up?.id).onEach { env.store.deleteJob(it) }
+            .also { log(env, group.id, "member removed: ${member.playlist.provider} ${role(member)}") }
     }
 
     /** Makes [member] a main member or a follower ([keepMine] or an exact copy). The sync that brings the hub in stays the same one (its review, its history). */
@@ -104,6 +110,7 @@ object Nway {
             member.up?.let { env.store.deleteJob(it.id) }
             env.store.upsertJob(follower(down, keepMine))
         }
+        log(env, group.id, "role changed: ${member.playlist.provider} ${role(member)} -> ${role(main, keepMine)}")
     }
 
     /** A follower's choice: keep the user's own additions there ([keep]) or an exact copy of the group. */
@@ -113,7 +120,15 @@ object Nway {
         // Kept again later, it starts from what the playlist and the group hold then.
         env.store.dropPairState(down)
         env.store.upsertJob(follower(down, keep))
+        log(env, SharedGroups.sharedSide(down).orEmpty(), "role changed: ${member.playlist.provider} ${role(member)} -> ${role(false, keep)}")
     }
+
+    /** A member's role as the log says it: main, or a follower that keeps its additions or is an exact copy. */
+    fun role(main: Boolean, keepMine: Boolean): String = if (main) "main" else if (keepMine) "follows-keep" else "follows-exact"
+    fun role(member: Member): String = role(member.main, member.keepMine)
+
+    /** One line of the diagnostic log about a group: by its id and its services, never by a playlist's name. */
+    private fun log(env: Env, groupId: String, message: String) = env.log("shared", "multi sync group=$groupId: $message")
 
     /** Brings in the local groups of a configuration file ([com.xlollx.songport.data.ConfigBackup]); one this device still holds the key of stays as it is. */
     fun restore(env: Env, groups: List<SharedGroup>) {
@@ -146,7 +161,7 @@ object Nway {
         val job = env.store.job(j.id) ?: j
         engine.run(job, unattended) { onProgress(job, it) }
     }.also { reports ->
-        env.log("shared", "${group.name}: on several services, ${reports.size} syncs run: +${reports.sumOf { it.added }} -${reports.sumOf { it.removed }}, " +
+        log(env, group.id, "${reports.size} syncs run: +${reports.sumOf { it.added }} -${reports.sumOf { it.removed }}, " +
             "${reports.sumOf { it.unmatched.size }} not found, ${reports.sumOf { it.heldBack }} removals held back, ${reports.count { !it.ok }} failed")
     }
 

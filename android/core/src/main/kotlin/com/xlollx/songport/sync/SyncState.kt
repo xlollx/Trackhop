@@ -83,6 +83,48 @@ object SyncState {
 
     private const val MAX_ITEMS = 1000
 
+    /** How one sync of a [Batch] ended; [skipped] says why it never ran (and then the rest is empty). */
+    data class JobResult(
+        val ok: Boolean = true, val offline: Boolean = false, val error: String? = null,
+        val added: Int = 0, val removed: Int = 0, val notFound: Int = 0, val held: Int = 0, val skipped: String? = null,
+    ) {
+        /** Failed for real: no internet is not a failure (it runs again by itself), nor is a sync that was skipped. */
+        val failed: Boolean get() = !ok && !offline && skipped == null
+    }
+
+    /**
+     * Several syncs run by one worker, one after the other (a multi sync's "Sync now"): [order] is the
+     * syncs' ids as they run, [finished] those over, in the order they ended, each with its [outcomes].
+     * [group]: the multi sync they all belong to, when they do. In memory only, as the rest of this
+     * object: a worker stopped by the system ends its record, and its next start makes a new one.
+     */
+    data class Batch(
+        val id: String, val group: String?, val order: List<String>,
+        val finished: List<String> = emptyList(), val outcomes: Map<String, JobResult> = emptyMap(),
+    ) {
+        /** The syncs still to run or running, in order. */
+        val left: List<String> get() = order.filter { it !in finished }
+        /** Where [jobId] stands among the batch's syncs, from 1; 0 when it is not one of them. */
+        fun place(jobId: String): Int = order.indexOf(jobId) + 1
+    }
+
+    private val _batches = MutableStateFlow<Map<String, Batch>>(emptyMap())
+    /** The batches under way, by id. */
+    val batches: StateFlow<Map<String, Batch>> get() = _batches
+
+    fun batchStart(id: String, group: String?, order: List<String>) { _batches.update { it + (id to Batch(id, group, order)) } }
+    /** [jobId] of batch [id] is over (or was skipped). A sync that is not of the batch, or a batch that is over, changes nothing. */
+    fun batchDone(id: String, jobId: String, result: JobResult) {
+        _batches.update { all ->
+            val b = all[id]?.takeIf { jobId in it.order } ?: return@update all
+            all + (id to b.copy(finished = b.finished.filter { it != jobId } + jobId, outcomes = b.outcomes + (jobId to result)))
+        }
+    }
+    /** The batch is over, or its worker was stopped: answers it as it stood. */
+    fun batchEnd(id: String): Batch? { val b = _batches.value[id]; _batches.update { it - id }; return b }
+    /** The batch under way that runs [group]'s syncs. */
+    fun batchOf(group: String, batches: Map<String, Batch> = _batches.value): Batch? = batches.values.firstOrNull { it.group == group }
+
     fun pause(jobId: String) { _paused.update { it + jobId } }
     fun resume(jobId: String) { _paused.update { it - jobId } }
     // A paused sync stays shown as paused until it actually stops: checkpoint() lets a stop through a pause.

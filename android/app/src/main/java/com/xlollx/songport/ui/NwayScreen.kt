@@ -418,18 +418,41 @@ private fun NwayFirstRunSheet(name: String, members: List<NwayDraft>, schedule: 
     }
 }
 
-/** How a group stands, from its syncs' last runs. */
-private class GroupStatus(val last: Long, val failed: Boolean, val notFound: Int, val paused: Boolean, val schedule: Schedule?)
+/** [NwayStatus] of a group, and when it runs. */
+private fun statusOf(d: StoreData, members: List<Nway.Member>): NwayStatus.Group = NwayStatus.group(d, members)
 
-private fun statusOf(d: StoreData, members: List<Nway.Member>): GroupStatus {
-    val jobs = members.flatMap { listOfNotNull(it.down, it.up) }
-    val reports = jobs.mapNotNull { j -> d.reports.firstOrNull { it.id == j.lastReportId } }
-    return GroupStatus(
-        jobs.maxOfOrNull { it.lastRunEpoch } ?: 0L, reports.any { !it.ok },
-        // What each service lacks is in the report of the sync that brings the group to it.
-        members.sumOf { m -> d.reports.firstOrNull { it.id == m.down.lastReportId }?.unmatchedTracks?.size ?: 0 },
-        jobs.isNotEmpty() && jobs.none { it.enabled }, jobs.firstOrNull()?.schedule,
-    )
+private fun scheduleOf(members: List<Nway.Member>): Schedule? = members.firstOrNull()?.down?.schedule
+
+/** A service's name as the cards say it. */
+@Composable
+internal fun nwayService(provider: String): String = Providers.byId(provider)?.label(LocalContext.current.env) ?: provider
+
+/**
+ * A group's state in a few words, as a card's pill says its own, with the service it is about when
+ * it is one: "Needs attention · Qobuz", "Removals on hold · TIDAL", "Not found: 12".
+ */
+@Composable
+internal fun groupStatusText(g: NwayStatus.Group): String {
+    val text = when (g.status) {
+        CardStatus.DISABLED -> stringResource(R.string.sync_paused)
+        CardStatus.NEVER -> stringResource(R.string.pill_never)
+        CardStatus.ERROR -> stringResource(R.string.pill_error)
+        CardStatus.OFFLINE -> stringResource(R.string.pill_stopped_offline)
+        CardStatus.HELD_BACK -> stringResource(R.string.pill_held_back)
+        CardStatus.INCOMPLETE -> stringResource(R.string.pill_incomplete)
+        CardStatus.NOT_FOUND -> stringResource(R.string.pill_not_found, g.count)
+        else -> stringResource(R.string.pill_ok)
+    }
+    // Songs not found are counted over all the services: the count says more than one name.
+    val named = g.provider?.takeIf { g.status != CardStatus.NOT_FOUND }
+    return if (named != null) text + " · " + nwayService(named) else text
+}
+
+internal fun groupStatusTone(s: CardStatus): Tone = when (s) {
+    CardStatus.ERROR -> Tone.Error
+    CardStatus.HELD_BACK, CardStatus.INCOMPLETE, CardStatus.NOT_FOUND -> Tone.Warning
+    CardStatus.OK -> Tone.Ok
+    else -> Tone.Neutral
 }
 
 /** The songs the group holds now; null until read (and before its first run it holds none). */
@@ -461,7 +484,7 @@ internal fun NwayCard(group: SharedGroup, data: StoreData, running: Set<String>,
             Text(group.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Text(
                 listOfNotNull(
-                    status.schedule?.let { scheduleLabel(it) },
+                    scheduleOf(members)?.let { scheduleLabel(it) },
                     if (status.last > 0) stringResource(R.string.pill_last_run, relativeTime(status.last)) else stringResource(R.string.last_run_never),
                 ).joinToString(" · "),
                 style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -478,9 +501,11 @@ internal fun NwayCard(group: SharedGroup, data: StoreData, running: Set<String>,
             }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 if (tracks != null && status.last > 0) StatusPill(stringResource(R.string.tracks_count, tracks), Tone.Neutral)
-                if (status.notFound > 0) StatusPill(stringResource(R.string.pill_not_found, status.notFound), Tone.Warning)
-                if (status.failed) StatusPill(stringResource(R.string.pill_error), Tone.Error, Icons.Filled.Warning)
-                if (status.paused) StatusPill(stringResource(R.string.sync_paused), Tone.Neutral, Icons.Filled.Pause)
+                // One state, the most serious, as on every other card (no internet is not "Needs attention").
+                if (status.last > 0 || status.paused) StatusPill(
+                    groupStatusText(status), groupStatusTone(status.status),
+                    when (status.status) { CardStatus.DISABLED -> Icons.Filled.Pause; CardStatus.OK, CardStatus.NEVER -> null; else -> Icons.Filled.Warning },
+                )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                 FilledTonalButton(onClick = onOpen, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text(stringResource(R.string.settings_open)) }
@@ -549,7 +574,9 @@ fun NwayGroupScreen(groupId: String, onClose: () -> Unit, onReview: (String) -> 
                     val held = listOfNotNull(m.down.takeIf { (down?.heldBack ?: 0) > 0 }, m.up?.takeIf { (up?.heldBack ?: 0) > 0 }).firstOrNull()
                     val notFound = down?.unmatchedTracks?.size ?: 0
                     val state = when {
-                        down?.ok == false || up?.ok == false -> stringResource(R.string.pill_error)
+                        // No internet is not a failure of the service: said as on a card.
+                        listOfNotNull(down, up).any { !it.ok && !it.offline } -> stringResource(R.string.pill_error)
+                        listOfNotNull(down, up).any { it.offline } -> stringResource(R.string.pill_stopped_offline)
                         held != null -> stringResource(R.string.nway_held, maxOf(down?.heldBack ?: 0, up?.heldBack ?: 0))
                         notFound > 0 -> stringResource(R.string.nway_not_found_review, notFound)
                         down == null -> stringResource(R.string.last_run_never)
@@ -583,7 +610,7 @@ fun NwayGroupScreen(groupId: String, onClose: () -> Unit, onReview: (String) -> 
                 if (com.xlollx.songport.Features.v2(data.settings)) PrefRow(Icons.AutoMirrored.Filled.PlaylistAdd, stringResource(R.string.nway_add), null, chevron = false, enabled = !busy) { adding = true }
             }
             PrefSection(stringResource(R.string.editor_schedule), accent = JobColor.TEAL) {
-                PrefRow(Icons.Filled.Schedule, status.schedule?.let { scheduleLabel(it) }.orEmpty(), null) { pickSchedule = true }
+                PrefRow(Icons.Filled.Schedule, scheduleOf(members)?.let { scheduleLabel(it) }.orEmpty(), null) { pickSchedule = true }
                 PrefSwitch(Icons.Filled.Pause, stringResource(R.string.nway_pause), stringResource(R.string.nway_pause_desc), status.paused) { paused ->
                     change { jobsOf().forEach { env.store.upsertJob(it.copy(enabled = !paused)) }; emptyList() }
                 }
@@ -598,11 +625,11 @@ fun NwayGroupScreen(groupId: String, onClose: () -> Unit, onReview: (String) -> 
             val p = Providers.byId(d.provider) ?: throw IllegalStateException(d.provider)
             val ref = if (d.playlistId != null) PlaylistRef(p.id, d.playlistId, d.name)
                 else p.createPlaylist(env, group.name, description).let { PlaylistRef(p.id, it.id, it.name) }
-            Nway.add(env, group, ref, d.main, status.schedule ?: Schedule.HOURLY, d.keepMine)
+            Nway.add(env, group, ref, d.main, scheduleOf(members) ?: Schedule.HOURLY, d.keepMine)
             emptyList()
         }
     }
-    if (pickSchedule) SchedulePicker(status.schedule ?: Schedule.HOURLY, { pickSchedule = false }) { s ->
+    if (pickSchedule) SchedulePicker(scheduleOf(members) ?: Schedule.HOURLY, { pickSchedule = false }) { s ->
         pickSchedule = false
         change { jobsOf().forEach { env.store.upsertJob(it.copy(schedule = s, everyMinutes = null, at = null, days = emptyList())) }; emptyList() }
     }
