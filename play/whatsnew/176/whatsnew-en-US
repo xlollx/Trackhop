@@ -1,0 +1,1 @@
+Trackhop 2.1.4. When a service slows down adding many liked songs, Trackhop waits and goes on, and the songs it could not add yet are shown as "to add next run" instead of not found; the next run adds them. The card and the notification say so. Manage playlists now lists your liked songs too, to look through, remove songs or export. Small fixes.

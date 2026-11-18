@@ -5,6 +5,12 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`, `v2.x`)
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 2.1.2
+
+Fixes, released with the app's 2.1.4.
+
+- **Deezer liked songs**: likes go in at a steady pace, and when Deezer limits them Trackhop waits a little and goes on. The songs it could not add yet are reported as "to add next run" instead of not found, and the next run adds them. An expired session or a lost connection is still an error.
+
 ## 2.1.1
 
 Fixes, released with the app's 2.1.2.
