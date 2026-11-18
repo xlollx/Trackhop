@@ -127,7 +127,14 @@ object NwayEdit {
         val existing = Nway.members(n.jobs, groupId).mapTo(HashSet()) { it.down.id }
         val like = Nway.anchor(n, group) ?: Nway.jobsOf(n, groupId).firstOrNull()
         // The syncs of the draft's playlists: a member's own, or a new one's.
-        val ids = draft.items.associateWith { it.downId?.takeIf { id -> id in existing } ?: UUID.randomUUID().toString() }
+        // A playlist taken out and put back (or "changed" to itself) has no sync id in the draft: it keeps its member's.
+        val before = Nway.members(n.jobs, groupId)
+        val claimed = draft.items.mapNotNullTo(HashSet()) { it.downId?.takeIf { id -> id in existing } }
+        val ids = draft.items.associateWith { item ->
+            item.downId?.takeIf { id -> id in existing }
+                ?: before.firstOrNull { m -> m.down.id !in claimed && m.playlist.provider == item.provider && m.playlist.playlistId == item.playlistId }?.down?.id?.also { claimed += it }
+                ?: UUID.randomUUID().toString()
+        }
         val source = draft.source!!
         for (item in draft.items) if (ids.getValue(item) !in existing) {
             n = Nway.withMember(n, group, item.ref, main = item === source || item.mode == Mode.TWO_WAY, keepMine = item.mode != Mode.EXACT, like = like, downId = ids.getValue(item))

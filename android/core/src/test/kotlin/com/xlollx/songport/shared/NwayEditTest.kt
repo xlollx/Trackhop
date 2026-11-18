@@ -131,6 +131,30 @@ class NwayEditTest {
         assertEquals(group().jobId, members().first().down.id)
     }
 
+    @Test fun aTargetTakenOutAndPutBackKeepsItsSync() {
+        val g = old()
+        val was = draft()
+        val dId = members().first { it.playlist.provider == d.id }.down.id
+        // Removed, then the same playlist added again: no sync id in the draft.
+        val next = was.copy(targets = was.targets.map { if (it.provider == d.id) it.copy(downId = null) else it })
+        assertTrue(env.store.commit { NwayEdit.applied(it, g.id, next) })
+        assertEquals(dId, members().first { it.playlist.provider == d.id }.down.id)
+        assertEquals(4, members().size)
+    }
+
+    @Test fun aGroupFromBeforeNamingAFollowerKeepsTheCardsLook() {
+        val g = old()
+        val src = members().first { it.playlist.provider == a.id }.down.id
+        val follower = members().first { it.playlist.provider == b.id }.down.id
+        // 2.1.0 left the group naming a follower; the card stands on "a", which the user styled.
+        env.store.update { x -> x.copy(groups = x.groups.map { it.copy(jobId = follower) }, jobs = x.jobs.map { if (it.id == src) it.copy(color = "teal", favorite = true) else it }) }
+        Nway.remove(env, group(), members().first { it.playlist.provider == d.id })
+        val card = now().jobs.first { it.id == src }
+        assertEquals("teal", card.color)
+        assertTrue(card.favorite)
+        assertEquals(src, group().jobId)
+    }
+
     @Test fun makeItTheSourceSwapsTheTwoAndTheOldSourceGoesOnSendingItsChanges() {
         val g = old()
         env.store.update { x -> x.copy(jobs = x.jobs.map { if (it.id == g.jobId) it.copy(color = "teal", favorite = true) else it }) }

@@ -92,6 +92,8 @@ object Nway {
     fun jobsOf(d: StoreData, groupId: String): List<SyncJob> = d.jobs.filter { SharedGroups.sharedSide(it) == groupId }
 
     /** What a card looks like and where it is: this is what follows the source when it changes. */
+    private fun hasLook(j: SyncJob) = j.color != null || j.label != null || j.tags.isNotEmpty() || j.accentStyle != null || j.routeGlow != null || j.favorite
+
     private fun styled(j: SyncJob, like: SyncJob?) = j.copy(
         color = like?.color, label = like?.label, tags = like?.tags.orEmpty(), accentStyle = like?.accentStyle, routeGlow = like?.routeGlow, favorite = like?.favorite ?: false,
     )
@@ -105,8 +107,13 @@ object Nway {
         val to = d.jobs.firstOrNull { it.id == toDownId && SharedGroups.sharedSide(it) == groupId } ?: return d
         val twin = to.linkedJobId ?: g.twinId
         val groups = d.groups.map { if (it.id == groupId) it.copy(jobId = to.id, twinId = twin) else it }
-        val from = d.jobs.firstOrNull { it.id == g.jobId && SharedGroups.sharedSide(it) == groupId }
-        if (from == null || from.id == to.id) return d.copy(groups = groups)
+        val named = d.jobs.firstOrNull { it.id == g.jobId && SharedGroups.sharedSide(it) == groupId }
+        // A group from 2.1.0 may still name a follower while its card stands on another sync: the look is
+        // taken from the sync that has one, and a card already on [to] only gets the group pointing to it.
+        val from = named?.takeIf { hasLook(it) }
+            ?: d.jobs.firstOrNull { it.id != to.id && SharedGroups.sharedSide(it) == groupId && it.target.provider != SharedProvider.ID && hasLook(it) }
+            ?: named
+        if (from == null || from.id == to.id || (!hasLook(from) && hasLook(to))) return d.copy(groups = groups)
         val moved = d.jobs.filter { it.id != to.id }.flatMap { if (it.id == from.id) listOf(styled(to, from), styled(from, null)) else listOf(it) }
         return d.copy(groups = groups, jobs = moved)
     }

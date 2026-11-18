@@ -429,14 +429,14 @@ fun SyncsScreen(
     val endSelection = { selected = emptySet(); selectMode = false; lastTicked = null }
     // A sync deleted or handed over meanwhile is no longer ticked; selecting goes on (until 2.1.0 the last
     // ticked sync gone, or unticked, ended it, as if by itself).
-    LaunchedEffect(data.syncs, data.handedOver) { SyncSelection.pruned(selected, data).let { if (it != selected) selected = it } }
+    LaunchedEffect(data.syncs, data.handedOver) { SyncSelection.pruned(selected, stored).let { if (it != selected) selected = it } }
     // Ticked from a menu or a hold: selecting from then on, whatever happens to that tick.
     LaunchedEffect(selected.isNotEmpty()) { if (selected.isNotEmpty()) selectMode = true }
     androidx.activity.compose.BackHandler(enabled = selecting) { endSelection() }
-    val tickable = remember(shown, data.handedOver) { SyncSelection.tickable(data, shown) }
+    val tickable = remember(shown, data.handedOver, stored) { SyncSelection.tickable(stored, shown) }
     val notHere = stringResource(R.string.bulk_not_here)
     val select: (SyncJob) -> Unit = { j ->
-        if (com.xlollx.songport.sync.BulkEdit.selectable(data, j)) { selectMode = true; lastTicked = j.id; if (j.id !in selected) selected = selected + j.id } else onMessage(notHere)
+        if (com.xlollx.songport.sync.BulkEdit.selectable(stored, j)) { selectMode = true; lastTicked = j.id; if (j.id !in selected) selected = selected + j.id } else onMessage(notHere)
     }
     // The sheet of the selection's action in hand ("schedule", "removals", "onoff", "color", "delete").
     var bulkSheet by rememberSaveable { mutableStateOf<String?>(null) }
@@ -789,8 +789,11 @@ fun SyncsScreen(
             onSchedule = { bulkSheet = "schedule" }, onRemovals = { bulkSheet = "removals" }, onOnOff = { bulkSheet = "onoff" },
             onRun = {
                 val before = com.xlollx.songport.sync.OfflineQueue.waiting.value
-                val ids = com.xlollx.songport.sync.BulkEdit.selected(data, selected).map { it.id }
-                com.xlollx.songport.sync.Scheduler.runTogether(ctx, ids)
+                val ids = com.xlollx.songport.sync.BulkEdit.selected(stored, selected).map { it.id }
+                // A multi sync runs as a whole, its services one after the other; the others together.
+                val (groups, single) = ids.partition { anchors.containsKey(it) }
+                groups.forEach { id -> anchors[id]?.let { NwayUi.run(ctx, it) } }
+                if (single.isNotEmpty()) com.xlollx.songport.sync.Scheduler.runTogether(ctx, single)
                 // No internet: they wait for it, as a single sync does.
                 val waits = (com.xlollx.songport.sync.OfflineQueue.waiting.value - before).isNotEmpty()
                 onMessage(if (waits) ctx.getString(R.string.offline_queued_all) else ctx.resources.getQuantityString(R.plurals.bulk_started, ids.size, ids.size))
@@ -803,7 +806,7 @@ fun SyncsScreen(
     }
     // The sheet of the selection's action: what it changes is saved for all the selected syncs or for none (ManyChange).
     if (selected.isNotEmpty() && bulkSheet != null) {
-        val picked = com.xlollx.songport.sync.BulkEdit.selected(data, selected)
+        val picked = com.xlollx.songport.sync.BulkEdit.selected(stored, selected)
         val ids = picked.mapTo(LinkedHashSet()) { it.id }
         val closeSheet = { bulkSheet = null }
         fun change(fn: (StoreData) -> StoreData) {
