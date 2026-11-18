@@ -52,3 +52,6 @@ jobs:
           manifest-path: packaging/flatpak/io.github.xlollx.Trackhop.yml
           bundle: Trackhop.flatpak
           artifact-name: Trackhop-Flatpak
+          # A new name for the builder's cache: the one saved on 18/11 broke every runtime update
+          # ("Invalid cross-device link", then a crash), so builds start from a clean state dir.
+          cache-key: flatpak-builder-v2-${{ github.sha }}
