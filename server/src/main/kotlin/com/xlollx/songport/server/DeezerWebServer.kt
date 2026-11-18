@@ -118,9 +118,16 @@ class DeezerWebServerProvider(override val slot: String = "") : CookieConnector 
     override suspend fun deletePlaylist(ctx: Env, playlistId: String) { io(ctx) { it.deletePlaylist(playlistId) } }
 
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
-        if (tracks.isEmpty()) return
+        addTracksReportingPresent(ctx, playlistId, tracks)
+    }
+
+    /** Favourites Deezer stopped taking part way (its limit, waited out a few times first): left for the next run. */
+    override suspend fun addTracksReportingPresent(ctx: Env, playlistId: String, tracks: List<Track>): Set<String> {
+        if (tracks.isEmpty()) return emptySet()
         val ids = tracks.map { it.id }
-        io(ctx) { c -> if (playlistId == MusicProvider.LIKED_ID) c.like(ids, on = true) else c.addToPlaylist(playlistId, ids) }
+        val liked = io(ctx) { c -> if (playlistId == MusicProvider.LIKED_ID) c.like(ids, on = true) else { c.addToPlaylist(playlistId, ids); null } }
+        if (liked != null && liked.left.isNotEmpty()) throw com.xlollx.songport.model.AddsLimited(liked.left.toSet(), "$displayName: ${liked.why ?: "not added"}")
+        return emptySet()
     }
 
     /** Entries go by a lasting id (or the track's own): one read a few minutes ago names the same entry, or none. */
@@ -130,7 +137,11 @@ class DeezerWebServerProvider(override val slot: String = "") : CookieConnector 
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (tracks.isEmpty()) return
         val ids = tracks.map { it.id }
-        io(ctx) { c -> if (playlistId == MusicProvider.LIKED_ID) c.like(ids, on = false) else c.removeFromPlaylist(playlistId, ids) }
+        io(ctx) { c ->
+            // Not all taken off: an error, so the sync never counts them as removed.
+            if (playlistId == MusicProvider.LIKED_ID) c.like(ids, on = false).let { l -> if (l.left.isNotEmpty()) throw BridgeException(l.why ?: "not every favourite removed") }
+            else c.removeFromPlaylist(playlistId, ids)
+        }
     }
 
     // ------------------------------------------------------------------ plumbing

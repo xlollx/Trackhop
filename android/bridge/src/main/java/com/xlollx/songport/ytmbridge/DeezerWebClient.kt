@@ -32,6 +32,18 @@ class DeezerWebClient(private val host: WebHost) {
 
     class User(val id: String, val name: String?, val token: String, val lovedId: String?)
 
+    /**
+     * Deezer limiting the requests: an HTTP 429, or a gateway error that says so (a quota, "too many
+     * requests"). [waitMs]: the pause it asked for (Retry-After), when it named one.
+     */
+    class Limited(message: String, val waitMs: Long? = null) : BridgeException(message)
+
+    /**
+     * A run of likes: [done] went in, [left] did not, in their order; [why] is Deezer's answer that
+     * stopped it (null when all went in), in words, without ids or tokens.
+     */
+    class Liked(val done: List<String>, val left: List<String>, val why: String?)
+
     private val http = OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS).readTimeout(40, TimeUnit.SECONDS).withHook().build()
     // ---- session
 
@@ -89,7 +101,7 @@ class DeezerWebClient(private val host: WebHost) {
             }
             throw BridgeException(EXPIRED)
         }
-        if (resp.code == 429) throw BridgeException("Deezer asks to slow down (429): try again in a few minutes")
+        if (resp.code == 429) throw Limited("Deezer asks to slow down (429): try again in a few minutes", resp.retryAfterMs)
         if (resp.code !in 200..299) throw BridgeException("Deezer $method: HTTP ${resp.code} ${resp.text.take(160)}")
         val j = runCatching { parseJson(resp.text) }.getOrNull() ?: throw BridgeException("Deezer $method: unreadable answer")
         val error = errorOf(j["error"])
@@ -101,19 +113,23 @@ class DeezerWebClient(private val host: WebHost) {
                 return gw(method, args, retry = false)
             }
             if (keys.any { it in AUTH_ERRORS } || keys.any { it in TOKEN_ERRORS }) throw BridgeException(EXPIRED)
+            if (isLimit(keys, error)) throw Limited("Deezer $method: too many requests (${keys.joinToString(",").ifEmpty { "limit" }})")
             throw BridgeException("Deezer $method: ${error.take(300)}")
         }
         return j["results"]
     }
 
-    private class Resp(val code: Int, val text: String, val setCookies: List<String>)
+    private class Resp(val code: Int, val text: String, val setCookies: List<String>, val retryAfterMs: Long? = null)
 
     /** One exchange, retried once on a transport error (a network switching between Wi-Fi and mobile data). */
     private fun send(req: Request): Resp {
         var attempt = 0
         while (true) {
             try {
-                http.newCall(req).execute().use { r -> return Resp(r.code, r.body?.string() ?: "", r.headers("Set-Cookie")) }
+                http.newCall(req).execute().use { r ->
+                    val after = r.header("Retry-After")?.trim()?.toLongOrNull()?.coerceIn(1, MAX_LIMIT_WAIT_S)?.times(1000)
+                    return Resp(r.code, r.body?.string() ?: "", r.headers("Set-Cookie"), after)
+                }
             } catch (e: java.io.IOException) {
                 if (attempt >= 1) throw BridgeException("Deezer unreachable: ${NetWords.of(e)}", e)
                 Thread.sleep(1_500)
@@ -255,12 +271,43 @@ class DeezerWebClient(private val host: WebHost) {
         gw("playlist.delete", jsonObj("playlist_id" to num(id)))
     }
 
-    /** Favourite tracks, one call each as the player does, a little apart. */
-    fun like(songIds: List<String>, on: Boolean) {
-        songIds.forEachIndexed { i, s ->
-            if (i > 0) Thread.sleep(pauseMs)
-            gw(if (on) "favorite_song.add" else "favorite_song.remove", jsonObj("SNG_ID" to num(s)))
+    /**
+     * Favourite tracks, one call each as the player does (the gateway's `favorite_song.add` takes one
+     * SNG_ID; no batch form is known), [pauseMs] apart. Deezer limiting the requests ([Limited]) is
+     * waited out (its Retry-After, else [limitWaitMs], doubling) at most [LIMIT_RETRIES] times, and
+     * the pace halves from then on; still limited, the run stops and says what is left. Another
+     * refusal once some went in stops it the same way; before any, it is thrown as it always was.
+     */
+    fun like(songIds: List<String>, on: Boolean): Liked {
+        val method = if (on) "favorite_song.add" else "favorite_song.remove"
+        val done = ArrayList<String>(songIds.size)
+        var pause = pauseMs
+        for ((i, s) in songIds.withIndex()) {
+            if (i > 0) Thread.sleep(pause)
+            var waits = 0
+            while (true) {
+                try {
+                    gw(method, jsonObj("SNG_ID" to num(s)))
+                    done += s
+                    break
+                } catch (e: Limited) {
+                    if (waits >= LIMIT_RETRIES) {
+                        BridgeNet.log("deezer", "favourites: still limited after $waits waits, ${done.size} of ${songIds.size} done, ${songIds.size - i} left for the next run")
+                        return Liked(done, songIds.subList(i, songIds.size).toList(), "Deezer limited the requests (${e.message})")
+                    }
+                    val wait = e.waitMs ?: (limitWaitMs shl waits)
+                    waits++
+                    BridgeNet.log("deezer", "favourites: Deezer limited the requests after ${done.size} of ${songIds.size}; waiting ${wait / 1000} s ($waits of $LIMIT_RETRIES)")
+                    Thread.sleep(wait)
+                    pause = (pause * 2).coerceIn(pauseMs, MAX_PAUSE_MS)
+                } catch (e: BridgeException) {
+                    if (done.isEmpty()) throw e
+                    BridgeNet.log("deezer", "favourites: refused after ${done.size} of ${songIds.size}: ${e.message?.take(160)}")
+                    return Liked(done, songIds.subList(i, songIds.size).toList(), e.message ?: "refused")
+                }
+            }
         }
+        return Liked(done, emptyList(), null)
     }
 
     // ---- shapes
@@ -327,11 +374,23 @@ class DeezerWebClient(private val host: WebHost) {
         private val JSON = "application/json".toMediaType()
         private val TOKEN_ERRORS = setOf("VALID_TOKEN_REQUIRED", "INVALID_CSRF_TOKEN")
         private val AUTH_ERRORS = setOf("NEED_USER_AUTH_REQUIRED", "USER_AUTH_REQUIRED", "GATEWAY_ERROR_AUTH")
+        /** How many times a limit is waited out in one run of likes, and the longest wait asked that is honoured. */
+        const val LIMIT_RETRIES = 3
+        private const val MAX_LIMIT_WAIT_S = 120L
+        /** After a limit the likes go twice as far apart, up to this. */
+        private const val MAX_PAUSE_MS = 2_000L
+
+        /** A gateway error that is Deezer limiting the requests: a quota, "too many requests", a rate limit. */
+        fun isLimit(keys: Collection<String>, message: String): Boolean =
+            keys.any { k -> k.contains("QUOTA", true) || k.contains("TOO_MANY", true) || k.contains("RATE_LIMIT", true) } ||
+                message.contains("too many", true) || message.contains("rate limit", true) || message.contains("quota", true)
         /** The signed-in user of each account (by [WebHost.cacheScope]): one per session, never another's. */
         private val cachedUsers = java.util.concurrent.ConcurrentHashMap<String, Pair<Long, User>>()
-        /** Pauses: the public API's quota window, the gap between one-by-one writes. Shortened by the tests. */
+        /** Pauses: the public API's quota window, the gap between one-by-one writes (likes). Shortened by the tests. */
         @Volatile var quotaWaitMs = 5_000L
-        @Volatile var pauseMs = 120L
+        @Volatile var pauseMs = 250L
+        /** The first wait when Deezer limits the likes and names no pause (doubled at each try). Shortened by the tests. */
+        @Volatile var limitWaitMs = 10_000L
 
         /** Forgets the account's cached user and token ([scope]: its host's [WebHost.cacheScope]): after a sign-out, or a sign-in to another account. */
         fun forget(scope: String = "") { cachedUsers.remove(scope) }

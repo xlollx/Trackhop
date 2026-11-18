@@ -122,12 +122,32 @@ class DeezerBridgeProvider(override val slot: String = "") : MusicProvider, WebA
     }
 
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
-        if (tracks.isEmpty()) return
+        addTracksReportingPresent(ctx, playlistId, tracks)
+    }
+
+    /**
+     * Favourites Deezer stopped taking part way (it limits the requests; the Bridge waits and tries
+     * again a few times first) end as [com.xlollx.songport.model.AddsLimited]: those not added, and
+     * every block after them, are left for the next run, never asked now. An older Bridge answers
+     * such a run with an error, which the sync reads as a limit by its words.
+     */
+    override suspend fun addTracksReportingPresent(ctx: Env, playlistId: String, tracks: List<Track>): Set<String> {
+        if (tracks.isEmpty()) return emptySet()
         withContext(Dispatchers.IO) {
-            tracks.chunked(100).forEach { chunk ->
-                call(ctx, "deezer.add", playlistId, Bundle().apply { putStringArray("ids", chunk.map { it.id }.toTypedArray()) })
+            val chunks = tracks.chunked(100)
+            for ((i, chunk) in chunks.withIndex()) {
+                val b = call(ctx, "deezer.add", playlistId, Bundle().apply {
+                    putStringArray("ids", chunk.map { it.id }.toTypedArray())
+                    putBoolean("partial", true)
+                })
+                val left = b.getStringArray("notAdded")
+                if (!left.isNullOrEmpty()) {
+                    val rest = chunks.drop(i + 1).flatten().map { it.id }
+                    throw com.xlollx.songport.model.AddsLimited(left.toSet() + rest, "$displayName: " + (b.getString("notAddedWhy") ?: "not added"))
+                }
             }
         }
+        return emptySet()
     }
 
     /** Entries go by a lasting id (or the track's own): one read a few minutes ago names the same entry, or none. */

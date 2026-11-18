@@ -418,14 +418,27 @@ object BridgeCore {
                 "deezer.add" -> {
                     val id = arg ?: return err("missing playlist id")
                     val ids = extras?.getStringArray("ids")?.toList() ?: emptyList()
-                    if (id == LIKED) DeezerWebClient(ctx, slot).like(ids, on = true) else DeezerWebClient(ctx, slot).addToPlaylist(id, ids)
+                    // Likes Deezer stopped taking part way (its limit): an app that asks for it ("partial",
+                    // Trackhop 2.1.4 on) gets those not added as "notAdded", with Deezer's answer as
+                    // "notAddedWhy", and leaves them for its next run. An older app gets the error, as before.
+                    val liked = if (id == LIKED) DeezerWebClient(ctx, slot).like(ids, on = true) else { DeezerWebClient(ctx, slot).addToPlaylist(id, ids); null }
                     deezerCache.invalidate(ck(slot, id))
+                    if (liked != null && liked.left.isNotEmpty()) {
+                        if (extras?.getBoolean("partial") != true) return err(liked.why ?: "Deezer did not take every favourite")
+                        return Bundle().apply {
+                            putStringArray("notAdded", liked.left.toTypedArray())
+                            putString("notAddedWhy", liked.why)
+                        }
+                    }
                     Bundle()
                 }
                 "deezer.remove" -> {
                     val id = arg ?: return err("missing playlist id")
                     val ids = extras?.getStringArray("ids")?.toList() ?: emptyList()
-                    if (id == LIKED) DeezerWebClient(ctx, slot).like(ids, on = false) else DeezerWebClient(ctx, slot).removeFromPlaylist(id, ids)
+                    if (id == LIKED) DeezerWebClient(ctx, slot).like(ids, on = false).also { l ->
+                        // Not all taken off: the sync must not count them as removed.
+                        if (l.left.isNotEmpty()) { deezerCache.invalidate(ck(slot, id)); return err(l.why ?: "Deezer did not remove every favourite") }
+                    } else DeezerWebClient(ctx, slot).removeFromPlaylist(id, ids)
                     deezerCache.invalidate(ck(slot, id))
                     Bundle()
                 }

@@ -46,6 +46,7 @@ class DeezerWebClientContractTest {
         DeezerWebClient.forget()
         DeezerWebClient.quotaWaitMs = 1
         DeezerWebClient.pauseMs = 0
+        DeezerWebClient.limitWaitMs = 1
         dz = DeezerWebClient(app)
     }
 
@@ -269,10 +270,79 @@ class DeezerWebClientContractTest {
 
     @Test fun likingIsOneFavouriteCallPerTrack() {
         ok("true"); ok("true"); ok("true")
-        dz.like(listOf("1", "2"), on = true)
+        val l = dz.like(listOf("1", "2"), on = true)
         dz.like(listOf("3"), on = false)
         assertEquals(listOf("favorite_song.add", "favorite_song.add", "favorite_song.remove"), BridgeMock.calls.map { it.method() })
         assertEquals(1L, call(0).json()["SNG_ID"].long)
+        assertEquals(listOf("1", "2"), l.done)
+        assertTrue(l.left.isEmpty())
+        assertNull(l.why)
+    }
+
+    // 2.1.4: Deezer limited the likes after a few hundred; the rest was lost as "not found".
+
+    @Test fun aLimitOnLikesIsWaitedOutAndTheLikesGoOn() {
+        DeezerWebClient.limitWaitMs = 1
+        ok("true"); ok("true")
+        answer("", code = 429)
+        answer("""{"error":{"QUOTA_EXCEEDED":"Too many requests"},"results":{}}""")
+        ok("true"); ok("true")
+        val l = dz.like(listOf("1", "2", "3", "4"), on = true)
+        assertEquals(listOf("1", "2", "3", "4"), l.done)
+        assertTrue(l.left.isEmpty())
+        // Track 3 asked three times (two limits, then taken): retried, never skipped, never twice taken.
+        assertEquals(listOf(1L, 2L, 3L, 3L, 3L, 4L), BridgeMock.calls.map { it.json()["SNG_ID"].long })
+    }
+
+    @Test fun aLimitThatLastsStopsCleanlyAndNamesWhatIsLeft() {
+        DeezerWebClient.limitWaitMs = 1
+        ok("true"); ok("true")
+        repeat(DeezerWebClient.LIMIT_RETRIES + 1) { answer("""{"error":{"QUOTA_EXCEEDED":"Too many requests"},"results":{}}""") }
+        val l = dz.like(listOf("1", "2", "3", "4", "5"), on = true)
+        assertEquals(listOf("1", "2"), l.done)
+        assertEquals(listOf("3", "4", "5"), l.left)
+        // Deezer's reason, without ids or the token.
+        assertTrue(l.why, l.why!!.contains("limited") && l.why!!.contains("QUOTA_EXCEEDED"))
+        assertTrue(l.why, !l.why!!.contains("tok-1") && !l.why!!.contains("SNG"))
+        // Bounded: the first try and LIMIT_RETRIES more, then nothing; 4 and 5 never asked.
+        assertEquals(2 + 1 + DeezerWebClient.LIMIT_RETRIES, BridgeMock.calls.size)
+    }
+
+    @Test fun aLimitAsksForTheWaitDeezerNames() {
+        DeezerWebClient.limitWaitMs = 60_000 // never used: Deezer says how long
+        BridgeMock.answer("", 429, "Retry-After" to "1")
+        ok("true")
+        val started = System.currentTimeMillis()
+        val l = dz.like(listOf("1"), on = true)
+        assertEquals(listOf("1"), l.done)
+        assertTrue(System.currentTimeMillis() - started in 900L..30_000L)
+    }
+
+    @Test fun anotherRefusalAfterSomeLikesStopsWithTheRestLeft() {
+        ok("true")
+        answer("""{"error":{"DATA_ERROR":"song not available"},"results":{}}""")
+        val l = dz.like(listOf("1", "2", "3"), on = true)
+        assertEquals(listOf("1"), l.done)
+        assertEquals(listOf("2", "3"), l.left)
+        assertEquals(2, BridgeMock.calls.size)
+    }
+
+    @Test fun theConnectorsHandWhatIsLeftToAnAppThatAsksAndAnErrorToAnOlderOne() {
+        fun limited() = repeat(DeezerWebClient.LIMIT_RETRIES + 1) { answer("", code = 429) }
+        fun ids(partial: Boolean) = android.os.Bundle().apply { putStringArray("ids", arrayOf("1", "2", "3")); if (partial) putBoolean("partial", true) }
+        ok("true"); limited()
+        val b = BridgeCore.call(app, "deezer.add", "__liked__", ids(partial = true))
+        assertNull(b.getString("error"))
+        assertEquals(listOf("2", "3"), b.getStringArray("notAdded")!!.toList())
+        assertTrue(b.getString("notAddedWhy")!!.contains("429"))
+        // Trackhop 2.1.3 and older: the error it always had, never a silent "all added".
+        ok("true"); limited()
+        assertTrue(BridgeCore.call(app, "deezer.add", "__liked__", ids(partial = false)).getString("error")!!.contains("429"))
+    }
+
+    @Test fun aRefusalBeforeAnyLikeIsAnErrorAsBefore() {
+        answer("""{"error":{"DATA_ERROR":"song not available"},"results":{}}""")
+        try { dz.like(listOf("1", "2"), on = true); fail() } catch (e: BridgeException) { assertTrue(e.message!!.contains("DATA_ERROR")) }
     }
 
     // ------------------------------------------------------------------ public catalogue

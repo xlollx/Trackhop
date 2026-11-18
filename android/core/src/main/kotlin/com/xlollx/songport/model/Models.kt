@@ -312,6 +312,12 @@ data class SyncReport(
      * name: OFFLINE, TIMEOUT, UNREACHABLE); [error] then says it in plain words. Null otherwise and in older reports.
      */
     val netError: String? = null,
+    /**
+     * Matched tracks the target did not take this run (the service limited the requests, or refused
+     * them): each as "Artist – Title", with the service's reason where it gave one per track. Never
+     * counted among the not found ([unmatched]); the next run adds them.
+     */
+    val notAdded: List<String> = emptyList(),
 ) {
     val ok: Boolean get() = error == null
     /** Stopped because there was no internet: what it did stays, and it runs again once the connection is back. */
@@ -410,3 +416,12 @@ class ProviderException(message: String, cause: Throwable? = null, val code: Int
  */
 class TracksRefused(val refused: Map<String, String>, val present: Set<String> = emptySet()) :
     Exception("${refused.size} track(s) refused: ${refused.values.firstOrNull().orEmpty()}")
+
+/**
+ * An add the service stopped part way, most often because it limited the requests (too many, a
+ * quota): [notAdded] are the ids it did not take, [present] those already there, [why] its answer
+ * in words (no ids, no tokens). The rest were added. A sync leaves [notAdded] for its next run:
+ * matched, never "not found".
+ */
+class AddsLimited(val notAdded: Set<String>, val why: String, val present: Set<String> = emptySet()) :
+    Exception("${notAdded.size} track(s) not added: $why")
