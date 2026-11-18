@@ -85,6 +85,15 @@ jobs:
           [ -n "$app" ] || { echo "::error::No AppGallery app for $PACKAGE: $(jq -c .ret <<<"$res")"; exit 1; }
           echo "App ID $app"
 
+          # The version AppGallery has (published, in review or a draft) is this release already (a
+          # re-run): nothing to upload. Without an answer, the upload goes ahead as before.
+          res=$(curl -sS "${H[@]}" "$API/publish/v2/app-info?appId=$app&lang=en-US" || true)
+          have=$(jq -r '.appInfo.versionNumber // empty' <<<"$res" 2>/dev/null || true)
+          if [ -n "$have" ] && [ "$have" = "${TAG#v}" ]; then
+            echo "::notice::AppGallery has version $have already: $TAG not uploaded again."
+            exit 0
+          fi
+
           file=$(ls dist/*.apk); name=$(basename "$file"); size=$(stat -c %s "$file")
           res=$(curl -sS "${H[@]}" "$API/publish/v2/upload-url/for-obs?appId=$app&fileName=$name&contentLength=$size")
           ok "$res" || { echo "::error::No upload address: $(jq -c .ret <<<"$res")"; exit 1; }

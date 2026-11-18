@@ -24,16 +24,29 @@ concurrency:
 
 jobs:
   ui:
-    name: ${{ matrix.flavor }} · API ${{ matrix.api }}
+    name: ${{ matrix.label }}
     runs-on: ubuntu-latest
     timeout-minutes: 75
     strategy:
       fail-fast: false
+      # "full · API 34" runs every class of the flows package in 3 shards side by side (AndroidJUnitRunner's
+      # numShards/shardIndex); "full · API 30" a smoke subset; "play · API 34" the classes where the flavors
+      # differ. With "only" set: that class on each of the three, unsharded.
       matrix:
-        include:
-          - { flavor: full, api: 34 }
-          - { flavor: play, api: 34 }
-          - { flavor: full, api: 30 }
+        include: >-
+          ${{ fromJSON(inputs.only == '' && '[
+            {"label": "full · API 34 · 1/3", "flavor": "full", "api": 34, "shards": 3, "shard": 0, "classes": ""},
+            {"label": "full · API 34 · 2/3", "flavor": "full", "api": 34, "shards": 3, "shard": 1, "classes": ""},
+            {"label": "full · API 34 · 3/3", "flavor": "full", "api": 34, "shards": 3, "shard": 2, "classes": ""},
+            {"label": "play · API 34", "flavor": "play", "api": 34, "shards": 1, "shard": 0,
+             "classes": "FlavorFlowTest,ShareIntentFlowTest,SyncsBarFlowTest"},
+            {"label": "full · API 30", "flavor": "full", "api": 30, "shards": 1, "shard": 0,
+             "classes": "ChromeFlowTest,SettingsFlowTest,SyncNotificationFlowTest,ShareIntentFlowTest,OnboardingFlowTest,SyncJobFlowTest,AccessibilityFlowTest,BackupFlowTest"}
+          ]' || '[
+            {"label": "full · API 34", "flavor": "full", "api": 34, "shards": 1, "shard": 0, "classes": ""},
+            {"label": "play · API 34", "flavor": "play", "api": 34, "shards": 1, "shard": 0, "classes": ""},
+            {"label": "full · API 30", "flavor": "full", "api": 30, "shards": 1, "shard": 0, "classes": ""}
+          ]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -76,6 +89,9 @@ jobs:
         env:
           FLAVOR: ${{ matrix.flavor }}
           ONLY: ${{ inputs.only }}
+          CLASSES: ${{ matrix.classes }}
+          NUM_SHARDS: ${{ matrix.shards }}
+          SHARD_INDEX: ${{ matrix.shard }}
         with:
           api-level: ${{ matrix.api }}
           arch: x86_64
@@ -109,7 +125,7 @@ jobs:
                       rows.append(f"| skip {name} | skipped |")
                   else:
                       rows.append(f"| ok {name} | |")
-          print(f"### UI tests ${{ matrix.flavor }} · API ${{ matrix.api }}: {total - failed - skipped} passed, {failed} failed, {skipped} skipped\n")
+          print(f"### UI tests ${{ matrix.label }}: {total - failed - skipped} passed, {failed} failed, {skipped} skipped\n")
           print("| test | note |\n|---|---|")
           print("\n".join(sorted(rows)))
           PY
@@ -119,7 +135,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: ui-tests-${{ matrix.flavor }}-api${{ matrix.api }}
+          name: ui-tests-${{ matrix.flavor }}-api${{ matrix.api }}-shard${{ matrix.shard }}of${{ matrix.shards }}
           path: |
             android/app/build/reports/androidTests/
             android/app/build/outputs/androidTest-results/

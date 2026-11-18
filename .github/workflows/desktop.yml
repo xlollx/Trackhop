@@ -69,7 +69,9 @@ jobs:
         run: sudo apt-get install -y -q fakeroot
 
       - name: Tests and build
-        run: gradle -p server test installDist desktopLibs --no-daemon --stacktrace
+        # The tests on Linux and Windows only: the macOS packages run the same JVM code (and server.yml
+        # tests it too), so the two Macs only build.
+        run: gradle -p server ${{ !startsWith(matrix.os, 'macos') && 'test' || '' }} installDist desktopLibs --no-daemon --stacktrace
 
       - name: Package
         run: server/desktop/package.sh
@@ -133,7 +135,8 @@ jobs:
     if: ${{ !cancelled() && needs.package.result == 'success' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     outputs:
-      # Set only when this run made the release, for the stores job.
+      # Set when this run made the release, or when it exists already for this same commit (a re-run
+      # of the jobs after it), for the stores job and the others after it.
       version: ${{ steps.release.outputs.version }}
     steps:
       - name: Checkout
@@ -167,6 +170,9 @@ jobs:
             if [ -f flatpak/Trackhop.flatpak ] && ! gh release view "$tag" --json assets -q '.assets[].name' | grep -qx "$f"; then
               mv flatpak/Trackhop.flatpak "$f" && gh release upload "$tag" "$f" && echo "$f added to $tag."
             fi
+            # Made from this very commit (a re-run): the jobs after it still get the version.
+            target=$(gh release view "$tag" --json targetCommitish -q .targetCommitish)
+            if [ "$target" = "$GITHUB_SHA" ]; then echo "version=$v" >> "$GITHUB_OUTPUT"; fi
             exit 0
           fi
           if [ -f flatpak/Trackhop.flatpak ]; then mv flatpak/Trackhop.flatpak "dist/Trackhop-Desktop-v$v-linux.flatpak"; fi
@@ -193,7 +199,7 @@ jobs:
     # Here rather than on the release event: a release made with the workflow's own token starts no
     # other workflow.
     needs: release
-    if: ${{ needs.release.outputs.version != '' }}
+    if: ${{ !cancelled() && needs.release.result == 'success' && needs.release.outputs.version != '' }}
     uses: ./.github/workflows/stores.yml
     with:
       version: ${{ needs.release.outputs.version }}
@@ -202,7 +208,7 @@ jobs:
   telegram:
     # The new release on Trackhop's Telegram channel (telegram.yml). Skipped until TELEGRAM_BOT_TOKEN exists.
     needs: release
-    if: ${{ needs.release.outputs.version != '' }}
+    if: ${{ !cancelled() && needs.release.result == 'success' && needs.release.outputs.version != '' }}
     uses: ./.github/workflows/telegram.yml
     with:
       tag: server-v${{ needs.release.outputs.version }}
@@ -215,7 +221,7 @@ jobs:
     permissions:
       contents: read
       issues: write
-    if: ${{ needs.release.outputs.version != '' }}
+    if: ${{ !cancelled() && needs.release.result == 'success' && needs.release.outputs.version != '' }}
     uses: ./.github/workflows/msstore.yml
     with:
       version: ${{ needs.release.outputs.version }}
@@ -224,7 +230,7 @@ jobs:
   virustotal:
     # The new release's files checked by VirusTotal (virustotal.yml), as the app's are.
     needs: release
-    if: ${{ needs.release.outputs.version != '' }}
+    if: ${{ !cancelled() && needs.release.result == 'success' && needs.release.outputs.version != '' }}
     uses: ./.github/workflows/virustotal.yml
     with:
       tag: server-v${{ needs.release.outputs.version }}
