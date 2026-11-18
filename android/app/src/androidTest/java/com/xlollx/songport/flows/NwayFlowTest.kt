@@ -84,7 +84,10 @@ class NwayFlowTest : FlowTest() {
         snapshot("nway-first-run")
         click(s(R.string.nway_create_sync))
 
-        waitFor("the group made") { Nway.groups(app.env).size == 1 }
+        // The group is stored before its members, and a follower's exact copy after them: wait for all of it.
+        waitFor("the group made") {
+            Nway.groups(app.env).singleOrNull()?.let { g -> Nway.members(app.env, g).let { m -> m.size == 2 && m.none { !it.main && it.keepMine } } } == true
+        }
         val group = Nway.groups(app.env).single()
         assertEquals("Trip mix", group.name)
         val members = Nway.members(app.env, group)
