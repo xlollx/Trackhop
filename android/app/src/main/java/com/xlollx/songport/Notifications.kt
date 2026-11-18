@@ -329,7 +329,9 @@ object Notifications {
         val title = if (below) context.getString(R.string.myrecords_notif_below, hit.item.title, com.xlollx.songport.ui.price(hit.below ?: 0.0, hit.currency))
             else context.getString(R.string.myrecords_notif_new, hit.item.title)
         val text = context.getString(if (below) R.string.myrecords_notif_below_text else R.string.myrecords_notif_new_text, price)
-        val open = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(hit.item.sellUrl)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        // Through our own screen, which opens the page (CodeQL: no implicit intent inside a PendingIntent).
+        val open = Intent(context, MainActivity::class.java).putExtra(MainActivity.EXTRA_OPEN_LINK, hit.item.sellUrl)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val pi = PendingIntent.getActivity(context, ALERTS_ID xor hit.item.id.hashCode(), open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         val n = NotificationCompat.Builder(context, ALERTS_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
@@ -353,7 +355,8 @@ object Notifications {
         )
         val env = com.xlollx.songport.platform.AndroidEnv.of(context)
         val url = alert.event.url.takeIf { it.startsWith("https://") || it.startsWith("http://") }
-        val open = if (url != null) Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val open = if (url != null) Intent(context, MainActivity::class.java).putExtra(MainActivity.EXTRA_OPEN_LINK, url)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             else Intent(context, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 putExtra(MainActivity.EXTRA_TOOL, MainActivity.TOOL_FOLLOWED)
