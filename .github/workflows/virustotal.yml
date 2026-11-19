@@ -128,17 +128,27 @@ jobs:
       # The run fails only on a serious flag: two or more engines on one file, or a verdict that is not
       # one engine's machine-learning or generic guess ("…!ml", "Generic…"). A lone guess stays in the
       # release notes and the security page, as a warning here (the owner's choice, 11/11).
+      # KNOWN: lone verdicts already reported to the vendor as false positives (engine, verdict, end of
+      # the file name). They warn instead of failing while that one engine is the only one on the file.
       - name: Flagged
         if: ${{ steps.scan.outputs.flagged == 'true' }}
         run: |
           python3 - <<'PY'
           import json, sys
           r = json.load(open("out/report.json"))
+          KNOWN = [
+              # Reported to Panda on 18/11 (Desktop Linux archive, a playlist parser read as an exploit).
+              ("Panda", "Exploit/WinampPLS", "-linux.tar.gz"),
+          ]
           serious, guesses = [], []
           for f in r["files"]:
               fb = f.get("flagged_by") or {}
               if not fb: continue
               guess = all(v.endswith("!ml") or "generic" in v.lower() for v in fb.values())
+              known = len(fb) == 1 and any(e in fb and fb[e] == v and f["name"].endswith(t) for e, v, t in KNOWN)
+              if known:
+                  print(f"::warning::Known false positive, already reported: {f['name']}: {fb}")
+                  continue
               (guesses if len(fb) == 1 and guess else serious).append(f"{f['name']}: {fb}")
           for g in guesses: print(f"::warning::One engine's guess (likely a false positive, report it): {g}")
           for s_ in serious: print(f"::error::Flagged: {s_}")
