@@ -3,7 +3,7 @@
  "version": "2.1.2",
  "tag": "server-v2.1.2",
  "release": "https://github.com/xlollx/Trackhop/releases/tag/server-v2.1.2",
- "checked": "2026-11-18T19:24:34Z",
+ "checked": "2026-11-19T16:44:04Z",
  "clean": false,
  "files": [
   {
@@ -29,7 +29,7 @@
    "sha256": "26808265308fda8159e313bb0c21b2fbbbf3d972df1c61a94890e7ef10e07410",
    "malicious": 1,
    "suspicious": 0,
-   "engines": 52,
+   "engines": 59,
    "flagged_by": {
     "Panda": "Exploit/WinampPLS"
    },
