@@ -919,7 +919,8 @@ private class PullGuard : NestedScrollConnection {
  * state while syncs run; [tally] null with a single sync, which has no pill) with its "?", and
  * [trailing] (select, cards or tiles) pinned at the row's end. Under it the filter [chips], a row of
  * their own from the list's side: every chip whole at rest, scrolling sideways when there are many (2.2;
- * before, they shared the pill's row and the first one started under the trailing buttons).
+ * before, they shared the pill's row and the first one started under the trailing buttons). In a low
+ * window (a phone on its side) they stay on the pill's row, scrolling with it, so a card shows whole.
  *
  * The pill floats over the list: pinned, the cards scroll beneath it and show around it. A band behind it
  * (1.3.2–1.4.0, and again briefly in 1.17) was dropped both times on the owner's request. The pill
@@ -945,6 +946,10 @@ private fun RunAllRow(
     val haptic = rememberConfirmHaptic()
     val helpShadow by animateDpAsState(if (pinned) 4.dp else 0.dp, label = "runall-help")
     val helpOn = LocalHelpButtons.current
+    // A low window (a phone on its side): the chips stay on the pill's row, between the "?" and the
+    // buttons, so the first card still shows whole under the header (2.2, owner's OK 19/11).
+    val inlineChips = chips != null && LocalWindowLayout.current.short
+    val underChips = chips != null && !inlineChips
     Column(
         // As wide as the window, over the list's own side padding: the chips scroll from edge to edge,
         // and the pill's shadow is not cut at the scroller's side.
@@ -985,7 +990,7 @@ private fun RunAllRow(
             Row(
                 // The room above and below is inside the scroller, where the pill's shadow is drawn.
                 Modifier.offset { androidx.compose.ui.unit.IntOffset(if (rtl) -shift.value else shift.value, 0) }
-                    .horizontalScroll(scroll).padding(start = LIST_SIDE, end = if (trailing != null) 8.dp else LIST_SIDE, top = 4.dp, bottom = if (chips != null) 8.dp else 12.dp),
+                    .horizontalScroll(scroll).padding(start = LIST_SIDE, end = if (trailing != null) 8.dp else LIST_SIDE, top = 4.dp, bottom = if (underChips) 8.dp else 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -1033,13 +1038,19 @@ private fun RunAllRow(
                 }
                 // One sync, no pill: the "?" alone leads the row, so what a card shows is still explained.
                 else HelpButton(*CARD_HELP, label = stringResource(R.string.help_cards_title))
+                // On its side: the chips after the "?", scrolling with it; pinned, they fade and only the pill is left.
+                if (inlineChips) androidx.compose.animation.AnimatedVisibility(
+                    !pinned, enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(200)), exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(120)),
+                ) {
+                    Row(Modifier.testTag(SYNC_CHIPS_ROW_TAG), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) { chips!!() }
+                }
             }
         }
         if (trailing != null) androidx.compose.animation.AnimatedVisibility(
             !pinned, enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(200)), exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(120)),
-        ) { Box(Modifier.padding(top = 4.dp, bottom = if (chips != null) 8.dp else 12.dp)) { trailing() } }
+        ) { Box(Modifier.padding(top = 4.dp, bottom = if (underChips) 8.dp else 12.dp)) { trailing() } }
     }
-    if (chips != null) {
+    if (underChips) {
         // Pinned, the chips fade away but their row keeps its room: the header's height, and so the
         // list under it, stays put. Nothing is placed there then, so a touch reaches the card beneath.
         var chipsHeight by remember { mutableIntStateOf(0) }
