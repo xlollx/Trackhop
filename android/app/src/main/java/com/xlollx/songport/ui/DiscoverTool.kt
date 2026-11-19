@@ -46,6 +46,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
@@ -472,11 +474,20 @@ internal fun CoverMosaic(tracks: List<com.xlollx.songport.model.Track>, serviceI
     }
 }
 
-/** A row of a song with its cover: title and artist, and what is at its end. */
+/**
+ * A row of a song with its cover: title and artist, and what is at its end. A row with [load] false
+ * looks its cover up once it is scrolled into view, so a long list never looks up the covers no one sees.
+ */
 @Composable
 internal fun ToolTrackRow(t: com.xlollx.songport.model.Track, serviceId: String?, modifier: Modifier = Modifier, load: Boolean = true, trailing: (@Composable () -> Unit)? = null) {
-    Row(modifier.fillMaxWidth().heightIn(min = 52.dp), verticalAlignment = Alignment.CenterVertically) {
-        TrackCover(t, serviceId, 44.dp, load = load)
+    var seen by androidx.compose.runtime.remember(t) { androidx.compose.runtime.mutableStateOf(load) }
+    Row(
+        modifier.fillMaxWidth().heightIn(min = 52.dp)
+            // The bounds in the window are clipped by the scrolling parents: not empty = on screen.
+            .then(if (seen) Modifier else Modifier.onGloballyPositioned { if (!it.boundsInWindow().isEmpty) seen = true }),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        TrackCover(t, serviceId, 44.dp, load = seen)
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
             Text(t.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
@@ -492,7 +503,7 @@ internal fun ToolTrackList(tracks: List<com.xlollx.songport.model.Track>, first:
     var all by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     val shown = if (all) tracks.take(max) else tracks.take(first)
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        // Covers for the first few dozen only: a long list does not look up hundreds of them.
+        // Covers for the first few dozen at once; the others when they are scrolled into view.
         shown.forEachIndexed { i, t -> ToolTrackRow(t, serviceId, load = i < 30) }
     }
     if (!all && tracks.size > first) androidx.compose.material3.TextButton(onClick = { all = true }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.preview_more, tracks.size - first)) }
