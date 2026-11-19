@@ -279,7 +279,7 @@ fun SwitchRow(
             if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         // A "?" sits between the words and the switch: its own target, outside the toggle.
-        if (help != null) help() else Spacer(Modifier.width(16.dp))
+        if (help != null && LocalHelpButtons.current) help() else Spacer(Modifier.width(16.dp))
         // The row owns the toggle; the switch only shows the state.
         Switch(checked = checked, onCheckedChange = null, enabled = enabled)
     }

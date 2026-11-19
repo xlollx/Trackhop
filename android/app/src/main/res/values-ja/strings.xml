@@ -3237,6 +3237,15 @@
     <plurals name="sched_delete_used">
         <item quantity="other">%d 件の同期が使っています:</item>
     </plurals>
+    <string name="sched_used_by_name">%1$s が使用中</string>
+    <plurals name="sched_services">
+        <item quantity="other">%d 個のサービス</item>
+    </plurals>
+    <string name="sched_multi_pill">マルチ</string>
+    <string name="sched_edit_note_multi_one">保存すると、実行時刻が変わります。1 つのサービスだけ変えるには、マルチ同期を開きます。</string>
+    <string name="sched_edit_note_multi">保存すると、すべての同期の実行時刻が変わります。1 つだけ変えるには、その同期を開いて「リンクを解除」をタップします。マルチ同期のサービスを 1 つだけ変えるには、そのマルチ同期を開きます。</string>
+    <string name="settings_help_buttons">ヘルプボタン（?）</string>
+    <string name="settings_help_buttons_summary">オプションの横に「?」を表示します。ガイドは引き続き %1$s › %2$s にあります。</string>
     <string name="whats_new_21_collections_title">共有コレクション</string>
     <string name="whats_new_21_collections_body">複数のプレイリストをひとつの招待で共有。フォローする人は、新しく増えるものも含めてすべて受け取るか、いくつか選べます。それぞれ自分のサービスで。</string>
     <string name="whats_new_21_nway_title">1 つのプレイリストを複数のサービスで</string>

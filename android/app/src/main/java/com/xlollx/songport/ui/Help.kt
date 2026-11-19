@@ -33,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -61,8 +62,15 @@ class HelpTopic(
 )
 
 /**
+ * Settings › Appearance › Help buttons (?): false, no [HelpButton] is drawn anywhere (the guides
+ * stay in Settings › Help › How to). Given once, at the top of the app, from the settings.
+ */
+val LocalHelpButtons = staticCompositionLocalOf { true }
+
+/**
  * The "?" button: 48dp to touch, a quiet 20dp glyph to see, read by TalkBack as "Help: [label]".
  * With several [topics] the sheet shows each under its own title, [label] heading them all.
+ * Nothing at all while the help buttons are off ([LocalHelpButtons]).
  */
 @Composable
 fun HelpButton(
@@ -71,6 +79,7 @@ fun HelpButton(
     label: String? = null,
     tint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
+    if (!LocalHelpButtons.current) return
     var open by rememberSaveable { mutableStateOf(false) }
     val name = label ?: stringResource(topics.first().title)
     IconButton(onClick = { open = true }, modifier = modifier.size(48.dp)) {

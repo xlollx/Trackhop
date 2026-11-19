@@ -3237,6 +3237,15 @@
     <plurals name="sched_delete_used">
         <item quantity="other">%d 个同步在使用：</item>
     </plurals>
+    <string name="sched_used_by_name">%1$s 在使用</string>
+    <plurals name="sched_services">
+        <item quantity="other">%d 个服务</item>
+    </plurals>
+    <string name="sched_multi_pill">多目标</string>
+    <string name="sched_edit_note_multi_one">保存后会更改它的运行时间。只想改一个服务时，请打开多目标同步。</string>
+    <string name="sched_edit_note_multi">保存后会更改它们全部的运行时间。只想改一个时，请打开那个同步并点按“取消关联”。只想改多目标同步的一个服务时，请打开该多目标同步。</string>
+    <string name="settings_help_buttons">帮助按钮（?）</string>
+    <string name="settings_help_buttons_summary">在选项旁显示“?”。指南仍在 %1$s › %2$s 中。</string>
     <string name="whats_new_21_collections_title">共享合集</string>
     <string name="whats_new_21_collections_body">一个邀请分享多个歌单。关注的人可以全部接收（包括以后新增的），也可以只选几个，各自用自己的服务。</string>
     <string name="whats_new_21_nway_title">一个歌单，多个服务</string>

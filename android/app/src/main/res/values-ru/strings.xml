@@ -3528,6 +3528,18 @@
         <item quantity="many">Его используют %d синхронизаций:</item>
         <item quantity="other">Его используют %d синхронизации:</item>
     </plurals>
+    <string name="sched_used_by_name">Используется: %1$s</string>
+    <plurals name="sched_services">
+        <item quantity="one">%d сервис</item>
+        <item quantity="few">%d сервиса</item>
+        <item quantity="many">%d сервисов</item>
+        <item quantity="other">%d сервиса</item>
+    </plurals>
+    <string name="sched_multi_pill">мульти</string>
+    <string name="sched_edit_note_multi_one">Сохранение меняет время её запуска. Чтобы изменить только один сервис, откройте мультисинхронизацию.</string>
+    <string name="sched_edit_note_multi">Сохранение меняет время запуска их всех. Чтобы изменить только одну, откройте её и нажмите «Отвязать». Чтобы изменить только один сервис мультисинхронизации, откройте мультисинхронизацию.</string>
+    <string name="settings_help_buttons">Кнопки справки (?)</string>
+    <string name="settings_help_buttons_summary">Показывать «?» рядом с настройками. Руководства остаются в разделе %1$s › %2$s.</string>
     <string name="whats_new_21_collections_title">Общие коллекции</string>
     <string name="whats_new_21_collections_body">Поделитесь несколькими плейлистами одним приглашением. Подписчики берут все, включая новые, или выбирают нужные, каждый на своём сервисе.</string>
     <string name="whats_new_21_nway_title">Один плейлист на нескольких сервисах</string>

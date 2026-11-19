@@ -3336,6 +3336,16 @@
         <item quantity="one">%d sync uses it:</item>
         <item quantity="other">%d syncs use it:</item>
     </plurals>
+    <string name="sched_used_by_name">Used by %1$s</string>
+    <plurals name="sched_services">
+        <item quantity="one">%d service</item>
+        <item quantity="other">%d services</item>
+    </plurals>
+    <string name="sched_multi_pill">multi</string>
+    <string name="sched_edit_note_multi_one">Saving changes when it runs. To change only one service, open the multi sync.</string>
+    <string name="sched_edit_note_multi">Saving changes when they all run. To change only one, open that sync and tap Detach. To change only one service of a multi sync, open the multi sync.</string>
+    <string name="settings_help_buttons">Help buttons (?)</string>
+    <string name="settings_help_buttons_summary">Show a “?” next to options. The guides stay in %1$s › %2$s.</string>
     <string name="whats_new_21_collections_title">Shared collections</string>
     <string name="whats_new_21_collections_body">Share several playlists with one invite. Whoever follows takes them all, new ones included, or picks some, each on their own service.</string>
     <string name="whats_new_21_nway_title">One playlist on several services</string>

@@ -3342,6 +3342,16 @@
         <item quantity="one">%d synchro l’utilise :</item>
         <item quantity="other">%d synchros l’utilisent :</item>
     </plurals>
+    <string name="sched_used_by_name">Utilisée par %1$s</string>
+    <plurals name="sched_services">
+        <item quantity="one">%d service</item>
+        <item quantity="other">%d services</item>
+    </plurals>
+    <string name="sched_multi_pill">multiple</string>
+    <string name="sched_edit_note_multi_one">L’enregistrement change le moment où elle se lance. Pour ne changer qu’un service, ouvre la sync multiple.</string>
+    <string name="sched_edit_note_multi">L’enregistrement change le moment où elles se lancent toutes. Pour n’en changer qu’une, ouvre cette synchro et touche Détacher. Pour ne changer qu’un service d’une sync multiple, ouvre la sync multiple.</string>
+    <string name="settings_help_buttons">Boutons d’aide (?)</string>
+    <string name="settings_help_buttons_summary">Affiche un « ? » à côté des options. Les guides restent dans %1$s › %2$s.</string>
     <string name="whats_new_21_collections_title">Collections partagées</string>
     <string name="whats_new_21_collections_body">Partage plusieurs playlists avec une seule invitation. Qui suit les prend toutes, nouvelles comprises, ou en choisit, chacun sur son service.</string>
     <string name="whats_new_21_nway_title">Une playlist sur plusieurs services</string>

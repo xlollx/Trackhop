@@ -3334,6 +3334,16 @@
         <item quantity="one">La usa %d sync:</item>
         <item quantity="other">La usano %d sync:</item>
     </plurals>
+    <string name="sched_used_by_name">Usata da %1$s</string>
+    <plurals name="sched_services">
+        <item quantity="one">%d servizio</item>
+        <item quantity="other">%d servizi</item>
+    </plurals>
+    <string name="sched_multi_pill">multipla</string>
+    <string name="sched_edit_note_multi_one">Salvando cambia quando parte. Per cambiare un solo servizio, apri la sync multipla.</string>
+    <string name="sched_edit_note_multi">Salvando cambia quando partono tutte. Per cambiarne una sola, apri quella sync e tocca Stacca. Per cambiare un solo servizio di una sync multipla, apri la sync multipla.</string>
+    <string name="settings_help_buttons">Pulsanti di aiuto (?)</string>
+    <string name="settings_help_buttons_summary">Mostra un “?” accanto alle opzioni. Le guide restano in %1$s › %2$s.</string>
     <string name="whats_new_21_collections_title">Raccolte condivise</string>
     <string name="whats_new_21_collections_body">Condividi più playlist con un solo invito. Chi segue le prende tutte, anche le nuove, o sceglie quali, ognuno sul proprio servizio.</string>
     <string name="whats_new_21_nway_title">Una playlist su più servizi</string>

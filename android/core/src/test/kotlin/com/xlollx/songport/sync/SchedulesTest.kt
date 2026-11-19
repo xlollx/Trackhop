@@ -10,6 +10,9 @@ import com.xlollx.songport.model.RadioSource
 import com.xlollx.songport.model.SavedSchedule
 import com.xlollx.songport.model.Schedule
 import com.xlollx.songport.model.SyncJob
+import com.xlollx.songport.shared.Invite
+import com.xlollx.songport.shared.SharedGroup
+import com.xlollx.songport.shared.SharedProvider
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -196,6 +199,57 @@ class SchedulesTest {
         // Both halves follow the schedule.
         val next = Schedules.save(d, morning.copy(at = "08:00"))
         assertEquals(listOf("08:00", "08:00", "08:00"), next.jobs.map { it.at })
+    }
+
+    // ------------------------------------------------------------ used by, cards (2.2)
+
+    /** A multi sync "Rap" on [services] (the first main, a two-way pair with the hub; the others follow), each sync linked to "m". */
+    private fun rap(vararg services: String): Pair<SharedGroup, List<SyncJob>> {
+        val hub = PlaylistRef(SharedProvider.ID, "g-rap", "Rap")
+        val jobs = services.flatMapIndexed { i, s ->
+            val down = job("d-$s", 1440, "07:30", scheduleId = "m").copy(name = "Rap · $s", source = hub, target = PlaylistRef(s, "p-$s", "Rap"), linkedJobId = if (i == 0) "u-$s" else null)
+            if (i == 0) listOf(down, job("u-$s", 1440, "07:30", scheduleId = "m").copy(name = "Rap · $s ↔", source = PlaylistRef(s, "p-$s", "Rap"), target = hub, linkedJobId = "d-$s", twin = true))
+            else listOf(down)
+        }
+        return SharedGroup("g-rap", "Rap", "k", "k", "", jobId = "d-${services[0]}", twinId = "u-${services[0]}", transport = Invite.LOCAL) to jobs
+    }
+
+    @Test fun aMultiSyncIsOneCardWithItsServices() {
+        val (g, jobs) = rap("spotify", "ytm", "tidal", "qobuz", "deezer", "applemusic")
+        val d = data(*jobs.toTypedArray()).copy(groups = listOf(g))
+        val cards = Schedules.cards(d, "m")
+        assertEquals(1, cards.size)
+        val c = cards.single()
+        assertEquals("Rap", c.name)
+        assertSame(g, c.group)
+        assertEquals("d-spotify", c.job.id)
+        assertEquals(6, c.members.size)
+        assertTrue("every sync of the group is behind the card", jobs.all { c.has(it.id) })
+        // The member syncs are still what saving reaches.
+        assertEquals(6, Schedules.usedBy(d, "m").size)
+        val next = Schedules.save(d, morning.copy(at = "08:00"))
+        assertTrue(next.jobs.all { it.at == "08:00" })
+    }
+
+    @Test fun classicSyncsAndAMultiSyncAreCountedByCard() {
+        val (g, jobs) = rap("spotify", "ytm", "tidal")
+        val a = job("a", 1440, "07:30", scheduleId = "m").copy(linkedJobId = "a2")
+        val a2 = job("a2", 1440, "07:30", scheduleId = "m").copy(linkedJobId = "a", twin = true)
+        val d = data(a, a2, *jobs.toTypedArray(), job("b", 1440, "07:30", scheduleId = "m"), job("c", 360, scheduleId = "six")).copy(groups = listOf(g))
+        assertEquals(listOf("a", "Rap", "b"), Schedules.cards(d, "m").map { it.name })
+        assertEquals(listOf(null, g, null), Schedules.cards(d, "m").map { it.group })
+        assertEquals(listOf("c"), Schedules.cards(d, "six").map { it.name })
+        assertTrue(Schedules.cards(d, "none").isEmpty())
+        // Only some services of the group linked: still the one card.
+        val some = d.copy(jobs = d.jobs.map { if (it.id == "d-tidal") it.copy(scheduleId = null) else it })
+        assertEquals(3, Schedules.cards(some, "m").size)
+    }
+
+    @Test fun aSharedPlaylistWithOthersIsNotAMultiSync() {
+        val friends = job("f", 1440, "07:30", scheduleId = "m").copy(name = "", source = PlaylistRef(SharedProvider.ID, "g2", "Friends"))
+        val d = data(friends, job("b", 1440, "07:30", scheduleId = "m")).copy(groups = listOf(SharedGroup("g2", "Friends", "k", "k", "", jobId = "f", transport = Invite.FOLDER)))
+        assertEquals(listOf("Friends", "b"), Schedules.cards(d, "m").map { it.name })
+        assertTrue(Schedules.cards(d, "m").all { it.group == null })
     }
 
     // ------------------------------------------------------------ the files

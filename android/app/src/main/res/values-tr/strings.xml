@@ -3332,6 +3332,16 @@
         <item quantity="one">%d eşitleme kullanıyor:</item>
         <item quantity="other">%d eşitleme kullanıyor:</item>
     </plurals>
+    <string name="sched_used_by_name">%1$s kullanıyor</string>
+    <plurals name="sched_services">
+        <item quantity="one">%d hizmet</item>
+        <item quantity="other">%d hizmet</item>
+    </plurals>
+    <string name="sched_multi_pill">çoklu</string>
+    <string name="sched_edit_note_multi_one">Kaydetmek çalışma zamanını değiştirir. Yalnızca bir hizmeti değiştirmek için çoklu senkronizasyonu aç.</string>
+    <string name="sched_edit_note_multi">Kaydetmek hepsinin çalışma zamanını değiştirir. Yalnızca birini değiştirmek için o eşitlemeyi aç ve Ayır’a dokun. Çoklu senkronizasyonun yalnızca bir hizmetini değiştirmek için çoklu senkronizasyonu aç.</string>
+    <string name="settings_help_buttons">Yardım düğmeleri (?)</string>
+    <string name="settings_help_buttons_summary">Seçeneklerin yanında bir “?” gösterir. Kılavuzlar %1$s › %2$s içinde kalır.</string>
     <string name="whats_new_21_collections_title">Paylaşılan koleksiyonlar</string>
     <string name="whats_new_21_collections_body">Birden çok çalma listesini tek bir davetle paylaş. Takip eden hepsini, yenileri de dahil, alır ya da bazılarını seçer; herkes kendi servisinde.</string>
     <string name="whats_new_21_nway_title">Tek çalma listesi, birden çok serviste</string>

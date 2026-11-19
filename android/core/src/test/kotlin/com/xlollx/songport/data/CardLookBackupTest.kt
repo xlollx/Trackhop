@@ -10,7 +10,7 @@ import org.junit.Test
 class CardLookBackupTest {
     @Test fun sizeAndTilesGoToAnotherDevice() {
         val env = com.xlollx.songport.contract.ContractEnv()
-        env.store.updateSettings { it.copy(cardSize = "small", minimalSyncs = true, cardAccent = "wash", favoritesOnTop = false) }
+        env.store.updateSettings { it.copy(cardSize = "small", minimalSyncs = true, cardAccent = "wash", favoritesOnTop = false, helpButtons = false) }
         val other = com.xlollx.songport.contract.ContractEnv()
         ConfigBackup.import(other, ConfigBackup.read(ConfigBackup.export(env, "test")))
         val s = other.store.data.settings
@@ -18,6 +18,7 @@ class CardLookBackupTest {
         assertTrue(s.minimalSyncs)
         assertEquals("wash", s.cardAccent)
         assertFalse(s.favoritesOnTop)
+        assertFalse("the help buttons' switch travels with the looks", s.helpButtons)
     }
 
     @Test fun anOlderFileLeavesTheCardsAsTheyWere() {
@@ -25,5 +26,6 @@ class CardLookBackupTest {
         assertEquals("large", s.cardSize)
         assertFalse(s.minimalSyncs)
         assertTrue(s.favoritesOnTop)
+        assertTrue("help buttons on by default", s.helpButtons)
     }
 }

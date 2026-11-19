@@ -87,7 +87,7 @@ fun PrefSection(
                 Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = headingColor, modifier = Modifier.semantics { heading() })
             }
         }
-        if (help == null) heading(Modifier.padding(start = 16.dp, end = 16.dp, bottom = if (description == null) 8.dp else 2.dp))
+        if (help == null || !LocalHelpButtons.current) heading(Modifier.padding(start = 16.dp, end = 16.dp, bottom = if (description == null) 8.dp else 2.dp))
         else Row(verticalAlignment = Alignment.CenterVertically) {
             // The "?" keeps its 48dp target at the end of the heading.
             heading(Modifier.weight(1f).padding(start = 16.dp))
@@ -247,7 +247,7 @@ fun PrefSwitch(
             Text(title, style = MaterialTheme.typography.bodyLarge)
             if (!summary.isNullOrBlank()) Text(summary, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        if (help != null) help() else Spacer(Modifier.width(12.dp))
+        if (help != null && LocalHelpButtons.current) help() else Spacer(Modifier.width(12.dp))
         // The row owns the toggle; the switch only shows the state.
         Switch(checked = checked, onCheckedChange = null, enabled = enabled)
     }

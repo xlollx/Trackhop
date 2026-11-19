@@ -3530,6 +3530,18 @@
         <item quantity="many">Używa go %d synchronizacji:</item>
         <item quantity="other">Używa go %d synchronizacji:</item>
     </plurals>
+    <string name="sched_used_by_name">Używa go %1$s</string>
+    <plurals name="sched_services">
+        <item quantity="one">%d usługa</item>
+        <item quantity="few">%d usługi</item>
+        <item quantity="many">%d usług</item>
+        <item quantity="other">%d usługi</item>
+    </plurals>
+    <string name="sched_multi_pill">multi</string>
+    <string name="sched_edit_note_multi_one">Zapisanie zmienia czas jej uruchamiania. Aby zmienić tylko jedną usługę, otwórz synchronizację wielokrotną.</string>
+    <string name="sched_edit_note_multi">Zapisanie zmienia czas uruchamiania ich wszystkich. Aby zmienić tylko jedną, otwórz ją i dotknij Odłącz. Aby zmienić tylko jedną usługę synchronizacji wielokrotnej, otwórz synchronizację wielokrotną.</string>
+    <string name="settings_help_buttons">Przyciski pomocy (?)</string>
+    <string name="settings_help_buttons_summary">Pokazuje „?” obok opcji. Poradniki zostają w %1$s › %2$s.</string>
     <string name="whats_new_21_collections_title">Wspólne kolekcje</string>
     <string name="whats_new_21_collections_body">Udostępnij kilka playlist jednym zaproszeniem. Kto obserwuje, bierze wszystkie, także nowe, albo wybiera niektóre, każdy w swoim serwisie.</string>
     <string name="whats_new_21_nway_title">Jedna playlista w kilku serwisach</string>

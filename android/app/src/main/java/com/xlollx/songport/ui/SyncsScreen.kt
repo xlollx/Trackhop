@@ -549,9 +549,10 @@ fun SyncsScreen(
                     }
                 }
             }
-            // One row under the header: "Sync all", a pill that stays at the top while the list scrolls
-            // (while syncs run it says how many, and a tap brings the first running card into view), then
-            // the filter chips and, at the row's end, cards or tiles. Pinned, only the pill is left.
+            // The rows under the header: "Sync all", a pill that stays at the top while the list scrolls
+            // (while syncs run it says how many, and a tap brings the first running card into view), with
+            // select and cards or tiles at the row's end; the filter chips on a row of their own under it.
+            // Pinned, only the pill is left.
             if (runAllRow) stickyHeader(key = "runall") {
                 // While selecting, the selection's header takes the row's place (same item, so every position after it stays).
                 if (selecting) SelectionHeader(
@@ -565,7 +566,7 @@ fun SyncsScreen(
                 val tally = SyncState.tally(running.keys, pausedSet, parkedSet, stoppingSet)
                 val counts = remember(data.syncs, data.reports, runningIds, standsFor) { SyncFilter.counts(data.syncs, data.reports, runningIds, standsFor) }
                 RunAllRow(
-                    tally.takeIf { data.syncs.size >= 2 }, pinned = pillPinned, modifier = Modifier.onSizeChanged { pillHeight = it.height },
+                    tally.takeIf { data.syncs.size >= 2 }, pinned = pillPinned, onPillHeight = { pillHeight = it },
                     chips = if (chipsShown) ({ SyncFinderChips(data.syncs, effective, counts, data.settings.labels, standsFor) { filter = it } }) else null,
                     // Select syncs (2.1.1): selecting starts here with none ticked, in both views, without a menu.
                     // Then cards or tiles, at a tap; remembered (also in Settings).
@@ -914,27 +915,37 @@ private class PullGuard : NestedScrollConnection {
 }
 
 /**
- * The row under the header: the "sync all" pill first (filled and inviting when idle, a quiet progress
- * state while syncs run; [tally] null with a single sync, which has no pill), then the filter [chips],
- * all in one line that scrolls sideways, and [trailing] (cards or tiles) at its end.
+ * The rows under the header. On top the "sync all" pill (filled and inviting when idle, a quiet progress
+ * state while syncs run; [tally] null with a single sync, which has no pill) with its "?", and
+ * [trailing] (select, cards or tiles) pinned at the row's end. Under it the filter [chips], a row of
+ * their own from the list's side: every chip whole at rest, scrolling sideways when there are many (2.2;
+ * before, they shared the pill's row and the first one started under the trailing buttons).
  *
  * The pill floats over the list: pinned, the cards scroll beneath it and show around it. A band behind it
  * (1.3.2–1.4.0, and again briefly in 1.17) was dropped both times on the owner's request. The pill
  * keeps its shadow, and the "?" beside it sits on a small raised circle of its own, so both read
- * over any card. The chips and the button have nothing of the kind: pinned, they fade away and come
- * back with the top of the list, where they are part of the page.
+ * over any card. The chips and the buttons have nothing of the kind: pinned, they fade away (the chips'
+ * row keeping its room, so the list does not jump) and come back with the top of the list, where they
+ * are part of the page. With the help buttons off (Settings › Appearance) the "?" and its circle are gone.
  */
 /** The "?" beside Sync all: the pill, then what a sync card shows (moved here from the top bar, 12/11). */
 private val CARD_HELP = arrayOf(Helps.syncAll, Helps.status, Helps.route, Helps.figures, Helps.toFix, Helps.runNow)
 
+/** For the UI tests: the row of the filter chips, under the pill's. */
+const val SYNC_CHIPS_ROW_TAG = "sync-chips-row"
+
 @Composable
 private fun RunAllRow(
     tally: SyncState.Tally?, pinned: Boolean, modifier: Modifier = Modifier,
-    chips: (@Composable () -> Unit)? = null, trailing: (@Composable () -> Unit)? = null, onClick: () -> Unit,
+    chips: (@Composable () -> Unit)? = null, trailing: (@Composable () -> Unit)? = null,
+    /** The pill's row's height: a card brought into view lands just under it (not under the chips' room). */
+    onPillHeight: (Int) -> Unit = {},
+    onClick: () -> Unit,
 ) {
     val haptic = rememberConfirmHaptic()
     val helpShadow by animateDpAsState(if (pinned) 4.dp else 0.dp, label = "runall-help")
-    Row(
+    val helpOn = LocalHelpButtons.current
+    Column(
         // As wide as the window, over the list's own side padding: the chips scroll from edge to edge,
         // and the pill's shadow is not cut at the scroller's side.
         modifier
@@ -942,7 +953,10 @@ private fun RunAllRow(
                 val side = LIST_SIDE.roundToPx()
                 val p = measurable.measure(constraints.copy(minWidth = constraints.maxWidth + 2 * side, maxWidth = constraints.maxWidth + 2 * side))
                 layout(constraints.maxWidth, p.height) { p.place(-side, 0) }
-            }
+            },
+    ) {
+    Row(
+        Modifier.fillMaxWidth().onSizeChanged { onPillHeight(it.height) }
             // Pinned, it floats over the cards: no band behind it (the owner's choice, again on 11/11).
             .then(if (pinned) Modifier.testTag(RUN_ALL_BAND_TAG) else Modifier)
             .padding(end = if (trailing != null) 4.dp else 0.dp),
@@ -964,39 +978,14 @@ private fun RunAllRow(
             androidx.compose.runtime.derivedStateOf { if (boxW > 0 && pillW > 0) (((boxW - pillW) / 2 - sidePx).coerceAtLeast(0) * slide).toInt() else 0 }
         }
         LaunchedEffect(pinned) { if (pinned) scroll.animateScrollTo(0) }
-        // More chips past an edge: the row fades out there, so it reads as one that goes on. Only the
-        // row's own pixels fade (no colour is drawn), and only while there is something to scroll to:
-        // pinned, the pill is alone and nothing is touched.
-        val fadeStart = scroll.canScrollBackward
-        val fadeEnd = scroll.canScrollForward
         val rtl = LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
         // The scroller is only as wide as what it holds: pinned, a touch beside the pill reaches the card beneath.
-        Box(
-            Modifier.weight(1f).onSizeChanged { boxW = it.width }.then(
-                if (fadeStart || fadeEnd) Modifier
-                    .graphicsLayer { compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen }
-                    .drawWithContent {
-                        drawContent()
-                        val w = CHIPS_FADE.toPx()
-                        val left = if (rtl) fadeEnd else fadeStart
-                        val right = if (rtl) fadeStart else fadeEnd
-                        if (left) drawRect(
-                            androidx.compose.ui.graphics.Brush.horizontalGradient(listOf(Color.Transparent, Color.Black), 0f, w),
-                            size = androidx.compose.ui.geometry.Size(w, size.height), blendMode = androidx.compose.ui.graphics.BlendMode.DstIn,
-                        )
-                        if (right) drawRect(
-                            androidx.compose.ui.graphics.Brush.horizontalGradient(listOf(Color.Black, Color.Transparent), size.width - w, size.width),
-                            topLeft = Offset(size.width - w, 0f), size = androidx.compose.ui.geometry.Size(w, size.height),
-                            blendMode = androidx.compose.ui.graphics.BlendMode.DstIn,
-                        )
-                    }
-                else Modifier,
-            ),
-        ) {
+        // It scrolls only when a long pill ("2 syncs running · 1 paused") and the buttons do not fit.
+        Box(Modifier.weight(1f).onSizeChanged { boxW = it.width }) {
             Row(
                 // The room above and below is inside the scroller, where the pill's shadow is drawn.
                 Modifier.offset { androidx.compose.ui.unit.IntOffset(if (rtl) -shift.value else shift.value, 0) }
-                    .horizontalScroll(scroll).padding(start = LIST_SIDE, end = if (trailing != null) 8.dp else LIST_SIDE, top = 4.dp, bottom = 12.dp),
+                    .horizontalScroll(scroll).padding(start = LIST_SIDE, end = if (trailing != null) 8.dp else LIST_SIDE, top = 4.dp, bottom = if (chips != null) 8.dp else 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -1035,8 +1024,8 @@ private fun RunAllRow(
                             }
                         }
                     }
-                    // Its own small raised circle: over a card scrolling beneath, the "?" still reads.
-                    androidx.compose.material3.Surface(
+                    // Its own small raised circle: over a card scrolling beneath, the "?" still reads. None with the help buttons off.
+                    if (helpOn) androidx.compose.material3.Surface(
                         shape = CircleShape,
                         color = if (pinned) MaterialTheme.colorScheme.surfaceContainerHigh else Color.Transparent,
                         shadowElevation = helpShadow,
@@ -1044,16 +1033,32 @@ private fun RunAllRow(
                 }
                 // One sync, no pill: the "?" alone leads the row, so what a card shows is still explained.
                 else HelpButton(*CARD_HELP, label = stringResource(R.string.help_cards_title))
-                if (chips != null) androidx.compose.animation.AnimatedVisibility(
-                    !pinned, enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(200)), exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(120)),
-                ) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) { chips() }
-                }
             }
         }
         if (trailing != null) androidx.compose.animation.AnimatedVisibility(
             !pinned, enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(200)), exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(120)),
-        ) { Box(Modifier.padding(top = 4.dp, bottom = 12.dp)) { trailing() } }
+        ) { Box(Modifier.padding(top = 4.dp, bottom = if (chips != null) 8.dp else 12.dp)) { trailing() } }
+    }
+    if (chips != null) {
+        // Pinned, the chips fade away but their row keeps its room: the header's height, and so the
+        // list under it, stays put. Nothing is placed there then, so a touch reaches the card beneath.
+        var chipsHeight by remember { mutableIntStateOf(0) }
+        val chipsScroll = rememberScrollState()
+        // Back with the top of the list, the row starts again at its first chip.
+        LaunchedEffect(pinned) { if (pinned) chipsScroll.scrollTo(0) }
+        Box(Modifier.fillMaxWidth().heightIn(min = with(androidx.compose.ui.platform.LocalDensity.current) { chipsHeight.toDp() })) {
+            androidx.compose.animation.AnimatedVisibility(
+                !pinned, enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(200)), exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(120)),
+            ) {
+                Row(
+                    Modifier.onSizeChanged { chipsHeight = it.height }.testTag(SYNC_CHIPS_ROW_TAG)
+                        .horizontalScroll(chipsScroll).padding(horizontal = LIST_SIDE),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) { chips() }
+            }
+        }
+    }
     }
 }
 
@@ -1769,9 +1774,6 @@ val PILL_FADE = 10.dp
 
 /** The sync list's padding at each side. */
 private val LIST_SIDE = 16.dp
-
-/** How far the row of filter chips fades out at an edge with more chips past it. */
-private val CHIPS_FADE = 24.dp
 
 /** "3 days ago", "5 min ago": how long since [epoch], in the user's language. */
 internal fun relativeTime(epoch: Long, now: Long = System.currentTimeMillis()): String =

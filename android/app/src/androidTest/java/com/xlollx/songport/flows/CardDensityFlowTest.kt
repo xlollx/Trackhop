@@ -229,15 +229,15 @@ class CardDensityFlowTest : FlowTest() {
         waitText("Sync number 1")
         rotate(UiAutomation.ROTATION_FREEZE_90)
         waitNode("the status line on its side", androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.SYNC_STATUS_TAG))
-        // The header is one line and the pill shares its row with the filter chips: on its side too,
-        // a card shows whole under them before anything is scrolled.
+        // The header is one line, the pill has its row and the filter chips their own under it (2.2):
+        // on its side too, a card shows whole under them before anything is scrolled.
         val teal = androidx.compose.ui.test.hasContentDescription(s(R.string.filter_color, s(R.string.color_teal)))
         val chips = { compose.onAllNodes(teal).fetchSemanticsNodes(atLeastOneRootRequired = false) }
-        assertEquals("the colour's filter chip in the pill's row", 1, chips().size)
+        assertEquals("the colour's filter chip under the pill", 1, chips().size)
         val pillAtRest = compose.onAllNodes(hasClickAction() and hasText(s(R.string.sync_all))).onFirst().fetchSemanticsNode()
-        assertTrue("the chips after the pill, on its row", chips().single().boundsInRoot.left > pillAtRest.boundsInRoot.right &&
-            chips().single().boundsInRoot.center.y in pillAtRest.boundsInRoot.top..pillAtRest.boundsInRoot.bottom)
-        assertTrue("a whole card on screen under the header", cards().any { it.positionInRoot.y > pillAtRest.boundsInRoot.bottom && it.positionInRoot.y + it.size.height <= list().boundsInRoot.bottom + 1 })
+        val chipAtRest = chips().single().boundsInRoot
+        assertTrue("the chips on their own row, under the pill ($chipAtRest, pill ${pillAtRest.boundsInRoot})", chipAtRest.top >= pillAtRest.boundsInRoot.bottom - 1)
+        assertTrue("a whole card on screen under the header", cards().any { it.positionInRoot.y > chipAtRest.bottom && it.positionInRoot.y + it.size.height <= list().boundsInRoot.bottom + 1 })
         snapshot("home-landscape-top")
         val window = main().resources.configuration.let { WindowLayout.of(it.screenWidthDp, it.screenHeightDp) }
         assertTrue("a low window", window.short)

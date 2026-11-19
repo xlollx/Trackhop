@@ -3334,6 +3334,16 @@
         <item quantity="one">%d Sync verwendet ihn:</item>
         <item quantity="other">%d Syncs verwenden ihn:</item>
     </plurals>
+    <string name="sched_used_by_name">Von %1$s verwendet</string>
+    <plurals name="sched_services">
+        <item quantity="one">%d Dienst</item>
+        <item quantity="other">%d Dienste</item>
+    </plurals>
+    <string name="sched_multi_pill">Multi</string>
+    <string name="sched_edit_note_multi_one">Speichern ändert, wann er läuft. Um nur einen Dienst zu ändern, öffne den Multi-Sync.</string>
+    <string name="sched_edit_note_multi">Speichern ändert, wann sie alle laufen. Um nur einen zu ändern, öffne diesen Sync und tippe auf Lösen. Um nur einen Dienst eines Multi-Syncs zu ändern, öffne den Multi-Sync.</string>
+    <string name="settings_help_buttons">Hilfe-Schaltflächen (?)</string>
+    <string name="settings_help_buttons_summary">Zeigt ein „?“ neben Optionen. Die Anleitungen bleiben unter %1$s › %2$s.</string>
     <string name="whats_new_21_collections_title">Geteilte Sammlungen</string>
     <string name="whats_new_21_collections_body">Teile mehrere Playlists mit einer einzigen Einladung. Wer folgt, nimmt alle, auch neue, oder wählt einige aus, jeder auf seinem Dienst.</string>
     <string name="whats_new_21_nway_title">Eine Playlist auf mehreren Diensten</string>

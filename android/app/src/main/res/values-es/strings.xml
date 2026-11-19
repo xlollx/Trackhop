@@ -3342,6 +3342,16 @@
         <item quantity="one">Lo usa %d sincronización:</item>
         <item quantity="other">Lo usan %d sincronizaciones:</item>
     </plurals>
+    <string name="sched_used_by_name">Lo usa %1$s</string>
+    <plurals name="sched_services">
+        <item quantity="one">%d servicio</item>
+        <item quantity="other">%d servicios</item>
+    </plurals>
+    <string name="sched_multi_pill">múltiple</string>
+    <string name="sched_edit_note_multi_one">Al guardar cambia cuándo se ejecuta. Para cambiar solo un servicio, abre la sincronización múltiple.</string>
+    <string name="sched_edit_note_multi">Al guardar cambia cuándo se ejecutan todas. Para cambiar solo una, abre esa sincronización y toca Desvincular. Para cambiar solo un servicio de una sincronización múltiple, abre la sincronización múltiple.</string>
+    <string name="settings_help_buttons">Botones de ayuda (?)</string>
+    <string name="settings_help_buttons_summary">Muestra un «?» junto a las opciones. Las guías siguen en %1$s › %2$s.</string>
     <string name="whats_new_21_collections_title">Colecciones compartidas</string>
     <string name="whats_new_21_collections_body">Comparte varias playlists con una sola invitación. Quien sigue las toma todas, también las nuevas, o elige algunas, cada uno en su servicio.</string>
     <string name="whats_new_21_nway_title">Una playlist en varios servicios</string>
