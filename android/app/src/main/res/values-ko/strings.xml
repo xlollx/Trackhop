@@ -3322,4 +3322,7 @@
     <string name="nway_change_source">원본이 됩니다</string>
     <string name="nway_change_none">플레이리스트와 따라가는 방식은 그대로입니다.</string>
     <string name="nway_schedule_note">이 멀티 동기화의 모든 플레이리스트가 이 주기로 실행됩니다.</string>
+    <string name="card_compat_your_name">내 이름</string>
+    <string name="card_compat_their_name">상대방 이름</string>
+    <string name="card_compat_names_note">선택 사항입니다. 이름은 이 휴대폰에만 저장되고 이미지에만 표시됩니다.</string>
 </resources>

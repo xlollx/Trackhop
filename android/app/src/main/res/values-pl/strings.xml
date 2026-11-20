@@ -3619,4 +3619,7 @@
     <string name="nway_change_source">Staje się źródłem</string>
     <string name="nway_change_none">Playlisty i sposób, w jaki podążają, zostają bez zmian.</string>
     <string name="nway_schedule_note">Każda playlista tej synchronizacji wielokrotnej działa według tego harmonogramu.</string>
+    <string name="card_compat_your_name">Twoje imię</string>
+    <string name="card_compat_their_name">Imię drugiej osoby</string>
+    <string name="card_compat_names_note">Opcjonalnie. Imiona zostają na tym telefonie: pojawiają się tylko na obrazku.</string>
 </resources>

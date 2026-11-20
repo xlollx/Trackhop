@@ -3429,4 +3429,7 @@
     <string name="nway_change_source">Passa a ser a origem</string>
     <string name="nway_change_none">As playlists e a forma como seguem ficam como estão.</string>
     <string name="nway_schedule_note">Todas as playlists desta sincronização múltipla seguem este agendamento.</string>
+    <string name="card_compat_your_name">Seu nome</string>
+    <string name="card_compat_their_name">Nome da outra pessoa</string>
+    <string name="card_compat_names_note">Opcional. Os nomes ficam neste celular: só aparecem na imagem.</string>
 </resources>

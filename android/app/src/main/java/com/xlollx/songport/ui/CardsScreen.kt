@@ -71,6 +71,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -298,10 +299,30 @@ fun CompatibilityCard(snackbar: SnackbarHostState, initialLinks: Pair<String, St
     // The songs of each, for the two pictures of the result.
     var tracksA by remember { mutableStateOf<List<Track>>(emptyList()) }
     var tracksB by remember { mutableStateOf<List<Track>>(emptyList()) }
+    // The card as printed, and how: one of the poster's layouts, and the people's names (optional,
+    // kept on the phone, as the poster's signature: they go nowhere but onto the picture).
+    var printed by remember { mutableStateOf<Cards.CompatibilityCard?>(null) }
+    var layout by rememberSaveable { mutableStateOf(runCatching { PosterPalette.Layout.valueOf(posterPrefs(ctx).getString("compatLayout", null) ?: "") }.getOrNull() ?: PosterPalette.Layout.CLASSIC) }
+    var personA by rememberSaveable { mutableStateOf(posterPrefs(ctx).getString("compatNameA", null).orEmpty()) }
+    var personB by rememberSaveable { mutableStateOf(posterPrefs(ctx).getString("compatNameB", null).orEmpty()) }
+
+    var drawnAs by remember { mutableStateOf<Triple<PosterPalette.Layout, String, String>?>(null) }
+
+    suspend fun draw(card: Cards.CompatibilityCard): Map<Cards.Format, Bitmap> {
+        drawnAs = Triple(layout, personA, personB)
+        val shown = card.with(layout, personA, personB)
+        return withContext(Dispatchers.Default) { Cards.Format.entries.associateWith { Cards.compatibility(ctx, shown, it) } }
+    }
+    // Another layout, another name: the same card printed again, nothing fetched.
+    fun redraw() {
+        val card = printed ?: return
+        if (busy) return
+        scope.launch { val again = draw(card); if (printed === card) bitmaps = again }
+    }
 
     fun run() {
         val pa = a ?: return; val pb = b ?: return
-        busy = true; result = null; bitmaps = null; error = null
+        busy = true; result = null; bitmaps = null; printed = null; error = null
         scope.launch {
             try {
                 val (ta, tb) = coroutineScope {
@@ -316,7 +337,8 @@ fun CompatibilityCard(snackbar: SnackbarHostState, initialLinks: Pair<String, St
                     coroutineScope { r.common.take(5).map { c -> async { c.a.id to Cards.trackCover(c.a, pa.provider.serviceId) } }.map { it.await() } }.toMap()
                 }
                 val card = Cards.CompatibilityCard(pa.playlist.name.ifBlank { ctx.getString(R.string.card_unnamed_playlist) }, pb.playlist.name.ifBlank { ctx.getString(R.string.card_unnamed_playlist) }, r, covers)
-                bitmaps = withContext(Dispatchers.Default) { Cards.Format.entries.associateWith { Cards.compatibility(ctx, card, it) } }
+                bitmaps = draw(card)
+                printed = card
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
                 error = e.userMessage(ctx)
             }
@@ -360,7 +382,29 @@ fun CompatibilityCard(snackbar: SnackbarHostState, initialLinks: Pair<String, St
                     r.sharedArtists.take(12).forEach { ArtistChip(it) }
                 }
             }
-            if (bitmaps != null || busy) ToolShare(bitmaps, "trackhop-compatibility", "${r.score}%. $subtitle")
+            if (bitmaps != null || busy) ToolShare(bitmaps, "trackhop-compatibility", "${r.score}%. $subtitle") {
+                // Under the card: its layout, as the poster's, and the people's names, both optional.
+                ToolSectionTitle(stringResource(R.string.card_layout_title))
+                val shown = printed
+                // Each layout as a small picture of this card (without the names: the tiles are too small for them).
+                LayoutTiles(layout, shown, enabled = shown != null && !busy, render = { l -> shown?.let { Cards.compatibility(ctx, it.with(l, "", ""), Cards.Format.SQUARE) } }) { l ->
+                    layout = l; redraw()
+                    runCatching { posterPrefs(ctx).edit().putString("compatLayout", l.name).apply() }
+                }
+                androidx.compose.material3.OutlinedTextField(
+                    personA, { v -> personA = v.take(40); runCatching { posterPrefs(ctx).edit().putString("compatNameA", personA).apply() } },
+                    label = { Text(stringResource(R.string.card_compat_your_name)) }, placeholder = { Text(nameA, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                    singleLine = true, modifier = Modifier.fillMaxWidth().testTag(COMPAT_NAME_A_TAG),
+                )
+                androidx.compose.material3.OutlinedTextField(
+                    personB, { v -> personB = v.take(40); runCatching { posterPrefs(ctx).edit().putString("compatNameB", personB).apply() } },
+                    label = { Text(stringResource(R.string.card_compat_their_name)) }, placeholder = { Text(nameB, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                    singleLine = true, modifier = Modifier.fillMaxWidth().testTag(COMPAT_NAME_B_TAG),
+                )
+                Text(stringResource(R.string.card_compat_names_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                // Redrawn once typing pauses, not at every letter (and not when the card already has these names).
+                LaunchedEffect(personA, personB) { kotlinx.coroutines.delay(500); if (drawnAs != Triple(layout, personA, personB)) redraw() }
+            }
         },
         end = {
             if (r.common.isNotEmpty()) ToolSection(stringResource(R.string.card_compat_in_common), trailing = { CountPill(r.common.size) }) {
@@ -975,12 +1019,21 @@ private fun CoverArtChoice(
 private fun LayoutChoice(selected: PosterPalette.Layout, title: String, enabled: Boolean, onChange: (PosterPalette.Layout) -> Unit) {
     val ctx = LocalContext.current
     val name = title.ifBlank { stringResource(R.string.app_name) }
-    val thumbs by androidx.compose.runtime.produceState(emptyMap<PosterPalette.Layout, androidx.compose.ui.graphics.ImageBitmap>(), name) {
+    val covers = remember { listOf(0xFFB23A48, 0xFF2C5364, 0xFFF7971E, 0xFF5B3FD9).map { c -> Bitmap.createBitmap(8, 8, Bitmap.Config.ARGB_8888).apply { eraseColor(c.toInt()) } } }
+    LayoutTiles(selected, name, enabled, render = { l -> Cards.poster(ctx, Cards.PosterCard(name, "", "", 0, 0, covers, null, layout = l), Cards.Format.SQUARE) }, onChange = onChange)
+}
+
+/**
+ * The three layouts ([posterLayouts]) as tiles to choose from, each a small picture of the card
+ * [render] draws for it (square); the pictures are drawn again when [key] changes.
+ */
+@Composable
+private fun LayoutTiles(selected: PosterPalette.Layout, key: Any?, enabled: Boolean, render: (PosterPalette.Layout) -> Bitmap?, onChange: (PosterPalette.Layout) -> Unit) {
+    val thumbs by androidx.compose.runtime.produceState(emptyMap<PosterPalette.Layout, androidx.compose.ui.graphics.ImageBitmap>(), key) {
         value = withContext(Dispatchers.Default) {
-            val covers = listOf(0xFFB23A48, 0xFF2C5364, 0xFFF7971E, 0xFF5B3FD9).map { c -> Bitmap.createBitmap(8, 8, Bitmap.Config.ARGB_8888).apply { eraseColor(c.toInt()) } }
             posterLayouts.associate { (l, _) ->
                 l to runCatching {
-                    val full = Cards.poster(ctx, Cards.PosterCard(name, "", "", 0, 0, covers, null, layout = l), Cards.Format.SQUARE)
+                    val full = render(l) ?: return@runCatching null
                     Bitmap.createScaledBitmap(full, 240, 240, true).also { if (it !== full) full.recycle() }.asImageBitmap()
                 }.getOrNull()
             }.filterValues { it != null }.mapValues { it.value!! }
@@ -1036,6 +1089,10 @@ private fun ChoiceTile(label: String, on: Boolean, enabled: Boolean, onClick: ()
         )
     }
 }
+
+/** The compatibility card's name fields, for the tests. */
+internal const val COMPAT_NAME_A_TAG = "compat-name-a"
+internal const val COMPAT_NAME_B_TAG = "compat-name-b"
 
 /** The "paste a link" choice next to the services in a source picker. */
 private const val LINK_TILE = "link:"

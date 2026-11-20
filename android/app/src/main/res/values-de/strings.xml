@@ -3421,4 +3421,7 @@
     <string name="nway_change_source">Wird zur Quelle</string>
     <string name="nway_change_none">Die Playlists und wie sie folgen bleiben, wie sie sind.</string>
     <string name="nway_schedule_note">Jede Playlist dieses Multi-Syncs läuft nach diesem Zeitplan.</string>
+    <string name="card_compat_your_name">Dein Name</string>
+    <string name="card_compat_their_name">Name der anderen Person</string>
+    <string name="card_compat_names_note">Optional. Die Namen bleiben auf diesem Handy: Sie erscheinen nur auf dem Bild.</string>
 </resources>

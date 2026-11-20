@@ -3423,4 +3423,7 @@
     <string name="nway_change_source">Becomes the source</string>
     <string name="nway_change_none">The playlists and how they follow stay as they are.</string>
     <string name="nway_schedule_note">Every playlist of this multi sync runs on this schedule.</string>
+    <string name="card_compat_your_name">Your name</string>
+    <string name="card_compat_their_name">Their name</string>
+    <string name="card_compat_names_note">Optional. The names stay on this phone: they only go on the picture.</string>
 </resources>

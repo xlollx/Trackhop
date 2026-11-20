@@ -3323,4 +3323,7 @@
     <string name="nway_change_source">同期元になります</string>
     <string name="nway_change_none">プレイリストと追従のしかたは変わりません。</string>
     <string name="nway_schedule_note">このマルチ同期のすべてのプレイリストがこのスケジュールで実行されます。</string>
+    <string name="card_compat_your_name">あなたの名前</string>
+    <string name="card_compat_their_name">相手の名前</string>
+    <string name="card_compat_names_note">任意です。名前はこの端末に保存され、画像にだけ表示されます。</string>
 </resources>

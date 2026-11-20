@@ -39,7 +39,7 @@ import java.io.FileOutputStream
 
 /**
  * The shareable cards: the compatibility card and the playlist poster, drawn with Canvas into a
- * PNG in the app's own palette (the poster in its art's), as a story (1080×1920) or a square (1080×1080). One renderer for
+ * PNG in the app's own palette (the poster in its art's, the compatibility card in its covers'), as a story (1080×1920) or a square (1080×1080). One renderer for
  * both, so they look like they belong together. Covers come from the services or from Deezer's
  * public catalogue ([DeezerCatalog]) and are fetched here, best effort: a missing one is a tile in
  * a brand colour, never an error.
@@ -55,8 +55,18 @@ object Cards {
     private const val PANEL_LINE = 0x40FFFFFF
     private const val SITE = "trackhop.org"
 
-    /** What the compatibility card shows: names, score, the common tracks with covers. */
-    class CompatibilityCard(val nameA: String, val nameB: String, val result: Compatibility.Result, val covers: Map<String, Bitmap?>)
+    /**
+     * What the compatibility card shows: the two playlists' names, the score, the common tracks
+     * with their covers (by track id). [personA] and [personB] are the people's names the user
+     * typed, blank unless given; [layout] is one of the poster's.
+     */
+    class CompatibilityCard(
+        val nameA: String, val nameB: String, val result: Compatibility.Result, val covers: Map<String, Bitmap?>,
+        val personA: String = "", val personB: String = "", val layout: PosterPalette.Layout = PosterPalette.Layout.CLASSIC,
+    ) {
+        /** The same card laid out as [layout], with the people's names [personA] and [personB]. */
+        fun with(layout: PosterPalette.Layout, personA: String, personB: String) = CompatibilityCard(nameA, nameB, result, covers, personA, personB, layout)
+    }
 
     /**
      * What the poster shows. [qr] is the playlist's web address, null when the service has none;
@@ -239,61 +249,157 @@ object Cards {
         c.restore()
     }
 
+    /**
+     * The compatibility card, printed as the poster is: in the colours of the covers of the tracks
+     * in common ([PosterPalette]), on the same sheet with its grain, in the same three layouts.
+     * The poster's [Sheet] carries the comparison: the shared artists for its line-up, the tracks
+     * in common for its list, their covers for its art.
+     */
     fun compatibility(ctx: Context, card: CompatibilityCard, format: Format): Bitmap {
-        val w = format.width; val h = format.height
-        val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val bmp = Bitmap.createBitmap(format.width, format.height, Bitmap.Config.ARGB_8888)
         val c = Canvas(bmp)
-        background(c, w, h)
-        val margin = 72f
-        val story = format == Format.STORY
-        var y = if (story) 200f else 88f
-        val eyebrow = paint(Color.WHITE, 34f, alpha = 210)
-        eyebrow.textAlign = Paint.Align.CENTER
-        c.drawText(ctx.getString(R.string.card_compat_eyebrow).uppercase(), w / 2f, y, eyebrow)
-        y += if (story) 150f else 110f
-        // The score, as big as it gets.
-        val score = paint(Color.WHITE, if (story) 300f else 220f, bold = true)
-        score.textAlign = Paint.Align.CENTER
-        c.drawText("${card.result.score}%", w / 2f, y + (if (story) 110f else 80f), score)
-        y += if (story) 190f else 140f
-        val sub = paint(Color.WHITE, 36f, alpha = 220)
-        sub.textAlign = Paint.Align.CENTER
-        c.drawText(ctx.getString(R.string.card_compat_subtitle, card.result.common.size, card.result.sharedArtists.size), w / 2f, y, sub)
-        y += if (story) 90f else 70f
-        // The two names, side by side, with a cross between them.
-        val names = paint(Color.WHITE, 40f, bold = true)
-        val half = (w - 2 * margin - 80f) / 2
-        line(c, card.nameA, margin + half, y, names, half, Paint.Align.RIGHT)
-        val cross = paint(Color.WHITE, 40f, alpha = 170); cross.textAlign = Paint.Align.CENTER
-        c.drawText("×", w / 2f, y, cross)
-        line(c, card.nameB, w - margin - half, y, names, half, Paint.Align.LEFT)
-        y += if (story) 90f else 60f
-        // Common tracks, with covers; the square fits three, the story five.
-        val rows = card.result.common.take(if (story) 5 else 3)
-        if (rows.isNotEmpty()) {
-            val rowH = if (story) 132f else 112f
-            val gap = 14f
-            val panelRect = RectF(margin, y, w - margin, y + rows.size * (rowH + gap) + 40f)
-            panel(c, panelRect)
-            var ry = y + 20f
-            rows.forEachIndexed { i, common ->
-                val t = common.a
-                val art = RectF(margin + 24f, ry, margin + 24f + rowH - 8f, ry + rowH - 8f)
-                cover(c, card.covers[t.id], art, 18f, i + t.title.length)
-                val tx = art.right + 24f
-                val maxW = w - margin - 24f - tx
-                line(c, t.title, tx, ry + rowH * 0.42f, paint(Color.WHITE, 36f, bold = true), maxW)
-                line(c, t.artistLine, tx, ry + rowH * 0.80f, paint(Color.WHITE, 30f, alpha = 200), maxW)
-                ry += rowH + gap
-            }
-            y = panelRect.bottom + 36f
+        val r = card.result
+        val sheet = PosterCard(
+            title = "${card.nameA} × ${card.nameB}", owner = "", service = "", trackCount = r.common.size, durationMs = 0,
+            covers = r.common.take(5).map { card.covers[it.a.id] }, qr = null, artists = r.sharedArtists,
+            tracks = r.common.map { it.a.title to it.a.artistLine }, layout = card.layout,
+        )
+        val tones = PosterPalette.tones(GeneratedCovers.sampled(sheet.covers.filterNotNull()), sheet.title, card.layout)
+        val s = Sheet(ctx, c, format.width.toFloat(), format.height.toFloat(), tones, sheet)
+        posterGround(s)
+        val words = CompatWords(ctx, card)
+        when (card.layout) {
+            PosterPalette.Layout.CLASSIC -> compatClassic(s, words)
+            PosterPalette.Layout.MINIMAL -> compatMinimal(s, words)
+            PosterPalette.Layout.BOLD -> compatBold(s, words)
         }
-        if (card.result.sharedArtists.isNotEmpty() && (story || rows.size < 3)) {
-            val label = ctx.getString(R.string.card_compat_artists) + "  " + card.result.sharedArtists.take(6).joinToString("  ·  ")
-            block(c, label, margin, y, paint(Color.WHITE, 30f, alpha = 210), (w - 2 * margin).toInt(), 2, Layout.Alignment.ALIGN_CENTER)
-        }
-        footer(ctx, c, w, h)
+        posterFooter(s)
         return bmp
+    }
+
+    /**
+     * The compatibility card's words. [names] is big: the people's ("Anna × Marco", a blank one
+     * giving way to its playlist's name) when one is given, else the two playlists' as before;
+     * [playlists] is the small line under the people's names, blank without them.
+     */
+    private class CompatWords(ctx: Context, card: CompatibilityCard) {
+        val people = card.personA.isNotBlank() || card.personB.isNotBlank()
+        val names = if (people) "${card.personA.trim().ifBlank { card.nameA }} × ${card.personB.trim().ifBlank { card.nameB }}" else "${card.nameA} × ${card.nameB}"
+        val playlists = if (people) "${card.nameA}  ×  ${card.nameB}".uppercase() else ""
+        val eyebrow = ctx.getString(R.string.card_compat_eyebrow).uppercase()
+        val score = "${card.result.score}%"
+        val counts = ctx.getString(R.string.card_compat_subtitle, card.result.common.size, card.result.sharedArtists.size).uppercase()
+        val both = ctx.getString(R.string.card_compat_artists).uppercase()
+    }
+
+    /** Up to [max] covers of the tracks in common side by side from [x], [side] each, [gap] apart, each on a soft shadow when [shadow] is given. */
+    private fun compatCovers(s: Sheet, x: Float, top: Float, side: Float, gap: Float, max: Int, radius: Float, shadow: Int? = null) {
+        s.card.covers.take(max).forEachIndexed { i, bmp ->
+            val r = RectF(x + i * (side + gap), top, x + i * (side + gap) + side, top + side)
+            if (shadow != null) s.c.drawRoundRect(r, radius, radius, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = s.t.groundEnd; setShadowLayer(side * 0.06f, 0f, side * 0.03f, shadow) })
+            cover(s.c, bmp, r, radius, i + s.card.title.length)
+        }
+    }
+
+    /**
+     * The tracks in common from [top], one a line: the title, the artist lighter on the right (at
+     * most two fifths of the line), a thin rule under each; as many (at most [max]) as fit above
+     * [bottom]. Returns where they end.
+     */
+    private fun compatTracks(s: Sheet, x: Float, top: Float, bottom: Float, width: Float, size: Float, max: Int): Float {
+        val rowH = size * 2.3f
+        val n = minOf(s.card.tracks.size, max, ((bottom - top) / rowH).toInt())
+        val title = paint(s.t.ink, size, bold = true)
+        val artist = paint(s.t.ink, size, alpha = 165)
+        val rule = Paint().apply { color = s.t.ink; alpha = 45 }
+        for (i in 0 until n) {
+            val (name, by) = s.card.tracks[i]
+            val base = top + i * rowH + size * 1.35f
+            val byW = if (by.isBlank()) 0f else minOf(artist.measureText(by), width * 0.4f)
+            if (byW > 0f) line(s.c, by, x + width, base, artist, byW, Paint.Align.RIGHT)
+            line(s.c, name, x, base, title, width - byW - (if (byW > 0f) size * 0.8f else 0f))
+            val ry = top + (i + 1) * rowH - 1f
+            s.c.drawRect(x, ry, x + width, ry + 2f, rule)
+        }
+        return top + n * rowH
+    }
+
+    /** Classic: the poster's dark print. The score huge, the counts, the names, five covers of the tracks in common, then the tracks. */
+    private fun compatClassic(s: Sheet, k: CompatWords) = with(s) {
+        val m = if (story) 96f else 72f
+        val right = w - m
+        val width = right - m
+        val headBase = if (story) 126f else 100f
+        line(c, k.eyebrow, m, headBase, caps(t.accent, 25f), width)
+        val rule = headBase + 22f
+        c.drawRect(m, rule, right, rule + 2f, Paint().apply { color = t.ink; alpha = 55 })
+        var y = rule + (if (story) 42f else 28f)
+        val scoreSize = if (story) 420f else 230f
+        y = posterTitle(c, k.score, RectF(m, y, right, y + scoreSize), condensed(t.ink, scoreSize), 1, scoreSize, scoreSize * 0.5f, lineHeight = 0.98f) + (if (story) 20f else 10f)
+        lineTop(c, k.counts, m, y, caps(t.ink, 24f, alpha = 200), width); y += if (story) 50f else 42f
+        y = posterTitle(c, k.names, RectF(m, y, right, y + (if (story) 150f else 104f)), paint(t.ink, 60f, bold = true), 2, if (story) 64f else 46f, if (story) 40f else 30f) + 14f
+        if (k.playlists.isNotBlank()) { lineTop(c, k.playlists, m, y, caps(t.ink, 22f, alpha = 160, bold = false), width); y += 40f }
+        y += if (story) 34f else 24f
+        if (card.covers.isNotEmpty()) {
+            val gap = if (story) 20f else 16f
+            val side = (width - 4 * gap) / 5
+            compatCovers(s, m, y, side, gap, 5, 8f)
+            y += side + (if (story) 44f else 30f)
+        }
+        compatTracks(s, m, y, bottom, width, if (story) 34f else 26f, if (story) 8 else 5)
+    }
+
+    /** Minimal: ink on paper. A light score, three covers side by side, the names, a short rule, the counts. */
+    private fun compatMinimal(s: Sheet, k: CompatWords) = with(s) {
+        val cx = w / 2
+        val width = if (story) 840f else 860f
+        val light = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { color = t.ink; typeface = Typeface.create("sans-serif-light", Typeface.NORMAL) }
+        val scoreSize = if (story) 340f else 230f
+        val n = minOf(3, card.covers.size)
+        val side = if (story) 250f else 180f
+        val gap = if (story) 30f else 24f
+        val namesSize = if (story) 60f else 44f
+        // The whole in the middle of the sheet.
+        val est = scoreSize * 0.93f + (if (story) 80f else 46f) + (if (n > 0) side + (if (story) 70f else 50f) else 0f) +
+            namesSize + (if (k.playlists.isNotBlank()) 40f else 0f) + 36f + 44f + 30f
+        var y = ((bottom - est) / 2 + (if (story) 40f else 20f)).coerceAtLeast(if (story) 140f else 80f)
+        y = posterTitle(c, k.score, RectF(cx - width / 2, y, cx + width / 2, y + scoreSize), light, 1, scoreSize, scoreSize * 0.5f, lineHeight = 0.98f, align = Paint.Align.CENTER) + (if (story) 80f else 46f)
+        if (n > 0) {
+            val row = n * side + (n - 1) * gap
+            compatCovers(s, cx - row / 2, y, side, gap, n, 4f, 0x38000000)
+            y += side + (if (story) 70f else 50f)
+        }
+        y = posterTitle(c, k.names, RectF(cx - width / 2, y, cx + width / 2, y + namesSize * 2.2f), light, 2, namesSize, namesSize * 0.6f, align = Paint.Align.CENTER) + 10f
+        if (k.playlists.isNotBlank()) { lineTop(c, k.playlists, cx, y, caps(t.ink, 22f, alpha = 150, bold = false), width, Paint.Align.CENTER); y += 40f }
+        y += 26f
+        c.drawRect(cx - 36f, y, cx + 36f, y + 5f, Paint().apply { color = t.accent }); y += 44f
+        lineTop(c, k.counts, cx, y, caps(t.ink, 24f, alpha = 200), width, Paint.Align.CENTER)
+    }
+
+    /** Bold: the poster's gig print in two inks. The score huge, the names in capitals, the shared artists as a line-up, the counts at the foot. */
+    private fun compatBold(s: Sheet, k: CompatWords) = with(s) {
+        val m = if (story) 84f else 72f
+        val right = w - m
+        val width = right - m
+        val inkPaint = Paint().apply { color = t.ink }
+        val barTop = if (story) 84f else 62f
+        c.drawRect(m, barTop, right, barTop + 14f, inkPaint)
+        var y = barTop + 14f + (if (story) 50f else 36f)
+        val scoreSize = if (story) 560f else 300f
+        y = posterTitle(c, k.score, RectF(m, y, right, y + scoreSize), condensed(t.ink, scoreSize), 1, scoreSize, scoreSize * 0.5f, lineHeight = 0.98f) + (if (story) 10f else 2f)
+        y = posterTitle(c, k.names.uppercase(), RectF(m, y, right, y + (if (story) 240f else 144f)), condensed(t.ink, 100f), 2, if (story) 120f else 72f, if (story) 56f else 40f, lineHeight = 0.98f) + (if (story) 30f else 20f)
+        c.drawRect(m, y, right, y + 8f, inkPaint); y += 8f + (if (story) 34f else 24f)
+        // At the foot, the counts and (when the people are named) the playlists, with a rule above.
+        val foot = listOf(k.counts, k.playlists).filter { it.isNotBlank() }
+        val footH = if (story) 40f else 34f
+        val footTop = bottom - foot.size * footH
+        val lowRule = footTop - (if (story) 34f else 24f) - 8f
+        if (card.artists.isNotEmpty()) {
+            lineTop(c, k.both, m, y, caps(t.ink, if (story) 26f else 22f, alpha = 200), width); y += if (story) 52f else 42f
+            posterLineup(s, m, y, lowRule - (if (story) 24f else 16f), width, if (story) 104f else 56f, if (story) 64f else 40f, max = if (story) 6 else 4)
+        }
+        c.drawRect(m, lowRule, right, lowRule + 8f, inkPaint)
+        foot.forEachIndexed { i, l -> lineTop(c, l, m, footTop + i * footH, caps(t.ink, if (story) 24f else 21f, alpha = 220), width) }
     }
 
     /**
@@ -312,16 +418,20 @@ object Cards {
             PosterPalette.Layout.MINIMAL -> posterMinimal(s)
             PosterPalette.Layout.BOLD -> posterBold(s)
         }
-        // The app's name and the site, small and quiet along the bottom edge.
-        val name = ctx.getString(R.string.app_name)
+        posterFooter(s)
+        return bmp
+    }
+
+    /** The app's name and the site, small and quiet along the bottom edge of the sheet. */
+    private fun posterFooter(s: Sheet) {
+        val name = s.ctx.getString(R.string.app_name)
         val brand = paint(s.t.ink, 24f, bold = true, alpha = 150)
         val site = paint(s.t.ink, 24f, alpha = 120)
         val rest = "  ·  $SITE"
         val x = (s.w - brand.measureText(name) - site.measureText(rest)) / 2
         val base = s.h - (if (s.story) 58f else 42f)
-        c.drawText(name, x, base, brand)
-        c.drawText(rest, x + brand.measureText(name), base, site)
-        return bmp
+        s.c.drawText(name, x, base, brand)
+        s.c.drawText(rest, x + brand.measureText(name), base, site)
     }
 
     /** What every layout of the poster draws with: the sheet, its colours, and the card's words ready to print. */

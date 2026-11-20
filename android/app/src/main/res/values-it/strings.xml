@@ -3421,4 +3421,7 @@
     <string name="nway_change_source">Diventa l’origine</string>
     <string name="nway_change_none">Le playlist e il modo in cui seguono restano come sono.</string>
     <string name="nway_schedule_note">Ogni playlist di questa sync multipla segue questa esecuzione.</string>
+    <string name="card_compat_your_name">Il tuo nome</string>
+    <string name="card_compat_their_name">Il suo nome</string>
+    <string name="card_compat_names_note">Facoltativi. I nomi restano su questo telefono: finiscono solo sull\'immagine.</string>
 </resources>

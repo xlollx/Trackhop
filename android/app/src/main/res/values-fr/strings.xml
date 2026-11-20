@@ -3429,4 +3429,7 @@
     <string name="nway_change_source">Devient la source</string>
     <string name="nway_change_none">Les playlists et leur façon de suivre restent telles quelles.</string>
     <string name="nway_schedule_note">Chaque playlist de cette sync multiple suit cette planification.</string>
+    <string name="card_compat_your_name">Ton prénom</string>
+    <string name="card_compat_their_name">Son prénom</string>
+    <string name="card_compat_names_note">Facultatif. Les prénoms restent sur ce téléphone : ils n\'apparaissent que sur l\'image.</string>
 </resources>

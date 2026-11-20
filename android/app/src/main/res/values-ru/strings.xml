@@ -3617,4 +3617,7 @@
     <string name="nway_change_source">Становится источником</string>
     <string name="nway_change_none">Плейлисты и то, как они следуют, остаются как есть.</string>
     <string name="nway_schedule_note">Все плейлисты этой мультисинхронизации работают по этому расписанию.</string>
+    <string name="card_compat_your_name">Ваше имя</string>
+    <string name="card_compat_their_name">Имя другого человека</string>
+    <string name="card_compat_names_note">Необязательно. Имена остаются на этом телефоне и появляются только на картинке.</string>
 </resources>

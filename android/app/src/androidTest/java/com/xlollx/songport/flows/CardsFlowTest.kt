@@ -43,7 +43,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * The two cards of Discover: "how compatible are we" (two playlists in, a score and a card out) and
+ * The two cards of Discover: "how compatible are we" (two playlists in, a score and a card out, in
+ * the poster's layouts, with the people's names if given) and
  * the playlist poster with its QR code; the poster's covers drawn on the phone; and its "your AI"
  * choice, with a fake AI: its picture is already in the app's session cache, and any request it
  * would make goes to a closed local port through the closed network.
@@ -104,6 +105,42 @@ class CardsFlowTest : FlowTest() {
         waitText(s(R.string.card_compat_first), ms = 10_000)
         waitText("${expected.score}%", ms = 30_000)
     }
+
+    @Test
+    fun theCompatibilityCardsLayoutAndNamesSurviveTheActivityMadeAnew() {
+        val a = "https://open.spotify.com/playlist/${FakeWorld.PUBLIC_SPOTIFY}"
+        val b = "https://www.deezer.com/playlist/${FakeWorld.PUBLIC_DEEZER}"
+        launch(shareIntent("Ours?\n$a\n$b"))
+        waitText(s(R.string.card_share), ms = 30_000)
+        // The card is printed as the poster: Classic unless chosen otherwise, Bold chosen under it.
+        layoutTile(R.string.card_layout_classic).assertIsSelected()
+        waitFor("the layouts on offer", 30_000) { runCatching { layoutTile(R.string.card_layout_bold).assertIsEnabled() }.isSuccess }
+        layoutTile(R.string.card_layout_bold).performClick()
+        layoutTile(R.string.card_layout_bold).assertIsSelected()
+        // The people's names, both optional, under the card.
+        val nameA = androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.COMPAT_NAME_A_TAG)
+        val nameB = androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.COMPAT_NAME_B_TAG)
+        scrollTo(compose.onNode(nameA)).performTextInput("Giulia")
+        scrollTo(compose.onNode(nameB)).performTextInput("Marco")
+        // The text in the fields settled before Android makes the activity anew (as StateKeptFlowTest).
+        waitNode("the first name typed", nameA and hasText("Giulia"))
+        waitNode("the second name typed", nameB and hasText("Marco"))
+        compose.waitForIdle()
+        remade()
+        // The comparison made again from the two links, the names and the layout as they were.
+        waitText(s(R.string.card_share), ms = 30_000)
+        waitNode("the first name kept", nameA and hasText("Giulia"))
+        waitNode("the second name kept", nameB and hasText("Marco"))
+        layoutTile(R.string.card_layout_bold).assertIsSelected()
+        // Kept on the phone for the next card too.
+        val prefs = app.getSharedPreferences("poster", android.content.Context.MODE_PRIVATE)
+        assertEquals("Giulia", prefs.getString("compatNameA", null))
+        assertEquals("Marco", prefs.getString("compatNameB", null))
+        assertEquals("BOLD", prefs.getString("compatLayout", null))
+    }
+
+    /** A tile of the card's layout choice, scrolled into view. */
+    private fun layoutTile(label: Int) = compose.onNode(isSelectable() and hasText(s(label))).also { runCatching { it.performScrollTo() } }
 
     @Test
     fun compareTwoPlaylistsPickedByHand() {
