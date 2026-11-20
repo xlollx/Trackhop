@@ -893,7 +893,7 @@
     <string name="unplayable_undo">되돌리기</string>
     <string name="unplayable_undo_last">마지막 수정 되돌리기(%1$d)</string>
     <string name="unplayable_undone">항목 %1$d개를 되돌렸습니다</string>
-    <string name="unplayable_reason_market">내 국가에서 이용 불가</string>
+    <string name="unplayable_reason_market">내 국가 또는 지역에서 이용 불가</string>
     <string name="unplayable_reason_product">내 요금제에 미포함</string>
     <string name="unplayable_reason_explicit">선정성 필터</string>
     <string name="unplayable_reason_private">비공개 동영상</string>
@@ -1274,7 +1274,7 @@
     <string name="howto_organise_body"># 즐겨찾기\n카드의 ⋮ 메뉴에서 즐겨찾기에 추가를 누르면 동기화에 별이 붙어요. 별이 붙은 동기화는 동기화 탭 맨 위에 있고, 즐겨찾기 필터로 그것만 볼 수 있어요. 순서 어디에나 두고 싶다면 설정 › 모양 › 즐겨찾기 항상 맨 위에를 꺼 주세요.\n# 라벨\n카드의 ⋮ 메뉴 › 스타일에서 색을 고르고 이름을 붙이면, 그 색의 모든 동기화가 같은 라벨을 써요. 같은 창에서 카드가 색을 어떻게 보여 줄지도 골라요.\n# 태그\n편집 화면의 태그로 동기화를 원하는 대로 묶을 수 있어요. 예: genre = metal. 값은 비워 둬도 돼요.\n# 동기화 찾기\n동기화 탭의 검색과 필터로 이름, 상태, 라벨, 즐겨찾기, 태그로 찾을 수 있어요.\n# 순서\n카드를 길게 누른 채 원하는 곳으로 끌거나, ⋮ › 위치로 이동…을 써요.\n# 크기와 보기\n• 설정 › 모양 › 카드 크기: 크게, 보통, 작게.\n• 미니멀 보기는 동기화를 작은 타일 격자로 보여 줘요. 타일을 누르면 카드 전체가 보이고, 길게 누르면 메뉴가 열리거나 끌어서 옮길 수 있어요.\n• 태블릿이나 가로로 돌린 휴대폰에서는 탭이 옆 레일로 가고 카드가 여러 열로 놓여요.</string>
     <string name="howto_discover_title">신곡, 콘서트, 세트리스트, 음반</string>
     <string name="howto_discover_summary">플레이리스트 아티스트들의 소식.</string>
-    <string name="howto_discover_body">발견 탭은 요청할 때만 플레이리스트 아티스트의 정보를 찾아요. 백그라운드에서는 팔로우한 아티스트만 확인해요. 콘서트, 세트리스트, 음반과 굿즈에서는 아티스트 선택으로 찾을 아티스트를 고를 수 있어요.\n# 신곡\n지난 7일, 30일, 90일 동안 나온 새 앨범, EP, 싱글과 곧 나올 작품. 어느 서비스에든 플레이리스트를 만들거나, 플레이리스트에 추가로 기존 플레이리스트에 넣거나, 매주를 골라 새 곡을 계속 추가하는 동기화를 만들어요.\n# 콘서트\n기간에서 고른 범위 안의 한 나라의 다가오는 공연 날짜를 티켓 링크, 캘린더에 추가와 함께 보여 줘요. 날짜가 없는 아티스트는 버튼으로 티켓 사이트에서 찾아요.\n# 세트리스트\n아티스트가 라이브에서 연주한 곡을 setlist.fm에서 가져와요. 공연을 골라 어느 서비스에든 새 플레이리스트로 만들거나 내 플레이리스트에 추가해요.\n# 음반과 굿즈\nDiscogs의 CD, LP, 카세트, 공식 사이트와 공식 숍, 다른 숍에서의 검색. 링크만 있어요. 구매는 각 사이트에서 해요.\n# 팔로우한 아티스트\n아티스트 옆의 종을 눌러 팔로우하고, 팔로우한 아티스트에서 알고 싶은 것을 고르세요: 신곡, 가까운 콘서트, 새 굿즈, 음반. 하루(또는 일주일)에 한 번 Trackhop이 확인하고 새 소식을 알림 하나로 보내요. 첫 확인에서는 이미 있는 것만 기록해요.\n# 키\nTicketmaster 공연 날짜와 세트리스트에는 무료 개인 키가 필요해요. Discogs 토큰이 있으면 판매 중인 수량과 최저가도 보여요. 설정 › 고급 › 서비스 키에서 추가하고, 키 받기를 누르면 첫 단계가 열려요. Ticketmaster 키가 없으면 날짜는 MusicBrainz에서 가져와요. setlist.fm 키가 없으면 세트리스트는 MusicBrainz에서 가져와요 (공연 수는 더 적어요).\n# 탭\n카드를 길게 눌러 끌면 순서를 바꿀 수 있고, 순서 초기화로 되돌려요. 설정 › 모양 › 발견의 이미지에서 이미지를 끄거나 Wi‑Fi에서만 보이게 해요.</string>
+    <string name="howto_discover_body">발견 탭은 요청할 때만 플레이리스트 아티스트의 정보를 찾아요. 백그라운드에서는 팔로우한 아티스트만 확인해요. 콘서트, 세트리스트, 음반과 굿즈에서는 아티스트 선택으로 찾을 아티스트를 고를 수 있어요.\n# 신곡\n지난 7일, 30일, 90일 동안 나온 새 앨범, EP, 싱글과 곧 나올 작품. 어느 서비스에든 플레이리스트를 만들거나, 플레이리스트에 추가로 기존 플레이리스트에 넣거나, 매주를 골라 새 곡을 계속 추가하는 동기화를 만들어요.\n# 콘서트\n기간에서 고른 범위 안의 한 국가 또는 지역의 다가오는 공연 날짜를 티켓 링크, 캘린더에 추가와 함께 보여 줘요. 날짜가 없는 아티스트는 버튼으로 티켓 사이트에서 찾아요.\n# 세트리스트\n아티스트가 라이브에서 연주한 곡을 setlist.fm에서 가져와요. 공연을 골라 어느 서비스에든 새 플레이리스트로 만들거나 내 플레이리스트에 추가해요.\n# 음반과 굿즈\nDiscogs의 CD, LP, 카세트, 공식 사이트와 공식 숍, 다른 숍에서의 검색. 링크만 있어요. 구매는 각 사이트에서 해요.\n# 팔로우한 아티스트\n아티스트 옆의 종을 눌러 팔로우하고, 팔로우한 아티스트에서 알고 싶은 것을 고르세요: 신곡, 가까운 콘서트, 새 굿즈, 음반. 하루(또는 일주일)에 한 번 Trackhop이 확인하고 새 소식을 알림 하나로 보내요. 첫 확인에서는 이미 있는 것만 기록해요.\n# 키\nTicketmaster 공연 날짜와 세트리스트에는 무료 개인 키가 필요해요. Discogs 토큰이 있으면 판매 중인 수량과 최저가도 보여요. 설정 › 고급 › 서비스 키에서 추가하고, 키 받기를 누르면 첫 단계가 열려요. Ticketmaster 키가 없으면 날짜는 MusicBrainz에서 가져와요. setlist.fm 키가 없으면 세트리스트는 MusicBrainz에서 가져와요 (공연 수는 더 적어요).\n# 탭\n카드를 길게 눌러 끌면 순서를 바꿀 수 있고, 순서 초기화로 되돌려요. 설정 › 모양 › 발견의 이미지에서 이미지를 끄거나 Wi‑Fi에서만 보이게 해요.</string>
     <string name="howto_shared_title">공유 플레이리스트</string>
     <string name="howto_shared_summary">그룹을 위한 하나의 플레이리스트, 각자 자기 서비스에서.</string>
     <string name="howto_shared_body">도구 › 공유 플레이리스트: 같은 서비스를 쓰지 않는 사람들을 위한 하나의 플레이리스트예요. 각자 자기 서비스에 사본을 두고, Trackhop이 사본을 맞춰 줘요.\n# 만들기와 참여\n그룹 만들기: 이름을 정하고, 내 서비스와 플레이리스트, 그룹이 만나는 방식을 골라요. 초대를 누르면 QR 코드와 보낼 링크가 나와요. 다른 사람은 링크로 참여를 누르고 그룹 코드가 내 것과 같은지 확인해요.\n# 그룹이 만나는 방식\n• 공유 폴더: 그룹이 이미 공유하는 Google Drive, Nextcloud, Dropbox, Syncthing 폴더. 폴더를 열 수 있는 사람은 그룹을 읽을 수 있어요.\n• 암호화된 ntfy 채널: 변경 사항이 ntfy.sh나 내 ntfy 서버를 거쳐 암호화된 채로 전달돼요.\n• 내 Trackhop 서버: 설정 › 고급 › 내 서버와 조율하기에서 설정한 Trackhop 서버에서 변경 사항이 만나요. 서버 관리자는 그룹의 곡을 볼 수 있어요.\nntfy 채널이나 서버에서는 초대를 가진 누구나 그룹을 읽을 수 있어요. 초대하는 사람에게만 보내 주세요.\n# 역할\n큐레이터의 변경은 모두에게 전달돼요. 큐레이터는 그룹을 만든 사람이 정해요. 나머지는 팔로우하며, 그대로 복사나 내가 추가한 곡 유지를 골라요. 유지를 고르면 직접 추가한 곡은 자기 플레이리스트에만 남아요.\n# 내 서비스에 없는 곡\n내 서비스에서 찾지 못한 곡이 다른 사람에게서 지워지는 일은 없어요. 그 곡은 내 동기화의 검토에서 기다려요.\n# 그룹 페이지\n멤버, 누가 무엇을 바꿨는지, 그룹 코드. 그룹 나가기를 누르면 변경을 더 받지 않고, 플레이리스트는 그대로 남아요.</string>
@@ -1509,14 +1509,14 @@
     <string name="diag_range_week">최근 7일</string>
     <string name="diag_range_all">전체</string>
     <string name="charts_label">차트</string>
-    <string name="provider_note_charts">Apple Music(국가별 Top 100)과 Deezer(국가별·전 세계) 공개 피드의 차트. 동기화로 차트가 바뀔 때마다 내 플레이리스트를 최신으로 유지합니다. 계정 필요 없음.</string>
+    <string name="provider_note_charts">Apple Music(국가/지역별 Top 100)과 Deezer(국가/지역별·전 세계) 공개 피드의 차트. 동기화로 차트가 바뀔 때마다 내 플레이리스트를 최신으로 유지합니다. 계정 필요 없음.</string>
     <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
     <string name="charts_apple_list_name">Apple Music · %1$s</string>
     <string name="charts_deezer_name">Deezer · %1$s</string>
     <string name="charts_unknown">이 차트는 더 이상 제공되지 않습니다.</string>
     <string name="charts_unavailable">%1$s에서 차트를 받지 못했습니다(%2$d). 나중에 다시 시도하세요.</string>
     <string name="whats_new_110_charts_title">차트를 소스로</string>
-    <string name="whats_new_110_charts_body">어느 나라든 Apple Music Top 100이나 Deezer 차트에 맞춰 내 플레이리스트를 유지하세요. 새 동기화의 소스로 "차트"를 선택하세요.</string>
+    <string name="whats_new_110_charts_body">어느 국가나 지역이든 Apple Music Top 100이나 Deezer 차트에 맞춰 내 플레이리스트를 유지하세요. 새 동기화의 소스로 "차트"를 선택하세요.</string>
     <string name="settings_automation">자동화(Tasker, MacroDroid…)</string>
     <string name="settings_automation_summary">자동화 앱이 동기화를 실행하고 끝났을 때 알 수 있게 합니다. 휴대폰의 어떤 앱이든 이 명령을 보낼 수 있으므로 켜기 전까지는 꺼져 있습니다.</string>
     <string name="settings_automation_how">브로드캐스트 인텐트 보내기: com.xlollx.songport.action.RUN_ALL · com.xlollx.songport.action.RUN (extra sync = 이름) · event com.xlollx.songport.event.SYNC_FINISHED (sync, added, removed, notFound, toReview, ok, error). 앱 아이콘을 길게 누르면 최근 동기화 바로가기가 있습니다.</string>
@@ -1746,7 +1746,7 @@
     <string name="idea_liked_title">좋아요 표시한 곡을 공유할 수 있는 플레이리스트로</string>
     <string name="idea_liked_desc">좋아요한 곡을 늘 최신으로 유지되는 진짜 플레이리스트로. 링크를 누구에게나 보내세요.</string>
     <string name="idea_liked_target">내가 좋아요 표시한 곡</string>
-    <string name="idea_chart_title">우리나라 차트를 내 보관함에</string>
+    <string name="idea_chart_title">우리 국가/지역 차트를 내 보관함에</string>
     <string name="idea_chart_desc">%1$s을(를) %2$s 플레이리스트로, 매일 최신 버전으로.</string>
     <string name="idea_dedupe_title">중복 정리</string>
     <string name="idea_dedupe_desc">플레이리스트에 두 번 들어 있는 곡을 찾아 남는 사본을 삭제합니다.</string>
@@ -1864,7 +1864,7 @@
     <string name="whats_new_118_notify_title">원하는 곳으로 알림</string>
     <string name="whats_new_118_notify_body">설정 › 알림 › 알림 채널에서 동기화가 무언가를 바꾸거나, 실패하거나, 신곡을 찾으면 Telegram, ntfy, Gotify, Discord, Slack, Matrix, Pushover로 메시지를 받아요. 키는 이 휴대폰에 암호화되어 저장돼요.</string>
     <string name="whats_new_118_concerts_title">아티스트의 콘서트</string>
-    <string name="whats_new_118_concerts_body">발견 › 콘서트에서 플레이리스트 아티스트의 다가오는 공연 일정을 선택한 나라 기준으로 Ticketmaster와 MusicBrainz에서 찾아요. 일정이 없으면 한 번 탭으로 티켓 사이트를 검색할 수 있어요.</string>
+    <string name="whats_new_118_concerts_body">발견 › 콘서트에서 플레이리스트 아티스트의 다가오는 공연 일정을 선택한 국가 또는 지역 기준으로 Ticketmaster와 MusicBrainz에서 찾아요. 일정이 없으면 한 번 탭으로 티켓 사이트를 검색할 수 있어요.</string>
     <string name="whats_new_118_setlists_title">세트리스트를 플레이리스트로</string>
     <string name="whats_new_118_setlists_body">발견 › 세트리스트에서 플레이리스트 아티스트가 라이브로 연주한 곡을 setlist.fm에서 볼 수 있어요. 공연을 골라 어떤 서비스에든 플레이리스트로 만드세요. 무료 setlist.fm 키는 설정 › 고급 › 서비스 키에서 추가하세요.</string>
     <string name="whats_new_118_records_title">음반과 굿즈</string>
@@ -2171,8 +2171,8 @@
     <string name="notify_field_pushover_user">사용자 키</string>
     <string name="discover_concerts_title">콘서트</string>
     <string name="discover_concerts_desc">플레이리스트 아티스트의 다가오는 공연</string>
-    <string name="concerts_intro">플레이리스트와 국가를 고르면 Trackhop이 아티스트들의 다가오는 콘서트를 찾아요. 백그라운드에서는 팔로우한(종) 아티스트만 확인해요.</string>
-    <string name="concerts_country">국가</string>
+    <string name="concerts_intro">플레이리스트와 국가 또는 지역을 고르면 Trackhop이 아티스트들의 다가오는 콘서트를 찾아요. 백그라운드에서는 팔로우한(종) 아티스트만 확인해요.</string>
+    <string name="concerts_country">국가/지역</string>
     <string name="concerts_find">콘서트 찾기</string>
     <string name="concerts_progress">아티스트 %1$d / %2$d…</string>
     <string name="concerts_none_found">이 아티스트들의 다가오는 공연이 없어요.</string>
@@ -2531,7 +2531,7 @@
     <string name="alerts_weekly">매주</string>
     <string name="alerts_wifi">Wi‑Fi에서만</string>
     <string name="alerts_defaults">앞으로 팔로우할 아티스트</string>
-    <string name="alerts_concerts_where">콘서트는 %1$s에서 찾아요(콘서트에서 마지막으로 검색한 나라).</string>
+    <string name="alerts_concerts_where">콘서트는 %1$s에서 찾아요(콘서트에서 마지막으로 검색한 국가 또는 지역).</string>
     <string name="alerts_channel">아티스트 알림</string>
     <string name="alerts_channel_desc">발견에서 팔로우한 아티스트의 새 소식</string>
     <string name="alerts_news_single">%1$s 새 싱글</string>
@@ -3262,7 +3262,7 @@
     <string name="whats_new_21_account_title">계정 선택</string>
     <string name="whats_new_21_account_body">로그인할 때마다 어떤 계정을 쓸지 물어봐요. 처음 로그인할 때도요.</string>
     <string name="whats_new_21_koel_title">Koel과 더 많은 차트</string>
-    <string name="whats_new_21_koel_body">Koel 서버를 소스와 대상으로 쓸 수 있어요(베타). Apple Music의 일간 차트(전 세계, 국가별)와 도시 차트도요.</string>
+    <string name="whats_new_21_koel_body">Koel 서버를 소스와 대상으로 쓸 수 있어요(베타). Apple Music의 일간 차트(전 세계, 국가/지역별)와 도시 차트도요.</string>
     <string name="whats_new_21_formats_title">rekordbox, WPL, ZPL</string>
     <string name="whats_new_21_formats_body">rekordbox 컬렉션을 가져와 플레이리스트를 고르세요. Windows Media Player와 Zune 플레이리스트는 가져오기와 내보내기 모두 돼요.</string>
     <string name="whats_new_21_discover_title">발견의 새 기능</string>

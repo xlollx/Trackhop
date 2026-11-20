@@ -894,7 +894,7 @@
     <string name="unplayable_undo">元に戻す</string>
     <string name="unplayable_undo_last">前回の修正を元に戻す（%1$d）</string>
     <string name="unplayable_undone">%1$d 件の項目を戻しました</string>
-    <string name="unplayable_reason_market">お住まいの国では利用不可</string>
+    <string name="unplayable_reason_market">お住まいの国または地域では利用不可</string>
     <string name="unplayable_reason_product">プラン対象外</string>
     <string name="unplayable_reason_explicit">露骨な表現のフィルター</string>
     <string name="unplayable_reason_private">非公開動画</string>
@@ -1275,7 +1275,7 @@
     <string name="howto_organise_body"># お気に入り\nカードの ⋮ メニューの「お気に入りに追加」で同期に星が付きます。星付きの同期は「同期」の一番上に残り、「お気に入り」フィルタでそれだけを表示できます。順番の好きな位置に置きたいときは、設定 › 外観 ›「お気に入りを常に上に表示」をオフにします。\n# ラベル\nカードの ⋮ メニュー ›「スタイル」で色を選んで名前を付けると、その色の同期すべてが同じラベルになります。同じ画面で、カードに色をどう付けるかも選べます。\n# タグ\nエディターの「タグ」で、たとえば genre = metal のように同期を自由にまとめられます。値は省略できます。\n# 同期を探す\n「同期」の検索とフィルタで、名前・状態・ラベル・お気に入り・タグから同期を探せます。\n# 並べ替え\nカードを長押しして好きな位置にドラッグするか、⋮ ›「位置を指定して移動…」を使います。\n# サイズと表示\n• 設定 › 外観 ›「カードのサイズ」：大・中・小。\n•「ミニマル表示」では同期を小さなタイルのグリッドで表示します。タイルをタップするとカード全体を表示、長押しでメニュー、そのままドラッグで移動できます。\n• タブレットや横向きのスマホでは、タブが横のレールに移り、カードが列に並びます。</string>
     <string name="howto_discover_title">新作・コンサート・セットリスト・レコード</string>
     <string name="howto_discover_summary">プレイリストのアーティストの最新情報。</string>
-    <string name="howto_discover_body">「発見」タブは、プレイリストのアーティストについて、頼んだときだけ調べます。バックグラウンドで確認するのはフォロー中のアーティストだけです。「コンサート」「セットリスト」「レコードとグッズ」では、「アーティストを選ぶ」で調べる相手を指定できます。\n# 新作\n過去 7・30・90 日に出たアルバム、EP、シングルと、近日発売の作品。どのサービスにもプレイリストを作れるほか、「プレイリストに追加」で既存のプレイリストに入れたり、「毎週」で新作を追加し続ける同期を作れます。\n# コンサート\n国ごとの今後の公演日を「期間」で選んだ範囲で表示し、チケットへのリンクと「カレンダーに追加」があります。公演日が見つからないアーティストは、ボタンでチケットサイトを検索できます。\n# セットリスト\nアーティストがライブで演奏した曲を setlist.fm から表示します。公演を選んで、どのサービスにも新しいプレイリストを作るか、自分のプレイリストに追加できます。\n# レコードとグッズ\nDiscogs の CD・レコード・カセット、公式サイトと公式ショップ、ほかのショップでの検索。リンクだけで、購入は各サイトで行います。\n# フォロー中のアーティスト\nアーティストの横のベルをタップしてフォローし、「フォロー中のアーティスト」で知りたいことを選びます：新作、近くのコンサート、新しいグッズ、レコード。1日（または1週間）に1回 Trackhop が確認し、新しいことを1つの通知で送ります。最初の確認では、すでにあるものを記録するだけです。\n# キー\nTicketmaster の公演日とセットリストには、自分の無料キーが必要です。Discogs のトークンがあると、販売中の枚数と最安値も表示されます。設定 › 詳細設定 ›「サービスのキー」で追加でき、「キーを取得」で最初の手順が開きます。Ticketmaster のキーがない場合、公演日は MusicBrainz から取得します。setlist.fm キーがない場合、セットリストは MusicBrainz から取得します (公演数は少なめ)。\n# タブ\nカードを長押ししてドラッグすると順番を変えられ、「順番をリセット」で元に戻ります。設定 › 外観 ›「「発見」の画像」で、画像をオフにしたり Wi‑Fi のときだけにしたりできます。</string>
+    <string name="howto_discover_body">「発見」タブは、プレイリストのアーティストについて、頼んだときだけ調べます。バックグラウンドで確認するのはフォロー中のアーティストだけです。「コンサート」「セットリスト」「レコードとグッズ」では、「アーティストを選ぶ」で調べる相手を指定できます。\n# 新作\n過去 7・30・90 日に出たアルバム、EP、シングルと、近日発売の作品。どのサービスにもプレイリストを作れるほか、「プレイリストに追加」で既存のプレイリストに入れたり、「毎週」で新作を追加し続ける同期を作れます。\n# コンサート\n国または地域ごとの今後の公演日を「期間」で選んだ範囲で表示し、チケットへのリンクと「カレンダーに追加」があります。公演日が見つからないアーティストは、ボタンでチケットサイトを検索できます。\n# セットリスト\nアーティストがライブで演奏した曲を setlist.fm から表示します。公演を選んで、どのサービスにも新しいプレイリストを作るか、自分のプレイリストに追加できます。\n# レコードとグッズ\nDiscogs の CD・レコード・カセット、公式サイトと公式ショップ、ほかのショップでの検索。リンクだけで、購入は各サイトで行います。\n# フォロー中のアーティスト\nアーティストの横のベルをタップしてフォローし、「フォロー中のアーティスト」で知りたいことを選びます：新作、近くのコンサート、新しいグッズ、レコード。1日（または1週間）に1回 Trackhop が確認し、新しいことを1つの通知で送ります。最初の確認では、すでにあるものを記録するだけです。\n# キー\nTicketmaster の公演日とセットリストには、自分の無料キーが必要です。Discogs のトークンがあると、販売中の枚数と最安値も表示されます。設定 › 詳細設定 ›「サービスのキー」で追加でき、「キーを取得」で最初の手順が開きます。Ticketmaster のキーがない場合、公演日は MusicBrainz から取得します。setlist.fm キーがない場合、セットリストは MusicBrainz から取得します (公演数は少なめ)。\n# タブ\nカードを長押ししてドラッグすると順番を変えられ、「順番をリセット」で元に戻ります。設定 › 外観 ›「「発見」の画像」で、画像をオフにしたり Wi‑Fi のときだけにしたりできます。</string>
     <string name="howto_shared_title">共有プレイリスト</string>
     <string name="howto_shared_summary">グループでひとつのプレイリスト、それぞれ自分のサービスで。</string>
     <string name="howto_shared_body">ツール ›「共有プレイリスト」：同じサービスを使っていない人たちのための、ひとつのプレイリストです。各自が自分のサービスにコピーを持ち、Trackhop がコピーをそろえます。\n# 作成と参加\n「グループを作成」で名前を付け、自分のサービスとプレイリスト、グループの集まり方を選びます。「招待」で QR コードと送るためのリンクが表示されます。ほかの人は「リンクで参加」をタップし、「グループコード」があなたのものと一致するか確かめます。\n# グループの集まり方\n• 共有フォルダー：グループがすでに共有している Google Drive、Nextcloud、Dropbox、Syncthing のフォルダー。フォルダーを開ける人はグループを読めます。\n• 暗号化された ntfy チャンネル：変更は暗号化され、ntfy.sh か自分の ntfy サーバーを通ります。\n• 自分の Trackhop サーバー：変更は設定 › 詳細設定 ›「自分のサーバーと調整」で設定した Trackhop サーバーに集まります。サーバーの管理者はグループの曲を見られます。\nntfy チャンネルやサーバーでは、招待を持つ人は誰でもグループを読めます。招待する人にだけ送ってください。\n# 役割\nキュレーターの変更は全員に届きます。キュレーターはグループの作成者が選びます。ほかの人はフォローし、「完全なコピー」か「自分の追加を残す」を選べます。後者では自分で追加した曲は自分のプレイリストにだけ残ります。\n# 自分のサービスにない曲\n自分のサービスで見つからない曲が、ほかの人から消されることはありません。その曲は自分の同期のレビューで待ちます。\n# グループのページ\nメンバー、誰が何を変えたか、グループコード。「グループを退出」で変更の受信が止まり、プレイリストはそのまま残ります。</string>
@@ -1510,14 +1510,14 @@
     <string name="diag_range_week">過去7日間</string>
     <string name="diag_range_all">すべて</string>
     <string name="charts_label">チャート</string>
-    <string name="provider_note_charts">Apple Music（国別トップ100）と Deezer（国別・世界）の公開フィードのチャート。同期でチャートの変化に合わせてあなたのプレイリストを最新に保ちます。アカウント不要。</string>
+    <string name="provider_note_charts">Apple Music（国・地域別トップ100）と Deezer（国・地域別・世界）の公開フィードのチャート。同期でチャートの変化に合わせてあなたのプレイリストを最新に保ちます。アカウント不要。</string>
     <string name="charts_apple_name">Apple Music トップ100 · %1$s</string>
     <string name="charts_apple_list_name">Apple Music · %1$s</string>
     <string name="charts_deezer_name">Deezer · %1$s</string>
     <string name="charts_unknown">このチャートは利用できなくなりました。</string>
     <string name="charts_unavailable">%1$s がチャートを返しませんでした（%2$d）。後でもう一度お試しください。</string>
     <string name="whats_new_110_charts_title">チャートをソースに</string>
-    <string name="whats_new_110_charts_body">任意の国の Apple Music トップ100 や Deezer のチャートにプレイリストを合わせ続けます。新しい同期のソースに「チャート」を選んでください。</string>
+    <string name="whats_new_110_charts_body">任意の国または地域の Apple Music トップ100 や Deezer のチャートにプレイリストを合わせ続けます。新しい同期のソースに「チャート」を選んでください。</string>
     <string name="settings_automation">オートメーション（Tasker、MacroDroid など）</string>
     <string name="settings_automation_summary">オートメーションアプリから同期を実行し、終了を受け取れるようにします。端末上のどのアプリでもこれらのコマンドを送れるため、オンにするまではオフです。</string>
     <string name="settings_automation_how">ブロードキャストインテントを送信：com.xlollx.songport.action.RUN_ALL · com.xlollx.songport.action.RUN (extra sync = 名前) · event com.xlollx.songport.event.SYNC_FINISHED (sync, added, removed, notFound, toReview, ok, error)。アプリアイコンを長押しすると最近の同期へのショートカットがあります。</string>
@@ -1747,7 +1747,7 @@
     <string name="idea_liked_title">お気に入りの曲を共有できるプレイリストに</string>
     <string name="idea_liked_desc">お気に入りを本物のプレイリストにして常に最新に。リンクを誰にでも送れます。</string>
     <string name="idea_liked_target">お気に入りの曲</string>
-    <string name="idea_chart_title">あなたの国のチャートをライブラリに</string>
+    <string name="idea_chart_title">あなたの国または地域のチャートをライブラリに</string>
     <string name="idea_chart_desc">%1$s を %2$s のプレイリストに。毎日最新バージョンに更新します。</string>
     <string name="idea_dedupe_title">重複を整理</string>
     <string name="idea_dedupe_desc">プレイリスト内で 2 回出てくる曲を見つけて、余分なコピーを削除します。</string>
@@ -1865,7 +1865,7 @@
     <string name="whats_new_118_notify_title">好きな場所に通知</string>
     <string name="whats_new_118_notify_body">設定 › 通知 › 通知チャンネルで、同期で変更があったとき、失敗したとき、新作が見つかったときに Telegram・ntfy・Gotify・Discord・Slack・Matrix・Pushover へメッセージを送れます。キーはこのスマートフォンに暗号化して保存されます。</string>
     <string name="whats_new_118_concerts_title">アーティストのコンサート</string>
-    <string name="whats_new_118_concerts_body">発見 › コンサートで、プレイリストのアーティストの選んだ国での公演予定を Ticketmaster と MusicBrainz から確認できます。予定が見つからなくても、ワンタップでチケットサイトを検索できます。</string>
+    <string name="whats_new_118_concerts_body">発見 › コンサートで、プレイリストのアーティストの選んだ国または地域での公演予定を Ticketmaster と MusicBrainz から確認できます。予定が見つからなくても、ワンタップでチケットサイトを検索できます。</string>
     <string name="whats_new_118_setlists_title">セットリストをプレイリストに</string>
     <string name="whats_new_118_setlists_body">発見 › セットリストで、プレイリストのアーティストがライブで演奏した曲を setlist.fm から確認できます。公演を選んで、どのサービスにもプレイリストを作れます。無料の setlist.fm キーは 設定 › 詳細設定 › サービスのキー で追加してください。</string>
     <string name="whats_new_118_records_title">レコードとグッズ</string>
@@ -2172,8 +2172,8 @@
     <string name="notify_field_pushover_user">ユーザーキー</string>
     <string name="discover_concerts_title">コンサート</string>
     <string name="discover_concerts_desc">プレイリストのアーティストの今後の公演</string>
-    <string name="concerts_intro">プレイリストと国を選ぶと、Trackhop がアーティストの今後のコンサートを探します。バックグラウンドではフォロー中（ベル）のアーティストだけを確認します。</string>
-    <string name="concerts_country">国</string>
+    <string name="concerts_intro">プレイリストと国または地域を選ぶと、Trackhop がアーティストの今後のコンサートを探します。バックグラウンドではフォロー中（ベル）のアーティストだけを確認します。</string>
+    <string name="concerts_country">国/地域</string>
     <string name="concerts_find">コンサートを探す</string>
     <string name="concerts_progress">アーティスト %1$d / %2$d…</string>
     <string name="concerts_none_found">これらのアーティストの今後の公演は見つかりませんでした。</string>
@@ -2532,7 +2532,7 @@
     <string name="alerts_weekly">毎週</string>
     <string name="alerts_wifi">Wi‑Fi のときだけ</string>
     <string name="alerts_defaults">これからフォローするアーティスト</string>
-    <string name="alerts_concerts_where">コンサートは %1$s で探します（「コンサート」で最後に検索した国）。</string>
+    <string name="alerts_concerts_where">コンサートは %1$s で探します（「コンサート」で最後に検索した国または地域）。</string>
     <string name="alerts_channel">アーティストのお知らせ</string>
     <string name="alerts_channel_desc">「発見」でフォローしたアーティストの新着</string>
     <string name="alerts_news_single">%1$s の新しいシングル</string>
@@ -3263,7 +3263,7 @@
     <string name="whats_new_21_account_title">アカウントを選択</string>
     <string name="whats_new_21_account_body">サインインのたびに、使うアカウントを聞きます。最初のときも同じです。</string>
     <string name="whats_new_21_koel_title">Koel とチャートの追加</string>
-    <string name="whats_new_21_koel_body">Koel サーバーをソースにも同期先にも（ベータ）。Apple Music のデイリーチャート（世界・各国）と都市別チャート。</string>
+    <string name="whats_new_21_koel_body">Koel サーバーをソースにも同期先にも（ベータ）。Apple Music のデイリーチャート（世界・各国・地域）と都市別チャート。</string>
     <string name="whats_new_21_formats_title">rekordbox、WPL、ZPL</string>
     <string name="whats_new_21_formats_body">rekordbox のコレクションを読み込み、プレイリストを選べます。Windows Media Player と Zune のプレイリストは読み込みも書き出しも。</string>
     <string name="whats_new_21_discover_title">発見に新機能</string>

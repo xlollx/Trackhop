@@ -904,7 +904,7 @@
     <string name="unplayable_undo">Geri al</string>
     <string name="unplayable_undo_last">Son düzeltmeyi geri al (%1$d)</string>
     <string name="unplayable_undone">%1$d kayıt geri kondu</string>
-    <string name="unplayable_reason_market">Ülkende yok</string>
+    <string name="unplayable_reason_market">Ülkende veya bölgende yok</string>
     <string name="unplayable_reason_product">Planında yok</string>
     <string name="unplayable_reason_explicit">Müstehcen filtresi</string>
     <string name="unplayable_reason_private">Özel video</string>
@@ -1301,7 +1301,7 @@
     <string name="howto_organise_body"># Favoriler\nBir kartın ⋮ menüsünde Favorilere ekle, senkronizasyona bir yıldız verir. Yıldızlılar Senkronizasyonlar\'ın en üstünde kalır ve Favoriler filtresi yalnızca onları gösterir. Onları sıranın herhangi bir yerine koymak için Ayarlar › Görünüm › Favoriler her zaman üstte\'yi kapat.\n# Renk adları\nBir kartın ⋮ menüsü › Stil\'de bir renk seç ve ona bir ad ver: o renkteki tüm senkronizasyonlar bu adı paylaşır. Aynı pencere kartın rengini nasıl taşıyacağını da seçer.\n# Etiketler\nDüzenleyicide Etiketler senkronizasyonları kendi istediğin gibi gruplar, örneğin tür = metal. Değer isteğe bağlıdır.\n# Bir senkronizasyonu bulmak\nSenkronizasyonlar\'daki arama ve filtreler; ada, duruma, renk adına, favorilere ya da etikete göre bulur.\n# Sıra\nBir karta basılı tut ve yeni bir yere sürükle ya da ⋮ › Konuma taşı… seçeneğini kullan.\n# Boyut ve görünüm\n• Ayarlar › Görünüm › Kart boyutu: büyük, orta ya da küçük.\n• Minimal görünüm, senkronizasyonları ızgarada küçük kutucuklar olarak gösterir. Kartın tamamını görmek için kutucuğa dokun; menüsü için basılı tut ya da sürükle.\n• Tablette ya da yan çevrilmiş telefonda sekmeler yan çubuğa geçer ve kartlar sütunlara dizilir.</string>
     <string name="howto_discover_title">Yeni çıkanlar, konserler, setlistler, plaklar</string>
     <string name="howto_discover_summary">Çalma listelerindeki sanatçılar neler yapıyor.</string>
-    <string name="howto_discover_body">Keşfet sekmesi, çalma listelerinden birindeki sanatçılar hakkında yalnızca sen istediğinde bilgi arar: arka planda yalnızca takip ettiğin sanatçılar kontrol edilir. Konserler, Setlistler ve Plaklar ve merch\'te Sanatçıları seç, kimlerin aranacağını belirler.\n# Yeni çıkanlar\nSon 7, 30 ya da 90 günün yeni albümleri, EP\'leri ve single\'ları, bir de yakında çıkacaklar. Herhangi bir serviste bir çalma listesi oluştur, zaten olan bir listeye Bir çalma listesine ekle ile ekle ya da çıkanları ekleyen bir senkronizasyon için Her hafta\'yı seç.\n# Konserler\nBir ülkedeki yaklaşan tarihler, Ne zaman\'da seçtiğin aralıkta, bilet bağlantıları ve Takvime ekle ile. Bir sanatçı için tarih yok mu? Düğmeler bilet sitelerinde arar.\n# Setlistler\nSanatçıların canlı çaldıkları, setlist.fm\'den. Bir konser seç: herhangi bir serviste yeni bir çalma listesi yap ya da kendi listelerinden birine ekle.\n# Plaklar ve merch\nDiscogs\'taki CD\'ler, plaklar ve kasetler, resmi siteler ve mağazalar, diğer mağazalarda aramalar. Yalnızca bağlantılar: satın alma onların sitelerinde.\n# Takip edilen sanatçılar\nBir sanatçıyı takip etmek için yanındaki zile dokun, sonra Takip edilen sanatçılar\'da neyi duymak istediğini seç: yeni çıkanlar, yakınındaki konserler, yeni merch, plaklar. Günde (ya da haftada) bir kez Trackhop onları kontrol eder ve yenilikleri tek bir bildirimle gönderir. İlk kontrol yalnızca var olanı not eder.\n# Anahtarlar\nTicketmaster konser tarihleri ve setlistler için kendi ücretsiz anahtarın gerekir; bir Discogs jetonu satıştaki kopyaları ve en düşük fiyatı ekler. Bunları Ayarlar › Gelişmiş › Servis anahtarları\'na ekle: Anahtar al ilk adımı açar. Ticketmaster anahtarı yoksa tarihler MusicBrainz\'den gelir. setlist.fm anahtarı yoksa setlistler daha az konser için MusicBrainz\'den gelir.\n# Sekme\nSırayı değiştirmek için bir karta basılı tut ve sürükle; Sırayı sıfırla eski haline getirir. Ayarlar › Görünüm › Keşfet\'te görseller, görselleri kapatır ya da yalnızca Wi‑Fi\'de gösterir.</string>
+    <string name="howto_discover_body">Keşfet sekmesi, çalma listelerinden birindeki sanatçılar hakkında yalnızca sen istediğinde bilgi arar: arka planda yalnızca takip ettiğin sanatçılar kontrol edilir. Konserler, Setlistler ve Plaklar ve merch\'te Sanatçıları seç, kimlerin aranacağını belirler.\n# Yeni çıkanlar\nSon 7, 30 ya da 90 günün yeni albümleri, EP\'leri ve single\'ları, bir de yakında çıkacaklar. Herhangi bir serviste bir çalma listesi oluştur, zaten olan bir listeye Bir çalma listesine ekle ile ekle ya da çıkanları ekleyen bir senkronizasyon için Her hafta\'yı seç.\n# Konserler\nBir ülke veya bölgedeki yaklaşan tarihler, Ne zaman\'da seçtiğin aralıkta, bilet bağlantıları ve Takvime ekle ile. Bir sanatçı için tarih yok mu? Düğmeler bilet sitelerinde arar.\n# Setlistler\nSanatçıların canlı çaldıkları, setlist.fm\'den. Bir konser seç: herhangi bir serviste yeni bir çalma listesi yap ya da kendi listelerinden birine ekle.\n# Plaklar ve merch\nDiscogs\'taki CD\'ler, plaklar ve kasetler, resmi siteler ve mağazalar, diğer mağazalarda aramalar. Yalnızca bağlantılar: satın alma onların sitelerinde.\n# Takip edilen sanatçılar\nBir sanatçıyı takip etmek için yanındaki zile dokun, sonra Takip edilen sanatçılar\'da neyi duymak istediğini seç: yeni çıkanlar, yakınındaki konserler, yeni merch, plaklar. Günde (ya da haftada) bir kez Trackhop onları kontrol eder ve yenilikleri tek bir bildirimle gönderir. İlk kontrol yalnızca var olanı not eder.\n# Anahtarlar\nTicketmaster konser tarihleri ve setlistler için kendi ücretsiz anahtarın gerekir; bir Discogs jetonu satıştaki kopyaları ve en düşük fiyatı ekler. Bunları Ayarlar › Gelişmiş › Servis anahtarları\'na ekle: Anahtar al ilk adımı açar. Ticketmaster anahtarı yoksa tarihler MusicBrainz\'den gelir. setlist.fm anahtarı yoksa setlistler daha az konser için MusicBrainz\'den gelir.\n# Sekme\nSırayı değiştirmek için bir karta basılı tut ve sürükle; Sırayı sıfırla eski haline getirir. Ayarlar › Görünüm › Keşfet\'te görseller, görselleri kapatır ya da yalnızca Wi‑Fi\'de gösterir.</string>
     <string name="howto_shared_title">Ortak çalma listeleri</string>
     <string name="howto_shared_summary">Bir grup için tek liste, herkes kendi servisinde.</string>
     <string name="howto_shared_body">Araçlar › Ortak çalma listeleri: aynı servisi kullanmayan kişiler için tek bir çalma listesi. Herkes kendi servisinde kendi kopyasını tutar, Trackhop da kopyaları aynı tutar.\n# Oluştur ya da katıl\nGrup oluştur: bir ad ver, servisini, çalma listeni ve grubun nasıl buluşacağını seç. Davet, gönderilecek bir QR kodu ve bağlantı gösterir. Diğerleri Bağlantıyla katıl\'a dokunur ve Grup kodu\'nun seninkiyle aynı olduğunu kontrol eder.\n# Grup nasıl buluşur\n• Ortak klasör: grubun zaten paylaştığı bir Google Drive, Nextcloud, Dropbox ya da Syncthing klasörü. Klasörü açabilen herkes grubu okuyabilir.\n• Şifreli ntfy kanalı: değişiklikler ntfy.sh ya da kendi ntfy sunucun üzerinden şifreli gider.\n• Trackhop sunucum: değişiklikler, Ayarlar › Gelişmiş › Sunucumla eşgüdüm sağla\'da ayarlanan Trackhop sunucunda buluşur. Onu yöneten kişi grubun şarkılarını görebilir.\nntfy kanalında ya da sunucuda daveti olan herkes grubu okuyabilir: daveti yalnızca davet ettiğin kişilere gönder.\n# Roller\nBir Küratör\'ün değişiklikleri herkese ulaşır; grubu oluşturan kişi küratörleri seçer. Diğerleri Birebir kopya olarak ya da Eklediklerimi tut ile takip eder; böylece ekledikleri yalnızca kendi listelerinde kalır.\n# Servisinde olmayan şarkılar\nServisinin bulamadığı bir şarkı diğerlerinden asla kaldırılmaz: senkronizasyonunun incelemesinde bekler.\n# Grubun sayfası\nÜyeler, kimin neyi değiştirdiği ve grup kodu. Gruptan ayrıl değişiklikleri durdurur; çalma listen olduğu gibi kalır.</string>
@@ -1539,14 +1539,14 @@
     <string name="diag_range_week">Son 7 gün</string>
     <string name="diag_range_all">Tümü</string>
     <string name="charts_label">Listeler</string>
-    <string name="provider_note_charts">Apple Music (ülkeye göre Top 100) ve Deezer (ülkeye göre ve dünya) listeleri, herkese açık akışlarından: eşitleme, liste değiştikçe çalma listeni güncel tutar. Hesap gerekmez.</string>
+    <string name="provider_note_charts">Apple Music (ülkeye veya bölgeye göre Top 100) ve Deezer (ülkeye veya bölgeye göre ve dünya) listeleri, herkese açık akışlarından: eşitleme, liste değiştikçe çalma listeni güncel tutar. Hesap gerekmez.</string>
     <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
     <string name="charts_apple_list_name">Apple Music · %1$s</string>
     <string name="charts_deezer_name">Deezer · %1$s</string>
     <string name="charts_unknown">Bu liste artık yok.</string>
     <string name="charts_unavailable">%1$s listeyi döndürmedi (%2$d): daha sonra tekrar dene.</string>
     <string name="whats_new_110_charts_title">Kaynak olarak listeler</string>
-    <string name="whats_new_110_charts_body">Bir çalma listeni herhangi bir ülkenin Apple Music Top 100\'üne ya da Deezer listelerine uygun tut: yeni bir eşitlemenin kaynağı olarak "Listeler"i seç.</string>
+    <string name="whats_new_110_charts_body">Bir çalma listeni herhangi bir ülkenin veya bölgenin Apple Music Top 100\'üne ya da Deezer listelerine uygun tut: yeni bir eşitlemenin kaynağı olarak "Listeler"i seç.</string>
     <string name="settings_automation">Otomasyon (Tasker, MacroDroid…)</string>
     <string name="settings_automation_summary">Otomasyon uygulamalarının eşitlemelerini başlatmasını ve biri bittiğinde haber almasını sağlar. Telefondaki her uygulama bu komutları gönderebileceği için sen açana kadar kapalıdır.</string>
     <string name="settings_automation_how">Bir broadcast intent gönder: com.xlollx.songport.action.RUN_ALL · com.xlollx.songport.action.RUN (extra sync = ad) · event com.xlollx.songport.event.SYNC_FINISHED (sync, added, removed, notFound, toReview, ok, error). Son eşitlemelerin kısayolları için uygulama simgesine uzun bas.</string>
@@ -1776,7 +1776,7 @@
     <string name="idea_liked_title">Beğenilen şarkılar paylaşılabilir bir çalma listesi olarak</string>
     <string name="idea_liked_desc">Beğenilerin gerçek bir çalma listesinde, hep güncel: bağlantısını istediğine gönder.</string>
     <string name="idea_liked_target">Beğendiğim şarkılar</string>
-    <string name="idea_chart_title">Ülkenin listesi kitaplığında</string>
+    <string name="idea_chart_title">Ülkenin veya bölgenin listesi kitaplığında</string>
     <string name="idea_chart_desc">%1$s, %2$s üzerinde bir çalma listesi olarak, her gün en son sürümüyle.</string>
     <string name="idea_dedupe_title">Kopyaları temizle</string>
     <string name="idea_dedupe_desc">Bir çalma listesinde iki kez geçen şarkıları bulur ve fazla kopyaları kaldırır.</string>
@@ -1895,7 +1895,7 @@
     <string name="whats_new_118_notify_title">Mesajlar istediğin yerde</string>
     <string name="whats_new_118_notify_body">Ayarlar › Bildirimler › Bildirim kanalları, bir eşitleme bir şey değiştirdiğinde, başarısız olduğunda ya da yeni çıkanlar bulduğunda Telegram, ntfy, Gotify, Discord, Slack, Matrix veya Pushover\'dan mesaj gönderir. Anahtarları bu telefonda şifreli kalır.</string>
     <string name="whats_new_118_concerts_title">Sanatçılarının konserleri</string>
-    <string name="whats_new_118_concerts_body">Keşfet › Konserler, bir çalma listesindeki sanatçıların ülkendeki yaklaşan tarihlerini Ticketmaster ve MusicBrainz\'den listeler. Tarihi olmayan mı var? Tek dokunuşla bilet sitelerinde ara.</string>
+    <string name="whats_new_118_concerts_body">Keşfet › Konserler, bir çalma listesindeki sanatçıların ülkendeki veya bölgendeki yaklaşan tarihlerini Ticketmaster ve MusicBrainz\'den listeler. Tarihi olmayan mı var? Tek dokunuşla bilet sitelerinde ara.</string>
     <string name="whats_new_118_setlists_title">Setlistler çalma listesi oluyor</string>
     <string name="whats_new_118_setlists_body">Keşfet › Setlistler, bir çalma listesindeki sanatçıların canlı ne çaldığını setlist.fm\'den gösterir. Bir konser seç ve onu herhangi bir serviste çalma listesi yap. Kendi ücretsiz setlist.fm anahtarını Ayarlar › Gelişmiş › Servis anahtarları bölümüne ekle.</string>
     <string name="whats_new_118_records_title">Plaklar ve merch</string>
@@ -2209,8 +2209,8 @@
     <string name="notify_field_pushover_user">User key</string>
     <string name="discover_concerts_title">Konserler</string>
     <string name="discover_concerts_desc">Bir çalma listesindeki sanatçıların yaklaşan tarihleri</string>
-    <string name="concerts_intro">Bir çalma listesi ve ülke seç: Trackhop sanatçılarının yaklaşan konserlerini arar. Arka planda yalnızca takip ettiğin sanatçılar (zil).</string>
-    <string name="concerts_country">Ülke</string>
+    <string name="concerts_intro">Bir çalma listesi ve ülke veya bölge seç: Trackhop sanatçılarının yaklaşan konserlerini arar. Arka planda yalnızca takip ettiğin sanatçılar (zil).</string>
+    <string name="concerts_country">Ülke/Bölge</string>
     <string name="concerts_find">Konser ara</string>
     <string name="concerts_progress">Sanatçı %1$d / %2$d…</string>
     <string name="concerts_none_found">Bu sanatçılar için yaklaşan tarih yok.</string>
@@ -2581,7 +2581,7 @@
     <string name="alerts_weekly">Her hafta</string>
     <string name="alerts_wifi">Yalnızca Wi‑Fi\'da</string>
     <string name="alerts_defaults">Bundan sonra takip ettiğin sanatçılar için</string>
-    <string name="alerts_concerts_where">Konserler %1$s içinde aranır: Konserler\'deki son aramanın ülkesi.</string>
+    <string name="alerts_concerts_where">Konserler %1$s içinde aranır: Konserler\'deki son aramanın ülkesi veya bölgesi.</string>
     <string name="alerts_channel">Sanatçı uyarıları</string>
     <string name="alerts_channel_desc">Keşfet\'te takip ettiğin sanatçılardan yenilikler</string>
     <string name="alerts_news_single">%1$s: yeni single</string>
@@ -3359,7 +3359,7 @@
     <string name="whats_new_21_account_title">Hesabı seç</string>
     <string name="whats_new_21_account_body">Her girişte hangi hesabın kullanılacağı sorulur, ilkinde de.</string>
     <string name="whats_new_21_koel_title">Koel ve daha fazla liste</string>
-    <string name="whats_new_21_koel_body">Koel sunucun kaynak ve hedef olarak (beta). Apple Music\'in günlük listeleri, dünya ve her ülke için, ve şehir listeleri.</string>
+    <string name="whats_new_21_koel_body">Koel sunucun kaynak ve hedef olarak (beta). Apple Music\'in günlük listeleri, dünya ve her ülke veya bölge için, ve şehir listeleri.</string>
     <string name="whats_new_21_formats_title">rekordbox, WPL ve ZPL</string>
     <string name="whats_new_21_formats_body">Bir rekordbox koleksiyonunu içe aktar ve listelerini seç. Windows Media Player ve Zune listeleri, içe ve dışa.</string>
     <string name="whats_new_21_discover_title">Keşfet\'te daha fazlası</string>
