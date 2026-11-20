@@ -1275,7 +1275,7 @@
     <string name="howto_organise_body"># 收藏\n在卡片的 ⋮ 菜单中点“加入收藏”，同步就会带上星标。带星标的同步留在“同步”顶部，“收藏”筛选只显示它们。想把它们放在任意位置，请关闭 设置 › 外观 ›“收藏始终置顶”。\n# 色标\n在卡片的 ⋮ 菜单 ›“样式”中选一种颜色并给它起名：这种颜色的所有同步共用这个色标。同一个窗口还能选择卡片如何显示颜色。\n# 标签\n在编辑器的“标签”中按你的方式给同步分组，例如 genre = metal。值可以不填。\n# 查找同步\n“同步”中的搜索和筛选可按名称、状态、色标、收藏或标签查找。\n# 顺序\n长按卡片并拖到新位置，或使用 ⋮ ›“移动到指定位置…”。\n# 大小和视图\n• 设置 › 外观 ›“卡片大小”：大、中、小。\n•“简洁视图”把同步显示为网格中的小方块。点一下方块查看完整卡片；长按打开菜单，或直接拖动。\n• 在平板或横放的手机上，标签页移到侧边栏，卡片按列排列。</string>
     <string name="howto_discover_title">新发行、演唱会、演出曲目、唱片</string>
     <string name="howto_discover_summary">你歌单里的艺人最近在做什么。</string>
-    <string name="howto_discover_body">“发现”标签页只在你要求时才查询你某个歌单中艺人的信息，后台只会查看你关注的艺人。在“演唱会”“演出曲目”和“唱片与周边”中，“选择艺人”可指定要查的艺人。\n# 新发行\n最近 7、30 或 90 天的新专辑、EP 和单曲，以及即将发行的作品。可以在任何服务上创建歌单，用“添加到播放列表”放进已有歌单，或选“每周”创建一个持续添加新作的同步。\n# 演唱会\n某个国家在“时间”所选范围内的近期演出，附购票链接和“添加到日历”。某位艺人没有日期？按钮会在票务网站上搜索。\n# 演出曲目\n艺人现场演唱的曲目，来自 setlist.fm。选一场演出，在任何服务上生成新歌单，或加入你已有的歌单。\n# 唱片与周边\nDiscogs 上的 CD、黑胶和磁带，官方网站和官方商店，以及在其他商店中的搜索。只有链接：在它们的网站上购买。\n# 关注的艺人\n点艺人旁边的铃铛即可关注，然后在“关注的艺人”中选择想知道的内容：新发行、附近的演唱会、新周边、唱片。Trackhop 每天（或每周）查看一次，并用一条通知发送新内容。第一次查看只会记下已有的内容。\n# 密钥\nTicketmaster 的演出日期和演出曲目需要你自己的免费密钥；Discogs 令牌还会显示在售数量和最低价格。在 设置 › 高级 ›“服务密钥”中添加，点“获取密钥”打开第一步。没有 Ticketmaster 密钥时，日期来自 MusicBrainz。没有 setlist.fm 密钥时，演出曲目来自 MusicBrainz，覆盖的演出较少。\n# 这个标签页\n长按卡片并拖动可调整顺序，“恢复默认顺序”可还原。设置 › 外观 ›“发现中的图片”可关闭图片，或只在 Wi‑Fi 下显示。</string>
+    <string name="howto_discover_body">“发现”标签页只在你要求时才查询你某个歌单中艺人的信息，后台只会查看你关注的艺人。在“演唱会”“演出曲目”和“唱片与周边”中，“选择艺人”可指定要查的艺人。\n# 新发行\n最近 7、30 或 90 天的新专辑、EP 和单曲，以及即将发行的作品。可以在任何服务上创建歌单，用“添加到播放列表”放进已有歌单，或选“每周”创建一个持续添加新作的同步。\n# 演唱会\n某个国家/地区在“时间”所选范围内的近期演出，附购票链接和“添加到日历”。某位艺人没有日期？按钮会在票务网站上搜索。\n# 演出曲目\n艺人现场演唱的曲目，来自 setlist.fm。选一场演出，在任何服务上生成新歌单，或加入你已有的歌单。\n# 唱片与周边\nDiscogs 上的 CD、黑胶和磁带，官方网站和官方商店，以及在其他商店中的搜索。只有链接：在它们的网站上购买。\n# 关注的艺人\n点艺人旁边的铃铛即可关注，然后在“关注的艺人”中选择想知道的内容：新发行、附近的演唱会、新周边、唱片。Trackhop 每天（或每周）查看一次，并用一条通知发送新内容。第一次查看只会记下已有的内容。\n# 密钥\nTicketmaster 的演出日期和演出曲目需要你自己的免费密钥；Discogs 令牌还会显示在售数量和最低价格。在 设置 › 高级 ›“服务密钥”中添加，点“获取密钥”打开第一步。没有 Ticketmaster 密钥时，日期来自 MusicBrainz。没有 setlist.fm 密钥时，演出曲目来自 MusicBrainz，覆盖的演出较少。\n# 这个标签页\n长按卡片并拖动可调整顺序，“恢复默认顺序”可还原。设置 › 外观 ›“发现中的图片”可关闭图片，或只在 Wi‑Fi 下显示。</string>
     <string name="howto_shared_title">共享歌单</string>
     <string name="howto_shared_summary">一个小组共用一个歌单，各自用自己的服务。</string>
     <string name="howto_shared_body">工具 ›“共享歌单”：给不都用同一服务的人共用的一个歌单。每人在自己的服务上保留一份副本，Trackhop 让各副本保持一致。\n# 创建或加入\n“创建小组”：起个名字，选择你的服务、歌单以及小组的交汇方式。“邀请”会显示二维码和可发送的链接。其他人点“通过链接加入”，并核对“群组代码”与你的一致。\n# 小组如何交汇\n• 共享文件夹：小组已经在共享的 Google Drive、Nextcloud、Dropbox 或 Syncthing 文件夹。能打开文件夹的人就能读取小组内容。\n• 加密的 ntfy 频道：更改经 ntfy.sh 或你自己的 ntfy 服务器加密传递。\n• 我的 Trackhop 服务器：更改在 设置 › 高级 ›“与我的服务器协调”中设置的 Trackhop 服务器上交汇。服务器的管理者能看到小组的歌曲。\n使用 ntfy 频道或服务器时，拿到邀请的任何人都能读取小组内容：只发给你邀请的人。\n# 角色\n策展人的更改会到达所有人；由小组创建者指定策展人。其他人关注，可选“完全一致”或“保留我添加的”，后者让自己添加的歌只留在自己的歌单里。\n# 你的服务没有的歌\n你的服务找不到的歌，永远不会从其他人那里删除：它会在你的同步审核中等待。\n# 小组页面\n成员、谁改了什么以及群组代码。“退出小组”会停止接收更改，你的歌单保持原样。</string>
@@ -1510,14 +1510,14 @@
     <string name="diag_range_week">最近 7 天</string>
     <string name="diag_range_all">全部</string>
     <string name="charts_label">排行榜</string>
-    <string name="provider_note_charts">Apple Music（各国 Top 100）和 Deezer（各国及全球）公开源的排行榜：同步会随排行榜变化更新你的歌单。无需账户。</string>
+    <string name="provider_note_charts">Apple Music（各国家/地区 Top 100）和 Deezer（各国家/地区及全球）公开源的排行榜：同步会随排行榜变化更新你的歌单。无需账户。</string>
     <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
     <string name="charts_apple_list_name">Apple Music · %1$s</string>
     <string name="charts_deezer_name">Deezer · %1$s</string>
     <string name="charts_unknown">此排行榜已不可用。</string>
     <string name="charts_unavailable">%1$s 未返回排行榜（%2$d）：请稍后再试。</string>
     <string name="whats_new_110_charts_title">排行榜作为来源</string>
-    <string name="whats_new_110_charts_body">让你的歌单跟上任意国家的 Apple Music Top 100 或 Deezer 排行榜：在新同步中选择“排行榜”作为来源。</string>
+    <string name="whats_new_110_charts_body">让你的歌单跟上任意国家/地区的 Apple Music Top 100 或 Deezer 排行榜：在新同步中选择“排行榜”作为来源。</string>
     <string name="settings_automation">自动化（Tasker、MacroDroid…）</string>
     <string name="settings_automation_summary">允许自动化应用运行你的同步，并在同步结束时收到通知。手机上的任何应用都能发送这些命令，所以在你开启前保持关闭。</string>
     <string name="settings_automation_how">发送广播 Intent：com.xlollx.songport.action.RUN_ALL · com.xlollx.songport.action.RUN (extra sync = 名称) · event com.xlollx.songport.event.SYNC_FINISHED (sync, added, removed, notFound, toReview, ok, error)。长按应用图标可使用最近同步的快捷方式。</string>
@@ -1747,7 +1747,7 @@
     <string name="idea_liked_title">把喜欢的歌曲变成可分享的歌单</string>
     <string name="idea_liked_desc">把你喜欢的歌放进一个真正的歌单，随时保持最新：把链接发给任何人。</string>
     <string name="idea_liked_target">我喜欢的歌曲</string>
-    <string name="idea_chart_title">你所在国家的排行榜，放进你的音乐库</string>
+    <string name="idea_chart_title">你所在国家/地区的排行榜，放进你的音乐库</string>
     <string name="idea_chart_desc">%1$s 作为 %2$s 上的歌单，每天更新为最新版本。</string>
     <string name="idea_dedupe_title">清理重复歌曲</string>
     <string name="idea_dedupe_desc">找出歌单中出现两次的歌曲，并删除多余的副本。</string>
@@ -1865,7 +1865,7 @@
     <string name="whats_new_118_notify_title">消息发到你想要的地方</string>
     <string name="whats_new_118_notify_body">设置 › 通知 › 通知渠道会在同步有变动、失败或发现新发行时，通过 Telegram、ntfy、Gotify、Discord、Slack、Matrix 或 Pushover 给你发消息。它们的密钥加密保存在这台手机上。</string>
     <string name="whats_new_118_concerts_title">艺人的演唱会</string>
-    <string name="whats_new_118_concerts_body">发现 › 演唱会会从 Ticketmaster 和 MusicBrainz 列出歌单中艺人在你所选国家的近期演出。没有日期？轻点一下即可在票务网站上搜索。</string>
+    <string name="whats_new_118_concerts_body">发现 › 演唱会会从 Ticketmaster 和 MusicBrainz 列出歌单中艺人在你所选国家/地区的近期演出。没有日期？轻点一下即可在票务网站上搜索。</string>
     <string name="whats_new_118_setlists_title">把演出曲目变成歌单</string>
     <string name="whats_new_118_setlists_body">发现 › 演出曲目会从 setlist.fm 显示歌单中艺人在现场演奏过的歌。选一场演出，在任何服务上生成歌单。请在 设置 › 高级 › 服务密钥 中添加你自己的免费 setlist.fm 密钥。</string>
     <string name="whats_new_118_records_title">唱片与周边</string>
@@ -2172,8 +2172,8 @@
     <string name="notify_field_pushover_user">用户密钥</string>
     <string name="discover_concerts_title">演唱会</string>
     <string name="discover_concerts_desc">歌单中艺人的近期演出</string>
-    <string name="concerts_intro">选择一个歌单和国家：Trackhop 会查找其中艺人的近期演唱会。后台只查看你关注（铃铛）的艺人。</string>
-    <string name="concerts_country">国家</string>
+    <string name="concerts_intro">选择一个歌单和国家/地区：Trackhop 会查找其中艺人的近期演唱会。后台只查看你关注（铃铛）的艺人。</string>
+    <string name="concerts_country">国家/地区</string>
     <string name="concerts_find">查找演唱会</string>
     <string name="concerts_progress">第 %1$d 位艺人，共 %2$d 位…</string>
     <string name="concerts_none_found">这些艺人暂无近期演出。</string>
@@ -2532,7 +2532,7 @@
     <string name="alerts_weekly">每周</string>
     <string name="alerts_wifi">仅限 Wi‑Fi</string>
     <string name="alerts_defaults">之后关注的艺人</string>
-    <string name="alerts_concerts_where">演唱会在%1$s查找（你在“演唱会”中最后搜索的国家）。</string>
+    <string name="alerts_concerts_where">演唱会在%1$s查找（你在“演唱会”中最后搜索的国家/地区）。</string>
     <string name="alerts_channel">艺人提醒</string>
     <string name="alerts_channel_desc">你在“发现”中关注的艺人的新动态</string>
     <string name="alerts_news_single">%1$s 新单曲</string>
@@ -3254,7 +3254,7 @@
     <string name="whats_new_21_account_title">选择账号</string>
     <string name="whats_new_21_account_body">每次登录都会询问使用哪个账号，第一次也是。</string>
     <string name="whats_new_21_koel_title">Koel 和更多排行榜</string>
-    <string name="whats_new_21_koel_body">你的 Koel 服务器可作为来源和目标（测试版）。Apple Music 的每日排行榜（全球和各国）以及城市排行榜。</string>
+    <string name="whats_new_21_koel_body">你的 Koel 服务器可作为来源和目标（测试版）。Apple Music 的每日排行榜（全球和各国家/地区）以及城市排行榜。</string>
     <string name="whats_new_21_formats_title">rekordbox、WPL 和 ZPL</string>
     <string name="whats_new_21_formats_body">导入 rekordbox 收藏并选择其中的歌单。Windows Media Player 和 Zune 歌单，可导入也可导出。</string>
     <string name="whats_new_21_discover_title">“发现”里的新内容</string>

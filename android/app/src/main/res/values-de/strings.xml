@@ -906,7 +906,7 @@
     <string name="unplayable_undo">Rückgängig</string>
     <string name="unplayable_undo_last">Letzte Korrektur rückgängig (%1$d)</string>
     <string name="unplayable_undone">%1$d Einträge zurückgesetzt</string>
-    <string name="unplayable_reason_market">Nicht in deinem Land</string>
+    <string name="unplayable_reason_market">Nicht in deinem Land oder deiner Region</string>
     <string name="unplayable_reason_product">Nicht in deinem Abo</string>
     <string name="unplayable_reason_explicit">Explizit-Filter</string>
     <string name="unplayable_reason_private">Privates Video</string>
@@ -1303,7 +1303,7 @@
     <string name="howto_organise_body"># Favoriten\nIm ⋮-Menü einer Karte gibt Zu Favoriten hinzufügen dem Sync einen Stern. Syncs mit Stern bleiben oben in Syncs, und der Filter Favoriten zeigt nur sie. Schalte Einstellungen › Darstellung › Favoriten immer oben aus, um sie überall in der Reihenfolge zu platzieren.\n# Labels\nIm ⋮-Menü einer Karte › Stil wählst du eine Farbe und gibst ihr einen Namen: Alle Syncs mit dieser Farbe teilen das Label. Im selben Dialog legst du fest, wie die Karte ihre Farbe trägt.\n# Tags\nIm Editor gruppieren Tags deine Syncs nach deiner Art, zum Beispiel genre = metal. Der Wert ist optional.\n# Einen Sync finden\nSuche und Filter in Syncs finden Syncs nach Name, Status, Label, Favoriten oder Tag.\n# Reihenfolge\nHalte eine Karte gedrückt und zieh sie an einen neuen Platz, oder nimm ⋮ › An Position verschieben…\n# Größe und Ansicht\n• Einstellungen › Darstellung › Kartengröße: groß, mittel oder klein.\n• Die minimale Ansicht zeigt die Syncs als kleine Kacheln im Raster. Tipp auf eine Kachel für die ganze Karte; halt sie gedrückt für ihr Menü oder zieh sie.\n• Auf einem Tablet oder einem quer gehaltenen Handy wandern die Tabs in eine seitliche Leiste und die Karten stehen in Spalten.</string>
     <string name="howto_discover_title">Neuerscheinungen, Konzerte, Setlists, Platten</string>
     <string name="howto_discover_summary">Was die Künstler deiner Playlists gerade machen.</string>
-    <string name="howto_discover_body">Der Tab Entdecken schlägt für die Künstler einer deiner Playlists nach, nur wenn du es willst: Im Hintergrund werden nur die Künstler geprüft, denen du folgst. Bei Konzerte, Setlists und Platten &amp; Merch wählt Künstler auswählen, wer nachgeschlagen wird.\n# Neuerscheinungen\nNeue Alben, EPs und Singles der letzten 7, 30 oder 90 Tage und was bald erscheint. Mach daraus eine Playlist bei einem beliebigen Dienst, nutze Zu einer Playlist hinzufügen für eine vorhandene, oder Jede Woche für einen Sync, der Neues hinzufügt.\n# Konzerte\nKommende Termine in einem Land, im Zeitraum, den du unter Wann wählst, mit Ticket-Links und Zum Kalender hinzufügen. Keine Termine für einen Künstler? Die Buttons suchen auf den Ticketseiten.\n# Setlists\nWas die Künstler live gespielt haben, von setlist.fm. Wähl ein Konzert: mach daraus eine neue Playlist bei einem beliebigen Dienst oder füge es einer deiner Playlists hinzu.\n# Platten &amp; Merch\nCDs, Vinyl und Kassetten auf Discogs, die offiziellen Seiten und Shops und Suchen in anderen Shops. Nur Links: Gekauft wird auf deren Seiten.\n# Gefolgte Künstler\nTippe auf die Glocke neben einem Künstler, um ihm zu folgen, und wähle in Gefolgte Künstler, worüber du Bescheid bekommst: Neuerscheinungen, Konzerte in der Nähe, neues Merch, Platten. Einmal am Tag (oder pro Woche) prüft Trackhop sie und schickt eine Benachrichtigung mit dem, was neu ist. Die erste Prüfung merkt sich nur, was es schon gibt.\n# Schlüssel\nDie Konzerttermine von Ticketmaster und die Setlists brauchen deinen eigenen kostenlosen Schlüssel; ein Discogs-Token zeigt zusätzlich die angebotenen Exemplare und den niedrigsten Preis. Trag sie unter Einstellungen › Erweitert › Dienst-Schlüssel ein: Schlüssel holen öffnet den ersten Schritt. Ohne Ticketmaster-Schlüssel kommen die Termine von MusicBrainz. Ohne setlist.fm-Schlüssel kommen die Setlists von MusicBrainz, für weniger Konzerte.\n# Der Tab\nHalte eine Karte gedrückt und zieh sie, um die Reihenfolge zu ändern; Reihenfolge zurücksetzen stellt sie wieder her. Einstellungen › Darstellung › Bilder in Entdecken schaltet die Bilder aus oder lädt sie nur im WLAN.</string>
+    <string name="howto_discover_body">Der Tab Entdecken schlägt für die Künstler einer deiner Playlists nach, nur wenn du es willst: Im Hintergrund werden nur die Künstler geprüft, denen du folgst. Bei Konzerte, Setlists und Platten &amp; Merch wählt Künstler auswählen, wer nachgeschlagen wird.\n# Neuerscheinungen\nNeue Alben, EPs und Singles der letzten 7, 30 oder 90 Tage und was bald erscheint. Mach daraus eine Playlist bei einem beliebigen Dienst, nutze Zu einer Playlist hinzufügen für eine vorhandene, oder Jede Woche für einen Sync, der Neues hinzufügt.\n# Konzerte\nKommende Termine in einem Land oder einer Region, im Zeitraum, den du unter Wann wählst, mit Ticket-Links und Zum Kalender hinzufügen. Keine Termine für einen Künstler? Die Buttons suchen auf den Ticketseiten.\n# Setlists\nWas die Künstler live gespielt haben, von setlist.fm. Wähl ein Konzert: mach daraus eine neue Playlist bei einem beliebigen Dienst oder füge es einer deiner Playlists hinzu.\n# Platten &amp; Merch\nCDs, Vinyl und Kassetten auf Discogs, die offiziellen Seiten und Shops und Suchen in anderen Shops. Nur Links: Gekauft wird auf deren Seiten.\n# Gefolgte Künstler\nTippe auf die Glocke neben einem Künstler, um ihm zu folgen, und wähle in Gefolgte Künstler, worüber du Bescheid bekommst: Neuerscheinungen, Konzerte in der Nähe, neues Merch, Platten. Einmal am Tag (oder pro Woche) prüft Trackhop sie und schickt eine Benachrichtigung mit dem, was neu ist. Die erste Prüfung merkt sich nur, was es schon gibt.\n# Schlüssel\nDie Konzerttermine von Ticketmaster und die Setlists brauchen deinen eigenen kostenlosen Schlüssel; ein Discogs-Token zeigt zusätzlich die angebotenen Exemplare und den niedrigsten Preis. Trag sie unter Einstellungen › Erweitert › Dienst-Schlüssel ein: Schlüssel holen öffnet den ersten Schritt. Ohne Ticketmaster-Schlüssel kommen die Termine von MusicBrainz. Ohne setlist.fm-Schlüssel kommen die Setlists von MusicBrainz, für weniger Konzerte.\n# Der Tab\nHalte eine Karte gedrückt und zieh sie, um die Reihenfolge zu ändern; Reihenfolge zurücksetzen stellt sie wieder her. Einstellungen › Darstellung › Bilder in Entdecken schaltet die Bilder aus oder lädt sie nur im WLAN.</string>
     <string name="howto_shared_title">Geteilte Playlists</string>
     <string name="howto_shared_summary">Eine Playlist für eine Gruppe, jede Person bei ihrem Dienst.</string>
     <string name="howto_shared_body">Werkzeuge › Geteilte Playlists: eine Playlist für Leute, die nicht alle denselben Dienst nutzen. Jede Person hat ihre eigene Kopie bei ihrem Dienst, und Trackhop hält die Kopien im Gleichschritt.\n# Erstellen oder beitreten\nGruppe erstellen: Gib ihr einen Namen, wähl deinen Dienst, die Playlist und wie sich die Gruppe trifft. Einladung zeigt einen QR-Code und einen Link zum Senden. Die anderen tippen auf Mit Link beitreten und prüfen, dass der Gruppencode mit deinem übereinstimmt.\n# Wie sich die Gruppe trifft\n• Geteilter Ordner: ein Google-Drive-, Nextcloud-, Dropbox- oder Syncthing-Ordner, den die Gruppe schon teilt. Wer den Ordner öffnen kann, kann die Gruppe lesen.\n• Verschlüsselter ntfy-Kanal: Änderungen reisen verschlüsselt über ntfy.sh oder deinen eigenen ntfy-Server.\n• Mein Trackhop-Server: Änderungen treffen sich auf deinem Trackhop-Server, eingerichtet unter Einstellungen › Erweitert › Mit meinem Server abstimmen. Wer ihn betreibt, kann die Songs der Gruppe sehen.\nBeim ntfy-Kanal oder beim Server kann jeder mit der Einladung die Gruppe lesen: Schick sie nur den Leuten, die du einlädst.\n# Rollen\nDie Änderungen eines Kurators erreichen alle; wer die Gruppe erstellt hat, bestimmt die Kuratoren. Die anderen folgen, als Genaue Kopie oder mit Meine Ergänzungen behalten, dann bleibt, was sie hinzufügen, nur in ihrer eigenen Playlist.\n# Songs, die dein Dienst nicht hat\nEin Song, den dein Dienst nicht findet, wird für die anderen nie entfernt: Er wartet in der Prüfung deines Syncs.\n# Die Seite der Gruppe\nMitglieder, wer was geändert hat, und der Gruppencode. Gruppe verlassen beendet die Änderungen; deine Playlist bleibt, wie sie ist.</string>
@@ -1541,14 +1541,14 @@
     <string name="diag_range_week">Letzte 7 Tage</string>
     <string name="diag_range_all">Alles</string>
     <string name="charts_label">Charts</string>
-    <string name="provider_note_charts">Die Charts von Apple Music (Top 100 je Land) und Deezer (Top je Land und weltweit) aus ihren öffentlichen Feeds: eine Sync hält eine deiner Playlists aktuell, wenn sich die Charts ändern. Kein Konto nötig.</string>
+    <string name="provider_note_charts">Die Charts von Apple Music (Top 100 je Land oder Region) und Deezer (Top je Land oder Region und weltweit) aus ihren öffentlichen Feeds: eine Sync hält eine deiner Playlists aktuell, wenn sich die Charts ändern. Kein Konto nötig.</string>
     <string name="charts_apple_name">Apple Music Top 100 · %1$s</string>
     <string name="charts_apple_list_name">Apple Music · %1$s</string>
     <string name="charts_deezer_name">Deezer · %1$s</string>
     <string name="charts_unknown">Diese Charts gibt es nicht mehr.</string>
     <string name="charts_unavailable">%1$s hat die Charts nicht geliefert (%2$d): versuche es später erneut.</string>
     <string name="whats_new_110_charts_title">Charts als Quelle</string>
-    <string name="whats_new_110_charts_body">Halte eine deiner Playlists im Takt mit den Top 100 von Apple Music eines Landes oder den Deezer-Charts: wähle „Charts“ als Quelle einer neuen Sync.</string>
+    <string name="whats_new_110_charts_body">Halte eine deiner Playlists im Takt mit den Top 100 von Apple Music eines Landes bzw. einer Region oder den Deezer-Charts: wähle „Charts“ als Quelle einer neuen Sync.</string>
     <string name="settings_automation">Automatisierung (Tasker, MacroDroid…)</string>
     <string name="settings_automation_summary">Lässt Automatisierungs-Apps deine Syncs starten und das Ende einer Sync erfahren. Jede App auf dem Handy kann diese Befehle senden, daher ist es aus, bis du es einschaltest.</string>
     <string name="settings_automation_how">Sende einen Broadcast-Intent: com.xlollx.songport.action.RUN_ALL · com.xlollx.songport.action.RUN (extra sync = Name) · event com.xlollx.songport.event.SYNC_FINISHED (sync, added, removed, notFound, toReview, ok, error). Lange auf das App-Symbol drücken für Verknüpfungen zu deinen letzten Syncs.</string>
@@ -1778,7 +1778,7 @@
     <string name="idea_liked_title">Lieblingssongs als Playlist zum Teilen</string>
     <string name="idea_liked_desc">Deine Likes in einer echten Playlist, immer aktuell: Schick den Link, an wen du willst.</string>
     <string name="idea_liked_target">Meine Lieblingssongs</string>
-    <string name="idea_chart_title">Die Charts deines Landes in deiner Bibliothek</string>
+    <string name="idea_chart_title">Die Charts deines Landes oder deiner Region in deiner Bibliothek</string>
     <string name="idea_chart_desc">%1$s als Playlist auf %2$s, jeden Tag die neueste Version.</string>
     <string name="idea_dedupe_title">Duplikate aufräumen</string>
     <string name="idea_dedupe_desc">Findet Songs, die doppelt in einer Playlist sind, und entfernt die überzähligen Kopien.</string>
@@ -1897,7 +1897,7 @@
     <string name="whats_new_118_notify_title">Nachrichten, wo du willst</string>
     <string name="whats_new_118_notify_body">Einstellungen › Benachrichtigungen › Benachrichtigungskanäle schickt dir eine Nachricht über Telegram, ntfy, Gotify, Discord, Slack, Matrix oder Pushover, wenn ein Sync etwas ändert, fehlschlägt oder Neuerscheinungen findet. Die Schlüssel bleiben verschlüsselt auf diesem Handy.</string>
     <string name="whats_new_118_concerts_title">Konzerte deiner Künstler</string>
-    <string name="whats_new_118_concerts_body">Entdecken › Konzerte zeigt die kommenden Termine der Künstler einer Playlist in deinem Land, von Ticketmaster und MusicBrainz. Für jemanden keine Termine? Ein Tipp sucht auf den Ticketseiten.</string>
+    <string name="whats_new_118_concerts_body">Entdecken › Konzerte zeigt die kommenden Termine der Künstler einer Playlist in deinem Land oder deiner Region, von Ticketmaster und MusicBrainz. Für jemanden keine Termine? Ein Tipp sucht auf den Ticketseiten.</string>
     <string name="whats_new_118_setlists_title">Setlists als Playlists</string>
     <string name="whats_new_118_setlists_body">Entdecken › Setlists zeigt, was die Künstler einer Playlist live gespielt haben, von setlist.fm. Wähle ein Konzert und mach daraus eine Playlist auf einem beliebigen Dienst. Deinen eigenen kostenlosen setlist.fm-Schlüssel trägst du unter Einstellungen › Erweitert › Dienst-Schlüssel ein.</string>
     <string name="whats_new_118_records_title">Platten &amp; Merch</string>
@@ -2211,8 +2211,8 @@
     <string name="notify_field_pushover_user">User Key</string>
     <string name="discover_concerts_title">Konzerte</string>
     <string name="discover_concerts_desc">Kommende Termine der Künstler einer Playlist</string>
-    <string name="concerts_intro">Wähle eine Playlist und ein Land: Trackhop sucht die kommenden Konzerte ihrer Künstler. Im Hintergrund nur die Künstler, denen du folgst (die Glocke).</string>
-    <string name="concerts_country">Land</string>
+    <string name="concerts_intro">Wähle eine Playlist und ein Land oder eine Region: Trackhop sucht die kommenden Konzerte ihrer Künstler. Im Hintergrund nur die Künstler, denen du folgst (die Glocke).</string>
+    <string name="concerts_country">Land/Region</string>
     <string name="concerts_find">Konzerte suchen</string>
     <string name="concerts_progress">Künstler %1$d von %2$d…</string>
     <string name="concerts_none_found">Keine kommenden Termine für diese Künstler gefunden.</string>
@@ -2583,7 +2583,7 @@
     <string name="alerts_weekly">Jede Woche</string>
     <string name="alerts_wifi">Nur im WLAN</string>
     <string name="alerts_defaults">Für die nächsten Künstler, denen du folgst</string>
-    <string name="alerts_concerts_where">Konzerte werden in %1$s gesucht, dem Land deiner letzten Suche in Konzerte.</string>
+    <string name="alerts_concerts_where">Konzerte werden in %1$s gesucht, dem Land oder der Region deiner letzten Suche in Konzerte.</string>
     <string name="alerts_channel">Künstler-Hinweise</string>
     <string name="alerts_channel_desc">Neues von den Künstlern, denen du in Entdecken folgst</string>
     <string name="alerts_news_single">neue Single von %1$s</string>
@@ -3351,7 +3351,7 @@
     <string name="whats_new_21_account_title">Konto wählen</string>
     <string name="whats_new_21_account_body">Jede Anmeldung fragt, welches Konto genutzt werden soll, auch die erste.</string>
     <string name="whats_new_21_koel_title">Koel und mehr Charts</string>
-    <string name="whats_new_21_koel_body">Dein Koel-Server als Quelle und Ziel (Beta). Die Tagescharts von Apple Music, weltweit und für jedes Land, und Städte-Charts.</string>
+    <string name="whats_new_21_koel_body">Dein Koel-Server als Quelle und Ziel (Beta). Die Tagescharts von Apple Music, weltweit und für jedes Land und jede Region, und Städte-Charts.</string>
     <string name="whats_new_21_formats_title">rekordbox, WPL und ZPL</string>
     <string name="whats_new_21_formats_body">Importiere eine rekordbox-Sammlung und wähle ihre Playlists. Playlists von Windows Media Player und Zune, rein und raus.</string>
     <string name="whats_new_21_discover_title">Mehr in Entdecken</string>
