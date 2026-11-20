@@ -3,7 +3,7 @@
  "version": "2.1.2",
  "tag": "server-v2.1.2",
  "release": "https://github.com/xlollx/Trackhop/releases/tag/server-v2.1.2",
- "checked": "2026-11-19T16:58:25Z",
+ "checked": "2026-11-20T16:21:59Z",
  "clean": false,
  "files": [
   {
@@ -65,10 +65,12 @@
   {
    "name": "Trackhop-Desktop-v2.1.2-windows.msix",
    "sha256": "9d247d5a344459c6ba36edd1905e307c676e9f26d06a7aa9e65e549760409270",
-   "malicious": 0,
+   "malicious": 1,
    "suspicious": 0,
-   "engines": 53,
-   "flagged_by": {},
+   "engines": 62,
+   "flagged_by": {
+    "Panda": "Exploit/WinampPLS"
+   },
    "link": "https://www.virustotal.com/gui/file/9d247d5a344459c6ba36edd1905e307c676e9f26d06a7aa9e65e549760409270"
   },
   {
