@@ -38,8 +38,6 @@ server_more: 'Web ページ、スケジュール同期、API · 家族みんな�
 virustotal: すべてのダウンロードを VirusTotal でチェック済み
 downloads: "{n} ダウンロード"
 downloads_title: GitHub リリースのダウンロード数と Docker Hub のプル数。F-Droid やストアは数を公開していないため、実際はもっと多くなります。
-playlists_synced: "公開プレイリスト {n} 件を同期中"
-playlists_synced_title: "Trackhop が同期している Spotify と YouTube の公開プレイリスト（説明に「Synced with Trackhop」とあるもの）。非公開のプレイリストやほかのサービスは数えていないため、実際の数はもっと多くなります。"
 demo_alt: "Trackhop の紹介：同期一覧、新しい同期、アカウント、ツール、共有された曲、相性カードとポスターカード、再生できない曲、設定"
 what_title: できること
 what_intro: 同期元と同期先を選び、頻度を決めるだけ。Trackhop は相手側で曲を一つずつ見つけ、何が変わるかを見せてから、両方をそろえ続けます。

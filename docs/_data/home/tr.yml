@@ -38,8 +38,6 @@ server_more: 'Bir web sayfası, zamanlanmış senkronizasyonlar, bir API · Tüm
 virustotal: Her indirme VirusTotal'da kontrol edildi
 downloads: "{n} indirme"
 downloads_title: GitHub sürüm indirmeleri ve Docker Hub çekmeleri. F-Droid ve mağazalar sayı yayımlamıyor, yani gerçek sayı daha yüksek.
-playlists_synced: "{n} herkese açık çalma listesi senkronize"
-playlists_synced_title: "Trackhop'un senkronize tuttuğu Spotify ve YouTube'daki herkese açık çalma listeleri (açıklamalarında “Synced with Trackhop” yazar). Gizli listeler ve diğer servisler sayılmaz, gerçek sayı daha yüksektir."
 demo_alt: "Trackhop turu: senkronizasyonlar, yeni bir senkronizasyon, hesaplar, araçlar, paylaşılan bir parça, uyumluluk ve poster kartları, çalınamayan parçalar, ayarlar"
 what_title: Ne yapar
 what_intro: Bir kaynak ve bir hedef seç, ne sıklıkla olacağını belirle. Trackhop her parçayı diğer tarafta bulur, neyin değişeceğini gösterir ve ikisini uyum içinde tutar.

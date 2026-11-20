@@ -38,8 +38,6 @@ server_more: 'Une page web, des syncs planifiées, une API · <a href="/guide/do
 virustotal: Chaque téléchargement vérifié sur VirusTotal
 downloads: "{n} téléchargements"
 downloads_title: Téléchargements des versions GitHub et pulls Docker Hub. F-Droid et les stores ne publient aucun chiffre, le nombre réel est donc plus élevé.
-playlists_synced: "{n} playlists publiques synchronisées"
-playlists_synced_title: "Playlists publiques sur Spotify et YouTube que Trackhop garde synchronisées (leur description indique « Synced with Trackhop »). Les playlists privées et les autres services ne sont pas comptés : le vrai nombre est plus élevé."
 demo_alt: "Visite de Trackhop : les syncs, une nouvelle sync, les comptes, les outils, un titre partagé, les cartes de compatibilité et d’affiche, les titres injouables, les réglages"
 what_title: Ce qu’il fait
 what_intro: Choisis une source et une destination, puis la fréquence. Trackhop retrouve chaque titre de l’autre côté, te montre ce qui va changer et garde les deux en phase.

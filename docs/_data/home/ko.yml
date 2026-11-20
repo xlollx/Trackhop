@@ -38,8 +38,6 @@ server_more: '웹 페이지, 예약 동기화, API · 온 가족이 <a href="/gu
 virustotal: 모든 다운로드는 VirusTotal 검사 완료
 downloads: "{n}회 다운로드"
 downloads_title: GitHub 릴리스 다운로드 수와 Docker Hub pull 수예요. F-Droid와 스토어는 수치를 공개하지 않으니 실제로는 더 많아요.
-playlists_synced: "공개 플레이리스트 {n}개 동기화 중"
-playlists_synced_title: "Trackhop이 동기화하는 Spotify와 YouTube의 공개 플레이리스트(설명에 “Synced with Trackhop”이 있는 것). 비공개 플레이리스트와 다른 서비스는 세지 않아 실제 수는 더 많아요."
 demo_alt: "Trackhop 둘러보기: 동기화 목록, 새 동기화, 계정, 도구, 공유된 곡, 호환성·포스터 카드, 재생할 수 없는 곡, 설정"
 what_title: 무엇을 하나요
 what_intro: 원본과 대상을 고르고, 얼마나 자주 할지 정하세요. Trackhop이 상대편에서 곡을 하나하나 찾아내고, 무엇이 바뀔지 보여 준 뒤, 두 플레이리스트를 계속 맞춰 줘요.
