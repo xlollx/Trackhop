@@ -115,8 +115,9 @@ class CardsFlowTest : FlowTest() {
         // The card is printed as the poster: Classic unless chosen otherwise, Bold chosen under it.
         layoutTile(R.string.card_layout_classic).assertIsSelected()
         waitFor("the layouts on offer", 30_000) { runCatching { layoutTile(R.string.card_layout_bold).assertIsEnabled() }.isSuccess }
-        layoutTile(R.string.card_layout_bold).performClick()
-        layoutTile(R.string.card_layout_bold).assertIsSelected()
+        // The tiles are under the card, off a phone's screen and then under the bottom bar: tapped clear of it.
+        tap(layoutTile(R.string.card_layout_bold), "Bold tile")
+        waitFor("Bold chosen") { runCatching { layoutTile(R.string.card_layout_bold).assertIsSelected() }.isSuccess }
         // The people's names, both optional, under the card.
         val nameA = androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.COMPAT_NAME_A_TAG)
         val nameB = androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.COMPAT_NAME_B_TAG)
