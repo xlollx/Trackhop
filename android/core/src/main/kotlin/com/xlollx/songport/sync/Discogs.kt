@@ -160,10 +160,13 @@ object Discogs {
     fun keep(env: Env, c: Collection) { env.keyValues(KV)["collection"] = json.encodeToString(Collection.serializer(), c) }
     fun keep(env: Env, w: Wantlist) { env.keyValues(KV)["wantlist"] = json.encodeToString(Wantlist.serializer(), w) }
 
-    /** The collection, as added (the latest first), and its value: the one kept while within Discogs' six hours, unless [refresh]. */
+    /**
+     * The collection, as added (the latest first), and its value: the one kept while within Discogs' six
+     * hours, unless [refresh]. An empty one kept is read again (one call): a record just added on Discogs shows.
+     */
     suspend fun collection(env: Env, refresh: Boolean = false, progress: (Int, Int) -> Unit = { _, _ -> }): Collection {
         val user = user(env)
-        keptCollection(env)?.takeIf { !refresh && it.user == user && now() - it.at < Records.DISCOGS_TTL_MS }?.let { return it }
+        keptCollection(env)?.takeIf { !refresh && it.user == user && it.items.isNotEmpty() && now() - it.at < Records.DISCOGS_TTL_MS }?.let { return it }
         val items = pages(env, "users/${enc(user)}/collection/folders/0/releases", "releases", progress)
         // The value is the owner's to see; a failure leaves the records without it.
         val value = try { parseValue(get(env, "users/${enc(user)}/collection/value")) } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
@@ -176,7 +179,7 @@ object Discogs {
      */
     suspend fun wantlist(env: Env, currency: String, first: Set<String> = emptySet(), refresh: Boolean = false, progress: (Int, Int) -> Unit = { _, _ -> }): Wantlist {
         val user = user(env)
-        keptWantlist(env)?.takeIf { !refresh && it.user == user && now() - it.at < Records.DISCOGS_TTL_MS }?.let { return it }
+        keptWantlist(env)?.takeIf { !refresh && it.user == user && it.items.isNotEmpty() && now() - it.at < Records.DISCOGS_TTL_MS }?.let { return it }
         val items = pages(env, "users/${enc(user)}/wants", "wants") { _, _ -> }
         val ask = (items.filter { it.id.toString() in first } + items).distinctBy { it.id }.take(MARKET_SHOWN)
         val markets = HashMap<String, Market>()
