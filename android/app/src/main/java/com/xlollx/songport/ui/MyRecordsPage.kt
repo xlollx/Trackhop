@@ -68,6 +68,25 @@ internal object MyRecordsKept {
     val wants = KeptWork<Discogs.Wantlist>()
 }
 
+/**
+ * Back on the page after a while away (Discogs opened in the browser, a record added or removed
+ * there): read anew, so the change shows without a tap on Refresh. Not within a minute of the last
+ * read, so switching apps back and forth does not spend Discogs' 60 calls a minute.
+ */
+@Composable
+private fun BackFromDiscogs(k: KeptWork<*>, read: () -> Unit) {
+    // A plain holder, not state: leaving the app must not draw the page again.
+    val leftAt = remember { longArrayOf(0L) }
+    androidx.lifecycle.compose.LifecycleResumeEffect(Unit) {
+        val away = leftAt[0] > 0 && android.os.SystemClock.elapsedRealtime() - leftAt[0] >= BACK_REREAD_MS
+        if (away && !k.running) read()
+        onPauseOrDispose { leftAt[0] = android.os.SystemClock.elapsedRealtime() }
+    }
+}
+
+/** Away at least this long, the page reads Discogs again on its return. */
+private const val BACK_REREAD_MS = 60_000L
+
 /** Test tag of the alert button of a wanted record. */
 const val WANT_ALERT_TAG = "wantAlert"
 
@@ -128,7 +147,8 @@ private fun CollectionTab(onNewSync: (SyncJob.() -> SyncJob) -> Unit) {
     }
     ReadState(k) { read(true) }
     val c = k.result ?: return
-    if (c.items.isEmpty()) { ToolEmpty(stringResource(R.string.myrecords_empty_collection)); return }
+    BackFromDiscogs(k) { read(true) }
+    if (c.items.isEmpty()) { ToolEmpty(stringResource(R.string.myrecords_empty_collection), action = { if (!k.running) TextButton(onClick = { read(true) }) { Text(stringResource(R.string.diary_refresh)) } }); return }
     c.value?.let { v ->
         Surface(Modifier.fillMaxWidth(), shape = ToolCardShape, color = MaterialTheme.colorScheme.surfaceContainer) {
             Column(Modifier.padding(16.dp)) {
@@ -193,7 +213,8 @@ private fun WantlistTab() {
     var editing by rememberSaveable { mutableStateOf<Long?>(null) }
     ReadState(k) { read(true) }
     val w = k.result ?: return
-    if (w.items.isEmpty()) { ToolEmpty(stringResource(R.string.myrecords_empty_wantlist)); return }
+    BackFromDiscogs(k) { read(true) }
+    if (w.items.isEmpty()) { ToolEmpty(stringResource(R.string.myrecords_empty_wantlist), action = { if (!k.running) TextButton(onClick = { read(true) }) { Text(stringResource(R.string.diary_refresh)) } }); return }
     val images = remember { discoverImagesOn(ctx) }
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(horizontal = 12.dp, vertical = 4.dp)) {

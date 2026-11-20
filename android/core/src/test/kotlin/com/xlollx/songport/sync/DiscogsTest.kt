@@ -25,6 +25,7 @@ class DiscogsTest {
     private val auth: MutableList<String?> = Collections.synchronizedList(ArrayList())
     private var stats: (String) -> Pair<Int, String> = { 200 to """{"lowest_price":{"value":34.0,"currency":"EUR"},"num_for_sale":12,"blocked_from_sale":false}""" }
     private var release: (String) -> Pair<Int, String> = { 200 to res("release.json") }
+    private var wants: () -> String = { res("wants.json") }
     private val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0).apply {
         createContext("/") { ex ->
             val path = ex.requestURI.path
@@ -34,7 +35,7 @@ class DiscogsTest {
                 path == "/oauth/identity" -> 200 to """{"id":1,"username":"some one","resource_url":"https://api.discogs.com/users/some%20one","consumer_name":"x"}"""
                 path == "/users/some one/collection/folders/0/releases" -> 200 to res("collection.json")
                 path == "/users/some one/collection/value" -> 200 to """{"minimum":"€1,240.00","median":"€1,800.00","maximum":"€2,380.00"}"""
-                path == "/users/some one/wants" -> 200 to res("wants.json")
+                path == "/users/some one/wants" -> 200 to wants()
                 path.startsWith("/marketplace/stats/") -> stats(path.substringAfterLast('/'))
                 path.startsWith("/releases/") -> release(path.substringAfterLast('/'))
                 else -> 404 to "{}"
@@ -79,6 +80,19 @@ class DiscogsTest {
         Discogs.collection(env)
         assertEquals(n + 2, hits.size)
         assertEquals(1, hits.count { it == "/oauth/identity" })
+    }
+
+    @Test fun `an empty wantlist kept is read again, so a record just added on Discogs shows`() = runBlocking {
+        wants = { """{"pagination":{"page":1,"pages":1,"per_page":100,"items":0},"wants":[]}""" }
+        assertTrue(Discogs.wantlist(env, "EUR").items.isEmpty())
+        // Added on Discogs a minute later: shown on the next look, well within the six hours.
+        wants = { res("wants.json") }
+        clock += 60_000
+        assertEquals(listOf("Kid A", "Heligoland"), Discogs.wantlist(env, "EUR").items.map { it.title })
+        // A list with records is kept as before.
+        val n = hits.size
+        Discogs.wantlist(env, "EUR")
+        assertEquals(n, hits.size)
     }
 
     @Test fun `no token asks nothing`() {
