@@ -1,6 +1,6 @@
 {
- "bundle": "web-player.c078a389.js",
- "last_updated": "2026-11-15T11:27:04Z",
+ "bundle": "web-player.fa008b08.js",
+ "last_updated": "2026-11-20T18:46:51Z",
  "operations": {
   "ArtistConcerts": {
    "hash": "ef53c43b865496b9890b7167eab1dc614a8949ef9451b3c41184ea888de8bd2b"
@@ -12,7 +12,7 @@
    "hash": "b907ad6b088d5bf7680fa81198996d58398c2d55dfcdf59fcc959e0be98a418a"
   },
   "concert": {
-   "hash": "9b582a69061f6648858515c2aa6d4a2273ac49b74eb5dbc612bc1299a9f2f13e"
+   "hash": "c871eb145f1d4a00b660d54a8bb6e9b8fe866825fdb46bc127fca95580716fd1"
   },
   "fetchLibraryTracks": {
    "hash": "087278b20b743578a6262c2b0b4bcd20d879c503cc359a2285baf083ef944240"
