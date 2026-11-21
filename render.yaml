@@ -1,0 +1,19 @@
+# "Deploy to Render" (README): Trackhop's server from its image, with a disk for /data
+# (packaging/README.md). A disk needs a paid instance; Render bills the user's account. The image's
+# entrypoint gives the disk, which belongs to root, to the server's user (server/docker-entrypoint.sh),
+# and takes the service's address from RENDER_EXTERNAL_URL.
+services:
+  - type: web
+    name: trackhop
+    runtime: image
+    image:
+      url: ghcr.io/xlollx/trackhop:latest
+    disk:
+      name: trackhop-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: PORT
+        value: "8080"
+      - key: SONGPORT_PASSWORD
+        generateValue: true
