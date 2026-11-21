@@ -10,6 +10,7 @@ tabs_label: Dónde instalar Trackhop
 tab_phone: Android
 tab_computer: Escritorio
 tab_server: Autoalojado
+tab_cloud: 'Nube'
 play_alt: "Disponible en Google Play"
 play_note: 'Ya disponible'
 appgallery_alt: "Descúbrela en Huawei AppGallery"
@@ -37,11 +38,18 @@ azure_title: "Beta: funciona en tu propia suscripción de Azure (unos $5 al mes)
 azure_alt: Desplegar en Azure (beta)
 azure_note: 'Beta · tu propia suscripción, unos &#36;5 al mes · <a href="/guide/docker#on-azure-beta">detalles</a>'
 server_more: 'Una página web, sincronizaciones programadas, una API · <a href="/guide/docker#several-people-on-one-server">Una cuenta por persona</a> para toda la casa'
+umbrel_alt: 'Consíguelo en Umbrel'
+umbrel_note: 'Nuestra tienda de apps para umbrelOS'
+caprover_alt: 'Consíguelo en CapRover'
+caprover_note: 'En su catálogo One-Click Apps'
+render_alt: 'Desplegar en Render (beta)'
+render_note: 'Beta · se cobra en tu cuenta de Render'
+railway_alt: 'Desplegar en Railway (beta)'
+railway_note: 'Beta · se cobra en tu cuenta de Railway'
+cloud_more: 'Sin servidor en casa: Trackhop en línea en tu propia cuenta, con dirección HTTPS y sincronizaciones programadas'
 virustotal: Cada descarga, analizada en VirusTotal
 downloads: "{n} descargas"
 downloads_title: Descargas de las versiones en GitHub y pulls de Docker Hub. F-Droid y las tiendas no publican cifras, así que el número real es mayor.
-playlists_synced: "{n} playlists públicas sincronizadas"
-playlists_synced_title: "Playlists públicas en Spotify y YouTube que Trackhop mantiene sincronizadas (su descripción dice “Synced with Trackhop”). Las privadas y otros servicios no se cuentan, así que el número real es mayor."
 demo_alt: "Un recorrido por Trackhop: sincros, una nueva sincro, cuentas, herramientas, una canción compartida, las tarjetas de compatibilidad y póster, canciones no reproducibles, ajustes"
 what_title: Qué hace
 what_intro: Elige un origen y un destino, y cada cuánto sincronizar. Trackhop encuentra cada canción en el otro lado, te muestra qué va a cambiar y mantiene ambas al día.

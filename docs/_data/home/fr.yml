@@ -8,6 +8,7 @@ tabs_label: Où installer Trackhop
 tab_phone: Android
 tab_computer: Ordinateur
 tab_server: Auto-hébergé
+tab_cloud: 'Cloud'
 play_alt: "Disponible sur Google Play"
 play_note: 'Disponible'
 appgallery_alt: "Découvre-la sur Huawei AppGallery"
@@ -35,11 +36,18 @@ azure_title: "Bêta : tourne dans ton propre abonnement Azure (environ 5 $ par m
 azure_alt: Déployer sur Azure (bêta)
 azure_note: 'Bêta · ton propre abonnement, environ 5 &#36; par mois · <a href="/guide/docker#on-azure-beta">détails</a>'
 server_more: 'Une page web, des syncs planifiées, une API · <a href="/guide/docker#several-people-on-one-server">Un compte par personne</a> pour toute la maison'
+umbrel_alt: 'Disponible sur Umbrel'
+umbrel_note: 'Notre boutique d''apps pour umbrelOS'
+caprover_alt: 'Disponible sur CapRover'
+caprover_note: 'Dans son catalogue One-Click Apps'
+render_alt: 'Déployer sur Render (bêta)'
+render_note: 'Bêta · facturé sur ton compte Render'
+railway_alt: 'Déployer sur Railway (bêta)'
+railway_note: 'Bêta · facturé sur ton compte Railway'
+cloud_more: 'Pas de serveur à la maison : Trackhop en ligne dans ton propre compte, avec une adresse HTTPS et des syncs planifiées'
 virustotal: Chaque téléchargement vérifié sur VirusTotal
 downloads: "{n} téléchargements"
 downloads_title: Téléchargements des versions GitHub et pulls Docker Hub. F-Droid et les stores ne publient aucun chiffre, le nombre réel est donc plus élevé.
-playlists_synced: "{n} playlists publiques synchronisées"
-playlists_synced_title: "Playlists publiques sur Spotify et YouTube que Trackhop garde synchronisées (leur description indique « Synced with Trackhop »). Les playlists privées et les autres services ne sont pas comptés : le vrai nombre est plus élevé."
 demo_alt: "Visite de Trackhop : les syncs, une nouvelle sync, les comptes, les outils, un titre partagé, les cartes de compatibilité et d’affiche, les titres injouables, les réglages"
 what_title: Ce qu’il fait
 what_intro: Choisis une source et une destination, puis la fréquence. Trackhop retrouve chaque titre de l’autre côté, te montre ce qui va changer et garde les deux en phase.

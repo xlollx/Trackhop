@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<Maintainer>
+  <Profile>Trackhop keeps your playlists in sync between music services, on your own server. Open source (AGPL-3.0). Questions and problems: GitHub issues.</Profile>
+  <Icon>https://raw.githubusercontent.com/xlollx/Trackhop/main/docs/store/icon512.png</Icon>
+  <WebPage>https://trackhop.org</WebPage>
+  <Forum>https://github.com/xlollx/Trackhop/issues</Forum>
+  <DonateLink>https://ko-fi.com/xlollx</DonateLink>
+  <DonateText>Trackhop is free; a coffee keeps it going.</DonateText>
+</Maintainer>

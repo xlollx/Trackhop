@@ -37,8 +37,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # macOS twice: Apple silicon (macos-latest) and Intel, one .dmg each.
-        os: [ ubuntu-latest, windows-latest, macos-latest, macos-15-intel ]
+        # macOS twice: Apple silicon (macos-latest) and Intel, one .dmg each. Linux twice too: x86_64 and
+        # 64-bit ARM (Raspberry Pi 4/5, ARM laptops), a .deb and a .tar.gz each. Linux on Ubuntu 22.04:
+        # jpackage writes the .deb's dependencies from the build system's packages, and 24.04's
+        # (libasound2t64…) do not exist on Debian 12 / Raspberry Pi OS Bookworm or Ubuntu 22.04, while
+        # 22.04's names are understood by the newer ones too.
+        os: [ ubuntu-22.04, ubuntu-22.04-arm, windows-latest, macos-latest, macos-15-intel ]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -69,12 +73,21 @@ jobs:
         run: sudo apt-get install -y -q fakeroot
 
       - name: Tests and build
-        # The tests on Linux and Windows only: the macOS packages run the same JVM code (and server.yml
-        # tests it too), so the two Macs only build.
-        run: gradle -p server ${{ !startsWith(matrix.os, 'macos') && 'test' || '' }} installDist desktopLibs --no-daemon --stacktrace
+        # The tests on Linux x86_64 and Windows only: the other packages run the same JVM code (and
+        # server.yml tests it too), so the Macs and Linux ARM only build.
+        run: gradle -p server ${{ (matrix.os == 'ubuntu-22.04' || matrix.os == 'windows-latest') && 'test' || '' }} installDist desktopLibs --no-daemon --stacktrace
 
       - name: Package
         run: server/desktop/package.sh
+
+      - name: The .deb installs on older systems too
+        # No time64 package names (libasound2t64…) in its dependencies: Bookworm and 22.04 lack them.
+        if: runner.os == 'Linux'
+        run: |
+          for deb in dist/*.deb; do
+            deps=$(dpkg-deb -f "$deb" Depends); echo "$deb: $deps"
+            if echo "$deps" | grep -q 't64'; then echo "::error::$deb depends on a time64 package name"; exit 1; fi
+          done
 
       - name: MSIX (Microsoft Store)
         # Unsigned: the Store signs it. The identity is Partner Center's (Product identity), kept as
@@ -116,7 +129,7 @@ jobs:
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
-          name: Trackhop-Desktop-${{ runner.os }}${{ runner.os == 'macOS' && format('-{0}', runner.arch) || '' }}
+          name: Trackhop-Desktop-${{ runner.os }}${{ (runner.os == 'macOS' || runner.arch == 'ARM64') && format('-{0}', runner.arch) || '' }}
           path: dist/*
           if-no-files-found: error
           retention-days: 7
@@ -188,6 +201,8 @@ jobs:
 
           **macOS:** \`-macos-arm64.dmg\` for Apple silicon (M1 and later), \`-macos-x64.dmg\` for Intel Macs. Not signed by Apple: the first time, macOS refuses to open it; then *System Settings › Privacy & Security › Open Anyway* ([how](https://trackhop.org/guide/desktop#macos)).
 
+          **Linux:** \`-linux.deb\` and \`-linux.tar.gz\` for usual PCs (x86_64), \`-linux-arm64.deb\` and \`-linux-arm64.tar.gz\` for 64-bit ARM: Raspberry Pi 4 and 5 with a 64-bit system, ARM laptops.
+
           **Flatpak (Linux):** \`flatpak install --user Trackhop-Desktop-v$v-linux.flatpak\`, then *Trackhop* in the menu (needs Flathub's GNOME runtime, which Flatpak offers to install).
           EOF
           gh release create "$tag" dist/* --target "$GITHUB_SHA" --prerelease --latest=false \
@@ -195,7 +210,7 @@ jobs:
           echo "version=$v" >> "$GITHUB_OUTPUT"
 
   stores:
-    # The new release to winget and Chocolatey (stores.yml; each skipped until its secret exists).
+    # The new release to winget, Chocolatey and the AUR (stores.yml; each skipped until its secret exists).
     # Here rather than on the release event: a release made with the workflow's own token starts no
     # other workflow.
     needs: release

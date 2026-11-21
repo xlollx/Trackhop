@@ -2,9 +2,9 @@
 # search APIs) into the badges branch: public-playlists.json for the site and the README. Counts only.
 name: Public playlists
 
+# Off the README and the site since 20/11 (search results come and go, so the count went up and down):
+# by hand only, the script and the data are kept.
 on:
-  schedule:
-    - cron: "41 5 * * *"
   workflow_dispatch:
 
 permissions:

@@ -1,0 +1,28 @@
+# Maintainer: xlollx <72248161+xlollx@users.noreply.github.com>
+# Trackhop Desktop from its GitHub release (server-v<version>), with its own Java runtime.
+# stores.yml updates pkgver and the checksum, writes .SRCINFO and pushes to the AUR at each release.
+pkgname=trackhop-bin
+pkgver=2.1.2
+pkgrel=1
+pkgdesc='Keeps your playlists in sync between music services'
+arch=('x86_64')
+url='https://github.com/xlollx/Trackhop'
+license=('AGPL-3.0-only')
+depends=('gtk3' 'webkit2gtk-4.1' 'libxtst' 'libxi' 'libxrender' 'alsa-lib' 'zlib')
+provides=('trackhop')
+conflicts=('trackhop')
+options=('!strip' '!debug')
+source=("Trackhop-Desktop-v${pkgver}-linux.tar.gz::${url}/releases/download/server-v${pkgver}/Trackhop-Desktop-v${pkgver}-linux.tar.gz"
+        'trackhop.desktop')
+sha256sums=('26808265308fda8159e313bb0c21b2fbbbf3d972df1c61a94890e7ef10e07410'
+            '50740b5d53240bff86e7255f2bc7edf2ade1d62083c04ed211dcdb1f84afa0f2')
+
+package() {
+  install -d "$pkgdir/opt"
+  cp -a Trackhop "$pkgdir/opt/trackhop"
+  install -d "$pkgdir/usr/bin"
+  ln -s /opt/trackhop/bin/Trackhop "$pkgdir/usr/bin/trackhop"
+  ln -s /opt/trackhop/bin/trackhop-cli "$pkgdir/usr/bin/trackhop-cli"
+  install -Dm644 trackhop.desktop "$pkgdir/usr/share/applications/trackhop.desktop"
+  install -Dm644 Trackhop/lib/Trackhop.png "$pkgdir/usr/share/pixmaps/trackhop.png"
+}

@@ -1,0 +1,18 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      # <app-id>_<service>_1
+      APP_HOST: trackhop-server_server_1
+      APP_PORT: 8080
+
+  server:
+    image: ghcr.io/xlollx/trackhop:2.1.2
+    restart: on-failure
+    # Umbrel's own user: it owns ${APP_DATA_DIR}.
+    user: "1000:1000"
+    environment:
+      SONGPORT_URL: http://${DEVICE_DOMAIN_NAME}:8642
+    volumes:
+      - ${APP_DATA_DIR}/data:/data

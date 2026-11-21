@@ -20,8 +20,9 @@ From the [download table](desktop#install):
 | Package | How |
 |---|---|
 | `.deb` (Debian, Ubuntu, Mint, Pop!_OS…) | `sudo apt install ./Trackhop-Desktop-v…-linux.deb`, then *Trackhop* in the menu |
+| `-linux-arm64.deb` (Raspberry Pi 4/5 with 64-bit Raspberry Pi OS, ARM laptops) | `sudo apt install ./Trackhop-Desktop-v…-linux-arm64.deb`, then *Trackhop* in the menu |
 | Flatpak (any distribution) | `flatpak install --user Trackhop-Desktop-v…-linux.flatpak` (built from source, as Flathub does) |
-| `.tar.gz` (any x86-64 distribution) | unpack and run `Trackhop/bin/Trackhop` |
+| `.tar.gz` (any x86-64 distribution; `-linux-arm64.tar.gz` on ARM) | unpack and run `Trackhop/bin/Trackhop` |
 | Snap (Ubuntu and others) | `sudo snap install trackhop` |
 
 On a server or a NAS with no desktop, use **Docker** instead: one container, a web page, the syncs

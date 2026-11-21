@@ -1,0 +1,28 @@
+manifestVersion: 1
+id: trackhop-server
+name: Trackhop
+tagline: Keep your playlists in sync between music services
+icon: https://raw.githubusercontent.com/xlollx/Trackhop/main/docs/store/logo.svg
+category: media
+version: "2.1.2"
+port: 8642
+description: >-
+  Beta. Trackhop keeps your playlists in sync between music services (Spotify, YouTube Music,
+  TIDAL, Navidrome, Jellyfin, Plex, Last.fm and more), one way or both ways, on a schedule, from a
+  web page on your Umbrel. The same engine as the Trackhop Android app and Desktop.
+
+
+  Keep a copy of your data (Tools › Backup & restore) and report what goes wrong on GitHub.
+developer: xlollx
+website: https://trackhop.org
+submitter: xlollx
+submission: https://github.com/xlollx/umbrel-apps
+repo: https://github.com/xlollx/Trackhop
+support: https://github.com/xlollx/Trackhop/issues
+gallery: []
+releaseNotes: >-
+  https://github.com/xlollx/Trackhop/releases?q=server-v&expanded=true
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

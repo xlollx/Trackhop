@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit reviews the pull requests into main (the release one: next-* → main). Free for public
+# repositories. It reviews the code: store texts, screenshots and generated files are left out.
+language: en-US
+early_access: false
+reviews:
+  profile: chill
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: true
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+      - "next-.*"
+  path_filters:
+    - "!fastlane/**"
+    - "!play/whatsnew/**"
+    - "!docs/assets/**"
+    - "!docs/store/**"
+    - "!**/*.png"
+    - "!**/*.webp"
+    - "!**/*.gif"
+    - "!**/*.jpg"
+    - "!packaging/flatpak/gradle-sources.json"
+  path_instructions:
+    - path: "android/app/src/main/res/values*/strings.xml"
+      instructions: >-
+        Every user-visible string exists in all the app's languages (values/ and each values-xx/):
+        flag a string added or changed in one language and missing or stale in another.
+    - path: "android/app/src/play/**"
+      instructions: >-
+        The Google Play build uses official APIs only: flag any reference to unofficial services,
+        reverse-engineered APIs or the separate Bridge plugin.
+    - path: "**/*.kt"
+      instructions: >-
+        Secrets, tokens and cookies must never reach logs, crash reports or exported files: flag any
+        that could. Network and file work stays off the main thread.
+    - path: ".github/workflows/**"
+      instructions: >-
+        Secrets are only read from `secrets.*` and never echoed; third-party actions are pinned.
+chat:
+  auto_reply: true

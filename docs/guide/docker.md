@@ -392,6 +392,18 @@ Nobody sees the others'. Add `SONGPORT_MULTIUSER`:
 
 Without `SONGPORT_MULTIUSER` nothing changes: one Trackhop, one password, any user name.
 
+## One-click installs
+
+The same image, installed from the app store of your server's system:
+
+- **Umbrel**: *App Store › ⋯ › Community App Stores*, add `https://github.com/xlollx/umbrel-apps`,
+  then *Trackhop* in the *Trackhop App Store*. It opens on port 8642, behind Umbrel's own sign-in.
+- **Unraid**: *Apps* (Community Applications), search **Trackhop**. The template keeps the data in
+  `/mnt/user/appdata/trackhop` with `PUID` 99 and `PGID` 100, like Unraid's other apps. The listing
+  is new: if it isn't there yet, use *Docker › Add Container* ([how](playlist-sync-nas#per-system)).
+- **CapRover**: *Apps › One-Click Apps/Databases*, search **Trackhop**: choose an app name and a
+  password (at least 8 characters). Turn on HTTPS for the app before signing in.
+
 ## On Azure (beta)
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json)
@@ -403,6 +415,20 @@ It is billed to your Azure subscription: about $5 a month in most regions when i
 [pricing calculator](https://azure.microsoft.com/pricing/calculator/) for your region); to remove it, delete the resource group.
 From a datacenter, use the official connectors: the unofficial ones are blocked more often.
 Details: [packaging/azure](https://github.com/xlollx/Trackhop/tree/main/packaging/azure).
+
+## On Render or Railway (beta)
+
+Two more ways to have Trackhop online without a server, in your own account and billed by the
+provider:
+
+- **Render**: [Deploy to Render](https://render.com/deploy?repo=https://github.com/xlollx/Trackhop)
+  creates the service with a disk for its data (a disk needs a paid instance) and a random password,
+  shown in the service's *Environment*. The address is Render's own `https://…onrender.com`.
+- **Railway**: [Deploy on Railway](https://railway.com/deploy/NC9rYj?referralCode=a8qH2n) creates the
+  service with a volume and a random password (in the service's *Variables*), on Railway's
+  `https://…up.railway.app` address.
+
+As on Azure, the official connectors work best from a datacenter.
 
 ## Behind a reverse proxy
 

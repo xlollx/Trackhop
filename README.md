@@ -9,7 +9,6 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/release.svg" alt="Latest release"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/updated.svg" alt="Last updated"></a>
   <a href="https://trackhop.org/#downloads"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/downloads.svg" alt="Downloads from GitHub and Docker Hub"></a>
-  <a href="https://trackhop.org/"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/public-playlists-badge.svg" alt="Public playlists on Spotify and YouTube synced with Trackhop"></a>
   <a href="https://hub.docker.com/r/xlollx/trackhop"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/docker.svg" alt="Docker Hub pulls"></a>
   <br>
   <a href="https://github.com/xlollx/Trackhop/stargazers"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/stars.svg" alt="GitHub stars"></a>
@@ -25,10 +24,12 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 </p>
 
 <p align="center">
+  <b>Android</b><br>
   <a href="https://play.google.com/store/apps/details?id=com.xlollx.songport"><img src="docs/assets/badges/play.svg" height="56" alt="Get it on Google Play"></a>
   <a href="https://appgallery.huawei.com/app/C119677919"><img src="docs/assets/badges/appgallery.svg" height="56" alt="Explore it on Huawei AppGallery"></a>
   <a href="https://f-droid.org/packages/com.xlollx.songport/"><img src="docs/assets/badges/fdroid.svg" height="56" alt="Get it on F-Droid"></a>
   <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/xlollx/Trackhop"><img src="docs/assets/badges/obtainium.svg" height="56" alt="Get it on Obtainium"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/v2.1.4/Trackhop-v2.1.4.apk"><img src="docs/assets/badges/github.svg" height="56" alt="Download the APK from GitHub (2.1.4)"></a>
 </p>
 
 <p align="center">
@@ -39,19 +40,32 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 </p>
 
 <p align="center">
-  <b>On a computer or a server?</b> <sub>(Docker and Azure: beta)</sub><br>
+  <b>Desktop</b> <sub>Windows, macOS, Linux</sub><br>
   <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P"><img src="docs/assets/badges/msstore.svg" height="56" alt="Get it from the Microsoft Store"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
+</p>
+
+<p align="center">
+  <b>Self-hosted</b> <sub>(beta) on your server, NAS or Raspberry Pi</sub><br>
   <a href="https://trackhop.org/guide/docker"><img src="docs/assets/badges/docker.svg" height="56" alt="Run it on Docker"></a>
+  <a href="https://github.com/xlollx/umbrel-apps"><img src="docs/assets/badges/umbrel.svg" height="56" alt="Get it on Umbrel (community app store)"></a>
+  <a href="https://trackhop.org/guide/docker#one-click-installs"><img src="docs/assets/badges/caprover.svg" height="56" alt="Get it on CapRover (One-Click Apps)"></a>
+</p>
+
+<p align="center">
+  <b>Cloud</b> <sub>(beta) no server at home: online in your own account, billed by the provider</sub><br>
   <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json"><img src="docs/assets/badges/azure.svg" height="56" alt="Deploy on Azure (beta)"></a>
+  <a href="https://render.com/deploy?repo=https://github.com/xlollx/Trackhop"><img src="docs/assets/badges/render.svg" height="56" alt="Deploy on Render (beta)"></a>
+  <a href="https://railway.com/deploy/NC9rYj?referralCode=a8qH2n"><img src="docs/assets/badges/railway.svg" height="56" alt="Deploy on Railway (beta)"></a>
 </p>
 
 <p align="center"><b>♥ Thank you</b> to the people who keep Trackhop free:<br>
 <!-- supporters:start -->
 THE ICON · Michel Henke · Pisqui❤️ · BjörnH. · Bougtib · Anonymous Mixtape · Anonymous Encore · Anonymous B-side · Ingo Wolf · Villordsutch · Il terronazzo · Alan · Anonymous Bassline · Anonymous Night Owl · Daniel · POPLOP007
 <!-- supporters:end -->
+<br><a href="https://ko-fi.com/xlollx"><img src="docs/assets/badges/kofi.svg" height="28" alt="Support me on Ko-fi"></a>
 <br><sub>Want your name here? <a href="https://ko-fi.com/xlollx">Ko-fi</a> (card or PayPal) or <a href="https://github.com/sponsors/xlollx">GitHub Sponsors</a>.</sub></p>
 
 <p align="center"><img src="docs/store/demo.gif" width="200" alt="A tour of Trackhop: syncs, a new sync, accounts, the Discover tab, a shared track, the compatibility and poster cards, unplayable tracks, settings, the welcome screen"></p>
@@ -140,14 +154,15 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
   built in. [Which Trackhop?](https://trackhop.org/guide/versions) compares them.
 - **Desktop (Windows, macOS, Linux)**: the same engine as a program on your
   computer, with its own Java runtime (no Java or Docker to install, no administrator rights), an icon
-  next to the clock and the same web page as the server. Version 2.1.2 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v2.1.2)):
-  [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-windows.msi) ·
-  [Windows, no install (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-windows.zip) ·
-  [macOS, Apple silicon](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-macos-arm64.dmg) ·
-  [macOS, Intel](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-macos-x64.dmg) ·
-  [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-linux.deb) ·
-  [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-linux.tar.gz) ·
-  [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-linux.flatpak). See the
+  next to the clock and the same web page as the server. Version 2.1.5 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v2.1.5)):
+  [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-windows.msi) ·
+  [Windows, no install (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-windows.zip) ·
+  [macOS, Apple silicon](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-macos-arm64.dmg) ·
+  [macOS, Intel](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-macos-x64.dmg) ·
+  [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-linux.deb) ·
+  [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-linux.tar.gz) ·
+  [Linux ARM / Raspberry Pi .deb](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-linux-arm64.deb) ·
+  [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-linux.flatpak). See the
   [Desktop guide](https://trackhop.org/guide/desktop); every version is in the
   [Desktop & Server releases](https://github.com/xlollx/Trackhop/releases?q=server-v&expanded=true) (`server-v…`).
   With [Scoop](https://github.com/xlollx/scoop-bucket): `scoop bucket add xlollx https://github.com/xlollx/scoop-bucket`
@@ -711,6 +726,8 @@ PY
 ```
 
 ## Donations
+
+<a href="https://ko-fi.com/xlollx"><img src="docs/assets/badges/kofi.svg" height="28" alt="Support me on Ko-fi"></a>
 
 - Ko-fi (card or PayPal) and GitHub Sponsors. No other channel: a direct PayPal link would show the
   developer's full name, so PayPal goes through Ko-fi.

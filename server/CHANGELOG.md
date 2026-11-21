@@ -5,6 +5,21 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`, `v2.x`)
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 2.1.5
+
+- **Linux `.deb` on older systems**: the `.deb` files (PC and ARM) install again on Debian 12, Raspberry Pi OS Bookworm and Ubuntu 22.04; 2.1.4's asked for a package those systems do not have.
+
+## 2.1.4
+
+- **Raspberry Pi and Linux on ARM**: Trackhop Desktop for 64-bit ARM, as a `.deb` and a `.tar.gz` (`-linux-arm64`), for a Raspberry Pi 4 or 5 with a 64-bit system and ARM laptops. The Docker image already ran there.
+
+## 2.1.3
+
+Docker fix.
+
+- **Docker, a new data folder**: when Docker creates the data folder itself (a folder in a compose file, Unraid's appdata, a cloud volume), Trackhop can now write there; before, it could not save anything. The container starts as root only to give that folder to Trackhop's own user, then runs Trackhop as that user, never as root. New `PUID` and `PGID` pick another user, for example `99` and `100` on Unraid.
+- **Render**: a "Deploy to Render" button in the README; Trackhop takes Render's address by itself.
+
 ## 2.1.2
 
 Fixes, released with the app's 2.1.4.

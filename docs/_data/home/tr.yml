@@ -8,6 +8,7 @@ tabs_label: Trackhop nereye kurulur
 tab_phone: Android
 tab_computer: Bilgisayar
 tab_server: Kendi sunucun
+tab_cloud: 'Bulut'
 play_alt: "Google Play'den edinin"
 play_note: 'Şimdi yayında'
 appgallery_alt: "Huawei AppGallery’de keşfet"
@@ -35,11 +36,18 @@ azure_title: "Beta: kendi Azure aboneliğinde çalışır (ayda yaklaşık 5 $)"
 azure_alt: Azure'a dağıt (beta)
 azure_note: 'Beta · kendi aboneliğin, ayda yaklaşık 5 &#36; · <a href="/guide/docker#on-azure-beta">ayrıntılar</a>'
 server_more: 'Bir web sayfası, zamanlanmış senkronizasyonlar, bir API · Tüm ev halkı için <a href="/guide/docker#several-people-on-one-server">herkese ayrı hesap</a>'
+umbrel_alt: 'Umbrel''den edinin'
+umbrel_note: 'umbrelOS için uygulama mağazamız'
+caprover_alt: 'CapRover''dan edinin'
+caprover_note: 'One-Click Apps kataloğunda'
+render_alt: 'Render''a dağıt (beta)'
+render_note: 'Beta · Render hesabından ücretlendirilir'
+railway_alt: 'Railway''e dağıt (beta)'
+railway_note: 'Beta · Railway hesabından ücretlendirilir'
+cloud_more: 'Evde sunucu yoksa: Trackhop kendi hesabında çevrimiçi, HTTPS adresi ve zamanlanmış senkronizasyonlarla'
 virustotal: Her indirme VirusTotal'da kontrol edildi
 downloads: "{n} indirme"
 downloads_title: GitHub sürüm indirmeleri ve Docker Hub çekmeleri. F-Droid ve mağazalar sayı yayımlamıyor, yani gerçek sayı daha yüksek.
-playlists_synced: "{n} herkese açık çalma listesi senkronize"
-playlists_synced_title: "Trackhop'un senkronize tuttuğu Spotify ve YouTube'daki herkese açık çalma listeleri (açıklamalarında “Synced with Trackhop” yazar). Gizli listeler ve diğer servisler sayılmaz, gerçek sayı daha yüksektir."
 demo_alt: "Trackhop turu: senkronizasyonlar, yeni bir senkronizasyon, hesaplar, araçlar, paylaşılan bir parça, uyumluluk ve poster kartları, çalınamayan parçalar, ayarlar"
 what_title: Ne yapar
 what_intro: Bir kaynak ve bir hedef seç, ne sıklıkla olacağını belirle. Trackhop her parçayı diğer tarafta bulur, neyin değişeceğini gösterir ve ikisini uyum içinde tutar.

@@ -3,7 +3,7 @@ The home page, in the page's language: its text comes from _data/home/<lang>.yml
 a language lacks). index.html and the translated homes (it/index.html…) only include this.
 The Desktop version is set here, once, for every language.
 {%- endcomment -%}
-{%- assign dv = "2.1.0" -%}
+{%- assign dv = "2.1.5" -%}
 {%- assign dl = "https://github.com/xlollx/Trackhop/releases/download/server-v" | append: dv -%}
 {%- assign hl = page.lang | default: "en" | slice: 0, 2 -%}
 {%- assign en = site.data.home.en -%}
@@ -19,6 +19,7 @@ The Desktop version is set here, once, for every language.
         <button type="button" role="tab" data-tab="phone" aria-selected="true">{{ h.tab_phone | default: en.tab_phone }}</button>
         <button type="button" role="tab" data-tab="computer" aria-selected="false">{{ h.tab_computer | default: en.tab_computer }}</button>
         <button type="button" role="tab" data-tab="server" aria-selected="false">{{ h.tab_server | default: en.tab_server }}</button>
+        <button type="button" role="tab" data-tab="cloud" aria-selected="false">{{ h.tab_cloud | default: en.tab_cloud }}</button>
       </div>
       <div class="panel" data-panel="phone" role="tabpanel">
         <div class="get cols">
@@ -74,16 +75,37 @@ The Desktop version is set here, once, for every language.
             <small>{{ h.docker_note | default: en.docker_note }}</small>
           </div>
           <div class="col">
-            <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json" title="{{ h.azure_title | default: en.azure_title }}"><img src="/assets/badges/azure.svg" alt="{{ h.azure_alt | default: en.azure_alt }}"></a>
-            <small>{{ h.azure_note | default: en.azure_note }}</small>
+            <a href="https://github.com/xlollx/umbrel-apps"><img src="/assets/badges/umbrel.svg" alt="{{ h.umbrel_alt | default: en.umbrel_alt }}"></a>
+            <small>{{ h.umbrel_note | default: en.umbrel_note }}</small>
+          </div>
+          <div class="col">
+            <a href="/guide/docker#one-click-installs"><img src="/assets/badges/caprover.svg" alt="{{ h.caprover_alt | default: en.caprover_alt }}"></a>
+            <small>{{ h.caprover_note | default: en.caprover_note }}</small>
           </div>
         </div>
         <p class="more">{{ h.server_more | default: en.server_more }}</p>
       </div>
+      <div class="panel" data-panel="cloud" role="tabpanel">
+        <div class="get cols">
+          <div class="col">
+            <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json" title="{{ h.azure_title | default: en.azure_title }}"><img src="/assets/badges/azure.svg" alt="{{ h.azure_alt | default: en.azure_alt }}"></a>
+            <small>{{ h.azure_note | default: en.azure_note }}</small>
+          </div>
+          <div class="col">
+            <a href="https://render.com/deploy?repo=https://github.com/xlollx/Trackhop"><img src="/assets/badges/render.svg" alt="{{ h.render_alt | default: en.render_alt }}"></a>
+            <small>{{ h.render_note | default: en.render_note }}</small>
+          </div>
+          <div class="col">
+            <a href="https://railway.com/deploy/NC9rYj?referralCode=a8qH2n"><img src="/assets/badges/railway.svg" alt="{{ h.railway_alt | default: en.railway_alt }}"></a>
+            <small>{{ h.railway_note | default: en.railway_note }}</small>
+          </div>
+        </div>
+        <p class="more">{{ h.cloud_more | default: en.cloud_more }}</p>
+      </div>
       <script>
         (function () {
           var tabs = document.querySelectorAll(".platforms [data-tab]");
-          // Android first, always: it is the main app; Desktop and Self-hosted are one tap away.
+          // Android first, always: it is the main app; Desktop, Self-hosted and Cloud are one tap away.
           var pick = "phone";
           function show(name) {
             tabs.forEach(function (t) { t.setAttribute("aria-selected", t.dataset.tab === name); });
@@ -95,8 +117,7 @@ The Desktop version is set here, once, for every language.
         })();
       </script>
       <div class="proof"><a class="trust" href="/guide/security"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>{{ h.virustotal | default: en.virustotal }}</a>
-      <p class="downloads" id="downloads" hidden><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M5 20h14v-2H5v2zm7-3 6-6-1.41-1.41L13 13.17V4h-2v9.17l-3.59-3.58L6 11l6 6z"/></svg><span></span></p>
-      <p class="downloads" id="playlists" hidden><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M3 6h12v2H3V6zm0 4h12v2H3v-2zm0 4h8v2H3v-2zm14-4v6.18A3 3 0 1 0 19 19v-7h3v-2h-5z"/></svg><span></span></p></div>
+      <p class="downloads" id="downloads" hidden><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M5 20h14v-2H5v2zm7-3 6-6-1.41-1.41L13 13.17V4h-2v9.17l-3.59-3.58L6 11l6 6z"/></svg><span></span></p></div>
       <script>
         fetch("https://raw.githubusercontent.com/xlollx/Trackhop/badges/downloads-detail.json")
           .then(function (r) { return r.ok ? r.json() : null; })
@@ -105,17 +126,6 @@ The Desktop version is set here, once, for every language.
             var el = document.getElementById("downloads");
             el.querySelector("span").textContent = {{ h.downloads | default: en.downloads | jsonify }}.replace("{n}", (Math.floor(d.total / 100) * 100).toLocaleString({{ hl | jsonify }}) + "+");
             el.title = {{ h.downloads_title | default: en.downloads_title | jsonify }};
-            el.hidden = false;
-          })
-          .catch(function () {});
-        // Public playlists that say "Synced with Trackhop" (scripts/public_playlists.py, once a day).
-        fetch("https://raw.githubusercontent.com/xlollx/Trackhop/badges/public-playlists.json")
-          .then(function (r) { return r.ok ? r.json() : null; })
-          .then(function (d) {
-            if (!d || !(d.total >= 10)) return;
-            var el = document.getElementById("playlists");
-            el.querySelector("span").textContent = {{ h.playlists_synced | default: en.playlists_synced | jsonify }}.replace("{n}", (Math.floor(d.total / 10) * 10).toLocaleString({{ hl | jsonify }}) + "+");
-            el.title = {{ h.playlists_synced_title | default: en.playlists_synced_title | jsonify }};
             el.hidden = false;
           })
           .catch(function () {});

@@ -19,6 +19,14 @@ note off each one once its channel is live.
 | Google Play (the app) | `play/whatsnew/`, `play.yml` | Closed testing | A service account, its key as a secret, the track's name | `play.yml` uploads the release's `.aab` with the notes in `play/whatsnew/<versionCode>/` |
 | Snap Store | `snap/`, `snap.yml` | **Live** ([snapcraft.io/trackhop](https://snapcraft.io/trackhop), stable since 0.8.0) | An Ubuntu One account, the name `trackhop`, one secret | `snap.yml` packs each Desktop release and publishes it to the stable channel (once its secret exists) |
 | Flathub | `flatpak/`, `flatpak.yml` | Needs owner action, review risk | Desktop screenshots, a release with these files, the submission PR | A PR in the Flathub repo per release |
+| AUR (Arch Linux) | `aur/`, `stores.yml` | Needs owner action | An AUR account with an SSH key, one secret | `stores.yml` updates `trackhop-bin`, builds and installs it on Arch, pushes it |
+| Pi-Apps (Raspberry Pi) | `pi-apps/` | Ready, waits for Desktop 2.1.4 (first `-linux-arm64.deb`) | Fork `Botspot/pi-apps`, `test_build.yml` on the fork, a run on a real Pi, the pull request | Pi-Apps' own updater (`updates/Trackhop.sh`) |
+| Unraid (Community Applications) | `unraid/` | **Approved** 21/11 (auto-approved, "Trackhop's Repository"; listed from the next catalog build) | Repository `xlollx/unraid-templates` with these files, submission at ca.unraid.net/submit | The template uses `latest`: nothing |
+| Umbrel (our community store) | `umbrel/` | Ready | Repository `xlollx/umbrel-apps` with these files | The image tag and `version` bumped in that repository |
+| Dokploy | `dokploy/trackhop/` | Ready | A pull request to `Dokploy/templates` (`blueprints/trackhop/`, branch `canary`) | A pull request with the new version |
+| CapRover | `caprover/` | **Live** (merged 21/11, One-Click Apps) | A pull request to `caprover/one-click-apps` (`public/v4/apps/trackhop.yml`, logo in `public/v4/logos/`) | Users pick the version; the default bumped by pull request |
+| Railway | `railway/README.md` | **Live** ([template](https://railway.com/deploy/NC9rYj), README button) | The template made in Railway's dashboard, its link in the README | Follows `latest` |
+| Render | `render.yaml` (repository root) | **Live** (README button) | Nothing: the README's button reads `render.yaml` | Follows `latest` |
 
 Secrets and variables go in GitHub: *Settings › Secrets and variables › Actions*, in the
 *Secrets* or *Variables* tab, *New repository secret/variable*.
@@ -374,3 +382,59 @@ artifact and, once the secret exists, publishes it to the stable channel.
 **Each release:** a pull request in `flathub/io.github.xlollx.Trackhop` with the new tag and commit
 (Flathub's external data checker opens it by itself thanks to `x-checker-data`), plus a fresh
 `gradle-sources.json` whenever dependencies changed, and the new `<release>` in the metainfo here.
+
+---
+
+## AUR (Arch Linux)
+
+**In the repository.** `aur/PKGBUILD` makes `trackhop-bin` from the release's
+`Trackhop-Desktop-v<version>-linux.tar.gz` (with its own Java runtime): the app in `/opt/trackhop`,
+`trackhop` and `trackhop-cli` in `/usr/bin`, `aur/trackhop.desktop` in the menu. The `aur` job of
+`stores.yml`, on Arch, sets `pkgver` (and `pkgrel=1`), updates the checksums, writes `.SRCINFO`,
+builds and installs the package, checks `trackhop-cli --help`, then pushes to
+`ssh://aur@aur.archlinux.org/trackhop-bin.git` (the first push creates the package; a version
+already there is skipped). It checks the AUR's host key against the fingerprint on aur.archlinux.org.
+A fix to the `PKGBUILD` alone, with no new version: bump `pkgrel` by hand in the AUR repository.
+
+**Once:**
+
+1. On your computer: `ssh-keygen -t ed25519 -f aur_trackhop -C trackhop-aur -N ""` (two files: `aur_trackhop` is
+   private, `aur_trackhop.pub` is public).
+2. Register at [aur.archlinux.org/register](https://aur.archlinux.org/register) (user name
+   `xlollx`), and paste the content of `aur_trackhop.pub` in *SSH Public Key*.
+3. In GitHub, the secret `AUR_SSH_KEY` with the whole content of `aur_trackhop` (the private file).
+   Then delete both files from your computer.
+4. *Actions › Stores › Run workflow* with the current Desktop version, only *aur* ticked.
+
+**Then:** `yay -S trackhop-bin` (or any AUR helper) installs it; every Desktop release updates it.
+
+---
+
+## Self-hosted app stores (Unraid, Umbrel, Dokploy, CapRover) and cloud buttons (Railway, Render)
+
+All run the same image. Since server 2.1.3 the image starts as root only to give `/data` to its user
+(or `PUID`/`PGID`) and runs the server as that user (`server/docker-entrypoint.sh`): a folder Docker
+creates for a bind mount, Unraid's `appdata`, Railway's volume and Render's disk belong to root, and
+older images could not write there. Umbrel runs it as its own user `1000` (`user:` in the compose
+file); Dokploy and CapRover use named volumes.
+
+**Unraid.** A public repository `xlollx/unraid-templates` with `LICENSE` (AGPL-3.0), `ca_profile.xml`
+and `templates/trackhop.xml` from `unraid/`. Then [ca.unraid.net/submit](https://ca.unraid.net/submit):
+**Validate**, **Scan**, submit. The template is marked beta (`<Beta>True</Beta>`); questions arrive on
+GitHub issues. Unraid's defaults `PUID=99`, `PGID=100` keep `appdata/trackhop` owned like the rest.
+
+**Umbrel.** A public repository `xlollx/umbrel-apps` with the content of `umbrel/` at its root. Users
+add it in umbrelOS (*App Store › ⋯ › Community App Stores*). On each release: the image tag in
+`docker-compose.yml` and `version` in `umbrel-app.yml`.
+
+**Dokploy.** Fork `Dokploy/templates`, copy `dokploy/trackhop/` to `blueprints/trackhop/` on
+`canary`, run `node build-scripts/generate-meta.js --check`, open the pull request and test its
+preview link.
+
+**CapRover.** Fork `caprover/one-click-apps`, copy `caprover/trackhop.yml` to
+`public/v4/apps/trackhop.yml` and `caprover/trackhop.png` to `public/v4/logos/trackhop.png`, try it
+through the dashboard's *One-Click Apps › TEMPLATE*, open the pull request.
+
+**Railway.** `railway/README.md`. **Render.** `render.yaml` at the repository root; the button is
+`https://render.com/deploy?repo=https://github.com/xlollx/Trackhop`. A Render disk needs a paid
+instance; billed to the user's account, like Azure.
