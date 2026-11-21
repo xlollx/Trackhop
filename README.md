@@ -51,6 +51,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 <!-- supporters:start -->
 THE ICON · Michel Henke · Pisqui❤️ · BjörnH. · Bougtib · Anonymous Mixtape · Anonymous Encore · Anonymous B-side · Ingo Wolf · Villordsutch · Il terronazzo · Alan · Anonymous Bassline · Anonymous Night Owl · Daniel · POPLOP007
 <!-- supporters:end -->
+<br><a href="https://ko-fi.com/xlollx"><img src="docs/assets/badges/kofi.svg" height="28" alt="Support me on Ko-fi"></a>
 <br><sub>Want your name here? <a href="https://ko-fi.com/xlollx">Ko-fi</a> (card or PayPal) or <a href="https://github.com/sponsors/xlollx">GitHub Sponsors</a>.</sub></p>
 
 <p align="center"><img src="docs/store/demo.gif" width="200" alt="A tour of Trackhop: syncs, a new sync, accounts, the Discover tab, a shared track, the compatibility and poster cards, unplayable tracks, settings, the welcome screen"></p>
@@ -710,6 +711,8 @@ PY
 ```
 
 ## Donations
+
+<a href="https://ko-fi.com/xlollx"><img src="docs/assets/badges/kofi.svg" height="28" alt="Support me on Ko-fi"></a>
 
 - Ko-fi (card or PayPal) and GitHub Sponsors. No other channel: a direct PayPal link would show the
   developer's full name, so PayPal goes through Ko-fi.
