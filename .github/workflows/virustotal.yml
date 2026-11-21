@@ -139,6 +139,10 @@ jobs:
           KNOWN = [
               # Reported to Panda on 18/11 (Desktop Linux archive, a playlist parser read as an exploit).
               ("Panda", "Exploit/WinampPLS", "-linux.tar.gz"),
+              # The same verdict on the same code in the Windows archive and MSIX (server 2.1.3, 21/11):
+              # added with the owner's OK, to be reported to Panda like the Linux one.
+              ("Panda", "Exploit/WinampPLS", "-windows.zip"),
+              ("Panda", "Exploit/WinampPLS", "-windows.msix"),
           ]
           serious, guesses = [], []
           for f in r["files"]:
