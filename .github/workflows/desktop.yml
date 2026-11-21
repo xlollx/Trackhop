@@ -38,8 +38,11 @@ jobs:
       fail-fast: false
       matrix:
         # macOS twice: Apple silicon (macos-latest) and Intel, one .dmg each. Linux twice too: x86_64 and
-        # 64-bit ARM (ubuntu-24.04-arm: Raspberry Pi 4/5, ARM laptops), a .deb and a .tar.gz each.
-        os: [ ubuntu-latest, ubuntu-24.04-arm, windows-latest, macos-latest, macos-15-intel ]
+        # 64-bit ARM (Raspberry Pi 4/5, ARM laptops), a .deb and a .tar.gz each. Linux on Ubuntu 22.04:
+        # jpackage writes the .deb's dependencies from the build system's packages, and 24.04's
+        # (libasound2t64…) do not exist on Debian 12 / Raspberry Pi OS Bookworm or Ubuntu 22.04, while
+        # 22.04's names are understood by the newer ones too.
+        os: [ ubuntu-22.04, ubuntu-22.04-arm, windows-latest, macos-latest, macos-15-intel ]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -72,10 +75,19 @@ jobs:
       - name: Tests and build
         # The tests on Linux x86_64 and Windows only: the other packages run the same JVM code (and
         # server.yml tests it too), so the Macs and Linux ARM only build.
-        run: gradle -p server ${{ (matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest') && 'test' || '' }} installDist desktopLibs --no-daemon --stacktrace
+        run: gradle -p server ${{ (matrix.os == 'ubuntu-22.04' || matrix.os == 'windows-latest') && 'test' || '' }} installDist desktopLibs --no-daemon --stacktrace
 
       - name: Package
         run: server/desktop/package.sh
+
+      - name: The .deb installs on older systems too
+        # No time64 package names (libasound2t64…) in its dependencies: Bookworm and 22.04 lack them.
+        if: runner.os == 'Linux'
+        run: |
+          for deb in dist/*.deb; do
+            deps=$(dpkg-deb -f "$deb" Depends); echo "$deb: $deps"
+            if echo "$deps" | grep -q 't64'; then echo "::error::$deb depends on a time64 package name"; exit 1; fi
+          done
 
       - name: MSIX (Microsoft Store)
         # Unsigned: the Store signs it. The identity is Partner Center's (Product identity), kept as
