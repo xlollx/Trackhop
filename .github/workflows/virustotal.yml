@@ -143,6 +143,8 @@ jobs:
               # added with the owner's OK, to be reported to Panda like the Linux one.
               ("Panda", "Exploit/WinampPLS", "-windows.zip"),
               ("Panda", "Exploit/WinampPLS", "-windows.msix"),
+              # And on the Linux ARM archive (server 2.1.4, 21/11), with the owner's OK.
+              ("Panda", "Exploit/WinampPLS", "-linux-arm64.tar.gz"),
           ]
           serious, guesses = [], []
           for f in r["files"]:
