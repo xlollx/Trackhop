@@ -195,7 +195,7 @@ jobs:
           echo "version=$v" >> "$GITHUB_OUTPUT"
 
   stores:
-    # The new release to winget and Chocolatey (stores.yml; each skipped until its secret exists).
+    # The new release to winget, Chocolatey and the AUR (stores.yml; each skipped until its secret exists).
     # Here rather than on the release event: a release made with the workflow's own token starts no
     # other workflow.
     needs: release

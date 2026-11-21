@@ -4,7 +4,7 @@ name: Stores
 # managers: a pull request to winget's community repository, and the Chocolatey package pushed to
 # the community repository's moderation. Each part runs only once its secret exists (WINGET_TOKEN,
 # CHOCOLATEY_API_KEY: packaging/README.md says how to get them); without it, it says so and stops.
-# Called by desktop.yml after a new release; by hand (Actions › Stores › Run workflow) to send a
+# AUR: trackhop-bin, pushed with AUR_SSH_KEY. Called by desktop.yml after a new release; by hand (Actions › Stores › Run workflow) to send a
 # release again. Scoop's bucket updates itself (its Excavator), Flathub and the Microsoft Store by
 # hand (packaging/README.md).
 on:
@@ -25,6 +25,10 @@ on:
         default: true
       chocolatey:
         description: 'Push the Chocolatey package'
+        type: boolean
+        default: true
+      aur:
+        description: 'Push trackhop-bin to the AUR'
         type: boolean
         default: true
 
@@ -117,3 +121,60 @@ jobs:
           name: chocolatey-trackhop-${{ inputs.version }}
           path: choco-out/*.nupkg
           retention-days: 30
+
+  aur:
+    # AUR_SSH_KEY: the private half of an SSH key whose public half is in the xlollx account on
+    # aur.archlinux.org (packaging/README.md, AUR). packaging/aur/ with the new version and checksum,
+    # built and installed here on Arch, then pushed to trackhop-bin (the first push creates it).
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.aur }}
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    env:
+      AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
+      VERSION: ${{ inputs.version }}
+      # The AUR's Ed25519 host key, as aur.archlinux.org's home page lists it.
+      AUR_HOST_KEY: SHA256:RFzBCUItH9LZS0cKB5UE6ceAYhBD5C8GeOBip8Z11+4
+      GIT_SSH_COMMAND: ssh -i /root/.ssh/aur -o IdentitiesOnly=yes -o UserKnownHostsFile=/root/.ssh/known_hosts -o StrictHostKeyChecking=yes
+    steps:
+      - name: No AUR_SSH_KEY
+        if: env.AUR_SSH_KEY == ''
+        run: 'echo "::notice::AUR skipped, no AUR_SSH_KEY secret yet (packaging/README.md)"'
+
+      - name: Tools
+        if: env.AUR_SSH_KEY != ''
+        run: pacman -Syu --noconfirm --needed git openssh pacman-contrib
+
+      - name: Checkout
+        if: env.AUR_SSH_KEY != ''
+        uses: actions/checkout@v7
+
+      - name: SSH
+        # In /root/.ssh, not ~ ($HOME is /github/home in a container job, and ssh ignores $HOME).
+        if: env.AUR_SSH_KEY != ''
+        run: |
+          install -d -m 700 /root/.ssh
+          printf '%s\n' "$AUR_SSH_KEY" > /root/.ssh/aur && chmod 600 /root/.ssh/aur
+          ssh-keyscan -t ed25519 aur.archlinux.org > /root/.ssh/known_hosts 2> /dev/null
+          [ "$(ssh-keygen -lf /root/.ssh/known_hosts | awk '{print $2}')" = "$AUR_HOST_KEY" ] || { echo "::error::AUR host key does not match"; exit 1; }
+
+      - name: Package, build and install
+        if: env.AUR_SSH_KEY != ''
+        run: |
+          git clone ssh://aur@aur.archlinux.org/trackhop-bin.git aur
+          cp packaging/aur/PKGBUILD packaging/aur/trackhop.desktop aur/
+          sed -i -e "s/^pkgver=.*/pkgver=$VERSION/" -e "s/^pkgrel=.*/pkgrel=1/" aur/PKGBUILD
+          useradd -m builder && chown -R builder aur
+          # makepkg never runs as root; pacman -U then brings the dependencies.
+          su builder -c 'cd aur && updpkgsums && makepkg --printsrcinfo > .SRCINFO && makepkg -f --nodeps'
+          pacman -U --noconfirm aur/trackhop-bin-$VERSION-1-x86_64.pkg.tar.zst
+          timeout 60 trackhop-cli --help > /dev/null
+
+      - name: Push
+        if: env.AUR_SSH_KEY != ''
+        run: |
+          cd aur
+          git config --global --add safe.directory "$PWD"
+          git add PKGBUILD .SRCINFO trackhop.desktop
+          if git diff --cached --quiet; then echo "trackhop-bin $VERSION is on the AUR already."; exit 0; fi
+          git -c user.name=xlollx -c user.email=72248161+xlollx@users.noreply.github.com commit -q -m "trackhop-bin $VERSION"
+          git push origin HEAD:master

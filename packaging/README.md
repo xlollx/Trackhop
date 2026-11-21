@@ -19,6 +19,7 @@ note off each one once its channel is live.
 | Google Play (the app) | `play/whatsnew/`, `play.yml` | Closed testing | A service account, its key as a secret, the track's name | `play.yml` uploads the release's `.aab` with the notes in `play/whatsnew/<versionCode>/` |
 | Snap Store | `snap/`, `snap.yml` | **Live** ([snapcraft.io/trackhop](https://snapcraft.io/trackhop), stable since 0.8.0) | An Ubuntu One account, the name `trackhop`, one secret | `snap.yml` packs each Desktop release and publishes it to the stable channel (once its secret exists) |
 | Flathub | `flatpak/`, `flatpak.yml` | Needs owner action, review risk | Desktop screenshots, a release with these files, the submission PR | A PR in the Flathub repo per release |
+| AUR (Arch Linux) | `aur/`, `stores.yml` | Needs owner action | An AUR account with an SSH key, one secret | `stores.yml` updates `trackhop-bin`, builds and installs it on Arch, pushes it |
 
 Secrets and variables go in GitHub: *Settings › Secrets and variables › Actions*, in the
 *Secrets* or *Variables* tab, *New repository secret/variable*.
@@ -374,3 +375,28 @@ artifact and, once the secret exists, publishes it to the stable channel.
 **Each release:** a pull request in `flathub/io.github.xlollx.Trackhop` with the new tag and commit
 (Flathub's external data checker opens it by itself thanks to `x-checker-data`), plus a fresh
 `gradle-sources.json` whenever dependencies changed, and the new `<release>` in the metainfo here.
+
+---
+
+## AUR (Arch Linux)
+
+**In the repository.** `aur/PKGBUILD` makes `trackhop-bin` from the release's
+`Trackhop-Desktop-v<version>-linux.tar.gz` (with its own Java runtime): the app in `/opt/trackhop`,
+`trackhop` and `trackhop-cli` in `/usr/bin`, `aur/trackhop.desktop` in the menu. The `aur` job of
+`stores.yml`, on Arch, sets `pkgver` (and `pkgrel=1`), updates the checksums, writes `.SRCINFO`,
+builds and installs the package, checks `trackhop-cli --help`, then pushes to
+`ssh://aur@aur.archlinux.org/trackhop-bin.git` (the first push creates the package; a version
+already there is skipped). It checks the AUR's host key against the fingerprint on aur.archlinux.org.
+A fix to the `PKGBUILD` alone, with no new version: bump `pkgrel` by hand in the AUR repository.
+
+**Once:**
+
+1. On your computer: `ssh-keygen -t ed25519 -f aur_trackhop -C trackhop-aur -N ""` (two files: `aur_trackhop` is
+   private, `aur_trackhop.pub` is public).
+2. Register at [aur.archlinux.org/register](https://aur.archlinux.org/register) (user name
+   `xlollx`), and paste the content of `aur_trackhop.pub` in *SSH Public Key*.
+3. In GitHub, the secret `AUR_SSH_KEY` with the whole content of `aur_trackhop` (the private file).
+   Then delete both files from your computer.
+4. *Actions › Stores › Run workflow* with the current Desktop version, only *aur* ticked.
+
+**Then:** `yay -S trackhop-bin` (or any AUR helper) installs it; every Desktop release updates it.
