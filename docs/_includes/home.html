@@ -19,6 +19,7 @@ The Desktop version is set here, once, for every language.
         <button type="button" role="tab" data-tab="phone" aria-selected="true">{{ h.tab_phone | default: en.tab_phone }}</button>
         <button type="button" role="tab" data-tab="computer" aria-selected="false">{{ h.tab_computer | default: en.tab_computer }}</button>
         <button type="button" role="tab" data-tab="server" aria-selected="false">{{ h.tab_server | default: en.tab_server }}</button>
+        <button type="button" role="tab" data-tab="cloud" aria-selected="false">{{ h.tab_cloud | default: en.tab_cloud }}</button>
       </div>
       <div class="panel" data-panel="phone" role="tabpanel">
         <div class="get cols">
@@ -74,16 +75,33 @@ The Desktop version is set here, once, for every language.
             <small>{{ h.docker_note | default: en.docker_note }}</small>
           </div>
           <div class="col">
-            <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json" title="{{ h.azure_title | default: en.azure_title }}"><img src="/assets/badges/azure.svg" alt="{{ h.azure_alt | default: en.azure_alt }}"></a>
-            <small>{{ h.azure_note | default: en.azure_note }}</small>
+            <a href="https://github.com/xlollx/umbrel-apps"><img src="/assets/badges/umbrel.svg" alt="{{ h.umbrel_alt | default: en.umbrel_alt }}"></a>
+            <small>{{ h.umbrel_note | default: en.umbrel_note }}</small>
           </div>
         </div>
         <p class="more">{{ h.server_more | default: en.server_more }}</p>
       </div>
+      <div class="panel" data-panel="cloud" role="tabpanel">
+        <div class="get cols">
+          <div class="col">
+            <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json" title="{{ h.azure_title | default: en.azure_title }}"><img src="/assets/badges/azure.svg" alt="{{ h.azure_alt | default: en.azure_alt }}"></a>
+            <small>{{ h.azure_note | default: en.azure_note }}</small>
+          </div>
+          <div class="col">
+            <a href="https://render.com/deploy?repo=https://github.com/xlollx/Trackhop"><img src="/assets/badges/render.svg" alt="{{ h.render_alt | default: en.render_alt }}"></a>
+            <small>{{ h.render_note | default: en.render_note }}</small>
+          </div>
+          <div class="col">
+            <a href="https://railway.com/deploy/NC9rYj?referralCode=a8qH2n"><img src="/assets/badges/railway.svg" alt="{{ h.railway_alt | default: en.railway_alt }}"></a>
+            <small>{{ h.railway_note | default: en.railway_note }}</small>
+          </div>
+        </div>
+        <p class="more">{{ h.cloud_more | default: en.cloud_more }}</p>
+      </div>
       <script>
         (function () {
           var tabs = document.querySelectorAll(".platforms [data-tab]");
-          // Android first, always: it is the main app; Desktop and Self-hosted are one tap away.
+          // Android first, always: it is the main app; Desktop, Self-hosted and Cloud are one tap away.
           var pick = "phone";
           function show(name) {
             tabs.forEach(function (t) { t.setAttribute("aria-selected", t.dataset.tab === name); });

@@ -8,6 +8,7 @@ tabs_label: Trackhop のインストール先
 tab_phone: Android
 tab_computer: デスクトップ
 tab_server: セルフホスト
+tab_cloud: 'クラウド'
 play_alt: "Google Play で手に入れよう"
 play_note: '配信中'
 appgallery_alt: "Huawei AppGallery で入手"
@@ -35,6 +36,13 @@ azure_title: "ベータ：あなた自身の Azure サブスクリプション�
 azure_alt: Azure にデプロイ（ベータ）
 azure_note: 'ベータ · あなた自身のサブスクリプション、月額約 &#36;5 · <a href="/guide/docker#on-azure-beta">詳細</a>'
 server_more: 'Web ページ、スケジュール同期、API · 家族みんなで<a href="/guide/docker#several-people-on-one-server">一人ずつアカウント</a>'
+umbrel_alt: 'Umbrel で入手'
+umbrel_note: 'umbrelOS 向けの私たちのアプリストア'
+render_alt: 'Render にデプロイ（ベータ）'
+render_note: 'ベータ · あなたの Render アカウントに請求'
+railway_alt: 'Railway にデプロイ（ベータ）'
+railway_note: 'ベータ · あなたの Railway アカウントに請求'
+cloud_more: '自宅にサーバーがなくても：あなた自身のアカウントで Trackhop をオンラインに。HTTPS アドレスとスケジュール同期つき'
 virustotal: すべてのダウンロードを VirusTotal でチェック済み
 downloads: "{n} ダウンロード"
 downloads_title: GitHub リリースのダウンロード数と Docker Hub のプル数。F-Droid やストアは数を公開していないため、実際はもっと多くなります。

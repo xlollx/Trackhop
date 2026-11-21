@@ -8,6 +8,7 @@ tabs_label: Где установить Trackhop
 tab_phone: Android
 tab_computer: Компьютер
 tab_server: Свой сервер
+tab_cloud: 'Облако'
 play_alt: "Доступно в Google Play"
 play_note: 'Уже доступно'
 appgallery_alt: "Найдите в Huawei AppGallery"
@@ -35,6 +36,13 @@ azure_title: "Бета: работает в вашей собственной п
 azure_alt: Развернуть в Azure (бета)
 azure_note: 'Бета · ваша собственная подписка, около 5 &#36; в месяц · <a href="/guide/docker#on-azure-beta">подробнее</a>'
 server_more: 'Веб-страница, синхронизация по расписанию, API · <a href="/guide/docker#several-people-on-one-server">Отдельный аккаунт</a> для каждого члена семьи'
+umbrel_alt: 'Установить из Umbrel'
+umbrel_note: 'Наш магазин приложений для umbrelOS'
+render_alt: 'Развернуть в Render (бета)'
+render_note: 'Бета · оплата с вашего аккаунта Render'
+railway_alt: 'Развернуть в Railway (бета)'
+railway_note: 'Бета · оплата с вашего аккаунта Railway'
+cloud_more: 'Без сервера дома: Trackhop онлайн в вашем собственном аккаунте, с адресом HTTPS и синхронизацией по расписанию'
 virustotal: Каждый файл проверен на VirusTotal
 downloads: "{n} загрузок"
 downloads_title: Загрузки релизов с GitHub и скачивания образа с Docker Hub. F-Droid и магазины приложений не публикуют счётчики, так что реальное число больше.

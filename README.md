@@ -48,12 +48,16 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 </p>
 
 <p align="center">
-  <b>Self-hosted</b> <sub>(beta)</sub><br>
+  <b>Self-hosted</b> <sub>(beta) on your server, NAS or Raspberry Pi</sub><br>
   <a href="https://trackhop.org/guide/docker"><img src="docs/assets/badges/docker.svg" height="56" alt="Run it on Docker"></a>
+  <a href="https://github.com/xlollx/umbrel-apps"><img src="docs/assets/badges/umbrel.svg" height="56" alt="Get it on Umbrel (community app store)"></a>
+</p>
+
+<p align="center">
+  <b>Cloud</b> <sub>(beta) no server at home: online in your own account, billed by the provider</sub><br>
   <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json"><img src="docs/assets/badges/azure.svg" height="56" alt="Deploy on Azure (beta)"></a>
   <a href="https://render.com/deploy?repo=https://github.com/xlollx/Trackhop"><img src="docs/assets/badges/render.svg" height="56" alt="Deploy on Render (beta)"></a>
   <a href="https://railway.com/deploy/NC9rYj?referralCode=a8qH2n"><img src="docs/assets/badges/railway.svg" height="56" alt="Deploy on Railway (beta)"></a>
-  <a href="https://github.com/xlollx/umbrel-apps"><img src="docs/assets/badges/umbrel.svg" height="56" alt="Get it on Umbrel (community app store)"></a>
 </p>
 
 <p align="center"><b>♥ Thank you</b> to the people who keep Trackhop free:<br>

@@ -10,6 +10,7 @@ tabs_label: Where to install Trackhop
 tab_phone: Android
 tab_computer: Desktop
 tab_server: Self-hosted
+tab_cloud: 'Cloud'
 play_alt: "Get it on Google Play"
 play_note: 'Available now'
 appgallery_alt: "Explore it on Huawei AppGallery"
@@ -37,6 +38,13 @@ azure_title: "Beta: runs in your own Azure subscription (about $5 a month)"
 azure_alt: Deploy on Azure (beta)
 azure_note: 'Beta · your own subscription, about &#36;5 a month · <a href="/guide/docker#on-azure-beta">details</a>'
 server_more: 'A web page, scheduled syncs, an API · <a href="/guide/docker#several-people-on-one-server">One account each</a> for the whole household'
+umbrel_alt: 'Get it on Umbrel'
+umbrel_note: 'Our app store for umbrelOS'
+render_alt: 'Deploy on Render (beta)'
+render_note: 'Beta · billed to your Render account'
+railway_alt: 'Deploy on Railway (beta)'
+railway_note: 'Beta · billed to your Railway account'
+cloud_more: 'No server at home: Trackhop online in your own account, with an HTTPS address and scheduled syncs'
 virustotal: Every download checked on VirusTotal
 downloads: "{n} downloads"
 downloads_title: GitHub release downloads and Docker Hub pulls. F-Droid and the stores publish no count, so the real number is higher.

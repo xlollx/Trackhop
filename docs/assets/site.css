@@ -271,6 +271,8 @@ a.card.link .go { margin-top: 12px; color: var(--accent); font-weight: 600; font
 .get .soon { cursor: default; }
 .get .soon img { opacity: .85; }
 @media (max-width: 640px) { .platforms button { padding: 7px 11px; font-size: .88rem; } }
+@media (max-width: 420px) { .platforms { gap: 2px; padding: 3px; } .platforms button { padding: 6px 8px; font-size: .82rem; white-space: nowrap; } }
+@media (max-width: 380px) { .platforms button { padding: 6px 6px; font-size: .78rem; } }
 @media (max-width: 640px) { .get.cols { grid-template-columns: repeat(2, 150px); } }
 .panel[data-panel="phone"] .get.cols, .panel[data-panel="computer"] .get.cols { grid-template-columns: repeat(2, 172px); }
 @media (max-width: 640px) { .panel[data-panel="phone"] .get.cols, .panel[data-panel="computer"] .get.cols { grid-template-columns: repeat(2, 150px); } }

@@ -8,6 +8,7 @@ tabs_label: Trackhop 설치 위치
 tab_phone: Android
 tab_computer: 데스크톱
 tab_server: 셀프 호스팅
+tab_cloud: '클라우드'
 play_alt: "Google Play에서 받기"
 play_note: '지금 이용 가능'
 appgallery_alt: "Huawei AppGallery에서 만나 보세요"
@@ -35,6 +36,13 @@ azure_title: "베타: 내 Azure 구독에서 실행 (월 약 5달러)"
 azure_alt: Azure에 배포 (베타)
 azure_note: '베타 · 내 구독에서, 월 약 &#36;5 · <a href="/guide/docker#on-azure-beta">자세히</a>'
 server_more: '웹 페이지, 예약 동기화, API · 온 가족이 <a href="/guide/docker#several-people-on-one-server">각자 계정</a>으로'
+umbrel_alt: 'Umbrel에서 받기'
+umbrel_note: 'umbrelOS용 우리 앱 스토어'
+render_alt: 'Render에 배포 (베타)'
+render_note: '베타 · 내 Render 계정으로 청구'
+railway_alt: 'Railway에 배포 (베타)'
+railway_note: '베타 · 내 Railway 계정으로 청구'
+cloud_more: '집에 서버가 없어도: 내 계정에서 Trackhop을 온라인으로, HTTPS 주소와 예약 동기화와 함께'
 virustotal: 모든 다운로드는 VirusTotal 검사 완료
 downloads: "{n}회 다운로드"
 downloads_title: GitHub 릴리스 다운로드 수와 Docker Hub pull 수예요. F-Droid와 스토어는 수치를 공개하지 않으니 실제로는 더 많아요.
