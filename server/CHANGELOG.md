@@ -5,6 +5,10 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`, `v2.x`)
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 2.1.4
+
+- **Raspberry Pi and Linux on ARM**: Trackhop Desktop for 64-bit ARM, as a `.deb` and a `.tar.gz` (`-linux-arm64`), for a Raspberry Pi 4 or 5 with a 64-bit system and ARM laptops. The Docker image already ran there.
+
 ## 2.1.3
 
 Docker fix.
