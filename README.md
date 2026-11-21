@@ -24,6 +24,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 </p>
 
 <p align="center">
+  <b>Android</b><br>
   <a href="https://play.google.com/store/apps/details?id=com.xlollx.songport"><img src="docs/assets/badges/play.svg" height="56" alt="Get it on Google Play"></a>
   <a href="https://appgallery.huawei.com/app/C119677919"><img src="docs/assets/badges/appgallery.svg" height="56" alt="Explore it on Huawei AppGallery"></a>
   <a href="https://f-droid.org/packages/com.xlollx.songport/"><img src="docs/assets/badges/fdroid.svg" height="56" alt="Get it on F-Droid"></a>
@@ -39,15 +40,19 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 </p>
 
 <p align="center">
-  <b>On a computer or a server?</b> <sub>(Docker, Azure and Render: beta)</sub><br>
+  <b>Desktop</b> <sub>Windows, macOS, Linux</sub><br>
   <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P"><img src="docs/assets/badges/msstore.svg" height="56" alt="Get it from the Microsoft Store"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.3/Trackhop-Desktop-v2.1.3-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.3/Trackhop-Desktop-v2.1.3-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.3/Trackhop-Desktop-v2.1.3-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
+</p>
+
+<p align="center">
+  <b>Self-hosted</b> <sub>(beta)</sub><br>
   <a href="https://trackhop.org/guide/docker"><img src="docs/assets/badges/docker.svg" height="56" alt="Run it on Docker"></a>
   <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json"><img src="docs/assets/badges/azure.svg" height="56" alt="Deploy on Azure (beta)"></a>
-  <a href="https://render.com/deploy?repo=https://github.com/xlollx/Trackhop"><img src="docs/assets/badges/render.svg" height="56" alt="Deploy on Render (beta)"></a><br>
-  <sub>Self-hosted app stores: <a href="https://github.com/xlollx/umbrel-apps">Umbrel</a></sub>
+  <a href="https://render.com/deploy?repo=https://github.com/xlollx/Trackhop"><img src="docs/assets/badges/render.svg" height="56" alt="Deploy on Render (beta)"></a>
+  <a href="https://github.com/xlollx/umbrel-apps"><img src="docs/assets/badges/umbrel.svg" height="56" alt="Get it on Umbrel (community app store)"></a>
 </p>
 
 <p align="center"><b>♥ Thank you</b> to the people who keep Trackhop free:<br>

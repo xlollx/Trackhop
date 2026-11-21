@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 58" width="168" height="58" role="img" aria-label="GET IT ON Umbrel">
+  <rect x="1" y="1" width="166" height="56" rx="8" fill="#000" stroke="#a6a6a6" stroke-width="1.5"/>
+  <path d="M12 31a16 16 0 0 1 32 0z" fill="#fff"/>
+  <path d="M28 31v8a3 3 0 0 1-6 0" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+  <text x="56" y="23" fill="#fff" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" letter-spacing=".6">GET IT ON</text>
+  <text x="55" y="44" fill="#fff" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="600">Umbrel</text>
+</svg>
