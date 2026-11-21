@@ -1,7 +1,17 @@
 {
- "checked": "2026-11-20T15:25:34Z",
+ "checked": "2026-11-21T14:37:22Z",
  "unanswered": 0,
  "reviews": [
+  {
+   "id": "4cdd1e08-0661-4249-a543-03c4701f9018",
+   "author": "babysharq",
+   "stars": 5,
+   "text": "This is a great app, I don't need to be going to my various app music to synchronise my songs I wish other music platforms like Audiomack and Apple music could be added",
+   "language": "en",
+   "version": "2.1.4",
+   "date": "2026-11-20T21:37:15Z",
+   "replied": true
+  },
   {
    "id": "88539e34-75f4-45f9-9cbb-16eb0973438c",
    "author": "Simple meow",
