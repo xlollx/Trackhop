@@ -17,3 +17,5 @@ the server's user; older images cannot write there).
    **Publish**.
 7. Copy the template's link (`https://railway.com/new/template/<id>`): it goes in the README's
    button.
+
+Published 21/11: <https://railway.com/deploy/NC9rYj> (the README button carries the owner's referral code).

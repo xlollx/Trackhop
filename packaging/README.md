@@ -24,7 +24,7 @@ note off each one once its channel is live.
 | Umbrel (our community store) | `umbrel/` | Ready | Repository `xlollx/umbrel-apps` with these files | The image tag and `version` bumped in that repository |
 | Dokploy | `dokploy/trackhop/` | Ready | A pull request to `Dokploy/templates` (`blueprints/trackhop/`, branch `canary`) | A pull request with the new version |
 | CapRover | `caprover/` | Ready | A pull request to `caprover/one-click-apps` (`public/v4/apps/trackhop.yml`, logo in `public/v4/logos/`) | Users pick the version; the default bumped by pull request |
-| Railway | `railway/README.md` | Ready (server 2.1.3+) | The template made in Railway's dashboard, its link in the README | Follows `latest` |
+| Railway | `railway/README.md` | **Live** ([template](https://railway.com/deploy/NC9rYj), README button) | The template made in Railway's dashboard, its link in the README | Follows `latest` |
 | Render | `render.yaml` (repository root) | **Live** (README button) | Nothing: the README's button reads `render.yaml` | Follows `latest` |
 
 Secrets and variables go in GitHub: *Settings › Secrets and variables › Actions*, in the
