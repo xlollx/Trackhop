@@ -20,6 +20,7 @@ note off each one once its channel is live.
 | Snap Store | `snap/`, `snap.yml` | **Live** ([snapcraft.io/trackhop](https://snapcraft.io/trackhop), stable since 0.8.0) | An Ubuntu One account, the name `trackhop`, one secret | `snap.yml` packs each Desktop release and publishes it to the stable channel (once its secret exists) |
 | Flathub | `flatpak/`, `flatpak.yml` | Needs owner action, review risk | Desktop screenshots, a release with these files, the submission PR | A PR in the Flathub repo per release |
 | AUR (Arch Linux) | `aur/`, `stores.yml` | Needs owner action | An AUR account with an SSH key, one secret | `stores.yml` updates `trackhop-bin`, builds and installs it on Arch, pushes it |
+| Pi-Apps (Raspberry Pi) | `pi-apps/` | Ready, waits for Desktop 2.1.4 (first `-linux-arm64.deb`) | Fork `Botspot/pi-apps`, `test_build.yml` on the fork, a run on a real Pi, the pull request | Pi-Apps' own updater (`updates/Trackhop.sh`) |
 | Unraid (Community Applications) | `unraid/` | **Approved** 21/11 (auto-approved, "Trackhop's Repository"; listed from the next catalog build) | Repository `xlollx/unraid-templates` with these files, submission at ca.unraid.net/submit | The template uses `latest`: nothing |
 | Umbrel (our community store) | `umbrel/` | Ready | Repository `xlollx/umbrel-apps` with these files | The image tag and `version` bumped in that repository |
 | Dokploy | `dokploy/trackhop/` | Ready | A pull request to `Dokploy/templates` (`blueprints/trackhop/`, branch `canary`) | A pull request with the new version |
