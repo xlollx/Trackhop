@@ -4,7 +4,8 @@
 #   gradle -p server installDist && server/desktop/package.sh
 #
 # On Linux: dist/Trackhop-Desktop-v<version>-linux.deb and -linux.tar.gz (unpack and run
-# Trackhop/bin/Trackhop, any distribution). On Windows (Git Bash, WiX 3 on the PATH):
+# Trackhop/bin/Trackhop, any distribution); on 64-bit ARM (Raspberry Pi 4/5) -linux-arm64.deb and
+# -linux-arm64.tar.gz. On Windows (Git Bash, WiX 3 on the PATH):
 # dist/Trackhop-Desktop-v<version>-windows.msi (per-user install, no administrator) and
 # -windows.zip (portable). On macOS: dist/Trackhop-Desktop-v<version>-macos-<arm64|x64>.dmg, unsigned
 # (ad-hoc signed only, so it runs on Apple silicon; Gatekeeper asks once, docs/guide/desktop.md).
@@ -25,14 +26,17 @@ case "$(uname -s)" in
   Darwin) os=macos; icon="$work/trackhop.icns" ;;
   *) echo "Windows, Linux or macOS only" >&2; exit 1 ;;
 esac
+# Linux on ARM: SWT's aarch64 jar, and "-arm64" in the files' names (the x86_64 ones keep theirs).
+libs=$os; suffix=$os
+if [ "$os" = linux ] && [ "$(uname -m)" = aarch64 ]; then libs=linux-arm64; suffix=linux-arm64; fi
 # The jars, and SWT for this system: Desktop's own window (DesktopWindow.kt), not in the Docker image.
 lib="$work/lib"
 mkdir -p "$lib" && cp "$built"/*.jar "$lib"/
 # Not on macOS: SWT wants the main thread there, which the tray (AWT) holds; Desktop opens its pages
 # in the browser instead, with its icon in the menu bar.
 if [ "$os" != macos ]; then
-  ls server/build/desktop-libs/$os/*.jar > /dev/null 2>&1 || { echo "Run 'gradle -p server desktopLibs' first" >&2; exit 1; }
-  cp server/build/desktop-libs/$os/*.jar "$lib"/
+  ls server/build/desktop-libs/$libs/*.jar > /dev/null 2>&1 || { echo "Run 'gradle -p server desktopLibs' first" >&2; exit 1; }
+  cp server/build/desktop-libs/$libs/*.jar "$lib"/
 fi
 appVersion=$version
 mac=()
@@ -86,13 +90,13 @@ elif [ "$os" = macos ]; then
     --about-url https://trackhop.org/guide/desktop "${mac[@]}"
   mv "$work"/Trackhop-*.dmg "dist/$name-macos-$arch.dmg"
 else
-  tar -C "$work/out" -czf "dist/$name-linux.tar.gz" Trackhop
+  tar -C "$work/out" -czf "dist/$name-$suffix.tar.gz" Trackhop
   jpackage --type deb --app-image "$work/out/Trackhop" --name Trackhop --dest "$work" \
     --app-version "$version" --vendor xlollx --description "Trackhop Desktop (beta)" \
     --linux-package-name trackhop --linux-shortcut --linux-menu-group "AudioVideo;Audio" \
     --linux-app-category sound \
     --linux-package-deps "libwebkit2gtk-4.1-0 | libwebkit2gtk-4.0-37" --linux-deb-maintainer "xlollx@users.noreply.github.com" \
     --about-url https://trackhop.org/guide/desktop
-  mv "$work"/trackhop_*.deb "dist/$name-linux.deb"
+  mv "$work"/trackhop_*.deb "dist/$name-$suffix.deb"
 fi
 ls -l dist

@@ -29,6 +29,7 @@ def swtVersion = '3.135.0'
 configurations {
     swtWindows { transitive = false }
     swtLinux { transitive = false }
+    swtLinuxArm64 { transitive = false }
 }
 
 dependencies {
@@ -41,6 +42,8 @@ dependencies {
     compileOnly("org.eclipse.platform:org.eclipse.swt.gtk.linux.x86_64:$swtVersion") { transitive = false }
     swtWindows("org.eclipse.platform:org.eclipse.swt.win32.win32.x86_64:$swtVersion") { transitive = false }
     swtLinux("org.eclipse.platform:org.eclipse.swt.gtk.linux.x86_64:$swtVersion") { transitive = false }
+    // Linux on ARM (Raspberry Pi 4/5 with a 64-bit system, ARM laptops): desktop.yml's arm64 runner.
+    swtLinuxArm64("org.eclipse.platform:org.eclipse.swt.gtk.linux.aarch64:$swtVersion") { transitive = false }
     testImplementation 'junit:junit:4.13.2'
     // Notifications (NotifyTest): a stand-in for each channel's server.
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
@@ -74,6 +77,7 @@ tasks.register('desktopLibs', Copy) {
     into(layout.buildDirectory.dir('desktop-libs'))
     from(configurations.swtWindows) { into 'windows' }
     from(configurations.swtLinux) { into 'linux' }
+    from(configurations.swtLinuxArm64) { into 'linux-arm64' }
 }
 
 // The app's texts, in every language it has: the engine names them, the server reads them as the

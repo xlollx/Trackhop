@@ -37,8 +37,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # macOS twice: Apple silicon (macos-latest) and Intel, one .dmg each.
-        os: [ ubuntu-latest, windows-latest, macos-latest, macos-15-intel ]
+        # macOS twice: Apple silicon (macos-latest) and Intel, one .dmg each. Linux twice too: x86_64 and
+        # 64-bit ARM (ubuntu-24.04-arm: Raspberry Pi 4/5, ARM laptops), a .deb and a .tar.gz each.
+        os: [ ubuntu-latest, ubuntu-24.04-arm, windows-latest, macos-latest, macos-15-intel ]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -69,9 +70,9 @@ jobs:
         run: sudo apt-get install -y -q fakeroot
 
       - name: Tests and build
-        # The tests on Linux and Windows only: the macOS packages run the same JVM code (and server.yml
-        # tests it too), so the two Macs only build.
-        run: gradle -p server ${{ !startsWith(matrix.os, 'macos') && 'test' || '' }} installDist desktopLibs --no-daemon --stacktrace
+        # The tests on Linux x86_64 and Windows only: the other packages run the same JVM code (and
+        # server.yml tests it too), so the Macs and Linux ARM only build.
+        run: gradle -p server ${{ (matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest') && 'test' || '' }} installDist desktopLibs --no-daemon --stacktrace
 
       - name: Package
         run: server/desktop/package.sh
@@ -116,7 +117,7 @@ jobs:
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
-          name: Trackhop-Desktop-${{ runner.os }}${{ runner.os == 'macOS' && format('-{0}', runner.arch) || '' }}
+          name: Trackhop-Desktop-${{ runner.os }}${{ (runner.os == 'macOS' || runner.arch == 'ARM64') && format('-{0}', runner.arch) || '' }}
           path: dist/*
           if-no-files-found: error
           retention-days: 7
@@ -187,6 +188,8 @@ jobs:
           The \`.msix\` is the package for the Microsoft Store, unsigned: it does not install by itself; use the \`.msi\` or the \`.zip\`.
 
           **macOS:** \`-macos-arm64.dmg\` for Apple silicon (M1 and later), \`-macos-x64.dmg\` for Intel Macs. Not signed by Apple: the first time, macOS refuses to open it; then *System Settings › Privacy & Security › Open Anyway* ([how](https://trackhop.org/guide/desktop#macos)).
+
+          **Linux:** \`-linux.deb\` and \`-linux.tar.gz\` for usual PCs (x86_64), \`-linux-arm64.deb\` and \`-linux-arm64.tar.gz\` for 64-bit ARM: Raspberry Pi 4 and 5 with a 64-bit system, ARM laptops.
 
           **Flatpak (Linux):** \`flatpak install --user Trackhop-Desktop-v$v-linux.flatpak\`, then *Trackhop* in the menu (needs Flathub's GNOME runtime, which Flatpak offers to install).
           EOF
