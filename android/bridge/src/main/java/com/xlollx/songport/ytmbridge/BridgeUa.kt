@@ -133,10 +133,17 @@ object BridgeUa {
     fun phoneChromeUa(webViewUa: String): String =
         webViewUa.replace("; wv)", ")").replace(Regex("\\s*Version/[0-9.]+"), "").replace(Regex("\\s{2,}"), " ").trim()
 
-    /** Spotify's own sign-in hosts, where [phoneChrome] applies (the web player stays desktop). */
+    /**
+     * The hosts of Spotify's sign-in, where [phoneChrome] applies (the web player stays desktop):
+     * Spotify's own pages and those of "Continue with Facebook" and "Continue with Apple". As a
+     * Windows desktop on a phone's touch screen, Facebook gave a long robot check (ten steps or
+     * an audio one).
+     */
     fun isSpotifySignIn(host: String?): Boolean {
         val h = host?.lowercase() ?: return false
-        return h == "accounts.spotify.com" || h == "challenge.spotify.com"
+        return h == "accounts.spotify.com" || h == "challenge.spotify.com" ||
+            h == "facebook.com" || h.endsWith(".facebook.com") ||
+            h == "appleid.apple.com"
     }
 
     /** Google's sign-in hosts, where [native] applies. */

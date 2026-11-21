@@ -335,7 +335,7 @@ class WebLoginActivity : ComponentActivity() {
         if (!changed) return false
         BridgeNet.log(service, when {
             google -> "sign-in: Google's page, with the phone's own browser identity"
-            spotifySignIn -> "sign-in: Spotify's sign-in page as Chrome on this phone (${BridgeUa.describe()})"
+            spotifySignIn -> "sign-in: ${url.host} as Chrome on this phone (${BridgeUa.describe()})"
             else -> "sign-in: ${url.host}, desktop identity again"
         })
         // Both ways, a GET is stopped before it leaves and loaded again with the new identity. Back

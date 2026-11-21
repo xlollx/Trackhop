@@ -23,6 +23,11 @@ class SpotifySignInIdentityTest {
     @Test fun onlySpotifysSignInHostsGetIt() {
         assertTrue(BridgeUa.isSpotifySignIn("accounts.spotify.com"))
         assertTrue(BridgeUa.isSpotifySignIn("challenge.spotify.com"))
+        assertTrue(BridgeUa.isSpotifySignIn("www.facebook.com"))
+        assertTrue(BridgeUa.isSpotifySignIn("m.facebook.com"))
+        assertTrue(BridgeUa.isSpotifySignIn("appleid.apple.com"))
+        assertFalse(BridgeUa.isSpotifySignIn("notfacebook.com"))
+        assertFalse(BridgeUa.isSpotifySignIn("music.apple.com"))
         assertFalse(BridgeUa.isSpotifySignIn("open.spotify.com"))
         assertFalse(BridgeUa.isSpotifySignIn("accounts.google.com"))
         assertFalse(BridgeUa.isSpotifySignIn(null))
