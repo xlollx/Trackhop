@@ -134,6 +134,20 @@
   },
   {
     "type": "file",
+    "url": "https://repo.maven.apache.org/maven2/org/eclipse/platform/org.eclipse.swt.gtk.linux.aarch64/3.135.0/org.eclipse.swt.gtk.linux.aarch64-3.135.0.jar",
+    "sha512": "9bf3a3203873ea934497ef1abd7868838170f4f210bfff0f3b87f1c6ae7ed9ab0574e6f547b1548797420e7535c70cfe49689850dde566341b991dcaad7a7145",
+    "dest": "maven-local/org/eclipse/platform/org.eclipse.swt.gtk.linux.aarch64/3.135.0",
+    "dest-filename": "org.eclipse.swt.gtk.linux.aarch64-3.135.0.jar"
+  },
+  {
+    "type": "file",
+    "url": "https://repo.maven.apache.org/maven2/org/eclipse/platform/org.eclipse.swt.gtk.linux.aarch64/3.135.0/org.eclipse.swt.gtk.linux.aarch64-3.135.0.pom",
+    "sha512": "2f09eadf1760d0e4a7bc69cbecfa0b38d9464bc775b19b557706011ea9a4be581f1682a015666792c9d9269e89ca29fd776e001c23fc04567b34476d496ab9e0",
+    "dest": "maven-local/org/eclipse/platform/org.eclipse.swt.gtk.linux.aarch64/3.135.0",
+    "dest-filename": "org.eclipse.swt.gtk.linux.aarch64-3.135.0.pom"
+  },
+  {
+    "type": "file",
     "url": "https://repo.maven.apache.org/maven2/org/eclipse/platform/org.eclipse.swt.win32.win32.x86_64/3.135.0/org.eclipse.swt.win32.win32.x86_64-3.135.0.jar",
     "sha512": "f32acd86d3b700e7a01c02f87da8a6f409201864ba6086912982928f47e8e38af8a2e402d5050267bd5043766b143bab7bab529be8a7b22e7f3b0e4ce077de4c",
     "dest": "maven-local/org/eclipse/platform/org.eclipse.swt.win32.win32.x86_64/3.135.0",
