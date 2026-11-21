@@ -63,7 +63,7 @@ object BridgeUa {
     }
 
     /** What [apply] changed on a WebView, to undo on Google's pages. Main thread only, as WebViews are. */
-    private class Applied(val native: UserAgentMetadata?, val script: androidx.webkit.ScriptHandler?, var isNative: Boolean = false)
+    private class Applied(val native: UserAgentMetadata?, var script: androidx.webkit.ScriptHandler?, var isNative: Boolean = false, var isPhone: Boolean = false)
     private val applied = java.util.WeakHashMap<WebView, Applied>()
 
     /**
@@ -75,6 +75,7 @@ object BridgeUa {
     fun native(web: WebView): Boolean {
         val a = applied[web] ?: return false
         if (a.isNative) return false
+        a.isPhone = false
         web.settings.userAgentString = null
         a.native?.let { md -> runCatching { WebSettingsCompat.setUserAgentMetadata(web.settings, md) } }
         runCatching { a.script?.remove() }
@@ -85,9 +86,57 @@ object BridgeUa {
     /** Back to the desktop identity after Google's pages; true when something changed. */
     fun desktopAgain(ctx: Context, web: WebView): Boolean {
         val a = applied[web] ?: return false
-        if (!a.isNative) return false
+        if (!a.isNative && !a.isPhone) return false
+        runCatching { a.script?.remove() }
         apply(ctx, web)
         return true
+    }
+
+    /**
+     * Chrome on this Android phone: the WebView's own user agent without its "wv" and "Version/4.0"
+     * marks, and client hints that say Android, mobile, this model. Spotify's sign-in (21/11/2026)
+     * answers "Oops! Something went wrong" as soon as the email is sent from the desktop identity
+     * (a Windows PC whose page has touch, a phone's screen and GPU), and it refuses the "wv" one
+     * too; a phone that says it is Chrome on Android has nothing to disagree with. True when
+     * something changed. [desktopAgain] undoes it.
+     */
+    fun phoneChrome(ctx: Context, web: WebView): Boolean {
+        val a = applied[web] ?: return false
+        if (a.isPhone) return false
+        val ua = phoneChromeUa(WebSettings.getDefaultUserAgent(ctx.applicationContext))
+        web.settings.userAgentString = ua
+        val (major, full) = version(ua)
+        val model = android.os.Build.MODEL.orEmpty()
+        val release = android.os.Build.VERSION.RELEASE.orEmpty()
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.USER_AGENT_METADATA)) runCatching {
+            val brands = listOf(
+                UserAgentMetadata.BrandVersion.Builder().setBrand("Chromium").setMajorVersion(major).setFullVersion(full).build(),
+                UserAgentMetadata.BrandVersion.Builder().setBrand("Google Chrome").setMajorVersion(major).setFullVersion(full).build(),
+                UserAgentMetadata.BrandVersion.Builder().setBrand("Not:A-Brand").setMajorVersion("99").setFullVersion("99.0.0.0").build(),
+            )
+            WebSettingsCompat.setUserAgentMetadata(web.settings, UserAgentMetadata.Builder()
+                .setBrandVersionList(brands).setFullVersion(full)
+                .setPlatform("Android").setPlatformVersion(release)
+                .setArchitecture("").setMobile(true).setModel(model)
+                .build())
+        }
+        runCatching { a.script?.remove() }
+        a.script = if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) runCatching {
+            WebViewCompat.addDocumentStartJavaScript(web, hintsScript(major, full, "Android", true, model, release, ""), setOf("*"))
+        }.getOrNull() else null
+        a.isNative = false
+        a.isPhone = true
+        return true
+    }
+
+    /** The WebView's own user agent as Chrome on the same phone sends it: no "; wv", no "Version/4.0". */
+    fun phoneChromeUa(webViewUa: String): String =
+        webViewUa.replace("; wv)", ")").replace(Regex("\\s*Version/[0-9.]+"), "").replace(Regex("\\s{2,}"), " ").trim()
+
+    /** Spotify's own sign-in hosts, where [phoneChrome] applies (the web player stays desktop). */
+    fun isSpotifySignIn(host: String?): Boolean {
+        val h = host?.lowercase() ?: return false
+        return h == "accounts.spotify.com" || h == "challenge.spotify.com"
     }
 
     /** Google's sign-in hosts, where [native] applies. */

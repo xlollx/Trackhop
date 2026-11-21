@@ -326,9 +326,18 @@ class WebLoginActivity : ComponentActivity() {
         val url = request.url
         if (url.scheme != "https") return false
         val google = BridgeUa.isGoogleSignIn(url.host)
-        val changed = if (google) BridgeUa.native(view) else BridgeUa.desktopAgain(this, view)
+        val spotifySignIn = service == SPOTIFY && BridgeUa.isSpotifySignIn(url.host)
+        val changed = when {
+            google -> BridgeUa.native(view)
+            spotifySignIn -> BridgeUa.phoneChrome(this, view)
+            else -> BridgeUa.desktopAgain(this, view)
+        }
         if (!changed) return false
-        BridgeNet.log(service, if (google) "sign-in: Google's page, with the phone's own browser identity" else "sign-in: back from Google, desktop identity again")
+        BridgeNet.log(service, when {
+            google -> "sign-in: Google's page, with the phone's own browser identity"
+            spotifySignIn -> "sign-in: Spotify's sign-in page as Chrome on this phone (${BridgeUa.describe()})"
+            else -> "sign-in: ${url.host}, desktop identity again"
+        })
         // Both ways, a GET is stopped before it leaves and loaded again with the new identity. Back
         // from Google that matters: the answer (Spotify's /login/google/redirect?code=…) went out with
         // the phone's "wv" identity, Spotify refused it and showed its sign-in page again, so
@@ -353,6 +362,12 @@ class WebLoginActivity : ComponentActivity() {
         when (service) {
             APPLE -> Unit
             SOUNDCLOUD -> BridgeUa.dropAppHeader(w)
+            // Spotify's sign-in starts on accounts.spotify.com as Chrome on this phone ([BridgeUa.phoneChrome]);
+            // the web player (open.spotify.com) gets the desktop identity back when the page goes there.
+            SPOTIFY -> {
+                BridgeUa.apply(this, w)
+                if (BridgeUa.phoneChrome(this, w)) BridgeNet.log(SPOTIFY, "sign-in started as Chrome on this phone (${BridgeUa.describe()})")
+            }
             else -> BridgeUa.apply(this, w)
         }
     }
