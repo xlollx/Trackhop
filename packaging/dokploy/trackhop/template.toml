@@ -4,12 +4,12 @@ password = "${password:24}"
 
 [config]
 mounts = []
+env = [
+  "SONGPORT_URL=https://${main_domain}",
+  "SONGPORT_PASSWORD=${password}",
+]
 
 [[config.domains]]
 serviceName = "trackhop"
 port = 8080
 host = "${main_domain}"
-
-[config.env]
-SONGPORT_URL = "https://${main_domain}"
-SONGPORT_PASSWORD = "${password}"

@@ -1,7 +1,7 @@
 # Trackhop on Railway
 
 A Railway template is made in Railway's dashboard, not from a file: these are its settings.
-Needs the image from server 2.2 on (its entrypoint gives Railway's volume, which belongs to root, to
+Needs the image from server 2.1.3 on (its entrypoint gives Railway's volume, which belongs to root, to
 the server's user; older images cannot write there).
 
 1. Railway › your workspace › **Settings › Templates › New Template**.

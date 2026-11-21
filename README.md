@@ -39,13 +39,15 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 </p>
 
 <p align="center">
-  <b>On a computer or a server?</b> <sub>(Docker and Azure: beta)</sub><br>
+  <b>On a computer or a server?</b> <sub>(Docker, Azure and Render: beta)</sub><br>
   <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P"><img src="docs/assets/badges/msstore.svg" height="56" alt="Get it from the Microsoft Store"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.3/Trackhop-Desktop-v2.1.3-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.3/Trackhop-Desktop-v2.1.3-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.3/Trackhop-Desktop-v2.1.3-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
   <a href="https://trackhop.org/guide/docker"><img src="docs/assets/badges/docker.svg" height="56" alt="Run it on Docker"></a>
   <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fxlollx%2FTrackhop%2Fmain%2Fpackaging%2Fazure%2Fazuredeploy.json"><img src="docs/assets/badges/azure.svg" height="56" alt="Deploy on Azure (beta)"></a>
+  <a href="https://render.com/deploy?repo=https://github.com/xlollx/Trackhop"><img src="docs/assets/badges/render.svg" height="56" alt="Deploy on Render (beta)"></a><br>
+  <sub>Self-hosted app stores: <a href="https://github.com/xlollx/umbrel-apps">Umbrel</a></sub>
 </p>
 
 <p align="center"><b>♥ Thank you</b> to the people who keep Trackhop free:<br>
@@ -141,14 +143,14 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
   built in. [Which Trackhop?](https://trackhop.org/guide/versions) compares them.
 - **Desktop (Windows, macOS, Linux)**: the same engine as a program on your
   computer, with its own Java runtime (no Java or Docker to install, no administrator rights), an icon
-  next to the clock and the same web page as the server. Version 2.1.2 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v2.1.2)):
-  [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-windows.msi) ·
-  [Windows, no install (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-windows.zip) ·
-  [macOS, Apple silicon](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-macos-arm64.dmg) ·
-  [macOS, Intel](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-macos-x64.dmg) ·
-  [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-linux.deb) ·
-  [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-linux.tar.gz) ·
-  [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.2/Trackhop-Desktop-v2.1.2-linux.flatpak). See the
+  next to the clock and the same web page as the server. Version 2.1.3 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v2.1.3)):
+  [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.3/Trackhop-Desktop-v2.1.3-windows.msi) ·
+  [Windows, no install (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.3/Trackhop-Desktop-v2.1.3-windows.zip) ·
+  [macOS, Apple silicon](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.3/Trackhop-Desktop-v2.1.3-macos-arm64.dmg) ·
+  [macOS, Intel](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.3/Trackhop-Desktop-v2.1.3-macos-x64.dmg) ·
+  [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.3/Trackhop-Desktop-v2.1.3-linux.deb) ·
+  [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.3/Trackhop-Desktop-v2.1.3-linux.tar.gz) ·
+  [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.3/Trackhop-Desktop-v2.1.3-linux.flatpak). See the
   [Desktop guide](https://trackhop.org/guide/desktop); every version is in the
   [Desktop & Server releases](https://github.com/xlollx/Trackhop/releases?q=server-v&expanded=true) (`server-v…`).
   With [Scoop](https://github.com/xlollx/scoop-bucket): `scoop bucket add xlollx https://github.com/xlollx/scoop-bucket`

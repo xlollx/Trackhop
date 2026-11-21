@@ -20,12 +20,12 @@ note off each one once its channel is live.
 | Snap Store | `snap/`, `snap.yml` | **Live** ([snapcraft.io/trackhop](https://snapcraft.io/trackhop), stable since 0.8.0) | An Ubuntu One account, the name `trackhop`, one secret | `snap.yml` packs each Desktop release and publishes it to the stable channel (once its secret exists) |
 | Flathub | `flatpak/`, `flatpak.yml` | Needs owner action, review risk | Desktop screenshots, a release with these files, the submission PR | A PR in the Flathub repo per release |
 | AUR (Arch Linux) | `aur/`, `stores.yml` | Needs owner action | An AUR account with an SSH key, one secret | `stores.yml` updates `trackhop-bin`, builds and installs it on Arch, pushes it |
-| Unraid (Community Applications) | `unraid/` | Ready, waits for server 2.2 (PUID/PGID) | Repository `xlollx/unraid-templates` with these files, submission at ca.unraid.net/submit | The template uses `latest`: nothing |
+| Unraid (Community Applications) | `unraid/` | Ready (needs server 2.1.3+: PUID/PGID) | Repository `xlollx/unraid-templates` with these files, submission at ca.unraid.net/submit | The template uses `latest`: nothing |
 | Umbrel (our community store) | `umbrel/` | Ready | Repository `xlollx/umbrel-apps` with these files | The image tag and `version` bumped in that repository |
 | Dokploy | `dokploy/trackhop/` | Ready | A pull request to `Dokploy/templates` (`blueprints/trackhop/`, branch `canary`) | A pull request with the new version |
 | CapRover | `caprover/` | Ready | A pull request to `caprover/one-click-apps` (`public/v4/apps/trackhop.yml`, logo in `public/v4/logos/`) | Users pick the version; the default bumped by pull request |
-| Railway | `railway/README.md` | Waits for server 2.2 | The template made in Railway's dashboard, its link in the README | Follows `latest` |
-| Render | `render.yaml` (repository root) | Waits for server 2.2 | Nothing: the README's button reads `render.yaml` | Follows `latest` |
+| Railway | `railway/README.md` | Ready (server 2.1.3+) | The template made in Railway's dashboard, its link in the README | Follows `latest` |
+| Render | `render.yaml` (repository root) | **Live** (README button) | Nothing: the README's button reads `render.yaml` | Follows `latest` |
 
 Secrets and variables go in GitHub: *Settings › Secrets and variables › Actions*, in the
 *Secrets* or *Variables* tab, *New repository secret/variable*.
@@ -411,7 +411,7 @@ A fix to the `PKGBUILD` alone, with no new version: bump `pkgrel` by hand in the
 
 ## Self-hosted app stores (Unraid, Umbrel, Dokploy, CapRover) and cloud buttons (Railway, Render)
 
-All run the same image. Since server 2.2 the image starts as root only to give `/data` to its user
+All run the same image. Since server 2.1.3 the image starts as root only to give `/data` to its user
 (or `PUID`/`PGID`) and runs the server as that user (`server/docker-entrypoint.sh`): a folder Docker
 creates for a bind mount, Unraid's `appdata`, Railway's volume and Render's disk belong to root, and
 older images could not write there. Umbrel runs it as its own user `1000` (`user:` in the compose
