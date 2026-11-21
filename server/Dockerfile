@@ -27,10 +27,14 @@ LABEL org.opencontainers.image.title="Trackhop server (beta)" \
 RUN groupadd --system songport && useradd --system --gid songport --home-dir /data songport \
     && mkdir -p /data && chown songport:songport /data
 COPY --from=build /src/server/build/install/songport-server /opt/songport
-USER songport
+COPY --chmod=755 server/docker-entrypoint.sh /usr/local/bin/trackhop-entrypoint
+COPY --chmod=755 server/docker-cli.sh /usr/local/bin/trackhop
+# No USER: the entrypoint starts as root only to give /data to the songport user (or PUID/PGID), then
+# runs the server as that user (server/docker-entrypoint.sh).
 # UTF-8 file names (a playlist file "Città.csv").
-# bin/ on the PATH: `docker exec <container> trackhop …` is the command line (Cli.kt).
-ENV SONGPORT_DATA=/data SONGPORT_PORT=8080 LANG=C.UTF-8 LC_ALL=C.UTF-8 PATH="/opt/songport/bin:${PATH}"
+# `docker exec <container> trackhop …` is the command line (Cli.kt), through /usr/local/bin/trackhop
+# (server/docker-cli.sh: as the server's user); bin/ on the PATH after it.
+ENV SONGPORT_DATA=/data SONGPORT_PORT=8080 LANG=C.UTF-8 LC_ALL=C.UTF-8 PATH="/usr/local/bin:/opt/songport/bin:${PATH}"
 VOLUME /data
 EXPOSE 8080
-ENTRYPOINT ["/opt/songport/bin/songport-server"]
+ENTRYPOINT ["/usr/local/bin/trackhop-entrypoint"]

@@ -84,6 +84,7 @@ version running, and the app version whose engine it uses.
 | `SONGPORT_LOCALE` | English | Language of the texts that come from the engine: `it`, `de`, `fr`, `es`, `pt-BR`, `pl`, `ru`, `tr`, `zh`, `ja`, `ko`. |
 | `SONGPORT_PORT` | `8080` | Port inside the container. |
 | `SONGPORT_DATA` | `/data` | Where everything is kept (the volume). |
+| `PUID`, `PGID` | the image's own user | The user and group that own the data folder and run Trackhop, for a folder that has to stay yours on a NAS (Unraid: `99` and `100`). Never `0`: Trackhop does not run as root. |
 | `SPOTIFY_CLIENT_ID`, `TIDAL_CLIENT_ID`, `DEEZER_APP_ID`, `GOOGLE_CLIENT_ID`, `LASTFM_API_KEY` | none | Your keys, if you'd rather pass them here than type them in the page. |
 | `TICKETMASTER_API_KEY` | none | A Ticketmaster Consumer Key (never its secret) for Tools › Concerts, for everyone on this server; each person can also save their own in Settings. Without one, MusicBrainz's dates only. |
 | `SETLISTFM_API_KEY` | none | A setlist.fm API key for setlist.fm links and Tools › Setlists, for everyone on this server; each person can also save their own in Settings. |
