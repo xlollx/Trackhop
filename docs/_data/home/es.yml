@@ -40,6 +40,8 @@ azure_note: 'Beta · tu propia suscripción, unos &#36;5 al mes · <a href="/gui
 server_more: 'Una página web, sincronizaciones programadas, una API · <a href="/guide/docker#several-people-on-one-server">Una cuenta por persona</a> para toda la casa'
 umbrel_alt: 'Consíguelo en Umbrel'
 umbrel_note: 'Nuestra tienda de apps para umbrelOS'
+caprover_alt: 'Consíguelo en CapRover'
+caprover_note: 'En su catálogo One-Click Apps'
 render_alt: 'Desplegar en Render (beta)'
 render_note: 'Beta · se cobra en tu cuenta de Render'
 railway_alt: 'Desplegar en Railway (beta)'

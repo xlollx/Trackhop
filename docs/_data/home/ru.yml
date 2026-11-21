@@ -38,6 +38,8 @@ azure_note: 'Бета · ваша собственная подписка, ок�
 server_more: 'Веб-страница, синхронизация по расписанию, API · <a href="/guide/docker#several-people-on-one-server">Отдельный аккаунт</a> для каждого члена семьи'
 umbrel_alt: 'Установить из Umbrel'
 umbrel_note: 'Наш магазин приложений для umbrelOS'
+caprover_alt: 'Установить из CapRover'
+caprover_note: 'В каталоге One-Click Apps'
 render_alt: 'Развернуть в Render (бета)'
 render_note: 'Бета · оплата с вашего аккаунта Render'
 railway_alt: 'Развернуть в Railway (бета)'

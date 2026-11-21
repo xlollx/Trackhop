@@ -38,6 +38,8 @@ azure_note: 'ベータ · あなた自身のサブスクリプション、月額
 server_more: 'Web ページ、スケジュール同期、API · 家族みんなで<a href="/guide/docker#several-people-on-one-server">一人ずつアカウント</a>'
 umbrel_alt: 'Umbrel で入手'
 umbrel_note: 'umbrelOS 向けの私たちのアプリストア'
+caprover_alt: 'CapRover で入手'
+caprover_note: 'One-Click Apps カタログにあります'
 render_alt: 'Render にデプロイ（ベータ）'
 render_note: 'ベータ · あなたの Render アカウントに請求'
 railway_alt: 'Railway にデプロイ（ベータ）'

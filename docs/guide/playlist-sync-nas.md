@@ -53,11 +53,17 @@ password and has their own services and syncs ([how](docker#several-people-on-on
 
 - **Synology** (DSM 7.2 and later): *Container Manager › Project › Create*, paste the Compose file
   above, choose a folder for the data.
-- **Unraid**: *Docker › Add Container*: repository `ghcr.io/xlollx/trackhop`, port 8080, a path
-  `/mnt/user/appdata/trackhop` → `/data`, the variables above. Or the Compose plugin.
+- **Unraid**: *Apps* (Community Applications), search **Trackhop**: the template fills in the
+  image, port 8080, `/mnt/user/appdata/trackhop` → `/data` and `PUID`/`PGID` 99/100 (the listing is
+  new: if it isn't there yet, the same values by hand). Or *Docker › Add Container* with
+  repository `ghcr.io/xlollx/trackhop`, or the Compose plugin.
+- **Umbrel**: add the community app store `https://github.com/xlollx/umbrel-apps` (*App Store › ⋯ ›
+  Community App Stores*) and install *Trackhop* ([more](docker#one-click-installs)).
+- **CapRover**: *One-Click Apps*, search **Trackhop** ([more](docker#one-click-installs)).
 - **TrueNAS SCALE**: *Apps › Discover Apps › Custom App*, the same image, port, storage and variables.
 - **Raspberry Pi**: 64-bit Raspberry Pi OS, install Docker, then the `docker run` command of the
-  [Docker guide](docker#start-it).
+  [Docker guide](docker#start-it). With a desktop on the Pi, [Trackhop Desktop](desktop#install) also
+  has a `-linux-arm64.deb`.
 
 ## Then
 

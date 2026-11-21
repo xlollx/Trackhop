@@ -38,6 +38,8 @@ azure_note: 'Beta · kendi aboneliğin, ayda yaklaşık 5 &#36; · <a href="/gui
 server_more: 'Bir web sayfası, zamanlanmış senkronizasyonlar, bir API · Tüm ev halkı için <a href="/guide/docker#several-people-on-one-server">herkese ayrı hesap</a>'
 umbrel_alt: 'Umbrel''den edinin'
 umbrel_note: 'umbrelOS için uygulama mağazamız'
+caprover_alt: 'CapRover''dan edinin'
+caprover_note: 'One-Click Apps kataloğunda'
 render_alt: 'Render''a dağıt (beta)'
 render_note: 'Beta · Render hesabından ücretlendirilir'
 railway_alt: 'Railway''e dağıt (beta)'

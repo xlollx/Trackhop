@@ -30,7 +30,8 @@ in the middle, free and open source.
 
 | Where | What you get |
 |---|---|
-| **[Docker](docker)** on a home server, a NAS or a Raspberry Pi | The syncs run around the clock; a web page to set them up, also as an app on your phone. [On a NAS](playlist-sync-nas). |
+| **[Docker](docker)** on a home server, a NAS or a Raspberry Pi | The syncs run around the clock; a web page to set them up, also as an app on your phone. [On a NAS](playlist-sync-nas); [one click](docker#one-click-installs) on Umbrel, Unraid or CapRover. |
+| **In the cloud** ([Azure](docker#on-azure-beta), [Render or Railway](docker#on-render-or-railway-beta)) | No server at home: the same, in your own account, billed by the provider. |
 | **[Trackhop Desktop](desktop)** on [Windows](playlist-sync-windows), [macOS](playlist-sync-mac) or [Linux](playlist-sync-linux) | The same engine as a program, while the computer is on. |
 | **The Android app** | On your phone, talking to your server directly. |
 

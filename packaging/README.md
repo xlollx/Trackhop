@@ -24,7 +24,7 @@ note off each one once its channel is live.
 | Unraid (Community Applications) | `unraid/` | **Approved** 21/11 (auto-approved, "Trackhop's Repository"; listed from the next catalog build) | Repository `xlollx/unraid-templates` with these files, submission at ca.unraid.net/submit | The template uses `latest`: nothing |
 | Umbrel (our community store) | `umbrel/` | Ready | Repository `xlollx/umbrel-apps` with these files | The image tag and `version` bumped in that repository |
 | Dokploy | `dokploy/trackhop/` | Ready | A pull request to `Dokploy/templates` (`blueprints/trackhop/`, branch `canary`) | A pull request with the new version |
-| CapRover | `caprover/` | Ready | A pull request to `caprover/one-click-apps` (`public/v4/apps/trackhop.yml`, logo in `public/v4/logos/`) | Users pick the version; the default bumped by pull request |
+| CapRover | `caprover/` | **Live** (merged 21/11, One-Click Apps) | A pull request to `caprover/one-click-apps` (`public/v4/apps/trackhop.yml`, logo in `public/v4/logos/`) | Users pick the version; the default bumped by pull request |
 | Railway | `railway/README.md` | **Live** ([template](https://railway.com/deploy/NC9rYj), README button) | The template made in Railway's dashboard, its link in the README | Follows `latest` |
 | Render | `render.yaml` (repository root) | **Live** (README button) | Nothing: the README's button reads `render.yaml` | Follows `latest` |
 

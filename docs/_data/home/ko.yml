@@ -38,6 +38,8 @@ azure_note: '베타 · 내 구독에서, 월 약 &#36;5 · <a href="/guide/docke
 server_more: '웹 페이지, 예약 동기화, API · 온 가족이 <a href="/guide/docker#several-people-on-one-server">각자 계정</a>으로'
 umbrel_alt: 'Umbrel에서 받기'
 umbrel_note: 'umbrelOS용 우리 앱 스토어'
+caprover_alt: 'CapRover에서 받기'
+caprover_note: 'One-Click Apps 카탈로그에 있음'
 render_alt: 'Render에 배포 (베타)'
 render_note: '베타 · 내 Render 계정으로 청구'
 railway_alt: 'Railway에 배포 (베타)'

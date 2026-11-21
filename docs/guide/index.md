@@ -42,7 +42,7 @@ description (architecture, matching, services and their limits) stays in the
 - [Self-hosted playlist sync](self-hosted-playlist-sync): your Navidrome, Jellyfin or Plex in step with your streaming service.
 - [Lyrion Music Server](lyrion) (the former Logitech Media Server) and [Mopidy](mopidy): their playlists as a source and a destination (beta).
 - [Missing on my server](missing-on-my-server): the songs your library still lacks, by album, as a list for Lidarr.
-- [On a NAS or home server](playlist-sync-nas): Docker on Synology, Unraid, TrueNAS or a Raspberry Pi.
+- [On a NAS or home server](playlist-sync-nas): Docker on Synology, Unraid, TrueNAS or a Raspberry Pi; one click on Umbrel, Unraid or CapRover.
 
 **Step by step**
 - [Sync Spotify playlists to YouTube Music](spotify-to-youtube-music), and keep them in sync.
