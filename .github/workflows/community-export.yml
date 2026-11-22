@@ -1,8 +1,9 @@
 # Community matches: once a day, the confirmed pairs in the Supabase database (community/supabase.sql)
 # are exported as one gzipped CSV per pair of services to the GitHub release "community-matches".
 # The app and anyone else download them from there; nobody reads the database itself, so Supabase's
-# free egress is not used and nobody's listening is sent anywhere. The daily read also keeps the
-# free project from being paused for inactivity. Design: community/README.md.
+# free egress is not used and nobody's listening is sent anywhere. A paused or silent project (the
+# daily read alone does not keep a free one awake) is a notice, not a failure, and publishes nothing.
+# Design: community/README.md.
 # Needs the secrets SUPABASE_URL and SUPABASE_SERVICE_KEY; without them it does nothing.
 name: Community matches export
 
@@ -37,7 +38,13 @@ jobs:
           while True:
               req = urllib.request.Request(f"{base}?select={cols}&order=a_service,b_service,a_id,b_id&limit={page}&offset={offset}",
                                            headers={"apikey": key, "Authorization": f"Bearer {key}"})
-              rows = json.load(urllib.request.urlopen(req, timeout=60))
+              try:
+                  rows = json.load(urllib.request.urlopen(req, timeout=60))
+              except (OSError, ValueError) as e:
+                  # A free project paused for inactivity (nothing is sent to it before 2.4), or one
+                  # that does not answer: nothing is published, the release keeps the last export.
+                  print(f"::notice::Supabase did not answer ({type(e).__name__}): paused or down, nothing exported.")
+                  raise SystemExit(0)
               for r in rows:
                   pairs[(r["a_service"], r["b_service"])].append(r)
               if len(rows) < page:
