@@ -32,10 +32,14 @@ internal fun Web.playlists(r: Web.Req, rest: List<String>) {
     if (playlist == null) {
         val targets = services.filter { it.canWrite && it.id != service.id }
         val body = StringBuilder(notice(r))
-        body.append("""<form method="post" action="$base/transfer"><div class="card"><div class="who">${logo(service.id, 40)}<div><b>${h(service.label(env))}</b><br><span class="muted">${lists.size} playlists. Open one to see and change it, or tick several to copy them to another service.</span></div></div></div>""")
+        body.append("""<form method="post" action="$base/transfer"><div class="card"><div class="who">${logo(service.id, 40)}<div><b>${h(service.label(env))}</b><br><span class="muted">${lists.size} playlists. Open one to see and change it, or tick several to copy them to another service.</span></div></div>""")
+        // Select all / None: plain links (the page works without JavaScript), the list drawn again ticked or not.
+        val all = r.query["all"] == "1"
+        if (lists.size > 1) body.append("""<p class="muted"><a href="$base?all=1">Select all</a> · <a href="$base">None</a></p>""")
+        body.append("</div>")
         for (p in lists) {
             body.append(
-                """<div class="card row"><label class="check" style="margin:0"><input type="checkbox" name="p" value="${h(p.id)}"> <a href="$base/${q(p.id)}"><b>${h(p.name)}</b></a></label>""" +
+                """<div class="card row"><label class="check" style="margin:0"><input type="checkbox" name="p" value="${h(p.id)}"${if (all) " checked" else ""}> <a href="$base/${q(p.id)}"><b>${h(p.name)}</b></a></label>""" +
                     """<span class="muted">${if (p.trackCount >= 0) "${p.trackCount} tracks" else ""}${if (!p.ownedByMe) " · followed" else ""}</span></div>""",
             )
         }

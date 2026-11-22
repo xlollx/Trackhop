@@ -383,6 +383,24 @@ class WebTest {
         assertTrue(post("/files/library", "t=$t&p=1", *origin).headers().firstValue("Location").orElse("").contains("err="))
     }
 
+    // #79: "Select all" ticks every playlist of the library, the smart ones too; "None" none; by default your own ones.
+    @Test fun anItunesLibrarysPlaylistsCanAllBeTickedOrNone() {
+        val boundary = "----trackhop79"
+        val body = tmp.newFile("upload79.bin")
+        writeLibrary(body, songs = 10, boundary = boundary)
+        val res = client.send(
+            HttpRequest.newBuilder(URI("$base/files")).header("Authorization", auth).header("Origin", base)
+                .header("Content-Type", "multipart/form-data; boundary=$boundary").POST(HttpRequest.BodyPublishers.ofFile(body.toPath())).build(),
+            HttpResponse.BodyHandlers.ofString(),
+        )
+        val to = res.headers().firstValue("Location").orElse("")
+        fun ticked(url: String) = Regex("""name="p" value="\d+" checked""").findAll(get(url).body()).count()
+        assertTrue(get(to).body().contains("sel=all"))
+        assertEquals(2, ticked(to))
+        assertEquals(3, ticked("$to&sel=all"))
+        assertEquals(0, ticked("$to&sel=none"))
+    }
+
     @Test fun anUploadCutShortAddsNothingAndLeavesNothing() {
         val boundary = "----trackhop67c"
         val whole = tmp.newFile("whole.bin")
