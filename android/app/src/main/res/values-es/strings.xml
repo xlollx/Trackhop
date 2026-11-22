@@ -3440,4 +3440,11 @@
     <string name="card_compat_your_name">Tu nombre</string>
     <string name="card_compat_their_name">Su nombre</string>
     <string name="card_compat_names_note">Opcional. Los nombres se quedan en este teléfono: solo aparecen en la imagen.</string>
+    <string name="editor_copy_ratings">Copiar valoraciones con estrellas</string>
+    <string name="editor_copy_ratings_desc">Las canciones y los álbumes valorados en iTunes reciben las mismas estrellas en %1$s. Los que no tienen valoración se quedan como están.</string>
+    <plurals name="ratings_set">
+        <item quantity="one">★ %1$d valoración aplicada</item>
+        <item quantity="other">★ %1$d valoraciones aplicadas</item>
+    </plurals>
+    <string name="note_ratings_failed">Valoraciones con estrellas que %2$s no aceptó: %1$d. La sincronización se completó; se volverán a intentar en la próxima ejecución.</string>
 </resources>

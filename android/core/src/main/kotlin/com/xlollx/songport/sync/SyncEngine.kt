@@ -808,7 +808,14 @@ class SyncEngine(
             first = pair == null,
         )
         if (twoWay != null && twoWay.first && twoWay.complete) notes += str("note_two_way_started")
+        // Copying ratings: each rated source song with the target track it matches, listed or about to be added.
+        val rated = if (!job.copyRatings || RatingWriter.of(dst) == null) emptyList() else srcTracks.mapNotNull { s ->
+            if (s.kind.isNotEmpty() || (s.rating <= 0 && s.albumRating <= 0)) return@mapNotNull null
+            val id = presentLinks[s.id] ?: addingLinks[s.id] ?: return@mapNotNull null
+            (dstById[id] ?: toAdd[id])?.let { s to it }
+        }
         return SyncPlan(
+            rated = rated,
             twoWay = twoWay, targetReadAt = targetReadAt, targetVersion = targetVersion, duplicates = duplicates, reviewAsked = reviewAsked,
             targetPlaylistId = targetId,
             sourceCount = srcTracks.size,
@@ -1649,6 +1656,14 @@ class SyncEngine(
             val stillOpen = provisional.unmatchedTracks.map { it.id }.toHashSet()
             unmatched.retainAll { it.id in stillOpen }
         }
+        // The source's star ratings, on the tracks now on the target: never a reason to fail the run.
+        val writer = RatingWriter.of(dst)
+        var ratingsSet = 0
+        if (job.copyRatings && writer != null && !offline && plan.rated.isNotEmpty()) {
+            val adding = plan.toAdd.mapTo(HashSet()) { it.id }
+            val onTarget = addedList.mapTo(HashSet()) { it.id } + alreadyThere.map { it.id }
+            ratingsSet = copyRatings(job, writer, dst, plan.rated.filter { (_, d) -> d.id !in adding || d.id in onTarget }, notes, onProgress)
+        }
         if (!offline && job.keepOrder && !job.archive && com.xlollx.songport.Features.reorderOn(dst) && !MusicProvider.isLibrary(targetId) && plan.sourceOrder.isNotEmpty()) {
             alignOrder(src, dst, targetId, plan.sourceOrder, notes, onProgress)
         }
@@ -1676,7 +1691,66 @@ class SyncEngine(
             searchInterrupted = plan.searchInterrupted,
             sourceEmpty = plan.sourceCount == 0 && plan.ignored == 0,
             notAdded = notAdded.map { it.toString() },
+            ratingsSet = ratingsSet,
         )
+    }
+
+    /**
+     * [SyncJob.copyRatings]: the source's stars on the target tracks they match ([SyncPlan.rated]). A
+     * song's rating is set where it differs from the one the target listed; an album's (the first
+     * album rating among the source's songs on it) where it differs from the one the service gives,
+     * read once per album. Unrated songs and albums are never touched. A rating the service refuses
+     * is noted, never the run's failure; refused from the start several times, the rest is left.
+     * Returns how many ratings were set.
+     */
+    private suspend fun copyRatings(
+        job: SyncJob, writer: RatingWriter, dst: MusicProvider, rated: List<Pair<Track, Track>>,
+        notes: MutableList<String>, onProgress: (Progress) -> Unit,
+    ): Int {
+        var set = 0
+        var failures = 0
+        var why: String? = null
+        suspend fun attempt(block: suspend () -> Unit): Boolean {
+            if (failures >= SYSTEMIC_ADD_FAILURES && set == 0) { failures++; return false }
+            return try {
+                patient(onProgress) { block() }
+                true
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                failures++
+                if (why == null) why = e.message ?: e.javaClass.simpleName
+                false
+            }
+        }
+        // A target track known only by id (a saved match, not listed or searched this run) has no album
+        // id nor rating: asked once, so its album's stars are set now rather than on the next run.
+        val asked = HashMap<String, Track?>()
+        val rated = rated.map { (s, d) ->
+            if (d.albumId != null || (s.rating <= 0 && s.albumRating <= 0)) return@map s to d
+            val now = asked.getOrPut(d.id) {
+                try { patient(onProgress) { writer.song(env, d.id) } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Exception) { null }
+            }
+            s to (now?.let { d.copy(albumId = it.albumId, rating = it.rating) } ?: d)
+        }
+        val songs = HashSet<String>()
+        for ((s, d) in rated) {
+            if (s.rating <= 0 || !songs.add(d.id) || s.rating == d.rating) continue
+            if (attempt { writer.setSongRating(env, d.id, s.rating) }) set++
+        }
+        val albums = LinkedHashMap<String, Int>()
+        for ((s, d) in rated) if (s.albumRating > 0) d.albumId?.let { albums.putIfAbsent(it, s.albumRating) }
+        for ((albumId, stars) in albums) {
+            var current = 0
+            if (!attempt { current = writer.albumRating(env, albumId) } || current == stars) continue
+            if (attempt { writer.setAlbumRating(env, albumId, stars) }) set++
+        }
+        if (set > 0) env.log("engine", "${job.name}: $set star ${if (set == 1) "rating" else "ratings"} set on ${dst.displayName}")
+        if (failures > 0) {
+            notes += str("note_ratings_failed", failures, dst.displayName)
+            env.log("engine", "${job.name}: $failures star ${if (failures == 1) "rating" else "ratings"} not set on ${dst.displayName}: ${why?.take(200)}")
+        }
+        return set
     }
 
     // ------------------------------------------------------------------ revisione abbinamenti

@@ -35,6 +35,23 @@ class ServerProvidersTest {
         assertNull(SubsonicProvider().toTrack(parseJson("""{"id":"s1","title":"Battery","isrc":[]}"""))!!.isrc)
     }
 
+    @Test fun subsonicReadsTheUsersRatingAndTheAlbum() {
+        val rated = SubsonicProvider().toTrack(parseJson("""{"id":"s1","title":"Battery","albumId":"al-7","userRating":4}"""))!!
+        assertEquals(4, rated.rating)
+        assertEquals("al-7", rated.albumId)
+        val plain = SubsonicProvider().toTrack(parseJson("""{"id":"s1","title":"Battery"}"""))!!
+        assertEquals(0, plain.rating)
+        assertNull(plain.albumId)
+    }
+
+    @Test fun koelTakesNoRatings() {
+        assertNotNull(RatingWriter.of(SubsonicProvider()))
+        assertNull(RatingWriter.of(KoelProvider()))
+        assertTrue(RatingWriter.offered(LocalFilesProvider, SubsonicProvider()))
+        assertFalse(RatingWriter.offered(SubsonicProvider(), SubsonicProvider()))
+        assertFalse(RatingWriter.offered(LocalFilesProvider, KoelProvider()))
+    }
+
     @Test fun jellyfinPutsTheSearchedArtistFirst() {
         val found = listOf(t("Home", "Måneskin"), t("Home", "Beyoncé"), t("Home (Live)", "Beyonce"), t("Home", "Other"))
         assertEquals(
@@ -164,6 +181,23 @@ class FakeServerProvidersTest {
         val update = requests.single { it.path.endsWith("updatePlaylist") }
         // Ampache ignores songIndexToRemove=0; 00 is the same index for every server.
         assertEquals(listOf("00", "4"), update.query["songIndexToRemove"])
+    }
+
+    @Test fun subsonicSetsRatingsOfSongsAndAlbums() = runBlocking {
+        answer = { r ->
+            if (r.path.endsWith("getAlbum")) 200 to subsonic("1.16.1", ""","album":{"id":"al-7","name":"Ride the Lightning","userRating":2}""")
+            else 200 to subsonic("1.16.1")
+        }
+        val p = SubsonicProvider()
+        p.login(ctx, url, "admin", "pw")
+        p.setSongRating(ctx, "s1", 4)
+        p.setAlbumRating(ctx, "al-7", 5)
+        assertEquals(2, p.albumRating(ctx, "al-7"))
+        val sets = requests.filter { it.path == "/rest/setRating" }
+        assertEquals(listOf("s1", "al-7"), sets.map { it.query["id"]?.single() })
+        assertEquals(listOf("4", "5"), sets.map { it.query["rating"]?.single() })
+        assertEquals(listOf("GET", "GET"), sets.map { it.method })
+        assertEquals("al-7", requests.single { it.path == "/rest/getAlbum" }.query["id"]?.single())
     }
 
     @Test fun subsonicStillFailsOnOtherErrors() = runBlocking {

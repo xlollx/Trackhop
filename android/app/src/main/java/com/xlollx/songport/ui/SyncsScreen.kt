@@ -1511,7 +1511,8 @@ private fun JobCard(
                         (handed?.let { stringResource(R.string.server_runs_there) }
                             ?: job.scheduledOn?.takeIf { !job.enabled }?.let { stringResource(R.string.job_scheduled_on, it) }
                             ?: job.radio?.let { radioWindowLabel(ctx, it) } ?: timingLabel(job)) +
-                            (if (job.archive) " · " + stringResource(R.string.job_archive_badge) else if (job.mirrorRemovals && job.linkedJobId == null) " · " + stringResource(R.string.editor_mirror) else "") + " · " + last,
+                            (if (job.archive) " · " + stringResource(R.string.job_archive_badge) else if (job.mirrorRemovals && job.linkedJobId == null) " · " + stringResource(R.string.editor_mirror) else "") + " · " + last +
+                            (report?.ratingsSet?.takeIf { it > 0 }?.let { " · " + pluralStringResource(R.plurals.ratings_set, it, it) } ?: ""),
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         // Glides like the name and the services line (the fade shows it is moving, not cut).
                         maxLines = 1,
@@ -2085,6 +2086,7 @@ private fun LiveSummary(job: SyncJob, r: SyncReport, onReview: () -> Unit, onRet
             "${r.unmatchedTracks.size}" to R.string.nf_unmatched, "−${r.removed}" to R.string.nf_removed,
         ).forEach { (n, label) -> Stat(n, stringResource(label), Modifier.weight(1f)) }
     }
+    if (r.ratingsSet > 0) Text(pluralStringResource(R.plurals.ratings_set, r.ratingsSet, r.ratingsSet), style = MaterialTheme.typography.bodySmall, color = muted)
     if (r.unmatchedTracks.isNotEmpty()) {
         Text(stringResource(R.string.nf_unmatched), style = MaterialTheme.typography.labelSmall, color = muted)
         Column {
@@ -2238,6 +2240,8 @@ fun SyncEditorScreen(
     var bidirectional by rememberSaveable { mutableStateOf(job.linkedJobId != null) }
     // In a pair: a track removed on one side leaves the other too (off unless turned on).
     var twoWayRemovals by rememberSaveable { mutableStateOf(job.twoWayRemovals) }
+    // A playlist file (an iTunes library's) towards a server that takes ratings: its stars are copied too.
+    var copyRatings by rememberSaveable { mutableStateOf(job.copyRatings) }
     var policy by rememberSaveable(stateSaver = PolicySaver) { mutableStateOf(job.policy) }
     var matchingOpen by rememberSaveable { mutableStateOf(job.policy != com.xlollx.songport.model.MatchPolicy()) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -2248,7 +2252,7 @@ fun SyncEditorScreen(
     fun shape() = listOf(
         name, srcProvider, srcPlaylist?.id, linkMode, linkText, shazamMode, radioMode, radioStation, radioStream, radioHome, radioDays,
         radioStart, radioEnd, dstProvider, createNew, dstPlaylist?.id, newName, schedule, everyM, atStr, daysCsv, scheduleId.takeIf { scheduleSaved }, mirror, keepOrder, follows,
-        archive, wifiOnly, enabled, color, tagDraft.all, accentStyle, bidirectional, twoWayRemovals, policy,
+        archive, wifiOnly, enabled, color, tagDraft.all, accentStyle, bidirectional, twoWayRemovals, policy, copyRatings,
     ).joinToString("\u0001")
     var opened by rememberSaveable { mutableStateOf(shape()) }
     /** Runs [fill] (the editor filling something in) without counting it as the user's change. */
@@ -2413,6 +2417,7 @@ fun SyncEditorScreen(
             schedule = schedule, mirrorRemovals = mirror && !archive, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
             keepOrder = keepOrder && !archive, color = pickedColor(color, storeNow.settings.labels), label = pickedLabel(color), tags = tagDraft.all, accentStyle = accentStyle, followsChanges = mirror && follows && !archive,
             archive = archive, shazam = shazamMode && !linkMode,
+            copyRatings = copyRatings && !linkMode && RatingWriter.offered(Providers.byId(srcProvider), Providers.byId(dstProvider)),
         ).let { timed(it) }
         // The other half of the pair takes only what the two share (schedule, rules, the two playlists
         // swapped); its name, ignore list, reports and order setting stay its own. A pair never removes.
@@ -2763,6 +2768,10 @@ fun SyncEditorScreen(
                             color = MaterialTheme.colorScheme.error,
                         )
                     }
+                    // Stars set in iTunes, kept in the playlist file: copied to a server that takes ratings.
+                    if (!linkMode && RatingWriter.offered(Providers.byId(srcProvider), dstProviderObj)) SwitchRow(
+                        stringResource(R.string.editor_copy_ratings), stringResource(R.string.editor_copy_ratings_desc, dstProviderObj!!.label(ctx)), copyRatings,
+                    ) { copyRatings = it }
                     // Bidirezionale: crea la sync gemella al contrario, senza rimozioni (niente cancellazioni a ping-pong).
                     val srcObj = Providers.byId(srcProvider)
                     // A public link or someone else's playlist can be read, not written: nothing to send back to.

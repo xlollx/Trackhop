@@ -3432,4 +3432,11 @@
     <string name="card_compat_your_name">Dein Name</string>
     <string name="card_compat_their_name">Name der anderen Person</string>
     <string name="card_compat_names_note">Optional. Die Namen bleiben auf diesem Handy: Sie erscheinen nur auf dem Bild.</string>
+    <string name="editor_copy_ratings">Sternbewertungen übernehmen</string>
+    <string name="editor_copy_ratings_desc">In iTunes bewertete Songs und Alben erhalten auf %1$s dieselben Sterne. Nicht bewertete bleiben, wie sie sind.</string>
+    <plurals name="ratings_set">
+        <item quantity="one">★ %1$d Bewertung gesetzt</item>
+        <item quantity="other">★ %1$d Bewertungen gesetzt</item>
+    </plurals>
+    <string name="note_ratings_failed">Von %2$s nicht übernommene Sternbewertungen: %1$d. Die Synchronisierung selbst ist durchgelaufen; sie werden beim nächsten Lauf erneut versucht.</string>
 </resources>

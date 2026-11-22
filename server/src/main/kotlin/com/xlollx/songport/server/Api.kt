@@ -132,6 +132,8 @@ object Api {
         put("followsChanges", j.followsChanges)
         // Keeps every track ever seen: nothing is removed from the target, new tracks are added at the end.
         put("archive", j.archive)
+        // Copies the source's star ratings (an iTunes library's, kept in a playlist file) to the target.
+        put("copyRatings", j.copyRatings)
         // Half of a two-way pair: the other half's id, whether this is the "↔" half, and whether removals travel too.
         val other = j.linkedJobId?.let { env.store.job(it) }
         put("twoWay", other != null)
@@ -209,6 +211,8 @@ object Api {
         put("partial", r.partial)
         // Removals the run held back (a quarter or more of the target, or of what a two-way pair shared): they wait for a confirmation.
         put("heldRemovals", r.heldBack)
+        // Star ratings set on the target's songs and albums (copyRatings).
+        put("ratingsSet", r.ratingsSet)
         if (tracks) {
             put("notFoundTracks", buildJsonArray { r.unmatchedTracks.forEach { add(trackRef(it)) } })
             put("addedTracks", buildJsonArray { r.addedTracks.forEach { add(trackRef(it)) } })

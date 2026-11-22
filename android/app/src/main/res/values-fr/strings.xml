@@ -3440,4 +3440,11 @@
     <string name="card_compat_your_name">Ton prénom</string>
     <string name="card_compat_their_name">Son prénom</string>
     <string name="card_compat_names_note">Facultatif. Les prénoms restent sur ce téléphone : ils n\'apparaissent que sur l\'image.</string>
+    <string name="editor_copy_ratings">Copier les notes par étoiles</string>
+    <string name="editor_copy_ratings_desc">Les titres et albums notés dans iTunes reçoivent les mêmes étoiles sur %1$s. Ceux sans note restent tels quels.</string>
+    <plurals name="ratings_set">
+        <item quantity="one">★ %1$d note appliquée</item>
+        <item quantity="other">★ %1$d notes appliquées</item>
+    </plurals>
+    <string name="note_ratings_failed">Notes par étoiles refusées par %2$s : %1$d. La synchronisation elle-même s\'est bien déroulée ; elles seront retentées à la prochaine exécution.</string>
 </resources>

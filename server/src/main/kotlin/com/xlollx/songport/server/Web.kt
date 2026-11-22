@@ -14,6 +14,7 @@ import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.OAuthProvider
 import com.xlollx.songport.providers.Providers
+import com.xlollx.songport.providers.RatingWriter
 import com.xlollx.songport.server.Html.h
 import com.xlollx.songport.sync.JobConflicts
 import com.xlollx.songport.sync.PlaylistLinks
@@ -407,7 +408,7 @@ class Web(
             // The connection's failure in plain words, calmly: it runs again by itself.
             last.error != null && last.netError != null -> """<span class="net">☁︎ ${h(last.error)}</span>"""
             last.error != null -> """<span class="err">${h(last.error)}</span>"""
-            else -> """<span class="ok">+${last.added} −${last.removed}</span>""" +
+            else -> """<span class="ok">+${last.added} −${last.removed}</span>""" + ratingsSet(last.ratingsSet) +
                 (if (last.unmatched.isNotEmpty()) """ <span class="muted">· ${last.unmatched.size} not found</span>""" else "") +
                 (if (last.sourceEmpty && job.radio == null) """ <span class="err">· the source is empty</span>""" else "") +
                 (if (last.hasReview()) """ · <a href="/syncs/${q(job.id)}/review/${q(last.id)}">Review</a>""" else "") +
@@ -506,6 +507,21 @@ $removals"""
 <input type="hidden" name="pair" value="1"><label class="check"><input type="checkbox" name="twoWay"${if (other != null) " checked" else ""}> Two-way: also ${if (other != null) "keeps" else "creates"} the reverse sync (marked ↔), so tracks added on either side reach the other.${if (other != null) " Unticked, the reverse sync is deleted (the playlists stay as they are)" else " For two existing playlists of yours"}</label>
 $removals"""
     }
+
+    /**
+     * "Copy star ratings" on a sync's form, where the sync offers it ([RatingWriter.offered]: a
+     * playlist file towards a server that takes ratings); nothing otherwise.
+     */
+    internal fun ratingsField(job: SyncJob?, src: MusicProvider?, dst: MusicProvider?): String =
+        if (!RatingWriter.offered(src, dst)) "" else """
+<input type="hidden" name="ratings" value="1"><label class="check"><input type="checkbox" name="copyRatings"${if (job?.copyRatings == true) " checked" else ""}> Copy star ratings <span class="muted">(songs and albums rated in iTunes)</span></label>"""
+
+    /** [job] with "Copy star ratings" as its form says, when the form offered it ([ratingsField]). */
+    internal fun withRatings(job: SyncJob, r: Req): SyncJob =
+        if (r.form["ratings"] == "1") job.copy(copyRatings = r.form["copyRatings"] == "on") else job
+
+    /** A run's ratings set, after its added and removed figures; nothing when none. */
+    internal fun ratingsSet(n: Int): String = if (n > 0) """ <span class="muted">· ★ $n ${if (n == 1) "rating" else "ratings"} set</span>""" else ""
 
     /** A sync with the choice of [changesFields] read from its form; the older "mirror" and "archive" checkboxes still count. */
     internal fun withChanges(job: SyncJob, r: Req): SyncJob {
@@ -873,7 +889,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                         val tags = if (grouped) Labels.cleanTags(r.form["tags"].orEmpty().split(',').mapNotNull { Labels.parseTag(it) }.associate { it.first to it.second.orEmpty() }) else job.tags
                         val timed = withTiming(job.copy(name = name, schedule = s, favorite = if (grouped) r.form["favorite"] != null else job.favorite, tags = tags), r)
                         // A radio sync's form has no choice about changes: its source only grows.
-                        val changed = if (job.radio != null) timed else withChanges(timed, r)
+                        val changed = if (job.radio != null) timed else withRatings(withChanges(timed, r), r)
                         // Two-way and its removals, where the form offers them (see pairFields).
                         val paired = job.linkedJobId?.let { env.store.job(it) } != null
                         val offered = r.form["pair"] == "1"
@@ -984,7 +1000,7 @@ ${if (src.linkOnly) """<label>Public link on ${h(src.label(env))}</label><input 
 <label>To ${h(dst.label(env))}</label><select name="dstPlaylist">${if (dst.canCreatePlaylists) "<option value=\"\">A new playlist with the same name</option>" else ""}${opts(dstLists.getOrDefault(emptyList()))}</select>
 <label>Name of the sync (optional)</label><input type="text" name="name">
 ${timingFields(null)}
-${changesFields(null)}${pairFields(null)}
+${changesFields(null)}${ratingsField(null, src, dst)}${pairFields(null)}
 <p><button>Create</button> <a class="button secondary" href="/syncs/new">Back</a></p></form>""",
         )
         send(r.ex, 200, page("New sync", body.toString()))
@@ -1023,7 +1039,7 @@ ${changesFields(null)}${pairFields(null)}
             source = PlaylistRef(src.id, srcId, srcName),
             target = PlaylistRef(dst.id, dstId, dstName),
             schedule = runCatching { Schedule.valueOf(r.form["schedule"].orEmpty()) }.getOrDefault(Schedule.MANUAL),
-        ).let { withChanges(withTiming(it, r), r) }
+        ).let { withRatings(withChanges(withTiming(it, r), r), r) }
             .let { j -> runCatching { pairing(j, r.form["twoWay"] == "on", r.form["twoWay"] == "on" && r.form["twoWayRemovals"] == "on") }.getOrElse { return redirect(r.ex, "$back&err=${q(it.message ?: "Error")}") } }
         val warning = conflictWarning(job)
         env.store.upsertJob(job)
@@ -1061,7 +1077,7 @@ ${changesFields(null)}${pairFields(null)}
         val schedules = Schedule.values().joinToString("") { """<option value="${it.name}"${if (it == job.schedule) " selected" else ""}>${h(scheduleName(it))}</option>""" }
         body.append(
             """<form method="post" action="/syncs/$id/schedule" class="card"><label>Name</label><input type="text" name="name" value="${h(job.name)}">${if (job.radio != null) """<input type="hidden" name="schedule" value="MANUAL">""" else """${timingFields(job)}
-${changesFields(job)}${pairFields(job)}"""}
+${changesFields(job)}${ratingsField(job, Providers.byId(job.source.provider), Providers.byId(job.target.provider))}${pairFields(job)}"""}
 <label>Colour</label><div class="swatches"><label title="None"><input type="radio" name="color" value=""${if (job.color == null) " checked" else ""} aria-label="None"><span class="dot none"></span></label>${Html.JOB_COLORS.entries.joinToString("") { (k, v) -> val n = h(labels.firstOrNull { it.id == k }?.name?.takeIf { it.isNotEmpty() } ?: k); """<label title="$n"><input type="radio" name="color" value="$k"${if (job.label == k) " checked" else ""} aria-label="$n"><span class="dot" style="background:${v.first}"></span></label>""" }}${labels.filter { !Labels.isBase(it.id) }.joinToString("") { l -> """<label title="${h(l.name)}"><input type="radio" name="color" value="label:${h(l.id)}"${if (job.label == l.id) " checked" else ""} aria-label="${h(l.name)}"><span class="dot" style="background:${h(l.color)}"></span></label>""" }}<label title="Your own colour"><input type="radio" name="color" value="custom"${if (job.label == null && Html.customColor(job.color) != null) " checked" else ""} aria-label="Your own colour"><input type="color" name="customColor" value="${h((Html.customColor(job.color) ?: "#0B84E8").lowercase())}" aria-label="Pick your own colour" onchange="this.previousElementSibling.checked=true"></label></div>
 <input type="hidden" name="groups" value="1">
 <label for="labelName">Label name</label><input type="text" id="labelName" name="labelName" maxlength="${Labels.MAX_NAME}" value="${h(Labels.name(job, labels))}"><p class="muted">Optional. Every sync with this colour shares the name: you can then search and filter by it. Your own colour with a name is kept among the ready colours.</p>
@@ -1073,7 +1089,7 @@ ${changesFields(job)}${pairFields(job)}"""}
         if (reports.isNotEmpty()) body.append("<h2>Last runs</h2>")
         for (rep in reports) {
             body.append("""<div class="card"><div class="row"><b>${Html.date(rep.startedEpoch)}</b><span class="muted">${rep.durationMs / 1000} s · source ${rep.sourceCount} · destination ${rep.targetCount}</span></div>""")
-            body.append(if (rep.error != null) """<p class="${if (rep.netError != null) "net" else "err"}">${h(rep.error)}</p>""" else """<p class="ok">+${rep.added} added · −${rep.removed} removed</p>""")
+            body.append(if (rep.error != null) """<p class="${if (rep.netError != null) "net" else "err"}">${h(rep.error)}</p>""" else """<p class="ok">+${rep.added} added · −${rep.removed} removed${if (rep.ratingsSet > 0) " · ★ ${rep.ratingsSet} ${if (rep.ratingsSet == 1) "rating" else "ratings"} set" else ""}</p>""")
             rep.notes.forEach { body.append("""<p class="muted">${h(it)}</p>""") }
             if (rep.hasReview()) {
                 val what = listOfNotNull(

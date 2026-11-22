@@ -3440,4 +3440,11 @@
     <string name="card_compat_your_name">Seu nome</string>
     <string name="card_compat_their_name">Nome da outra pessoa</string>
     <string name="card_compat_names_note">Opcional. Os nomes ficam neste celular: só aparecem na imagem.</string>
+    <string name="editor_copy_ratings">Copiar avaliações com estrelas</string>
+    <string name="editor_copy_ratings_desc">Músicas e álbuns avaliados no iTunes recebem as mesmas estrelas em %1$s. Os sem avaliação ficam como estão.</string>
+    <plurals name="ratings_set">
+        <item quantity="one">★ %1$d avaliação aplicada</item>
+        <item quantity="other">★ %1$d avaliações aplicadas</item>
+    </plurals>
+    <string name="note_ratings_failed">Avaliações com estrelas que %2$s não aceitou: %1$d. A sincronização em si foi concluída; elas serão tentadas de novo na próxima execução.</string>
 </resources>

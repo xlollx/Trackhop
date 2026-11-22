@@ -323,6 +323,7 @@ object HandOver {
         put("days", buildJsonArray { job.days.forEach { add(JsonPrimitive(it)) } })
         put("changes", if (job.archive) "archive" else if (job.mirrorRemovals) "mirror" else "add")
         if (job.mirrorRemovals && !job.archive) put("follows", job.followsChanges)
+        if (job.copyRatings) put("copyRatings", true)
         put("enabled", job.enabled)
         if (pair) {
             put("twoWay", true)

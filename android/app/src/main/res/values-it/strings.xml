@@ -3432,4 +3432,11 @@
     <string name="card_compat_your_name">Il tuo nome</string>
     <string name="card_compat_their_name">Il suo nome</string>
     <string name="card_compat_names_note">Facoltativi. I nomi restano su questo telefono: finiscono solo sull\'immagine.</string>
+    <string name="editor_copy_ratings">Copia i voti a stelle</string>
+    <string name="editor_copy_ratings_desc">Brani e album votati in iTunes ricevono le stesse stelle su %1$s. Quelli senza voto restano come sono.</string>
+    <plurals name="ratings_set">
+        <item quantity="one">★ %1$d voto impostato</item>
+        <item quantity="other">★ %1$d voti impostati</item>
+    </plurals>
+    <string name="note_ratings_failed">Voti a stelle non accettati da %2$s: %1$d. La sync è andata a buon fine; verranno riprovati alla prossima esecuzione.</string>
 </resources>

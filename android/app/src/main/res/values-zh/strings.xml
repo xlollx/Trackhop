@@ -3334,4 +3334,10 @@
     <string name="card_compat_your_name">你的名字</string>
     <string name="card_compat_their_name">对方的名字</string>
     <string name="card_compat_names_note">可选。名字只保存在这部手机上，只会出现在图片中。</string>
+    <string name="editor_copy_ratings">复制星级评分</string>
+    <string name="editor_copy_ratings_desc">在 iTunes 中评过分的歌曲和专辑，在 %1$s 上也会得到相同的星级。未评分的保持不变。</string>
+    <plurals name="ratings_set">
+        <item quantity="other">★ 已设置 %1$d 个评分</item>
+    </plurals>
+    <string name="note_ratings_failed">%2$s 未接受的星级评分：%1$d 个。同步本身已完成；下次运行时会再试。</string>
 </resources>
