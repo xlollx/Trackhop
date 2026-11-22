@@ -50,16 +50,21 @@ internal enum class ExportFormat(val label: String, val ext: String, val mime: S
 
 internal fun Web.csvFiles() = LocalFilesProvider.dir(env).listFiles { f -> f.isFile && f.extension == "csv" }.orEmpty().sortedBy { it.name.lowercase() }
 
-internal fun Web.fileList(sample: String = ""): String {
+internal fun Web.fileList(sample: String = "", all: Boolean = false): String {
     val files = csvFiles()
     val sb = StringBuilder("""<div class="card">""")
     if (files.isEmpty()) sb.append("""<p class="muted">No playlist files yet.</p>""")
+    // Select all / None: plain links (the page works without JavaScript), the list drawn again ticked or not.
+    if (files.size > 1) {
+        val keep = if (sample.isEmpty()) "" else "sample=${q(sample)}"
+        sb.append("""<p class="muted"><a href="/connectors/csv?${listOf("all=1", keep).filter { it.isNotEmpty() }.joinToString("&amp;")}">Select all</a> · <a href="/connectors/csv${if (keep.isEmpty()) "" else "?$keep"}">None</a></p>""")
+    }
     for (f in files) {
         val n = CsvCodec.parse(f.readText()).size
         val links = ExportFormat.offered().joinToString(" · ") { """<a href="/files/${q(f.name)}?format=${it.ext}" download>${it.label}</a>""" }
         sb.append(
             // The box belongs to the "bulk" form below (a form cannot hold the row's own Delete form).
-            """<div class="row"><label class="inline"><input type="checkbox" form="bulk" name="f:${h(f.name)}" aria-label="Select ${h(f.nameWithoutExtension)}"></label>""" +
+            """<div class="row"><label class="inline"><input type="checkbox" form="bulk" name="f:${h(f.name)}"${if (all) " checked" else ""} aria-label="Select ${h(f.nameWithoutExtension)}"></label>""" +
                 """<div><b>${h(f.nameWithoutExtension)}</b> <span class="muted">$n tracks</span><br><span class="muted">Download: </span>$links · <a href="/syncs/new?src=csv&amp;srcPlaylist=${q(f.nameWithoutExtension)}">Send to a service</a></div>""" +
                 Html.postButton("/files/${q(f.name)}", "Delete", "danger", fields = mapOf("action" to "delete"), confirm = "Delete ${f.nameWithoutExtension}? A sync that uses it stops finding it.") +
                 "</div>",
