@@ -3432,4 +3432,57 @@
     <string name="card_compat_your_name">Ton prénom</string>
     <string name="card_compat_their_name">Son prénom</string>
     <string name="card_compat_names_note">Facultatif. Les prénoms restent sur ce téléphone : ils n\'apparaissent que sur l\'image.</string>
+    <string name="to_fix_accept_suggestions">Accepter les suggestions (%1$d)</string>
+    <plurals name="to_fix_bulk_accepted">
+        <item quantity="one">%1$d suggestion acceptée</item>
+        <item quantity="other">%1$d suggestions acceptées</item>
+    </plurals>
+    <plurals name="to_fix_bulk_no_suggestion">
+        <item quantity="one">%1$d restant : aucune suggestion</item>
+        <item quantity="other">%1$d restants : aucune suggestion</item>
+    </plurals>
+    <plurals name="to_fix_bulk_later">
+        <item quantity="one">%1$d titre mis de côté jusqu\'à la prochaine exécution de sa synchro</item>
+        <item quantity="other">%1$d titres mis de côté jusqu\'à la prochaine exécution de leurs synchros</item>
+    </plurals>
+    <plurals name="to_fix_bulk_ignored">
+        <item quantity="one">%1$d titre ignoré</item>
+        <item quantity="other">%1$d titres ignorés</item>
+    </plurals>
+    <plurals name="unplayable_undecided">
+        <item quantity="one">%1$d sans décision</item>
+        <item quantity="other">%1$d sans décision</item>
+    </plurals>
+    <string name="unplayable_remove_all">Tous les retirer</string>
+    <string name="unplayable_skip_all">Tous les passer</string>
+    <plurals name="manage_delete_n_title">
+        <item quantity="one">Supprimer %1$d playlist de %2$s ?</item>
+        <item quantity="other">Supprimer %1$d playlists de %2$s ?</item>
+    </plurals>
+    <string name="manage_delete_n_body">Elles disparaissent de %1$s lui-même. Les synchros qui y écrivent sont désactivées.</string>
+    <plurals name="manage_delete_n">
+        <item quantity="one">Supprimer %1$d playlist</item>
+        <item quantity="other">Supprimer %1$d playlists</item>
+    </plurals>
+    <plurals name="manage_deleted_n">
+        <item quantity="one">%1$d playlist supprimée</item>
+        <item quantity="other">%1$d playlists supprimées</item>
+    </plurals>
+    <plurals name="manage_delete_failed_n">
+        <item quantity="one">%1$d n\'a pas pu être supprimée</item>
+        <item quantity="other">%1$d n\'ont pas pu être supprimées</item>
+    </plurals>
+    <plurals name="manage_syncs_turned_off">
+        <item quantity="one">%1$d synchro désactivée</item>
+        <item quantity="other">%1$d synchros désactivées</item>
+    </plurals>
+    <plurals name="manage_delete_turns_off">
+        <item quantity="one">%1$d synchro écrit dans cette playlist : elle est désactivée.</item>
+        <item quantity="other">%1$d synchros écrivent dans cette playlist : elles sont désactivées.</item>
+    </plurals>
+    <string name="saved_matches_forget_short">Oublier</string>
+    <plurals name="saved_matches_forgotten_n">
+        <item quantity="one">%1$d oubliée : la prochaine synchro la recherche à nouveau.</item>
+        <item quantity="other">%1$d oubliées : la prochaine synchro les recherche à nouveau.</item>
+    </plurals>
 </resources>

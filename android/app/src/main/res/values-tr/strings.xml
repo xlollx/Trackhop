@@ -3422,4 +3422,57 @@
     <string name="card_compat_your_name">Adın</string>
     <string name="card_compat_their_name">Onun adı</string>
     <string name="card_compat_names_note">İsteğe bağlı. Adlar bu telefonda kalır: yalnızca görselde yer alır.</string>
+    <string name="to_fix_accept_suggestions">Önerileri kabul et (%1$d)</string>
+    <plurals name="to_fix_bulk_accepted">
+        <item quantity="one">%1$d öneri kabul edildi</item>
+        <item quantity="other">%1$d öneri kabul edildi</item>
+    </plurals>
+    <plurals name="to_fix_bulk_no_suggestion">
+        <item quantity="one">%1$d kaldı: öneri yok</item>
+        <item quantity="other">%1$d kaldı: öneri yok</item>
+    </plurals>
+    <plurals name="to_fix_bulk_later">
+        <item quantity="one">%1$d parça, senkronizasyonu yeniden çalışana kadar kenara ayrıldı</item>
+        <item quantity="other">%1$d parça, senkronizasyonu yeniden çalışana kadar kenara ayrıldı</item>
+    </plurals>
+    <plurals name="to_fix_bulk_ignored">
+        <item quantity="one">%1$d parça yoksayıldı</item>
+        <item quantity="other">%1$d parça yoksayıldı</item>
+    </plurals>
+    <plurals name="unplayable_undecided">
+        <item quantity="one">%1$d karar verilmemiş</item>
+        <item quantity="other">%1$d karar verilmemiş</item>
+    </plurals>
+    <string name="unplayable_remove_all">Hepsini kaldır</string>
+    <string name="unplayable_skip_all">Hepsini atla</string>
+    <plurals name="manage_delete_n_title">
+        <item quantity="one">%2$s üzerinden %1$d çalma listesi silinsin mi?</item>
+        <item quantity="other">%2$s üzerinden %1$d çalma listesi silinsin mi?</item>
+    </plurals>
+    <string name="manage_delete_n_body">Doğrudan %1$s üzerinden kaldırılırlar. Bunlara yazan senkronizasyonlar kapatılır.</string>
+    <plurals name="manage_delete_n">
+        <item quantity="one">%1$d çalma listesini sil</item>
+        <item quantity="other">%1$d çalma listesini sil</item>
+    </plurals>
+    <plurals name="manage_deleted_n">
+        <item quantity="one">%1$d çalma listesi silindi</item>
+        <item quantity="other">%1$d çalma listesi silindi</item>
+    </plurals>
+    <plurals name="manage_delete_failed_n">
+        <item quantity="one">%1$d silinemedi</item>
+        <item quantity="other">%1$d silinemedi</item>
+    </plurals>
+    <plurals name="manage_syncs_turned_off">
+        <item quantity="one">%1$d senkronizasyon kapatıldı</item>
+        <item quantity="other">%1$d senkronizasyon kapatıldı</item>
+    </plurals>
+    <plurals name="manage_delete_turns_off">
+        <item quantity="one">%1$d senkronizasyon bu çalma listesine yazıyor: kapatılacak.</item>
+        <item quantity="other">%1$d senkronizasyon bu çalma listesine yazıyor: kapatılacak.</item>
+    </plurals>
+    <string name="saved_matches_forget_short">Unut</string>
+    <plurals name="saved_matches_forgotten_n">
+        <item quantity="one">%1$d unutuldu: sonraki senkronizasyon yeniden arar.</item>
+        <item quantity="other">%1$d unutuldu: sonraki senkronizasyon yeniden arar.</item>
+    </plurals>
 </resources>

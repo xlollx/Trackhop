@@ -3426,4 +3426,57 @@
     <string name="card_compat_your_name">Your name</string>
     <string name="card_compat_their_name">Their name</string>
     <string name="card_compat_names_note">Optional. The names stay on this phone: they only go on the picture.</string>
+    <string name="to_fix_accept_suggestions">Accept suggestions (%1$d)</string>
+    <plurals name="to_fix_bulk_accepted">
+        <item quantity="one">%1$d suggestion accepted</item>
+        <item quantity="other">%1$d suggestions accepted</item>
+    </plurals>
+    <plurals name="to_fix_bulk_no_suggestion">
+        <item quantity="one">%1$d left: no suggestion</item>
+        <item quantity="other">%1$d left: no suggestion</item>
+    </plurals>
+    <plurals name="to_fix_bulk_later">
+        <item quantity="one">%1$d track set aside until its sync runs again</item>
+        <item quantity="other">%1$d tracks set aside until their syncs run again</item>
+    </plurals>
+    <plurals name="to_fix_bulk_ignored">
+        <item quantity="one">%1$d track ignored</item>
+        <item quantity="other">%1$d tracks ignored</item>
+    </plurals>
+    <plurals name="unplayable_undecided">
+        <item quantity="one">%1$d undecided</item>
+        <item quantity="other">%1$d undecided</item>
+    </plurals>
+    <string name="unplayable_remove_all">Remove them all</string>
+    <string name="unplayable_skip_all">Skip them all</string>
+    <plurals name="manage_delete_n_title">
+        <item quantity="one">Delete %1$d playlist from %2$s?</item>
+        <item quantity="other">Delete %1$d playlists from %2$s?</item>
+    </plurals>
+    <string name="manage_delete_n_body">They go away from %1$s itself. Syncs that write to them are turned off.</string>
+    <plurals name="manage_delete_n">
+        <item quantity="one">Delete %1$d playlist</item>
+        <item quantity="other">Delete %1$d playlists</item>
+    </plurals>
+    <plurals name="manage_deleted_n">
+        <item quantity="one">%1$d playlist deleted</item>
+        <item quantity="other">%1$d playlists deleted</item>
+    </plurals>
+    <plurals name="manage_delete_failed_n">
+        <item quantity="one">%1$d could not be deleted</item>
+        <item quantity="other">%1$d could not be deleted</item>
+    </plurals>
+    <plurals name="manage_syncs_turned_off">
+        <item quantity="one">%1$d sync turned off</item>
+        <item quantity="other">%1$d syncs turned off</item>
+    </plurals>
+    <plurals name="manage_delete_turns_off">
+        <item quantity="one">%1$d sync writes to this playlist: it is turned off.</item>
+        <item quantity="other">%1$d syncs write to this playlist: they are turned off.</item>
+    </plurals>
+    <string name="saved_matches_forget_short">Forget</string>
+    <plurals name="saved_matches_forgotten_n">
+        <item quantity="one">%1$d forgotten: the next sync searches it again.</item>
+        <item quantity="other">%1$d forgotten: the next sync searches them again.</item>
+    </plurals>
 </resources>

@@ -3326,4 +3326,45 @@
     <string name="card_compat_your_name">あなたの名前</string>
     <string name="card_compat_their_name">相手の名前</string>
     <string name="card_compat_names_note">任意です。名前はこの端末に保存され、画像にだけ表示されます。</string>
+    <string name="to_fix_accept_suggestions">候補を承認（%1$d）</string>
+    <plurals name="to_fix_bulk_accepted">
+        <item quantity="other">%1$d 件の候補を承認しました</item>
+    </plurals>
+    <plurals name="to_fix_bulk_no_suggestion">
+        <item quantity="other">残り %1$d 件：候補なし</item>
+    </plurals>
+    <plurals name="to_fix_bulk_later">
+        <item quantity="other">%1$d 曲を、その同期が次に実行されるまで後回しにしました</item>
+    </plurals>
+    <plurals name="to_fix_bulk_ignored">
+        <item quantity="other">%1$d 曲を無視しました</item>
+    </plurals>
+    <plurals name="unplayable_undecided">
+        <item quantity="other">未決定 %1$d 件</item>
+    </plurals>
+    <string name="unplayable_remove_all">すべて削除</string>
+    <string name="unplayable_skip_all">すべてスキップ</string>
+    <plurals name="manage_delete_n_title">
+        <item quantity="other">%2$s から %1$d 件のプレイリストを削除しますか？</item>
+    </plurals>
+    <string name="manage_delete_n_body">%1$s 自体から削除されます。これらに書き込む同期はオフになります。</string>
+    <plurals name="manage_delete_n">
+        <item quantity="other">%1$d 件のプレイリストを削除</item>
+    </plurals>
+    <plurals name="manage_deleted_n">
+        <item quantity="other">%1$d 件のプレイリストを削除しました</item>
+    </plurals>
+    <plurals name="manage_delete_failed_n">
+        <item quantity="other">%1$d 件を削除できませんでした</item>
+    </plurals>
+    <plurals name="manage_syncs_turned_off">
+        <item quantity="other">%1$d 件の同期をオフにしました</item>
+    </plurals>
+    <plurals name="manage_delete_turns_off">
+        <item quantity="other">%1$d 件の同期がこのプレイリストに書き込んでいます。オフになります。</item>
+    </plurals>
+    <string name="saved_matches_forget_short">忘れる</string>
+    <plurals name="saved_matches_forgotten_n">
+        <item quantity="other">%1$d 件を忘れました。次の同期でもう一度検索します。</item>
+    </plurals>
 </resources>

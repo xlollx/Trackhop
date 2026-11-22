@@ -3622,4 +3622,81 @@
     <string name="card_compat_your_name">Twoje imię</string>
     <string name="card_compat_their_name">Imię drugiej osoby</string>
     <string name="card_compat_names_note">Opcjonalnie. Imiona zostają na tym telefonie: pojawiają się tylko na obrazku.</string>
+    <string name="to_fix_accept_suggestions">Akceptuj sugestie (%1$d)</string>
+    <plurals name="to_fix_bulk_accepted">
+        <item quantity="one">Zaakceptowano %1$d sugestię</item>
+        <item quantity="few">Zaakceptowano %1$d sugestie</item>
+        <item quantity="many">Zaakceptowano %1$d sugestii</item>
+        <item quantity="other">Zaakceptowano %1$d sugestii</item>
+    </plurals>
+    <plurals name="to_fix_bulk_no_suggestion">
+        <item quantity="one">Został %1$d: brak sugestii</item>
+        <item quantity="few">Zostały %1$d: brak sugestii</item>
+        <item quantity="many">Zostało %1$d: brak sugestii</item>
+        <item quantity="other">Zostało %1$d: brak sugestii</item>
+    </plurals>
+    <plurals name="to_fix_bulk_later">
+        <item quantity="one">Odłożono %1$d utwór do następnego uruchomienia synchronizacji</item>
+        <item quantity="few">Odłożono %1$d utwory do następnego uruchomienia synchronizacji</item>
+        <item quantity="many">Odłożono %1$d utworów do następnego uruchomienia synchronizacji</item>
+        <item quantity="other">Odłożono %1$d utworu do następnego uruchomienia synchronizacji</item>
+    </plurals>
+    <plurals name="to_fix_bulk_ignored">
+        <item quantity="one">Zignorowano %1$d utwór</item>
+        <item quantity="few">Zignorowano %1$d utwory</item>
+        <item quantity="many">Zignorowano %1$d utworów</item>
+        <item quantity="other">Zignorowano %1$d utworu</item>
+    </plurals>
+    <plurals name="unplayable_undecided">
+        <item quantity="one">%1$d bez decyzji</item>
+        <item quantity="few">%1$d bez decyzji</item>
+        <item quantity="many">%1$d bez decyzji</item>
+        <item quantity="other">%1$d bez decyzji</item>
+    </plurals>
+    <string name="unplayable_remove_all">Usuń wszystkie</string>
+    <string name="unplayable_skip_all">Pomiń wszystkie</string>
+    <plurals name="manage_delete_n_title">
+        <item quantity="one">Usunąć %1$d playlistę z %2$s?</item>
+        <item quantity="few">Usunąć %1$d playlisty z %2$s?</item>
+        <item quantity="many">Usunąć %1$d playlist z %2$s?</item>
+        <item quantity="other">Usunąć %1$d playlisty z %2$s?</item>
+    </plurals>
+    <string name="manage_delete_n_body">Znikną bezpośrednio z %1$s. Synchronizacje, które do nich zapisują, zostaną wyłączone.</string>
+    <plurals name="manage_delete_n">
+        <item quantity="one">Usuń %1$d playlistę</item>
+        <item quantity="few">Usuń %1$d playlisty</item>
+        <item quantity="many">Usuń %1$d playlist</item>
+        <item quantity="other">Usuń %1$d playlisty</item>
+    </plurals>
+    <plurals name="manage_deleted_n">
+        <item quantity="one">Usunięto %1$d playlistę</item>
+        <item quantity="few">Usunięto %1$d playlisty</item>
+        <item quantity="many">Usunięto %1$d playlist</item>
+        <item quantity="other">Usunięto %1$d playlisty</item>
+    </plurals>
+    <plurals name="manage_delete_failed_n">
+        <item quantity="one">Nie udało się usunąć: %1$d</item>
+        <item quantity="few">Nie udało się usunąć: %1$d</item>
+        <item quantity="many">Nie udało się usunąć: %1$d</item>
+        <item quantity="other">Nie udało się usunąć: %1$d</item>
+    </plurals>
+    <plurals name="manage_syncs_turned_off">
+        <item quantity="one">Wyłączono %1$d synchronizację</item>
+        <item quantity="few">Wyłączono %1$d synchronizacje</item>
+        <item quantity="many">Wyłączono %1$d synchronizacji</item>
+        <item quantity="other">Wyłączono %1$d synchronizacji</item>
+    </plurals>
+    <plurals name="manage_delete_turns_off">
+        <item quantity="one">%1$d synchronizacja zapisuje do tej playlisty: zostanie wyłączona.</item>
+        <item quantity="few">%1$d synchronizacje zapisują do tej playlisty: zostaną wyłączone.</item>
+        <item quantity="many">%1$d synchronizacji zapisuje do tej playlisty: zostaną wyłączone.</item>
+        <item quantity="other">%1$d synchronizacji zapisuje do tej playlisty: zostaną wyłączone.</item>
+    </plurals>
+    <string name="saved_matches_forget_short">Zapomnij</string>
+    <plurals name="saved_matches_forgotten_n">
+        <item quantity="one">Zapomniano: %1$d. Następna synchronizacja wyszuka ponownie.</item>
+        <item quantity="few">Zapomniano: %1$d. Następna synchronizacja wyszuka ponownie.</item>
+        <item quantity="many">Zapomniano: %1$d. Następna synchronizacja wyszuka ponownie.</item>
+        <item quantity="other">Zapomniano: %1$d. Następna synchronizacja wyszuka ponownie.</item>
+    </plurals>
 </resources>

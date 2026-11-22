@@ -112,6 +112,19 @@ class ToFixTest {
         assertEquals(ToFix.count(env.store.data), bySync.sumOf { it.items.size })
     }
 
+    @Test fun acceptSuggestionsTakesOnlyTheTickedRowsThatHaveOne() {
+        seed()
+        val all = items()
+        val keys = setOf(item("sodium").key, item("low", "mother").key, item("low").key, item("glass").key, "gone:row>mdst")
+        val (accept, left) = ToFix.ticked(all, keys - item("glass").key)
+        // In the list's order; a key no longer listed (fixed meanwhile) is no row.
+        assertEquals(listOf("low>mdst"), accept.map { it.track.id + ">" + it.target })
+        assertEquals(listOf("low>mother", "sodium>mdst"), left.map { it.track.id + ">" + it.target }.sorted())
+        // An uncertain match has its suggestion: the match the run made.
+        assertEquals(listOf("glass", "low"), ToFix.ticked(all, keys).first.map { it.track.id })
+        assertEquals(emptyList<ToFix.Item>() to emptyList<ToFix.Item>(), ToFix.ticked(all, emptySet()))
+    }
+
     @Test fun aRunInProgressAndAOneOffTransferAreLeftOut() {
         val once = SyncJob(id = "once", name = "Copy", source = PlaylistRef("msrc", "p", "p"), target = PlaylistRef("mdst", "t", "t"), lastReportId = "r-once", oneOff = true)
         env.store.update { d ->

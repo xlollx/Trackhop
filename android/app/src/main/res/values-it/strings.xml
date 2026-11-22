@@ -3424,4 +3424,57 @@
     <string name="card_compat_your_name">Il tuo nome</string>
     <string name="card_compat_their_name">Il suo nome</string>
     <string name="card_compat_names_note">Facoltativi. I nomi restano su questo telefono: finiscono solo sull\'immagine.</string>
+    <string name="to_fix_accept_suggestions">Accetta i suggerimenti (%1$d)</string>
+    <plurals name="to_fix_bulk_accepted">
+        <item quantity="one">%1$d suggerimento accettato</item>
+        <item quantity="other">%1$d suggerimenti accettati</item>
+    </plurals>
+    <plurals name="to_fix_bulk_no_suggestion">
+        <item quantity="one">%1$d rimasto: nessun suggerimento</item>
+        <item quantity="other">%1$d rimasti: nessun suggerimento</item>
+    </plurals>
+    <plurals name="to_fix_bulk_later">
+        <item quantity="one">%1$d brano messo da parte fino alla prossima esecuzione della sua sync</item>
+        <item quantity="other">%1$d brani messi da parte fino alla prossima esecuzione delle loro sync</item>
+    </plurals>
+    <plurals name="to_fix_bulk_ignored">
+        <item quantity="one">%1$d brano ignorato</item>
+        <item quantity="other">%1$d brani ignorati</item>
+    </plurals>
+    <plurals name="unplayable_undecided">
+        <item quantity="one">%1$d da decidere</item>
+        <item quantity="other">%1$d da decidere</item>
+    </plurals>
+    <string name="unplayable_remove_all">Togli tutti</string>
+    <string name="unplayable_skip_all">Salta tutti</string>
+    <plurals name="manage_delete_n_title">
+        <item quantity="one">Eliminare %1$d playlist da %2$s?</item>
+        <item quantity="other">Eliminare %1$d playlist da %2$s?</item>
+    </plurals>
+    <string name="manage_delete_n_body">Spariscono da %1$s stesso. Le sync che ci scrivono vengono disattivate.</string>
+    <plurals name="manage_delete_n">
+        <item quantity="one">Elimina %1$d playlist</item>
+        <item quantity="other">Elimina %1$d playlist</item>
+    </plurals>
+    <plurals name="manage_deleted_n">
+        <item quantity="one">%1$d playlist eliminata</item>
+        <item quantity="other">%1$d playlist eliminate</item>
+    </plurals>
+    <plurals name="manage_delete_failed_n">
+        <item quantity="one">Impossibile eliminarne %1$d</item>
+        <item quantity="other">Impossibile eliminarne %1$d</item>
+    </plurals>
+    <plurals name="manage_syncs_turned_off">
+        <item quantity="one">%1$d sync disattivata</item>
+        <item quantity="other">%1$d sync disattivate</item>
+    </plurals>
+    <plurals name="manage_delete_turns_off">
+        <item quantity="one">%1$d sync scrive in questa playlist: viene disattivata.</item>
+        <item quantity="other">%1$d sync scrivono in questa playlist: vengono disattivate.</item>
+    </plurals>
+    <string name="saved_matches_forget_short">Dimentica</string>
+    <plurals name="saved_matches_forgotten_n">
+        <item quantity="one">%1$d dimenticata: la prossima sync la cerca di nuovo.</item>
+        <item quantity="other">%1$d dimenticate: la prossima sync le cerca di nuovo.</item>
+    </plurals>
 </resources>
