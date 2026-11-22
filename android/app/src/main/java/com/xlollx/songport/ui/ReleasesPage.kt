@@ -23,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -150,6 +151,11 @@ internal fun ReleasesPage(snackbar: SnackbarHostState, onNewSync: (SyncJob.() ->
         return
     }
     Text(pluralStringResource(R.plurals.releases_count, r.releases.size, r.releases.size), style = MaterialTheme.typography.titleSmall)
+    // Announced releases stay out of both: they have no tracks to tick yet.
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        TextButton(enabled = !busy, onClick = { k.unticked = emptySet() }) { Text(stringResource(R.string.library_select_all)) }
+        TextButton(enabled = !busy, onClick = { k.unticked = r.releases.filterNot { NewReleases.isUpcoming(it) }.mapTo(HashSet()) { it.link } }) { Text(stringResource(R.string.library_select_none)) }
+    }
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(vertical = 4.dp)) {
             r.releases.forEach { rel ->
