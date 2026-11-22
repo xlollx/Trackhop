@@ -325,7 +325,11 @@ class Web(
         body.append(finder(jobs, filter))
         val shown = Labels.favoritesFirst(filter.select(jobs, env.store.data.reports, running.keys, env.store.data.settings.labels) { label(it) })
         if (jobs.isNotEmpty() && shown.isEmpty()) body.append("""<p class="muted">No sync matches. <a href="/">Show them all</a></p>""")
-        for (job in shown) body.append(jobCard(job, running.containsKey(job.id)))
+        // Several syncs at once: "Select" ticks them (plain links and a form, no JavaScript needed).
+        val selecting = r.query["select"] == "1"
+        if (shown.isNotEmpty()) body.append(bulkSyncsBar(homeLink(filter), shown.size, selecting))
+        val tickAll = selecting && r.query["all"] == "1"
+        for (job in shown) body.append(jobCard(job, running.containsKey(job.id), if (selecting) bulkSyncTick(job, tickAll) else ""))
         body.append("</div>").append(side).append("</div>")
         send(r.ex, 200, page("Syncs", body.toString(), refresh = if (running.isNotEmpty()) 5 else null, wide = side.isNotEmpty()))
     }
@@ -394,7 +398,7 @@ class Web(
         return if (used.isEmpty()) "" else " In use: ${h(used)}."
     }
 
-    private fun jobCard(job: SyncJob, isRunning: Boolean): String {
+    private fun jobCard(job: SyncJob, isRunning: Boolean, tick: String = ""): String {
         val last = job.lastReportId?.let { env.store.report(it) }
         val status = when {
             isRunning -> progressText(job.id)
@@ -424,7 +428,7 @@ class Web(
             .joinToString("") { """ <span class="badge">${h(it)}</span>""" }
         val moves = (if (at > 0) " " + Html.postButton("/syncs/${q(job.id)}/move", "↑", "secondary", mapOf("to" to "up")) else "") +
             (if (at in 0 until all.size - 1) " " + Html.postButton("/syncs/${q(job.id)}/move", "↓", "secondary", mapOf("to" to "down")) else "")
-        return """<div class="card" id="sync-${h(job.id)}"${Html.jobStyle(job.color)}><div class="row"><div class="who"><span class="pair">${logo(job.source.provider, 36)}${logo(job.target.provider, 36)}</span><div><a href="/syncs/${q(job.id)}">${if (radio != null) "$RADIO_ICON " else ""}${if (job.shazam) "$SHAZAM_ICON " else ""}${if (job.aiPrompt != null) "$AI_ICON " else ""}${if (job.favorite) """<span title="Favourite" aria-label="Favourite">★</span> """ else ""}<b>${h(job.name)}</b></a><br>
+        return """<div class="card" id="sync-${h(job.id)}"${Html.jobStyle(job.color)}><div class="row"><div class="who">$tick<span class="pair">${logo(job.source.provider, 36)}${logo(job.target.provider, 36)}</span><div><a href="/syncs/${q(job.id)}">${if (radio != null) "$RADIO_ICON " else ""}${if (job.shazam) "$SHAZAM_ICON " else ""}${if (job.aiPrompt != null) "$AI_ICON " else ""}${if (job.favorite) """<span title="Favourite" aria-label="Favourite">★</span> """ else ""}<b>${h(job.name)}</b></a><br>
 <span class="muted">${if (radio != null) "Radio: ${h(radio.station)}" else "${h(label(job.source.provider))}: ${h(job.source.playlistName)}"} → ${h(label(job.target.provider))}: ${h(job.target.playlistName.ifBlank { "new playlist" })}</span></div></div></div>
 <div>
 <span class="badge">${h(if (radio != null) com.xlollx.songport.sync.RadioTitles.describe(radio) else com.xlollx.songport.sync.Timing.describe(job))}</span>${if (job.archive) " <span class=\"badge\">keeps every track</span>" else if (job.mirrorRemovals) " <span class=\"badge\">mirror</span>" else ""}${if (job.linkedJobId?.let { env.store.job(it) } != null) " <span class=\"badge\">two-way${if (job.twoWayRemovals) ", removals too" else ""}</span>" else ""}${if (!job.enabled) " <span class=\"badge\">${job.scheduledOn?.let { "off, scheduled on ${h(it)}" } ?: "off"}</span>" else ""}$groups
@@ -826,9 +830,11 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
             rest == listOf("shazam") -> if (r.method == "POST") shazamCreate(r) else shazamNew(r)
             rest == listOf("crowd") || rest == listOf("spread") -> crowdPages(r, rest[0])
             rest == listOf("all") && r.method == "POST" -> {
-                env.store.data.jobs.filter { it.enabled }.forEach { runner.start(it) }
+                startSyncs(env.store.data.jobs.filter { it.enabled })
                 redirect(r.ex, "/")
             }
+            // The home page's Select: several syncs run, turned on or off, or deleted at once (BulkSyncs.kt).
+            rest == listOf("bulk") -> if (r.method == "POST") bulkSyncs(r) else redirect(r.ex, "/?select=1")
             rest.isEmpty() && r.method == "POST" -> createSync(r)
             rest.isEmpty() -> redirect(r.ex, "/")
             else -> {
