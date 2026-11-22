@@ -202,6 +202,8 @@ class Web(
             path == listOf("settings", "notifications") -> notificationsPage(r)
             path[0] == "playlists" -> playlists(r, path.drop(1))
             path[0] == "syncs" -> syncs(r, path.drop(1))
+            // Multi syncs: one source, several targets (MultiWeb.kt).
+            path[0] == "multi" -> multiPages(r, path.drop(1))
             else -> send(ex, 404, errorPage(404))
         }
     }
@@ -307,8 +309,10 @@ class Web(
         val connected = Providers.connectors().filter { it.isConnected(env) || !it.requiresAuth }
         val body = StringBuilder(notice(r))
         val lastRun = jobs.maxOfOrNull { it.lastRunEpoch } ?: 0
+        // As the app counts them: a multi sync is one.
+        val listedCount = com.xlollx.songport.shared.Nway.listedSyncs(env.store.data).size
         body.append(
-            """<div class="hero"><h2>Your playlists, everywhere</h2><p class="muted">${jobs.size} ${if (jobs.size == 1) "sync" else "syncs"} · ${connected.size} ${if (connected.size == 1) "service" else "services"}${if (lastRun > 0) " · last sync ${Html.date(lastRun)}" else ""}</p>
+            """<div class="hero"><h2>Your playlists, everywhere</h2><p class="muted">${listedCount} ${if (listedCount == 1) "sync" else "syncs"} · ${connected.size} ${if (connected.size == 1) "service" else "services"}${if (lastRun > 0) " · last sync ${Html.date(lastRun)}" else ""}</p>
 <div class="actions">${if (jobs.any { it.enabled }) Html.postButton("/syncs/all", if (running.isNotEmpty()) "Syncing…" else "Sync all now") else ""} <a class="hero-link" href="/tools/stats">Your numbers ›</a></div></div>""",
         )
         if (connected.size < 1) {
@@ -325,13 +329,17 @@ class Web(
         // the favourites, the labels and the tags. The starred syncs come first.
         val filter = homeFilter(r.query).pruned(jobs)
         body.append(finder(jobs, filter))
-        val shown = Labels.favoritesFirst(filter.select(jobs, env.store.data.reports, running.keys, env.store.data.settings.labels) { label(it) })
+        // A multi sync is one card, standing on its source's sync; its other syncs are behind it (as the app's list).
+        val anchors = com.xlollx.songport.shared.Nway.anchors(env.store.data)
+        val listedIds = com.xlollx.songport.shared.Nway.listedSyncs(env.store.data).mapTo(HashSet()) { it.id }
+        val listed = jobs.filter { it.id in listedIds }
+        val shown = Labels.favoritesFirst(filter.select(listed, env.store.data.reports, running.keys, env.store.data.settings.labels) { label(it) })
         if (jobs.isNotEmpty() && shown.isEmpty()) body.append("""<p class="muted">No sync matches. <a href="/">Show them all</a></p>""")
         // Several syncs at once: "Select" ticks them (plain links and a form, no JavaScript needed).
         val selecting = r.query["select"] == "1"
         if (shown.isNotEmpty()) body.append(bulkSyncsBar(homeLink(filter), shown.size, selecting))
         val tickAll = selecting && r.query["all"] == "1"
-        for (job in shown) body.append(jobCard(job, running.containsKey(job.id), if (selecting) bulkSyncTick(job, tickAll) else ""))
+        for (job in shown) body.append(anchors[job.id]?.let { multiCard(it) } ?: jobCard(job, running.containsKey(job.id), if (selecting) bulkSyncTick(job, tickAll) else ""))
         body.append("</div>").append(side).append("</div>")
         send(r.ex, 200, page("Syncs", body.toString(), refresh = if (running.isNotEmpty()) 5 else null, wide = side.isNotEmpty()))
     }
@@ -864,6 +872,8 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                 val back = "/syncs/${q(job.id)}"
                 if (rest.getOrNull(1) == "review") return review(r, job, rest.drop(2))
                 if (rest.getOrNull(1) == "removals") return heldRemovals(r, job)
+                // A sync of a multi sync is shown, run and changed with its group.
+                if (r.method != "POST") com.xlollx.songport.shared.SharedGroups.sharedSide(job)?.let { multiGroup(it) }?.let { return redirect(r.ex, "/multi/${q(it.id)}") }
                 if (r.method != "POST") return syncPage(r, job)
                 when (rest.getOrNull(1)) {
                     "run" -> { runner.start(job); redirect(r.ex, back) }
@@ -981,6 +991,10 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                 """<form method="get" action="/syncs/new" class="card"><label>From</label><select name="src">${options(false)}</select>
 ${if (srcPlaylist.isNotEmpty()) """<input type="hidden" name="srcPlaylist" value="${h(srcPlaylist)}">""" else ""}
 <label>To</label><select name="dst">${options(true)}</select><p><button>Next</button></p></form>""",
+            )
+            // The same source on several services at once (MultiWeb.kt), as the app's editor offers.
+            if (srcPlaylist.isEmpty()) body.append(
+                """<p class="actions"><b>One target</b> <a class="button secondary" href="/multi/new">Several targets</a> <span class="muted">One playlist kept on several services, each following its own way.</span></p>""",
             )
             return send(r.ex, 200, page("New sync", body.toString()))
         }

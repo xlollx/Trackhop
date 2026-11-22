@@ -85,6 +85,7 @@ internal class CliCommands(
         "diagnostics" -> diagnostics(o)
         "crowded" -> crowded()
         "spread" -> spread(o.has("apply"))
+        "multi" -> CliMulti(this).run(p, o)
         else -> CliV2(this).run(command, p, o) ?: throw Cli.Failure(2, "unknown command \"$command\". See: trackhop help")
     }
 

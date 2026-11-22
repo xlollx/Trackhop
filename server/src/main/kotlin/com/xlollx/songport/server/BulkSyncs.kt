@@ -15,7 +15,7 @@ import com.xlollx.songport.server.Html.h
 private const val FORM = "bulk-syncs"
 
 /** Starts [jobs] in this order; the runner's slots take them one after another. What Sync all does. */
-internal fun Web.startSyncs(jobs: List<SyncJob>) = jobs.forEach { runner.start(it) }
+internal fun Web.startSyncs(jobs: List<SyncJob>) { runner.startAll(jobs) }
 
 private fun syncCount(n: Int) = if (n == 1) "1 sync" else "$n syncs"
 

@@ -70,6 +70,7 @@ object Cli {
             "A service can take many syncs at once for unusual traffic and turn some away. trackhop spread gives them new times."),
         Cmd("spread", "Syncs", listOf("spread [--apply]"), "new times for the crowded syncs: shown only, saved with --apply",
             "The first keeps its time, each next one starts a little later; days, frequency and everything else stay."),
+        CliMulti.command,
         Cmd("runs", "Runs and review", listOf("runs [<sync>] [--limit N] [--offset N]"), "the runs, newest first"),
         Cmd("report", "Runs and review", listOf("report <run>", "report [--since 24h] [--names] [--title T] [--description TEXT]"), "one run: what it added, removed, could not find, and its notes",
             "Without <run>: a GitHub issue made ready, with the diagnostics (as trackhop diagnostics) and a link that opens it\nprefilled. Nothing is sent: you read it and send it yourself. When the same error is already reported, it says\nwhere to comment instead, or that a newer version fixed it."),
@@ -163,7 +164,7 @@ object Cli {
 
     /** The switches with no value, and the options that take one (--name NAME or --name=NAME). */
     private val FLAGS = setOf("json", "wait", "all", "albums", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals", "apply", "names", "upcoming", "encrypted", "replaces-device", "replace-sign-ins")
-    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency", "playlists") + CliV2.valued
+    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency", "playlists", "way") + CliV2.valued
     val OPTIONS: List<String> get() = (FLAGS + VALUED).sorted().map { "--$it" }
 
     /** The options a command was given: switches and values (a value given twice is a list: --set). */

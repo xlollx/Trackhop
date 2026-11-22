@@ -339,6 +339,8 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
     // The release switch: 1.18's calls are unknown until it is on (Features).
     if (Features.hidesCall(method, rest)) return error(404, "Unknown call. See https://trackhop.org/guide/docker#api")
     if (apiDiag(ex, method, rest, query, ::json, ::error)) return
+    // Multi syncs: one source kept on several targets (ApiMulti.kt).
+    if (apiMulti(ex, method, rest, ::json, ::error)) return
     if (apiSyncs(ex, method, rest, query, ::json, ::error)) return
     if (apiMore(ex, method, rest, query, ::json, ::error)) return
     if (apiWanted(ex, method, rest, query, ::json, ::error)) return
@@ -392,7 +394,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
         rest == listOf("syncs", "run") && method == "POST" -> {
             if (!Api.grouped(query)) return error(400, "Say which syncs: ?tag=key:value, ?label=… or ?favorite=true (POST /api/v1/syncs/run-all starts them all).")
             val started = runCatching { Api.selected(env, query) }.getOrElse { return error(400, it.message ?: "Wrong request.") }.filter { it.enabled }
-            started.forEach { runner.start(it) }
+            runner.startAll(started)
             json(202, buildJsonObject {
                 put("started", started.size)
                 put("syncs", buildJsonArray { started.forEach { add(buildJsonObject { put("id", it.id); put("name", it.name) }) } })
@@ -431,7 +433,8 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
         }
         rest == listOf("syncs", "run-all") && method == "POST" -> {
             val started = jobs.filter { it.enabled }
-            started.forEach { runner.start(it) }
+            // A multi sync's syncs run as one batch of their own (Runner.startAll).
+            runner.startAll(started)
             json(202, buildJsonObject { put("started", started.size) })
         }
         rest.size >= 2 && rest[0] == "syncs" -> {
