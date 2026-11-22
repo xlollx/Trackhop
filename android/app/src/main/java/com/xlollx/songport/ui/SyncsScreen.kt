@@ -1172,7 +1172,8 @@ private fun JobMenuHost(
             else if (job.enabled) MenuAction(stringResource(R.string.sync_menu_disable), { onToggleEnabled(job) }, icon = Icons.Outlined.PauseCircle)
             else MenuAction(stringResource(R.string.sync_menu_enable), { onToggleEnabled(job) }, icon = Icons.Outlined.PlayCircle),
             if (onServer) MenuAction(stringResource(R.string.server_bring_back), { handOverOpen = true }, icon = Icons.Outlined.CloudDownload)
-            else if (v2 && serverOn && sharedGroup == null && group == null) MenuAction(stringResource(R.string.server_handover), { handOverOpen = true }, icon = Icons.Outlined.Cloud)
+            // A multi sync goes whole, its group and all its syncs (ServerLink.handOver).
+            else if (v2 && serverOn && sharedGroup == null && group?.run == null) MenuAction(stringResource(R.string.server_handover), { handOverOpen = true }, icon = Icons.Outlined.Cloud)
             else null,
             MenuAction(
                 stringResource(if (job.favorite) R.string.sync_menu_unfavorite else R.string.sync_menu_favorite),
@@ -1236,6 +1237,9 @@ private fun statusInfo(
     group: GroupCard? = null, onOpenGroup: (String) -> Unit = {},
 ): CardStatusInfo {
     val haptic = rememberConfirmHaptic()
+    // A multi sync handed over (all its syncs are): the server runs it.
+    if (group != null && group.run == null && Store.get(LocalContext.current).state.collectAsState().value.handedOver[job.id] != null)
+        return CardStatusInfo(stringResource(R.string.server_on_server), Tone.Accent, Icons.Filled.Cloud)
     // A multi sync: the most serious state of its services, by the same order, and the service it is about.
     if (group != null) return groupStatusInfo(group, run, onPreview, onReview) { onOpenGroup(group.group.id) }
     // Handed over: the server runs it, whatever this phone last did.

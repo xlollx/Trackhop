@@ -251,4 +251,48 @@ class ServerSyncsTest {
         // Not handed over: nothing changes.
         assertEquals(back, HandOver.takenBack(back, job.id))
     }
+
+    // A multi sync (2.2): one source and its targets, each synced with the group's own list ("hub").
+    private val hub = PlaylistRef(com.xlollx.songport.shared.SharedProvider.ID, "0123456789abcdef", "Mix")
+    private val multi = com.xlollx.songport.shared.SharedGroup("0123456789abcdef", "Mix", "k", "k", "", transport = com.xlollx.songport.shared.Invite.LOCAL, jobId = "d-sp", twinId = "u-sp")
+    private val multiJobs = listOf(
+        SyncJob("d-sp", "Mix · Spotify", hub, PlaylistRef("spotify", "s1", "Mix"), linkedJobId = "u-sp", twoWayRemovals = true, everyMinutes = 360, at = "08:00"),
+        SyncJob("u-sp", "Mix · Spotify ↔", PlaylistRef("spotify", "s1", "Mix"), hub, linkedJobId = "d-sp", twoWayRemovals = true, twin = true, everyMinutes = 360, at = "08:00"),
+        SyncJob("d-ti", "Mix · TIDAL", hub, PlaylistRef("tidal", "t1", "Mix"), mirrorRemovals = true, everyMinutes = 360, at = "08:00"),
+        SyncJob("d-dz", "Mix · Deezer", hub, PlaylistRef("deezer", "z1", "Mix"), linkedJobId = "u-dz", twoWayRemovals = true, everyMinutes = 360, at = "08:00"),
+        SyncJob("u-dz", "Mix · Deezer ↔", PlaylistRef("deezer", "z1", "Mix"), hub, linkedJobId = "d-dz", twoWayRemovals = true, twin = true, everyMinutes = 360, at = "08:00"),
+    )
+
+    @Test fun aMultiSyncIsPlannedWholeFromAnyOfItsSyncs() {
+        val groups = listOf(multi)
+        val ready = services.map { if (it.id == "deezer") it.copy(connected = true) else it }
+        // Any of its syncs: the whole multi sync, never "stays on the phone" any more.
+        for (j in multiJobs) assertEquals(HandOver.Plan.Group(mapOf("spotify" to "spotify", "tidal" to "tidal@2", "deezer" to "deezer")), HandOver.plan(j, ready, multiJobs, groups))
+        // A service the server lacks is said, as for one sync.
+        assertEquals(HandOver.Plan.Missing(listOf("deezer")), HandOver.plan(multiJobs[2], services, multiJobs, groups))
+        // A File playlist in it: it stays here.
+        val files = multiJobs.map { if (it.id == "d-ti") it.copy(target = PlaylistRef("csv", "Mix", "Mix")) else it }
+        assertEquals(HandOver.Plan.NotHere(HandOver.Why.FILES), HandOver.plan(files[0], ready, files, groups))
+        // Without its group (a shared playlist of other people, or a caller that does not say): as before.
+        assertEquals(HandOver.Plan.NotHere(HandOver.Why.TWO_WAY), HandOver.plan(multiJobs[1], ready, multiJobs))
+    }
+
+    @Test fun aMultiSyncGoesAsOneBodyAndItsSyncsAreMatchedToTheServers() {
+        val members = com.xlollx.songport.shared.Nway.members(multiJobs, multi.id)
+        val plan = HandOver.Plan.Group(mapOf("spotify" to "spotify", "tidal" to "tidal@2", "deezer" to "deezer"))
+        assertEquals(
+            """{"id":"0123456789abcdef","name":"Mix","source":{"service":"spotify","playlist":"s1","name":"Mix"},"targets":[""" +
+                """{"service":"tidal@2","playlist":"t1","name":"Mix","way":"exact"},{"service":"deezer","playlist":"z1","name":"Mix","way":"two_way"}],""" +
+                """"every":360,"at":"08:00","days":[],"enabled":true}""",
+            HandOver.groupBody(multi, members, plan).toString(),
+        )
+        val answer = parseJson(
+            """{"id":"0123456789abcdef","source":{"syncId":"S-d","twinId":"S-u","service":"spotify","playlistId":"s1"},"targets":[""" +
+                """{"syncId":"T-d","twinId":null,"service":"tidal@2","playlistId":"t1"},{"syncId":"Z-d","twinId":"Z-u","service":"deezer","playlistId":"z1"},{"service":"odd"}]}""",
+        )
+        val made = ServerSyncs.parseMulti(answer)
+        assertEquals(3, made.size)
+        assertEquals(mapOf("d-sp" to "S-d", "u-sp" to "S-u", "d-ti" to "T-d", "d-dz" to "Z-d", "u-dz" to "Z-u"), HandOver.groupIds(members, made))
+        try { ServerSyncs.parseMulti(parseJson("[]")); fail() } catch (e: ServerSyncs.Failure) { assertEquals(ServerSyncs.Failure.Kind.ODD, e.kind) }
+    }
 }

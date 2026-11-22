@@ -4,6 +4,9 @@ import com.xlollx.songport.data.FileStore
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.net.Http
 import com.xlollx.songport.net.parseJson
+import com.xlollx.songport.shared.Nway
+import com.xlollx.songport.shared.NwayEdit
+import com.xlollx.songport.shared.SharedGroup
 import com.xlollx.songport.shared.SharedGroups
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -123,6 +126,20 @@ class ServerSyncs(address: String, private val token: String) {
         return Made(id, linked)
     }
 
+    /** One playlist of a multi sync the server made: its service there, its playlist, and the ids of its syncs there ([up] for a two-way one). */
+    data class MadeMember(val service: String, val playlistId: String?, val down: String, val up: String?)
+
+    /**
+     * Makes the multi sync of [body] ([HandOver.groupBody]) on the server; answers its playlists with
+     * their syncs there. Sent again with the same id, the server gives back the multi sync it made.
+     */
+    suspend fun createMulti(body: JsonObject): List<MadeMember> = parseMulti(call("POST", "multi", body))
+
+    /** Deletes the multi sync [id] on the server (its playlists stay as they are). One gone already is no failure. */
+    suspend fun deleteMulti(id: String) {
+        try { call("DELETE", "multi/${safeId(id)}") } catch (e: Failure) { if (e.kind != Failure.Kind.GONE) throw e }
+    }
+
     /** A run's review there: not found, and matches to check. */
     suspend fun review(runId: String): Review = parseReview(call("GET", "runs/${safeId(runId)}/review"))
 
@@ -224,6 +241,18 @@ class ServerSyncs(address: String, private val token: String) {
             )
         }
 
+        /** The server's answer about a multi sync (GET or POST /multi): its source and its targets, each with its syncs' ids there. */
+        fun parseMulti(e: JsonElement?): List<MadeMember> {
+            val o = e as? JsonObject ?: throw Failure(Failure.Kind.ODD, "not a multi sync")
+            fun member(m: JsonElement?): MadeMember? {
+                val service = m.idOrNull("service") ?: return null
+                val down = m.idOrNull("syncId") ?: return null
+                return MadeMember(service, m.textOrNull("playlistId"), down, m.idOrNull("twinId"))
+            }
+            val source = member(o["source"]) ?: throw Failure(Failure.Kind.ODD, "no source")
+            return listOf(source) + (o["targets"] as? JsonArray).orEmpty().mapNotNull { member(it) }
+        }
+
         private fun track(e: JsonElement?): ReviewTrack? {
             val id = e.textOrNull("id")?.takeIf { it.isNotBlank() } ?: return null
             return ReviewTrack(id, e.textOrNull("artist").orEmpty(), e.textOrNull("title").orEmpty())
@@ -251,6 +280,8 @@ object HandOver {
         data class Missing(val services: List<String>) : Plan()
         /** A kind of sync that lives on this device only. */
         data class NotHere(val why: Why) : Plan()
+        /** A multi sync can go as one: the server's connector for each of its playlists' services (by their ids on this device). */
+        data class Group(val connectors: Map<String, String>) : Plan()
     }
 
     /** [TWO_WAY]: a pair whose other half is no longer on this phone, so it cannot be handed over as a pair. */
@@ -262,7 +293,9 @@ object HandOver {
      * one first); the playlists are the server's to check when the sync is made. A half of a two-way
      * pair is planned as its pair ([pair]) from [jobs], this phone's syncs: both halves use the same two services.
      */
-    fun plan(job: SyncJob, services: List<ServerSyncs.Service>, jobs: List<SyncJob> = emptyList()): Plan {
+    fun plan(job: SyncJob, services: List<ServerSyncs.Service>, jobs: List<SyncJob> = emptyList(), groups: List<SharedGroup> = emptyList()): Plan {
+        // A sync of a multi sync (a group of the user's own playlists, [groups]): the whole multi sync goes, as one.
+        groups.firstOrNull { it.id == SharedGroups.sharedSide(job) && Nway.isGroup(it) }?.let { return planGroup(Nway.members(jobs, it.id), services) }
         val job = if (job.linkedJobId != null) pair(job, jobs)?.first ?: return Plan.NotHere(Why.TWO_WAY) else job
         when {
             job.radio != null -> return Plan.NotHere(Why.RADIO)
@@ -274,6 +307,63 @@ object HandOver {
         val dst = pick(job.target.provider, services)
         if (src != null && dst != null) return Plan.Ready(src, dst)
         return Plan.Missing(listOfNotNull(job.source.provider.takeIf { src == null }, job.target.provider.takeIf { dst == null }).distinct())
+    }
+
+    /**
+     * What a multi sync of [members] (its playlists, [Nway.members]) needs on a server with [services]:
+     * a connector there for every playlist's service, as [pick] finds one. File playlists stay here.
+     */
+    fun planGroup(members: List<Nway.Member>, services: List<ServerSyncs.Service>): Plan {
+        if (members.isEmpty()) return Plan.NotHere(Why.TWO_WAY)
+        if (members.any { FileStore.family(it.playlist.provider) == "csv" }) return Plan.NotHere(Why.FILES)
+        val picked = members.map { it.playlist.provider }.distinct().associateWith { pick(it, services) }
+        val missing = picked.filterValues { it == null }.keys.toList()
+        if (missing.isNotEmpty()) return Plan.Missing(missing)
+        return Plan.Group(picked.mapValues { it.value!! })
+    }
+
+    /** A multi sync's way of following as the server's API names it: exact, keep or two_way. */
+    fun wayName(m: Nway.Member): String = NwayEdit.modeOf(m).name.lowercase()
+
+    /**
+     * The body of POST /api/v1/multi that makes [group] on the server with the connectors of [plan]:
+     * the same id (asked again after a lost answer, the server gives back the one it made), the source,
+     * each target with its way, and the group's timing. The group's own list does not travel: the
+     * server fills its own from the source and the two-way targets at the first run, as after a
+     * configuration file ([Nway.restore]).
+     */
+    fun groupBody(group: SharedGroup, members: List<Nway.Member>, plan: Plan.Group): JsonObject {
+        val source = requireNotNull(Nway.source(group, members)) { "A multi sync needs its source" }
+        fun side(m: Nway.Member) = buildJsonObject {
+            put("service", plan.connectors.getValue(m.playlist.provider))
+            m.playlist.playlistId?.let { put("playlist", it) }
+            put("name", m.playlist.playlistName)
+        }
+        val timed = source.down
+        return buildJsonObject {
+            put("id", group.id)
+            put("name", group.name)
+            put("source", side(source))
+            put("targets", buildJsonArray { members.filter { it !== source }.forEach { m -> add(buildJsonObject { side(m).forEach { (k, v) -> put(k, v) }; put("way", wayName(m)) }) } })
+            put("every", Timing.interval(timed))
+            timed.at?.let { put("at", it) }
+            put("days", buildJsonArray { timed.days.forEach { add(JsonPrimitive(it)) } })
+            put("enabled", timed.enabled)
+        }
+    }
+
+    /**
+     * Which sync there is which sync here: each of [members]' syncs (this device's) by the id of the
+     * server's sync for the same playlist ([made]), the same service and playlist. A playlist the
+     * server did not name is left out.
+     */
+    fun groupIds(members: List<Nway.Member>, made: List<ServerSyncs.MadeMember>): Map<String, String> = buildMap {
+        for (m in members) {
+            val there = made.firstOrNull { FileStore.family(it.service) == FileStore.family(m.playlist.provider) && it.playlistId == m.playlist.playlistId } ?: continue
+            put(m.down.id, there.down)
+            val up = m.up
+            if (up != null && there.up != null) put(up.id, there.up)
+        }
     }
 
     /**
