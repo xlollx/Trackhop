@@ -1,7 +1,9 @@
 package com.xlollx.songport.flows
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextReplacement
@@ -49,7 +51,8 @@ class AccountsFlowTest : FlowTest() {
         // Rename it from its menu (the second card's "More").
         clickDesc(s(R.string.more_actions), index = 1)
         click(s(R.string.connector_rename))
-        compose.onNode(hasSetTextAction()).performTextReplacement("My Deezer")
+        // The rename dialog's field: the screen has its own search field too.
+        compose.onNode(hasSetTextAction() and hasAnyAncestor(isDialog())).performTextReplacement("My Deezer")
         click(s(R.string.ok))
         waitFor("the new name stored") { store.data.settings.connectorNames["deezer"] == "My Deezer" }
         waitText("My Deezer")
