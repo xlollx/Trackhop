@@ -1723,6 +1723,16 @@ class SyncEngine(
                 false
             }
         }
+        // A target track known only by id (a saved match, not listed or searched this run) has no album
+        // id nor rating: asked once, so its album's stars are set now rather than on the next run.
+        val asked = HashMap<String, Track?>()
+        val rated = rated.map { (s, d) ->
+            if (d.albumId != null || (s.rating <= 0 && s.albumRating <= 0)) return@map s to d
+            val now = asked.getOrPut(d.id) {
+                try { patient(onProgress) { writer.song(env, d.id) } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Exception) { null }
+            }
+            s to (now?.let { d.copy(albumId = it.albumId, rating = it.rating) } ?: d)
+        }
         val songs = HashSet<String>()
         for ((s, d) in rated) {
             if (s.rating <= 0 || !songs.add(d.id) || s.rating == d.rating) continue

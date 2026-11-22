@@ -343,6 +343,9 @@ open class SubsonicProvider(override val slot: String = "") : CredentialsProvide
         call(ctx, "setRating", listOf("id" to albumId, "rating" to "${stars.coerceIn(0, 5)}"))
     }
 
+    override suspend fun song(ctx: Env, songId: String): Track? =
+        toTrack(call(ctx, "getSong", listOf("id" to songId))["song"])
+
     override suspend fun deletePlaylist(ctx: Env, playlistId: String) {
         call(ctx, "deletePlaylist", listOf("id" to playlistId))
     }

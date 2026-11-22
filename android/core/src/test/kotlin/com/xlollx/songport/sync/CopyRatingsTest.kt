@@ -29,6 +29,10 @@ class CopyRatingsTest {
         val albumRatings = HashMap<String, Int>()
         var albumReads = 0
         var refuse = false
+        /** What `getSong` answers: the song with its album id and rating. */
+        val songInfo = HashMap<String, Track>()
+        var songReads = 0
+        override suspend fun song(ctx: Env, songId: String): Track? { songReads++; return songInfo[songId] }
         override suspend fun setSongRating(ctx: Env, songId: String, stars: Int) {
             if (refuse) throw ProviderException("mdst: not supported")
             songSets += songId to stars
@@ -90,6 +94,18 @@ class CopyRatingsTest {
         val r = SyncEngine(env).run(job(copy = true))
         assertEquals(emptyList<Pair<String, Int>>(), dst.albumSets)
         assertEquals(1, r.ratingsSet)
+    }
+
+    // A track the run knows only by id (no album id: a saved match) is asked once, so its album's stars come now.
+    @Test fun anAlbumUnknownToTheRunIsAskedSoItsStarsComeNow() = runBlocking {
+        dst.catalogue.removeAll { it.id == "da" }
+        dst.catalogue += song("da", "Alpha")
+        dst.songInfo["da"] = song("da", "Alpha", albumId = "al1")
+        val r = SyncEngine(env).run(job(copy = true))
+        assertNull(r.error)
+        assertEquals(listOf("al1" to 5), dst.albumSets)
+        assertEquals(1, dst.songReads)
+        assertEquals(2, r.ratingsSet)
     }
 
     @Test fun nothingHappensWithoutTheSwitch() = runBlocking {

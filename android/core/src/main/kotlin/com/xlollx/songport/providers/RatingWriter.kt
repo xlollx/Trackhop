@@ -21,6 +21,13 @@ interface RatingWriter {
     /** Sets the rating of the album [albumId] to [stars] (1..5). */
     suspend fun setAlbumRating(ctx: Env, albumId: String, stars: Int)
 
+    /**
+     * The song [songId] as the service has it now, with its album id and rating: for a target track
+     * the run knows only by id (a saved match), so its album's stars need not wait for the next run.
+     * Null where the service cannot say.
+     */
+    suspend fun song(ctx: Env, songId: String): com.xlollx.songport.model.Track? = null
+
     companion object {
         /** [p] as a service that takes ratings, or null: what the engine and the editors ask. */
         fun of(p: MusicProvider?): RatingWriter? = (p as? RatingWriter)?.takeIf { it.takesRatings }
