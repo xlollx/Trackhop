@@ -405,6 +405,10 @@ private fun CollectionChoice(c: SharedCollection, state: GroupState, busy: Boole
     if (entries.isEmpty()) Notice(stringResource(R.string.collection_empty), error = false)
     ModeChoice(mode, !busy) { mode = it; if (it == SharedCollection.PICK && picked.isEmpty()) picked = ArrayList(entries.map { e -> e.groupId }) }
     Column {
+        if (mode == SharedCollection.PICK && entries.isNotEmpty()) Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
+            TextButton(enabled = !busy, onClick = { picked = ArrayList(entries.map { it.groupId }) }) { Text(stringResource(R.string.library_select_all)) }
+            TextButton(enabled = !busy, onClick = { picked = ArrayList() }) { Text(stringResource(R.string.library_select_none)) }
+        }
         for (e in entries) {
             val on = mode == SharedCollection.ALL || e.groupId in picked
             PlaylistLine(
@@ -663,17 +667,23 @@ private fun AddPlaylistsDialog(c: SharedCollection, data: StoreData, onDismiss: 
                 when {
                     free == null -> CircularProgressIndicator(Modifier.size(24.dp))
                     free.isEmpty() -> Text(stringResource(R.string.collection_no_playlists))
-                    else -> for (p in free) {
-                        val on = p.id in picked
-                        Row(
-                            Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(on, role = Role.Checkbox) { picked = ArrayList(if (it) picked + p.id else picked - p.id) },
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Checkbox(on, null)
-                            Spacer(Modifier.width(12.dp))
-                            Column {
-                                Text(p.name)
-                                if (p.trackCount >= 0) Text(stringResource(R.string.tracks_count, p.trackCount), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    else -> {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            TextButton(onClick = { picked = ArrayList(free.map { it.id }) }) { Text(stringResource(R.string.library_select_all)) }
+                            TextButton(onClick = { picked = ArrayList() }) { Text(stringResource(R.string.library_select_none)) }
+                        }
+                        for (p in free) {
+                            val on = p.id in picked
+                            Row(
+                                Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(on, role = Role.Checkbox) { picked = ArrayList(if (it) picked + p.id else picked - p.id) },
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Checkbox(on, null)
+                                Spacer(Modifier.width(12.dp))
+                                Column {
+                                    Text(p.name)
+                                    if (p.trackCount >= 0) Text(stringResource(R.string.tracks_count, p.trackCount), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
                             }
                         }
                     }

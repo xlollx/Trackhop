@@ -195,6 +195,10 @@ fun MarkListenedPage(connected: List<MusicProvider>, snackbar: SnackbarHostState
         Text(stringResource(R.string.listened_review_hint), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         val timeFormat = remember { android.text.format.DateFormat.getTimeFormat(ctx) }
         val at = listens.associateBy { it.track }
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            TextButton(enabled = !busy, onClick = { skipped = ArrayList() }) { Text(stringResource(R.string.library_select_all)) }
+            TextButton(enabled = !busy, onClick = { skipped = ArrayList(songs.indices.toList()) }) { Text(stringResource(R.string.library_select_none)) }
+        }
         PageCard {
             Column(Modifier.padding(vertical = 4.dp)) {
                 songs.forEachIndexed { i, t ->
