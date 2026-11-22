@@ -46,6 +46,18 @@ data class Track(
     val feedUrl: String? = null,
     /** A followed podcast's id in Apple's podcast directory (iTunes), where it is known. */
     val itunesId: String? = null,
+    /**
+     * The song's star rating, 0 = none, 1..5 stars: set by hand in iTunes (and kept in the playlist
+     * file made from it), or the user's rating on a personal server (Subsonic's `userRating`).
+     */
+    val rating: Int = 0,
+    /** The star rating of the song's album, as [rating]: 0 = none, 1..5 stars. */
+    val albumRating: Int = 0,
+    /**
+     * The service's id of the album the song is on, where its listing gives one (Subsonic's
+     * `albumId`): the album whose rating a sync with [SyncJob.copyRatings] sets. Only lives during a run.
+     */
+    @kotlinx.serialization.Transient val albumId: String? = null,
 ) {
     val artistLine: String get() = artists.joinToString(", ")
     val isrcNorm: String? get() = isrc?.trim()?.uppercase()?.takeIf { it.length >= 10 }
@@ -101,6 +113,12 @@ data class SyncJob(
     /** Days of the week it runs on (1 = Monday … 7 = Sunday), at [at]; empty = by the interval. */
     val days: List<Int> = emptyList(),
     val mirrorRemovals: Boolean = false,
+    /**
+     * Copies the source's star ratings ([Track.rating], [Track.albumRating]) to the target, where it
+     * takes them ([com.xlollx.songport.providers.RatingWriter]), for songs and albums rated by hand.
+     * Unrated ones are left alone (never cleared); a rating is set only where it differs.
+     */
+    val copyRatings: Boolean = false,
     /**
      * The source replaces most of its tracks by itself (a Spotify daylist, Discover Weekly, Release
      * Radar): with [mirrorRemovals], large removals are expected and go through on scheduled runs too,
@@ -318,6 +336,8 @@ data class SyncReport(
      * counted among the not found ([unmatched]); the next run adds them.
      */
     val notAdded: List<String> = emptyList(),
+    /** Star ratings this run set on the target's songs and albums ([SyncJob.copyRatings]). */
+    val ratingsSet: Int = 0,
 ) {
     val ok: Boolean get() = error == null
     /** Stopped because there was no internet: what it did stays, and it runs again once the connection is back. */
@@ -367,6 +387,11 @@ data class SyncPlan(
     val twoWay: TwoWayPlan? = null,
     /** Among [uncertain], the source ids a recent run already asked about (see [SyncReport.reviewAsked]). */
     val reviewAsked: Set<String> = emptySet(),
+    /**
+     * With [SyncJob.copyRatings]: each rated source track with the target track it matches (already
+     * there, or added by this run), for the ratings step after the additions.
+     */
+    val rated: List<Pair<Track, Track>> = emptyList(),
 )
 
 /**

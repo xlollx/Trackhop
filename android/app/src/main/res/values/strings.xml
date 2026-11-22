@@ -3426,4 +3426,11 @@
     <string name="card_compat_your_name">Your name</string>
     <string name="card_compat_their_name">Their name</string>
     <string name="card_compat_names_note">Optional. The names stay on this phone: they only go on the picture.</string>
+    <string name="editor_copy_ratings">Copy star ratings</string>
+    <string name="editor_copy_ratings_desc">Songs and albums rated in iTunes get the same stars on %1$s. Unrated ones are left as they are.</string>
+    <plurals name="ratings_set">
+        <item quantity="one">★ %1$d rating set</item>
+        <item quantity="other">★ %1$d ratings set</item>
+    </plurals>
+    <string name="note_ratings_failed">Star ratings %2$s did not take: %1$d. The sync itself went through; they are tried again on the next run.</string>
 </resources>

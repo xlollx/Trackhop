@@ -29,7 +29,7 @@ import java.security.SecureRandom
  * In alternativa, sui server OpenSubsonic che la offrono, una chiave API (estensione
  * apiKeyAuthentication: parametro `apiKey`, senza `u`, `t`, `s`).
  */
-open class SubsonicProvider(override val slot: String = "") : CredentialsProvider(), PlayCounts {
+open class SubsonicProvider(override val slot: String = "") : CredentialsProvider(), PlayCounts, RatingWriter {
     override val serviceId = SERVICE
     override val displayName = "Subsonic / Navidrome"
     override val routeNoteName: String? get() = "route_note_server"
@@ -157,6 +157,9 @@ open class SubsonicProvider(override val slot: String = "") : CredentialsProvide
             // The recording id the file is tagged with (OpenSubsonic, and Subsonic since 1.14).
             mbids = listOfNotNull(MusicBrainz.mbid(s["musicBrainzId"].str)),
             addedAt = com.xlollx.songport.sync.Durations.parseInstant(s["created"].str),
+            // The user's own stars (1..5), where the server lists them; absent = not rated.
+            rating = (s["userRating"].int ?: 0).coerceIn(0, 5),
+            albumId = s["albumId"].str,
         )
     }
 
@@ -326,6 +329,18 @@ open class SubsonicProvider(override val slot: String = "") : CredentialsProvide
     override val canSetVisibility: Boolean get() = true
     override suspend fun setPlaylistVisibility(ctx: Env, playlistId: String, public: Boolean) {
         call(ctx, "updatePlaylist", listOf("playlistId" to playlistId, "public" to public.toString()))
+    }
+
+    /** `setRating` takes a song's id and an album's alike (rating 0 = none, 1..5). */
+    override suspend fun setSongRating(ctx: Env, songId: String, stars: Int) {
+        call(ctx, "setRating", listOf("id" to songId, "rating" to "${stars.coerceIn(0, 5)}"))
+    }
+
+    override suspend fun albumRating(ctx: Env, albumId: String): Int =
+        (call(ctx, "getAlbum", listOf("id" to albumId))["album"]["userRating"].int ?: 0).coerceIn(0, 5)
+
+    override suspend fun setAlbumRating(ctx: Env, albumId: String, stars: Int) {
+        call(ctx, "setRating", listOf("id" to albumId, "rating" to "${stars.coerceIn(0, 5)}"))
     }
 
     override suspend fun deletePlaylist(ctx: Env, playlistId: String) {

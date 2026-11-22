@@ -3325,4 +3325,10 @@
     <string name="card_compat_your_name">내 이름</string>
     <string name="card_compat_their_name">상대방 이름</string>
     <string name="card_compat_names_note">선택 사항입니다. 이름은 이 휴대폰에만 저장되고 이미지에만 표시됩니다.</string>
+    <string name="editor_copy_ratings">별점 복사</string>
+    <string name="editor_copy_ratings_desc">iTunes에서 평가한 곡과 앨범은 %1$s에서도 같은 별점을 받습니다. 평가하지 않은 항목은 그대로 둡니다.</string>
+    <plurals name="ratings_set">
+        <item quantity="other">★ 별점 %1$d개 설정됨</item>
+    </plurals>
+    <string name="note_ratings_failed">%2$s에서 설정되지 않은 별점: %1$d개. 동기화 자체는 완료되었으며, 다음 실행 때 다시 시도합니다.</string>
 </resources>

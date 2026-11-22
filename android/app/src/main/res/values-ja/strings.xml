@@ -3326,4 +3326,10 @@
     <string name="card_compat_your_name">あなたの名前</string>
     <string name="card_compat_their_name">相手の名前</string>
     <string name="card_compat_names_note">任意です。名前はこの端末に保存され、画像にだけ表示されます。</string>
+    <string name="editor_copy_ratings">星の評価をコピー</string>
+    <string name="editor_copy_ratings_desc">iTunes で評価した曲とアルバムには、%1$s でも同じ星が付きます。評価のないものはそのままです。</string>
+    <plurals name="ratings_set">
+        <item quantity="other">★ %1$d 件の評価を設定</item>
+    </plurals>
+    <string name="note_ratings_failed">%2$s で設定できなかった星の評価：%1$d 件。同期自体は完了しています。次回の実行で再度試します。</string>
 </resources>

@@ -3422,4 +3422,11 @@
     <string name="card_compat_your_name">Adın</string>
     <string name="card_compat_their_name">Onun adı</string>
     <string name="card_compat_names_note">İsteğe bağlı. Adlar bu telefonda kalır: yalnızca görselde yer alır.</string>
+    <string name="editor_copy_ratings">Yıldız puanlarını kopyala</string>
+    <string name="editor_copy_ratings_desc">iTunes\'ta puanlanan şarkılar ve albümler %1$s üzerinde de aynı yıldızları alır. Puanlanmamış olanlar olduğu gibi kalır.</string>
+    <plurals name="ratings_set">
+        <item quantity="one">★ %1$d puan ayarlandı</item>
+        <item quantity="other">★ %1$d puan ayarlandı</item>
+    </plurals>
+    <string name="note_ratings_failed">%2$s tarafından kabul edilmeyen yıldız puanları: %1$d. Eşitlemenin kendisi tamamlandı; bir sonraki çalıştırmada yeniden denenecek.</string>
 </resources>

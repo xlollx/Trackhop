@@ -522,6 +522,19 @@ class ApiCallsTest {
         assertEquals(404, call("DELETE", "syncs/$id").code)
     }
 
+    @Test fun copyRatingsIsTakenAndGivenBack() {
+        val made = call("POST", "syncs", """{"source":{"service":"csv","playlist":"In"},"target":{"service":"csv","playlist":"Out"},"copyRatings":true}""")
+        assertEquals(made.text, 201, made.code)
+        val id = made.obj.s("id")!!
+        assertEquals("true", made.obj.s("copyRatings"))
+        assertTrue(env.store.job(id)!!.copyRatings)
+        // Not named: it stays; named false: off.
+        assertEquals("true", call("PATCH", "syncs/$id", """{"name":"Renamed"}""").obj.s("copyRatings"))
+        assertEquals("false", call("PATCH", "syncs/$id", """{"copyRatings":false}""").obj.s("copyRatings"))
+        // A run's figures carry the ratings it set.
+        assertEquals("3", Api.run(SyncReport("r", id, "Renamed", 0, 0, ratingsSet = 3), tracks = false).s("ratingsSet"))
+    }
+
     @Test fun aSyncMadeWithItsOwnIdIsMadeOnceHoweverOftenAsked() {
         // The app's hand-over, sent again after its answer was lost: the sync made then, not a second one.
         val body = """{"id":"phone-0f5c-9a","source":{"service":"csv","playlist":"In"},"target":{"service":"csv"},"name":"Handed"}"""

@@ -3620,4 +3620,13 @@
     <string name="card_compat_your_name">Ваше имя</string>
     <string name="card_compat_their_name">Имя другого человека</string>
     <string name="card_compat_names_note">Необязательно. Имена остаются на этом телефоне и появляются только на картинке.</string>
+    <string name="editor_copy_ratings">Копировать оценки в звёздах</string>
+    <string name="editor_copy_ratings_desc">Песни и альбомы, оценённые в iTunes, получат те же звёзды в %1$s. Песни и альбомы без оценки останутся как есть.</string>
+    <plurals name="ratings_set">
+        <item quantity="one">★ %1$d оценка установлена</item>
+        <item quantity="few">★ %1$d оценки установлены</item>
+        <item quantity="many">★ %1$d оценок установлено</item>
+        <item quantity="other">★ %1$d оценки установлено</item>
+    </plurals>
+    <string name="note_ratings_failed">Оценки, не принятые %2$s: %1$d. Сама синхронизация прошла; они будут повторены при следующем запуске.</string>
 </resources>

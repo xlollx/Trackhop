@@ -207,6 +207,26 @@ class WebTest {
         assertEquals("teal", env.store.job("k")!!.color)
     }
 
+    @Test fun copyStarRatingsIsOfferedFromAFileToAServerThatTakesThem() {
+        val m = com.xlollx.songport.model.PlaylistRef("csv", "Lib", "Lib")
+        env.store.upsertJob(com.xlollx.songport.model.SyncJob("r", "r", m, com.xlollx.songport.model.PlaylistRef("subsonic", "p", "p")))
+        env.store.upsertJob(com.xlollx.songport.model.SyncJob("n", "n", m, com.xlollx.songport.model.PlaylistRef("csv", "Out", "Out")))
+        assertTrue(get("/syncs/r").body().contains("Copy star ratings"))
+        assertFalse(get("/syncs/n").body().contains("Copy star ratings"))
+        post("/syncs/r/schedule", "name=r&every=1440&changes=add&ratings=1&copyRatings=on", *origin)
+        assertTrue(env.store.job("r")!!.copyRatings)
+        // A form that does not offer it leaves it as it is.
+        post("/syncs/r/schedule", "name=r&every=1440&changes=add", *origin)
+        assertTrue(env.store.job("r")!!.copyRatings)
+        post("/syncs/r/schedule", "name=r&every=1440&changes=add&ratings=1", *origin)
+        assertFalse(env.store.job("r")!!.copyRatings)
+        // A run's ratings beside its added and removed tracks.
+        val report = com.xlollx.songport.model.SyncReport("rep", "r", "r", System.currentTimeMillis(), 1000, added = 2, ratingsSet = 3)
+        env.store.addReport(report)
+        env.store.upsertJob(env.store.job("r")!!.copy(lastReportId = "rep"))
+        assertTrue(get("/syncs/r").body().contains("★ 3 ratings set"))
+    }
+
     @Test fun thePageNamesColoursTagsStarsAndFilters() {
         fun job(id: String) = com.xlollx.songport.model.SyncJob(id, id, com.xlollx.songport.model.PlaylistRef("subsonic", id, id), com.xlollx.songport.model.PlaylistRef("csv", id, id))
         listOf("one", "two", "three").forEach { env.store.upsertJob(job(it)) }

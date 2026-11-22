@@ -3622,4 +3622,13 @@
     <string name="card_compat_your_name">Twoje imię</string>
     <string name="card_compat_their_name">Imię drugiej osoby</string>
     <string name="card_compat_names_note">Opcjonalnie. Imiona zostają na tym telefonie: pojawiają się tylko na obrazku.</string>
+    <string name="editor_copy_ratings">Kopiuj oceny w gwiazdkach</string>
+    <string name="editor_copy_ratings_desc">Utwory i albumy ocenione w iTunes otrzymają te same gwiazdki w %1$s. Nieocenione pozostaną bez zmian.</string>
+    <plurals name="ratings_set">
+        <item quantity="one">★ Ustawiono %1$d ocenę</item>
+        <item quantity="few">★ Ustawiono %1$d oceny</item>
+        <item quantity="many">★ Ustawiono %1$d ocen</item>
+        <item quantity="other">★ Ustawiono %1$d oceny</item>
+    </plurals>
+    <string name="note_ratings_failed">Oceny w gwiazdkach nieprzyjęte przez %2$s: %1$d. Sama synchronizacja się powiodła; zostaną ponowione przy następnym uruchomieniu.</string>
 </resources>
