@@ -2075,6 +2075,43 @@
     <string name="support_kofi_desc">Jednorazowo · karta lub PayPal · bez konta</string>
     <string name="support_sponsors_desc">Co miesiąc lub jednorazowo · z kontem GitHub</string>
     <string name="stat_in_playlist">w playliście</string>
+    <string name="stat_in_source">w źródle</string>
+    <plurals name="stat_list_removals">
+        <item quantity="one">%d usunięcie</item>
+        <item quantity="few">%d usunięcia</item>
+        <item quantity="many">%d usunięć</item>
+        <item quantity="other">%d usunięcia</item>
+    </plurals>
+    <plurals name="stat_list_additions">
+        <item quantity="one">%d dodanie</item>
+        <item quantity="few">%d dodania</item>
+        <item quantity="many">%d dodań</item>
+        <item quantity="other">%d dodania</item>
+    </plurals>
+    <plurals name="nway_removed_from">
+        <item quantity="one">usunięto z %1$d: %2$s</item>
+        <item quantity="few">usunięto z %1$d: %2$s</item>
+        <item quantity="many">usunięto z %1$d: %2$s</item>
+        <item quantity="other">usunięto z %1$d: %2$s</item>
+    </plurals>
+    <plurals name="nway_removed_from_all">
+        <item quantity="one">usunięto ze wszystkich %1$d</item>
+        <item quantity="few">usunięto ze wszystkich %1$d</item>
+        <item quantity="many">usunięto ze wszystkich %1$d</item>
+        <item quantity="other">usunięto ze wszystkich %1$d</item>
+    </plurals>
+    <plurals name="nway_added_to">
+        <item quantity="one">dodano do %1$d: %2$s</item>
+        <item quantity="few">dodano do %1$d: %2$s</item>
+        <item quantity="many">dodano do %1$d: %2$s</item>
+        <item quantity="other">dodano do %1$d: %2$s</item>
+    </plurals>
+    <plurals name="nway_added_to_all">
+        <item quantity="one">dodano do wszystkich %1$d</item>
+        <item quantity="few">dodano do wszystkich %1$d</item>
+        <item quantity="many">dodano do wszystkich %1$d</item>
+        <item quantity="other">dodano do wszystkich %1$d</item>
+    </plurals>
     <string name="settings_card_style">Styl kart</string>
     <string name="settings_card_style_summary">Kolory, stan, uruchomienia, rozmiar i widok</string>
     <string name="settings_card_accent">Kolorowe karty synchronizacji</string>

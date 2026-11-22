@@ -164,7 +164,9 @@ class MultiSyncHeightFlowTest : FlowTest() {
         fun inCard(text: String) = compose.onAllNodes(hasText(text), useUnmergedTree = true).fetchSemanticsNodes()
             .any { card.contains(it.boundsInRoot.center) }
         waitFor("the group's figures") { inCard("+5") && inCard("−1") && inCard("2") }
-        assertEquals("an \"in playlist\" figure on both cards", 2, compose.onAllNodes(hasText(s(R.string.stat_in_playlist)), useUnmergedTree = true).fetchSemanticsNodes().size)
+        // The classic card counts its playlist; the multi sync's, its source (a word as short, the tile as large).
+        assertEquals("an \"in playlist\" figure on the classic card only", 1, compose.onAllNodes(hasText(s(R.string.stat_in_playlist)), useUnmergedTree = true).fetchSemanticsNodes().size)
+        assertTrue("an \"in source\" figure on the multi sync's card", inCard(s(R.string.stat_in_source)))
         assertTrue("its last runs", inCard(plural(R.plurals.stat_history, 2, 2, 0)))
         snapshot("multi-height-card-large")
         // Each figure opens what it counts: the songs added, the group's page for those not found.

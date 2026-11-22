@@ -2002,6 +2002,31 @@
     <string name="support_kofi_desc">One-off · card or PayPal · no account needed</string>
     <string name="support_sponsors_desc">Monthly or one-off · with a GitHub account</string>
     <string name="stat_in_playlist">in playlist</string>
+    <string name="stat_in_source">in source</string>
+    <plurals name="stat_list_removals">
+        <item quantity="one">%d removal</item>
+        <item quantity="other">%d removals</item>
+    </plurals>
+    <plurals name="stat_list_additions">
+        <item quantity="one">%d addition</item>
+        <item quantity="other">%d additions</item>
+    </plurals>
+    <plurals name="nway_removed_from">
+        <item quantity="one">removed from %1$d: %2$s</item>
+        <item quantity="other">removed from %1$d: %2$s</item>
+    </plurals>
+    <plurals name="nway_removed_from_all">
+        <item quantity="one">removed from all %1$d</item>
+        <item quantity="other">removed from all %1$d</item>
+    </plurals>
+    <plurals name="nway_added_to">
+        <item quantity="one">added to %1$d: %2$s</item>
+        <item quantity="other">added to %1$d: %2$s</item>
+    </plurals>
+    <plurals name="nway_added_to_all">
+        <item quantity="one">added to all %1$d</item>
+        <item quantity="other">added to all %1$d</item>
+    </plurals>
     <string name="settings_card_style">Card style</string>
     <string name="settings_card_style_summary">Colours, status, past runs, size and view</string>
     <string name="settings_card_accent">Coloured sync cards</string>

@@ -1327,8 +1327,12 @@ private fun JobCard(
     val groupRuns = if (group == null) null else remember(data.reports, group.members) { NwayHistory.runs(data.reports, group.members) }
     val shown = if (group != null) groupRuns?.lastOrNull() else report
     val statsShown = run == null && shown != null && data.settings.newLook && shown.ok
-    val onAdded = { listOpen = StatList(StatList.Kind.ADDED, shown!!) }
-    val onRemoved = { listOpen = StatList(StatList.Kind.REMOVED, shown!!) }
+    // A multi sync's lists: its last run's reports, one per sync, put together song by song in the sheet.
+    val groupLists = if (group == null) null else remember(data.reports, group.members) {
+        NwayHistory.batches(data.reports, group.members).lastOrNull()?.let { GroupRunLists(it, group.members) }
+    }
+    val onAdded = { listOpen = StatList(StatList.Kind.ADDED, shown!!, groupLists) }
+    val onRemoved = { listOpen = StatList(StatList.Kind.REMOVED, shown!!, groupLists) }
     // A multi sync's not found and its playlist: its page, where each service leads to its own.
     val onNotFound = {
         if (group != null) onOpenGroup(group.group.id)
@@ -1410,7 +1414,7 @@ private fun JobCard(
                 }
                 if (marksBeside) {
                     Spacer(Modifier.width(12.dp))
-                    SmallStats(job.color, shown!!, onAdded, onRemoved, onNotFound, onTracks, Modifier.width(240.dp), inPlaylist = groupSize)
+                    SmallStats(job.color, shown!!, onAdded, onRemoved, onNotFound, onTracks, Modifier.width(240.dp), inPlaylist = groupSize, ofSource = group != null)
                 }
             }
             if (run != null) {
@@ -1462,10 +1466,11 @@ private fun JobCard(
                 // Beside the name already.
             } else if (statsShown) {
                 Spacer(Modifier.height(when (size) { CardSize.LARGE -> 14.dp; CardSize.MEDIUM -> 12.dp; CardSize.SMALL -> if (low) 8.dp else 10.dp }))
-                if (small) SmallStats(job.color, shown!!, onAdded, onRemoved, onNotFound, onTracks, inPlaylist = groupSize)
+                if (small) SmallStats(job.color, shown!!, onAdded, onRemoved, onNotFound, onTracks, inPlaylist = groupSize, ofSource = group != null)
                 else RunStats(
                     job.color, shown!!, groupRuns ?: data.reports.filter { it.jobId == job.id && !it.partial }.sortedBy { it.startedEpoch }.takeLast(10),
                     onAdded = onAdded, onRemoved = onRemoved, onNotFound = onNotFound, onTracks = onTracks, compact = !large, inPlaylist = groupSize,
+                    ofSource = group != null,
                 )
             } else if (report != null) {
                 Spacer(Modifier.height(if (small) 6.dp else 8.dp))
@@ -3277,6 +3282,8 @@ private fun RunStats(
     compact: Boolean = false,
     /** The playlist's size when the card knows it otherwise (a multi sync: its source's). */
     inPlaylist: Int? = null,
+    /** A multi sync: the last tile counts its source, and says so in a word as short as "in playlist". */
+    ofSource: Boolean = false,
 ) {
     val brush = jobControlBrush(color)
     val ink = jobInk(color)
@@ -3292,7 +3299,7 @@ private fun RunStats(
         val size = inPlaylist ?: if (r.targetCount > 0 || r.added > 0 || r.removed > 0) (r.targetCount + r.added - r.removed).coerceAtLeast(0) else r.sourceCount
         // Apart from this run's figures: a thin rule, then the playlist's size in an outlined tile.
         androidx.compose.material3.VerticalDivider(Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
-        Stat("$size", stringResource(R.string.stat_in_playlist), Modifier.weight(1f), onClick = onTracks, outlined = true, compact = compact)
+        Stat("$size", stringResource(if (ofSource) R.string.stat_in_source else R.string.stat_in_playlist), Modifier.weight(1f), onClick = onTracks, outlined = true, compact = compact)
     }
     if (history.size >= 2) {
         Spacer(Modifier.height(if (compact) 8.dp else 10.dp))
@@ -3350,6 +3357,7 @@ private fun SmallStats(
     color: String?, r: SyncReport, onAdded: () -> Unit, onRemoved: () -> Unit, onNotFound: () -> Unit, onTracks: (() -> Unit)?,
     modifier: Modifier = Modifier.fillMaxWidth(),
     inPlaylist: Int? = null,
+    ofSource: Boolean = false,
 ) {
     val brush = jobControlBrush(color)
     val ink = jobInk(color)
@@ -3376,12 +3384,12 @@ private fun SmallStats(
         Mark(Icons.Filled.Add, r.added, stringResource(R.string.stat_added), Modifier.weight(1f), if (r.added > 0) ink ?: MaterialTheme.colorScheme.primary else null, onAdded.takeIf { r.added > 0 })
         Mark(Icons.Filled.Remove, r.removed, stringResource(R.string.stat_removed), Modifier.weight(1f), onClick = onRemoved.takeIf { r.removed > 0 })
         Mark(Icons.Filled.SearchOff, r.unmatched.size, stringResource(R.string.stat_not_found), Modifier.weight(1f), if (r.unmatched.isNotEmpty()) MaterialTheme.colorScheme.tertiary else null, onNotFound.takeIf { r.unmatched.isNotEmpty() })
-        Mark(Icons.AutoMirrored.Filled.QueueMusic, size, stringResource(R.string.stat_in_playlist), Modifier.weight(1.3f), onClick = onTracks, outlined = true)
+        Mark(Icons.AutoMirrored.Filled.QueueMusic, size, stringResource(if (ofSource) R.string.stat_in_source else R.string.stat_in_playlist), Modifier.weight(1.3f), onClick = onTracks, outlined = true)
     }
 }
 
-/** Which list a figure on the card opens, from which run. */
-private data class StatList(val kind: Kind, val report: SyncReport) {
+/** Which list a figure on the card opens, from which run; [group]: a multi sync's run, its added and removed listed song by song. */
+private data class StatList(val kind: Kind, val report: SyncReport, val group: GroupRunLists? = null) {
     enum class Kind { ADDED, REMOVED, NOT_FOUND }
 }
 
@@ -3395,6 +3403,9 @@ private fun StatListSheet(list: StatList, onDismiss: () -> Unit) {
         StatList.Kind.REMOVED -> Triple(stringResource(R.string.stat_list_removed), r.removedTracks.map { it.toString() }, r.removed)
         StatList.Kind.NOT_FOUND -> Triple(stringResource(R.string.stat_list_not_found), r.unmatched, r.unmatched.size)
     }
+    // A multi sync: one row per song over its targets, not once per target.
+    val group = list.group
+    if (group != null && list.kind != StatList.Kind.NOT_FOUND) return GroupStatListSheet(title, r, group, list.kind == StatList.Kind.ADDED, onDismiss)
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(Modifier.padding(horizontal = 16.dp).padding(bottom = 24.dp)) {
             Text(title, style = MaterialTheme.typography.titleLarge)

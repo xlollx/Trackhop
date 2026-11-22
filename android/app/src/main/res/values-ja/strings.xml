@@ -1965,6 +1965,25 @@
     <string name="support_kofi_desc">1 回のみ · カードまたは PayPal · アカウント不要</string>
     <string name="support_sponsors_desc">毎月または 1 回のみ · GitHub アカウントが必要</string>
     <string name="stat_in_playlist">プレイリスト内</string>
+    <string name="stat_in_source">同期元</string>
+    <plurals name="stat_list_removals">
+        <item quantity="other">%d 件の削除</item>
+    </plurals>
+    <plurals name="stat_list_additions">
+        <item quantity="other">%d 件の追加</item>
+    </plurals>
+    <plurals name="nway_removed_from">
+        <item quantity="other">%1$dか所から削除: %2$s</item>
+    </plurals>
+    <plurals name="nway_removed_from_all">
+        <item quantity="other">全%1$dか所から削除</item>
+    </plurals>
+    <plurals name="nway_added_to">
+        <item quantity="other">%1$dか所に追加: %2$s</item>
+    </plurals>
+    <plurals name="nway_added_to_all">
+        <item quantity="other">全%1$dか所に追加</item>
+    </plurals>
     <string name="settings_card_style">カードのスタイル</string>
     <string name="settings_card_style_summary">色、状態、実行履歴、サイズ、表示</string>
     <string name="settings_card_accent">色付きの同期カード</string>

@@ -2073,6 +2073,43 @@
     <string name="support_kofi_desc">Разово · карта или PayPal · без аккаунта</string>
     <string name="support_sponsors_desc">Ежемесячно или разово · нужен аккаунт GitHub</string>
     <string name="stat_in_playlist">в плейлисте</string>
+    <string name="stat_in_source">в источнике</string>
+    <plurals name="stat_list_removals">
+        <item quantity="one">%d удаление</item>
+        <item quantity="few">%d удаления</item>
+        <item quantity="many">%d удалений</item>
+        <item quantity="other">%d удаления</item>
+    </plurals>
+    <plurals name="stat_list_additions">
+        <item quantity="one">%d добавление</item>
+        <item quantity="few">%d добавления</item>
+        <item quantity="many">%d добавлений</item>
+        <item quantity="other">%d добавления</item>
+    </plurals>
+    <plurals name="nway_removed_from">
+        <item quantity="one">удалено из %1$d: %2$s</item>
+        <item quantity="few">удалено из %1$d: %2$s</item>
+        <item quantity="many">удалено из %1$d: %2$s</item>
+        <item quantity="other">удалено из %1$d: %2$s</item>
+    </plurals>
+    <plurals name="nway_removed_from_all">
+        <item quantity="one">удалено из всех %1$d</item>
+        <item quantity="few">удалено из всех %1$d</item>
+        <item quantity="many">удалено из всех %1$d</item>
+        <item quantity="other">удалено из всех %1$d</item>
+    </plurals>
+    <plurals name="nway_added_to">
+        <item quantity="one">добавлено в %1$d: %2$s</item>
+        <item quantity="few">добавлено в %1$d: %2$s</item>
+        <item quantity="many">добавлено в %1$d: %2$s</item>
+        <item quantity="other">добавлено в %1$d: %2$s</item>
+    </plurals>
+    <plurals name="nway_added_to_all">
+        <item quantity="one">добавлено во все %1$d</item>
+        <item quantity="few">добавлено во все %1$d</item>
+        <item quantity="many">добавлено во все %1$d</item>
+        <item quantity="other">добавлено во все %1$d</item>
+    </plurals>
     <string name="settings_card_style">Стиль карточек</string>
     <string name="settings_card_style_summary">Цвета, статус, запуски, размер и вид</string>
     <string name="settings_card_accent">Цветные карточки синхронизаций</string>

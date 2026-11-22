@@ -1999,6 +1999,31 @@
     <string name="support_kofi_desc">Tek seferlik · kart veya PayPal · hesap gerekmez</string>
     <string name="support_sponsors_desc">Aylık veya tek seferlik · GitHub hesabıyla</string>
     <string name="stat_in_playlist">listede</string>
+    <string name="stat_in_source">kaynakta</string>
+    <plurals name="stat_list_removals">
+        <item quantity="one">%d kaldırma</item>
+        <item quantity="other">%d kaldırma</item>
+    </plurals>
+    <plurals name="stat_list_additions">
+        <item quantity="one">%d ekleme</item>
+        <item quantity="other">%d ekleme</item>
+    </plurals>
+    <plurals name="nway_removed_from">
+        <item quantity="one">%1$d hizmetten kaldırıldı: %2$s</item>
+        <item quantity="other">%1$d hizmetten kaldırıldı: %2$s</item>
+    </plurals>
+    <plurals name="nway_removed_from_all">
+        <item quantity="one">%1$d hizmetin tümünden kaldırıldı</item>
+        <item quantity="other">%1$d hizmetin tümünden kaldırıldı</item>
+    </plurals>
+    <plurals name="nway_added_to">
+        <item quantity="one">%1$d hizmete eklendi: %2$s</item>
+        <item quantity="other">%1$d hizmete eklendi: %2$s</item>
+    </plurals>
+    <plurals name="nway_added_to_all">
+        <item quantity="one">%1$d hizmetin tümüne eklendi</item>
+        <item quantity="other">%1$d hizmetin tümüne eklendi</item>
+    </plurals>
     <string name="settings_card_style">Kart stili</string>
     <string name="settings_card_style_summary">Renkler, durum, çalıştırmalar, boyut ve görünüm</string>
     <string name="settings_card_accent">Renkli eşitleme kartları</string>

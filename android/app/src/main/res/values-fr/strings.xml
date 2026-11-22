@@ -2009,6 +2009,31 @@
     <string name="support_kofi_desc">Ponctuel · carte ou PayPal · sans compte</string>
     <string name="support_sponsors_desc">Mensuel ou ponctuel · avec un compte GitHub</string>
     <string name="stat_in_playlist">dans la playlist</string>
+    <string name="stat_in_source">dans la source</string>
+    <plurals name="stat_list_removals">
+        <item quantity="one">%d retrait</item>
+        <item quantity="other">%d retraits</item>
+    </plurals>
+    <plurals name="stat_list_additions">
+        <item quantity="one">%d ajout</item>
+        <item quantity="other">%d ajouts</item>
+    </plurals>
+    <plurals name="nway_removed_from">
+        <item quantity="one">retiré de %1$d : %2$s</item>
+        <item quantity="other">retiré de %1$d : %2$s</item>
+    </plurals>
+    <plurals name="nway_removed_from_all">
+        <item quantity="one">retiré de tous les %1$d</item>
+        <item quantity="other">retiré de tous les %1$d</item>
+    </plurals>
+    <plurals name="nway_added_to">
+        <item quantity="one">ajouté à %1$d : %2$s</item>
+        <item quantity="other">ajouté à %1$d : %2$s</item>
+    </plurals>
+    <plurals name="nway_added_to_all">
+        <item quantity="one">ajouté à tous les %1$d</item>
+        <item quantity="other">ajouté à tous les %1$d</item>
+    </plurals>
     <string name="settings_card_style">Style des cartes</string>
     <string name="settings_card_style_summary">Couleurs, état, exécutions, taille et vue</string>
     <string name="settings_card_accent">Cartes de sync en couleur</string>
