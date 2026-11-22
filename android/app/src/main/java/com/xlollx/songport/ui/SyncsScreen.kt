@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import com.xlollx.songport.shared.NwayHistory
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.xlollx.songport.platform.env
 import com.xlollx.songport.sync.Freshness

@@ -1,4 +1,4 @@
-package com.xlollx.songport.ui
+package com.xlollx.songport.shared
 
 import com.xlollx.songport.model.PlaylistRef
 import com.xlollx.songport.model.Progress

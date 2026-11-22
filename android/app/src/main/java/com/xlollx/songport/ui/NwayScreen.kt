@@ -1,5 +1,7 @@
 package com.xlollx.songport.ui
 
+import com.xlollx.songport.shared.NwayRun
+import com.xlollx.songport.shared.NwayHistory
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.mutableIntStateOf
@@ -123,10 +125,7 @@ object NwayUi {
      * source), without the syncs behind a card. What the search counts ("Search 13 syncs") and what the
      * filter's line counts ("1 of 13 syncs"): the same number.
      */
-    fun listedSyncs(d: StoreData): List<SyncJob> {
-        val hidden = hiddenJobIds(d)
-        return if (hidden.isEmpty()) d.syncs else d.syncs.filter { it.id !in hidden }
-    }
+    fun listedSyncs(d: StoreData): List<SyncJob> = Nway.listedSyncs(d, memberJobIds(d))
 
     /** The syncs a card stands for: all the syncs of its group for a multi sync's card, else itself. */
     fun standsFor(d: StoreData): (SyncJob) -> List<SyncJob> {
@@ -140,9 +139,7 @@ object NwayUi {
     fun memberJobIds(d: StoreData): Set<String> {
         // So are the syncs of a collection's playlists: behind the collection's one card (CollectionUi).
         val collected = CollectionUi.memberJobIds(d)
-        val ids = groups(d).mapTo(HashSet()) { it.id }
-        if (ids.isEmpty()) return collected
-        return d.jobs.filter { SharedGroups.sharedSide(it) in ids }.mapTo(HashSet()) { it.id } + collected
+        return Nway.memberJobIds(d).let { if (it.isEmpty()) collected else it + collected }
     }
 
     /** [Labels.storeIndex] for a place among the syncs the list shows, as a place in the stored list, which holds the groups' syncs too. */
