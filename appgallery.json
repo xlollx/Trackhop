@@ -1,5 +1,5 @@
 {
- "checked": "2026-11-21T13:42:08Z",
+ "checked": "2026-11-22T13:36:18Z",
  "reports": {
   "appDownloadExport": {
    "columns": [
@@ -19,19 +19,19 @@
     "New installs",
     "Total uninstalls"
    ],
-   "days": 16,
+   "days": 17,
    "totals": {
-    "Valid impressions": 886.0,
-    "Details UV (reported by client)": 18.0,
-    "Total downloads": 49.0,
-    "Successful updates": 42.0,
-    "New downloads": 7.0,
-    "Successful installs": 47.0,
+    "Valid impressions": 964.0,
+    "Details UV (reported by client)": 19.0,
+    "Total downloads": 56.0,
+    "Successful updates": 48.0,
+    "New downloads": 8.0,
+    "Successful installs": 54.0,
     "Uninstalls": 5.0,
     "Sharings": 0.0,
-    "Icon clicks": 27.0,
-    "New installs": 7.0,
-    "Total uninstalls": 56.0
+    "Icon clicks": 29.0,
+    "New installs": 8.0,
+    "Total uninstalls": 61.0
    },
    "last_day": {
     "Date": "20261105",
