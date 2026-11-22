@@ -45,7 +45,8 @@ class NwayHistoryTest {
         assertFalse("a run fails when one of its services fails", runs[0].ok)
         val last = runs.last()
         assertTrue(last.ok)
-        assertEquals(6, last.added)
+        // The services' playlists only (TIDAL 2 + Deezer 2): Spotify's 2 went into the group's own list, which the added list does not show either.
+        assertEquals(4, last.added)
         assertEquals(1, last.removed)
         assertEquals(4, last.unmatched.size)
         assertEquals(42, last.sourceCount)

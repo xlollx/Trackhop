@@ -35,7 +35,8 @@ class NwayRunTest {
         // Two of four syncs over and half of the third.
         assertEquals(0.625f, s.fraction!!, 0.001f)
         val done = s.services.first { it.provider == "spotify" }.result!!
-        assertEquals(2 to 1, done.added to done.removed)
+        // Its own playlist only (the down sync's −1): the +2 its up sync wrote went to the group's list.
+        assertEquals(0 to 1, done.added to done.removed)
     }
 
     /** The source sends its changes first, then waits for its turn to receive: it is not done until both are. */

@@ -116,19 +116,23 @@ internal object NwayHistory {
     /**
      * One run of the group as one report: what its syncs added, removed and did not find, added up
      * (their lists one after the other), the source's size, and failed when any of them failed.
+     * Added and removed count the services' playlists only: the syncs in [intoHub] write the group's
+     * own list (the hub), which nobody sees, so its changes would count a song once more than the
+     * card's added/removed lists show.
      */
-    fun sum(batch: List<SyncReport>): SyncReport {
+    fun sum(batch: List<SyncReport>, intoHub: Set<String> = emptySet()): SyncReport {
         val first = batch.first()
         val failed = batch.firstOrNull { !it.ok && !it.offline } ?: batch.firstOrNull { !it.ok }
+        val playlists = batch.filterNot { it.jobId in intoHub }
         return SyncReport(
             id = "group:" + first.id, jobId = "", jobName = first.jobName,
             startedEpoch = first.startedEpoch,
             durationMs = batch.maxOf { it.startedEpoch + it.durationMs } - first.startedEpoch,
             sourceCount = batch.maxOf { it.sourceCount },
-            added = batch.sumOf { it.added }, removed = batch.sumOf { it.removed },
+            added = playlists.sumOf { it.added }, removed = playlists.sumOf { it.removed },
             unmatched = batch.flatMap { it.unmatched }, unmatchedTracks = batch.flatMap { it.unmatchedTracks },
             reviewTracks = batch.flatMap { it.reviewTracks },
-            addedTracks = batch.flatMap { it.addedTracks }, removedTracks = batch.flatMap { it.removedTracks },
+            addedTracks = playlists.flatMap { it.addedTracks }, removedTracks = playlists.flatMap { it.removedTracks },
             heldBack = batch.sumOf { it.heldBack },
             notAdded = batch.flatMap { it.notAdded },
             error = failed?.error, netError = failed?.netError,
@@ -137,5 +141,5 @@ internal object NwayHistory {
 
     /** The group's last runs, each as one report ([sum]), oldest first: at most [n]. */
     fun runs(reports: List<SyncReport>, members: List<Nway.Member>, n: Int = 10): List<SyncReport> =
-        batches(reports, members).takeLast(n).map { sum(it) }
+        members.mapNotNullTo(HashSet()) { it.up?.id }.let { intoHub -> batches(reports, members).takeLast(n).map { sum(it, intoHub) } }
 }

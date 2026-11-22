@@ -51,7 +51,7 @@ class MultiSyncHeightFlowTest : FlowTest() {
         val hour = 3_600_000L
         val ids = Nway.order(app.env, group).map { it.id }
         val deezerDown = members().first { it.playlist.provider == "deezer" }.down.id
-        // Two runs of the whole group, an hour apart; the last one: +2 on one sync, +3 −1 and 2 not found on Deezer's.
+        // Two runs of the whole group, an hour apart; the last one: +2 on the first sync (one into the group's own list), +3 −1 and 2 not found on Deezer's.
         val groupReports = listOf(2 * hour, hour).flatMapIndexed { run, ago ->
             ids.mapIndexed { i, id ->
                 val last = run == 1
@@ -163,14 +163,15 @@ class MultiSyncHeightFlowTest : FlowTest() {
         val card = node(JOB_CARD_TAG, "Trip mix").boundsInRoot
         fun inCard(text: String) = compose.onAllNodes(hasText(text), useUnmergedTree = true).fetchSemanticsNodes()
             .any { card.contains(it.boundsInRoot.center) }
-        waitFor("the group's figures") { inCard("+5") && inCard("−1") && inCard("2") }
+        // The services' playlists only, as the added/removed lists show them: the +2 into the group's own list is not counted.
+        waitFor("the group's figures") { inCard("+3") && inCard("−1") && inCard("2") }
         // The classic card counts its playlist; the multi sync's, its source (a word as short, the tile as large).
         assertEquals("an \"in playlist\" figure on the classic card only", 1, compose.onAllNodes(hasText(s(R.string.stat_in_playlist)), useUnmergedTree = true).fetchSemanticsNodes().size)
         assertTrue("an \"in source\" figure on the multi sync's card", inCard(s(R.string.stat_in_source)))
         assertTrue("its last runs", inCard(plural(R.plurals.stat_history, 2, 2, 0)))
         snapshot("multi-height-card-large")
         // Each figure opens what it counts: the songs added, the group's page for those not found.
-        click("+5")
+        click("+3")
         waitText(s(R.string.stat_list_added))
         androidx.test.espresso.Espresso.pressBack()
         waitGone(s(R.string.stat_list_added))

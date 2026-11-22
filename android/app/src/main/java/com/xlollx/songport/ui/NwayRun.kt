@@ -89,6 +89,11 @@ internal object NwayRun {
                 failed != null -> Service(m, Phase.FAILED, result = failed)
                 asked.isNotEmpty() && ended.size == asked.size -> Service(m, Phase.DONE, result = ended.reduce { a, b ->
                     a.copy(ok = a.ok && b.ok, offline = a.offline || b.offline, added = a.added + b.added, removed = a.removed + b.removed, notFound = a.notFound + b.notFound, held = a.held + b.held)
+                }.let { r ->
+                    // Added and removed on this service's playlist only (its down sync), as the card's
+                    // figures and lists count them: what its up sync wrote went to the group's own list.
+                    val down = batch?.outcomes?.get(m.down.id)?.takeIf { m.down.id in batch.finished }
+                    r.copy(added = down?.added ?: 0, removed = down?.removed ?: 0)
                 })
                 asked.isNotEmpty() -> Service(m, Phase.WAITING)
                 else -> Service(m, Phase.IDLE)
