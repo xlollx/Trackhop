@@ -403,6 +403,69 @@ class WebTest {
         assertTrue(post("/files/library", "t=$t&p=1", *origin).headers().firstValue("Location").orElse("").contains("err="))
     }
 
+    // #79: "Select all" ticks every playlist of the library, the smart ones too; "None" none; by default your own ones.
+    @Test fun anItunesLibrarysPlaylistsCanAllBeTickedOrNone() {
+        val boundary = "----trackhop79"
+        val body = tmp.newFile("upload79.bin")
+        writeLibrary(body, songs = 10, boundary = boundary)
+        val res = client.send(
+            HttpRequest.newBuilder(URI("$base/files")).header("Authorization", auth).header("Origin", base)
+                .header("Content-Type", "multipart/form-data; boundary=$boundary").POST(HttpRequest.BodyPublishers.ofFile(body.toPath())).build(),
+            HttpResponse.BodyHandlers.ofString(),
+        )
+        val to = res.headers().firstValue("Location").orElse("")
+        fun ticked(url: String) = Regex("""name="p" value="\d+" checked""").findAll(get(url).body()).count()
+        assertTrue(get(to).body().contains("sel=all"))
+        assertEquals(2, ticked(to))
+        assertEquals(3, ticked("$to&sel=all"))
+        assertEquals(0, ticked("$to&sel=none"))
+    }
+
+    @Test fun theFilesCanAllBeTickedOrNone() {
+        File(data, "csv").mkdirs()
+        listOf("A", "B", "C").forEach { File(data, "csv/$it.csv").writeText("title,artist\nSong,Band\n") }
+        fun ticked(url: String) = Regex("""form="bulk" name="f:[^"]+" checked""").findAll(get(url).body()).count()
+        assertEquals(0, ticked("/connectors/csv"))
+        assertEquals(3, ticked("/connectors/csv?all=1"))
+        // The line being tried stays.
+        assertTrue(get("/connectors/csv?sample=x+y").body().contains("""href="/connectors/csv?all=1&amp;sample=x+y">Select all</a> · <a href="/connectors/csv?sample=x+y">None</a>"""))
+    }
+
+    @Test fun theMissingTracksCanAllBeTickedOrNoneOrAnAlbumsOnes() {
+        fun t(id: String, title: String, album: String) = com.xlollx.songport.model.Track(id, title, listOf("Black Sabbath"), album = album)
+        env.store.update { d ->
+            d.copy(
+                jobs = d.jobs + com.xlollx.songport.model.SyncJob("w", "To Navidrome", com.xlollx.songport.model.PlaylistRef("spotify", "p", "P"), com.xlollx.songport.model.PlaylistRef("subsonic", "t", "T")),
+                reports = listOf(
+                    com.xlollx.songport.model.SyncReport(
+                        "rw", "w", "To Navidrome", 1_780_000_000_000, 10, sourceCount = 3,
+                        unmatchedTracks = listOf(t("s1", "Paranoid", "Paranoid"), t("s2", "Iron Man", "Paranoid"), t("s3", "N.I.B.", "Black Sabbath")),
+                    ),
+                ) + d.reports,
+            )
+        }
+        fun ticked(url: String) = Regex("""name="id" value="[^"]+" checked""").findAll(get(url).body()).count()
+        assertEquals(0, ticked("/tools/wanted?view=albums"))
+        assertEquals(3, ticked("/tools/wanted?view=albums&tick=all"))
+        assertEquals(3, ticked("/tools/wanted?tick=all"))
+        // An album's All: its two tracks, the view kept; the one-track album has none.
+        val page = get("/tools/wanted?view=albums").body()
+        val links = Regex("""href="(/tools/wanted\?view=albums&amp;tick=[^"#]+)#album-\d+"""").findAll(page).map { it.groupValues[1].replace("&amp;", "&") }.toList()
+        assertEquals(page, 1, links.size)
+        assertEquals(2, ticked(links.single()))
+        assertTrue(page.contains("""<a href="/tools/wanted?view=albums&amp;tick=all">Select all</a> · <a href="/tools/wanted?view=albums">None</a>"""))
+    }
+
+    @Test fun aPlaylistsTracksCanAllBeTickedOrNone() {
+        File(data, "csv").mkdirs()
+        File(data, "csv/Mix.csv").writeText("title,artist\nSong,Band\nOther,Band\nThird,Band\n")
+        assertEquals(303, post("/connectors/add", "service=csv", *origin).statusCode())
+        fun ticked(url: String) = Regex("""name="t_[^"]+" checked""").findAll(get(url).body()).count()
+        assertTrue(get("/playlists/csv/Mix").body().contains("""<a href="/playlists/csv/Mix?all=1">Select all</a> · <a href="/playlists/csv/Mix">None</a>"""))
+        assertEquals(0, ticked("/playlists/csv/Mix"))
+        assertEquals(3, ticked("/playlists/csv/Mix?all=1"))
+    }
+
     @Test fun anUploadCutShortAddsNothingAndLeavesNothing() {
         val boundary = "----trackhop67c"
         val whole = tmp.newFile("whole.bin")

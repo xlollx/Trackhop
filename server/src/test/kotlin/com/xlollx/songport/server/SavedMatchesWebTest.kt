@@ -73,4 +73,33 @@ class SavedMatchesWebTest {
         assertTrue(env.store.data.ignoredTracks.isEmpty())
         assertEquals(mapOf("spotify:s2>deezer" to "d2"), env.store.data.matchCache)
     }
+
+    @Test fun forgetTheTickedOnesForgetsOnlyThose() {
+        Features.v2 = true
+        env.store.update { d -> d.copy(matchCache = d.matchCache + ("spotify:s3>deezer" to "d3")) }
+        fun boxes(page: String) = Regex("""<input type="checkbox" name="key" value="([^"]+)" form="forget-matches"[^>]*>""").findAll(page).toList()
+        val page = get("/tools/matches").body()
+        assertTrue(page, page.contains(">Select all</a> · <a href=\"/tools/matches\">None</a>") && page.contains(">Forget the ticked ones</button>"))
+        assertEquals(3, boxes(page).size)
+        assertTrue(boxes(page).none { it.value.contains("checked") })
+        assertEquals(3, boxes(get("/tools/matches?all=1").body()).count { it.value.contains("checked") })
+        // The filters stay in Select all's link.
+        assertTrue(get("/tools/matches?q=velvet").body().contains("href=\"/tools/matches?q=velvet&amp;all=1\""))
+        val done = post("/tools/matches", "bulk=1&key=spotify%3As1%3Edeezer&key=spotify%3As3%3Edeezer")
+        assertEquals(303, done.statusCode())
+        assertTrue(done.headers().firstValue("Location").orElse("").contains("ok=2+matches+forgotten"))
+        assertTrue(env.store.data.ignoredTracks.isEmpty())
+        assertEquals(mapOf("spotify:s2>deezer" to "d2"), env.store.data.matchCache)
+    }
+
+    @Test fun forgetTheTickedOnesFromAnotherSiteIsRefused() {
+        Features.v2 = true
+        val refused = client.send(
+            HttpRequest.newBuilder(URI("$base/tools/matches")).header("Authorization", auth).header("Origin", "http://evil.example")
+                .header("Content-Type", "application/x-www-form-urlencoded").POST(HttpRequest.BodyPublishers.ofString("bulk=1&key=spotify%3As2%3Edeezer")).build(),
+            HttpResponse.BodyHandlers.ofString(),
+        )
+        assertEquals(403, refused.statusCode())
+        assertEquals(mapOf("spotify:s2>deezer" to "d2"), env.store.data.matchCache)
+    }
 }
