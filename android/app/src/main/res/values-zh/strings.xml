@@ -3340,4 +3340,45 @@
         <item quantity="other">★ 已设置 %1$d 个评分</item>
     </plurals>
     <string name="note_ratings_failed">%2$s 未接受的星级评分：%1$d 个。同步本身已完成；下次运行时会再试。</string>
+    <string name="to_fix_accept_suggestions">接受建议（%1$d）</string>
+    <plurals name="to_fix_bulk_accepted">
+        <item quantity="other">已接受 %1$d 条建议</item>
+    </plurals>
+    <plurals name="to_fix_bulk_no_suggestion">
+        <item quantity="other">剩余 %1$d 首：无建议</item>
+    </plurals>
+    <plurals name="to_fix_bulk_later">
+        <item quantity="other">已搁置 %1$d 首歌曲，直到其同步下次运行</item>
+    </plurals>
+    <plurals name="to_fix_bulk_ignored">
+        <item quantity="other">已忽略 %1$d 首歌曲</item>
+    </plurals>
+    <plurals name="unplayable_undecided">
+        <item quantity="other">%1$d 首未决定</item>
+    </plurals>
+    <string name="unplayable_remove_all">全部移除</string>
+    <string name="unplayable_skip_all">全部跳过</string>
+    <plurals name="manage_delete_n_title">
+        <item quantity="other">要从 %2$s 删除 %1$d 个歌单吗？</item>
+    </plurals>
+    <string name="manage_delete_n_body">它们会从 %1$s 本身删除。写入这些歌单的同步将被关闭。</string>
+    <plurals name="manage_delete_n">
+        <item quantity="other">删除 %1$d 个歌单</item>
+    </plurals>
+    <plurals name="manage_deleted_n">
+        <item quantity="other">已删除 %1$d 个歌单</item>
+    </plurals>
+    <plurals name="manage_delete_failed_n">
+        <item quantity="other">%1$d 个无法删除</item>
+    </plurals>
+    <plurals name="manage_syncs_turned_off">
+        <item quantity="other">已关闭 %1$d 个同步</item>
+    </plurals>
+    <plurals name="manage_delete_turns_off">
+        <item quantity="other">%1$d 个同步写入此歌单：将被关闭。</item>
+    </plurals>
+    <string name="saved_matches_forget_short">忘记</string>
+    <plurals name="saved_matches_forgotten_n">
+        <item quantity="other">已忘记 %1$d 项：下次同步会重新查找。</item>
+    </plurals>
 </resources>

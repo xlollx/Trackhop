@@ -3637,4 +3637,81 @@
         <item quantity="other">★ %1$d оценки установлено</item>
     </plurals>
     <string name="note_ratings_failed">Оценки, не принятые %2$s: %1$d. Сама синхронизация прошла; они будут повторены при следующем запуске.</string>
+    <string name="to_fix_accept_suggestions">Принять предложения (%1$d)</string>
+    <plurals name="to_fix_bulk_accepted">
+        <item quantity="one">Принято %1$d предложение</item>
+        <item quantity="few">Принято %1$d предложения</item>
+        <item quantity="many">Принято %1$d предложений</item>
+        <item quantity="other">Принято %1$d предложения</item>
+    </plurals>
+    <plurals name="to_fix_bulk_no_suggestion">
+        <item quantity="one">Остался %1$d: нет предложения</item>
+        <item quantity="few">Осталось %1$d: нет предложения</item>
+        <item quantity="many">Осталось %1$d: нет предложения</item>
+        <item quantity="other">Осталось %1$d: нет предложения</item>
+    </plurals>
+    <plurals name="to_fix_bulk_later">
+        <item quantity="one">%1$d трек отложен до следующего запуска синхронизации</item>
+        <item quantity="few">%1$d трека отложены до следующего запуска синхронизаций</item>
+        <item quantity="many">%1$d треков отложены до следующего запуска синхронизаций</item>
+        <item quantity="other">%1$d трека отложены до следующего запуска синхронизаций</item>
+    </plurals>
+    <plurals name="to_fix_bulk_ignored">
+        <item quantity="one">%1$d трек пропущен</item>
+        <item quantity="few">%1$d трека пропущены</item>
+        <item quantity="many">%1$d треков пропущено</item>
+        <item quantity="other">%1$d трека пропущено</item>
+    </plurals>
+    <plurals name="unplayable_undecided">
+        <item quantity="one">%1$d без решения</item>
+        <item quantity="few">%1$d без решения</item>
+        <item quantity="many">%1$d без решения</item>
+        <item quantity="other">%1$d без решения</item>
+    </plurals>
+    <string name="unplayable_remove_all">Удалить все</string>
+    <string name="unplayable_skip_all">Пропустить все</string>
+    <plurals name="manage_delete_n_title">
+        <item quantity="one">Удалить %1$d плейлист из %2$s?</item>
+        <item quantity="few">Удалить %1$d плейлиста из %2$s?</item>
+        <item quantity="many">Удалить %1$d плейлистов из %2$s?</item>
+        <item quantity="other">Удалить %1$d плейлиста из %2$s?</item>
+    </plurals>
+    <string name="manage_delete_n_body">Они исчезнут из самого %1$s. Синхронизации, которые в них записывают, будут отключены.</string>
+    <plurals name="manage_delete_n">
+        <item quantity="one">Удалить %1$d плейлист</item>
+        <item quantity="few">Удалить %1$d плейлиста</item>
+        <item quantity="many">Удалить %1$d плейлистов</item>
+        <item quantity="other">Удалить %1$d плейлиста</item>
+    </plurals>
+    <plurals name="manage_deleted_n">
+        <item quantity="one">Удалён %1$d плейлист</item>
+        <item quantity="few">Удалено %1$d плейлиста</item>
+        <item quantity="many">Удалено %1$d плейлистов</item>
+        <item quantity="other">Удалено %1$d плейлиста</item>
+    </plurals>
+    <plurals name="manage_delete_failed_n">
+        <item quantity="one">Не удалось удалить: %1$d</item>
+        <item quantity="few">Не удалось удалить: %1$d</item>
+        <item quantity="many">Не удалось удалить: %1$d</item>
+        <item quantity="other">Не удалось удалить: %1$d</item>
+    </plurals>
+    <plurals name="manage_syncs_turned_off">
+        <item quantity="one">Отключена %1$d синхронизация</item>
+        <item quantity="few">Отключено %1$d синхронизации</item>
+        <item quantity="many">Отключено %1$d синхронизаций</item>
+        <item quantity="other">Отключено %1$d синхронизации</item>
+    </plurals>
+    <plurals name="manage_delete_turns_off">
+        <item quantity="one">%1$d синхронизация записывает в этот плейлист: она будет отключена.</item>
+        <item quantity="few">%1$d синхронизации записывают в этот плейлист: они будут отключены.</item>
+        <item quantity="many">%1$d синхронизаций записывают в этот плейлист: они будут отключены.</item>
+        <item quantity="other">%1$d синхронизации записывают в этот плейлист: они будут отключены.</item>
+    </plurals>
+    <string name="saved_matches_forget_short">Забыть</string>
+    <plurals name="saved_matches_forgotten_n">
+        <item quantity="one">Забыто: %1$d. Следующая синхронизация поищет снова.</item>
+        <item quantity="few">Забыто: %1$d. Следующая синхронизация поищет снова.</item>
+        <item quantity="many">Забыто: %1$d. Следующая синхронизация поищет снова.</item>
+        <item quantity="other">Забыто: %1$d. Следующая синхронизация поищет снова.</item>
+    </plurals>
 </resources>

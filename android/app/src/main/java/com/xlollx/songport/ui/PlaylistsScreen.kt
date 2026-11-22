@@ -18,13 +18,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.material.icons.filled.Podcasts
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -61,6 +63,7 @@ import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.platform.env
 import com.xlollx.songport.providers.MusicProvider
+import com.xlollx.songport.sync.BulkEdit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -68,9 +71,11 @@ import kotlinx.coroutines.withContext
 /**
  * Le playlist dell'utente su un servizio, con le azioni che il servizio permette: rinominare,
  * eliminare, esportare. Solo le proprie (quelle seguite di altri non si toccano). Eliminare una
- * playlist usata da una sync fa fallire la sync finche' non la si modifica: lo si dice prima.
+ * playlist usata da una sync fa fallire la sync finche' non la si modifica: lo si dice prima. Le
+ * sync che scrivono in una playlist eliminata si spengono ([BulkEdit.offForDeleted]). Una pressione
+ * lunga avvia la selezione, per eliminarne diverse insieme.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
     val ctx = LocalContext.current
@@ -113,6 +118,73 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
         lists = try { provider.libraryEntries(ctx, asTarget = true).filter { it.id in MANAGED_LIBRARY } + provider.playlists(ctx).filter { it.ownedByMe } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.userMessage(ctx); emptyList() }
     }
     fun fail(e: Exception) { scope.launch { snackbar.showSnackbar(e.userMessage(ctx)) } }
+    /** The syncs that wrote to [ids], deleted just now, turned off (a pair's other half too): how many were on. */
+    fun turnOffSyncsOf(ids: Set<String>): Int {
+        if (ids.isEmpty()) return 0
+        val n = BulkEdit.writingTo(store.data, provider.id, ids).count { it.enabled }
+        if (n == 0) return 0
+        val outcome = ManyChange.apply(ctx) { BulkEdit.offForDeleted(it, provider.id, ids) }
+        ManyChange.problem(ctx, outcome)?.let { msg -> scope.launch { snackbar.showSnackbar(msg) } }
+        return if (outcome == ManyChange.Outcome.NOT_SAVED) 0 else n
+    }
+    fun turnedOff(n: Int) = if (n > 0) ctx.resources.getQuantityString(R.plurals.manage_syncs_turned_off, n, n) else null
+    /** A playlist this screen can delete: an own one, where the service lets apps delete. */
+    fun deletable(pl: Playlist) = provider.canDeletePlaylists && !MusicProvider.isLibrary(pl.id)
+
+    // Playlists ticked to delete together (a long press starts it); those gone meanwhile drop out.
+    var picked by remember { mutableStateOf(setOf<String>()) }
+    var confirmMany by remember { mutableStateOf(false) }
+    val deletableIds = lists.orEmpty().filter { deletable(it) }.map { it.id }
+    val selection = deletableIds.filterTo(LinkedHashSet()) { it in picked }
+    fun tick(pl: Playlist) { picked = if (pl.id in selection) selection - pl.id else selection + pl.id }
+    val selectionBar = if (selection.isEmpty()) null else ToolSelection(
+        count = selection.size, onClear = { picked = emptySet() },
+        onSelectAll = { picked = deletableIds.toSet() }.takeIf { selection.size < deletableIds.size },
+        actions = { TextButton(enabled = !busy, onClick = { confirmMany = true }) { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) } },
+    )
+    OfferToolSelection(selectionBar)
+    if (confirmMany) {
+        val chosen = lists.orEmpty().filter { it.id in selection }
+        val n = chosen.size
+        FitDialog(
+            onDismissRequest = { confirmMany = false },
+            title = { Text(pluralStringResource(R.plurals.manage_delete_n_title, n, n, provider.label(ctx))) },
+            text = {
+                Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)) {
+                    Text(chosen.joinToString("\n") { "• " + it.name }, style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.manage_delete_n_body, provider.label(ctx)))
+                }
+            },
+            confirmButton = {
+                TextButton(enabled = n > 0, onClick = {
+                    confirmMany = false; picked = emptySet(); busy = true
+                    // One after another; one that fails does not stop the others.
+                    scope.launch {
+                        val gone = LinkedHashSet<String>()
+                        var failed = 0
+                        var reason: String? = null
+                        var off = 0
+                        try {
+                            for (pl in chosen) try { provider.deletePlaylist(ctx, pl.id); gone += pl.id } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+                                failed++; if (reason == null) reason = e.userMessage(ctx)
+                            }
+                        } finally {
+                            off = turnOffSyncsOf(gone)
+                            busy = false
+                        }
+                        version++
+                        val parts = listOfNotNull(
+                            if (gone.isNotEmpty()) ctx.resources.getQuantityString(R.plurals.manage_deleted_n, gone.size, gone.size) else null,
+                            if (failed > 0) ctx.resources.getQuantityString(R.plurals.manage_delete_failed_n, failed, failed) + (reason?.let { ": $it" } ?: "") else null,
+                            turnedOff(off),
+                        )
+                        snackbar.showSnackbar(parts.joinToString(" · "), duration = if (failed > 0) androidx.compose.material3.SnackbarDuration.Long else androidx.compose.material3.SnackbarDuration.Short)
+                    }
+                }) { Text(pluralStringResource(R.plurals.manage_delete_n, n, n), color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = { TextButton(onClick = { confirmMany = false }) { Text(stringResource(R.string.cancel)) } },
+        )
+    }
 
     // Export: the format is asked in a dialog, the tracks are read when the file destination is chosen.
     var exporting by remember { mutableStateOf<Playlist?>(null) }
@@ -169,13 +241,20 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
         )
     }
     deleting?.let { pl ->
-        val used = store.data.syncs.count { j -> (j.source.provider == provider.id && j.source.playlistId == pl.id) || (j.target.provider == provider.id && j.target.playlistId == pl.id) }
+        // The syncs writing to it are turned off; the others that use it (reading it) fail until edited.
+        val writers = BulkEdit.writingTo(store.data, provider.id, setOf(pl.id))
+        val writerIds = writers.flatMapTo(HashSet()) { listOfNotNull(it.id, it.linkedJobId) }
+        val used = store.data.syncs.count { j -> j.id !in writerIds && ((j.source.provider == provider.id && j.source.playlistId == pl.id) || (j.target.provider == provider.id && j.target.playlistId == pl.id)) }
         FitDialog(
             onDismissRequest = { deleting = null },
             title = { Text(stringResource(R.string.delete)) },
             text = {
                 Column {
                     Text(stringResource(R.string.manage_delete_confirm, pl.name, provider.label(ctx)))
+                    if (writers.isNotEmpty()) {
+                        Spacer(Modifier.padding(4.dp))
+                        Text(pluralStringResource(R.plurals.manage_delete_turns_off, writers.size, writers.size), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                    }
                     if (used > 0) {
                         Spacer(Modifier.padding(4.dp))
                         Text(pluralStringResource(R.plurals.manage_delete_used, used, used), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
@@ -186,7 +265,12 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
                 TextButton(onClick = {
                     deleting = null; busy = true
                     scope.launch {
-                        try { provider.deletePlaylist(ctx, pl.id); snackbar.showSnackbar(ctx.getString(R.string.manage_deleted)); version++ } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { fail(e) }
+                        try {
+                            provider.deletePlaylist(ctx, pl.id)
+                            val off = turnOffSyncsOf(setOf(pl.id))
+                            version++
+                            snackbar.showSnackbar(listOfNotNull(ctx.getString(R.string.manage_deleted), turnedOff(off)).joinToString(" · "))
+                        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { fail(e) }
                         busy = false
                     }
                 }) { Text(stringResource(R.string.yes), color = MaterialTheme.colorScheme.error) }
@@ -211,7 +295,8 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
-            TopAppBar(
+            if (selectionBar != null) SelectionTopBar(selectionBar)
+            else TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         ProviderBadge(provider, 28.dp, accountRing(provider.id))
@@ -236,13 +321,26 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
                 items(all, key = { it.id }) { pl ->
                     val library = MusicProvider.isLibrary(pl.id)
                     val removable = provider.canRemoveTracks && provider.canWrite
-                    Card((if (rich) Modifier.animateItem() else Modifier).fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+                    val selecting = selection.isNotEmpty()
+                    val canTick = deletable(pl)
+                    val ticked = pl.id in selection
+                    Card(
+                        (if (rich) Modifier.animateItem() else Modifier).fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = if (ticked) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow),
+                    ) {
                         Row(
-                            // A library list opens on a tap: removing from it is all there is to do there.
-                            (if (library && removable) Modifier.clickable(enabled = !busy) { viewing = pl } else Modifier)
-                                .padding(start = 14.dp, top = 4.dp, bottom = 4.dp, end = 4.dp),
+                            // A library list opens on a tap: removing from it is all there is to do there. A long
+                            // press on a playlist that can be deleted starts the selection; while selecting, a tap ticks.
+                            when {
+                                selecting && canTick -> Modifier.combinedClickable(enabled = !busy, onClickLabel = stringResource(R.string.files_select), onClick = { tick(pl) }, onLongClick = { tick(pl) })
+                                selecting -> Modifier
+                                canTick -> Modifier.combinedClickable(enabled = !busy, onLongClickLabel = stringResource(R.string.files_select), onClick = {}, onLongClick = { tick(pl) })
+                                library && removable -> Modifier.combinedClickable(enabled = !busy, onClick = { viewing = pl })
+                                else -> Modifier
+                            }.padding(start = if (selecting && canTick) 0.dp else 14.dp, top = 4.dp, bottom = 4.dp, end = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
+                            if (selecting && canTick) Checkbox(checked = ticked, onCheckedChange = null, modifier = Modifier.padding(12.dp))
                             if (library) {
                                 Icon(libraryIcon(pl.id), null, tint = MaterialTheme.colorScheme.primary)
                                 Spacer(Modifier.width(12.dp))
@@ -256,7 +354,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
                                 if (sub.isNotEmpty()) Text(sub.joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             var menu by remember { mutableStateOf(false) }
-                            Box {
+                            if (!selecting) Box {
                                 IconButton(enabled = !busy, onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, stringResource(R.string.more_actions)) }
                                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                                     if (library) {

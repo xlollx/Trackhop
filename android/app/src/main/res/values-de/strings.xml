@@ -3439,4 +3439,57 @@
         <item quantity="other">★ %1$d Bewertungen gesetzt</item>
     </plurals>
     <string name="note_ratings_failed">Von %2$s nicht übernommene Sternbewertungen: %1$d. Die Synchronisierung selbst ist durchgelaufen; sie werden beim nächsten Lauf erneut versucht.</string>
+    <string name="to_fix_accept_suggestions">Vorschläge annehmen (%1$d)</string>
+    <plurals name="to_fix_bulk_accepted">
+        <item quantity="one">%1$d Vorschlag angenommen</item>
+        <item quantity="other">%1$d Vorschläge angenommen</item>
+    </plurals>
+    <plurals name="to_fix_bulk_no_suggestion">
+        <item quantity="one">%1$d übrig: kein Vorschlag</item>
+        <item quantity="other">%1$d übrig: kein Vorschlag</item>
+    </plurals>
+    <plurals name="to_fix_bulk_later">
+        <item quantity="one">%1$d Titel zurückgestellt, bis sein Sync wieder läuft</item>
+        <item quantity="other">%1$d Titel zurückgestellt, bis ihre Syncs wieder laufen</item>
+    </plurals>
+    <plurals name="to_fix_bulk_ignored">
+        <item quantity="one">%1$d Titel ignoriert</item>
+        <item quantity="other">%1$d Titel ignoriert</item>
+    </plurals>
+    <plurals name="unplayable_undecided">
+        <item quantity="one">%1$d noch offen</item>
+        <item quantity="other">%1$d noch offen</item>
+    </plurals>
+    <string name="unplayable_remove_all">Alle entfernen</string>
+    <string name="unplayable_skip_all">Alle überspringen</string>
+    <plurals name="manage_delete_n_title">
+        <item quantity="one">%1$d Playlist von %2$s löschen?</item>
+        <item quantity="other">%1$d Playlists von %2$s löschen?</item>
+    </plurals>
+    <string name="manage_delete_n_body">Sie verschwinden von %1$s selbst. Syncs, die in sie schreiben, werden ausgeschaltet.</string>
+    <plurals name="manage_delete_n">
+        <item quantity="one">%1$d Playlist löschen</item>
+        <item quantity="other">%1$d Playlists löschen</item>
+    </plurals>
+    <plurals name="manage_deleted_n">
+        <item quantity="one">%1$d Playlist gelöscht</item>
+        <item quantity="other">%1$d Playlists gelöscht</item>
+    </plurals>
+    <plurals name="manage_delete_failed_n">
+        <item quantity="one">%1$d konnte nicht gelöscht werden</item>
+        <item quantity="other">%1$d konnten nicht gelöscht werden</item>
+    </plurals>
+    <plurals name="manage_syncs_turned_off">
+        <item quantity="one">%1$d Sync ausgeschaltet</item>
+        <item quantity="other">%1$d Syncs ausgeschaltet</item>
+    </plurals>
+    <plurals name="manage_delete_turns_off">
+        <item quantity="one">%1$d Sync schreibt in diese Playlist: Er wird ausgeschaltet.</item>
+        <item quantity="other">%1$d Syncs schreiben in diese Playlist: Sie werden ausgeschaltet.</item>
+    </plurals>
+    <string name="saved_matches_forget_short">Vergessen</string>
+    <plurals name="saved_matches_forgotten_n">
+        <item quantity="one">%1$d vergessen: Der nächste Sync sucht erneut.</item>
+        <item quantity="other">%1$d vergessen: Der nächste Sync sucht erneut.</item>
+    </plurals>
 </resources>

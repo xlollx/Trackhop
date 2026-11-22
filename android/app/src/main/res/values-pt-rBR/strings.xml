@@ -3447,4 +3447,57 @@
         <item quantity="other">★ %1$d avaliações aplicadas</item>
     </plurals>
     <string name="note_ratings_failed">Avaliações com estrelas que %2$s não aceitou: %1$d. A sincronização em si foi concluída; elas serão tentadas de novo na próxima execução.</string>
+    <string name="to_fix_accept_suggestions">Aceitar sugestões (%1$d)</string>
+    <plurals name="to_fix_bulk_accepted">
+        <item quantity="one">%1$d sugestão aceita</item>
+        <item quantity="other">%1$d sugestões aceitas</item>
+    </plurals>
+    <plurals name="to_fix_bulk_no_suggestion">
+        <item quantity="one">Resta %1$d: sem sugestão</item>
+        <item quantity="other">Restam %1$d: sem sugestão</item>
+    </plurals>
+    <plurals name="to_fix_bulk_later">
+        <item quantity="one">%1$d faixa deixada de lado até a sincronização dela rodar de novo</item>
+        <item quantity="other">%1$d faixas deixadas de lado até as sincronizações delas rodarem de novo</item>
+    </plurals>
+    <plurals name="to_fix_bulk_ignored">
+        <item quantity="one">%1$d faixa ignorada</item>
+        <item quantity="other">%1$d faixas ignoradas</item>
+    </plurals>
+    <plurals name="unplayable_undecided">
+        <item quantity="one">%1$d sem decisão</item>
+        <item quantity="other">%1$d sem decisão</item>
+    </plurals>
+    <string name="unplayable_remove_all">Remover todas</string>
+    <string name="unplayable_skip_all">Pular todas</string>
+    <plurals name="manage_delete_n_title">
+        <item quantity="one">Excluir %1$d playlist de %2$s?</item>
+        <item quantity="other">Excluir %1$d playlists de %2$s?</item>
+    </plurals>
+    <string name="manage_delete_n_body">Elas somem do próprio %1$s. As sincronizações que gravam nelas são desativadas.</string>
+    <plurals name="manage_delete_n">
+        <item quantity="one">Excluir %1$d playlist</item>
+        <item quantity="other">Excluir %1$d playlists</item>
+    </plurals>
+    <plurals name="manage_deleted_n">
+        <item quantity="one">%1$d playlist excluída</item>
+        <item quantity="other">%1$d playlists excluídas</item>
+    </plurals>
+    <plurals name="manage_delete_failed_n">
+        <item quantity="one">%1$d não pôde ser excluída</item>
+        <item quantity="other">%1$d não puderam ser excluídas</item>
+    </plurals>
+    <plurals name="manage_syncs_turned_off">
+        <item quantity="one">%1$d sincronização desativada</item>
+        <item quantity="other">%1$d sincronizações desativadas</item>
+    </plurals>
+    <plurals name="manage_delete_turns_off">
+        <item quantity="one">%1$d sincronização grava nesta playlist: ela é desativada.</item>
+        <item quantity="other">%1$d sincronizações gravam nesta playlist: elas são desativadas.</item>
+    </plurals>
+    <string name="saved_matches_forget_short">Esquecer</string>
+    <plurals name="saved_matches_forgotten_n">
+        <item quantity="one">%1$d esquecida: a próxima sincronização busca de novo.</item>
+        <item quantity="other">%1$d esquecidas: a próxima sincronização busca de novo.</item>
+    </plurals>
 </resources>

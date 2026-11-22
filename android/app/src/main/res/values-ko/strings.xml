@@ -3339,4 +3339,45 @@
         <item quantity="other">★ 별점 %1$d개 설정됨</item>
     </plurals>
     <string name="note_ratings_failed">%2$s에서 설정되지 않은 별점: %1$d개. 동기화 자체는 완료되었으며, 다음 실행 때 다시 시도합니다.</string>
+    <string name="to_fix_accept_suggestions">제안 수락 (%1$d)</string>
+    <plurals name="to_fix_bulk_accepted">
+        <item quantity="other">제안 %1$d개를 수락했어요</item>
+    </plurals>
+    <plurals name="to_fix_bulk_no_suggestion">
+        <item quantity="other">%1$d개 남음: 제안 없음</item>
+    </plurals>
+    <plurals name="to_fix_bulk_later">
+        <item quantity="other">트랙 %1$d개를 해당 동기화가 다시 실행될 때까지 미뤄 두었어요</item>
+    </plurals>
+    <plurals name="to_fix_bulk_ignored">
+        <item quantity="other">트랙 %1$d개를 무시했어요</item>
+    </plurals>
+    <plurals name="unplayable_undecided">
+        <item quantity="other">미정 %1$d개</item>
+    </plurals>
+    <string name="unplayable_remove_all">모두 삭제</string>
+    <string name="unplayable_skip_all">모두 건너뛰기</string>
+    <plurals name="manage_delete_n_title">
+        <item quantity="other">%2$s에서 플레이리스트 %1$d개를 삭제할까요?</item>
+    </plurals>
+    <string name="manage_delete_n_body">%1$s 자체에서 사라져요. 여기에 쓰는 동기화는 꺼집니다.</string>
+    <plurals name="manage_delete_n">
+        <item quantity="other">플레이리스트 %1$d개 삭제</item>
+    </plurals>
+    <plurals name="manage_deleted_n">
+        <item quantity="other">플레이리스트 %1$d개를 삭제했어요</item>
+    </plurals>
+    <plurals name="manage_delete_failed_n">
+        <item quantity="other">%1$d개를 삭제하지 못했어요</item>
+    </plurals>
+    <plurals name="manage_syncs_turned_off">
+        <item quantity="other">동기화 %1$d개를 껐어요</item>
+    </plurals>
+    <plurals name="manage_delete_turns_off">
+        <item quantity="other">동기화 %1$d개가 이 플레이리스트에 써요. 해당 동기화는 꺼집니다.</item>
+    </plurals>
+    <string name="saved_matches_forget_short">잊기</string>
+    <plurals name="saved_matches_forgotten_n">
+        <item quantity="other">%1$d개를 잊었어요. 다음 동기화에서 다시 검색합니다.</item>
+    </plurals>
 </resources>

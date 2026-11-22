@@ -1,6 +1,8 @@
 package com.xlollx.songport.ui
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -31,6 +34,7 @@ import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,6 +50,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
@@ -123,6 +128,98 @@ internal fun ToFixTab(items: List<ToFix.Item>, snackbar: SnackbarHostState, onSe
     var shown by rememberSaveable { mutableIntStateOf(TO_FIX_PAGE) }
     var searching by rememberSaveable { mutableStateOf<String?>(null) }
     var removing by rememberSaveable { mutableStateOf<String?>(null) }
+    // Rows ticked to act on together (a long press starts it); those fixed meanwhile drop out.
+    var picked by remember { mutableStateOf(setOf<String>()) }
+    var removingPicked by remember { mutableStateOf<List<ToFix.Item>?>(null) }
+    val selection = items.mapNotNullTo(LinkedHashSet()) { it.key.takeIf { k -> k in picked } }
+    val (pickedAccept, pickedLeft) = ToFix.ticked(items, selection)
+
+    fun nameOf(family: String) = providerOf(family, ctx = ctx)?.displayName ?: family
+
+    /**
+     * [work] for each of [rows], one after another, going on if the page is left; then one line for
+     * all of them ([summary] of how many went through), with the syncs not written now.
+     */
+    fun applyAll(rows: List<ToFix.Item>, ignored: Boolean, summary: (Int) -> String, work: suspend (ToFix.Item) -> ToFix.Outcome) {
+        picked = emptySet()
+        val result = toFixWrites.async {
+            val failed = ArrayList<String>()
+            var errors = 0
+            for (item in rows) try { failed += work(item).failed } catch (e: CancellationException) { throw e } catch (e: Exception) { errors++ }
+            failed.distinct() to errors
+        }
+        scope.launch {
+            val (failed, errors) = try { result.await() } catch (e: CancellationException) { throw e } catch (e: Exception) { emptyList<String>() to rows.size }
+            val parts = listOfNotNull(
+                summary(rows.size - errors),
+                if (failed.isNotEmpty()) ctx.getString(if (ignored) R.string.to_fix_ignore_partial else R.string.to_fix_partial, failed.joinToString(", ")) else null,
+                if (errors > 0) ctx.getString(R.string.error_generic) else null,
+            )
+            snackbar.showSnackbar(parts.joinToString(" · "), duration = if (parts.size > 1) SnackbarDuration.Long else SnackbarDuration.Short)
+        }
+    }
+    fun acceptPicked() {
+        val left = pickedLeft.size
+        applyAll(pickedAccept, ignored = false, summary = { n ->
+            listOfNotNull(
+                ctx.resources.getQuantityString(R.plurals.to_fix_bulk_accepted, n, n),
+                if (left > 0) ctx.resources.getQuantityString(R.plurals.to_fix_bulk_no_suggestion, left, left) else null,
+            ).joinToString(" · ")
+        }) { item -> engine.fixEverywhere(item, item.suggestion!!) }
+    }
+    fun ignoreAll(rows: List<ToFix.Item>) =
+        applyAll(rows, ignored = true, summary = { n -> ctx.resources.getQuantityString(R.plurals.to_fix_bulk_ignored, n, n) }) { engine.ignoreEverywhere(it) }
+    fun laterPicked() {
+        val rows = items.filter { it.key in selection }
+        picked = emptySet()
+        rows.forEach { ToFix.later(store, it) }
+        scope.launch {
+            val undo = snackbar.showSnackbar(
+                ctx.resources.getQuantityString(R.plurals.to_fix_bulk_later, rows.size, rows.size),
+                actionLabel = ctx.getString(R.string.unplayable_undo), duration = SnackbarDuration.Short,
+            )
+            if (undo == SnackbarResult.ActionPerformed) rows.forEach { ToFix.undoLater(store, it) }
+        }
+    }
+
+    // The selection's bar stands in for the page's; what can be done with the ticked rows goes under the page.
+    OfferToolSelection(
+        if (selection.isEmpty()) null else ToolSelection(
+            count = selection.size, onClear = { picked = emptySet() },
+            onSelectAll = { picked = items.mapTo(HashSet()) { it.key } }.takeIf { selection.size < items.size },
+            bottom = {
+                Surface(color = MaterialTheme.colorScheme.surfaceContainer, tonalElevation = 3.dp) {
+                    FlowRow(
+                        Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End), verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = {
+                            val rows = items.filter { it.key in selection }
+                            // A wrong match leaves the playlists: asked first, as for one row.
+                            if (rows.any { it.kind == ToFix.Kind.UNCERTAIN }) removingPicked = rows else ignoreAll(rows)
+                        }) { Text(stringResource(R.string.unmatched_ignore)) }
+                        TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = { laterPicked() }) { Text(stringResource(R.string.to_fix_later)) }
+                        FilledTonalButton(enabled = pickedAccept.isNotEmpty(), modifier = Modifier.heightIn(min = 48.dp), onClick = { acceptPicked() }) {
+                            Text(stringResource(R.string.to_fix_accept_suggestions, pickedAccept.size))
+                        }
+                    }
+                }
+            },
+        ),
+    )
+    removingPicked?.let { rows ->
+        val targets = rows.filter { it.kind == ToFix.Kind.UNCERTAIN }.flatMap { it.places }
+            .mapNotNull { p -> data.jobs.firstOrNull { it.id == p.jobId }?.let { Providers.byId(it.target.provider) } }
+        val dstName = targets.map { it.displayName }.distinct().joinToString(", ").ifEmpty { nameOf(rows.first().targetService) }
+        val removes = targets.any { it.canRemoveTracks }
+        FitDialog(
+            onDismissRequest = { removingPicked = null },
+            title = { Text(stringResource(R.string.review_discard_title, dstName)) },
+            text = { Text(stringResource(if (removes) R.string.review_discard_body else R.string.review_discard_body_kept, dstName)) },
+            confirmButton = { TextButton(onClick = { removingPicked = null; ignoreAll(rows) }) { Text(stringResource(R.string.review_discard)) } },
+            dismissButton = { TextButton(onClick = { removingPicked = null }) { Text(stringResource(R.string.cancel)) } },
+        )
+    }
 
     if (items.isEmpty()) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 48.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -137,7 +234,6 @@ internal fun ToFixTab(items: List<ToFix.Item>, snackbar: SnackbarHostState, onSe
     }
 
     fun say(text: String) { scope.launch { snackbar.showSnackbar(text) } }
-    fun nameOf(family: String) = providerOf(family, ctx = ctx)?.displayName ?: family
 
     /** The write goes on if the page is left; what it did is said here while the page is still open. */
     fun apply(item: ToFix.Item, ignored: Boolean, work: suspend () -> ToFix.Outcome) {
@@ -227,6 +323,8 @@ internal fun ToFixTab(items: List<ToFix.Item>, snackbar: SnackbarHostState, onSe
             androidx.compose.runtime.key(item.key) {
                 ToFixRow(
                     item = item, sourceProvider = sourceOf(item), targetName = nameOf(item.targetService), showSyncs = byService,
+                    selected = (item.key in selection).takeIf { selection.isNotEmpty() },
+                    onTick = { picked = if (item.key in selection) selection - item.key else selection + item.key },
                     onAccept = { item.suggestion?.let { fix(item, it) } }, onLater = { later(item) }, onSearch = { searching = item.key },
                     onIgnore = { if (item.kind == ToFix.Kind.UNCERTAIN) removing = item.key else ignore(item) },
                 )
@@ -292,10 +390,12 @@ private const val TO_FIX_PAGE = 60
  * and the three things to do. Swiping the card right accepts (opens the search where nothing is
  * proposed), left sets it aside: the same as the buttons, which are always there.
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun ToFixRow(
     item: ToFix.Item, sourceProvider: MusicProvider?, targetName: String, showSyncs: Boolean,
+    /** Ticked or not while rows are being selected (no swipe, no buttons: a tap ticks it); null when they are not. */
+    selected: Boolean?, onTick: () -> Unit,
     onAccept: () -> Unit, onLater: () -> Unit, onSearch: () -> Unit, onIgnore: () -> Unit,
 ) {
     val suggestion = item.suggestion
@@ -312,7 +412,7 @@ private fun ToFixRow(
         false
     })
     SwipeToDismissBox(
-        state = swipe, modifier = Modifier.fillMaxWidth().clip(ToolCardShape).testTag(TO_FIX_ROW_TAG + item.key),
+        state = swipe, modifier = Modifier.fillMaxWidth().clip(ToolCardShape).testTag(TO_FIX_ROW_TAG + item.key), gesturesEnabled = selected == null,
         // What the swipe does, in an icon and a word under the card: not colour alone.
         backgroundContent = {
             val accepting = swipe.dismissDirection == SwipeToDismissBoxValue.StartToEnd
@@ -332,10 +432,17 @@ private fun ToFixRow(
             }
         },
     ) {
-        PageCard {
-            Column(Modifier.padding(start = 12.dp, end = 4.dp, top = 6.dp, bottom = 10.dp)) {
+        PageCard(selected = selected == true) {
+            // A long press starts the selection with this row; while selecting, a tap ticks it.
+            Column(
+                Modifier.combinedClickable(
+                    onClick = { if (selected != null) onTick() }, onLongClick = onTick,
+                    onClickLabel = if (selected != null) stringResource(R.string.files_select) else null, onLongClickLabel = stringResource(R.string.files_select),
+                ).padding(start = 12.dp, end = 4.dp, top = 6.dp, bottom = 10.dp),
+            ) {
                 Row(Modifier.heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
-                    TrackTile()
+                    if (selected != null) Box(Modifier.size(44.dp), contentAlignment = Alignment.Center) { Checkbox(checked = selected, onCheckedChange = null) }
+                    else TrackTile()
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(item.track.title, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -348,7 +455,7 @@ private fun ToFixRow(
                             Text(item.track.artistLine, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
                     }
-                    Box {
+                    if (selected == null) Box {
                         var menu by remember { mutableStateOf(false) }
                         IconButton(onClick = { menu = true }, modifier = Modifier.size(48.dp)) { Icon(Icons.Filled.MoreVert, stringResource(R.string.more_actions)) }
                         DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
@@ -398,7 +505,7 @@ private fun ToFixRow(
                         Row(Modifier.padding(top = 6.dp, bottom = 6.dp)) { StatusPill(stringResource(R.string.to_fix_not_found_on, targetName), Tone.Neutral, Icons.Filled.SearchOff) }
                         if (item.absent) Text(stringResource(R.string.review_absent), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
                     }
-                    FlowRow(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End)) {
+                    if (selected == null) FlowRow(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End)) {
                         if (suggestion != null) {
                             TextButton(onClick = onSearch, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.to_fix_search_by_hand)) }
                             TextButton(onClick = onLater, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.to_fix_later)) }
