@@ -361,6 +361,15 @@ abstract class FlowTest {
             n.performClick()
         } catch (e: AssertionError) {
             if (e.message?.contains("inject") != true) throw e
+            // A row of a menu or a picker closes it as the finger lifts: the touch landed, and its
+            // window went away before the injection was over. Nothing left to tap then; the steps
+            // that follow check the choice was made.
+            compose.waitForIdle()
+            if (runCatching { n.fetchSemanticsNode() }.isFailure) {
+                log("touch on \"$what\" closed its window as it landed")
+                compose.waitForIdle()
+                return
+            }
             semanticClicks += what
             log("touch on \"$what\" could not be injected: using its click action")
             n.performSemanticsAction(SemanticsActions.OnClick)
