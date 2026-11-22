@@ -657,7 +657,7 @@ $removals"""
             body.append("</div>")
         }
         when {
-            p is LocalFilesProvider -> body.append(fileList(r.query["sample"].orEmpty()))
+            p is LocalFilesProvider -> body.append(fileList(r.query["sample"].orEmpty(), all = r.query["all"] == "1"))
             !p.requiresAuth -> Unit
             p.isConnected(env) -> body.append(
                 """<div class="card row"><div><span class="ok">Connected</span>${p.accountName(env)?.let { " as <b>" + h(it) + "</b>" } ?: ""}</div>""" +

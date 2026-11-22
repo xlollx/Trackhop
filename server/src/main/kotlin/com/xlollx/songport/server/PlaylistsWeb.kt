@@ -83,10 +83,14 @@ internal fun Web.playlists(r: Web.Req, rest: List<String>) {
         body.append("""<form method="post" action="$back" class="card"><input type="hidden" name="action" value="rename"><label>Name</label><input type="text" name="name" value="${h(playlist.name)}"><p><button class="secondary">Rename</button></p></form>""")
     }
     val removable = playlist.ownedByMe && service.canWrite && service.canRemoveTracks
-    body.append("""<form method="post" action="$back" class="card"><input type="hidden" name="action" value="remove"><ol>""")
+    body.append("""<form method="post" action="$back" class="card"><input type="hidden" name="action" value="remove">""")
+    // Select all / None: plain links (the page works without JavaScript), the tracks drawn again ticked or not.
+    val all = removable && r.query["all"] == "1"
+    if (removable && tracks.size > 1) body.append("""<p class="muted"><a href="$back?all=1">Select all</a> · <a href="$back">None</a></p>""")
+    body.append("<ol>")
     tracks.take(1000).forEach { t ->
         val key = t.itemId ?: t.id
-        body.append("<li>${if (removable) """<label class="check" style="margin:0;display:inline-flex"><input type="checkbox" name="t_${h(key)}"> """ else ""}${h(t.artistLine)} — <b>${h(t.title)}</b>${if (t.available == false) " <span class=\"badge\">unplayable</span>" else ""}${if (removable) "</label>" else ""}</li>")
+        body.append("<li>${if (removable) """<label class="check" style="margin:0;display:inline-flex"><input type="checkbox" name="t_${h(key)}"${if (all) " checked" else ""}> """ else ""}${h(t.artistLine)} — <b>${h(t.title)}</b>${if (t.available == false) " <span class=\"badge\">unplayable</span>" else ""}${if (removable) "</label>" else ""}</li>")
     }
     if (tracks.size > 1000) body.append("<li class=\"muted\">… ${tracks.size - 1000} more</li>")
     body.append("</ol>")

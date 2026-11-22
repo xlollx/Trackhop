@@ -78,8 +78,8 @@ internal fun Web.wantedPage(r: Web.Req) {
         return send(r.ex, 200, page(title, body.toString()))
     }
     // The choices are links (GET): the filter is part of the address, so a download keeps it.
-    fun link(view: String? = r.query["view"], showAll: Boolean = all, s: String = sync, format: String? = null) =
-        "/tools/wanted?" + listOfNotNull(view?.let { "view=${q(it)}" }, "all=$showAll".takeIf { showAll }, s.takeIf { it.isNotEmpty() }?.let { "sync=${q(it)}" }, format?.let { "format=$it" }).joinToString("&")
+    fun link(view: String? = r.query["view"], showAll: Boolean = all, s: String = sync, format: String? = null, tick: String? = null) =
+        "/tools/wanted?" + listOfNotNull(view?.let { "view=${q(it)}" }, "all=$showAll".takeIf { showAll }, s.takeIf { it.isNotEmpty() }?.let { "sync=${q(it)}" }, format?.let { "format=$it" }, tick?.let { "tick=${q(it)}" }).joinToString("&")
     val opts = """<option value="">All syncs</option>""" + servers.joinToString("") { j -> """<option value="${h(j.id)}"${if (j.id == sync) " selected" else ""}>${h(j.name)}</option>""" }
     body.append("""<form method="get" action="/tools/wanted" class="row"><select name="sync" aria-label="Sync">$opts</select>""")
     if (byAlbum) body.append("""<input type="hidden" name="view" value="albums">""")
@@ -97,6 +97,11 @@ internal fun Web.wantedPage(r: Web.Req) {
         return send(r.ex, 200, page(title, body.toString()))
     }
     val zone = ZoneId.systemDefault()
+    // Select all / None and an album's All: plain links (the page works without JavaScript). "tick" is
+    // "all", or the id of one entry: its album's rows come ticked (an id names one entry, so one album).
+    val tick = r.query["tick"].orEmpty()
+    val tickedAlbum = if (byAlbum && tick.isNotEmpty() && tick != "all") Wanted.albums(list).firstOrNull { a -> a.wants.any { it.id == tick } } else null
+    fun ticked(w: Wanted.Want) = !w.got && (tick == "all" || tickedAlbum?.wants?.contains(w) == true)
     fun row(w: Wanted.Want, withAlbum: Boolean): String {
         val from = w.syncs.joinToString(", ") { h(it.syncName) }
         val services = w.syncs.map { it.source }.distinct().joinToString(", ") { Providers.byId(it)?.label(env) ?: it }
@@ -108,15 +113,18 @@ internal fun Web.wantedPage(r: Web.Req) {
             "from ${h(services)} ($from)",
             "since ${Instant.ofEpochMilli(w.firstSeen).atZone(zone).toLocalDate()}",
         )
-        return """<label class="check"><input type="checkbox" form="wanted" name="id" value="${h(w.id)}"${if (w.got) " disabled" else ""}> <span><b>${h(w.artistLine)}</b> — ${h(w.title)}${if (w.got) " ✓" else ""}<br><span class="muted">${bits.joinToString(" · ")}</span></span></label>"""
+        return """<label class="check"><input type="checkbox" form="wanted" name="id" value="${h(w.id)}"${if (w.got) " disabled" else if (ticked(w)) " checked" else ""}> <span><b>${h(w.artistLine)}</b> — ${h(w.title)}${if (w.got) " ✓" else ""}<br><span class="muted">${bits.joinToString(" · ")}</span></span></label>"""
     }
     body.append("""<form id="wanted" method="post" action="/tools/wanted">""")
     r.query["view"]?.let { body.append("""<input type="hidden" name="view" value="${h(it)}">""") }
     if (all) body.append("""<input type="hidden" name="all" value="true">""")
     if (sync.isNotEmpty()) body.append("""<input type="hidden" name="sync" value="${h(sync)}">""")
     body.append("""<p><b>${list.size}</b> tracks <button name="action" value="tick">Got the ticked ones</button></p></form>""")
-    if (byAlbum) Wanted.albums(list).forEach { a ->
-        body.append("""<div class="card"><h3>${h(a.artist)} — ${if (a.album.isBlank()) "<span class=\"muted\">no album</span>" else h(a.album)} <span class="muted">${a.wants.size}</span></h3>""")
+    if (list.count { !it.got } > 1) body.append("""<p class="muted"><a href="${h(link(tick = "all"))}">Select all</a> · <a href="${h(link())}">None</a></p>""")
+    if (byAlbum) Wanted.albums(list).forEachIndexed { i, a ->
+        val open = a.wants.filter { !it.got }
+        val pick = if (open.size > 1) """ <a href="${h(link(tick = open.first().id))}#album-$i" class="muted">All</a>""" else ""
+        body.append("""<div class="card" id="album-$i"><h3>${h(a.artist)} — ${if (a.album.isBlank()) "<span class=\"muted\">no album</span>" else h(a.album)} <span class="muted">${a.wants.size}</span>$pick</h3>""")
         a.wants.forEach { body.append(row(it, withAlbum = false)) }
         body.append("</div>")
     } else {
