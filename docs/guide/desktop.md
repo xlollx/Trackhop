@@ -75,6 +75,9 @@ on Windows and WebKitGTK on Linux). Add services, create syncs, run them, as in 
 `http://127.0.0.1:8642` in any browser on this computer (*Open in the browser* in the tray's menu).
 Closing the window leaves Trackhop running in the tray, for the scheduled syncs.
 
+[Multi syncs](docker#multi-syncs), one playlist kept on several services (*New sync › Several
+targets*), are here too, as in the app: one card each, run as one on their schedule.
+
 **Settings** (the last tab): a light or dark look, the home page's side column (the last two weeks,
 the numbers, the latest runs; on the left, on the right or hidden), and the notice when a new
 version is out. Installed from a store (Microsoft Store, Flathub, Snap Store, Homebrew, Scoop,

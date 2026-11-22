@@ -60,6 +60,11 @@ Without it, the admin's.
 | `trackhop stop <sync>`, `pause`, `resume` | Stops, pauses or resumes a sync that is running. |
 | `trackhop crowded` | Whether many syncs reach one service at about the same time (the service can turn some of them away). |
 | `trackhop spread` | New times for those syncs, each a little after the one before; shown only, saved with `--apply`. |
+| `trackhop multi` | The multi syncs (one source playlist kept on several targets): route, timing, last run. `trackhop multi show <multi>` adds each target's way, songs and id. |
+| `trackhop multi run <multi>` | Runs a multi sync: its syncs one after the other, as one run (`--wait` until it ends). |
+| `trackhop multi add-target <multi> <service> [<playlist>]` | Adds a target: a playlist of yours, or a new one named after the multi sync; `--way exact`, `keep` (the default) or `two_way`. |
+| `trackhop multi remove-target <multi> <target>` | Removes a target (its service, or its id from `show`); its playlist stays as it is. |
+| `trackhop multi way <multi> <target> exact\|keep\|two_way` | Changes how a target follows. |
 | `trackhop preview <sync>` | What a run would add, remove, not find and want checked now, changing nothing. |
 
 The options of `new` and `edit`: `--name NAME`; `--schedule manual|hourly|every_6h|daily|weekly` or

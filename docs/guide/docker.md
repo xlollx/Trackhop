@@ -305,6 +305,37 @@ browser, and it is as good as your password, so keep it to yourself.
 What works: your playlists and your favourite songs, as a source and as a target (add, remove,
 create, rename, delete); search, where a song with the same ISRC is the match. [More](gaana)
 
+## Multi syncs
+
+One playlist kept on several services at once: a **multi sync** has one source and several targets,
+as the app's *Several targets*: Desktop and Docker have them too. On the
+home page, **New sync › Several targets**: pick the source's service and playlist, then tick the
+services to keep it on, each with its playlist (one of yours, or *New playlist of the same name*,
+made when you create it) and its way:
+
+- **Exact copy**: always the same as the source; extra songs there are removed.
+- **Keep my additions** (the default): songs you add there stay there, and go nowhere else.
+- **Two-way**: what you add or remove there reaches the source and all the other targets.
+
+**Create and sync** makes it and runs it a first time. A multi sync is one card on the home page,
+with its services' logos, *Source → targets*, what its last run added and removed on the targets
+(each opens the list, one row per song: *removed from 2: Deezer, TIDAL* or *removed from all 3*,
+and the name each service used), the songs not found and the source's size, its schedule, last run
+and state, **Sync now** and **Open**.
+
+Its page (**Open**) lists the source and each target with its way and its songs after the last run:
+change a target's way, **Remove target** (its playlist stays as it is), **Make it the source**,
+**+ Add a target**, the schedule, the name, *Pause*, and **Delete multi sync**. While it runs, each
+target says *Waiting*, *Syncing*, *Done +2 −1* or *Failed*. A run takes its syncs one after the
+other, in one go: every two-way playlist's changes into the multi sync's own list first, then that
+list into every target, so one run carries a change everywhere. Its schedule runs it the same way,
+as one run, never its services each at its own time. A target's songs not found are in its review,
+as for any sync.
+
+These are the app's multi syncs, made and run by the same engine: one handed over from the phone
+([how](#hand-a-sync-over-to-the-server)), or brought with a configuration file, works the same here.
+On a server with [several people](#several-people-on-one-server), each person's multi syncs are their own.
+
 ## Radio syncs
 
 A radio sync listens to an internet radio in the hours you choose and saves the songs it plays to a
@@ -702,6 +733,22 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `GET /api/v1/syncs/crowded` | Whether many syncs reach one service at about the same time: the service, the time, the syncs, `dismissed` (the page's *Got it*) and `canSpread`. |
 | `POST /api/v1/syncs/spread` | New times for those syncs (`changes`: `from`, `to`): only shown, saved with `?apply=true` (or `{"apply": true}`). |
 
+**Multi syncs**
+
+| Call | What it does |
+|---|---|
+| `GET /api/v1/multi` | The multi syncs: each with its `source`, its `targets` (`syncId`, `service`, `playlist`, `way`: `exact`, `keep` or `two_way`, `count` after the last run; while it runs, `phase`: `waiting`, `now`, `done`, `failed`), its timing, `running`, and `lastResult` added up (the targets' playlists only). |
+| `POST /api/v1/multi` | Make a multi sync: `{"source": {"service", "playlist"}, "targets": [{"service", "playlist"?, "way"?}], "name"?, "every"?, "at"?, "days"?, "enabled"?, "run"?}`. A target without `playlist` gets a new one named after the multi sync; `way` is `keep` unless said. An `id` of your own (16 characters, `0-9a-f`) makes it safe to repeat: the app's hand-over sends its own. |
+| `GET /api/v1/multi/{multi}` | One multi sync, as in the list. |
+| `DELETE /api/v1/multi/{multi}` | Delete a multi sync and its syncs; every playlist stays as it is. |
+| `POST /api/v1/multi/{multi}/run` | Sync now: its syncs one after the other, as one run. |
+| `POST /api/v1/multi/{multi}/targets` | Add a target: `{"service", "playlist"?, "way"?}`. |
+| `PATCH /api/v1/multi/{multi}/targets/{target}` | Change how a target follows, `{"way": "exact"}`, or make it the source, `{"source": true}` (the old source stays as a two-way target). `{target}` is its `syncId`. |
+| `DELETE /api/v1/multi/{multi}/targets/{target}` | Remove a target; its playlist stays as it is. |
+
+A multi sync's syncs are in `GET /api/v1/syncs` too; change them with these calls, which keep the
+multi sync whole.
+
 **Runs**
 
 | Call | What it does |
@@ -990,8 +1037,13 @@ to review what it left. **Bring back to this phone** in the same menu deletes th
 playlists stay as they are) and turns it on again on the phone.
 
 A two-way pair goes as one request (`POST /api/v1/syncs` with `twoWay`, and `twoWayRemovals` when the
-pair follows removals): the server makes both halves, and both of the phone's cards are marked. Radio
-syncs, Shazam syncs and syncs of File playlists stay on the phone. Deleting a handed-over card on the phone leaves the sync here: delete it on this page.
+pair follows removals): the server makes both halves, and both of the phone's cards are marked. A
+[multi sync](#multi-syncs) goes whole, as one request (`POST /api/v1/multi`): the same source, targets
+and ways, with this server's accounts for each of its services; every sync of it on the phone is
+marked and no longer runs there. Its own list of songs does not travel: this server fills its own
+from the source and the two-way targets at the first run, as after a configuration file. **Bring back
+to this phone** deletes it here (`DELETE /api/v1/multi/{multi}`; the playlists stay as they are) and
+turns it on again on the phone. Radio syncs, Shazam syncs and syncs of File playlists stay on the phone. Deleting a handed-over card on the phone leaves the sync here: delete it on this page.
 
 ### Review choices on both sides
 
