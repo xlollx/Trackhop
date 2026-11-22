@@ -617,6 +617,13 @@
     <string name="route_note_server">あなた自身のサーバー：アドレス、ユーザー名、パスワード。</string>
     <string name="connector_name_label">コネクタ名</string>
     <string name="connector_rename">名前を変更</string>
+    <string name="accounts_search">アカウントを検索</string>
+    <string name="accounts_filter_all">すべて</string>
+    <string name="accounts_filter_official">公式</string>
+    <string name="accounts_filter_web">ウェブ</string>
+    <string name="accounts_filter_connected">接続済み</string>
+    <string name="account_color_none">なし</string>
+    <string name="accounts_no_match">一致するアカウントはありません</string>
     <string name="connect_switch_account">ブラウザがすでに別の %1$s アカウントでログインしている可能性があります。ログインページで「別のアカウント」を選ぶかアカウントを切り替えてから、このコネクタ用のアカウントで続行してください。</string>
     <string name="provider_note_amazon">Amazon にはオープンな API がありません。Trackhop はウェブプレーヤーのインターフェースを利用しているため、Amazon がそれを変更すると動作しなくなる可能性があります。プレイリスト、検索、作成、追加、削除に対応しています。</string>
     <string name="amazon_not_installed_hint">GitHub からコンパニオンアプリ「Trackhop Bridge」（1.3.1 以降）をインストールまたは更新し、ここに戻って「接続」をタップしてください。</string>
@@ -976,6 +983,7 @@
     <string name="job_color_preview">カードの見た目</string>
     <string name="color_red">赤</string>
     <string name="color_orange">オレンジ</string>
+    <string name="color_amber">アンバー</string>
     <string name="color_yellow">黄</string>
     <string name="color_green">緑</string>
     <string name="color_teal">ティール</string>

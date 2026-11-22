@@ -617,6 +617,13 @@
     <string name="route_note_server">你自己的服务器：地址、用户名和密码。</string>
     <string name="connector_name_label">连接器名称</string>
     <string name="connector_rename">重命名</string>
+    <string name="accounts_search">搜索账号</string>
+    <string name="accounts_filter_all">全部</string>
+    <string name="accounts_filter_official">官方</string>
+    <string name="accounts_filter_web">网页</string>
+    <string name="accounts_filter_connected">已连接</string>
+    <string name="account_color_none">无</string>
+    <string name="accounts_no_match">没有匹配的账号</string>
     <string name="connect_switch_account">浏览器可能已登录另一个 %1$s 账号。请在登录页面选择“不是你？”或切换账号，然后使用此连接器对应的账号继续。</string>
     <string name="provider_note_amazon">Amazon 没有开放 API：Trackhop 使用网页播放器的接口，因此当 Amazon 修改接口时可能会失效。支持歌单、搜索、创建、添加和移除。</string>
     <string name="amazon_not_installed_hint">请从 GitHub 安装或更新配套应用“Trackhop Bridge”（1.3.1 或更高版本），然后回到这里点按“连接”。</string>
@@ -976,6 +983,7 @@
     <string name="job_color_preview">卡片预览</string>
     <string name="color_red">红色</string>
     <string name="color_orange">橙色</string>
+    <string name="color_amber">琥珀色</string>
     <string name="color_yellow">黄色</string>
     <string name="color_green">绿色</string>
     <string name="color_teal">青色</string>

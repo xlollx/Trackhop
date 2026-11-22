@@ -204,7 +204,7 @@ class MainActivity : ComponentActivity() {
                 // The window's shape (phone, phone on its side, tablet), worked out here once for every screen.
                 val config = androidx.compose.ui.platform.LocalConfiguration.current
                 val layout = remember(config.screenWidthDp, config.screenHeightDp) { WindowLayout.of(config.screenWidthDp, config.screenHeightDp) }
-                if (isLocked) LockScreen { requestUnlock() } else CompositionLocalProvider(LocalWindowLayout provides layout, com.xlollx.songport.ui.LocalHelpButtons provides settings.settings.helpButtons) {
+                if (isLocked) LockScreen { requestUnlock() } else CompositionLocalProvider(LocalWindowLayout provides layout, com.xlollx.songport.ui.LocalHelpButtons provides settings.settings.helpButtons, com.xlollx.songport.ui.LocalAccountColors provides settings.settings.connectorColors) {
                     // On its side the camera cutout and the three-button bar are at the left and right: the
                     // app stays between them, on its own background (nothing to keep clear of when upright).
                     Box(

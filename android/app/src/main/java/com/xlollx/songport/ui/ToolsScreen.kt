@@ -340,7 +340,7 @@ private fun ToolRow(tool: Tool, provider: MusicProvider?, beta: Boolean = false,
         badge = if (beta) { { StatusPill(stringResource(R.string.beta), Tone.Neutral) } } else null,
         trailing = if (showService) { {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                ProviderBadge(provider, 24.dp)
+                ProviderBadge(provider, 24.dp, accountRing(provider?.id))
                 Spacer(Modifier.width(4.dp))
                 Icon(Icons.Filled.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }

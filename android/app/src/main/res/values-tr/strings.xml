@@ -625,6 +625,13 @@
     <string name="route_note_server">Kendi sunucunuz: adres, kullanıcı adı ve şifre.</string>
     <string name="connector_name_label">Bağlayıcı adı</string>
     <string name="connector_rename">Yeniden adlandır</string>
+    <string name="accounts_search">Hesaplarda ara</string>
+    <string name="accounts_filter_all">Tümü</string>
+    <string name="accounts_filter_official">Resmi</string>
+    <string name="accounts_filter_web">Web</string>
+    <string name="accounts_filter_connected">Bağlı</string>
+    <string name="account_color_none">Yok</string>
+    <string name="accounts_no_match">Eşleşen hesap yok</string>
     <string name="connect_switch_account">Tarayıcı başka bir %1$s hesabında zaten oturum açmış olabilir. Oturum açma sayfasında “Siz değil misiniz?” seçeneğini seçin veya hesap değiştirin, sonra bu bağlayıcının hesabıyla devam edin.</string>
     <string name="provider_note_amazon">Amazon\'un açık API\'si yok: Trackhop web oynatıcının arayüzünü kullanır, bu yüzden Amazon arayüzü değiştirdiğinde çalışmayı bırakabilir. Çalma listeleri, arama, oluşturma, ekleme ve kaldırma desteklenir.</string>
     <string name="amazon_not_installed_hint">GitHub\'dan \"Trackhop Bridge\" yardımcı uygulamasını (1.3.1 veya üzeri) yükleyin ya da güncelleyin, sonra buraya dönüp Bağlan\'a dokunun.</string>
@@ -990,6 +997,7 @@
     <string name="job_color_preview">Kartın görünümü</string>
     <string name="color_red">Kırmızı</string>
     <string name="color_orange">Turuncu</string>
+    <string name="color_amber">Kehribar</string>
     <string name="color_yellow">Sarı</string>
     <string name="color_green">Yeşil</string>
     <string name="color_teal">Turkuaz</string>

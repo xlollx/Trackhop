@@ -214,7 +214,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        ProviderBadge(provider, 28.dp)
+                        ProviderBadge(provider, 28.dp, accountRing(provider.id))
                         Spacer(Modifier.width(10.dp))
                         Text(stringResource(R.string.manage_title, provider.label(ctx)), maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }

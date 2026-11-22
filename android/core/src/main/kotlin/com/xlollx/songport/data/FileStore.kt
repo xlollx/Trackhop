@@ -44,6 +44,8 @@ data class Settings(
     val connectors: List<String> = emptyList(),
     /** User-given connector names, by provider id. */
     val connectorNames: Map<String, String> = emptyMap(),
+    /** The colour each connector wears as a ring round its logo, by provider id: an [AccountColors] key; absent = none. */
+    val connectorColors: Map<String, String> = emptyMap(),
     /** True once existing connections have been turned into connectors (one-time migration). */
     val connectorsInit: Boolean = false,
     /** Richiedi impronta/PIN all'apertura dell'app. */

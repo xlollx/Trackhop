@@ -48,6 +48,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.FilterChip
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Card
@@ -149,6 +154,14 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
             store.updateSettings { s -> s.copy(connectorNames = s.connectorNames + (p.id to name)) }
         }
     }
+    // ⋮ › Colour: a ring round the account's logo, wherever the account shows.
+    var colouring by rememberSaveable(stateSaver = ProviderSaver) { mutableStateOf<MusicProvider?>(null) }
+    colouring?.let { p ->
+        AccountColorDialog(data.settings.connectorColors[p.id], onDismiss = { colouring = null }) { key ->
+            colouring = null
+            store.updateSettings { s -> com.xlollx.songport.data.AccountColors.set(s, p.id, key) }
+        }
+    }
 
     fun remove(p: MusicProvider) {
         val inUse = data.syncs.any { it.source.provider == p.id || it.target.provider == p.id }
@@ -161,6 +174,7 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
             s.copy(
                 connectors = s.connectors.filter { it != p.id },
                 connectorNames = s.connectorNames - p.id,
+                connectorColors = s.connectorColors - p.id,
                 extraAccounts = if (p.slot.isEmpty()) s.extraAccounts
                 else s.extraAccounts + (p.serviceId to s.extraAccounts[p.serviceId].orEmpty().filter { it != p.slot }),
             )
@@ -176,21 +190,61 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
         EmptyState(Icons.Filled.AccountCircle, stringResource(R.string.connectors_empty_title), stringResource(R.string.connectors_empty_body))
         return
     }
-    // A connector asked by a notification (ConnectorFocus): scrolled to; the intro is the first item.
+    // The search and the chips over the list. Official and Web are told apart on a store build only
+    // where Trackhop Bridge is installed (AccountsFilter.chips).
+    var query by rememberSaveable { mutableStateOf("") }
+    var chipName by rememberSaveable { mutableStateOf(AccountChip.ALL.name) }
+    val storeBuild = BuildConfig.STORE_BUILD
+    val bridgeInstalled = remember(refresh) { BridgePlugin.installed(ctx) }
+    val chip = AccountsFilter.effective(AccountChip.valueOf(chipName), storeBuild, bridgeInstalled)
+    val filtering = query.isNotBlank() || chip != AccountChip.ALL
+    // Read from the sign-ins only while a filter is on: the cards read them for themselves otherwise.
+    val entries = if (!filtering) null else remember(providers, refresh) {
+        providers.map { p ->
+            val connected = p.requiresAuth && runCatching { p.isConnected(ctx) }.getOrDefault(false)
+            AccountEntry(
+                p.id, p.displayName, com.xlollx.songport.providers.Providers.customName(p.id),
+                if (connected) runCatching { p.accountName(ctx) }.getOrNull() else null, p.pluginBased, connected,
+            )
+        }
+    }
+    val shown = if (entries == null) providers else {
+        val ids = AccountsFilter.shown(entries, query, chip, storeBuild, bridgeInstalled).mapTo(HashSet()) { it.id }
+        providers.filter { it.id in ids }
+    }
+    // Discogs' token (1.18) is an official API's: shown with All and Official, and found by its name.
+    val discogs = com.xlollx.songport.Features.v2(data.settings) && (chip == AccountChip.ALL || chip == AccountChip.OFFICIAL) &&
+        (query.isBlank() || "Discogs".contains(query.trim(), ignoreCase = true))
+
+    // A connector asked by a notification (ConnectorFocus): scrolled to (the filter let go if it hides it).
     val listState = androidx.compose.foundation.lazy.rememberLazyListState()
     val focusAsked by ConnectorFocus.request.collectAsState()
+    val keystoreTrouble = remember { com.xlollx.songport.data.TokenStore.unavailable(ctx) != null }
     LaunchedEffect(focusAsked, providers) {
         val id = focusAsked ?: return@LaunchedEffect
+        if (shown.none { it.id == id }) { query = ""; chipName = AccountChip.ALL.name }
         val index = providers.indexOfFirst { it.id == id }
-        if (index >= 0) runCatching { listState.animateScrollToItem(index + 1) }
+        // Before the cards: the intro, the keystore's banner when shown, the search.
+        if (index >= 0) runCatching { listState.animateScrollToItem(index + 2 + if (keystoreTrouble) 1 else 0) }
         ConnectorFocus.request.value = null
     }
-    val keystoreTrouble = remember { com.xlollx.songport.data.TokenStore.unavailable(ctx) != null }
     LazyColumn(Modifier.fillMaxSize(), state = listState, contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp + LocalBottomBarInset.current), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item(key = "intro") { TrustBanner() }
         // The saved sign-ins could not be opened: said here, where every service would just look disconnected.
         if (keystoreTrouble) item(key = "keystore") { KeystoreBanner() }
-        items(providers, key = { it.id }) { p ->
+        item(key = "search") {
+            AccountsSearch(
+                query = query, onQuery = { query = it },
+                chips = AccountsFilter.chips(storeBuild, bridgeInstalled), chip = chip, onChip = { chipName = it.name },
+            )
+        }
+        if (shown.isEmpty() && !discogs) item(key = "no-match") {
+            Text(
+                stringResource(R.string.accounts_no_match), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+            )
+        }
+        items(shown, key = { it.id }) { p ->
             key(refresh) {
                 if (p.serviceId == LocalFilesProvider.serviceId) FilesCard(snackbar, onRemove = { remove(p) }, onManage = onManageFiles, onSendTo = onSendTo)
                 // A source with nothing to sign in to (the charts): its name, what it is, remove.
@@ -206,6 +260,7 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
                     onSetup = onSetup,
                     onConnect = { connectFor = p },
                     onRename = { renaming = p },
+                    onColor = { colouring = p },
                     onRemove = { remove(p) },
                     onChanged = { refresh++ },
                     onMessage = { m -> scope.launch { snackbar.showSnackbar(m) } },
@@ -213,8 +268,69 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
             }
         }
         // 1.18: Discogs is not a place playlists go to, but its token is an account: set here too.
-        if (com.xlollx.songport.Features.v2(data.settings)) item(key = "discogs-account") { DiscogsAccountCard() }
+        if (discogs) item(key = "discogs-account") { DiscogsAccountCard() }
     }
+}
+
+/** The search over the accounts and the chips under it (All, Official, Web, Connected: those [chips] offers), one chosen. */
+@Composable
+private fun AccountsSearch(query: String, onQuery: (String) -> Unit, chips: List<AccountChip>, chip: AccountChip, onChip: (AccountChip) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedTextField(
+            value = query, onValueChange = onQuery, singleLine = true,
+            leadingIcon = { Icon(Icons.Filled.Search, null) },
+            trailingIcon = if (query.isEmpty()) null else { { IconButton(onClick = { onQuery("") }) { Icon(Icons.Filled.Close, stringResource(R.string.syncs_find_clear)) } } },
+            label = { Text(stringResource(R.string.accounts_search)) },
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            chips.forEach { c ->
+                FilterChip(
+                    selected = c == chip, onClick = { onChip(c) },
+                    label = {
+                        Text(stringResource(when (c) {
+                            AccountChip.ALL -> R.string.accounts_filter_all
+                            AccountChip.OFFICIAL -> R.string.accounts_filter_official
+                            AccountChip.WEB -> R.string.accounts_filter_web
+                            AccountChip.CONNECTED -> R.string.accounts_filter_connected
+                        }))
+                    },
+                )
+            }
+        }
+    }
+}
+
+/** Accounts › ⋮ › Colour: the seven colours an account can wear round its logo, and None (the default). */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+private fun AccountColorDialog(selected: String?, onDismiss: () -> Unit, onSelect: (String?) -> Unit) {
+    val current = selected?.takeIf { com.xlollx.songport.data.AccountColors.hex(it) != null }
+    FitDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.job_color)) },
+        text = {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Swatch(MaterialTheme.colorScheme.surfaceContainerHighest, stringResource(R.string.account_color_none), current == null) { onSelect(null) }
+                com.xlollx.songport.data.AccountColors.ALL.forEach { (key, _) ->
+                    val argb = com.xlollx.songport.data.AccountColors.argb(key) ?: return@forEach
+                    Swatch(androidx.compose.ui.graphics.Color(argb), stringResource(accountColorName(key)), current == key) { onSelect(key) }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+    )
+}
+
+/** An account colour's name, for TalkBack. */
+private fun accountColorName(key: String): Int = when (key) {
+    "red" -> R.string.color_red
+    "amber" -> R.string.color_amber
+    "green" -> R.string.color_green
+    "blue" -> R.string.color_blue
+    "purple" -> R.string.color_purple
+    "pink" -> R.string.color_pink
+    else -> R.string.color_teal
 }
 
 /** Accounts › Discogs: the personal token that reads the collection, the wantlist and the prices (Discover › My records). */
@@ -413,6 +529,7 @@ private fun ProviderCard(
     onRename: () -> Unit,
     onRemove: () -> Unit,
     onChanged: () -> Unit,
+    onColor: () -> Unit = {},
     onMessage: (String) -> Unit = {},
     /** The newest run through this connector failed because of it (its name in the error), lately. */
     trouble: Boolean = false,
@@ -453,7 +570,7 @@ private fun ProviderCard(
         }
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                ServiceLogo(p, 48.dp)
+                ServiceLogo(p, 48.dp, ring = accountRing(p.id))
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
@@ -527,6 +644,7 @@ private fun ProviderCard(
                     // a site can remember a sign-in the connector never got, #53).
                     if (p is com.xlollx.songport.providers.StartsOver) MenuAction(stringResource(R.string.start_over), { startingOver = true }) else null,
                     MenuAction(stringResource(R.string.connector_rename), onRename),
+                    MenuAction(stringResource(R.string.job_color), onColor),
                     MenuAction(stringResource(R.string.account_remove), onRemove, destructive = true),
                 ).let { base ->
                     // Built-in web connectors: Google's block page, the Amazon traffic capture.

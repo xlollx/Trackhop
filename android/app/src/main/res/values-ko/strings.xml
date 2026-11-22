@@ -616,6 +616,13 @@
     <string name="route_note_server">내 서버: 주소, 사용자 이름, 비밀번호.</string>
     <string name="connector_name_label">커넥터 이름</string>
     <string name="connector_rename">이름 바꾸기</string>
+    <string name="accounts_search">계정 검색</string>
+    <string name="accounts_filter_all">전체</string>
+    <string name="accounts_filter_official">공식</string>
+    <string name="accounts_filter_web">웹</string>
+    <string name="accounts_filter_connected">연결됨</string>
+    <string name="account_color_none">없음</string>
+    <string name="accounts_no_match">일치하는 계정이 없습니다</string>
     <string name="connect_switch_account">브라우저가 이미 다른 %1$s 계정에 로그인되어 있을 수 있어요. 로그인 페이지에서 “본인이 아닌가요?” 또는 계정 전환을 선택한 뒤, 이 커넥터에 쓸 계정으로 계속하세요.</string>
     <string name="provider_note_amazon">Amazon에는 공개 API가 없어요. Trackhop은 웹 플레이어의 인터페이스를 쓰므로 Amazon이 이를 바꾸면 작동을 멈출 수 있어요. 플레이리스트, 검색, 만들기, 추가, 삭제를 지원해요.</string>
     <string name="amazon_not_installed_hint">GitHub에서 보조 앱 “Trackhop Bridge”(1.3.1 이상)를 설치하거나 업데이트한 다음, 여기로 돌아와 연결을 누르세요.</string>
@@ -975,6 +982,7 @@
     <string name="job_color_preview">카드 미리보기</string>
     <string name="color_red">빨강</string>
     <string name="color_orange">주황</string>
+    <string name="color_amber">호박색</string>
     <string name="color_yellow">노랑</string>
     <string name="color_green">초록</string>
     <string name="color_teal">청록</string>

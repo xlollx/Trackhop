@@ -38,9 +38,11 @@ object Html {
 
     /**
      * A service's mark as the app draws it: its glyph (ServiceMarks) white on a circle in its brand
-     * colour; a folder or a server icon for File and Subsonic; the initial otherwise.
+     * colour; a folder or a server icon for File and Subsonic; the initial otherwise. With [ring]
+     * ("#RRGGBB", an account's colour, AccountColors) a ring a gap away round it, as the app draws
+     * it: the mark itself keeps the brand's colours, and the layout does not move.
      */
-    fun logo(serviceId: String?, brandColor: Long?, name: String, size: Int = 32): String {
+    fun logo(serviceId: String?, brandColor: Long?, name: String, size: Int = 32, ring: String? = null): String {
         val color = brandColor?.let { "#%06X".format(it and 0xFFFFFF) } ?: "#6E6878"
         val glyph = com.xlollx.songport.providers.ServiceMarks.pathData(serviceId)?.let { """<svg viewBox="0 0 24 24"><path fill="#fff" d="$it"/></svg>""" }
             ?: when (serviceId) {
@@ -48,7 +50,11 @@ object Html {
                 "subsonic", "koel" -> """<svg viewBox="0 0 24 24"><path fill="#fff" d="M20 13H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zM7 19c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM20 3H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1zM7 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>"""
                 else -> """<b>${h(name.take(1).uppercase())}</b>"""
             }
-        return """<span class="logo" style="--s:${size}px;background:$color" role="img" aria-label="${h(name)}">$glyph</span>"""
+        val ringStyle = ring?.takeIf { Regex("#[0-9A-Fa-f]{6}").matches(it) }?.let {
+            val w = (size * 0.0625).coerceIn(1.5, 3.0)
+            ";box-shadow:0 0 0 ${w}px var(--surface),0 0 0 ${w * 2}px $it"
+        }.orEmpty()
+        return """<span class="logo${if (ringStyle.isEmpty()) "" else " ringed"}" style="--s:${size}px;background:$color$ringStyle" role="img" aria-label="${h(name)}">$glyph</span>"""
     }
 
     /** The colours a sync can wear, as the app's JobColor: key to light and dark shade. */

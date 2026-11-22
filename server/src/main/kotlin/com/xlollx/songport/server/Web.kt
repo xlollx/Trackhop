@@ -282,7 +282,8 @@ class Web(
     /** A service's mark, as the app shows it. */
     internal fun logo(id: String, size: Int = 32): String {
         val p = Providers.byId(id)
-        return Html.logo(p?.serviceId ?: id, p?.brandColor, p?.label(env) ?: id, size)
+        val ring = com.xlollx.songport.data.AccountColors.hex(env.store.data.settings.connectorColors[p?.id ?: id])
+        return Html.logo(p?.serviceId ?: id, p?.brandColor, p?.label(env) ?: id, size, ring)
     }
 
     private fun quit(r: Req, stop: () -> Unit) {
@@ -607,6 +608,11 @@ $removals"""
             "quickconnect" -> quickConnectStart(r, provider)
             "rename" -> {
                 Accounts.rename(store, provider, r.form["name"].orEmpty())
+                redirect(r.ex, "$back?ok=${q("Saved.")}")
+            }
+            // The ring round the account's logo (AccountsWeb.accountCard): one of the seven colours, or none.
+            "color" -> {
+                if (!Accounts.setColor(store, provider, r.form["color"])) return redirect(r.ex, "$back?err=${q("Unknown colour.")}")
                 redirect(r.ex, "$back?ok=${q("Saved.")}")
             }
             "remove" -> {

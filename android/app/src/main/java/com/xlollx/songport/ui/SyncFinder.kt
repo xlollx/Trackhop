@@ -206,7 +206,7 @@ fun SyncFinderChips(
                 onClick = { onChange(filter.toggleService(id)) },
                 label = { Text(p?.label(ctx) ?: id, maxLines = 1) },
                 // The mark says which service, the label says it in words: the mark itself stays silent.
-                leadingIcon = { Box(Modifier.clearAndSetSemantics {}) { ServiceLogo(p, FilterChipDefaults.IconSize) } },
+                leadingIcon = { Box(Modifier.clearAndSetSemantics {}) { ServiceLogo(p, FilterChipDefaults.IconSize, ring = accountRing(p?.id)) } },
             )
         }
     }

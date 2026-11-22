@@ -174,6 +174,7 @@ object ConfigBackup {
         backupSchedule = current.backupSchedule,
         connectors = (current.connectors + incoming.connectors).distinct(),
         connectorNames = current.connectorNames + incoming.connectorNames,
+        connectorColors = current.connectorColors + incoming.connectorColors,
         extraAccounts = (current.extraAccounts.keys + incoming.extraAccounts.keys).associateWith { k ->
             ((current.extraAccounts[k] ?: emptyList()) + (incoming.extraAccounts[k] ?: emptyList())).distinct()
         },

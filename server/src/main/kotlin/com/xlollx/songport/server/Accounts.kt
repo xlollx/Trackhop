@@ -83,10 +83,22 @@ internal object Accounts {
             s.copy(
                 connectors = s.connectors.filter { it != p.id },
                 connectorNames = s.connectorNames - p.id,
+                connectorColors = s.connectorColors - p.id,
                 extraAccounts = (s.extraAccounts + (p.serviceId to s.extraAccounts[p.serviceId].orEmpty().filter { it != p.slot }))
                     .filterValues { it.isNotEmpty() },
             )
         }
+        return true
+    }
+
+    /**
+     * The colour [p] wears round its logo ([com.xlollx.songport.data.AccountColors]): a colour's key,
+     * or blank or "none" for none. False, and nothing changed, for a key that is no colour.
+     */
+    fun setColor(store: FileStore, p: MusicProvider, key: String?): Boolean {
+        val k = key?.trim()?.lowercase().orEmpty().takeUnless { it.isEmpty() || it == "none" }
+        if (k != null && com.xlollx.songport.data.AccountColors.hex(k) == null) return false
+        store.updateSettings { com.xlollx.songport.data.AccountColors.set(it, p.id, k) }
         return true
     }
 

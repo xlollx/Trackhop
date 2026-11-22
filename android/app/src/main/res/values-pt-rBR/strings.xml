@@ -625,6 +625,13 @@
     <string name="route_note_server">Seu próprio servidor: endereço, usuário e senha.</string>
     <string name="connector_name_label">Nome do conector</string>
     <string name="connector_rename">Renomear</string>
+    <string name="accounts_search">Pesquisar contas</string>
+    <string name="accounts_filter_all">Todas</string>
+    <string name="accounts_filter_official">Oficiais</string>
+    <string name="accounts_filter_web">Web</string>
+    <string name="accounts_filter_connected">Conectadas</string>
+    <string name="account_color_none">Nenhuma</string>
+    <string name="accounts_no_match">Nenhuma conta corresponde</string>
     <string name="connect_switch_account">O navegador pode já estar conectado a outra conta %1$s. Na página de login escolha “Não é você?” ou troque de conta, depois continue com a conta deste conector.</string>
     <string name="provider_note_amazon">A Amazon não tem API aberta: o Trackhop usa a interface do player web, então pode parar de funcionar quando a Amazon a mudar. Playlists, pesquisa, criar, adicionar e remover são suportados.</string>
     <string name="amazon_not_installed_hint">Instale ou atualize o app complementar \"Trackhop Bridge\" (1.3.1 ou mais recente) pelo GitHub, depois volte aqui e toque em Conectar.</string>
@@ -992,6 +999,7 @@
     <string name="job_color_preview">Como o cartão fica</string>
     <string name="color_red">Vermelho</string>
     <string name="color_orange">Laranja</string>
+    <string name="color_amber">Âmbar</string>
     <string name="color_yellow">Amarelo</string>
     <string name="color_green">Verde</string>
     <string name="color_teal">Turquesa</string>

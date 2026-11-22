@@ -94,7 +94,7 @@ fun ProviderLabel(providerId: String, detail: String? = null, modifier: Modifier
     val p = Providers.byId(providerId)
     val ctx = LocalContext.current
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-        ProviderBadge(p, 20.dp)
+        ProviderBadge(p, 20.dp, accountRing(p?.id))
         Spacer(Modifier.width(8.dp))
         Text(
             text = buildString {
@@ -115,9 +115,9 @@ fun ProviderLabel(providerId: String, detail: String? = null, modifier: Modifier
 @Composable
 fun ProviderDot(p: MusicProvider?, sizeDp: Int = 18) = ProviderBadge(p, sizeDp.dp)
 
-/** The service's mark ([ServiceLogo]): its glyph on its colour, read by TalkBack as its name. */
+/** The service's mark ([ServiceLogo]): its glyph on its colour, read by TalkBack as its name; [ring]: the account's colour round it. */
 @Composable
-fun ProviderBadge(p: MusicProvider?, size: Dp = 36.dp) = ServiceLogo(p, size)
+fun ProviderBadge(p: MusicProvider?, size: Dp = 36.dp, ring: androidx.compose.ui.graphics.Color? = null) = ServiceLogo(p, size, ring = ring)
 
 // ---------------------------------------------------------------------------------------------
 // Blocchi di interfaccia condivisi

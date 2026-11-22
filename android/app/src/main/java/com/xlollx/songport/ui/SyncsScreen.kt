@@ -1375,8 +1375,8 @@ private fun JobCard(
                     // A multi sync: all its services (the source first), as many as the card's size has room for.
                     if (group != null) GroupLogos(group.members, group.run, logo, max = if (large) 5 else GROUP_LOGOS_MAX, modifier = Modifier.padding(end = overhang, bottom = overhang))
                     else Box(Modifier.padding(end = overhang, bottom = overhang).width(logo + 22.dp).height(logo + 2.dp)) {
-                        ProviderBadge(src, logo)
-                        Box(Modifier.align(Alignment.CenterEnd)) { ProviderBadge(dst, logo) }
+                        ProviderBadge(src, logo, accountRing(src?.id))
+                        Box(Modifier.align(Alignment.CenterEnd)) { ProviderBadge(dst, logo, accountRing(dst?.id)) }
                     }
                     if (statusOnLogos) StatusBadge(status, Modifier.align(Alignment.BottomEnd))
                 }
@@ -1684,8 +1684,8 @@ private fun JobTile(
                     // smaller past two so that they fit beside the button; the one being synced wears a ring.
                     if (group != null) GroupLogos(group.members, group.run, if (group.members.size > 2) 24.dp else 28.dp, modifier = Modifier.height(30.dp))
                     else Box(Modifier.width(46.dp).height(30.dp)) {
-                        ProviderBadge(src, 28.dp)
-                        Box(Modifier.align(Alignment.CenterEnd)) { ProviderBadge(dst, 28.dp) }
+                        ProviderBadge(src, 28.dp, accountRing(src?.id))
+                        Box(Modifier.align(Alignment.CenterEnd)) { ProviderBadge(dst, 28.dp, accountRing(dst?.id)) }
                     }
                     // The sync's marks (a shared playlist, a radio…) beside its services, so the name,
                     // the status and the next run all start on the same edge.
@@ -1911,9 +1911,9 @@ private fun LiveSheet2(job: SyncJob, onReview: (String) -> Unit, onRun: (SyncJob
                 Column(Modifier.weight(1f)) {
                     Text(job.name, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        ServiceLogo(src, 18.dp)
+                        ServiceLogo(src, 18.dp, ring = accountRing(src?.id))
                         Text("→", color = muted, style = MaterialTheme.typography.bodySmall)
-                        ServiceLogo(dst, 18.dp)
+                        ServiceLogo(dst, 18.dp, ring = accountRing(dst?.id))
                         Text(
                             listOf(src?.displayName ?: job.source.provider, dst?.displayName ?: job.target.provider).joinToString(" → ") { com.xlollx.songport.sync.Wrapped.brandName(it) },
                             style = MaterialTheme.typography.bodySmall, color = muted, maxLines = 1, overflow = TextOverflow.Ellipsis,

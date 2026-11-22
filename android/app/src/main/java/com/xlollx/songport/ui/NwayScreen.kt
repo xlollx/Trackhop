@@ -524,7 +524,7 @@ private fun NwayRow(
     onClick: (() -> Unit)? = null, trailing: (@Composable () -> Unit)? = null,
 ) {
     PrefRow(
-        null, title, summary, modifier, chevron = false, leading = { ServiceLogo(p, 36.dp) },
+        null, title, summary, modifier, chevron = false, leading = { ServiceLogo(p, 36.dp, ring = accountRing(p?.id)) },
         trailing = trailing ?: { StatusPill(roleLabel(main), if (main) Tone.Accent else Tone.Neutral) }, onClick = onClick,
     )
 }
