@@ -69,21 +69,24 @@ jobs:
             fi
             src="dl/$file"
             case "$file" in *.zip)
-              # A folder rather than the zip (butler's advice): faster, and the zip carries an empty file
-              # with the same name as a folder (runtime/legal), which butler refuses as an invalid container.
-              src="dl/$channel"; rm -rf "$src"
+              # The zip carries an empty file with the same name as a folder (runtime/legal), which butler
+              # refuses as an invalid container: the same zip rewritten without that stray file.
+              mkdir -p dl/clean; src="dl/clean/$file"
               python3 - "dl/$file" "$src" <<'PY'
           import sys, zipfile
           z = zipfile.ZipFile(sys.argv[1])
-          dirs = {n.rstrip("/") for n in z.namelist() if n.endswith("/")}
-          dirs |= {n.rsplit("/", i)[0] for n in z.namelist() for i in range(1, n.count("/") + 1)}
-          for i in z.infolist():
-              if not i.is_dir() and i.filename in dirs: continue  # the stray file shadowing a folder
-              z.extract(i, sys.argv[2])
+          names = z.namelist()
+          dirs = {n.rstrip("/") for n in names if n.endswith("/")}
+          dirs |= {n.rsplit("/", i)[0] for n in names for i in range(1, n.count("/") + 1)}
+          with zipfile.ZipFile(sys.argv[2], "w", zipfile.ZIP_DEFLATED) as out:
+              for i in z.infolist():
+                  if not i.is_dir() and i.filename in dirs: continue  # the stray file shadowing a folder
+                  out.writestr(i, z.read(i.filename))
           PY
               ;;
             esac
             butler/butler push "$src" "$PAGE:$channel" --userversion "$v" || { echo "::warning::$channel: push failed."; failed=1; }
           done <<< "$pairs"
-          butler/butler status "$PAGE" || true
+          # itch.io processes each build after the push: wait a little, then show how it went.
+          sleep 120; butler/butler status "$PAGE" || true
           exit $failed
