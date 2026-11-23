@@ -1,7 +1,17 @@
 {
- "checked": "2026-11-22T14:31:34Z",
- "unanswered": 0,
+ "checked": "2026-11-23T18:02:43Z",
+ "unanswered": 1,
  "reviews": [
+  {
+   "id": "46e49296-ea6d-40fa-88a9-feb3d4af5fd1",
+   "author": "C. “Crisis” S.",
+   "stars": 4,
+   "text": "this app is what it says it is and does what it says it does with no extra fees for basic things.",
+   "language": "en",
+   "version": null,
+   "date": "2026-11-23T00:12:06Z",
+   "replied": false
+  },
   {
    "id": "4cdd1e08-0661-4249-a543-03c4701f9018",
    "author": "babysharq",
