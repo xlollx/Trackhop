@@ -47,7 +47,6 @@ railway_note: 'Beta · Railway hesabından ücretlendirilir'
 cloud_more: 'Evde sunucu yoksa: Trackhop kendi hesabında çevrimiçi, HTTPS adresi ve zamanlanmış senkronizasyonlarla'
 virustotal: Her indirme VirusTotal'da kontrol edildi
 downloads: "{n} indirme"
-downloads_title: GitHub sürüm indirmeleri ve Docker Hub çekmeleri. F-Droid ve mağazalar sayı yayımlamıyor, yani gerçek sayı daha yüksek.
 demo_alt: "Trackhop turu: senkronizasyonlar, yeni bir senkronizasyon, hesaplar, araçlar, paylaşılan bir parça, uyumluluk ve poster kartları, çalınamayan parçalar, ayarlar"
 what_title: Ne yapar
 what_intro: Bir kaynak ve bir hedef seç, ne sıklıkla olacağını belirle. Trackhop her parçayı diğer tarafta bulur, neyin değişeceğini gösterir ve ikisini uyum içinde tutar.

@@ -18,7 +18,6 @@ STATIC = {
     "navidrome": ("Navidrome apps", "listed", "#0b7dd8"),
     "reproducible": ("F-Droid", "reproducible build", "#4c1"),
     "privacy": ("privacy", "no account · no tracking", "#7a4fd1"),
-    "languages": ("languages", "12", "#e07a1f"),
 }
 COLORS = {"brightgreen": "#4c1", "green": "#97ca00", "yellow": "#dfb317", "orange": "#fe7d37",
           "red": "#e05d44", "blue": "#007ec6", "lightgrey": "#9f9f9f", "grey": "#555"}

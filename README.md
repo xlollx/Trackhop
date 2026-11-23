@@ -8,11 +8,11 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 <p align="center">
   <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/release.svg" alt="Latest release"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/updated.svg" alt="Last updated"></a>
-  <a href="https://trackhop.org/#downloads"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/downloads.svg" alt="Downloads from GitHub and Docker Hub"></a>
+  <a href="https://trackhop.org/#downloads"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/downloads.svg" alt="Downloads"></a>
   <a href="https://hub.docker.com/r/xlollx/trackhop"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/docker.svg" alt="Docker Hub pulls"></a>
   <br>
   <a href="https://github.com/xlollx/Trackhop/stargazers"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/stars.svg" alt="GitHub stars"></a>
-  <a href="https://trackhop.org"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/languages.svg" alt="12 languages"></a>
+  <a href="#music-services-at-a-glance"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/services.svg" alt="Music services supported"></a>
   <a href="LICENSE"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/license.svg" alt="License: AGPL-3.0-only"></a>
   <a href="https://www.navidrome.org/apps/"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/navidrome.svg" alt="Listed in the Navidrome app catalog"></a>
   <br>
@@ -21,6 +21,8 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <br>
   <a href="https://trackhop.org/guide/security"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/virustotal-app.svg" alt="The app's files on VirusTotal"></a>
   <a href="https://trackhop.org/guide/security"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/virustotal-desktop.svg" alt="Trackhop Desktop's files on VirusTotal"></a>
+  <br>
+  <a href="https://trendshift.io/repositories/333409?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-333409" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/333409/daily?language=Kotlin" alt="xlollx/Trackhop on Trendshift" width="250" height="55"></a>
 </p>
 
 <p align="center">
@@ -63,7 +65,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 
 <p align="center"><b>♥ Thank you</b> to the people who keep Trackhop free:<br>
 <!-- supporters:start -->
-THE ICON · Michel Henke · Pisqui❤️ · BjörnH. · Bougtib · Anonymous Mixtape · Anonymous Encore · Anonymous B-side · Ingo Wolf · Villordsutch · Il terronazzo · Alan · Anonymous Bassline · Anonymous Night Owl · Daniel · POPLOP007
+THE ICON · Michel Henke · Pisqui❤️ · BjörnH. · Bougtib · Anonymous Mixtape · Anonymous Encore · Anonymous B-side · Ingo Wolf · Villordsutch · Il terronazzo · Alan · Anonymous Bassline · Anonymous Night Owl · Daniel · POPLOP007 · Tom · Ferxizz · Henry
 <!-- supporters:end -->
 <br><a href="https://ko-fi.com/xlollx"><img src="docs/assets/badges/kofi.svg" height="28" alt="Support me on Ko-fi"></a>
 <br><sub>Want your name here? <a href="https://ko-fi.com/xlollx">Ko-fi</a> (card or PayPal) or <a href="https://github.com/sponsors/xlollx">GitHub Sponsors</a>.</sub></p>
@@ -222,6 +224,7 @@ common errors.
 Videos and articles that mention Trackhop (made one? open an issue and tell me):
 
 - ✎ [Trackhop: an open-source project that keeps playlists in sync across music platforms](https://x.com/BlackMelooo/status/2121775365316358279): Melooo (@BlackMelooo), X (Chinese; title translated)
+- ✎ [On Android there's an app on GitHub called Trackhop: playlists transfer for free](https://x.com/basikally/status/2121126920092041569): ∩∪⊃∈ (@basikally), X (Malayalam; translated)
 - ✎ [A look at Trackhop: syncing playlists across music services on Android](https://www.saudiandroid.net/2026/11/trackhop-playlist-sync-app.html): Saudi Android (Arabic; title translated)
 - ✎ [Trackhop ~ FOSS Playlist Syncronization](https://audio-file.org/2026/11/06/trackhop-foss-playlist-syncronization/): The Audio File (English)
 - ▶ [Spotify, Apple Music, YouTube Music… what if your playlists could live across ALL of them?](https://x.com/leviackermanft/status/2118310574035759436): Levi (@leviackermanft), X (English)
