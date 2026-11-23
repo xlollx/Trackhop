@@ -1,0 +1,73 @@
+# A release's files to Trackhop's itch.io page (xlollx.itch.io/trackhop) with butler, itch.io's
+# uploader: one channel per platform, each keeping only the newest file (butler uploads just the changes).
+# - app release (v<version>, build.yml): the full APK → "android".
+# - Desktop/Docker release (server-v<version>, desktop.yml): Windows .zip, macOS .dmg (Apple silicon and
+#   Intel), Linux .tar.gz (x86_64 and ARM) → "windows", "mac-arm64", "mac-intel", "linux", "linux-arm64".
+# Called by build.yml and desktop.yml after a new release; by hand (Actions › itch.io › Run workflow) for
+# any tag. Skipped until the BUTLER_API_KEY secret exists (itch.io › Settings › API keys); never fails
+# a release. The page can be another one with an ITCH_PAGE variable (user/project).
+name: itch.io
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag: v2.2.0 (app) or server-v2.2.0 (Desktop)'
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: itch-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    env:
+      BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+      PAGE: ${{ vars.ITCH_PAGE || 'xlollx/trackhop' }}
+      TAG: ${{ inputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Push to itch.io
+        run: |
+          set -euo pipefail
+          if [ -z "$BUTLER_API_KEY" ]; then echo "::notice::No BUTLER_API_KEY secret: itch.io skipped."; exit 0; fi
+          case "$TAG" in
+            v[0-9]*)        v=${TAG#v};        kind=app ;;
+            server-v[0-9]*) v=${TAG#server-v}; kind=desktop ;;
+            *) echo "::error::Not a release tag: $TAG"; exit 1 ;;
+          esac
+          curl -fsSL -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          unzip -q butler.zip -d butler && chmod +x butler/butler
+          mkdir -p dl
+          if [ "$kind" = app ]; then
+            pairs="Trackhop-v$v.apk=android"
+          else
+            pairs="Trackhop-Desktop-v$v-windows.zip=windows
+          Trackhop-Desktop-v$v-macos-arm64.dmg=mac-arm64
+          Trackhop-Desktop-v$v-macos-x64.dmg=mac-intel
+          Trackhop-Desktop-v$v-linux.tar.gz=linux
+          Trackhop-Desktop-v$v-linux-arm64.tar.gz=linux-arm64"
+          fi
+          failed=0
+          while IFS='=' read -r file channel; do
+            file=$(echo "$file" | xargs)
+            [ -n "$file" ] || continue
+            if ! gh release download "$TAG" -p "$file" -D dl --clobber; then
+              echo "::warning::$file is not in $TAG: $channel skipped."; continue
+            fi
+            butler/butler push "dl/$file" "$PAGE:$channel" --userversion "$v" || { echo "::warning::$channel: push failed."; failed=1; }
+          done <<< "$pairs"
+          butler/butler status "$PAGE" || true
+          exit $failed
