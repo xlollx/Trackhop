@@ -312,6 +312,14 @@ jobs:
       tag: ${{ needs.publish.outputs.tag }}
     secrets: inherit
 
+  itch:
+    # The new release's full APK to Trackhop's itch.io page (itch.yml). Skipped until BUTLER_API_KEY exists.
+    needs: publish
+    uses: ./.github/workflows/itch.yml
+    with:
+      tag: ${{ needs.publish.outputs.tag }}
+    secrets: inherit
+
   telegram:
     # The new release on Trackhop's Telegram channel (telegram.yml). Skipped until TELEGRAM_BOT_TOKEN exists.
     needs: publish

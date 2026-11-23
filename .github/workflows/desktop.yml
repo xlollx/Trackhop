@@ -220,6 +220,16 @@ jobs:
       version: ${{ needs.release.outputs.version }}
     secrets: inherit
 
+  itch:
+    # The new release's Windows, macOS and Linux files to Trackhop's itch.io page (itch.yml).
+    # Skipped until BUTLER_API_KEY exists.
+    needs: release
+    if: ${{ !cancelled() && needs.release.result == 'success' && needs.release.outputs.version != '' }}
+    uses: ./.github/workflows/itch.yml
+    with:
+      tag: server-v${{ needs.release.outputs.version }}
+    secrets: inherit
+
   telegram:
     # The new release on Trackhop's Telegram channel (telegram.yml). Skipped until TELEGRAM_BOT_TOKEN exists.
     needs: release
