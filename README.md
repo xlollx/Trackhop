@@ -222,6 +222,7 @@ common errors.
 Videos and articles that mention Trackhop (made one? open an issue and tell me):
 
 - ✎ [Trackhop: an open-source project that keeps playlists in sync across music platforms](https://x.com/BlackMelooo/status/2121775365316358279): Melooo (@BlackMelooo), X (Chinese; title translated)
+- ✎ [On Android there's an app on GitHub called Trackhop: playlists transfer for free](https://x.com/basikally/status/2121126920092041569): ∩∪⊃∈ (@basikally), X (Malayalam; translated)
 - ✎ [A look at Trackhop: syncing playlists across music services on Android](https://www.saudiandroid.net/2026/11/trackhop-playlist-sync-app.html): Saudi Android (Arabic; title translated)
 - ✎ [Trackhop ~ FOSS Playlist Syncronization](https://audio-file.org/2026/11/06/trackhop-foss-playlist-syncronization/): The Audio File (English)
 - ▶ [Spotify, Apple Music, YouTube Music… what if your playlists could live across ALL of them?](https://x.com/leviackermanft/status/2118310574035759436): Levi (@leviackermanft), X (English)
