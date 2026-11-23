@@ -1,8 +1,10 @@
 {
-  "total": 27770,
-  "github": 17279,
+  "total": 28057,
+  "github": 17344,
   "docker": 10491,
   "sourceforge": 0,
   "itch": 0,
-  "updated": "2026-11-23T20:50Z"
+  "play": 160,
+  "appgallery": 62,
+  "updated": "2026-11-23T20:53Z"
 }
