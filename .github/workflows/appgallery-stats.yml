@@ -52,6 +52,9 @@ jobs:
               rows = list(csv.reader(io.StringIO(text)))
               if not rows: continue
               head, body = rows[0], [r for r in rows[1:] if any(c.strip() for c in r)]
+              # The report lists the newest day first: sorted oldest first, so "last_day" is the latest.
+              di = next((i for i, h in enumerate(head) if h.strip().lower() == "date"), None)
+              if di is not None: body.sort(key=lambda r: r[di] if di < len(r) else "")
               totals = {}
               for i, h in enumerate(head):
                   if h.strip().lower() == "date": continue
