@@ -220,6 +220,16 @@ jobs:
       version: ${{ needs.release.outputs.version }}
     secrets: inherit
 
+  sourceforge:
+    # The new release's files as SourceForge's default downloads (sourceforge.yml), once SourceForge's
+    # webhook has copied them. Skipped until SOURCEFORGE_API_KEY exists.
+    needs: release
+    if: ${{ !cancelled() && needs.release.result == 'success' && needs.release.outputs.version != '' }}
+    uses: ./.github/workflows/sourceforge.yml
+    with:
+      tag: server-v${{ needs.release.outputs.version }}
+    secrets: inherit
+
   itch:
     # The new release's Windows, macOS and Linux files to Trackhop's itch.io page (itch.yml).
     # Skipped until BUTLER_API_KEY exists.

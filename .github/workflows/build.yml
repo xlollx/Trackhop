@@ -312,6 +312,15 @@ jobs:
       tag: ${{ needs.publish.outputs.tag }}
     secrets: inherit
 
+  sourceforge:
+    # The new release's files as SourceForge's default downloads (sourceforge.yml), once SourceForge's
+    # webhook has copied them. Skipped until SOURCEFORGE_API_KEY exists.
+    needs: publish
+    uses: ./.github/workflows/sourceforge.yml
+    with:
+      tag: ${{ needs.publish.outputs.tag }}
+    secrets: inherit
+
   itch:
     # The new release's full APK to Trackhop's itch.io page (itch.yml). Skipped until BUTLER_API_KEY exists.
     needs: publish

@@ -1,0 +1,72 @@
+# The default downloads of Trackhop's SourceForge project (sourceforge.net/projects/trackhop), which
+# mirrors every GitHub release through SourceForge's own webhook: after a release, its files become the
+# ones offered by SourceForge's big "Download" button, through SourceForge's Release API.
+# - Desktop/Docker release (server-v<version>, desktop.yml): Windows → the .msi, Mac → the Apple silicon
+#   .dmg, Linux → the x86_64 .deb.
+# - app release (v<version>, build.yml): "others" → the APK (the Release API has no Android choice).
+# The webhook copies the files a few minutes after the release: each file is tried for up to 40 minutes.
+# Called by build.yml and desktop.yml after a new release; by hand (Actions › SourceForge › Run workflow)
+# for any tag. Skipped until the SOURCEFORGE_API_KEY secret exists (SourceForge › Account › Preferences ›
+# Releases API Key); never fails a release.
+name: SourceForge
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag: v2.2.0 (app) or server-v2.2.0 (Desktop)'
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sourceforge-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  defaults:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 60
+    env:
+      SF_KEY: ${{ secrets.SOURCEFORGE_API_KEY }}
+      PROJECT: ${{ vars.SOURCEFORGE_PROJECT || 'trackhop' }}
+      TAG: ${{ inputs.tag }}
+    steps:
+      - name: Default downloads
+        run: |
+          set -euo pipefail
+          if [ -z "$SF_KEY" ]; then echo "::notice::No SOURCEFORGE_API_KEY secret: SourceForge skipped."; exit 0; fi
+          case "$TAG" in
+            v[0-9]*)        v=${TAG#v}
+                            pairs="Trackhop-v$v.apk=others" ;;
+            server-v[0-9]*) v=${TAG#server-v}
+                            pairs="Trackhop-Desktop-v$v-windows.msi=windows
+          Trackhop-Desktop-v$v-macos-arm64.dmg=mac
+          Trackhop-Desktop-v$v-linux.deb=linux" ;;
+            *) echo "::error::Not a release tag: $TAG"; exit 1 ;;
+          esac
+          failed=0
+          while IFS='=' read -r file os; do
+            file=$(echo "$file" | xargs); [ -n "$file" ] || continue
+            url="https://sourceforge.net/projects/$PROJECT/files/$TAG/$file"
+            ok=0
+            for try in $(seq 1 40); do
+              # The key goes in the request body (as the Release API asks), never on the command line.
+              res=$(printf 'default=%s&api_key=%s' "$os" "$SF_KEY" | curl -sS -X PUT -H "Accept: application/json" --data-binary @- "$url" || true)
+              if echo "$res" | python3 -c "import json,sys; d=json.load(sys.stdin); sys.exit(0 if 'result' in d else 1)" 2>/dev/null; then
+                echo "$file: default download for $os."; ok=1; break
+              fi
+              err=$(echo "$res" | python3 -c "import json,sys; print(json.load(sys.stdin).get('error',''))" 2>/dev/null || echo "${res:0:120}")
+              echo "$file not ready ($err), try $try of 40"; sleep 60
+            done
+            [ $ok = 1 ] || { echo "::warning::$file: not set as the default for $os."; failed=1; }
+          done <<< "$pairs"
+          exit $failed
