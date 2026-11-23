@@ -21,6 +21,8 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <br>
   <a href="https://trackhop.org/guide/security"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/virustotal-app.svg" alt="The app's files on VirusTotal"></a>
   <a href="https://trackhop.org/guide/security"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/virustotal-desktop.svg" alt="Trackhop Desktop's files on VirusTotal"></a>
+  <br>
+  <a href="https://trendshift.io/repositories/333409?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-333409" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/333409/daily?language=Kotlin" alt="xlollx/Trackhop on Trendshift" width="250" height="55"></a>
 </p>
 
 <p align="center">
