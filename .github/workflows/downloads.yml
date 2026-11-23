@@ -29,6 +29,8 @@ jobs:
       - name: Count
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          # itch.io's API key (the one butler uploads with): its downloads count too.
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
         run: python3 scripts/downloads.py out
       - name: Into the badges branch
         run: |
@@ -44,7 +46,7 @@ jobs:
             git -C badges add -A
             # Only the time changed: nothing to publish.
             if git -C badges diff --cached --quiet -- downloads.json stars.json release.json updated.json docker.json '*.svg' && \
-               [ "$(git -C badges diff --cached -- downloads-detail.json | grep -c '^[-+] *"\(total\|github\|docker\)"')" = 0 ]; then
+               [ "$(git -C badges diff --cached -- downloads-detail.json | grep -c '^[-+] *"\(total\|github\|docker\|sourceforge\|itch\)"')" = 0 ]; then
               echo "No change."; exit 0
             fi
             git -C badges commit -q -m "Downloads: $(python3 -c 'import json;print(json.load(open("out/downloads-detail.json"))["total"])')"
