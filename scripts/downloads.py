@@ -3,8 +3,11 @@
 
     downloads.py OUT_DIR
 
-Adds up every GitHub release asset (APK, Desktop) and the Docker Hub pulls. Stores that publish no
-count (F-Droid, Snap, Microsoft Store) are not in it, so the total only ever undercounts.
+Adds up every GitHub release asset (APK, Desktop) and the Docker Hub pulls (the public total), and
+tracks next to them the SourceForge downloads (public stats) and the itch.io downloads (with the ITCH_API_KEY secret, or BUTLER_API_KEY: an itch.io
+API key). A source that does not answer keeps its last published figure, so the total never drops
+because of an outage. Stores that publish no count (F-Droid, Snap, Microsoft Store) are not in it, so
+the total only ever undercounts.
 Writes OUT_DIR/downloads.json and OUT_DIR/stars.json (shields.io endpoints) and OUT_DIR/downloads-detail.json.
 """
 import json
@@ -16,6 +19,8 @@ from pathlib import Path
 
 REPO = "xlollx/Trackhop"
 IMAGE = "xlollx/trackhop"
+SF_PROJECT = "trackhop"
+ITCH_PAGE = "xlollx.itch.io/trackhop"
 
 
 def get(url):
@@ -42,6 +47,33 @@ def docker():
     return int(get(f"https://hub.docker.com/v2/repositories/{IMAGE}/").get("pull_count") or 0)
 
 
+def sourceforge():
+    """Every download since the project was made (23/11/2026), from SourceForge's public stats."""
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    d = get(f"https://sourceforge.net/projects/{SF_PROJECT}/files/stats/json?start_date=2026-11-01&end_date={today}")
+    return int(d["total"])
+
+
+def itch():
+    """The downloads of Trackhop's itch.io page (all its files), from itch.io's server-side API."""
+    key = os.environ.get("ITCH_API_KEY") or os.environ.get("BUTLER_API_KEY")
+    if not key:
+        return None
+    req = urllib.request.Request("https://itch.io/api/1/key/my-games",
+                                 headers={"User-Agent": "trackhop-downloads", "Authorization": f"Bearer {key}"})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        games = json.load(r)["games"]
+    return sum(int(g.get("downloads_count") or 0) for g in games if g.get("url", "").rstrip("/").endswith(ITCH_PAGE))
+
+
+def previous():
+    """The figures published last time (the badges branch), for a source that does not answer now."""
+    try:
+        return get(f"https://raw.githubusercontent.com/{REPO}/badges/downloads-detail.json")
+    except Exception:
+        return {}
+
+
 def short(n):
     """The same figure the site shows: rounded down to the hundred, with a "+" (8,053 -> "8,000+")."""
     if n < 100:
@@ -53,7 +85,17 @@ if __name__ == "__main__":
     out = Path(sys.argv[1])
     out.mkdir(parents=True, exist_ok=True)
     parts = {"github": github(), "docker": docker()}
-    total = sum(parts.values())
+    last = previous()
+    for name, count in (("sourceforge", sourceforge), ("itch", itch)):
+        try:
+            n = count()
+        except Exception as e:
+            print(f"{name}: {e}", file=sys.stderr)
+            n = None
+        parts[name] = n if n is not None else int(last.get(name) or 0)
+    # The public total (README badge, site counter) stays GitHub + Docker, as the site's tooltip says;
+    # SourceForge and itch.io are tracked next to it.
+    total = parts["github"] + parts["docker"]
     (out / "downloads.json").write_text(json.dumps(
         {"schemaVersion": 1, "label": "downloads", "message": short(total), "color": "brightgreen"}) + "\n")
     (out / "docker.json").write_text(json.dumps(
