@@ -47,7 +47,6 @@ railway_note: '测试版 · 从你的 Railway 账户计费'
 cloud_more: '家里没有服务器：在你自己的账户里让 Trackhop 上线，带 HTTPS 地址和定时同步'
 virustotal: 所有下载均经 VirusTotal 检测
 downloads: "{n} 次下载"
-downloads_title: GitHub 发布版下载量加 Docker Hub 拉取量。F-Droid 和各应用商店不公布数据，实际数字更高。
 demo_alt: "Trackhop 导览：同步列表、新建同步、账号、工具、分享的歌曲、契合度和海报卡片、无法播放的歌曲、设置"
 what_title: 它能做什么
 what_intro: 选好来源和目标，设定同步频率。Trackhop 会在另一端找到每一首歌，先告诉你会有哪些变化，再让两边始终保持一致。

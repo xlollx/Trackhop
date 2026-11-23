@@ -47,7 +47,6 @@ railway_note: 'ベータ · あなたの Railway アカウントに請求'
 cloud_more: '自宅にサーバーがなくても：あなた自身のアカウントで Trackhop をオンラインに。HTTPS アドレスとスケジュール同期つき'
 virustotal: すべてのダウンロードを VirusTotal でチェック済み
 downloads: "{n} ダウンロード"
-downloads_title: GitHub リリースのダウンロード数と Docker Hub のプル数。F-Droid やストアは数を公開していないため、実際はもっと多くなります。
 demo_alt: "Trackhop の紹介：同期一覧、新しい同期、アカウント、ツール、共有された曲、相性カードとポスターカード、再生できない曲、設定"
 what_title: できること
 what_intro: 同期元と同期先を選び、頻度を決めるだけ。Trackhop は相手側で曲を一つずつ見つけ、何が変わるかを見せてから、両方をそろえ続けます。

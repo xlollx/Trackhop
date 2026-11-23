@@ -125,7 +125,6 @@ The Desktop version is set here, once, for every language.
             if (!d || !(d.total >= 100)) return;
             var el = document.getElementById("downloads");
             el.querySelector("span").textContent = {{ h.downloads | default: en.downloads | jsonify }}.replace("{n}", (Math.floor(d.total / 100) * 100).toLocaleString({{ hl | jsonify }}) + "+");
-            el.title = {{ h.downloads_title | default: en.downloads_title | jsonify }};
             el.hidden = false;
           })
           .catch(function () {});

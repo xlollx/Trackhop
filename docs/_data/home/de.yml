@@ -47,7 +47,6 @@ railway_note: 'Beta · über dein Railway-Konto abgerechnet'
 cloud_more: 'Kein Server zu Hause: Trackhop online in deinem eigenen Konto, mit HTTPS-Adresse und geplanten Syncs'
 virustotal: Jeder Download auf VirusTotal geprüft
 downloads: "{n} Downloads"
-downloads_title: Downloads der GitHub-Releases und Pulls von Docker Hub. F-Droid und die Stores veröffentlichen keine Zahlen, die echte Zahl ist also höher.
 demo_alt: "Ein Rundgang durch Trackhop: Syncs, ein neuer Sync, Konten, Werkzeuge, ein geteilter Titel, die Karten für Kompatibilität und Poster, nicht abspielbare Titel, Einstellungen"
 what_title: Was Trackhop kann
 what_intro: Wähle eine Quelle, ein Ziel und wie oft synchronisiert wird. Trackhop findet jeden Titel auf der anderen Seite, zeigt dir vorher, was sich ändert, und hält beide auf demselben Stand.
