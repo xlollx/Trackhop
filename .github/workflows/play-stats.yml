@@ -1,15 +1,17 @@
-# Google Play installs: once a day, the install statistics Google Play writes to the developer
+# Google Play installs: every six hours, the install statistics Google Play writes to the developer
 # account's Cloud Storage bucket (Play Console › Download reports › Statistics) are read with the
 # store service account (PLAY_SERVICE_ACCOUNT_JSON, the one play.yml uses); the totals go to play.json
-# in the "badges" branch, read by the evening check. Never public on the site.
+# in the "badges" branch, read by the evening check and added to the public download total (downloads.py).
 # Needs: the account's bucket ("Copy Cloud Storage URI" on that page; the variable PLAY_REPORTS_BUCKET
 # overrides the one written here) and, in Play Console › Users and permissions, "View app information and download bulk reports" for
-# the service account. Google writes the files a day or two late.
+# the service account. Google writes these files later than Play Console shows its own figures (on
+# 23/11 the files reached 18/11 while the Console showed 21/11): the run every six hours takes each
+# new day as soon as it lands.
 name: Google Play stats
 
 on:
   schedule:
-    - cron: "47 5 * * *"
+    - cron: "47 */6 * * *"
   workflow_dispatch:
 
 permissions:
