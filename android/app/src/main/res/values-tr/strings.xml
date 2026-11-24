@@ -3549,6 +3549,7 @@
     <plurals name="ytm_profile_liked">
         <item quantity="one">%d beğenilen şarkı</item>
         <item quantity="other">%d beğenilen şarkı</item>
+    </plurals>
     <string name="chooser_your_accounts">Hesapların</string>
     <string name="chooser_all">Tümü</string>
     <string name="chooser_cat_games">Oyunlar</string>

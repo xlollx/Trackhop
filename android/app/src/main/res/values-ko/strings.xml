@@ -3431,6 +3431,7 @@
     </plurals>
     <plurals name="ytm_profile_liked">
         <item quantity="other">좋아요 표시한 곡 %d곡</item>
+    </plurals>
     <string name="chooser_your_accounts">내 계정</string>
     <string name="chooser_all">전체</string>
     <string name="chooser_cat_games">게임</string>

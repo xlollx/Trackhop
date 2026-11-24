@@ -3789,6 +3789,7 @@
         <item quantity="few">%d понравившихся трека</item>
         <item quantity="many">%d понравившихся треков</item>
         <item quantity="other">%d понравившегося трека</item>
+    </plurals>
     <string name="chooser_your_accounts">Ваши аккаунты</string>
     <string name="chooser_all">Все</string>
     <string name="chooser_cat_games">Игры</string>

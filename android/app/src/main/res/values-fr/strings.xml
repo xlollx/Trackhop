@@ -3559,6 +3559,7 @@
     <plurals name="ytm_profile_liked">
         <item quantity="one">%d titre liké</item>
         <item quantity="other">%d titres likés</item>
+    </plurals>
     <string name="chooser_your_accounts">Tes comptes</string>
     <string name="chooser_all">Tous</string>
     <string name="chooser_cat_games">Jeux</string>

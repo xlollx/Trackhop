@@ -3432,6 +3432,7 @@
     </plurals>
     <plurals name="ytm_profile_liked">
         <item quantity="other">%d 首喜欢的歌曲</item>
+    </plurals>
     <string name="chooser_your_accounts">你的账号</string>
     <string name="chooser_all">全部</string>
     <string name="chooser_cat_games">游戏</string>

@@ -3551,6 +3551,7 @@
     <plurals name="ytm_profile_liked">
         <item quantity="one">%d brano piaciuto</item>
         <item quantity="other">%d brani piaciuti</item>
+    </plurals>
     <string name="chooser_your_accounts">I tuoi account</string>
     <string name="chooser_all">Tutti</string>
     <string name="chooser_cat_games">Giochi</string>

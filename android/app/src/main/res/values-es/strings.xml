@@ -3559,6 +3559,7 @@
     <plurals name="ytm_profile_liked">
         <item quantity="one">%d canción que te gusta</item>
         <item quantity="other">%d canciones que te gustan</item>
+    </plurals>
     <string name="chooser_your_accounts">Tus cuentas</string>
     <string name="chooser_all">Todos</string>
     <string name="chooser_cat_games">Juegos</string>

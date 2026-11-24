@@ -3555,6 +3555,7 @@
     <plurals name="ytm_profile_liked">
         <item quantity="one">%d liked song</item>
         <item quantity="other">%d liked songs</item>
+    </plurals>
     <string name="chooser_your_accounts">Your accounts</string>
     <string name="chooser_all">All</string>
     <string name="chooser_cat_games">Games</string>

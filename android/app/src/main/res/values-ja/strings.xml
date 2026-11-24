@@ -3432,6 +3432,7 @@
     </plurals>
     <plurals name="ytm_profile_liked">
         <item quantity="other">高く評価した曲 %d 曲</item>
+    </plurals>
     <string name="chooser_your_accounts">あなたのアカウント</string>
     <string name="chooser_all">すべて</string>
     <string name="chooser_cat_games">ゲーム</string>

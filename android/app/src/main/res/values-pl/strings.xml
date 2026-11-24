@@ -3791,6 +3791,7 @@
         <item quantity="few">%d polubione utwory</item>
         <item quantity="many">%d polubionych utworów</item>
         <item quantity="other">%d polubionego utworu</item>
+    </plurals>
     <string name="chooser_your_accounts">Twoje konta</string>
     <string name="chooser_all">Wszystkie</string>
     <string name="chooser_cat_games">Gry</string>
