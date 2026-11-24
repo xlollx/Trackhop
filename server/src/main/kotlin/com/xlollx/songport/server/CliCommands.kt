@@ -290,6 +290,10 @@ internal class CliCommands(
         }
         if (suggested.isNotEmpty()) list.firstOrNull { it.s("id") == suggested }?.let {
             out.println("The profile in use is empty; your music seems to be on ${it.s("name")}: trackhop profiles ${s.s("id")} \"${it.s("name")}\"")
+        }
+        return 0
+    }
+
     /** "Which service?" on the command line: every service that can be added, by category, or those matching [words]. */
     private fun catalog(words: String, o: Cli.Opts): Int {
         val params = listOfNotNull(words.takeIf { it.isNotBlank() }?.let { "q=${enc(it)}" }, o.value("category")?.let { "category=${enc(it)}" })
