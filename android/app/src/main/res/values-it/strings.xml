@@ -3517,4 +3517,26 @@
         <item quantity="one">%1$d dimenticata: la prossima sync la cerca di nuovo.</item>
         <item quantity="other">%1$d dimenticate: la prossima sync le cerca di nuovo.</item>
     </plurals>
+    <string name="chooser_your_accounts">I tuoi account</string>
+    <string name="chooser_all">Tutti</string>
+    <string name="chooser_cat_games">Giochi</string>
+    <string name="chooser_cat_radio">Radio e classifiche</string>
+    <string name="chooser_cat_podcasts">Podcast</string>
+    <string name="chooser_cat_listening">Ascolti</string>
+    <string name="chooser_cat_regional">Regionali</string>
+    <string name="chooser_cat_files">File</string>
+    <string name="chooser_area_east_asia">Asia orientale</string>
+    <string name="chooser_area_india_middle_east">India · Medio Oriente</string>
+    <string name="chooser_area_africa">Africa</string>
+    <string name="chooser_area_europe">Europa</string>
+    <string name="chooser_area_americas">Americhe</string>
+    <string name="chooser_show_all">Mostra tutti (%1$d)</string>
+    <string name="chooser_suggested_here">Consigliati dove sei</string>
+    <string name="chooser_cannot_target">Non può essere una destinazione</string>
+    <string name="chooser_no_results">Nessun servizio trovato per “%1$s”</string>
+    <string name="chooser_clear_search">Cancella la ricerca</string>
+    <plurals name="chooser_search">
+        <item quantity="one">Cerca tra %1$d servizio</item>
+        <item quantity="other">Cerca tra %1$d servizi</item>
+    </plurals>
 </resources>

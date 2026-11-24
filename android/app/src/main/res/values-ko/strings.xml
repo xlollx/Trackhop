@@ -3399,4 +3399,25 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="other">%1$d개를 잊었어요. 다음 동기화에서 다시 검색합니다.</item>
     </plurals>
+    <string name="chooser_your_accounts">내 계정</string>
+    <string name="chooser_all">전체</string>
+    <string name="chooser_cat_games">게임</string>
+    <string name="chooser_cat_radio">라디오 및 차트</string>
+    <string name="chooser_cat_podcasts">팟캐스트</string>
+    <string name="chooser_cat_listening">감상 기록</string>
+    <string name="chooser_cat_regional">지역</string>
+    <string name="chooser_cat_files">파일</string>
+    <string name="chooser_area_east_asia">동아시아</string>
+    <string name="chooser_area_india_middle_east">인도 · 중동</string>
+    <string name="chooser_area_africa">아프리카</string>
+    <string name="chooser_area_europe">유럽</string>
+    <string name="chooser_area_americas">아메리카</string>
+    <string name="chooser_show_all">모두 보기(%1$d)</string>
+    <string name="chooser_suggested_here">현재 지역 추천</string>
+    <string name="chooser_cannot_target">대상이 될 수 없음</string>
+    <string name="chooser_no_results">“%1$s”에 해당하는 서비스 없음</string>
+    <string name="chooser_clear_search">검색 지우기</string>
+    <plurals name="chooser_search">
+        <item quantity="other">서비스 %1$d개 검색</item>
+    </plurals>
 </resources>

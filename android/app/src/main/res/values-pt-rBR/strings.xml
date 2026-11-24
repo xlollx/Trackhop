@@ -3525,4 +3525,26 @@
         <item quantity="one">%1$d esquecida: a próxima sincronização busca de novo.</item>
         <item quantity="other">%1$d esquecidas: a próxima sincronização busca de novo.</item>
     </plurals>
+    <string name="chooser_your_accounts">Suas contas</string>
+    <string name="chooser_all">Todos</string>
+    <string name="chooser_cat_games">Jogos</string>
+    <string name="chooser_cat_radio">Rádio e paradas</string>
+    <string name="chooser_cat_podcasts">Podcasts</string>
+    <string name="chooser_cat_listening">Escutas</string>
+    <string name="chooser_cat_regional">Regionais</string>
+    <string name="chooser_cat_files">Arquivos</string>
+    <string name="chooser_area_east_asia">Leste Asiático</string>
+    <string name="chooser_area_india_middle_east">Índia · Oriente Médio</string>
+    <string name="chooser_area_africa">África</string>
+    <string name="chooser_area_europe">Europa</string>
+    <string name="chooser_area_americas">Américas</string>
+    <string name="chooser_show_all">Ver todos (%1$d)</string>
+    <string name="chooser_suggested_here">Sugeridos onde você está</string>
+    <string name="chooser_cannot_target">Não pode ser um destino</string>
+    <string name="chooser_no_results">Nenhum serviço para “%1$s”</string>
+    <string name="chooser_clear_search">Limpar a busca</string>
+    <plurals name="chooser_search">
+        <item quantity="one">Buscar em %1$d serviço</item>
+        <item quantity="other">Buscar em %1$d serviços</item>
+    </plurals>
 </resources>

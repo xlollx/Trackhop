@@ -3753,4 +3753,28 @@
         <item quantity="many">Zapomniano: %1$d. Następna synchronizacja wyszuka ponownie.</item>
         <item quantity="other">Zapomniano: %1$d. Następna synchronizacja wyszuka ponownie.</item>
     </plurals>
+    <string name="chooser_your_accounts">Twoje konta</string>
+    <string name="chooser_all">Wszystkie</string>
+    <string name="chooser_cat_games">Gry</string>
+    <string name="chooser_cat_radio">Radio i listy przebojów</string>
+    <string name="chooser_cat_podcasts">Podcasty</string>
+    <string name="chooser_cat_listening">Słuchanie</string>
+    <string name="chooser_cat_regional">Regionalne</string>
+    <string name="chooser_cat_files">Pliki</string>
+    <string name="chooser_area_east_asia">Azja Wschodnia</string>
+    <string name="chooser_area_india_middle_east">Indie · Bliski Wschód</string>
+    <string name="chooser_area_africa">Afryka</string>
+    <string name="chooser_area_europe">Europa</string>
+    <string name="chooser_area_americas">Ameryki</string>
+    <string name="chooser_show_all">Pokaż wszystkie (%1$d)</string>
+    <string name="chooser_suggested_here">Polecane tam, gdzie jesteś</string>
+    <string name="chooser_cannot_target">Nie może być celem</string>
+    <string name="chooser_no_results">Brak usługi dla „%1$s”</string>
+    <string name="chooser_clear_search">Wyczyść wyszukiwanie</string>
+    <plurals name="chooser_search">
+        <item quantity="one">Szukaj w %1$d usłudze</item>
+        <item quantity="few">Szukaj w %1$d usługach</item>
+        <item quantity="many">Szukaj w %1$d usługach</item>
+        <item quantity="other">Szukaj w %1$d usługach</item>
+    </plurals>
 </resources>

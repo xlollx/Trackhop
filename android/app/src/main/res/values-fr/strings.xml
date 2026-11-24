@@ -3525,4 +3525,26 @@
         <item quantity="one">%1$d oubliée : la prochaine synchro la recherche à nouveau.</item>
         <item quantity="other">%1$d oubliées : la prochaine synchro les recherche à nouveau.</item>
     </plurals>
+    <string name="chooser_your_accounts">Tes comptes</string>
+    <string name="chooser_all">Tous</string>
+    <string name="chooser_cat_games">Jeux</string>
+    <string name="chooser_cat_radio">Radio et classements</string>
+    <string name="chooser_cat_podcasts">Podcasts</string>
+    <string name="chooser_cat_listening">Écoutes</string>
+    <string name="chooser_cat_regional">Régionaux</string>
+    <string name="chooser_cat_files">Fichiers</string>
+    <string name="chooser_area_east_asia">Asie de l\'Est</string>
+    <string name="chooser_area_india_middle_east">Inde · Moyen-Orient</string>
+    <string name="chooser_area_africa">Afrique</string>
+    <string name="chooser_area_europe">Europe</string>
+    <string name="chooser_area_americas">Amériques</string>
+    <string name="chooser_show_all">Tout afficher (%1$d)</string>
+    <string name="chooser_suggested_here">Suggérés là où tu es</string>
+    <string name="chooser_cannot_target">Ne peut pas être une destination</string>
+    <string name="chooser_no_results">Aucun service pour « %1$s »</string>
+    <string name="chooser_clear_search">Effacer la recherche</string>
+    <plurals name="chooser_search">
+        <item quantity="one">Rechercher parmi %1$d service</item>
+        <item quantity="other">Rechercher parmi %1$d services</item>
+    </plurals>
 </resources>
