@@ -16,16 +16,22 @@ const escape = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').rep
 /** The address the button opens: trackhop.org/link with the song's own link (the canonical one). */
 export function target(input, lang = 'en') {
   const link = parseLink(input); // throws a ToolError when the text is not a song or album link
-  const path = lang && lang !== 'en' ? '/' + lang + '/link' : '/link';
+  // /link is in English and Italian only.
+  const path = lang === 'it' ? '/it/link' : '/link';
   return SITE + path + '?u=' + encodeURIComponent(link.url);
 }
 
-/** The code to paste: one <a> with its style inline. */
-export function buttonCode(href, { style = 'dark', text = 'Listen on any service' } = {}) {
+/** What the button is made of: its address, its inline style, its text and the note icon. */
+export function buttonParts(href, { style = 'dark', text = 'Listen on any service' } = {}) {
   const c = STYLES[style] || STYLES.dark;
   const css = `display:inline-flex;align-items:center;gap:8px;padding:8px 16px 8px 12px;border-radius:999px;`
     + `border:1px solid ${c.border};background:${c.bg};color:${c.fg};font:600 15px/1.2 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;text-decoration:none`;
-  const svg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${NOTE}</svg>`;
-  const label = String(text || '').trim() || 'Listen on any service';
-  return `<a href="${escape(href)}" target="_blank" rel="noopener" style="${css}">${svg}${escape(label)}</a>`;
+  return { href, css, label: String(text || '').trim() || 'Listen on any service', icon: NOTE };
+}
+
+/** The code to paste: one <a> with its style inline. */
+export function buttonCode(href, options) {
+  const p = buttonParts(href, options);
+  const svg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p.icon}</svg>`;
+  return `<a href="${escape(p.href)}" target="_blank" rel="noopener" style="${p.css}">${svg}${escape(p.label)}</a>`;
 }

@@ -1,0 +1,148 @@
+# The texts around trackhop.org/services (the table itself is _data/services.yml) and
+# trackhop.org/whats-new (the notes are _data/releases.json), by language.
+services:
+  en:
+    title: "Music services Trackhop works with: what it can do on each"
+    description: "Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer, Qobuz, SoundCloud, Navidrome, Jellyfin, Plex and more: what Trackhop reads and writes on each service, how you connect it, and which versions have it."
+    kicker: Trackhop · Services
+    h1: Every music service Trackhop works with
+    lead: What Trackhop can do on each service, how you connect it, and which versions of Trackhop have it.
+    legend: "<b>Read</b> = use it as a source · <b>Write</b> = create playlists and add songs · <b>Remove</b> = mirror removals"
+    jump: "Jump to:"
+    cols: [Service, Read, Write, Remove, How you connect, Where]
+    quick: '"Quick sign-in" goes through the service''s own web player: it is not an official interface, so it lives in the GitHub and F-Droid apps, Desktop and Docker, and for the Google Play and AppGallery apps in the <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a> plugin. "All versions" means the Google Play, GitHub and F-Droid apps, Trackhop Desktop and Docker.'
+    more: '<a href="/guide/versions">Which version do I need?</a> · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">Keys and limits of each service</a>'
+  it:
+    title: "I servizi musicali con cui funziona Trackhop: cosa fa su ognuno"
+    description: "Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer, Qobuz, SoundCloud, Navidrome, Jellyfin, Plex e altri: cosa legge e scrive Trackhop su ogni servizio, come lo colleghi e quali versioni lo hanno."
+    kicker: Trackhop · Servizi
+    h1: Tutti i servizi musicali con cui funziona Trackhop
+    lead: Cosa può fare Trackhop su ogni servizio, come lo colleghi e quali versioni di Trackhop lo hanno.
+    legend: "<b>Legge</b> = lo usa come sorgente · <b>Scrive</b> = crea playlist e aggiunge brani · <b>Toglie</b> = riporta le rimozioni"
+    jump: "Vai a:"
+    cols: [Servizio, Legge, Scrive, Toglie, Come lo colleghi, Dove]
+    quick: 'L''"accesso rapido" passa dal web player del servizio: non è un''interfaccia ufficiale, quindi c''è nelle app GitHub e F-Droid, in Desktop e Docker, e per le app di Google Play e AppGallery nel plugin <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a>. "Tutte le versioni" sono le app di Google Play, GitHub e F-Droid, Trackhop Desktop e Docker.'
+    more: '<a href="/guide/versions">Quale versione mi serve?</a> · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">Chiavi e limiti di ogni servizio</a> (in inglese)'
+  es:
+    title: "Los servicios de música con los que funciona Trackhop: qué hace en cada uno"
+    description: "Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer, Qobuz, SoundCloud, Navidrome, Jellyfin, Plex y más: qué lee y escribe Trackhop en cada servicio, cómo lo conectas y qué versiones lo tienen."
+    kicker: Trackhop · Servicios
+    h1: Todos los servicios de música con los que funciona Trackhop
+    lead: Qué puede hacer Trackhop en cada servicio, cómo lo conectas y qué versiones de Trackhop lo tienen.
+    legend: "<b>Lee</b> = lo usa como origen · <b>Escribe</b> = crea playlists y añade canciones · <b>Quita</b> = refleja lo que quitas"
+    jump: "Ir a:"
+    cols: [Servicio, Lee, Escribe, Quita, Cómo lo conectas, Dónde]
+    quick: 'El "acceso rápido" pasa por el reproductor web del propio servicio: no es una interfaz oficial, así que está en las apps de GitHub y F-Droid, en Desktop y Docker, y para las apps de Google Play y AppGallery en el plugin <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a>. "Todas las versiones" son las apps de Google Play, GitHub y F-Droid, Trackhop Desktop y Docker.'
+    more: '<a href="/guide/versions">¿Qué versión necesito?</a> (en inglés) · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">Claves y límites de cada servicio</a> (en inglés)'
+  pt:
+    title: "Os serviços de música com que o Trackhop funciona: o que ele faz em cada um"
+    description: "Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer, Qobuz, SoundCloud, Navidrome, Jellyfin, Plex e mais: o que o Trackhop lê e escreve em cada serviço, como você conecta e quais versões têm."
+    kicker: Trackhop · Serviços
+    h1: Todos os serviços de música com que o Trackhop funciona
+    lead: O que o Trackhop pode fazer em cada serviço, como você conecta e quais versões do Trackhop têm.
+    legend: "<b>Lê</b> = usa como origem · <b>Escreve</b> = cria playlists e adiciona músicas · <b>Remove</b> = repete as remoções"
+    jump: "Ir para:"
+    cols: [Serviço, Lê, Escreve, Remove, Como conectar, Onde]
+    quick: 'O "login rápido" passa pelo player web do próprio serviço: não é uma interface oficial, então está nos apps do GitHub e F-Droid, no Desktop e no Docker, e para os apps do Google Play e AppGallery no plugin <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a>. "Todas as versões" são os apps do Google Play, GitHub e F-Droid, o Trackhop Desktop e o Docker.'
+    more: '<a href="/guide/versions">Qual versão eu preciso?</a> (em inglês) · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">Chaves e limites de cada serviço</a> (em inglês)'
+  fr:
+    title: "Les services de musique avec lesquels Trackhop fonctionne : ce qu’il fait sur chacun"
+    description: "Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer, Qobuz, SoundCloud, Navidrome, Jellyfin, Plex et d’autres : ce que Trackhop lit et écrit sur chaque service, comment le connecter et quelles versions l’ont."
+    kicker: Trackhop · Services
+    h1: Tous les services de musique avec lesquels Trackhop fonctionne
+    lead: Ce que Trackhop peut faire sur chaque service, comment le connecter et quelles versions de Trackhop l’ont.
+    legend: "<b>Lit</b> = s’en sert comme source · <b>Écrit</b> = crée des playlists et ajoute des titres · <b>Retire</b> = répercute les suppressions"
+    jump: "Aller à :"
+    cols: [Service, Lit, Écrit, Retire, Comment le connecter, Où]
+    quick: 'La « connexion rapide » passe par le lecteur web du service : ce n’est pas une interface officielle, elle se trouve donc dans les applis GitHub et F-Droid, Desktop et Docker, et pour les applis Google Play et AppGallery dans le plugin <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a>. « Toutes les versions » : les applis Google Play, GitHub et F-Droid, Trackhop Desktop et Docker.'
+    more: '<a href="/guide/versions">Quelle version me faut-il ?</a> (en anglais) · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">Clés et limites de chaque service</a> (en anglais)'
+  de:
+    title: "Die Musikdienste, mit denen Trackhop arbeitet: was es bei jedem kann"
+    description: "Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer, Qobuz, SoundCloud, Navidrome, Jellyfin, Plex und mehr: was Trackhop bei jedem Dienst liest und schreibt, wie du ihn verbindest und welche Versionen ihn haben."
+    kicker: Trackhop · Dienste
+    h1: Alle Musikdienste, mit denen Trackhop arbeitet
+    lead: Was Trackhop bei jedem Dienst kann, wie du ihn verbindest und welche Versionen von Trackhop ihn haben.
+    legend: "<b>Lesen</b> = als Quelle nutzen · <b>Schreiben</b> = Playlists anlegen und Songs hinzufügen · <b>Entfernen</b> = Entfernungen übernehmen"
+    jump: "Springe zu:"
+    cols: [Dienst, Lesen, Schreiben, Entfernen, So verbindest du ihn, Wo]
+    quick: 'Die „Schnellanmeldung“ läuft über den Webplayer des Dienstes: Sie ist keine offizielle Schnittstelle und steckt deshalb in den Apps von GitHub und F-Droid, in Desktop und Docker und für die Apps aus Google Play und AppGallery im Plugin <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a>. „Alle Versionen“ heißt: die Apps aus Google Play, GitHub und F-Droid, Trackhop Desktop und Docker.'
+    more: '<a href="/guide/versions">Welche Version brauche ich?</a> (auf Englisch) · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">Schlüssel und Grenzen jedes Dienstes</a> (auf Englisch)'
+  pl:
+    title: "Serwisy muzyczne, z którymi działa Trackhop: co potrafi w każdym"
+    description: "Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer, Qobuz, SoundCloud, Navidrome, Jellyfin, Plex i inne: co Trackhop czyta i zapisuje w każdym serwisie, jak go połączyć i które wersje go mają."
+    kicker: Trackhop · Serwisy
+    h1: Wszystkie serwisy muzyczne, z którymi działa Trackhop
+    lead: Co Trackhop potrafi w każdym serwisie, jak go połączyć i które wersje Trackhop go mają.
+    legend: "<b>Czyta</b> = używa jako źródła · <b>Zapisuje</b> = tworzy playlisty i dodaje utwory · <b>Usuwa</b> = powtarza usunięcia"
+    jump: "Przejdź do:"
+    cols: [Serwis, Czyta, Zapisuje, Usuwa, Jak połączyć, Gdzie]
+    quick: '„Szybkie logowanie” przechodzi przez webowy odtwarzacz serwisu: to nie jest oficjalny interfejs, więc jest w aplikacjach z GitHuba i F-Droid, w Desktop i Docker, a dla aplikacji z Google Play i AppGallery we wtyczce <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a>. „Wszystkie wersje” to aplikacje z Google Play, GitHuba i F-Droid, Trackhop Desktop i Docker.'
+    more: '<a href="/guide/versions">Której wersji potrzebuję?</a> (po angielsku) · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">Klucze i limity każdego serwisu</a> (po angielsku)'
+  ru:
+    title: "Музыкальные сервисы, с которыми работает Trackhop: что он умеет в каждом"
+    description: "Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer, Qobuz, SoundCloud, Navidrome, Jellyfin, Plex и другие: что Trackhop читает и записывает в каждом сервисе, как его подключить и в каких версиях он есть."
+    kicker: Trackhop · Сервисы
+    h1: Все музыкальные сервисы, с которыми работает Trackhop
+    lead: Что Trackhop умеет в каждом сервисе, как его подключить и в каких версиях Trackhop он есть.
+    legend: "<b>Чтение</b> = как источник · <b>Запись</b> = создаёт плейлисты и добавляет песни · <b>Удаление</b> = повторяет удаления"
+    jump: "Перейти к:"
+    cols: [Сервис, Чтение, Запись, Удаление, Как подключить, Где]
+    quick: '«Быстрый вход» работает через веб-плеер самого сервиса: это не официальный интерфейс, поэтому он есть в приложениях из GitHub и F-Droid, в Desktop и Docker, а для приложений из Google Play и AppGallery — в плагине <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a>. «Все версии» — это приложения из Google Play, GitHub и F-Droid, Trackhop Desktop и Docker.'
+    more: '<a href="/guide/versions">Какая версия мне нужна?</a> (на английском) · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">Ключи и ограничения каждого сервиса</a> (на английском)'
+  tr:
+    title: "Trackhop'un çalıştığı müzik servisleri: her birinde neler yapar"
+    description: "Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer, Qobuz, SoundCloud, Navidrome, Jellyfin, Plex ve daha fazlası: Trackhop her serviste neyi okur ve yazar, nasıl bağlanır ve hangi sürümlerde var."
+    kicker: Trackhop · Servisler
+    h1: Trackhop'un çalıştığı tüm müzik servisleri
+    lead: Trackhop'un her serviste neler yapabildiği, nasıl bağlandığı ve hangi Trackhop sürümlerinde olduğu.
+    legend: "<b>Okuma</b> = kaynak olarak kullanır · <b>Yazma</b> = çalma listesi oluşturur ve şarkı ekler · <b>Silme</b> = silinenleri yansıtır"
+    jump: "Şuraya git:"
+    cols: [Servis, Okuma, Yazma, Silme, Nasıl bağlanır, Nerede]
+    quick: '"Hızlı giriş" servisin kendi web oynatıcısından geçer: resmi bir arayüz değildir; bu yüzden GitHub ve F-Droid uygulamalarında, Desktop ve Docker''da, Google Play ve AppGallery uygulamaları için de <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a> eklentisinde bulunur. "Tüm sürümler": Google Play, GitHub ve F-Droid uygulamaları, Trackhop Desktop ve Docker.'
+    more: '<a href="/guide/versions">Hangi sürüm bana uygun?</a> (İngilizce) · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">Her servisin anahtarları ve sınırları</a> (İngilizce)'
+  ja:
+    title: "Trackhop が対応する音楽サービス: それぞれで何ができるか"
+    description: "Spotify、YouTube Music、Apple Music、Amazon Music、TIDAL、Deezer、Qobuz、SoundCloud、Navidrome、Jellyfin、Plex など: 各サービスで Trackhop が何を読み書きでき、どう接続し、どの版で使えるか。"
+    kicker: Trackhop · サービス
+    h1: Trackhop が対応するすべての音楽サービス
+    lead: 各サービスで Trackhop にできること、接続方法、そしてどの版の Trackhop で使えるか。
+    legend: "<b>読み取り</b> = 元として使う · <b>書き込み</b> = プレイリストを作って曲を追加 · <b>削除</b> = 削除も反映"
+    jump: "移動:"
+    cols: [サービス, 読み取り, 書き込み, 削除, 接続方法, 対応版]
+    quick: '「クイックサインイン」はサービス自身のウェブプレーヤーを通ります。公式のインターフェースではないため、GitHub 版と F-Droid 版のアプリ、Desktop と Docker にあり、Google Play 版と AppGallery 版のアプリでは <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a> プラグインで使えます。「すべての版」は Google Play・GitHub・F-Droid のアプリ、Trackhop Desktop、Docker です。'
+    more: '<a href="/guide/versions">どの版を選べばいい?</a>（英語） · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">各サービスのキーと制限</a>（英語）'
+  ko:
+    title: "Trackhop이 지원하는 음악 서비스: 서비스마다 할 수 있는 일"
+    description: "Spotify, YouTube Music, Apple Music, Amazon Music, TIDAL, Deezer, Qobuz, SoundCloud, Navidrome, Jellyfin, Plex 등: 서비스마다 Trackhop이 무엇을 읽고 쓰는지, 어떻게 연결하는지, 어느 버전에 있는지."
+    kicker: Trackhop · 서비스
+    h1: Trackhop이 지원하는 모든 음악 서비스
+    lead: 서비스마다 Trackhop이 할 수 있는 일, 연결 방법, 그리고 어느 Trackhop 버전에 있는지.
+    legend: "<b>읽기</b> = 원본으로 사용 · <b>쓰기</b> = 플레이리스트를 만들고 곡 추가 · <b>삭제</b> = 삭제도 반영"
+    jump: "바로 가기:"
+    cols: [서비스, 읽기, 쓰기, 삭제, 연결 방법, 버전]
+    quick: '"빠른 로그인"은 서비스 자체의 웹 플레이어를 거쳐요. 공식 인터페이스가 아니라서 GitHub, F-Droid 앱과 Desktop, Docker에 있고, Google Play와 AppGallery 앱에서는 <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a> 플러그인으로 쓸 수 있어요. "모든 버전"은 Google Play, GitHub, F-Droid 앱과 Trackhop Desktop, Docker예요.'
+    more: '<a href="/guide/versions">어떤 버전이 필요한가요?</a> (영어) · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">서비스별 키와 제한</a> (영어)'
+  zh:
+    title: "Trackhop 支持的音乐服务：在每个服务上能做什么"
+    description: "Spotify、YouTube Music、Apple Music、Amazon Music、TIDAL、Deezer、Qobuz、SoundCloud、Navidrome、Jellyfin、Plex 等：Trackhop 在每个服务上读取和写入什么、如何连接、哪些版本支持。"
+    kicker: Trackhop · 服务
+    h1: Trackhop 支持的所有音乐服务
+    lead: Trackhop 在每个服务上能做什么、如何连接，以及哪些版本的 Trackhop 支持。
+    legend: "<b>读取</b> = 作为来源 · <b>写入</b> = 创建歌单并添加歌曲 · <b>删除</b> = 同步删除"
+    jump: "跳转到："
+    cols: [服务, 读取, 写入, 删除, 如何连接, 版本]
+    quick: '“快速登录”通过服务自己的网页播放器完成：它不是官方接口，所以在 GitHub 和 F-Droid 版应用、Desktop 和 Docker 中提供；Google Play 和 AppGallery 版应用则通过 <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a> 插件使用。“所有版本”指 Google Play、GitHub 和 F-Droid 版应用、Trackhop Desktop 和 Docker。'
+    more: '<a href="/guide/versions">我需要哪个版本？</a>（英文） · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">各服务的密钥和限制</a>（英文）'
+whatsnew:
+  en: {title: "What's new in Trackhop", description: "Every version of the Trackhop app and of Trackhop Desktop and Docker, with what changed. Follow it by RSS.", kicker: "Trackhop · What's new", h1: "What's new in Trackhop", lead: "Every version of the app and of Trackhop Desktop and Docker.", rss: Follow by RSS, app: Android app, server: Desktop and Docker, english: "", github: All releases on GitHub, download: Download}
+  it: {title: "Novità di Trackhop", description: "Ogni versione dell'app Trackhop e di Trackhop Desktop e Docker, con cosa è cambiato. Seguile via RSS.", kicker: "Trackhop · Novità", h1: "Novità di Trackhop", lead: "Ogni versione dell'app e di Trackhop Desktop e Docker.", rss: Segui con RSS, app: App Android, server: Desktop e Docker, english: "Le note di Desktop e Docker sono in inglese.", github: Tutte le versioni su GitHub, download: Scarica}
+  es: {title: "Novedades de Trackhop", description: "Cada versión de la app Trackhop y de Trackhop Desktop y Docker, con lo que cambió. Síguelas por RSS.", kicker: "Trackhop · Novedades", h1: "Novedades de Trackhop", lead: "Cada versión de la app y de Trackhop Desktop y Docker.", rss: Seguir por RSS, app: App de Android, server: Desktop y Docker, english: "Las notas de Desktop y Docker están en inglés.", github: Todas las versiones en GitHub, download: Descargar}
+  pt: {title: "Novidades do Trackhop", description: "Cada versão do app Trackhop e do Trackhop Desktop e Docker, com o que mudou. Acompanhe por RSS.", kicker: "Trackhop · Novidades", h1: "Novidades do Trackhop", lead: "Cada versão do app e do Trackhop Desktop e Docker.", rss: Acompanhar por RSS, app: App Android, server: Desktop e Docker, english: "As notas do Desktop e do Docker estão em inglês.", github: Todas as versões no GitHub, download: Baixar}
+  fr: {title: "Quoi de neuf dans Trackhop", description: "Chaque version de l’appli Trackhop et de Trackhop Desktop et Docker, avec ce qui a changé. À suivre par RSS.", kicker: "Trackhop · Nouveautés", h1: "Quoi de neuf dans Trackhop", lead: "Chaque version de l’appli et de Trackhop Desktop et Docker.", rss: Suivre par RSS, app: Appli Android, server: Desktop et Docker, english: "Les notes de Desktop et Docker sont en anglais.", github: Toutes les versions sur GitHub, download: Télécharger}
+  de: {title: "Neu in Trackhop", description: "Jede Version der Trackhop-App und von Trackhop Desktop und Docker, mit dem, was sich geändert hat. Per RSS folgen.", kicker: "Trackhop · Neuigkeiten", h1: "Neu in Trackhop", lead: "Jede Version der App und von Trackhop Desktop und Docker.", rss: Per RSS folgen, app: Android-App, server: Desktop und Docker, english: "Die Hinweise zu Desktop und Docker sind auf Englisch.", github: Alle Versionen auf GitHub, download: Herunterladen}
+  pl: {title: "Co nowego w Trackhop", description: "Każda wersja aplikacji Trackhop oraz Trackhop Desktop i Docker, z tym, co się zmieniło. Obserwuj przez RSS.", kicker: "Trackhop · Nowości", h1: "Co nowego w Trackhop", lead: "Każda wersja aplikacji oraz Trackhop Desktop i Docker.", rss: Obserwuj przez RSS, app: Aplikacja na Androida, server: Desktop i Docker, english: "Opisy zmian Desktop i Docker są po angielsku.", github: Wszystkie wersje na GitHubie, download: Pobierz}
+  ru: {title: "Что нового в Trackhop", description: "Каждая версия приложения Trackhop и Trackhop Desktop и Docker, с тем, что изменилось. Подпишитесь через RSS.", kicker: "Trackhop · Что нового", h1: "Что нового в Trackhop", lead: "Каждая версия приложения и Trackhop Desktop и Docker.", rss: Подписаться через RSS, app: Приложение для Android, server: Desktop и Docker, english: "Заметки к Desktop и Docker — на английском.", github: Все версии на GitHub, download: Скачать}
+  tr: {title: "Trackhop'ta yenilikler", description: "Trackhop uygulamasının ve Trackhop Desktop ile Docker'ın her sürümü, nelerin değiştiğiyle birlikte. RSS ile takip edin.", kicker: "Trackhop · Yenilikler", h1: "Trackhop'ta yenilikler", lead: "Uygulamanın ve Trackhop Desktop ile Docker'ın her sürümü.", rss: RSS ile takip et, app: Android uygulaması, server: Desktop ve Docker, english: "Desktop ve Docker notları İngilizcedir.", github: GitHub'daki tüm sürümler, download: İndir}
+  ja: {title: "Trackhop の新機能", description: "Trackhop アプリと Trackhop Desktop・Docker の各バージョンと、その変更点。RSS でフォローできます。", kicker: "Trackhop · 新機能", h1: "Trackhop の新機能", lead: "アプリと Trackhop Desktop・Docker の各バージョン。", rss: RSS でフォロー, app: Android アプリ, server: Desktop と Docker, english: "Desktop と Docker の変更点は英語です。", github: GitHub のすべてのリリース, download: ダウンロード}
+  ko: {title: "Trackhop 새 소식", description: "Trackhop 앱과 Trackhop Desktop, Docker의 모든 버전과 바뀐 점. RSS로 받아 보세요.", kicker: "Trackhop · 새 소식", h1: "Trackhop 새 소식", lead: "앱과 Trackhop Desktop, Docker의 모든 버전.", rss: RSS로 구독, app: Android 앱, server: Desktop과 Docker, english: "Desktop과 Docker 변경 사항은 영어로 되어 있어요.", github: GitHub의 모든 릴리스, download: 다운로드}
+  zh: {title: "Trackhop 更新内容", description: "Trackhop 应用以及 Trackhop Desktop 和 Docker 的每个版本及其变化。可通过 RSS 关注。", kicker: "Trackhop · 更新内容", h1: "Trackhop 更新内容", lead: "应用以及 Trackhop Desktop 和 Docker 的每个版本。", rss: 通过 RSS 关注, app: Android 应用, server: Desktop 和 Docker, english: "Desktop 和 Docker 的更新说明为英文。", github: GitHub 上的所有版本, download: 下载}

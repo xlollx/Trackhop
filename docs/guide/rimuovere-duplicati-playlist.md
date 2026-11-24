@@ -41,6 +41,12 @@ le altre vengono tolte, quindi l'ordine della playlist non cambia.
 Non viene tolto niente prima di quel tasto, e compaiono solo le playlist tue (una playlist creata da
 qualcun altro non può essere modificata da nessuna app).
 
+## Hai solo un file?
+
+[Trova e togli i doppioni](/it/duplicates) fa lo stesso nel tuo browser, da una playlist CSV, M3U,
+XSPF o JSPF o da una playlist di iTunes, senza collegare nessun servizio: scegli quale copia tenere
+e riavrai il file pulito. Non viene caricato niente.
+
 ## YouTube Music, TIDAL, Deezer, Amazon Music e il tuo server
 
 Lo stesso strumento funziona su ogni servizio che permette alle app di togliere brani da una

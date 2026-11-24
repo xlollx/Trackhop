@@ -1,0 +1,24 @@
+{%- comment -%} The RSS feed of trackhop.org/whats-new in the page's language: the latest releases. {%- endcomment -%}
+{%- assign lang = page.lang | default: 'en' | slice: 0, 2 -%}
+{%- assign u = site.data.pages_ui.whatsnew[lang] | default: site.data.pages_ui.whatsnew.en -%}
+{%- if lang == 'en' -%}{%- assign base = '' -%}{%- else -%}{%- assign base = '/' | append: lang -%}{%- endif -%}
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>{{ u.title | xml_escape }}</title>
+  <link>https://trackhop.org{{ base }}/whats-new</link>
+  <atom:link href="https://trackhop.org{{ base }}/whats-new.xml" rel="self" type="application/rss+xml"/>
+  <description>{{ u.description | xml_escape }}</description>
+  <language>{{ page.lang | default: 'en' }}</language>
+  {%- for r in site.data.releases limit: 30 %}
+  {%- assign notes = r.notes[lang] | default: r.notes.en %}
+  <item>
+    <title>Trackhop {{ r.version }} · {% if r.kind == 'app' %}{{ u.app | xml_escape }}{% else %}{{ u.server | xml_escape }}{% endif %}</title>
+    <link>https://trackhop.org{{ base }}/whats-new#{{ r.id }}</link>
+    <guid isPermaLink="false">trackhop-{{ r.id }}-{{ lang }}</guid>
+    <pubDate>{{ r.date | date_to_rfc822 }}</pubDate>
+    <description>{% if r.kind == 'app' %}{{ notes | xml_escape }}{% else %}{{ notes | markdownify | xml_escape }}{% endif %}</description>
+  </item>
+  {%- endfor %}
+</channel>
+</rss>

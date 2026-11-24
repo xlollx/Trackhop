@@ -12,7 +12,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <a href="https://hub.docker.com/r/xlollx/trackhop"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/docker.svg" alt="Docker Hub pulls"></a>
   <br>
   <a href="https://github.com/xlollx/Trackhop/stargazers"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/stars.svg" alt="GitHub stars"></a>
-  <a href="#music-services-at-a-glance"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/services.svg" alt="Music services supported"></a>
+  <a href="https://trackhop.org/services"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/services.svg" alt="Music services supported"></a>
   <a href="LICENSE"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/license.svg" alt="License: AGPL-3.0-only"></a>
   <a href="https://www.navidrome.org/apps/"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/navidrome.svg" alt="Listed in the Navidrome app catalog"></a>
   <br>
@@ -134,7 +134,7 @@ F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and A
 | **Files** (CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, JSON, text; rekordbox XML read only) | ✓ | ✓ | ✓ | Import and export | All builds |
 <!-- services:end -->
 
-Details, keys and limits of each service: [Supported services and their limits](#supported-services-and-their-limits).
+The same table in every language of the site: [trackhop.org/services](https://trackhop.org/services). Details, keys and limits of each service: [Supported services and their limits](#supported-services-and-their-limits).
 Not connectable: Pandora (no public API, United States only): use files.
 
 **Why not an online transfer service?** Soundiiz, TuneMyMusic and FreeYourMusic are good at a one-off
