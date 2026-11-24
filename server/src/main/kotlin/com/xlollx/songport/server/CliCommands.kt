@@ -51,6 +51,7 @@ internal class CliCommands(
         "report" -> if (p.isEmpty()) issue(o) else report(p.joinToString(" "))
         "review" -> review(p, o)
         "services" -> services()
+        "catalog" -> catalog(p.joinToString(" "), o)
         "playlists" -> playlists(one(p, "playlists <service>"))
         "profiles" -> { need(p, 1, "profiles <service> [<profile>]"); profiles(p[0], p.drop(1).joinToString(" ").takeIf { it.isNotEmpty() }) }
         "tracks" -> { need(p, 2, "tracks <service> <playlist>"); tracks(p[0], p[1]) }
@@ -289,6 +290,16 @@ internal class CliCommands(
         }
         if (suggested.isNotEmpty()) list.firstOrNull { it.s("id") == suggested }?.let {
             out.println("The profile in use is empty; your music seems to be on ${it.s("name")}: trackhop profiles ${s.s("id")} \"${it.s("name")}\"")
+    /** "Which service?" on the command line: every service that can be added, by category, or those matching [words]. */
+    private fun catalog(words: String, o: Cli.Opts): Int {
+        val params = listOfNotNull(words.takeIf { it.isNotBlank() }?.let { "q=${enc(it)}" }, o.value("category")?.let { "category=${enc(it)}" })
+        val list = api.get("catalog" + if (params.isEmpty()) "" else "?" + params.joinToString("&")).jsonArray.map { it.jsonObject }
+        if (asJson) return print(JsonArray(list)).let { 0 }
+        if (list.isEmpty()) out.println("No service found.")
+        for (f in list) {
+            val routes = f["routes"]!!.jsonArray.map { it.jsonObject }
+            val add = routes.mapNotNull { it["add"].str() }.joinToString(", ").ifEmpty { "added" }
+            out.println("${f.s("name")}  [${f.s("categoryName")}]  $add")
         }
         return 0
     }

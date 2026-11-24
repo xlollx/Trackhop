@@ -3432,5 +3432,25 @@
     </plurals>
     <plurals name="ytm_profile_liked">
         <item quantity="other">%d 首喜欢的歌曲</item>
+    <string name="chooser_your_accounts">你的账号</string>
+    <string name="chooser_all">全部</string>
+    <string name="chooser_cat_games">游戏</string>
+    <string name="chooser_cat_radio">电台和榜单</string>
+    <string name="chooser_cat_podcasts">播客</string>
+    <string name="chooser_cat_listening">收听记录</string>
+    <string name="chooser_cat_regional">地区</string>
+    <string name="chooser_cat_files">文件</string>
+    <string name="chooser_area_east_asia">东亚</string>
+    <string name="chooser_area_india_middle_east">印度 · 中东</string>
+    <string name="chooser_area_africa">非洲</string>
+    <string name="chooser_area_europe">欧洲</string>
+    <string name="chooser_area_americas">美洲</string>
+    <string name="chooser_show_all">显示全部（%1$d）</string>
+    <string name="chooser_suggested_here">你所在地区推荐</string>
+    <string name="chooser_cannot_target">不能作为目标</string>
+    <string name="chooser_no_results">没有找到“%1$s”对应的服务</string>
+    <string name="chooser_clear_search">清除搜索</string>
+    <plurals name="chooser_search">
+        <item quantity="other">搜索 %1$d 个服务</item>
     </plurals>
 </resources>

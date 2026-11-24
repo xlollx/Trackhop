@@ -105,7 +105,7 @@ import kotlinx.coroutines.withContext
  */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Boolean) -> Unit, onSetup: (MusicProvider) -> Unit, onManageFiles: () -> Unit = {}, onSendTo: (id: String, name: String) -> Unit = { _, _ -> }) {
+fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Boolean) -> Unit, onSetup: (MusicProvider) -> Unit, onManageFiles: () -> Unit = {}, onSendTo: (id: String, name: String) -> Unit = { _, _ -> }, pendingAdd: String? = null, onPendingAddTaken: () -> Unit = {}) {
     val ctx = LocalContext.current
     val store = remember { Store.get(ctx) }
     val data by store.state.collectAsState()
@@ -129,9 +129,12 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
     }
 
     // "+": pick a service, then name the connector.
-    var naming by remember { mutableStateOf<MusicProvider?>(null) }
-    if (showAdd) PickServiceDialog(
+    var naming by rememberSaveable(stateSaver = ProviderSaver) { mutableStateOf<MusicProvider?>(null) }
+    if (showAdd) ServiceChooserDialog(
+        role = com.xlollx.songport.providers.ServiceCatalog.Role.ADD,
         connectors = data.settings.connectors,
+        // The accounts at hand, with their colour: signed in, or needing no sign-in (File).
+        accounts = remember(data.settings.connectors, refresh) { Providers.connectors().filter { !it.requiresAuth || it.isConnected(ctx) } },
         onDismiss = { onShowAdd(false) },
         onPick = { service ->
             onShowAdd(false)
@@ -149,6 +152,11 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
             } else naming = service
         },
     )
+    // A service picked in the sync editor's chooser: straight to its name.
+    LaunchedEffect(pendingAdd) {
+        Providers.services().firstOrNull { it.id == pendingAdd }?.let { naming = it }
+        if (pendingAdd != null) onPendingAddTaken()
+    }
     naming?.let { service ->
         val n = data.settings.connectors.count { Providers.byId(it)?.serviceId == service.serviceId } + 1
         NameDialog(
@@ -389,104 +397,6 @@ internal fun addConnector(store: Store, service: MusicProvider, name: String): S
 /** The services offered to add, in display order: plugin-based ones only where this build may name them or a plugin is installed. */
 internal fun addableServices(ctx: android.content.Context): List<MusicProvider> =
     Providers.services().filter { !it.linkOnly && (!it.pluginBased || BuildConfig.PLUGIN_LINKS || it.isConfigured(ctx)) }
-
-/** Service picker for a new connector. Services that allow one connector only are greyed out once added. */
-@Composable
-private fun PickServiceDialog(connectors: List<String>, onDismiss: () -> Unit, onPick: (MusicProvider) -> Unit) {
-    val ctx = LocalContext.current
-    FitDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.connector_pick_title)) },
-        text = {
-            // Plugin-based services are offered only when a plugin is installed, unless this build
-            // may point to where to get one.
-            val services = addableServices(ctx)
-            // A service reachable two ways (its official API with a key of yours, or its web player with a
-            // plain sign-in) is one entry with two routes, each saying what it asks and what it is.
-            val families = services.groupBy { it.familyName }
-            // First a grid of the services, grouped; a service reachable two ways then shows its
-            // routes, each saying what it asks and what it is.
-            var family by remember { mutableStateOf<String?>(null) }
-            val chosen = family?.let { families[it] }
-            Column {
-                if (chosen == null) {
-                    serviceGroups(families.keys.toList(), families).forEach { (groupRes, names) ->
-                        if (names.isEmpty()) return@forEach
-                        Text(stringResource(groupRes), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 12.dp, bottom = 8.dp).semantics { heading() })
-                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                            names.forEach { name ->
-                                val members = families.getValue(name)
-                                val allTaken = members.all { m -> !m.supportsMultipleAccounts && connectors.any { Providers.byId(it)?.serviceId == m.serviceId } }
-                                // A web connector that would take another account but cannot here opens
-                                // its route, where the line under it says why (see WebAccounts).
-                                val explained = allTaken && members.any { WebAccounts.reason(ctx, it) != null }
-                                ServiceGridTile(members.first(), name, enabled = !allTaken || explained) {
-                                    if (members.size == 1 && !explained) onPick(members.first()) else family = name
-                                }
-                            }
-                        }
-                    }
-                    // Play build: the services this version cannot reach on its own, greyed out under
-                    // a plain fact. Nothing to tap, no name of anything else, no link.
-                    // A service a plugin brings (an account, or the reading of its public links) is not one of them.
-                    val offered = services.map { it.serviceId }.flatMap { listOf(it, it.removeSuffix("_web")) }.toSet()
-                    val unavailable = if (BridgePlugin.builtIn) emptyList() else UNAVAILABLE_ON_PLAY.filter { (id, _, _) ->
-                        id !in offered && Providers.byId(id)?.let { it.linkOnly && it.isConfigured(ctx) } != true
-                    }
-                    if (unavailable.isNotEmpty()) {
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
-                            Text(stringResource(R.string.services_group_unavailable), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f).semantics { heading() })
-                            HelpButton(Helps.unavailable)
-                        }
-                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                            unavailable.forEach { (id, color, name) -> UnavailableServiceTile(id, color, name) }
-                        }
-                    }
-                } else {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(onClick = { family = null }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back)) }
-                        ServiceLogo(chosen.first(), 32.dp)
-                        Spacer(Modifier.width(12.dp))
-                        Text(family!!, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(R.string.connector_pick_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f).padding(vertical = 6.dp))
-                        HelpButton(Helps.routes)
-                    }
-                    // The easiest route first, so a first-timer's eye lands on it.
-                    chosen.sortedBy { if (it.route == MusicProvider.Route.EASY) 0 else 1 }.forEach { s ->
-                        val taken = !s.supportsMultipleAccounts && connectors.any { Providers.byId(it)?.serviceId == s.serviceId }
-                        // Each way in on its own card, a full target: what it asks and what it is.
-                        Row(
-                            Modifier.padding(top = 8.dp).fillMaxWidth().heightIn(min = 56.dp).clip(ToolCardShape).background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                                .clickable(enabled = !taken) { onPick(s) }.padding(start = 14.dp, end = 8.dp, top = 12.dp, bottom = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Column(Modifier.weight(1f)) {
-                                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                                    s.route?.let { r ->
-                                        // Both routes wear the lock: the quick one signs in on the service's own page too.
-                                        StatusPill(stringResource(if (r == MusicProvider.Route.EASY) R.string.route_easy else R.string.route_official), if (r == MusicProvider.Route.EASY) Tone.Ok else Tone.Accent, Icons.Filled.Lock)
-                                    } ?: Text(s.displayName, style = MaterialTheme.typography.bodyLarge)
-                                    if (!s.canWrite) Text(stringResource(R.string.read_only), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    if (s.alpha || s.beta) Text(stringResource(if (s.alpha) R.string.alpha else R.string.beta), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    if (taken) Text(stringResource(R.string.connected), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                }
-                                s.routeNoteRes?.let { Text(stringResource(it), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                                // A web connector that would take another account, but cannot here: why, in a line.
-                                if (taken) WebAccounts.reason(ctx, s)?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.tertiary) }
-                            }
-                            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-                }
-            }
-        },
-        // No link out: what plugins are is explained, neutrally, in Settings › Plugins (Play build).
-        confirmButton = {},
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
-    )
-}
 
 @Composable
 private fun NameDialog(title: String, initial: String, onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
@@ -953,46 +863,6 @@ private fun PasteListDialog(onDismiss: () -> Unit, onImport: (String, String) ->
         confirmButton = { TextButton(enabled = text.isNotBlank(), onClick = { onImport(name.ifBlank { "playlist" }, text) }) { Text(stringResource(R.string.import_action)) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
-}
-
-/** Streaming services, personal servers, then the rest (stats services, files), each in its own group. */
-private fun serviceGroups(names: List<String>, families: Map<String, List<MusicProvider>>): List<Pair<Int, List<String>>> {
-    val servers = setOf("subsonic", "koel", "jellyfin", "emby", "plex", "lyrion", "mopidy")
-    val other = setOf("lastfm", "listenbrainz", "csv")
-    fun kind(n: String) = families.getValue(n).first().serviceId.let { if (it in servers) 1 else if (it in other) 2 else 0 }
-    return listOf(
-        R.string.services_group_streaming to names.filter { kind(it) == 0 },
-        R.string.services_group_servers to names.filter { kind(it) == 1 },
-        R.string.services_group_other to names.filter { kind(it) == 2 },
-    )
-}
-
-/** Services with no official API this version can use: id, brand colour, name. */
-private val UNAVAILABLE_ON_PLAY = listOf(
-    Triple("amazon", 0xFF1AB0D6, "Amazon Music"),
-    Triple("soundcloud", 0xFFFF5500, "SoundCloud"),
-    Triple("netease", 0xFFC20C0C, "NetEase Cloud Music"),
-    Triple("anghami", 0xFF8D3DEB, "Anghami"),
-    Triple("qobuz", QobuzBridgeProvider.BRAND, "Qobuz"),
-    Triple("qqmusic", 0xFF31C27C, "QQ Music"),
-    Triple("jiosaavn", 0xFF2BC5B4, "JioSaavn"),
-    Triple("gaana", GaanaBridgeProvider.BRAND, "Gaana"),
-)
-
-/** A greyed-out tile for a service this version cannot reach: the mark and the name, nothing to tap. */
-@Composable
-private fun UnavailableServiceTile(serviceId: String, brandColor: Long, name: String) {
-    Surface(
-        shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        modifier = Modifier.width(serviceTileWidth()).heightIn(min = 96.dp).alpha(0.45f),
-    ) {
-        Column(Modifier.padding(horizontal = 6.dp, vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Top) {
-            ServiceLogo(serviceId, brandColor, name, 40.dp)
-            Spacer(Modifier.height(6.dp))
-            Text(name, style = MaterialTheme.typography.labelMedium, minLines = 2, maxLines = 2, textAlign = TextAlign.Center, overflow = TextOverflow.Ellipsis)
-        }
-    }
 }
 
 /** How wide a tile of the grid is: wider with a larger font, so a name of one word is not broken in two. */

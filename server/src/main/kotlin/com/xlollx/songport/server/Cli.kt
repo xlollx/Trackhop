@@ -87,6 +87,7 @@ object Cli {
                 "A <track> is \"Artist - Title\", a link from any service, or its id on the sync's destination.",
             listOf("ignore", "keep", "discard", "pick", "replace", "restore")),
         Cmd("services", "Services and playlists", listOf("services"), "the services and whether they are connected"),
+        Cmd("catalog", "Services and playlists", listOf("catalog [<words>] [--category streaming|server|radio|listening|regional|files]"), "every service that can be added, by category; words also match other names (Navidrome finds Subsonic)"),
         Cmd("playlists", "Services and playlists", listOf("playlists <service>"), "a service's playlists"),
         Cmd("profiles", "Services and playlists", listOf("profiles <service> [<profile>]"), "YouTube Music (web): the profiles (own channel, brand accounts) with their music, or read and write as one from now on"),
         Cmd("tracks", "Services and playlists", listOf("tracks <service> <playlist>"), "a playlist's tracks"),

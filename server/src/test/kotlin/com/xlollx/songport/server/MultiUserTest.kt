@@ -260,8 +260,8 @@ class MultiUserTest {
         val luca = signIn("luca", "luca-password")
 
         // Unofficial connectors: not even offered.
-        assertTrue(get("/connectors", anna).body().contains("(unofficial, alpha)"))
-        assertFalse(get("/connectors", luca).body().contains("(unofficial, alpha)"))
+        assertTrue(get("/connectors/add?cat=streaming", anna).body().contains("""<span class="badge">unofficial</span>"""))
+        assertFalse(get("/connectors/add?cat=streaming", luca).body().contains("unofficial"))
         // Radio syncs.
         assertEquals(200, get("/syncs/radio", anna).statusCode())
         assertEquals(403, get("/syncs/radio", luca).statusCode())

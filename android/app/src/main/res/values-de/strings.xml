@@ -3551,5 +3551,26 @@
     <plurals name="ytm_profile_liked">
         <item quantity="one">%d Lieblingssong</item>
         <item quantity="other">%d Lieblingssongs</item>
+    <string name="chooser_your_accounts">Deine Konten</string>
+    <string name="chooser_all">Alle</string>
+    <string name="chooser_cat_games">Spiele</string>
+    <string name="chooser_cat_radio">Radio &amp; Charts</string>
+    <string name="chooser_cat_podcasts">Podcasts</string>
+    <string name="chooser_cat_listening">Hören</string>
+    <string name="chooser_cat_regional">Regional</string>
+    <string name="chooser_cat_files">Dateien</string>
+    <string name="chooser_area_east_asia">Ostasien</string>
+    <string name="chooser_area_india_middle_east">Indien · Naher Osten</string>
+    <string name="chooser_area_africa">Afrika</string>
+    <string name="chooser_area_europe">Europa</string>
+    <string name="chooser_area_americas">Amerika</string>
+    <string name="chooser_show_all">Alle %1$d anzeigen</string>
+    <string name="chooser_suggested_here">Vorschläge für deine Region</string>
+    <string name="chooser_cannot_target">Kann kein Ziel sein</string>
+    <string name="chooser_no_results">Kein Dienst für „%1$s“ gefunden</string>
+    <string name="chooser_clear_search">Suche löschen</string>
+    <plurals name="chooser_search">
+        <item quantity="one">%1$d Dienst durchsuchen</item>
+        <item quantity="other">%1$d Dienste durchsuchen</item>
     </plurals>
 </resources>

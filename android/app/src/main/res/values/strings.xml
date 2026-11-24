@@ -3555,5 +3555,26 @@
     <plurals name="ytm_profile_liked">
         <item quantity="one">%d liked song</item>
         <item quantity="other">%d liked songs</item>
+    <string name="chooser_your_accounts">Your accounts</string>
+    <string name="chooser_all">All</string>
+    <string name="chooser_cat_games">Games</string>
+    <string name="chooser_cat_radio">Radio &amp; charts</string>
+    <string name="chooser_cat_podcasts">Podcasts</string>
+    <string name="chooser_cat_listening">Listening</string>
+    <string name="chooser_cat_regional">Regional</string>
+    <string name="chooser_cat_files">Files</string>
+    <string name="chooser_area_east_asia">East Asia</string>
+    <string name="chooser_area_india_middle_east">India · Middle East</string>
+    <string name="chooser_area_africa">Africa</string>
+    <string name="chooser_area_europe">Europe</string>
+    <string name="chooser_area_americas">Americas</string>
+    <string name="chooser_show_all">Show all %1$d</string>
+    <string name="chooser_suggested_here">Suggested where you are</string>
+    <string name="chooser_cannot_target">Can\'t be a target</string>
+    <string name="chooser_no_results">No service found for “%1$s”</string>
+    <string name="chooser_clear_search">Clear search</string>
+    <plurals name="chooser_search">
+        <item quantity="one">Search %1$d service</item>
+        <item quantity="other">Search %1$d services</item>
     </plurals>
 </resources>

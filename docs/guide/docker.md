@@ -769,6 +769,7 @@ multi sync whole.
 | Call | What it does |
 |---|---|
 | `GET /api/v1/services` | The services added, and whether each is connected; each account apart (`id` `jellyfin@2`, with `serviceId` and `slot`). |
+| `GET /api/v1/catalog` | Every service the server can add, with its category and other names ("Navidrome" finds Subsonic); `q` searches, `category` narrows (`streaming`, `server`, `radio`, `listening`, `regional`, `files`…). |
 | `GET /api/v1/services/{service}` | One service: connected, account, and what it can do. |
 | `GET /api/v1/services/{service}/search` | Look for a track: q is "Artist - Title" or a link. |
 | `GET /api/v1/services/{service}/channels` | YouTube Music (web): the profiles the account can act as (its own channel, brand accounts), each with `playlists` and `likedSongs` (`library=false` skips those reads), `current`, and `suggested`: the profile your music seems to be on when the one in use is empty. |
