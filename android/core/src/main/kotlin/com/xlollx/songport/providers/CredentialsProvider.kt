@@ -22,6 +22,8 @@ data class LoginForm(
      * ([CredentialsProvider.loginWithApiKey]). The form then shows the address and the key only.
      */
     val offersApiKey: Boolean = false,
+    /** The address field takes a folder on this computer (a game's song folder), not a web address. */
+    val urlIsFolder: Boolean = false,
 )
 
 /**
