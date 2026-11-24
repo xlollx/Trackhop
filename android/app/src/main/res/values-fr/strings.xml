@@ -131,7 +131,7 @@
     <string name="ytm_not_installed">Trackhop Bridge n\'est pas installé.</string>
     <string name="ytm_install">Obtenir le Bridge</string>
     <string name="report_issue">Signaler sur GitHub</string>
-    <string name="provider_note_youtube">API officielle YouTube Data avec ton propre projet Google Cloud. Le quota quotidien est limité : les grosses syncs peuvent prendre plusieurs jours.</string>
+    <string name="provider_note_youtube">API officielle YouTube Data. Le quota quotidien est limité : les grosses syncs peuvent prendre plusieurs jours.</string>
     <string name="provider_note_tidal">Playlists TIDAL.</string>
     <string name="provider_note_deezer">Playlists et favoris Deezer (bêta), avec une application développeur Deezer que tu as déjà : Deezer n\'en accepte plus de nouvelles.</string>
 

@@ -131,7 +131,7 @@
     <string name="ytm_not_installed">Trackhop Bridge yüklü değil.</string>
     <string name="ytm_install">Bridge\'i indir</string>
     <string name="report_issue">GitHub\'da bildir</string>
-    <string name="provider_note_youtube">Kendi Google Cloud projenizle resmi YouTube Data API. Günlük kota sınırlıdır: büyük senkronizasyonlar birkaç gün sürebilir.</string>
+    <string name="provider_note_youtube">Resmi YouTube Data API. Günlük kota sınırlıdır: büyük senkronizasyonlar birkaç gün sürebilir.</string>
     <string name="provider_note_tidal">TIDAL çalma listeleri.</string>
     <string name="provider_note_deezer">Deezer çalma listeleri ve favorileri (beta), zaten sahip olduğunuz bir Deezer geliştirici uygulamasıyla: Deezer artık yenilerini kabul etmiyor.</string>
 

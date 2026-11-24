@@ -131,7 +131,7 @@
     <string name="ytm_not_installed">O Trackhop Bridge não está instalado.</string>
     <string name="ytm_install">Baixar o Bridge</string>
     <string name="report_issue">Reportar no GitHub</string>
-    <string name="provider_note_youtube">API oficial YouTube Data com um projeto Google Cloud seu. A cota diária é limitada: sincronizações grandes podem levar vários dias.</string>
+    <string name="provider_note_youtube">API oficial YouTube Data. A cota diária é limitada: sincronizações grandes podem levar vários dias.</string>
     <string name="provider_note_tidal">Playlists do TIDAL.</string>
     <string name="provider_note_deezer">Playlists e favoritos do Deezer (beta), com um app de desenvolvedor do Deezer que você já tenha: o Deezer não aceita mais novos.</string>
 

@@ -131,7 +131,7 @@
     <string name="ytm_not_installed">未安装 Trackhop Bridge。</string>
     <string name="ytm_install">获取 Bridge</string>
     <string name="report_issue">在 GitHub 上报告</string>
-    <string name="provider_note_youtube">官方 YouTube Data API，需要你自己的 Google Cloud 项目。每日配额有限：大型同步可能需要好几天。</string>
+    <string name="provider_note_youtube">官方 YouTube Data API。每日配额有限：大型同步可能需要好几天。</string>
     <string name="provider_note_tidal">TIDAL 歌单。</string>
     <string name="provider_note_deezer">Deezer 播放列表和收藏（测试版），需要你已有的 Deezer 开发者应用：Deezer 已不再接受新的应用。</string>
 
