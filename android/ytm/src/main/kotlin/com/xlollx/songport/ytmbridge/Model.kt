@@ -7,6 +7,14 @@ import kotlinx.serialization.Serializable
  * A channel the signed-in YouTube account can act as ([YtmClient.channels]): [id] is the brand
  * account's page id, "" for the account's own channel; [selected] as the player's switcher marks it.
  */
+/**
+ * A profile of a Deezer Family account the signed-in account can act as ([DeezerWebClient.profiles]):
+ * [id] its Deezer user id, [picture] its avatar's address (null without one), [holder] the account
+ * holder's own profile, [selected] the one the calls are made as.
+ */
+@Serializable
+data class ProfileDto(val id: String, val name: String, val picture: String? = null, val holder: Boolean = false, val selected: Boolean = false)
+
 @Serializable
 data class ChannelDto(val id: String, val name: String, val byline: String? = null, val selected: Boolean = false, val hasChannel: Boolean = true)
 
