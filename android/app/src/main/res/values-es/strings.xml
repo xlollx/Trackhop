@@ -553,7 +553,7 @@
     <string name="provider_note_jellyfin">Tu servidor Jellyfin. Sin registro ni cuota. Los favoritos cuentan como canciones que te gustan.</string>
     <string name="provider_note_plex">Tu Plex Media Server, con tu X-Plex-Token. Las playlists de música se leen, se crean y se actualizan en el servidor.</string>
     <string name="provider_note_lastfm">Las canciones que te encantan de un perfil de Last.fm como origen. Con la contraseña, también son un destino: Trackhop las marca con ♥ por ti. Necesita una API key gratuita de Last.fm.</string>
-    <string name="provider_note_listenbrainz">Playlists y canciones amadas de un usuario de ListenBrainz. Con tu token de usuario también se pueden escribir las canciones amadas (favoritas como destino).</string>
+    <string name="provider_note_listenbrainz">Playlists y canciones amadas de un usuario de ListenBrainz. Con tu token de usuario también es un destino: tus playlists (creadas, llenadas y vaciadas por grabación de MusicBrainz) y tus canciones amadas.</string>
     <string name="login_title">Iniciar sesión en %1$s</string>
     <string name="login_url">Dirección del servidor</string>
     <string name="login_user">Nombre de usuario</string>
@@ -571,8 +571,8 @@
     <string name="login_hint_jellyfin">Introduce la dirección de tu servidor Jellyfin (por ejemplo https://jellyfin.ejemplo.com), tu nombre de usuario y tu contraseña.</string>
     <string name="login_hint_plex">Introduce la dirección de tu Plex Media Server (por ejemplo http://192.168.1.10:32400) y tu X-Plex-Token. Plex explica cómo encontrar el token en sus páginas de ayuda (\"Finding an authentication token\").</string>
     <string name="login_hint_lastfm">Escribe tu usuario de Last.fm. Para solo leer las canciones que te encantan, deja la contraseña vacía (el perfil debe ser público). Con la contraseña Trackhop también puede marcarlas con ♥: se usa una vez para obtener una sesión y no se guarda.</string>
-    <string name="login_hint_listenbrainz">Escribe el nombre de usuario de ListenBrainz cuyas playlists y canciones amadas quieres leer. Añade tu token de usuario (listenbrainz.org → Settings) para escribir también las canciones amadas.</string>
-    <string name="listenbrainz_token_needed">ListenBrainz necesita tu token de usuario para escribir las canciones amadas: añádelo en Cuentas (listenbrainz.org → Settings).</string>
+    <string name="login_hint_listenbrainz">Escribe el nombre de usuario de ListenBrainz cuyas playlists y canciones amadas quieres leer. Añade tu token de usuario (listenbrainz.org → Settings) para escribir también tus playlists y canciones amadas.</string>
+    <string name="listenbrainz_token_needed">ListenBrainz necesita tu token de usuario para escribir playlists y canciones amadas: añádelo en Cuentas (listenbrainz.org → Settings).</string>
     <string name="login_token_optional">Token de usuario (opcional)</string>
     <string name="listenbrainz_token_invalid">ListenBrainz no aceptó este token.</string>
     <string name="setup_why_lastfm">Last.fm necesita una clave de API gratuita, que se emite al instante, para leer perfiles públicos.</string>
@@ -3525,4 +3525,14 @@
         <item quantity="one">%1$d olvidada: la próxima sincronización la busca de nuevo.</item>
         <item quantity="other">%1$d olvidadas: la próxima sincronización las busca de nuevo.</item>
     </plurals>
+    <string name="format_soundiiz">JSON (Soundiiz)</string>
+    <string name="playlisturl_label">Archivo de playlist (enlace)</string>
+    <string name="provider_note_playlisturl">Un archivo de playlist publicado en línea: pega el enlace a un archivo .xspf, .m3u, .m3u8, .jspf o .pls como origen de una sincronización. Trackhop lo vuelve a leer en cada ejecución.</string>
+    <string name="playlisturl_unreadable">No se pudo leer el archivo de playlist de este enlace (%1$s)</string>
+    <string name="apple_removal_check_name">Comprobación de Trackhop (puedes borrarla)</string>
+    <string name="apple_removal_check_description">Creada una sola vez por Trackhop para comprobar que puede quitar canciones de tus playlists de Apple Music. Puedes borrarla.</string>
+    <string name="login_url_away">Dirección fuera de casa (opcional)</string>
+    <string name="login_url_away_hint">Se usa cuando la primera no responde, por ejemplo con datos móviles. Con wifi se prueba primero la primera; se recuerda la última que funcionó.</string>
+    <string name="account_via_home">Ahora vía: %1$s (casa)</string>
+    <string name="account_via_away">Ahora vía: %1$s (fuera de casa)</string>
 </resources>
