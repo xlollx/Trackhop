@@ -87,6 +87,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
     var version by remember { mutableIntStateOf(0) }
     // The playlist open, being renamed or being extended is still so after a rotation.
     var renaming by rememberSaveable(stateSaver = PlaylistSaver) { mutableStateOf<Playlist?>(null) }
+    var copyingToUser by remember { mutableStateOf<Playlist?>(null) }
     var expanding by rememberSaveable(stateSaver = PlaylistSaver) { mutableStateOf<Playlist?>(null) }
     val aiReady = remember { com.xlollx.songport.ai.AiClient.config(ctx)?.complete == true } || com.xlollx.songport.ai.NanoAi.state.offered
     expanding?.let { pl ->
@@ -204,6 +205,11 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
 
     choosingFormat?.let { pl ->
         ExportFormatDialog(onDismiss = { choosingFormat = null }, formats = LocalFilesProvider.Export.forShows(LocalFilesProvider.Export.isShows(pl.id))) { fmt -> choosingFormat = null; exporting = pl; export(fmt, pl.name) }
+    }
+
+    // Plex (2.2): a copy of the playlist in the library of a user the server is shared with.
+    copyingToUser?.let { pl ->
+        PlexCopyDialog(provider as PlexProvider, pl, onDismiss = { copyingToUser = null }) { msg -> copyingToUser = null; scope.launch { snackbar.showSnackbar(msg) } }
     }
 
     renaming?.let { pl ->
@@ -369,6 +375,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
                                     if (provider.canRemoveTracks && provider.canWrite) DropdownMenuItem(text = { Text(stringResource(R.string.manage_tracks)) }, onClick = { menu = false; viewing = pl })
                                     if (aiReady && provider.canWrite) DropdownMenuItem(text = { Text(stringResource(R.string.ai_expand)) }, onClick = { menu = false; expanding = pl })
                                     ExportMenuItem { menu = false; choosingFormat = pl }
+                                    if (provider is PlexProvider) DropdownMenuItem(text = { Text(stringResource(R.string.plex_copy_menu)) }, onClick = { menu = false; copyingToUser = pl })
                                     if (provider.canDeletePlaylists) DropdownMenuItem(
                                         text = { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) },
                                         onClick = { menu = false; deleting = pl },
