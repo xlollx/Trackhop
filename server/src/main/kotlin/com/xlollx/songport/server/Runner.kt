@@ -240,6 +240,10 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
         guarded("backup") {
             if (Backups.isDue(env, now)) Tasks.start(Backups.TITLE, "/tools/backup", { env.log("backup", it) }, env.owner) { t -> Backups.run(env) { t.progress = it } }
         }
+        // The weekly look for unplayable tracks (Tools › Unplayable tracks), as the app's UnplayableWorker.
+        guarded("unplayable") {
+            if (UnplayableWeekly.isDue(env, now)) Tasks.start(UnplayableWeekly.TITLE, "/tools/unplayable", { env.log("unplayable", it) }, env.owner) { t -> """<div class="card">${Html.h(UnplayableWeekly.run(env) { t.progress = it })}</div>""" }
+        }
         // Lyrics for the files added to the library this week (Tools › Lyrics, Docker only).
         guarded("lyrics") {
             if (env.may(Permissions.ADMIN) && Lyrics.isDue(env, edition, now)) Tasks.start(Lyrics.TITLE, "/tools/lyrics", { env.log("lyrics", it) }, env.owner) { t -> lyricsResult(Lyrics.run(env, Lyrics.Options()) { t.progress = it }) }

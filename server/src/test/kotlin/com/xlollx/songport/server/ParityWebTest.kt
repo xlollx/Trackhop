@@ -109,4 +109,14 @@ class ParityWebTest {
         assertTrue(found.contains("/connectors/jellyfin\"") && !found.contains("/connectors/subsonic\""))
         assertTrue(get("/connectors?q=nothing-like-it").body().contains("No service matches"))
     }
+
+    @Test fun theWeeklyUnplayableCheckIsTurnedOnFromItsCard() {
+        assertEquals(303, post("/tools/unplayable", "action" to "weekly", "weekly" to "on").statusCode())
+        assertTrue(env.store.data.settings.unplayableCheck)
+        assertEquals(303, post("/tools/unplayable", "action" to "weekly").statusCode())
+        assertTrue(!env.store.data.settings.unplayableCheck)
+        val now = post("/tools/unplayable", "action" to "weekly", "now" to "1")
+        assertTrue(location(now).startsWith("/tools/task/"))
+        assertTrue(taskPage(location(now)).contains("No connected service can tell"))
+    }
 }

@@ -47,7 +47,7 @@ object Cli {
     class Cmd(val name: String, val group: String, val usage: List<String>, val summary: String, val more: String = "", val subs: List<String> = emptyList())
 
     /** Every command: these, and the next release's (Features.v2, CliV2.kt). */
-    val COMMANDS: List<Cmd> get() = BASE_COMMANDS.filter { Features.v2 || it.name !in Features.V2_TOOLS } + CliV2.commands
+    val COMMANDS: List<Cmd> get() = BASE_COMMANDS.filter { Features.v2 || it.name !in Features.V2_TOOLS } + CliV2.commands + CliParity.commands
 
     private val BASE_COMMANDS = listOf(
         Cmd("syncs", "Syncs", listOf("syncs [--tag KEY=VALUE] [--label NAME] [--favorite]", "list [...]"), "list the syncs, with their last result",
@@ -165,7 +165,7 @@ object Cli {
 
     /** The switches with no value, and the options that take one (--name NAME or --name=NAME). */
     private val FLAGS = setOf("json", "wait", "all", "albums", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals", "apply", "names", "upcoming", "encrypted", "replaces-device", "replace-sign-ins")
-    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency", "playlists", "way", "strictness", "explicit", "kind") + CliV2.valued
+    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency", "playlists", "way", "strictness", "explicit", "kind") + CliV2.valued + CliParity.valued
     val OPTIONS: List<String> get() = (FLAGS + VALUED).sorted().map { "--$it" }
 
     /** The options a command was given: switches and values (a value given twice is a list: --set). */

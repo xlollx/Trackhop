@@ -86,7 +86,7 @@ internal class CliCommands(
         "crowded" -> crowded()
         "spread" -> spread(o.has("apply"))
         "multi" -> CliMulti(this).run(p, o)
-        else -> CliV2(this).run(command, p, o) ?: throw Cli.Failure(2, "unknown command \"$command\". See: trackhop help")
+        else -> CliV2(this).run(command, p, o) ?: CliParity(this).run(command, p, o) ?: throw Cli.Failure(2, "unknown command \"$command\". See: trackhop help")
     }
 
     private fun need(p: List<String>, n: Int, form: String) { if (p.size < n) throw Cli.Failure(2, "usage: trackhop $form") }

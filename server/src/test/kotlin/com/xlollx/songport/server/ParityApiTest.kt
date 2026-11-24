@@ -93,4 +93,21 @@ class ParityApiTest {
         assertEquals(listOf("jellyfin"), call("GET", "services?q=JELLY").arr.map { it.jsonObject.s("id") })
         assertEquals(400, call("GET", "services?kind=nope").code)
     }
+
+    @Test fun theWeeklyUnplayableCheckIsTurnedOnRunAndDue() {
+        assertEquals("false", call("GET", "tools/unplayable/weekly").obj.s("enabled"))
+        assertTrue(!UnplayableWeekly.isDue(env, System.currentTimeMillis()))
+        assertEquals("true", call("PATCH", "tools/unplayable/weekly", """{"enabled":true}""").obj.s("enabled"))
+        assertTrue(env.store.data.settings.unplayableCheck)
+        assertTrue(UnplayableWeekly.isDue(env, System.currentTimeMillis()))
+        val task = call("POST", "tools/unplayable/weekly/run").also { assertEquals(it.text, 202, it.code) }.obj.s("task")!!
+        val deadline = System.currentTimeMillis() + 20_000
+        while (call("GET", "tasks/$task").obj.s("done") != "true" && System.currentTimeMillis() < deadline) Thread.sleep(100)
+        val last = call("GET", "tools/unplayable/weekly").obj.o("last")
+        assertEquals("No connected service can tell unplayable tracks apart.", last.s("summary"))
+        // Looked now: due again in a week.
+        assertTrue(!UnplayableWeekly.isDue(env, System.currentTimeMillis()))
+        assertTrue(UnplayableWeekly.isDue(env, System.currentTimeMillis() + UnplayableWeekly.EVERY_MS))
+        assertEquals(400, call("PATCH", "tools/unplayable/weekly", "{}").code)
+    }
 }

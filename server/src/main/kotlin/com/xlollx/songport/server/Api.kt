@@ -353,6 +353,8 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
     // Multi syncs: one source kept on several targets (ApiMulti.kt).
     if (apiMulti(ex, method, rest, ::json, ::error)) return
     if (apiSyncs(ex, method, rest, query, ::json, ::error)) return
+    // The app's features brought here in 2.2 (ApiParity.kt).
+    if (apiParity(ex, method, rest, query, ::json, ::error)) return
     if (apiMore(ex, method, rest, query, ::json, ::error)) return
     if (apiWanted(ex, method, rest, query, ::json, ::error)) return
     if (apiConcerts(method, rest, query, ::json, ::error)) return
