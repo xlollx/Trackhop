@@ -680,7 +680,9 @@ $removals"""
     /** The web connectors are not an official API: said next to their name wherever they are listed. */
     private fun unofficialBadges(p: MusicProvider): String = when {
         p is CookieConnector -> """ <span class="badge">unofficial</span>""" + if (p.alpha) """ <span class="alpha">alpha</span>""" else ""
-        p.linkOnly -> """ <span class="badge">unofficial</span>"""
+        // MusicBrainz links are its official API; Fortnite Festival is read from a page Epic does not document.
+        p.linkOnly && p !is com.xlollx.songport.providers.SoundtracksProvider -> """ <span class="badge">unofficial</span>"""
+        p is com.xlollx.songport.providers.FortniteFestivalProvider -> """ <span class="badge">unofficial</span>"""
         else -> ""
     }
 
@@ -984,6 +986,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
         com.xlollx.songport.sync.QqMusicPublic.SERVICE -> "https://y.qq.com/n/ryqq/playlist/…"
         com.xlollx.songport.sync.JioSaavnPublic.SERVICE -> "https://www.jiosaavn.com/featured/…"
         com.xlollx.songport.sync.GaanaPublic.SERVICE -> "https://gaana.com/playlist/…"
+        com.xlollx.songport.sync.Soundtracks.SERVICE -> "https://musicbrainz.org/release-group/…"
         else -> "https://soundcloud.com/user/sets/…"
     }
 

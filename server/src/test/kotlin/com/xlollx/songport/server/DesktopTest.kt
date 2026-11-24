@@ -33,7 +33,9 @@ class DesktopTest {
         installServerConnectors(officialOnly = true)
         val ids = com.xlollx.songport.providers.Providers.services().map { it.id }
         assertTrue(ids.containsAll(listOf("spotify", "tidal", "subsonic", "jellyfin", "plex", "csv")))
-        assertTrue(com.xlollx.songport.providers.Providers.services().none { it is CookieConnector || it.linkOnly })
+        // Link sources are unofficial routes, but MusicBrainz's: its official API, in every package.
+        assertTrue(com.xlollx.songport.providers.Providers.services().none { it is CookieConnector || (it.linkOnly && it.serviceId != "musicbrainz") || it.serviceId == "fortnite" })
+        assertTrue(ids.contains("musicbrainz"))
         installServerConnectors()
         assertTrue(com.xlollx.songport.providers.Providers.services().any { it is CookieConnector })
     }

@@ -769,6 +769,9 @@ multi sync whole.
 | `GET /api/v1/services` | The services added, and whether each is connected; each account apart (`id` `jellyfin@2`, with `serviceId` and `slot`). |
 | `GET /api/v1/services/{service}` | One service: connected, account, and what it can do. |
 | `GET /api/v1/services/{service}/search` | Look for a track: q is "Artist - Title" or a link. |
+| `GET /api/v1/soundtracks` | Soundtracks on MusicBrainz whose title holds q (a game's, a film's): each one's `service` and `playlist` make a sync's source. |
+| `GET /api/v1/truck-radio` | The radio lists of Euro Truck Simulator 2 and American Truck Simulator on this computer (or mounted in the data folder), with their stations. |
+| `POST /api/v1/truck-radio` | Add a station (`stream`, `name`, `genre`, `language`, `bitrate`, `game`) to the games' radio lists: the stations there stay, a copy of the list is kept. Close the game first. |
 | `GET /api/v1/convert` | A track on another service: track is "Artist - Title" or a link, to the service's id. |
 | `POST /api/v1/convert` | Several tracks on another service. |
 | `GET /api/v1/wanted` | Missing on my server: the tracks your syncs to your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy) could not find, each once, with artist, title, album, length, ISRC, MusicBrainz id (when your syncs' lookups found it), the syncs that miss it and when it was first seen. `?format=json` (default), `csv`, `m3u`, `text` or `lidarr`; `group=album`, `all=true` (with the ticked ones), `sync=`, `service=`, `since=7d` (or `24h`, `2026-11-01`). |

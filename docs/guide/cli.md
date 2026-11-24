@@ -112,6 +112,8 @@ this server or the same sync on both, and the app's reach here: see
 | Command | What it does |
 |---|---|
 | `trackhop services` | The services you added, and whether they are connected. |
+| `trackhop soundtracks <words>` | Soundtracks on MusicBrainz (a game's, a film's): the service and playlist shown make a sync's source. |
+| `trackhop truck-radio [add <stream> <name>]` | The radio list of Euro Truck Simulator 2 and American Truck Simulator on this computer; `add` puts a station in it (close the game first, a copy is kept). |
 | `trackhop playlists <service>` | A service's playlists, with their ids. |
 | `trackhop tracks <service> <playlist>` | A playlist's tracks. |
 | `trackhop add <service> <playlist> <track>…` | Adds tracks. A track is `"Artist - Title"` (searched and matched as a sync does), a link from any service, or its id on that service. Tracks already there are not added again. |
