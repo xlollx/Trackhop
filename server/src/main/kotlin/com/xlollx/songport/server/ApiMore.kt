@@ -395,7 +395,9 @@ internal fun Web.serviceJson(p: MusicProvider) = buildJsonObject {
     put("account", p.accountName(env)?.let { JsonPrimitive(it) } ?: JsonNull)
     // What it can do: a script asks before it tries.
     put("canWrite", p.canWrite); put("canCreatePlaylists", p.canCreatePlaylists); put("canRenamePlaylists", p.canRenamePlaylists)
-    put("canDeletePlaylists", p.canDeletePlaylists); put("canRemoveTracks", p.canRemoveTracks); put("linkOnly", p.linkOnly)
+    put("canDeletePlaylists", p.canDeletePlaylists); put("canRemoveTracks", p.canRemoveTracks); put("linkOnly", p.linkOnly); put("canSetCover", p.canSetCover)
+    // YouTube (official API): the day's quota this Trackhop used.
+    quotaJson(p)?.let { put("quota", it) }
     // A personal server's addresses (2.2): the second one, away from home, and the one requests go to now.
     if (p is com.xlollx.songport.providers.CredentialsProvider && p.offersSecondAddress && p.isConnected(env)) {
         put("awayAddress", p.awayAddress(env)?.let { JsonPrimitive(it) } ?: JsonNull)

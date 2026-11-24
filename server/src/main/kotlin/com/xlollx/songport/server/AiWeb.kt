@@ -33,6 +33,7 @@ internal fun Web.aiTool(r: Web.Req) {
             }
             "forget" -> { AiClient.clear(env); return redirect(r.ex, "/tools/ai?ok=${q("Forgotten.")}") }
             "mix" -> return mixGenerate(r)
+            "extend" -> return aiExtendPost(r)
             "generate" -> {
                 val c = config?.takeIf { it.complete } ?: return redirect(r.ex, "/tools/ai?err=${q("Set up your AI first.")}")
                 val description = r.form["description"].orEmpty().trim().ifEmpty { return redirect(r.ex, "/tools/ai?err=${q("Describe the playlist.")}") }
@@ -77,6 +78,7 @@ internal fun Web.aiTool(r: Web.Req) {
 <p><button>Write the playlist</button></p></form>""",
         )
     }
+    body.append(aiExtendCard(r, config))
     val vendors = AiClient.Vendor.entries.joinToString("") { v ->
         """<option value="${v.name}"${if (v == (config?.vendor ?: AiClient.Vendor.OPENROUTER)) " selected" else ""}>${h(v.label)}${if (v.freeTier) " (free tier)" else ""}</option>"""
     }

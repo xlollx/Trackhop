@@ -47,8 +47,8 @@ private fun Web.readableForSetlists(): List<MusicProvider> =
 
 private suspend fun Web.playlistsFor(p: MusicProvider): List<Playlist> = p.libraryEntries(env, false) + p.playlists(env)
 
-private suspend fun Web.setlistsOf(p: MusicProvider, playlistId: String, progress: (Int, Int) -> Unit = { _, _ -> }): Setlists.Result {
-    val r = Setlists.find(env, Setlists.artistsOf(p.tracks(env, playlistId)), progress = progress)
+private suspend fun Web.setlistsOf(p: MusicProvider, playlistId: String, picked: Set<String>? = null, progress: (Int, Int) -> Unit = { _, _ -> }): Setlists.Result {
+    val r = Setlists.find(env, ArtistPicks.chosen(p.tracks(env, playlistId), picked), whole = picked == null, progress = progress)
     env.log("setlists", "${p.label(env)} / $playlistId: ${r.artists.count { it.setlists.isNotEmpty() }} of ${r.artists.size} artists with setlists")
     return r
 }
@@ -88,6 +88,15 @@ internal fun setlistsJson(r: Setlists.Result): JsonObject = buildJsonObject {
 /** GET /api/v1/setlists?service=&playlist= */
 internal fun Web.apiSetlists(method: String, rest: List<String>, query: Map<String, String>, json: (Int, JsonElement) -> Unit, error: (Int, String) -> Unit): Boolean {
     if (rest != listOf("setlists") || method != "GET") return false
+    // One concert by its setlist.fm link (the official API, with a key).
+    query["link"]?.trim()?.takeIf { it.isNotEmpty() }?.let { link ->
+        val id = Setlists.idFromLink(link) ?: return true.also { error(400, "Not a link to a setlist on setlist.fm.") }
+        if (Setlists.key(env) == null) return true.also { error(409, SetlistTexts.NO_KEY) }
+        val s = runCatching { runBlocking { Setlists.byId(env, id) } }.getOrElse { return true.also { _ -> error(404, it.message ?: "Not found.") } }
+            ?: return true.also { error(409, SetlistTexts.NO_KEY) }
+        json(200, buildJsonObject { put("setlist", setlistJson(s)); put("tracks", JsonArray(Setlists.tracks(s).map { JsonPrimitive("${it.artists.joinToString(", ")} - ${it.title}") })); put("attribution", SetlistTexts.ATTRIBUTION) })
+        return true
+    }
     val able = readableForSetlists()
     val asked = query["service"] ?: query["connector"]
     val p = if (asked != null) Providers.byId(asked)?.takeIf { canReadForSetlists(it) } ?: return true.also { error(404, "No connected service \"$asked\": see GET /api/v1/services.") }
@@ -98,7 +107,7 @@ internal fun Web.apiSetlists(method: String, rest: List<String>, query: Map<Stri
             val lists = playlistsFor(p)
             val pl = lists.firstOrNull { it.id == wanted } ?: lists.filter { it.name.equals(wanted, ignoreCase = true) }.singleOrNull()
                 ?: return@runBlocking null
-            setlistsOf(p, pl.id)
+            setlistsOf(p, pl.id, ArtistPicks.of(emptyList(), query["artists"]))
         }
     }.getOrElse { return true.also { _ -> error(502, "${p.label(env)}: ${it.message ?: it.javaClass.simpleName}") } }
         ?: return true.also { error(404, "No playlist \"$wanted\" on ${p.label(env)} (or more than one with that name: use its id).") }
@@ -120,14 +129,27 @@ internal fun Web.setlistsPage(r: Web.Req) {
             val file = LocalFilesProvider.importTracks(env, Setlists.playlistName(s), tracks)
             env.log("setlists", "${tracks.size} songs of setlist ${s.id} saved as $file")
             """<div class="card ok"><p>${tracks.size} songs saved as the File playlist <b>${h(file)}</b>.</p>
-<p><a class="button" href="/syncs/new?src=${q(LocalFilesProvider.id)}&srcPlaylist=${q(file)}">Send it to a service</a></p>
+${transferForm(file, Setlists.playlistName(s))}
+<p><a href="/syncs/new?src=${q(LocalFilesProvider.id)}&srcPlaylist=${q(file)}">Or make it a sync</a></p>
 <p class="muted">${attributionHtml()}</p></div>"""
+        }
+        return redirect(r.ex, "/tools/task/${q(task.id)}")
+    }
+    // The File playlist of a setlist, once, to a service: a one-off transfer (Tools › Recent transfers).
+    if (r.method == "POST" && r.form["action"] == "transfer") return startTransfer(r)
+    // A setlist.fm link: that concert alone (the official API, with a key).
+    params["link"]?.trim()?.takeIf { it.isNotEmpty() }?.let { link ->
+        val id = Setlists.idFromLink(link) ?: return redirect(r.ex, "/tools/setlists?err=${q("Not a link to a setlist on setlist.fm.")}")
+        val task = Tasks.start(title, "/tools/setlists", { env.log("setlists", it) }, env.owner, env.marks) { _ ->
+            val s = Setlists.byId(env, id) ?: return@start """<div class="card err">${h(SetlistTexts.NO_KEY)}</div>"""
+            setlistsHtml("From a setlist.fm link", Setlists.Result(listOf(Setlists.ArtistSetlists(s.artist, listOf(s))), 1, true, Setlists.ownKey(env) != null, false, false))
         }
         return redirect(r.ex, "/tools/task/${q(task.id)}")
     }
     val able = readableForSetlists()
     if (able.isEmpty()) {
         body.append("""<div class="card">Connect a service first: <a href="/connectors">Services</a>.</div>""")
+        body.append(setlistLinkForm())
         return send(r.ex, 200, page(title, body.toString()))
     }
     val intro = """<p class="muted">The latest setlists of a playlist's artists, from setlist.fm: pick a concert and make it a playlist on any service. Only when you ask: nothing is checked on a schedule. ${setlistKeyLine()}</p>"""
@@ -135,15 +157,17 @@ internal fun Web.setlistsPage(r: Web.Req) {
     if (service == null) {
         val opts = able.joinToString("") { """<option value="${h(it.id)}">${h(it.label(env))}</option>""" }
         body.append("""<form method="get" action="/tools/setlists" class="card">$intro<label>Service</label><select name="service">$opts</select><p><button>Next</button></p></form>""")
+        body.append(setlistLinkForm())
         return send(r.ex, 200, page(title, body.toString()))
     }
     val lists = runCatching { runBlocking { playlistsFor(service) } }
         .getOrElse { return send(r.ex, 200, page(title, """<div class="card err">${h(it.message)}</div>""")) }
     val playlist = params["playlist"]?.let { id -> lists.firstOrNull { it.id == id } }
     if (r.method == "POST" && playlist != null) {
+        val picked = pickedArtists(r)
         val task = Tasks.start(title, "/tools/setlists?service=${q(service.id)}&playlist=${q(playlist.id)}", { env.log("setlists", it) }, env.owner, env.marks) { t ->
             t.progress = "Reading the playlist"
-            val res = setlistsOf(service, playlist.id) { done, total -> t.progress = "Artist ${minOf(done + 1, total)} of $total" }
+            val res = setlistsOf(service, playlist.id, picked) { done, total -> t.progress = "Artist ${minOf(done + 1, total)} of $total" }
             setlistsHtml(playlist.name, res)
         }
         return redirect(r.ex, "/tools/task/${q(task.id)}")
@@ -151,9 +175,14 @@ internal fun Web.setlistsPage(r: Web.Req) {
     val opts = lists.joinToString("") { p -> """<option value="${h(p.id)}"${if (p.id == playlist?.id) " selected" else ""}>${h(p.name)}${if (p.trackCount >= 0) " (${p.trackCount})" else ""}</option>""" }
     body.append("""<form method="post" action="/tools/setlists" class="card">$intro<input type="hidden" name="service" value="${h(service.id)}">
 <label>Playlist on ${h(service.label(env))}</label><select name="playlist">$opts</select>
+${artistPickFields(r, service, playlist?.id)}
 <p><button>Find setlists</button> <a class="button secondary" href="/tools/setlists">Another service</a></p></form>""")
     send(r.ex, 200, page(title, body.toString()))
 }
+
+/** "From a setlist.fm link": one concert by its link. */
+private fun Web.setlistLinkForm(): String =
+    """<form method="get" action="/tools/setlists" class="card"><label for="sl">A setlist.fm link</label><input type="url" id="sl" name="link" placeholder="https://www.setlist.fm/setlist/…" required><p><button class="secondary">Open the setlist</button></p>${if (Setlists.key(env) == null) """<p class="muted">Needs a setlist.fm key: <a href="/settings#setlistfm">add a free key</a>.</p>""" else ""}</form>"""
 
 private fun Web.setlistKeyLine(): String = when {
     Setlists.ownKey(env) != null -> "setlist.fm: your own key."

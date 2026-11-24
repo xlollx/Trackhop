@@ -75,10 +75,10 @@ private fun Web.readableForRecords(): List<MusicProvider> =
 
 private suspend fun Web.recordPlaylists(p: MusicProvider): List<Playlist> = p.libraryEntries(env, false) + p.playlists(env)
 
-private suspend fun Web.recordsOf(p: MusicProvider, playlistId: String, currency: String, look: Records.Look, progress: (Int, Int) -> Unit = { _, _ -> }): Records.Result {
+private suspend fun Web.recordsOf(p: MusicProvider, playlistId: String, currency: String, look: Records.Look, picked: Set<String>? = null, progress: (Int, Int) -> Unit = { _, _ -> }): Records.Result {
     val tracks = p.tracks(env, playlistId)
     // The playlist's own titles tell its artist from another of the same name.
-    val r = Records.find(env, Concerts.artistsOf(tracks), currency, look = look, progress = progress, evidence = Records.evidenceOf(tracks))
+    val r = Records.find(env, ArtistPicks.chosen(tracks, picked), currency, whole = picked == null, look = look, progress = progress, evidence = Records.evidenceOf(tracks))
     env.log("records", "${p.label(env)} / $playlistId: ${r.artists.count { !it.records.isNullOrEmpty() }} of ${r.artists.size} artists with records")
     return r
 }
@@ -145,7 +145,7 @@ internal fun Web.apiRecords(method: String, rest: List<String>, query: Map<Strin
             val lists = recordPlaylists(p)
             val pl = lists.firstOrNull { it.id == wanted } ?: lists.filter { it.name.equals(wanted, ignoreCase = true) }.singleOrNull()
                 ?: return@runBlocking null
-            recordsOf(p, pl.id, currency, look)
+            recordsOf(p, pl.id, currency, look, ArtistPicks.of(emptyList(), query["artists"]))
         }
     }.getOrElse { return true.also { _ -> error(502, "${p.label(env)}: ${it.message ?: it.javaClass.simpleName}") } }
         ?: return true.also { error(404, "No playlist \"$wanted\" on ${p.label(env)} (or more than one with that name: use its id).") }
@@ -176,9 +176,10 @@ internal fun Web.recordsPage(r: Web.Req) {
     val playlist = params["playlist"]?.let { id -> lists.firstOrNull { it.id == id } }
     val look = Records.Look.of(params["kind"]) ?: Records.Look.ALL
     if (r.method == "POST" && playlist != null) {
+        val picked = pickedArtists(r)
         val task = Tasks.start(title, "/tools/records?service=${q(service.id)}&playlist=${q(playlist.id)}&kind=${RecordTexts.lookName(look)}", { env.log("records", it) }, env.owner, env.marks) { t ->
             t.progress = "Reading the playlist"
-            val res = recordsOf(service, playlist.id, Records.currencyFor(), look) { done, total -> t.progress = "Artist ${minOf(done + 1, total)} of $total" }
+            val res = recordsOf(service, playlist.id, Records.currencyFor(), look, picked) { done, total -> t.progress = "Artist ${minOf(done + 1, total)} of $total" }
             recordsHtml(playlist.name, res)
         }
         return redirect(r.ex, "/tools/task/${q(task.id)}")
@@ -186,6 +187,7 @@ internal fun Web.recordsPage(r: Web.Req) {
     val opts = lists.joinToString("") { p -> """<option value="${h(p.id)}"${if (p.id == playlist?.id) " selected" else ""}>${h(p.name)}${if (p.trackCount >= 0) " (${p.trackCount})" else ""}</option>""" }
     body.append("""<form method="post" action="/tools/records" class="card">$intro<input type="hidden" name="service" value="${h(service.id)}">
 <label>Playlist on ${h(service.label(env))}</label><select name="playlist">$opts</select>
+${artistPickFields(r, service, playlist?.id)}
 <label>Show</label><select name="kind">${Records.Look.entries.joinToString("") { l -> """<option value="${RecordTexts.lookName(l)}"${if (l == look) " selected" else ""}>${when (l) { Records.Look.ALL -> "All"; Records.Look.RECORDS -> "CD & vinyl"; Records.Look.MERCH -> "Merch" }}</option>""" }}</select>
 <p><button>Find records</button> <a class="button secondary" href="/tools/records">Another service</a></p></form>""")
     send(r.ex, 200, page(title, body.toString()))

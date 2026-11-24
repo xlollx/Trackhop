@@ -28,7 +28,7 @@ internal fun Web.bulkSyncsBar(home: String, shown: Int, selecting: Boolean): Str
     return """<p class="muted"><a href="${h(homeWith(home, "select=1&all=1"))}">Select all</a> · <a href="${h(homeWith(home, "select=1"))}">None</a> · <a href="${h(home)}">Done</a></p>""" +
         """<form id="$FORM" method="post" action="/syncs/bulk" class="card"><div class="actions">""" +
         """<button name="action" value="run">Run now</button> <button class="secondary" name="action" value="on">Turn on</button> """ +
-        """<button class="secondary" name="action" value="off">Turn off</button> <button class="danger" name="action" value="delete">Delete…</button></div></form>"""
+        """<button class="secondary" name="action" value="off">Turn off</button> <button class="secondary" name="action" value="edit">Edit…</button> <button class="danger" name="action" value="delete">Delete…</button></div></form>"""
 }
 
 /** A card's box in select mode, ticked with Select all. */
@@ -53,6 +53,9 @@ internal fun Web.bulkSyncs(r: Web.Req) {
             ticked.forEach { j -> env.store.job(j.id)?.let { enablePair(it, on) } }
             redirect(r.ex, "/?ok=${q("${syncCount(ticked.size)} turned ${if (on) "on" else "off"}")}")
         }
+        // Their schedule, colour or label, and removals, at once (SchedulesWeb.kt).
+        "edit" -> bulkEditPage(r, ticked)
+        "edit-apply" -> bulkEditApply(r, ticked)
         "delete" -> confirmDelete(r, goners(ticked))
         "delete-confirmed" -> {
             var gone = 0

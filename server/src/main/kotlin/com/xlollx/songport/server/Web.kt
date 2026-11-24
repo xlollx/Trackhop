@@ -176,6 +176,8 @@ class Web(
         val type = ex.requestHeaders.getFirst("Content-Type").orEmpty()
         // A playlist file goes to disk as it arrives, never whole into memory (#67): a library can be big.
         if (method == "POST" && path == listOf("files") && type.startsWith("multipart/form-data")) return uploadToDisk(ex, type)
+        // A listening history export: big too (Tools › All-time stats).
+        if (method == "POST" && path == listOf("tools", "lifetime") && type.startsWith("multipart/form-data")) return lifetimeUpload(ex, type)
         val bytes = if (method == "POST") ex.requestBody.readNBytes(MAX_BODY + 1) else ByteArray(0)
         if (bytes.size > MAX_BODY) return send(ex, 413, page("Too large", "<p>Files up to ${MAX_BODY / 1_000_000} MB.</p>"))
         val parts = if (type.startsWith("multipart/form-data")) Multipart.parse(type, bytes) else null
@@ -194,6 +196,7 @@ class Web(
             // Before files/<name>: the playlist files all end in .csv, so "try" is never one.
             path == listOf("files", "try") && method == "POST" -> tryPatterns(r)
             path == listOf("files", "bulk") && method == "POST" -> bulkFiles(r)
+            path == listOf("files", "text") && method == "POST" -> pasteText(r)
             path == listOf("files", "library") && method == "GET" -> libraryPage(r)
             path == listOf("files", "library") && method == "POST" -> libraryAdd(r)
             path.size == 2 && path[0] == "files" && method == "GET" -> download(r, path[1])
@@ -202,6 +205,8 @@ class Web(
             path[0] == "tools" -> tools(r, path.drop(1))
             path == listOf("settings") -> settingsPage(r)
             path == listOf("settings", "notifications") -> notificationsPage(r)
+            path == listOf("settings", "schedules") -> schedulesPage(r)
+            path == listOf("tofix") -> toFixPage(r)
             path[0] == "playlists" -> playlists(r, path.drop(1))
             path[0] == "syncs" -> syncs(r, path.drop(1))
             // Multi syncs: one source, several targets (MultiWeb.kt).
@@ -315,7 +320,7 @@ class Web(
         val listedCount = com.xlollx.songport.shared.Nway.listedSyncs(env.store.data).size
         body.append(
             """<div class="hero"><h2>Your playlists, everywhere</h2><p class="muted">${listedCount} ${if (listedCount == 1) "sync" else "syncs"} · ${connected.size} ${if (connected.size == 1) "service" else "services"}${if (lastRun > 0) " · last sync ${Html.date(lastRun)}" else ""}</p>
-<div class="actions">${if (jobs.any { it.enabled }) Html.postButton("/syncs/all", if (running.isNotEmpty()) "Syncing…" else "Sync all now") else ""} <a class="hero-link" href="/tools/stats">Your numbers ›</a></div></div>""",
+<div class="actions">${if (jobs.any { it.enabled }) Html.postButton("/syncs/all", if (running.isNotEmpty()) "Syncing…" else "Sync all now") else ""} <a class="hero-link" href="/tools/stats">Your numbers ›</a>${com.xlollx.songport.sync.ToFix.count(env.store.data).takeIf { it > 0 }?.let { """ <a class="hero-link" href="/tofix">To fix ($it) ›</a>""" } ?: ""}</div></div>""",
         )
         if (connected.size < 1) {
             body.append("""<div class="card">Connect a service first: <a href="/connectors">Services</a>.</div>""")
@@ -336,6 +341,8 @@ class Web(
         val listedIds = com.xlollx.songport.shared.Nway.listedSyncs(env.store.data).mapTo(HashSet()) { it.id }
         val listed = jobs.filter { it.id in listedIds }
         val shown = Labels.favoritesFirst(filter.select(listed, env.store.data.reports, running.keys, env.store.data.settings.labels) { label(it) })
+        // "Up to date", checked in the background: the next load (or the refresh while syncing) shows it.
+        FreshnessServer.refresh(env, shown)
         if (jobs.isNotEmpty() && shown.isEmpty()) body.append("""<p class="muted">No sync matches. <a href="/">Show them all</a></p>""")
         // Several syncs at once: "Select" ticks them (plain links and a form, no JavaScript needed).
         val selecting = r.query["select"] == "1"
@@ -418,7 +425,7 @@ class Web(
             // The connection's failure in plain words, calmly: it runs again by itself.
             last.error != null && last.netError != null -> """<span class="net">☁︎ ${h(last.error)}</span>"""
             last.error != null -> """<span class="err">${h(last.error)}</span>"""
-            else -> """<span class="ok">+${last.added} −${last.removed}</span>""" + ratingsSet(last.ratingsSet) +
+            else -> """<span class="ok">+${last.added} −${last.removed}</span>""" + ratingsSet(last.ratingsSet) + FreshnessServer.badge(env, job) +
                 (if (last.unmatched.isNotEmpty()) """ <span class="muted">· ${last.unmatched.size} not found</span>""" else "") +
                 (if (last.sourceEmpty && job.radio == null) """ <span class="err">· the source is empty</span>""" else "") +
                 (if (last.hasReview()) """ · <a href="/syncs/${q(job.id)}/review/${q(last.id)}">Review</a>""" else "") +
@@ -590,6 +597,8 @@ $removals"""
         if (rest.size == 3 && rest[1] == "quickconnect" && rest[2] == "poll") return quickConnectPoll(r, provider)
         when (rest.getOrNull(1)) {
             null -> connectorPage(r, provider)
+            // Test the connection (ConnectionTestWeb.kt): three calls, read only.
+            "test" -> if (!provider.requiresAuth || provider.isConnected(env)) connectionTestPage(r, provider) else redirect(r.ex, back)
             "settings" -> {
                 val id = provider.serviceId
                 store.updateSettings { s ->
@@ -680,7 +689,13 @@ $removals"""
     private fun connectorList(r: Req) {
         val added = Providers.connectors()
         val body = StringBuilder(notice(r))
-        for (p in added) {
+        // Find and filter as the app's Accounts: a search and one chip at a time (ServicesFilter).
+        val chip = ServicesFilter.chip(r.query["kind"]) ?: ServicesFilter.Chip.ALL
+        val find = r.query["q"].orEmpty()
+        body.append(servicesFinder(find, chip, added.size))
+        val shown = ServicesFilter.shown(env, added, find, chip)
+        if (added.isNotEmpty() && shown.isEmpty()) body.append("""<p class="muted">No service matches. <a href="/connectors">Show them all</a></p>""")
+        for (p in shown) {
             val state = when {
                 !p.requiresAuth -> """<span class="ok">ready</span>"""
                 p.isConnected(env) -> """<span class="ok">connected</span>""" + (p.accountName(env)?.let { " · " + h(it) } ?: "")
@@ -715,8 +730,9 @@ $removals"""
             !p.requiresAuth -> Unit
             p.isConnected(env) -> {
                 body.append(
-                    """<div class="card row"><div><span class="ok">Connected</span>${p.accountName(env)?.let { " as <b>" + h(it) + "</b>" } ?: ""}</div>""" +
-                        Html.postButton("/connectors/${q(p.id)}/disconnect", "Disconnect", "secondary") + "</div>",
+                    """<div class="card row"><div><span class="ok">Connected</span>${p.accountName(env)?.let { " as <b>" + h(it) + "</b>" } ?: ""}</div><div class="actions">""" +
+                        Html.postButton("/connectors/${q(p.id)}/test", "Test the connection", "secondary") + " " +
+                        Html.postButton("/connectors/${q(p.id)}/disconnect", "Disconnect", "secondary") + "</div></div>" + quotaCard(p),
                 )
                 if (p is CredentialsProvider && p.loginForm.needsUrl && p.offersSecondAddress) body.append(addressCard(p))
             }
@@ -962,6 +978,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                 if (r.method != "POST") return syncPage(r, job)
                 when (rest.getOrNull(1)) {
                     "run" -> { runner.start(job); redirect(r.ex, back) }
+                    "preview" -> startPreview(r, job)
                     // After a run stopped by the target's size check: the user says the smaller target is real.
                     "run-anyway" -> { env.store.confirmTargetShrink(job.id); runner.start(job); redirect(r.ex, back) }
                     "stop" -> { SyncState.stop(job.id); redirect(r.ex, back) }
@@ -982,9 +999,9 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                         // The page's own form also carries the star, the tags and the colour's name.
                         val grouped = r.form["groups"] == "1"
                         val tags = if (grouped) Labels.cleanTags(r.form["tags"].orEmpty().split(',').mapNotNull { Labels.parseTag(it) }.associate { it.first to it.second.orEmpty() }) else job.tags
-                        val timed = withTiming(job.copy(name = name, schedule = s, favorite = if (grouped) r.form["favorite"] != null else job.favorite, tags = tags), r)
+                        val timed = withSavedSchedule(withTiming(job.copy(name = name, schedule = s, favorite = if (grouped) r.form["favorite"] != null else job.favorite, tags = tags), r), r.form)
                         // A radio sync's form has no choice about changes: its source only grows.
-                        val changed = if (job.radio != null) timed else withRatings(withChanges(timed, r), r)
+                        val changed = if (job.radio != null) timed else withMatching(withRatings(withChanges(timed, r), r), r.form)
                         // Two-way and its removals, where the form offers them (see pairFields).
                         val paired = job.linkedJobId?.let { env.store.job(it) } != null
                         val offered = r.form["pair"] == "1"
@@ -1164,6 +1181,8 @@ ${changesFields(null)}${ratingsField(null, src, dst)}${pairFields(null)}
         if (running) {
             body.append(if (SyncState.isPaused(job.id)) Html.postButton("/syncs/$id/resume", "Resume") else Html.postButton("/syncs/$id/pause", "Pause", "secondary"))
         }
+        // What a run would do now, changing nothing (the app's Preview).
+        if (job.radio == null && !running) body.append(Html.postButton("/syncs/$id/preview", "Preview", "secondary"))
         body.append(Html.postButton("/syncs/$id/toggle", if (job.enabled) "Turn off" else "Turn on", "secondary"))
         body.append(Html.postButton("/syncs/$id/delete", "Delete", "danger", confirm = if (halves(job).size > 1) "Delete this two-way sync and its other half? The playlists stay as they are." else "Delete this sync? The playlists stay as they are."))
         body.append("</div>")
@@ -1176,8 +1195,8 @@ ${changesFields(null)}${ratingsField(null, src, dst)}${pairFields(null)}
         val labels = env.store.data.settings.labels
         val schedules = Schedule.values().joinToString("") { """<option value="${it.name}"${if (it == job.schedule) " selected" else ""}>${h(scheduleName(it))}</option>""" }
         body.append(
-            """<form method="post" action="/syncs/$id/schedule" class="card"><label>Name</label><input type="text" name="name" value="${h(job.name)}">${if (job.radio != null) """<input type="hidden" name="schedule" value="MANUAL">""" else """${timingFields(job)}
-${changesFields(job)}${ratingsField(job, Providers.byId(job.source.provider), Providers.byId(job.target.provider))}${pairFields(job)}"""}
+            """<form method="post" action="/syncs/$id/schedule" class="card"><label>Name</label><input type="text" name="name" value="${h(job.name)}">${if (job.radio != null) """<input type="hidden" name="schedule" value="MANUAL">""" else """${savedScheduleField(job)}${timingFields(job)}
+${changesFields(job)}${ratingsField(job, Providers.byId(job.source.provider), Providers.byId(job.target.provider))}${pairFields(job)}${matchingFields(job)}"""}
 <label>Colour</label><div class="swatches"><label title="None"><input type="radio" name="color" value=""${if (job.color == null) " checked" else ""} aria-label="None"><span class="dot none"></span></label>${Html.JOB_COLORS.entries.joinToString("") { (k, v) -> val n = h(labels.firstOrNull { it.id == k }?.name?.takeIf { it.isNotEmpty() } ?: k); """<label title="$n"><input type="radio" name="color" value="$k"${if (job.label == k) " checked" else ""} aria-label="$n"><span class="dot" style="background:${v.first}"></span></label>""" }}${labels.filter { !Labels.isBase(it.id) }.joinToString("") { l -> """<label title="${h(l.name)}"><input type="radio" name="color" value="label:${h(l.id)}"${if (job.label == l.id) " checked" else ""} aria-label="${h(l.name)}"><span class="dot" style="background:${h(l.color)}"></span></label>""" }}<label title="Your own colour"><input type="radio" name="color" value="custom"${if (job.label == null && Html.customColor(job.color) != null) " checked" else ""} aria-label="Your own colour"><input type="color" name="customColor" value="${h((Html.customColor(job.color) ?: "#0B84E8").lowercase())}" aria-label="Pick your own colour" onchange="this.previousElementSibling.checked=true"></label></div>
 <input type="hidden" name="groups" value="1">
 <label for="labelName">Label name</label><input type="text" id="labelName" name="labelName" maxlength="${Labels.MAX_NAME}" value="${h(Labels.name(job, labels))}"><p class="muted">Optional. Every sync with this colour shares the name: you can then search and filter by it. Your own colour with a name is kept among the ready colours.</p>

@@ -36,7 +36,7 @@ internal fun Web.savedMatchesPage(r: Web.Req) {
     fun service(family: String) = family.substringBefore('#').let { fam -> Providers.all().firstOrNull { FileStore.family(it.id) == fam }?.displayName ?: fam }
     fun song(t: Track?, id: String) = t?.let { "${h(it.title)}${if (it.artists.isNotEmpty()) " · " + h(it.artistLine) else ""}" } ?: """<span class="muted">${h(id)}</span>"""
     val body = StringBuilder(notice(r))
-    body.append("""<div class="card"><p class="muted">Everything Trackhop remembers across your syncs: a song and the one chosen for it on the other service, a song not found, a song ignored. Forget one and the next sync searches it again; to choose another song, use the app or a run's review.</p>""")
+    body.append("""<div class="card"><p class="muted">Everything Trackhop remembers across your syncs: a song and the one chosen for it on the other service, a song not found, a song ignored. Forget one and the next sync searches it again; to choose another song, use <a href="/tofix">To fix</a> or a run's review.</p>""")
     val kinds = listOf(null to "All", SavedMatches.Kind.CHOSEN to "Chosen by you", SavedMatches.Kind.NOT_FOUND to "Not found", SavedMatches.Kind.IGNORED to "Ignored")
     val targets = entries.map { it.targetService }.distinct()
     body.append("""<form method="get" action="/tools/matches"><input type="search" name="q" value="${h(query)}" placeholder="Search a song or an artist"> <select name="kind">""")

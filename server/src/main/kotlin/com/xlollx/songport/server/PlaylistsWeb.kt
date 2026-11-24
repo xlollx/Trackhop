@@ -52,6 +52,14 @@ internal fun Web.playlists(r: Web.Req, rest: List<String>) {
         return send(r.ex, 200, page("Playlists on ${service.label(env)}", body.toString()))
     }
     val back = "$base/${q(playlist.id)}"
+    if (r.method == "POST" && r.form["action"] == "make") return makePost(r, service, playlist, back)
+    // The cover (CoversWeb.kt): drawn ones to pick from, their pictures, and putting one on the playlist.
+    if (rest.getOrNull(2) == "cover.png" && r.method == "GET") return coverPng(r, service, playlist)
+    if (rest.getOrNull(2) == "cover" && r.method == "GET") return coverChoices(r, service, playlist, back)
+    if (r.method == "POST" && (r.form["action"] == "cover" || r.form["action"] == "coverimage")) {
+        val res = runCatching { setCover(service, playlist, r.form["variant"]?.toIntOrNull(), r.files["image"]?.bytes) }
+        return redirect(r.ex, "$back?" + res.fold({ "ok=${q(it)}" }, { "err=${q(it.message ?: "Error")}" }))
+    }
     if (r.method == "POST") {
         val result = runCatching {
             runBlocking {
@@ -79,6 +87,9 @@ internal fun Web.playlists(r: Web.Req, rest: List<String>) {
     val body = StringBuilder(notice(r))
     body.append("""<p class="muted"><a href="$base">${h(service.label(env))}</a> · ${tracks.size} tracks · <a href="/tools/export?service=${q(service.id)}&playlist=${q(playlist.id)}">Export</a> · <a href="/syncs/new?src=${q(service.id)}&amp;srcPlaylist=${q(playlist.id)}">Sync it to another service</a>${if (service is com.xlollx.songport.providers.PlexProvider && !com.xlollx.songport.providers.MusicProvider.isLibrary(playlist.id)) """ · <a href="/tools/plex?account=${q(service.id)}&amp;copy=${q(playlist.id)}#copy">Copy to a Plex Home user</a>""" else ""}</p>""")
     val owned = playlist.ownedByMe && !MusicProvider.isLibrary(playlist.id)
+    body.append(makeCard(service, playlist, back))
+    body.append(shareLinkCard(service, playlist, tracks))
+    body.append(coverCard(service, playlist, back))
     if (owned && service.canRenamePlaylists) {
         body.append("""<form method="post" action="$back" class="card"><input type="hidden" name="action" value="rename"><label>Name</label><input type="text" name="name" value="${h(playlist.name)}"><p><button class="secondary">Rename</button></p></form>""")
     }
