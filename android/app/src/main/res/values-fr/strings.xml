@@ -2236,7 +2236,7 @@
     <string name="notify_help_slack">Crée une app avec un incoming webhook pour un canal (api.slack.com/messaging/webhooks) et colle son URL.</string>
     <string name="notify_help_matrix">Un compte (bot) dans le salon : son jeton d\'accès (Element : Paramètres › Aide et à propos) et l\'id du salon (Paramètres du salon › Avancé).</string>
     <string name="notify_help_pushover">Ta user key est sur la page d\'accueil de pushover.net ; crée-y une application pour son jeton d\'API.</string>
-    <string name="notify_help_apprise">L\'adresse de ton Apprise API avec la clé d\'une configuration enregistrée (…/notify/&lt;clé&gt;). Un tag n\'envoie qu\'aux services qu\'il marque ; vide, à tous.</string>
+    <string name="notify_help_apprise">L\'adresse de ton Apprise API avec la clé d\'une configuration enregistrée (…/notify/clé). Un tag n\'envoie qu\'aux services qu\'il marque ; vide, à tous.</string>
     <string name="notify_field_apprise_url">URL de l\'Apprise API</string>
     <string name="notify_field_apprise_tag">Tag (facultatif)</string>
     <string name="notify_field_telegram_token">Jeton du bot</string>

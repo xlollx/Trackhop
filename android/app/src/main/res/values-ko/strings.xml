@@ -2182,7 +2182,7 @@
     <string name="notify_help_slack">채널용 incoming webhook이 있는 앱을 만들고(api.slack.com/messaging/webhooks) URL을 붙여 넣으세요.</string>
     <string name="notify_help_matrix">방에 있는 (봇) 계정의 액세스 토큰(Element: 설정 › 도움말 및 정보)과 방 id(방 설정 › 고급).</string>
     <string name="notify_help_pushover">사용자 키는 pushover.net 첫 페이지에 있어요. 그곳에서 애플리케이션을 만들어 API 토큰을 받으세요.</string>
-    <string name="notify_help_apprise">Apprise API 주소와 저장된 구성의 키(…/notify/&lt;키&gt;). 태그를 넣으면 그 태그가 붙은 서비스에만 보내고, 비우면 모두에게 보내요.</string>
+    <string name="notify_help_apprise">Apprise API 주소와 저장된 구성의 키(…/notify/키). 태그를 넣으면 그 태그가 붙은 서비스에만 보내고, 비우면 모두에게 보내요.</string>
     <string name="notify_field_apprise_url">Apprise API URL</string>
     <string name="notify_field_apprise_tag">태그(선택)</string>
     <string name="notify_field_telegram_token">봇 토큰</string>
