@@ -86,7 +86,7 @@ internal class CliCommands(
         "crowded" -> crowded()
         "spread" -> spread(o.has("apply"))
         "multi" -> CliMulti(this).run(p, o)
-        else -> CliV2(this).run(command, p, o) ?: throw Cli.Failure(2, "unknown command \"$command\". See: trackhop help")
+        else -> CliConn(this).run(command, p, o) ?: CliV2(this).run(command, p, o) ?: throw Cli.Failure(2, "unknown command \"$command\". See: trackhop help")
     }
 
     private fun need(p: List<String>, n: Int, form: String) { if (p.size < n) throw Cli.Failure(2, "usage: trackhop $form") }
@@ -116,7 +116,7 @@ internal class CliCommands(
     private fun allSyncs() = api.get("syncs").jsonArray.map { it.jsonObject }
 
     /** The sync named [ask]: its id, its exact name, or the only one whose name starts with or holds it. */
-    private fun sync(ask: String): JsonObject {
+    internal fun sync(ask: String): JsonObject {
         val list = allSyncs()
         list.firstOrNull { it.s("id") == ask }?.let { return it }
         val exact = list.filter { it.s("name").equals(ask, ignoreCase = true) }

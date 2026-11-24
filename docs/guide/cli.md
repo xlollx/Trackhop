@@ -66,6 +66,7 @@ Without it, the admin's.
 | `trackhop multi remove-target <multi> <target>` | Removes a target (its service, or its id from `show`); its playlist stays as it is. |
 | `trackhop multi way <multi> <target> exact\|keep\|two_way` | Changes how a target follows. |
 | `trackhop preview <sync>` | What a run would add, remove, not find and want checked now, changing nothing. |
+| `trackhop why <sync> "Artist - Title"` | Why a track was not matched: the closest candidates on the target, each with its score against the sync's threshold and the parts of it (title, artist, length, version, album). |
 
 The options of `new` and `edit`: `--name NAME`; `--schedule manual|hourly|every_6h|daily|weekly` or
 `--every MINUTES`; `--at 07:30`; `--days mon,fri` (or `1,5`); `--changes add|mirror|archive` (only
@@ -112,6 +113,7 @@ this server or the same sync on both, and the app's reach here: see
 | Command | What it does |
 |---|---|
 | `trackhop services` | The services you added, and whether they are connected. |
+| `trackhop address <service> [<url> \| none]` | A personal server's second address, for away from home: tried when the first one does not answer, the one that worked last first. Without `<url>` it shows both. |
 | `trackhop playlists <service>` | A service's playlists, with their ids. |
 | `trackhop tracks <service> <playlist>` | A playlist's tracks. |
 | `trackhop add <service> <playlist> <track>…` | Adds tracks. A track is `"Artist - Title"` (searched and matched as a sync does), a link from any service, or its id on that service. Tracks already there are not added again. |
@@ -121,6 +123,7 @@ this server or the same sync on both, and the app's reach here: see
 | `trackhop convert <service> <track>…` | The same tracks on another service: their ids there, and how sure each match is. |
 | `trackhop duplicates <service> <playlist>` | The tracks a playlist has more than once; `--remove` takes the extra copies out (`--wait` to wait for the end). |
 | `trackhop nolyrics [<service>]` | The songs on your Navidrome, Jellyfin, Emby, Plex or Lyrion server without lyrics. Nothing is changed; to add lyrics from LRCLIB, use Tools › Synced lyrics on the page. |
+| `trackhop plex sounds-like "<song>"`, `plex adventure "<from>" "<to>"`, `plex users`, `plex copy "<playlist>" --to <user>` | Plex: songs that sound like one, a sonic adventure from one song to another (both need a Plex Pass server that analysed its music), the users the server is shared with, and a playlist copied into one's library. `--service plex@2` picks another Plex account. |
 | `trackhop mbtags [<service>]` | The songs on your Navidrome, Jellyfin, Emby or Plex server without MusicBrainz tags (with them a sync finds the exact recording). Nothing is changed; `<service>` can be left out when only one such server is connected. |
 | `trackhop releases <service> <playlist> [--days 7\|30\|90] [--upcoming]` | The new albums, EPs and singles of a playlist's artists (Deezer and MusicBrainz, no account), with the date and a link: released in the last 30 days, or `--days 7` / `90`; `--upcoming` adds what is announced. A first search takes about a second per artist. |
 | `trackhop wanted [--format json\|csv\|m3u\|text\|lidarr] [--albums] [--all] [--sync S] [--service S] [--since 7d]` | The tracks of your playlists missing on your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy), each once, with the syncs that miss them. `--format` prints it as a file (`> list.csv`), `lidarr` as Lidarr's Custom List; `--albums` groups by album, `--all` shows the ticked ones too; `--sync`, `--service` and `--since` (`24h`, `7d`, `2026-11-01`) narrow it. |

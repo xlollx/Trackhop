@@ -731,6 +731,7 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `POST /api/v1/syncs/{sync}/disable` | Turn a sync's schedule off (both halves of a two-way pair). |
 | `POST /api/v1/syncs/{sync}/move` | Move a sync in the list: a position from 1, or up, down, top, bottom. |
 | `GET /api/v1/syncs/{sync}/preview` | What a run would do now, without changing anything. |
+| `GET /api/v1/syncs/{sync}/why` | Why a track was not matched (`?track=<id from the last run's not found>` or `?q=Artist - Title`): the closest candidates with their score, the threshold and the parts of the score. |
 | `GET /api/v1/syncs/{sync}/decisions` | The review's choices between the sync's two services (ignored, matched by hand, kept), each with when it was made. |
 | `POST /api/v1/syncs/{sync}/decisions` | Bring in review choices made elsewhere: `{"decisions": [{"source": "<id>", "kind": "ignore" \| "match" \| "keep", "track": "<id>", "at": 1731234567890}]}`; the newest choice of each track wins, and the answer lists them all. |
 | `GET /api/v1/syncs/crowded` | Whether many syncs reach one service at about the same time: the service, the time, the syncs, `dismissed` (the page's *Got it*) and `canSpread`. |
@@ -769,6 +770,12 @@ multi sync whole.
 | `GET /api/v1/services` | The services added, and whether each is connected; each account apart (`id` `jellyfin@2`, with `serviceId` and `slot`). |
 | `GET /api/v1/services/{service}` | One service: connected, account, and what it can do. |
 | `GET /api/v1/services/{service}/search` | Look for a track: q is "Artist - Title" or a link. |
+| `PUT /api/v1/services/{service}/address` | A personal server's second address, for away from home: `{"away": "https://…"}`, or `null` to take it away. |
+| `GET /api/v1/plex/{account}/search` | Plex: songs of the library by title (`?q=`), to pick one for the calls below. |
+| `GET /api/v1/plex/{account}/sounds-like` | Plex: songs that sound like one (`?track=`), from the server's sonic analysis (Plex Pass). |
+| `GET /api/v1/plex/{account}/sonic-adventure` | Plex: a journey from one song to another through songs that sound alike (`?from=&to=`). |
+| `GET /api/v1/plex/{account}/home-users` | Plex: the users the server is shared with (Plex Home), for a copy. |
+| `POST /api/v1/plex/{account}/playlists/{playlist}/copy` | Copy a Plex playlist into a user's library on the same server: `{"user": "<id>"}`. |
 | `GET /api/v1/convert` | A track on another service: track is "Artist - Title" or a link, to the service's id. |
 | `POST /api/v1/convert` | Several tracks on another service. |
 | `GET /api/v1/wanted` | Missing on my server: the tracks your syncs to your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy) could not find, each once, with artist, title, album, length, ISRC, MusicBrainz id (when your syncs' lookups found it), the syncs that miss it and when it was first seen. `?format=json` (default), `csv`, `m3u`, `text` or `lidarr`; `group=album`, `all=true` (with the ticked ones), `sync=`, `service=`, `since=7d` (or `24h`, `2026-11-01`). |
