@@ -151,6 +151,8 @@
     <string name="settings_advanced_desc">Trackhop ships without keys of its own: the official routes of Spotify, YouTube, TIDAL, Deezer, Last.fm and Apple Music use a free key created in your name, so their limits and quotas are yours alone. Here you can see and change them.</string>
     <string name="settings_privacy_policy">Privacy policy</string>
     <string name="settings_about">About</string>
+    <!-- The build series of this app, the About row's tag (not shown, the same in every build). -->
+    <string name="settings_about_series" translatable="false">marrow-ledge-77c</string>
     <string name="settings_developer">Developer options</string>
     <string name="settings_developer_switch">Show developer tools</string>
     <string name="settings_developer_desc">Connections log, technical report to share, traffic capture for the web connectors. Off, they stay out of the way.</string>

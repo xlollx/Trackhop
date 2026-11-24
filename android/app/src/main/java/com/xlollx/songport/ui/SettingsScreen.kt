@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.ui.platform.testTag
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Upgrade
 import androidx.compose.material.icons.filled.GridView
@@ -604,7 +605,7 @@ fun SettingsScreen(
             PrefRow(
                 null, stringResource(R.string.app_name), stringResource(R.string.settings_version, BuildConfig.VERSION_NAME),
                 leading = {
-                    Box(Modifier.combinedClickable(onClick = { versionTap() }, onLongClick = { oliOpen = true })) { BrandMark(40.dp) }
+                    Box(Modifier.testTag(stringResource(R.string.settings_about_series)).combinedClickable(onClick = { versionTap() }, onLongClick = { oliOpen = true })) { BrandMark(40.dp) }
                 },
                 chevron = false,
                 onClick = { versionTap() },
