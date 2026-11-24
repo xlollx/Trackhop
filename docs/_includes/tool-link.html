@@ -93,6 +93,9 @@
     <p>{{ k.why }}</p>
     <h2>{{ k.stays_h }}</h2>
     <p>{{ k.stays }}</p>
+    {%- if k.button %}
+    <p>{{ k.button }}</p>
+    {%- endif %}
   </div>
 </div>
 <script type="application/json" id="tool-strings">{{ s.js | jsonify }}</script>

@@ -1,0 +1,87 @@
+kicker: Trackhop · ツール
+choose: ファイルを選択
+noscript: このツールはブラウザ内で動作し、JavaScript が必要です。いずれにしても何も送信されません。
+get: Trackhop を入手
+priv: "このページ内でだけ読み込み: 何もアップロードされません"
+formats: CSV、M3U、XSPF、JSPF、Apple Music・iTunes のプレイリスト、シンプルなリストなど
+compare:
+  title: "2 つのプレイリストを比較: どこに何が足りないか"
+  description: "プレイリストのファイルを 2 つドロップ（CSV、M3U、XSPF、JSPF、iTunes XML）すると、片方にだけある曲と両方にある曲がわかります。ブラウザ内で処理: 何もアップロードされません。無料、アカウント不要。"
+  h1: 2 つのプレイリストを比較
+  lead: プレイリストのファイルを 2 つ入れると、どちらに何が足りないかがわかります。移行のあとや、2 つのプレイリストの共通点を見るときに便利です。
+  a: プレイリスト A
+  b: プレイリスト B
+  drop: ここにファイルをドロップ、または選択
+  cta: 足りない曲を自動で追加して、2 つのプレイリストをずっと同じに保ちたいですか?
+  how_h: 曲の照合方法
+  how: "両方のファイルに録音のコード ISRC があればそれで照合します。なければ、大文字小文字・アクセント・「feat.」「Remastered」を無視したタイトルとアーティストで、長さが合うものを照合します。ライブ、アコースティック、リミックスは、Trackhop アプリと同じく別の曲として扱います。"
+  stays_h: ファイルの扱い
+  stays: "ブラウザがこのページ内で読み込みます。Trackhop にも誰にも送信されません。アカウントも Cookie も、誰がこのページを使ったかの統計もありません。"
+  guide: 'プレイリストがファイルではなくサービス上にありますか? <a href="/convert">Convert</a> は多くのサービスのエクスポートを読み込めます。<a href="/guide/playlist-transfer-ja">アプリならどのプレイリストもエクスポート</a>できます。'
+duplicates:
+  title: "プレイリストファイルの重複曲を見つけて削除"
+  description: "プレイリストのファイル（CSV、M3U、XSPF、JSPF、iTunes XML）をドロップすると、2 回入っている曲がグループにまとめられ、残すコピーを選んで、きれいなファイルを受け取れます。ブラウザ内で処理、無料、アカウント不要。"
+  h1: 重複を見つけて削除
+  lead: プレイリストのファイルをドロップしてください。複数回入っている曲がグループにまとめられ、残すコピーを選ぶと、きれいなファイルが手に入ります。
+  drop: ここにプレイリストのファイルをドロップ、または選択
+  cta: プレイリストが Spotify、YouTube Music、TIDAL、Deezer 上にありますか? アプリならその場で整理できます。
+  what_h: 重複とみなすもの
+  what:
+    - "<strong>同じ録音</strong>: 同じ ISRC。片方がアルバム、もう片方がシングルやコンピレーション由来でも同じです。"
+    - "<strong>同じタイトルと同じアーティスト</strong>: 大文字小文字・アクセント・「feat.」「Remastered」は無視し、長さが合うもの。"
+    - "<strong>別バージョン</strong>は対象外: ライブ、アコースティック、リミックスは別の曲のままです。"
+  stays_h: ファイルの扱い
+  stays: "ブラウザがこのページ内で読み込み、きれいなファイルもここで作ります。各グループでは、別のものを選ばない限り最初のコピーが残り、プレイリストの順番は変わりません。Trackhop にも誰にも何も送信されません。"
+  guide: 'アプリでサービス上で直接行う手順: <a href="/guide/remove-duplicates-spotify">Remove duplicate songs</a>（英語）。'
+button:
+  title: "サイトやブログ用の「どのサービスでも聴く」ボタン"
+  description: "曲やアルバムのリンクを貼ると、ブログやニュースレター、サイトに置けるボタンができます。読者は自分の使っているサービスで曲を開けます。シンプルな HTML、スクリプトなし、トラッキングなし。無料。"
+  h1: 「どのサービスでも聴く」ボタン
+  lead: ブログ、ニュースレター、サイトに。読者はどのサービスを使っていても、そこで曲を開けます。
+  label: 曲またはアルバムのリンクを貼り付け（Spotify、Apple Music、Deezer）
+  go: ボタンを作る
+  style: スタイル
+  styles: {dark: ダーク, light: ライト, violet: バイオレット}
+  text: ボタンの文字
+  default_text: どのサービスでも聴く
+  preview: プレビュー
+  code: 貼り付けるコード
+  copy: コードをコピー
+  copy_link: リンクだけコピー
+  how_h: ボタンの動き
+  how: 'クリックすると、その曲で <a href="/link">A link for every service</a> が開きます。読者が Spotify、Apple Music、YouTube Music、Deezer、TIDAL、Amazon Music などを選ぶと、そこで曲が開きます。'
+  stays_h: トラッキングなし
+  stays: "ボタンはシンプルな HTML です。スクリプトも、Trackhop からの画像やフォントも、Cookie もありません。誰かがクリックするまで Trackhop には何も届かず、クリック時も曲を探すためのリンクだけです。Trackhop はクリック数を数えません。"
+js:
+  lang: ja
+  reading: "{name} を読み込み中… {pct}%"
+  cancel: キャンセル
+  choose: ファイルを選択
+  err_incomplete: "{name} が途中で終わっています。ダウンロードかコピーが途中で切れました。ファイルを取り直して、もう一度ここにドロップしてください。"
+  err_unreadable: "{name} を読み込めません。壊れているか、このページが知らない種類のファイルです。"
+  err_empty: "{name} に曲が見つかりませんでした。"
+  err_unsupported: "このブラウザではファイルを開けません。最新のブラウザを使ってください。"
+  err_toobig: "ファイルが大きすぎます。"
+  songs_n: ["{n} 曲", "{n} 曲"]
+  another: 別のファイルを選択
+  download: ダウンロード
+  as: 形式
+  outputs: {csv: CSV, m3u8: M3U8, xspf: XSPF, jspf: JSPF, text: テキスト}
+  compare:
+    only_a: A にだけある
+    only_b: B にだけある
+    both: 両方にある
+    nothing: ここには何もありません。
+    same: "2 つのプレイリストの曲は同じです。"
+    both_note: "プレイリスト A での表記で表示しています。"
+  duplicates:
+    none: "{name} に重複はありません。どの曲も 1 回だけです。"
+    found: ["{n} 曲が複数回入っています。", "{n} 曲が複数回入っています。"]
+    keep: これを残す
+    why_isrc: 同じ録音（ISRC）
+    why_same: 同じタイトルとアーティスト
+    download: 重複なしでダウンロード
+    position: "{n} 番目"
+  button:
+    err_link: "Spotify、Apple Music、Deezer の曲またはアルバムのリンクではありません。アプリやウェブで曲を開き、「共有 › リンクをコピー」でコピーして、ここに貼り付けてください。"
+    copied: コピーしました

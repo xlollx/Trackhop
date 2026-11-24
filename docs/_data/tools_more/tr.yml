@@ -1,0 +1,87 @@
+kicker: Trackhop · Araçlar
+choose: Dosya seçin
+noscript: Bu araç tarayıcınızda çalışır ve JavaScript gerektirir. Her durumda hiçbir şey gönderilmez.
+get: Trackhop'u edinin
+priv: "Yalnızca bu sayfada okunur: hiçbir şey yüklenmez"
+formats: CSV, M3U, XSPF, JSPF, bir Apple Music ya da iTunes çalma listesi, düz bir liste ve daha fazlası
+compare:
+  title: "İki çalma listesini karşılaştırın: ne nerede eksik"
+  description: "İki çalma listesi dosyasını bırakın (CSV, M3U, XSPF, JSPF, iTunes XML) ve hangi şarkıların yalnızca birinde, hangilerinin ikisinde de olduğunu görün. Tarayıcınızda: hiçbir şey yüklenmez. Ücretsiz, hesap gerekmez."
+  h1: İki çalma listesini karşılaştırın
+  lead: İki çalma listesi dosyası verin, ne nerede eksik görün. Bir aktarımdan sonra ya da iki listenin ortak noktalarını görmek için kullanışlı.
+  a: Liste A
+  b: Liste B
+  drop: Dosyayı buraya bırakın ya da seçin
+  cta: Eksik şarkıların sizin yerinize eklenmesini ve iki listenin hep aynı kalmasını mı istiyorsunuz?
+  how_h: Şarkılar nasıl eşleştirilir
+  how: "İki dosyada da varsa bir kaydın kodu olan ISRC ile; yoksa büyük-küçük harf, aksanlar, \"feat.\" ya da \"Remastered\" gözetilmeden başlık ve sanatçılarla, süre de uyuyorsa. Canlı, akustik ya da remix bir sürüm, Trackhop uygulamasında olduğu gibi başka bir şarkı sayılır."
+  stays_h: Dosyalarınıza ne olur
+  stays: "Tarayıcınız onları bu sayfada okur. Ne Trackhop'a ne de başka birine gönderilir; hesap, çerez ya da sayfayı kimin kullandığına dair istatistik yoktur."
+  guide: 'Listeleriniz bir dosyada değil de bir serviste mi? <a href="/convert">Convert</a> çoğu servisin dışa aktarımlarını okur, <a href="/guide/calma-listesi-aktarma">uygulama da her listeyi dışa aktarır</a>.'
+duplicates:
+  title: "Bir çalma listesi dosyasında tekrarlanan şarkıları bulun ve kaldırın"
+  description: "Bir çalma listesi dosyası bırakın (CSV, M3U, XSPF, JSPF, iTunes XML): iki kez geçen şarkılar gruplanır, hangi kopyanın kalacağını seçersiniz ve temiz dosyayı geri alırsınız. Tarayıcınızda, ücretsiz, hesap gerekmez."
+  h1: Tekrarları bulun ve kaldırın
+  lead: Bir çalma listesi dosyası bırakın. Birden çok kez geçen şarkılar gruplanır, hangi kopyanın kalacağını seçersiniz ve temiz dosyayı geri alırsınız.
+  drop: Çalma listesi dosyasını buraya bırakın ya da seçin
+  cta: Listeniz Spotify, YouTube Music, TIDAL ya da Deezer'da mı? Uygulama onu orada temizler.
+  what_h: Neler tekrar sayılır
+  what:
+    - "<strong>Aynı kayıt</strong>: aynı ISRC, bir kopya albümden, diğeri bir single ya da derlemeden gelse bile."
+    - "<strong>Aynı başlık ve aynı sanatçılar</strong>, büyük-küçük harf, aksanlar, \"feat.\" ya da \"Remastered\" gözetilmeden, süre de uyuyorsa."
+    - "Asla <strong>başka bir sürüm</strong>: canlı, akustik ya da remix bir kayıt ayrı bir şarkı olarak kalır."
+  stays_h: Dosyanıza ne olur
+  stays: "Tarayıcınız onu bu sayfada okur ve temiz dosyayı orada yazar. Her grupta, başkasını seçmezseniz ilk kopya kalır ve listenin sırası değişmez. Ne Trackhop'a ne de başka birine bir şey gönderilir."
+  guide: 'Uygulamada, doğrudan serviste adım adım: <a href="/guide/remove-duplicates-spotify">Remove duplicate songs</a> (İngilizce).'
+button:
+  title: "Siteniz ya da blogunuz için \"Her serviste dinle\" düğmesi"
+  description: "Bir şarkı ya da albüm bağlantısı yapıştırın, blogunuz, bülteniniz ya da siteniz için bir düğme alın: okurlar şarkıyı kullandıkları serviste açar. Düz HTML, betik yok, izleme yok. Ücretsiz."
+  h1: '"Her serviste dinle" düğmesi'
+  lead: Blogunuz, bülteniniz ya da siteniz için. Okurlar şarkıyı, hangisi olursa olsun, kullandıkları serviste açar.
+  label: Bir şarkı ya da albüm bağlantısı yapıştırın (Spotify, Apple Music ya da Deezer)
+  go: Düğmeyi oluştur
+  style: Stil
+  styles: {dark: Koyu, light: Açık, violet: Mor}
+  text: Düğmedeki metin
+  default_text: Her serviste dinle
+  preview: Önizleme
+  code: Yapıştırılacak kod
+  copy: Kodu kopyala
+  copy_link: Yalnızca bağlantıyı kopyala
+  how_h: Düğme ne yapar
+  how: 'Bir tıklama şarkınızla <a href="/link">A link for every service</a> sayfasını açar: okur Spotify, Apple Music, YouTube Music, Deezer, TIDAL, Amazon Music ya da başka bir servisi seçer ve şarkı orada açılır.'
+  stays_h: İzleme yok
+  stays: "Düğme düz HTML'dir: betik yok, Trackhop'tan görsel ya da yazı tipi yok, çerez yok. Biri tıklayana kadar Trackhop'a hiçbir şey ulaşmaz; tıklayınca da yalnızca şarkının bağlantısı, onu bulmak için. Trackhop tıklamaları saymaz."
+js:
+  lang: tr
+  reading: "{name} okunuyor… %{pct}"
+  cancel: İptal
+  choose: Dosya seçin
+  err_incomplete: "{name} olması gerekenden erken bitiyor: indirme ya da kopyalama yarıda kesildi. Dosyayı yeniden alın ve buraya bırakın."
+  err_unreadable: "{name} okunamıyor: dosya bozuk ya da bu sayfanın tanıdığı bir dosya türü değil."
+  err_empty: "{name} içinde şarkı bulunamadı."
+  err_unsupported: "Bu tarayıcı dosyayı açamıyor. Güncel bir tarayıcı kullanın."
+  err_toobig: "Dosya çok büyük."
+  songs_n: ["{n} şarkı", "{n} şarkı"]
+  another: Başka bir dosya seçin
+  download: İndir
+  as: biçim
+  outputs: {csv: CSV, m3u8: M3U8, xspf: XSPF, jspf: JSPF, text: Metin}
+  compare:
+    only_a: Yalnızca A'da
+    only_b: Yalnızca B'de
+    both: İkisinde de
+    nothing: Burada bir şey yok.
+    same: "İki listede de aynı şarkılar var."
+    both_note: "A listesindeki halleriyle gösterilir."
+  duplicates:
+    none: "{name} içinde tekrar yok: her şarkı bir kez geçiyor."
+    found: ["{n} şarkı birden çok kez geçiyor.", "{n} şarkı birden çok kez geçiyor."]
+    keep: Bunu tut
+    why_isrc: aynı kayıt (ISRC)
+    why_same: aynı başlık ve sanatçılar
+    download: Tekrarlar olmadan indir
+    position: "No. {n}"
+  button:
+    err_link: "Bu bir Spotify, Apple Music ya da Deezer şarkı veya albüm bağlantısı değil. Şarkıyı uygulamada ya da web'de açın, Paylaş › Bağlantıyı kopyala'yı kullanın ve buraya yapıştırın."
+    copied: Kopyalandı

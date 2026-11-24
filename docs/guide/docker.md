@@ -675,6 +675,8 @@ enter them again (the channels wait, turned off). On a server for several people
   settings › Advanced*).
 - **Pushover**: your user key (pushover.net's front page) and the API token of an application you
   create there.
+- **Apprise**: your [Apprise API](https://github.com/caronc/apprise-api)'s address with the key of a
+  saved configuration (`…/notify/<key>`), and optionally a tag (only the services with that tag).
 
 From a terminal, `trackhop notify` lists the channels and `trackhop notify test <name or id>` sends a
 test. For the whole run as JSON (Home Assistant, n8n), use the [webhook](#api) instead.

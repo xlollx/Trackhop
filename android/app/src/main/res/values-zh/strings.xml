@@ -2183,6 +2183,9 @@
     <string name="notify_help_slack">为某个频道创建一个带 incoming webhook 的应用(api.slack.com/messaging/webhooks),然后粘贴它的 URL。</string>
     <string name="notify_help_matrix">房间里的一个(机器人)账号:它的访问令牌(Element:设置 › 帮助与关于)和房间 id(房间设置 › 高级)。</string>
     <string name="notify_help_pushover">你的用户密钥在 pushover.net 首页;在那里创建一个应用以获取 API token。</string>
+    <string name="notify_help_apprise">你的 Apprise API 地址，加上已保存配置的密钥（…/notify/密钥）。填写标签时只发送到带该标签的服务；留空则发送到全部。</string>
+    <string name="notify_field_apprise_url">Apprise API 地址</string>
+    <string name="notify_field_apprise_tag">标签（可选）</string>
     <string name="notify_field_telegram_token">机器人 token</string>
     <string name="notify_field_telegram_chat">Chat id</string>
     <string name="notify_field_ntfy_server">服务器</string>

@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicLong
  * Notifications: a short message to the person's phone or chat when a sync run ends with something
  * worth knowing (changes, an error, tracks to review, removals held back, new releases of their
  * artists). Any number of channels, each with the events it wants: Telegram, ntfy, Gotify, Discord,
- * Slack, Matrix and Pushover. The same on the server (Docker, Desktop) and in the Android app; the
+ * Slack, Matrix, Pushover and Apprise (which reaches many more). The same on the server (Docker, Desktop) and in the Android app; the
  * server's webhook (Api.kt) stays as it was, for tools that want the whole run as JSON.
  *
  * Channels live in the "notify" key-values of the [Env]. On the server that is `kv/notify.json`,
@@ -119,6 +119,14 @@ object Notify {
         PUSHOVER(
             "pushover", "Pushover", "Your user key is on pushover.net's front page; create an application there for its API token.",
             listOf(Field("token", "Application API token", secret = true), Field("user", "User key", secret = true)),
+        ),
+        APPRISE(
+            "apprise", "Apprise", "Your Apprise API's address with the key of a saved configuration (…/notify/<key>); a tag sends only to the services it marks.",
+            listOf(
+                // Secret: whoever has the address can send through every service the configuration holds.
+                Field("url", "Apprise API URL", secret = true, url = true, placeholder = "https://apprise.example.org/notify/trackhop"),
+                Field("tag", "Tag", optional = true, placeholder = "music"),
+            ),
         ),
         ;
 
@@ -461,6 +469,7 @@ object Notify {
                 .put(json(buildJsonObject { put("msgtype", "m.text"); put("body", "${m.title}\n${m.text}") }))
             Kind.PUSHOVER -> b.url(base(pushoverApi).newBuilder().addPathSegments("1/messages.json").build())
                 .post(FormBody.Builder().add("token", c.value("token")).add("user", c.value("user")).add("title", m.title).add("message", m.text).build())
+            Kind.APPRISE -> apprise(c, b, m.title, m.text, "info")
         }.build()
     }
 
@@ -532,8 +541,16 @@ object Notify {
                 .post(FormBody.Builder().add("token", c.value("token")).add("user", c.value("user")).add("title", title.take(250))
                     .add("message", htmlBody().drop(1).joinToString("\n").take(1024)).add("html", "1")
                     .add("priority", if (r.tone == Tone.FAIL) "1" else "0").build())
+            Kind.APPRISE -> apprise(c, b, title, plain, when (r.tone) { Tone.OK -> "success"; Tone.FAIL -> "failure"; Tone.WARN -> "warning" })
         }
     }
+
+    /** Apprise API's /notify/<key>: one message, sent on to every service of that configuration (or those its [tag] marks). */
+    private fun apprise(c: Channel, b: Request.Builder, title: String, body: String, type: String): Request.Builder =
+        b.url(base(c.value("url"))).post(json(buildJsonObject {
+            put("title", title); put("body", body); put("type", type); put("format", "text")
+            c.value("tag").trim().takeIf { it.isNotEmpty() }?.let { put("tag", it) }
+        }))
 
     /** Sends [m] through [c] now (this thread). Null when it arrived, else why not, with no secret in it. */
     fun send(c: Channel, m: Message): String? {

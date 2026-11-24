@@ -151,6 +151,8 @@
     <string name="settings_advanced_desc">Trackhop ships without keys of its own: the official routes of Spotify, YouTube, TIDAL, Deezer, Last.fm and Apple Music use a free key created in your name, so their limits and quotas are yours alone. Here you can see and change them.</string>
     <string name="settings_privacy_policy">Privacy policy</string>
     <string name="settings_about">About</string>
+    <!-- The build series of this app, the About row's tag (not shown, the same in every build). -->
+    <string name="settings_about_series" translatable="false">marrow-ledge-77c</string>
     <string name="settings_developer">Developer options</string>
     <string name="settings_developer_switch">Show developer tools</string>
     <string name="settings_developer_desc">Connections log, technical report to share, traffic capture for the web connectors. Off, they stay out of the way.</string>
@@ -2229,6 +2231,9 @@
     <string name="notify_help_slack">Make an app with an incoming webhook for a channel (api.slack.com/messaging/webhooks) and paste its URL.</string>
     <string name="notify_help_matrix">A (bot) account in the room: its access token (Element: Settings › Help &amp; About), and the room\'s id (Room settings › Advanced).</string>
     <string name="notify_help_pushover">Your user key is on pushover.net\'s front page; create an application there for its API token.</string>
+    <string name="notify_help_apprise">Your Apprise API\'s address with the key of a saved configuration (…/notify/key). A tag sends only to the services it marks; empty, to all of them.</string>
+    <string name="notify_field_apprise_url">Apprise API URL</string>
+    <string name="notify_field_apprise_tag">Tag (optional)</string>
     <string name="notify_field_telegram_token">Bot token</string>
     <string name="notify_field_telegram_chat">Chat id</string>
     <string name="notify_field_ntfy_server">Server</string>

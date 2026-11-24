@@ -411,3 +411,33 @@ main.tool-wide { max-width: 1072px; }
 .lk .lk-about { max-width: 760px; display: flex; flex-direction: column; gap: 10px; margin-top: 28px; }
 .prose .lk .lk-about h2 { font-size: 22px; line-height: 1.3; margin-top: 16px; }
 .lk-about p { color: var(--ink-2); }
+
+/* /compare: two drop areas side by side, the lists below. */
+.cmp-drops { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 560px) { .cmp-drops { grid-template-columns: 1fr; } }
+.cmp-file { overflow-wrap: anywhere; }
+.cmp-result, .dup-result, .btn-result { display: flex; flex-direction: column; gap: 12px; }
+.cmp-list { margin: 0; padding-left: 28px; max-height: 420px; overflow: auto; font-size: 15px; }
+.cmp-list li { padding: 3px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.cmp-note:empty { display: none; }
+.cmp-save, .dup-save { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+/* /duplicates: one box per song that is there more than once. */
+.dup-summary { font-weight: 600; margin: 0; }
+.dup-groups { display: flex; flex-direction: column; gap: 10px; max-height: 560px; overflow: auto; }
+.dup-group { border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; margin: 0; min-width: 0; }
+.dup-group legend { padding: 0 4px; overflow-wrap: anywhere; }
+.dup-group .tool-chk .n { font-size: 13px; color: var(--ink-3); }
+.dup-group .tool-chk input:not(:checked) ~ .n { visibility: hidden; }
+.dup-group .tool-chk input:not(:checked) ~ .t { color: var(--ink-3); text-decoration: line-through; }
+
+/* /button: the link, the look, the code. */
+.btn-form { display: flex; flex-direction: column; gap: 8px; }
+.btn-input, .btn-text, .btn-code { font: inherit; font-size: 15px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); min-width: 0; }
+.btn-input { flex: 1; }
+.btn-textlabel { display: flex; flex-direction: column; gap: 6px; }
+.btn-styles { display: flex; flex-wrap: wrap; gap: 4px 16px; border: 0; padding: 0; margin: 0; }
+.btn-styles legend { padding: 0; margin-bottom: 4px; font-weight: 600; }
+.btn-preview { padding: 18px; border-radius: 12px; background: var(--surface-2); }
+.btn-code { font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; width: 100%; box-sizing: border-box; resize: vertical; }
+.btn-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }

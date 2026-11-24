@@ -66,6 +66,8 @@ class TokenStore(context: Context) : TokenVault {
             val edit = sp.edit().let { if (value == null) it.remove(providerId) else it.putString(providerId, value) }
             // commit() answers false when the disk refused: the value is in memory all the same, as with apply().
             edit.commit()
+            // The sync editors keep who is signed in: this one is asked again.
+            com.xlollx.songport.ui.Connections.invalidate(providerId)
         }
 
         /**
