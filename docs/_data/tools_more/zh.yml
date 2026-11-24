@@ -1,0 +1,87 @@
+kicker: Trackhop · 工具
+choose: 选择文件
+noscript: 这个工具在你的浏览器里运行，需要 JavaScript。无论如何都不会发送任何内容。
+get: 获取 Trackhop
+priv: "只在本页面读取：不会上传任何内容"
+formats: CSV、M3U、XSPF、JSPF、Apple Music 或 iTunes 歌单、纯文本列表等
+compare:
+  title: "比较两个歌单：哪里缺了什么"
+  description: "拖入两个歌单文件（CSV、M3U、XSPF、JSPF、iTunes XML），看看哪些歌只在其中一个里，哪些两边都有。在你的浏览器中处理：不会上传任何内容。免费，无需账号。"
+  h1: 比较两个歌单
+  lead: 放入两个歌单文件，就能看到哪边缺了什么。迁移之后检查，或者看看两个歌单有哪些共同的歌，都很方便。
+  a: 歌单 A
+  b: 歌单 B
+  drop: 把文件拖到这里，或选择一个
+  cta: 想让缺少的歌自动补上，并让两个歌单一直保持一致？
+  how_h: 歌曲如何匹配
+  how: "两个文件都有录音编码 ISRC 时按 ISRC 匹配；否则按标题和艺人匹配，不区分大小写、重音、“feat.”或“Remastered”，并且时长要相符。现场版、不插电版或混音版和 Trackhop 应用里一样，算作另一首歌。"
+  stays_h: 你的文件会怎样
+  stays: "你的浏览器在本页面读取它们。不会发送给 Trackhop 或任何人；没有账号、没有 Cookie，也不统计谁在使用这个页面。"
+  guide: '你的歌单在某个服务上，而不是文件里？<a href="/convert">Convert</a> 能读取大多数服务的导出文件，<a href="/guide/playlist-transfer-zh">应用也能导出任何歌单</a>。'
+duplicates:
+  title: "找出并删除歌单文件中的重复歌曲"
+  description: "拖入一个歌单文件（CSV、M3U、XSPF、JSPF、iTunes XML）：出现两次的歌会被归为一组，你选择保留哪一份，然后拿回整理好的文件。在浏览器中处理，免费，无需账号。"
+  h1: 找出并删除重复歌曲
+  lead: 拖入一个歌单文件。出现不止一次的歌会被归为一组，你选择保留哪一份，然后拿回整理好的文件。
+  drop: 把歌单文件拖到这里，或选择一个
+  cta: 你的歌单在 Spotify、YouTube Music、TIDAL 或 Deezer 上？应用可以直接在那里整理。
+  what_h: 什么算重复
+  what:
+    - "<strong>同一个录音</strong>：相同的 ISRC，即使一份来自专辑、另一份来自单曲或合辑。"
+    - "<strong>相同的标题和相同的艺人</strong>，不区分大小写、重音、“feat.”或“Remastered”，并且时长相符。"
+    - "绝不包括<strong>其他版本</strong>：现场版、不插电版或混音版仍然是单独的一首歌。"
+  stays_h: 你的文件会怎样
+  stays: "你的浏览器在本页面读取它，并在这里生成整理好的文件。每组默认保留第一份，除非你选了别的；歌单的顺序不变。不会向 Trackhop 或任何人发送任何内容。"
+  guide: '在应用里直接在服务上操作的步骤：<a href="/guide/remove-duplicates-spotify">Remove duplicate songs</a>（英文）。'
+button:
+  title: "给你的网站或博客加一个“在任何服务上收听”按钮"
+  description: "粘贴一首歌或一张专辑的链接，就能得到一个放在博客、邮件通讯或网站上的按钮：读者在自己用的服务上打开这首歌。纯 HTML，没有脚本，没有追踪。免费。"
+  h1: “在任何服务上收听”按钮
+  lead: 用于你的博客、邮件通讯或网站。读者无论用哪个服务，都能在那里打开这首歌。
+  label: 粘贴歌曲或专辑链接（Spotify、Apple Music 或 Deezer）
+  go: 生成按钮
+  style: 样式
+  styles: {dark: 深色, light: 浅色, violet: 紫色}
+  text: 按钮文字
+  default_text: 在任何服务上收听
+  preview: 预览
+  code: 要粘贴的代码
+  copy: 复制代码
+  copy_link: 只复制链接
+  how_h: 按钮的作用
+  how: '点击后会用这首歌打开 <a href="/link">A link for every service</a>：读者选择 Spotify、Apple Music、YouTube Music、Deezer、TIDAL、Amazon Music 或其他服务，歌曲就在那里打开。'
+  stays_h: 没有追踪
+  stays: "按钮是纯 HTML：没有脚本，没有来自 Trackhop 的图片或字体，没有 Cookie。在有人点击之前，Trackhop 收不到任何东西；点击时也只有用来查找这首歌的链接。Trackhop 不统计点击次数。"
+js:
+  lang: zh-CN
+  reading: "正在读取 {name}… {pct}%"
+  cancel: 取消
+  choose: 选择文件
+  err_incomplete: "{name} 提前结束了：下载或复制被中断。请重新获取文件，再拖到这里。"
+  err_unreadable: "无法读取 {name}：文件已损坏，或者不是本页面认识的文件类型。"
+  err_empty: "在 {name} 中没有找到歌曲。"
+  err_unsupported: "这个浏览器无法打开该文件。请使用新版浏览器。"
+  err_toobig: "文件太大。"
+  songs_n: ["{n} 首歌", "{n} 首歌"]
+  another: 选择其他文件
+  download: 下载
+  as: 格式
+  outputs: {csv: CSV, m3u8: M3U8, xspf: XSPF, jspf: JSPF, text: 文本}
+  compare:
+    only_a: 只在 A 中
+    only_b: 只在 B 中
+    both: 两边都有
+    nothing: 这里没有内容。
+    same: "两个歌单的歌曲相同。"
+    both_note: "按歌单 A 中的写法显示。"
+  duplicates:
+    none: "{name} 中没有重复：每首歌只出现一次。"
+    found: ["有 {n} 首歌出现了不止一次。", "有 {n} 首歌出现了不止一次。"]
+    keep: 保留这一份
+    why_isrc: 同一录音（ISRC）
+    why_same: 相同标题和艺人
+    download: 下载去重后的文件
+    position: "第 {n} 首"
+  button:
+    err_link: "这不是 Spotify、Apple Music 或 Deezer 的歌曲或专辑链接。请在应用或网页中打开这首歌，使用 分享 › 复制链接，然后粘贴到这里。"
+    copied: 已复制

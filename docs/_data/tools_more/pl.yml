@@ -1,0 +1,87 @@
+kicker: Trackhop · Narzędzia
+choose: Wybierz plik
+noscript: To narzędzie działa w przeglądarce i potrzebuje JavaScriptu. Tak czy inaczej nic nie jest wysyłane.
+get: Pobierz Trackhop
+priv: "Czytane tylko na tej stronie: nic nie jest wysyłane"
+formats: CSV, M3U, XSPF, JSPF, playlista z Apple Music lub iTunes, zwykła lista i inne
+compare:
+  title: "Porównaj dwie playlisty: czego brakuje i gdzie"
+  description: "Upuść dwa pliki playlist (CSV, M3U, XSPF, JSPF, iTunes XML) i zobacz, które utwory są tylko w jednej, a które w obu. W przeglądarce: nic nie jest wysyłane. Za darmo, bez konta."
+  h1: Porównaj dwie playlisty
+  lead: Dwa pliki playlist i widzisz, czego gdzie brakuje. Przydatne po przeniesieniu albo żeby sprawdzić, co mają wspólnego dwie playlisty.
+  a: Playlista A
+  b: Playlista B
+  drop: Upuść tu plik albo go wybierz
+  cta: Chcesz, żeby brakujące utwory dodały się same, a obie playlisty były zawsze takie same?
+  how_h: Jak dopasowywane są utwory
+  how: "Po ISRC, kodzie nagrania, gdy mają go oba pliki; w przeciwnym razie po tytule i wykonawcach, bez względu na wielkość liter, akcenty, „feat.” czy „Remastered”, przy zgodnej długości. Wersja live, akustyczna lub remiks to inny utwór, tak jak w aplikacji Trackhop."
+  stays_h: Co dzieje się z twoimi plikami
+  stays: "Przeglądarka czyta je na tej stronie. Nie trafiają do Trackhop ani do nikogo innego; bez konta, bez ciasteczek i bez statystyk o tym, kto korzysta ze strony."
+  guide: 'Twoje playlisty są w serwisie, a nie w pliku? <a href="/convert">Convert</a> czyta eksporty większości serwisów, a <a href="/guide/przenoszenie-playlist">aplikacja eksportuje każdą playlistę</a>.'
+duplicates:
+  title: "Znajdź i usuń duplikaty w pliku playlisty"
+  description: "Upuść plik playlisty (CSV, M3U, XSPF, JSPF, iTunes XML): utwory, które są w niej dwa razy, zostaną zgrupowane, wybierzesz, która kopia zostaje, i dostaniesz czysty plik. W przeglądarce, za darmo, bez konta."
+  h1: Znajdź i usuń duplikaty
+  lead: Upuść plik playlisty. Utwory, które są w nim więcej niż raz, zostaną zgrupowane, wybierzesz, która kopia zostaje, i dostaniesz czysty plik.
+  drop: Upuść tu plik playlisty albo go wybierz
+  cta: Twoja playlista jest w Spotify, YouTube Music, TIDAL lub Deezer? Aplikacja wyczyści ją od razu tam.
+  what_h: Co jest duplikatem
+  what:
+    - "<strong>To samo nagranie</strong>: ten sam ISRC, nawet gdy jedna kopia pochodzi z albumu, a druga z singla lub składanki."
+    - "<strong>Ten sam tytuł i ci sami wykonawcy</strong>, bez względu na wielkość liter, akcenty, „feat.” czy „Remastered”, przy zgodnej długości."
+    - "Nigdy <strong>inna wersja</strong>: nagranie live, akustyczne lub remiks to osobny utwór."
+  stays_h: Co dzieje się z twoim plikiem
+  stays: "Przeglądarka czyta go na tej stronie i tam zapisuje czysty plik. W każdej grupie zostaje pierwsza kopia, chyba że wybierzesz inną, a kolejność playlisty się nie zmienia. Nic nie trafia do Trackhop ani do nikogo innego."
+  guide: 'Krok po kroku w aplikacji, w samym serwisie: <a href="/guide/remove-duplicates-spotify">Remove duplicate songs</a> (po angielsku).'
+button:
+  title: "Przycisk „Posłuchaj w dowolnym serwisie” na twoją stronę lub bloga"
+  description: "Wklej link do utworu lub albumu i dostań przycisk na bloga, do newslettera lub na stronę: czytelnicy otworzą utwór w serwisie, z którego korzystają. Zwykły HTML, bez skryptów, bez śledzenia. Za darmo."
+  h1: Przycisk „Posłuchaj w dowolnym serwisie”
+  lead: Na bloga, do newslettera lub na stronę. Czytelnicy otwierają utwór w serwisie, z którego korzystają, jakikolwiek by to był.
+  label: Wklej link do utworu lub albumu (Spotify, Apple Music lub Deezer)
+  go: Utwórz przycisk
+  style: Styl
+  styles: {dark: Ciemny, light: Jasny, violet: Fioletowy}
+  text: Tekst na przycisku
+  default_text: Posłuchaj w dowolnym serwisie
+  preview: Podgląd
+  code: Kod do wklejenia
+  copy: Kopiuj kod
+  copy_link: Kopiuj tylko link
+  how_h: Co robi przycisk
+  how: 'Kliknięcie otwiera <a href="/link">A link for every service</a> z twoim utworem: czytelnik wybiera Spotify, Apple Music, YouTube Music, Deezer, TIDAL, Amazon Music lub inny serwis i tam otwiera się utwór.'
+  stays_h: Bez śledzenia
+  stays: "Przycisk to zwykły HTML: bez skryptów, bez obrazków i czcionek od Trackhop, bez ciasteczek. Do Trackhop nic nie trafia, dopóki ktoś nie kliknie, a wtedy tylko link do utworu, żeby go wyszukać. Trackhop nie liczy kliknięć."
+js:
+  lang: pl
+  reading: "Czytanie {name}… {pct}%"
+  cancel: Anuluj
+  choose: Wybierz plik
+  err_incomplete: "{name} kończy się za wcześnie: pobieranie lub kopiowanie zostało przerwane. Pobierz plik jeszcze raz i upuść go tutaj."
+  err_unreadable: "Nie da się odczytać {name}: plik jest uszkodzony albo to rodzaj pliku, którego ta strona nie zna."
+  err_empty: "Nie znaleziono utworów w {name}."
+  err_unsupported: "Ta przeglądarka nie potrafi otworzyć pliku. Użyj aktualnej przeglądarki."
+  err_toobig: "Plik jest za duży."
+  songs_n: ["{n} utwór", "Utwory: {n}"]
+  another: Wybierz inny plik
+  download: Pobierz
+  as: jako
+  outputs: {csv: CSV, m3u8: M3U8, xspf: XSPF, jspf: JSPF, text: Tekst}
+  compare:
+    only_a: Tylko w A
+    only_b: Tylko w B
+    both: W obu
+    nothing: Nic tu nie ma.
+    same: "Obie playlisty mają te same utwory."
+    both_note: "Pokazane tak, jak są w playliście A."
+  duplicates:
+    none: "Brak duplikatów w {name}: każdy utwór jest tylko raz."
+    found: ["{n} utwór występuje więcej niż raz.", "Utwory występujące więcej niż raz: {n}."]
+    keep: Zostaw ten
+    why_isrc: to samo nagranie (ISRC)
+    why_same: ten sam tytuł i wykonawcy
+    download: Pobierz bez duplikatów
+    position: "Nr {n}"
+  button:
+    err_link: "To nie jest link do utworu ani albumu ze Spotify, Apple Music lub Deezer. Otwórz utwór w aplikacji lub w przeglądarce, użyj Udostępnij › Kopiuj link i wklej go tutaj."
+    copied: Skopiowano
