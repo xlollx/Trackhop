@@ -1104,6 +1104,6 @@ services or other groups). Each member's Trackhop sends its signed changes and r
 The connectors that run a service's own web player (Amazon Music, Apple Music, SoundCloud with an
 account) need a browser inside Trackhop, so they stay in the app. Spotify and Deezer without a key
 work here with [pasted cookies](#spotify-and-deezer-without-a-key-unofficial).
-The compatibility card and the playlist poster are not on the page yet either.
+The compatibility card is not on the page yet either (the playlist poster is: **Tools › Playlist poster**).
 
 [Back to the guide](./)
