@@ -122,7 +122,7 @@ internal fun Web.settingsPage(r: Web.Req) {
     }
     if (env.may(Permissions.API)) {
         val n = Notify.channels(env).count { it.enabled }
-        body.append("""<div class="card"><h3><a href="/settings/notifications">Notifications</a></h3><p class="muted">Telegram, ntfy, Gotify, Discord, Slack, Matrix or Pushover, when a sync changes something, fails or waits for you. ${if (n == 0) "None set up." else "$n ${if (n == 1) "channel" else "channels"} on."}</p></div>""")
+        body.append("""<div class="card"><h3><a href="/settings/notifications">Notifications</a></h3><p class="muted">Telegram, ntfy, Gotify, Discord, Slack, Matrix, Pushover or Apprise, when a sync changes something, fails or waits for you. ${if (n == 0) "None set up." else "$n ${if (n == 1) "channel" else "channels"} on."}</p></div>""")
     }
     // The keys of Concerts, Setlists and Records and merch, which are 1.18's (Features).
     if (Features.v2) {

@@ -21,6 +21,9 @@ are not touched.
 track, the same ISRC, or the same title and artists), while a live or remixed version stays a song of
 its own, and removes the extra copies after you check the list.
 
+Only have a playlist file? [Find and remove duplicates](/duplicates) does it in your browser, and
+[Compare two playlists](/compare) shows what is missing where between two files.
+
 ## Manage playlists and library
 
 *Tools → Manage playlists and library* lists your playlists on the service: rename or delete them,

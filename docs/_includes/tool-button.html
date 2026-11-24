@@ -1,0 +1,40 @@
+{%- comment -%}
+  /button: a song or album link in, the code of a "Listen on any service" button out
+  (assets/tools/button-ui.js). The texts are in _data/tools_more/<lang>.yml. No request leaves this page.
+{%- endcomment -%}
+{%- assign lang = page.lang | default: 'en' | slice: 0, 2 -%}
+{%- assign s = site.data.tools_more[lang] | default: site.data.tools_more.en -%}
+{%- assign b = s.button -%}
+<div class="tool" id="button-tool" data-lang="{{ lang }}" data-text="{{ b.default_text | escape }}">
+  <p class="tool-kicker">{{ s.kicker }}</p>
+  <h1>{{ b.h1 }}</h1>
+  <p class="tool-lead">{{ b.lead }}</p>
+  <form class="btn-form" novalidate>
+    <label for="btn-in">{{ b.label }}</label>
+    <div class="lk-row">
+      <input id="btn-in" class="btn-input" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://open.spotify.com/track/…">
+      <button class="tool-btn" type="submit">{{ b.go }}</button>
+    </div>
+    <div class="tool-error" role="alert" hidden></div>
+  </form>
+  <noscript><p class="tool-error">{{ s.noscript }}</p></noscript>
+  <div class="card btn-result" hidden>
+    <fieldset class="btn-styles"><legend>{{ b.style }}</legend>
+      {%- for st in b.styles %}
+      <label class="tool-chk"><input type="radio" name="btn-style" value="{{ st[0] }}"{% if forloop.first %} checked{% endif %}><span class="t">{{ st[1] }}</span></label>
+      {%- endfor %}
+    </fieldset>
+    <label class="btn-textlabel">{{ b.text }} <input class="btn-text" type="text" maxlength="60" value="{{ b.default_text | escape }}"></label>
+    <p class="tool-muted">{{ b.preview }}</p>
+    <div class="btn-preview"></div>
+    <p class="tool-muted">{{ b.code }}</p>
+    <textarea class="btn-code" rows="5" readonly></textarea>
+    <div class="btn-acts"><button type="button" class="tool-btn btn-copy">{{ b.copy }}</button> <button type="button" class="tool-btn ghost btn-copylink">{{ b.copy_link }}</button> <span class="tool-muted btn-done" role="status"></span></div>
+  </div>
+  <h2>{{ b.how_h }}</h2>
+  <p>{{ b.how }}</p>
+  <h2>{{ b.stays_h }}</h2>
+  <p>{{ b.stays }}</p>
+</div>
+<script type="application/json" id="tool-strings">{{ s.js | jsonify }}</script>
+<script type="module" src="{{ '/assets/tools/button-ui.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>

@@ -1,0 +1,7 @@
+---
+layout: null
+sitemap: false
+permalink: /fr/whats-new.xml
+lang: fr
+---
+{% include whats-new-feed.xml %}

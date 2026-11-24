@@ -1,0 +1,44 @@
+{%- comment -%}
+  /compare: two playlist files in, what is missing where out (assets/tools/compare-ui.js).
+  The texts are in _data/tools_more/<lang>.yml. No request leaves this page.
+{%- endcomment -%}
+{%- assign lang = page.lang | default: 'en' | slice: 0, 2 -%}
+{%- assign s = site.data.tools_more[lang] | default: site.data.tools_more.en -%}
+{%- assign c = s.compare -%}
+<div class="tool" id="compare-tool">
+  <p class="tool-kicker">{{ s.kicker }}</p>
+  <h1>{{ c.h1 }}</h1>
+  <p class="tool-lead">{{ c.lead }}</p>
+  {%- assign both = "a,b" | split: "," %}
+  <div class="cmp-drops">
+  {%- for side in both %}
+    <div class="tool-drop" data-side="{{ side }}">
+      <strong class="tool-drop-title">{{ c[side] }}</strong>
+      <span class="tool-muted cmp-hint">{{ c.drop }}</span>
+      <label class="tool-btn ghost tool-file"><input type="file"><span>{{ s.choose }}</span></label>
+      <span class="tool-muted cmp-file" hidden></span>
+    </div>
+  {%- endfor %}
+  </div>
+  <p class="tool-muted">{{ s.formats }} · <span class="tool-priv"><span aria-hidden="true">●</span> {{ s.priv }}</span></p>
+  <noscript><p class="tool-error">{{ s.noscript }}</p></noscript>
+  <div class="tool-progress" hidden>
+    <div class="tool-progress-row"><span class="tool-progress-text" role="status"></span><button type="button" class="tool-btn ghost small tool-cancel">{{ s.js.cancel }}</button></div>
+    <progress max="1" value="0"></progress>
+  </div>
+  <div class="tool-errors" role="alert"></div>
+  <div class="card cmp-result" hidden>
+    <div class="tool-tabs" role="tablist"></div>
+    <p class="tool-muted cmp-note"></p>
+    <ol class="cmp-list"></ol>
+    <div class="tool-sel cmp-save"></div>
+  </div>
+  <div class="tool-cta"><span>{{ c.cta }}</span><a class="tool-btn" href="{% if lang == 'en' %}/{% else %}/{{ lang }}/{% endif %}">{{ s.get }}</a></div>
+  <h2>{{ c.how_h }}</h2>
+  <p>{{ c.how }}</p>
+  <h2>{{ c.stays_h }}</h2>
+  <p>{{ c.stays }}</p>
+  <p>{{ c.guide }}</p>
+</div>
+<script type="application/json" id="tool-strings">{{ s.js | jsonify }}</script>
+<script type="module" src="{{ '/assets/tools/compare-ui.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>

@@ -166,7 +166,7 @@ shows); a `<playlist>` its name or id.
 | Command | What it does |
 |---|---|
 | `trackhop notify` | The [notification channels](docker#notifications), their tokens masked. |
-| `trackhop notify kinds` | The kinds of channel (Telegram, ntfy, Gotify, Discord, Slack, Matrix, Pushover) and their settings. |
+| `trackhop notify kinds` | The kinds of channel (Telegram, ntfy, Gotify, Discord, Slack, Matrix, Pushover, Apprise) and their settings. |
 | `trackhop notify add <kind> --set key=value…` | Adds a channel: `--name`, `--set` for each setting (`--set topic=trackhop-…`), `--events changes,failed,review,removals`. |
 | `trackhop notify edit <channel> …` | Changes one; a token left out keeps its value. |
 | `trackhop notify on <channel>`, `off`, `rm` | Turns it on or off, or removes it. |
