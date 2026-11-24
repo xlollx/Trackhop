@@ -200,4 +200,19 @@ class DeezerContractTest : ContractTest() {
         json("""{"id":9,"title":"T","checksum":"3f1c","nb_tracks":2}""")
         assertEquals("3f1c", dz.playlistVersion(env, "9"))
     }
+
+    // Deezer accepts no new apps: the official route is offered only with an app id, or to an account already added.
+    @Test fun theOfficialRouteIsOfferedOnlyWithAnAppIdOrToThoseWhoHaveIt() {
+        // The build carries no app id (none was ever issued to Trackhop).
+        env.store.updateSettings { it.copy(clientIds = emptyMap(), connectors = emptyList()) }
+        if (dz.clientId(env).isBlank()) assertTrue(!dz.offered(env))
+        env.store.updateSettings { it.copy(connectors = listOf("deezer_bridge")) }
+        if (dz.clientId(env).isBlank()) assertTrue(!dz.offered(env))
+        env.store.updateSettings { it.copy(connectors = listOf("deezer")) }
+        assertTrue(dz.offered(env))
+        env.store.updateSettings { it.copy(connectors = listOf("deezer@2")) }
+        assertTrue(dz.offered(env))
+        env.store.updateSettings { it.copy(connectors = emptyList(), clientIds = mapOf("deezer" to "123456")) }
+        assertTrue(dz.offered(env))
+    }
 }

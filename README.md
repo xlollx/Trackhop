@@ -108,7 +108,8 @@ F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and A
 | | ✓ | ✓ | — | Official: Apple developer token (Apple's API cannot remove tracks) | All apps (not Desktop or Docker) |
 | **Amazon Music** | ✓ | ✓ | ✓ | Quick sign-in with your Amazon account (no public API) | GitHub, F-Droid · plugin |
 | **TIDAL** | ✓ | ✓ | ✓ | Official: your own free developer key | All builds |
-| **Deezer** | ✓ | ✓ | ✓ | Official (beta), or quick sign-in | All builds · quick sign-in: GitHub, F-Droid, Desktop, Docker, plugin |
+| **Deezer** | ✓ | ✓ | ✓ | Quick sign-in with your Deezer account; a Family plan picks its profile | GitHub, F-Droid, Desktop, Docker · plugin |
+| | ✓ | ✓ | ✓ | Official (beta): only with an app id you already have, Deezer no longer creates new ones | All builds |
 | **LiveOne** | ✓ | ✓ | — | Quick sign-in (liked songs only, beta) | GitHub, F-Droid, Desktop, Docker · plugin |
 | **Navidrome / Subsonic** (Airsonic, Gonic, Ampache, LMS, Funkwhale) | ✓ | ✓ | ✓ | Your server's address and login | All builds |
 | **Jellyfin** | ✓ | ✓ | ✓ | Your server's address and login | All builds |
@@ -221,8 +222,9 @@ common errors.
 - Deezer (web) is marked **alpha**: covered by offline tests but not yet tried on real accounts. Try
   it on a test playlist first and report what goes wrong. SoundCloud with your account is **beta**.
 - The app ships without service credentials of its own: on the services that require one (Spotify,
-  YouTube Music, TIDAL, Deezer, Last.fm) each user creates a free developer key, and the app walks
-  them through it in about two minutes (Deezer no longer registers new apps: only an existing one). Or use the quick route: sign in on the service's own page.
+  YouTube Music, TIDAL, Last.fm) each user creates a free developer key, and the app walks
+  them through it in about two minutes. Deezer no longer accepts new apps that use its API, so its
+  official route is offered only to those who already have an app id; the others are told why. Or use the quick route: sign in on the service's own page.
   Personal servers and files need nothing.
 - License: AGPL-3.0-only, see [LICENSE](LICENSE). Security reports: [SECURITY.md](SECURITY.md).
 
@@ -438,7 +440,7 @@ The technical side of each connector (for a quick overview, see [Music services 
 | Apple Music (web) | read, add and remove; rename and delete playlists; built in (GitHub/F-Droid) or via the Trackhop Bridge | Apple ID sign-in on Apple's page | nothing | The Bridge reads the web player's developer token and the music user token cookie; Trackhop then runs the same Apple Music code as above, with removals, renames and deletions sent to the web player's own backend (amp-api.music.apple.com), as music.apple.com does. Not an official route, against Apple's terms, may break without notice. |
 | Amazon Music | complete, built in (GitHub/F-Droid) or via the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) | Amazon sign-in on Amazon's page | nothing | Amazon's official Web API is a closed beta for approved partners, so the Bridge uses the web player's interface (library playlists, playlist rows with their entry ids, search, create, add, remove, rename, delete). Not an official API, may break without notice. |
 | TIDAL | complete | OAuth PKCE | `TIDAL_CLIENT_ID` | API v2 (JSON:API) still evolving; endpoints isolated in `TidalProvider.kt`. |
-| Deezer | beta | OAuth implicit | `DEEZER_APP_ID` and an https redirect page (`docs/deezer-redirect.html`) | Registration of new apps may be closed. Playlists read from Deezer carry no ISRC. Beta: limited real-world use. |
+| Deezer | beta; offered only with an app id (the build's or the user's) or to an account already added | OAuth implicit | `DEEZER_APP_ID` and an https redirect page (`docs/deezer-redirect.html`) | Deezer no longer creates new apps: without an app id the route is not offered, and Accounts › Add says why. Playlists read from Deezer carry no ISRC. Beta: limited real-world use. |
 | LiveOne (web) | presets (liked songs): read and add, beta; GitHub/F-Droid, Docker and Desktop only | LiveOne's own page in the app (Docker/Desktop: paste the `slackerUser` entry) | nothing | No public API: the web player's backend, unofficial. Playlists of one's own need LiveOne's paid plan (not handled yet); no removal; stations play only in the US. |
 | Subsonic / Navidrome (Airsonic, Gonic, Ampache, LMS, Funkwhale) | complete | server URL, user, password (md5+salt token) | nothing | Starred tracks = likes. Ampache checks the token against the separate *Subsonic password* (or the API key) from *Preferences → Account*, not the account password; the app says so when Ampache refuses the login. |
 | Jellyfin | complete | server URL, user, password | nothing | Favourites supported. |
@@ -702,8 +704,9 @@ shared key.
 - TIDAL: a client ID from developer.tidal.com.
 - Deezer: an application ID from developers.deezer.com, for those who already have one: Deezer
   stopped registering new apps in 2025 ([Deezer community](https://en.deezercommunity.com/features-feedback-44/api-auth-impossible-80857)),
-  and an existing app keeps working. Without one, use the "Deezer (web)" connector, which needs no
-  app. The https redirect page is provided by the project (`docs/deezer-redirect.html`, published
+  and an existing app keeps working. Without one the official route is not offered at all (Accounts ›
+  Add says why); use the "Deezer (web)" connector, which needs no app and lets a Family plan pick
+  its profile. The https redirect page is provided by the project (`docs/deezer-redirect.html`, published
   on GitHub Pages) and prefilled.
 - Last.fm: a free API key.
 - Apple Music: a MusicKit developer token, which requires the paid Apple Developer Program.
@@ -857,6 +860,8 @@ by Marin M. (GPL-3.0), whose author worked out Shazam's signature format. It tal
 unofficial endpoint, so it is only in the builds that use unofficial services (GitHub, F-Droid,
 Docker, Desktop outside the Microsoft Store, and the store builds through the plugin). MP3s are
 decoded on Docker and Desktop with [JLayer](https://github.com/umjammer/jlayer) (LGPL-2.1).
+How Deezer (web) moves to a Family plan's profile (#82) follows the idea of
+[Sonora](https://github.com/sonorahq/sonora) (GPL-3.0); the code was written from scratch.
 
 ## Known limits
 

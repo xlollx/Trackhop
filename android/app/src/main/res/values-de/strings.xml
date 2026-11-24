@@ -709,7 +709,7 @@
     <string name="onboarding_title">Willkommen bei Trackhop</string>
     <string name="onboarding_intro">Kopiere deine Playlists von einem Musikdienst zum anderen und halte sie aktuell, von Hand oder nach Zeitplan. Kostenlos, kein Abo, kein Konto anzulegen.</string>
     <string name="onboarding_step1_title">1. Verbinde deine Dienste</string>
-    <string name="onboarding_step1_desc">Spotify, Apple Music, YouTube Music, TIDAL, Deezer, dein eigener Server oder eine Datei.</string>
+    <string name="onboarding_step1_desc">Spotify, Apple Music, YouTube Music, TIDAL, dein eigener Server oder eine Datei.</string>
     <string name="onboarding_step2_title">2. Erstelle einen Sync</string>
     <string name="onboarding_step2_desc">Wähle eine Quell-Playlist und ein Ziel. Die Vorschau zeigt genau, was sich ändern wird, bevor etwas passiert.</string>
     <string name="onboarding_step3_title">3. Lass ihn laufen</string>
@@ -3520,6 +3520,17 @@
         <item quantity="one">%1$d vergessen: Der nächste Sync sucht erneut.</item>
         <item quantity="other">%1$d vergessen: Der nächste Sync sucht erneut.</item>
     </plurals>
+    <string name="deezer_profile">Deezer-Profil</string>
+    <string name="deezer_profile_title">Welches Profil?</string>
+    <string name="deezer_profile_hint">Dieses Deezer-Konto ist ein Family-Abo. Trackhop liest und schreibt die Playlists und Favoriten des Profils, das du wählst. Du kannst es später im ⋮-Menü des Kontos ändern.</string>
+    <string name="deezer_profile_holder">Kontoinhaber</string>
+    <string name="deezer_profile_later">Später</string>
+    <string name="deezer_profile_use">Dieses Profil verwenden</string>
+    <string name="deezer_profile_failed">Deezer hat nicht zu diesem Profil gewechselt: Das bisherige Profil bleibt. Versuche es später noch einmal.</string>
+    <string name="deezer_profile_as">%1$s · Family-Profil</string>
+    <string name="deezer_why_title">Warum kein Deezer?</string>
+    <string name="deezer_why_official_title">Warum kein offizielles Deezer?</string>
+    <string name="deezer_why_body">Deezer nimmt keine neuen Apps mehr an, die seine API nutzen: Vorerst können wir es hier nicht anbieten.</string>
     <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
     <string name="ytm_profile_title">Welches YouTube Music-Profil?</string>
     <string name="ytm_profile_body">Dein Google-Konto hat %1$d Profile. Trackhop liest und schreibt Playlists und Lieblingssongs in dem Profil, das du wählst.</string>

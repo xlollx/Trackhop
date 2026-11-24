@@ -1,6 +1,8 @@
 package com.xlollx.songport.ytmbridge
 
 import com.xlollx.songport.ytmbridge.BridgeNet.withHook
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
@@ -30,7 +32,8 @@ import java.util.concurrent.TimeUnit
  */
 class DeezerWebClient(private val host: WebHost) {
 
-    class User(val id: String, val name: String?, val token: String, val lovedId: String?)
+    /** [family]: a Deezer Family account (or a profile of one), whose profiles [profiles] lists. */
+    class User(val id: String, val name: String?, val token: String, val lovedId: String?, val family: Boolean = false)
 
     /**
      * Deezer limiting the requests: an HTTP 429, or a gateway error that says so (a quota, "too many
@@ -53,27 +56,133 @@ class DeezerWebClient(private val host: WebHost) {
      * so the token and the session it was issued to travel together.
      */
     private fun cookies(): String {
-        val base = host.cookies() ?: throw BridgeException("not connected")
-        return host.get("sid")?.let { withCookie(base, "sid", it) } ?: base
+        var c = host.cookies() ?: throw BridgeException("not connected")
+        // A chosen Family profile: the sign-in Deezer handed out for it, and the cookie the player sets for it.
+        host.get(PROFILE)?.let { want ->
+            host.get(ARL)?.let { c = withCookie(c, "arl", it) }
+            c = withCookie(c, "familyUserId", want)
+        }
+        return host.get("sid")?.let { withCookie(c, "sid", it) } ?: c
     }
 
-    /** Who is signed in, with the gateway token. Cached ten minutes; a refused token fetches it again. */
+    /**
+     * Who is signed in, with the gateway token. Cached ten minutes; a refused token fetches it again.
+     *
+     * On a Deezer Family account with a chosen profile ([setProfile]) every new session is moved to
+     * that profile before anything else (the way the player switches: `user.loginMulti`, then
+     * `deezer.userAutolog`), and Deezer must then name that profile: otherwise nothing is done, so
+     * no call ever reads or writes the account holder's library in its place.
+     */
     fun user(refresh: Boolean = false): User {
         if (!refresh) cachedUsers[host.cacheScope]?.let { (at, u) -> if (System.currentTimeMillis() - at < 600_000) return u }
-        val r = gw("deezer.getUserData", jsonObj(), retry = false)
-        val u = r["USER"]
-        val id = u["USER_ID"].str?.takeIf { it.isNotBlank() && it != "0" } ?: throw BridgeException(EXPIRED)
-        val token = r["checkForm"].str?.takeIf { it.isNotBlank() } ?: throw BridgeException("Deezer did not hand out a gateway token: sign out of Deezer and sign in again")
-        val user = User(id, u["BLOG_NAME"].str?.takeIf { it.isNotBlank() } ?: u["FIRSTNAME"].str, token, u["LOVEDTRACKS_ID"].str)
+        var user = userData()
+        val want = host.get(PROFILE)
+        if (user.family && want == null) {
+            // Not moved yet: the session is the account holder's own, as signed in.
+            host.put(HOLDER, user.id)
+            host.put(HOLDER_NAME, user.name)
+        }
+        if (user.family || want != null) host.put(FAMILY, "1") else host.put(FAMILY, "0")
+        if (want != null && user.id != want) {
+            switchTo(want, user.token)
+            user = userData()
+            if (user.id != want) {
+                BridgeNet.log("deezer", "family profile: Deezer stayed on another profile after the switch")
+                throw BridgeException(PROFILE_REFUSED)
+            }
+            BridgeNet.log("deezer", "family profile: session moved to the chosen profile")
+        }
         cachedUsers[host.cacheScope] = System.currentTimeMillis() to user
         return user
     }
 
+    private fun userData(): User {
+        val r = gw("deezer.getUserData", jsonObj(), retry = false)
+        val u = r["USER"]
+        val id = u["USER_ID"].str?.takeIf { it.isNotBlank() && it != "0" } ?: throw BridgeException(EXPIRED)
+        val token = r["checkForm"].str?.takeIf { it.isNotBlank() } ?: throw BridgeException("Deezer did not hand out a gateway token: sign out of Deezer and sign in again")
+        val family = truthy(u["MULTI_ACCOUNT"]["ENABLED"])
+        return User(id, u["BLOG_NAME"].str?.takeIf { it.isNotBlank() } ?: u["FIRSTNAME"].str, token, u["LOVEDTRACKS_ID"].str, family)
+    }
+
+    /** Moves this session to profile [id] of the Family account, with the gateway token of the session as it is. */
+    private fun switchTo(id: String, token: String) {
+        try {
+            val r = gw("user.loginMulti", jsonObj("account_id" to num(id)), retry = false, token = token)
+            keepArl(r)
+            keepArl(gw("deezer.userAutolog", jsonObj(), retry = false, token = token))
+        } catch (e: BridgeException) {
+            if (isFatal(e) || e is Limited) throw e
+            BridgeNet.log("deezer", "family profile: switch refused: ${e.message?.take(160)}")
+            throw BridgeException(PROFILE_REFUSED, e)
+        }
+    }
+
+    /** A sign-in handed back in an answer's body (an `arl` field), kept for the chosen profile. */
+    private fun keepArl(r: JsonElement?) {
+        val o = r as? JsonObject ?: return
+        o.entries.firstOrNull { it.key.equals("arl", true) }?.value?.str?.let { if (validArl(it)) host.put(ARL, it) }
+    }
+
+    // ---- Family profiles
+
+    /**
+     * The profiles of the Deezer Family account this session belongs to that its holder may act as
+     * (`deezer.getChildAccounts`, those Deezer marks EXTRA_FAMILY.IS_LOGGABLE_AS), the holder first,
+     * the one the calls are made as marked. Empty for an account that is not a Family one. A profile
+     * session may not list its family: the list seen from the holder's is used then.
+     */
+    fun profiles(): List<ProfileDto> {
+        val me = user()
+        if (!me.family && host.get(PROFILE) == null) return emptyList()
+        val r = runCatching { gw("deezer.getChildAccounts", jsonObj()) }.getOrElse { e ->
+            if (e is BridgeException && (isFatal(e) || e is Limited)) throw e
+            null
+        }
+        val listed = (if (r is JsonArray) r.arr else r["data"].arr).mapNotNull { c ->
+            if (!truthy(c["EXTRA_FAMILY"]["IS_LOGGABLE_AS"])) return@mapNotNull null
+            val id = c["USER_ID"].str?.takeIf { it.isNotBlank() && it != "0" } ?: return@mapNotNull null
+            ProfileDto(id, c["BLOG_NAME"].str?.takeIf { it.isNotBlank() } ?: c["FIRSTNAME"].str?.takeIf { it.isNotBlank() } ?: id, picture(c["USER_PICTURE"].str))
+        }
+        val children = if (listed.isNotEmpty()) listed.also { host.put(PROFILES, json.encodeToString(it)) }
+        else host.get(PROFILES)?.let { runCatching { json.decodeFromString<List<ProfileDto>>(it) }.getOrNull() }.orEmpty()
+        val holder = host.get(HOLDER)
+        val all = buildList {
+            if (holder != null && children.none { it.id == holder }) add(ProfileDto(holder, host.get(HOLDER_NAME) ?: holder))
+            addAll(children)
+        }
+        val current = host.get(PROFILE) ?: holder ?: me.id
+        return all.map { it.copy(holder = it.id == holder, selected = it.id == current) }
+    }
+
+    /**
+     * Makes this account's calls as Family profile [id] (null: as the session signed in, the holder's
+     * own) and checks that Deezer moved there; when it does not, the choice before stays and the
+     * refusal is thrown. Kept with the session: every new one is moved there again ([user]).
+     */
+    fun setProfile(id: String?): User {
+        val want = id?.trim()?.takeIf { it.isNotEmpty() }
+        val before = host.get(PROFILE)
+        fun reset() { host.put("sid", null); cachedUsers.remove(host.cacheScope) }
+        host.put(PROFILE, want)
+        reset()
+        try {
+            return user(refresh = true)
+        } catch (e: Exception) {
+            host.put(PROFILE, before)
+            reset()
+            throw e
+        }
+    }
+
+    /** The profile chosen for this account; null when none was (the session's own). */
+    fun chosenProfile(): String? = host.get(PROFILE)
+
     // ---- the gateway
 
     /** One gateway call; its `results`. A stale token is renewed once; a signed-out session says so plainly. */
-    fun gw(method: String, args: JsonObject, retry: Boolean = true): JsonElement? {
-        val token = if (method == "deezer.getUserData") "null" else user().token
+    fun gw(method: String, args: JsonObject, retry: Boolean = true, token: String? = null): JsonElement? {
+        val token = token ?: if (method == "deezer.getUserData") "null" else user().token
         val url = GW.toHttpUrl().newBuilder()
             .addQueryParameter("method", method).addQueryParameter("input", "3")
             .addQueryParameter("api_version", "1.0").addQueryParameter("api_token", token).build()
@@ -87,7 +196,11 @@ class DeezerWebClient(private val host: WebHost) {
         val resp = send(req)
         resp.setCookies.forEach { c ->
             val pair = c.substringBefore(';')
-            if (pair.substringBefore('=').trim() == "sid") pair.substringAfter('=', "").trim().takeIf { it.isNotEmpty() }?.let { host.put("sid", it) }
+            val name = pair.substringBefore('=').trim()
+            val value = pair.substringAfter('=', "").trim()
+            if (name == "sid") value.takeIf { it.isNotEmpty() }?.let { host.put("sid", it) }
+            // A Family profile's session: Deezer may hand out a new sign-in with it, the one to keep using.
+            if (name == "arl" && host.get(PROFILE) != null && validArl(value)) host.put(ARL, value)
         }
         if (resp.code == 401 || resp.code == 403) {
             // A refused gateway token or short session (sid): both are asked for again once from the
@@ -383,6 +496,20 @@ class DeezerWebClient(private val host: WebHost) {
         const val LIKED = "__liked__"
         /** What the person reads when the session is gone: no app named, the same text in every build. */
         const val EXPIRED = "the Deezer web session has expired: sign out of Deezer and sign in again"
+        /** The chosen Family profile could not be reached: said instead of acting as another profile. */
+        const val PROFILE_REFUSED = "Deezer did not switch to the chosen Family profile: choose it again from the account's menu, or try later"
+        /**
+         * What is kept with the session for Family profiles: the chosen profile's id, the sign-in Deezer
+         * handed out for it, the holder's id and name, the family's profiles as last listed, whether
+         * the account is a Family one ("1"/"0", unknown until the first look). A new sign-in forgets them.
+         */
+        const val PROFILE = "familyProfile"
+        const val ARL = "familyArl"
+        const val HOLDER = "familyHolder"
+        const val HOLDER_NAME = "familyHolderName"
+        const val PROFILES = "familyProfiles"
+        const val FAMILY = "family"
+        val FAMILY_KEYS = listOf(PROFILE, ARL, HOLDER, HOLDER_NAME, PROFILES, FAMILY)
         private const val STATUS_PRIVATE = 1
         private const val MAX_PLAYLISTS = 2000
         private const val MAX_LIKED = 10_000
@@ -427,6 +554,18 @@ class DeezerWebClient(private val host: WebHost) {
 
         /** Ids go out as numbers, the way the player sends them. */
         private fun num(id: String): Any = id.toLongOrNull() ?: id
+
+        /** A flag the gateway sends as true, 1 or "1". */
+        private fun truthy(e: JsonElement?): Boolean = e.str?.trim()?.lowercase() in setOf("true", "1")
+
+        /** A real sign-in cookie, not an emptied or "deleted" one. */
+        private fun validArl(v: String): Boolean = v.length >= 32 && !v.equals("deleted", true)
+
+        /** A profile picture's address from the gateway's USER_PICTURE (an image id); null without one. */
+        fun picture(hash: String?): String? = hash?.trim()?.takeIf { it.isNotEmpty() && it.all { c -> c.isLetterOrDigit() } }
+            ?.let { "https://cdn-images.dzcdn.net/images/user/$it/100x100-000000-80-0-0.jpg" }
+
+        private val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true; encodeDefaults = true }
     }
 }
 

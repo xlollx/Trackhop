@@ -65,6 +65,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import com.xlollx.songport.platform.env
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -160,6 +161,7 @@ private fun Hero(content: @Composable ColumnScope.() -> Unit) {
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun WelcomePage() {
+    val ctx = LocalContext.current
     val logos = remember {
         // Amazon Music only where the build carries its connector: the Play build reaches it through
         // a separately installed plugin, so it does not show it as a service of its own.
@@ -169,6 +171,9 @@ private fun WelcomePage() {
         listOf("spotify", "apple", "ytm", "amazon", "tidal", "deezer", "qobuz_web", "soundcloud", "anghami_web", "subsonic", "jellyfin", "emby", "plex")
             .filter { it !in builtInOnly || com.xlollx.songport.providers.BridgePlugin.builtIn }
             .mapNotNull { id -> Providers.services().firstOrNull { it.serviceId == id } }
+            // Deezer's official route is not offered to new users (Deezer accepts no new apps): its mark
+            // stays only where the build reaches Deezer another way.
+            .filter { it !is com.xlollx.songport.providers.DeezerProvider || it.offered(ctx.env) || com.xlollx.songport.providers.BridgePlugin.builtIn }
     }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Hero {

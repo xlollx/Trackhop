@@ -50,7 +50,7 @@ internal class CliCommands(
         "runs" -> runs(p.takeIf { it.isNotEmpty() }?.joinToString(" "), o)
         "report" -> if (p.isEmpty()) issue(o) else report(p.joinToString(" "))
         "review" -> review(p, o)
-        "services" -> services()
+        "services" -> if (p.firstOrNull() == "profile") { need(p, 2, "services profile <service> [<profile>]"); profile(p[1], p.drop(2).joinToString(" ").takeIf { it.isNotEmpty() }) } else services()
         "catalog" -> catalog(p.joinToString(" "), o)
         "playlists" -> playlists(one(p, "playlists <service>"))
         "profiles" -> { need(p, 1, "profiles <service> [<profile>]"); profiles(p[0], p.drop(1).joinToString(" ").takeIf { it.isNotEmpty() }) }
@@ -305,6 +305,18 @@ internal class CliCommands(
             val add = routes.mapNotNull { it["add"].str() }.joinToString(", ").ifEmpty { "added" }
             out.println("${f.s("name")}  [${f.s("categoryName")}]  $add")
         }
+        return 0
+    }
+
+    /** Deezer (web) on a Family account: its profiles, or (with [ask], an id or a name) act as another (#82). */
+    private fun profile(serviceAsk: String, ask: String?): Int {
+        val s = service(serviceAsk)
+        val path = "services/${enc(s.s("id"))}/profile"
+        val r = (if (ask == null) api.get(path) else api.send("PUT", path, buildJsonObject { put("profile", ask) })).jsonObject
+        if (asJson) return print(r).let { 0 }
+        val list = r["profiles"]?.jsonArray?.map { it.jsonObject }.orEmpty()
+        if (list.isEmpty()) out.println("${s.s("name")} is not a Deezer Family account: there is no profile to choose.")
+        for (o in list) out.println("${if (o.b("selected")) "* " else "  "}${o.s("name")}  (${o.s("id")})${if (o.b("holder")) "  account holder" else ""}")
         return 0
     }
 

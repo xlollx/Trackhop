@@ -14,10 +14,10 @@
 - Kendi renklerin ve tarzınla eşitleme kartları, ana ekran widget'ları ve kısayollar
 - Her hesap için bağlantı testi ve her eşitlemenin özeti
 
-Spotify, Apple Music, YouTube Music, TIDAL, Deezer, kişisel Navidrome/Subsonic, Jellyfin ve Plex sunucuları, Last.fm ve ListenBrainz ile dosyalarla çalışır. Bazı bağlayıcılar uygulamada beta olarak işaretlidir: çalışırlar ama diğerlerinden daha az kullanılmışlardır.
+Spotify, Apple Music, YouTube Music, TIDAL, kişisel Navidrome/Subsonic, Jellyfin ve Plex sunucuları, Last.fm ve ListenBrainz ile dosyalarla çalışır. Bazı bağlayıcılar uygulamada beta olarak işaretlidir: çalışırlar ama diğerlerinden daha az kullanılmışlardır.
 
 Ücretsiz; abonelik, uygulama içi satın alma ve reklam yok.
-Oluşturulacak hesap yok, bizim sunucumuz yok: her şey telefonunda kalır, erişim token'ları Android Keystore ile şifrelenir ve başka kimseden geçmez. Her servise kendi sayfasında giriş yaparsın; Spotify, YouTube Music, TIDAL ve Deezer için kendi adına ücretsiz bir anahtarı yaklaşık iki dakikada oluşturursun, uygulama adım adım yol gösterir.
+Oluşturulacak hesap yok, bizim sunucumuz yok: her şey telefonunda kalır, erişim token'ları Android Keystore ile şifrelenir ve başka kimseden geçmez. Her servise kendi sayfasında giriş yaparsın; Spotify, YouTube Music ve TIDAL için kendi adına ücretsiz bir anahtarı yaklaşık iki dakikada oluşturursun, uygulama adım adım yol gösterir.
 
 Planlanmış eşitlemeler sunucu olmadan telefonunda çalışır: telefon kapalıysa ya da pil tasarrufu uygulamayı engellerse ilk fırsatta devam eder.
 

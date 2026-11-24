@@ -533,7 +533,11 @@ class WebLoginActivity : ComponentActivity() {
             else -> SpotifyBridge.session(slot)
         }
         // A new sign-in may be another account: nothing cached from the previous one is reused.
-        if (service == DEEZER) { sess.put(applicationContext, "sid", null); DeezerWebClient.forget(slot) }
+        if (service == DEEZER) {
+            sess.put(applicationContext, "sid", null)
+            DeezerWebClient.FAMILY_KEYS.forEach { sess.put(applicationContext, it, null) }
+            DeezerWebClient.forget(slot)
+        }
         if (service == SPOTIFY) SpotifyBridge.invalidateToken(slot)
         signedIn(sess, cookies)
         return true

@@ -209,6 +209,24 @@ internal fun Web.apiMore(ex: HttpExchange, method: String, rest: List<String>, q
                 .getOrElse { return true.also { _ -> error(502, "${p.label(env)}: ${it.message ?: it.javaClass.simpleName}") } }
             json(200, buildJsonObject { put("current", id); put("name", c?.name) })
         }
+        // Deezer (web) on a Family account: the profiles, and the one the account acts as (#82).
+        rest.size == 3 && rest[0] == "services" && rest[2] == "profile" && (method == "GET" || method == "PUT") -> {
+            val p = connected(rest[1], error) ?: return true
+            val dz = p as? DeezerWebServerProvider ?: return true.also { error(400, "${p.label(env)} has no profiles: only Deezer (web) on a Family account.") }
+            val chosen = if (method == "PUT") {
+                val b = body() ?: return true.also { badJson() }
+                val want = b.text("profile") ?: return true.also { error(400, "\"profile\" is the profile's id or name: see GET.") }
+                runCatching { runBlocking { dz.setProfile(env, want) } }.getOrElse { return true.also { _ -> error(409, it.message ?: it.javaClass.simpleName) } }
+            } else null
+            val list = runCatching { runBlocking { dz.profiles(env) } }.getOrElse { return true.also { _ -> error(502, "${p.label(env)}: ${it.message ?: it.javaClass.simpleName}") } }
+            json(200, buildJsonObject {
+                put("family", list.isNotEmpty())
+                put("profiles", JsonArray(list.map { pr -> buildJsonObject {
+                    put("id", pr.id); put("name", pr.name); put("picture", pr.picture?.let { JsonPrimitive(it) } ?: JsonNull)
+                    put("holder", pr.holder); put("selected", if (chosen != null) pr.id == chosen.id else pr.selected)
+                } }))
+            })
+        }
         // A personal server's second address (2.2): {"away": "https://…"}, or null / "" to take it away.
         rest.size == 3 && rest[0] == "services" && rest[2] == "address" && (method == "PUT" || method == "PATCH") -> {
             val p = (connected(rest[1], error) ?: return true) as? com.xlollx.songport.providers.CredentialsProvider

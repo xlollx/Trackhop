@@ -77,6 +77,8 @@ internal object ApiDocs {
         Call("POST", "/plex/{account}/playlists/{playlist}/copy", "Plex", "Copy a playlist into a user's library on the same server.", body = "{\"user\"}"),
         Call("PUT", "/services/{service}/address", "Services", "A personal server's second address (away from home): tried when the first does not answer.", body = "{\"away\": \"https://…\" | null}"),
         Call("GET", "/services/{service}/search", "Services", "Look for a track: q is \"Artist - Title\" or a link.", listOf("q", "limit")),
+        Call("GET", "/services/{service}/profile", "Services", "Deezer (web) on a Family account: its profiles, the one the account acts as marked."),
+        Call("PUT", "/services/{service}/profile", "Services", "Deezer (web) on a Family account: act as another profile, checked with Deezer.", body = "{\"profile\": \"id or name\"}"),
         Call("GET", "/services/{service}/playlists", "Playlists", "A service's playlists and library entries."),
         Call("POST", "/services/{service}/playlists", "Playlists", "Make a playlist.", body = "{\"name\", \"description\"?}"),
         Call("PATCH", "/services/{service}/playlists/{playlist}", "Playlists", "Rename a playlist.", body = "{\"name\"}"),

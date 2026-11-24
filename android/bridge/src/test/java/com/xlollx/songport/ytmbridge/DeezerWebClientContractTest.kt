@@ -421,4 +421,110 @@ class DeezerWebClientContractTest {
         assertEquals("A: b", DeezerWebClient.errorOf(parseJson("""{"A":"b"}""")))
         assertEquals("arl=x; sid=new", DeezerWebClient.withCookie("arl=x; sid=old", "sid", "new"))
     }
+
+    // ------------------------------------------------------------------ Family profiles (#82)
+
+    private val newArl = "f".repeat(64)
+    /** A Family account: the holder (1234567, Marco) and two members, one the holder may act as. */
+    private var switched = false
+    private var switchWorks = true
+    private fun family() {
+        BridgeMock.fixed = { r ->
+            fun ok(results: String, cookie: String? = null) = MockResponse().setBody("""{"error":[],"results":$results}""").apply { cookie?.let { setHeader("Set-Cookie", it) } }
+            when (r.requestUrl?.queryParameter("method")) {
+                "deezer.getUserData" -> ok(
+                    if (switched) """{"USER":{"USER_ID":"222","BLOG_NAME":"Giulia","LOVEDTRACKS_ID":"9002","MULTI_ACCOUNT":{"ENABLED":false}},"checkForm":"tok-2"}"""
+                    else """{"USER":{"USER_ID":1234567,"BLOG_NAME":"Marco","LOVEDTRACKS_ID":"9001","MULTI_ACCOUNT":{"ENABLED":true}},"checkForm":"tok-1"}""",
+                )
+                "deezer.getChildAccounts" -> ok(if (switched) "[]" else """[
+                    {"USER_ID":"222","BLOG_NAME":"Giulia","USER_PICTURE":"ab12cd","EXTRA_FAMILY":{"IS_LOGGABLE_AS":true}},
+                    {"USER_ID":"333","BLOG_NAME":"Away","EXTRA_FAMILY":{"IS_LOGGABLE_AS":false}},
+                    {"USER_ID":"444","FIRSTNAME":"Luca","USER_PICTURE":"","EXTRA_FAMILY":{"IS_LOGGABLE_AS":"1"}}]""")
+                "user.loginMulti" -> { if (switchWorks) switched = true; ok("true", if (switchWorks) "arl=$newArl; path=/; domain=.deezer.com; secure; HttpOnly" else null) }
+                "deezer.userAutolog" -> ok("true")
+                else -> null
+            }
+        }
+    }
+    private fun gwCalls(method: String) = BridgeMock.all.filter { it.requestUrl?.queryParameter("method") == method }
+
+    @Test fun aFamilyAccountListsTheProfilesTheHolderMayActAsHolderFirst() {
+        family()
+        val p = dz.profiles()
+        assertEquals(listOf("1234567", "222", "444"), p.map { it.id })
+        assertEquals(listOf("Marco", "Giulia", "Luca"), p.map { it.name })
+        assertTrue(p[0].holder && p[0].selected)
+        assertTrue(!p[1].holder && !p[1].selected)
+        assertEquals("https://cdn-images.dzcdn.net/images/user/ab12cd/100x100-000000-80-0-0.jpg", p[1].picture)
+        assertNull(p[2].picture)
+        assertEquals("1", DeezerBridge.session.get(app, DeezerWebClient.FAMILY))
+    }
+
+    @Test fun anAccountThatIsNotFamilyHasNoProfilesAndAsksForNone() {
+        assertEquals(0, dz.profiles().size)
+        assertEquals(0, gwCalls("deezer.getChildAccounts").size)
+        assertEquals("0", DeezerBridge.session.get(app, DeezerWebClient.FAMILY))
+    }
+
+    @Test fun choosingAProfileMovesTheSessionThereAndChecksIt() {
+        family()
+        dz.profiles()
+        val u = dz.setProfile("222")
+        assertEquals("222", u.id)
+        assertEquals("Giulia", u.name)
+        val multi = gwCalls("user.loginMulti").single()
+        assertEquals(222L, multi.json()["account_id"].long)
+        assertEquals("tok-1", multi.requestUrl!!.queryParameter("api_token"))
+        assertTrue(multi.getHeader("Cookie")!!.contains("familyUserId=222"))
+        assertEquals(1, gwCalls("deezer.userAutolog").size)
+        // The sign-in Deezer handed out for the profile is the one used from then on.
+        BridgeMock.answer("""{"error":[],"results":{"TAB":{"playlists":{"data":[]}}}}""")
+        dz.libraryPlaylists()
+        val page = gwCalls("deezer.pageProfile").single()
+        assertEquals("222", page.json()["USER_ID"].str)
+        assertEquals("tok-2", page.requestUrl!!.queryParameter("api_token"))
+        assertTrue(page.getHeader("Cookie")!!.contains("arl=$newArl"))
+        assertTrue(!page.getHeader("Cookie")!!.contains("arl=arl-cookie"))
+        // Seen from the profile, the family is the one listed from the holder's session.
+        val p = dz.profiles()
+        assertEquals(listOf("1234567", "222", "444"), p.map { it.id })
+        assertTrue(p[1].selected)
+    }
+
+    @Test fun everyNewSessionIsMovedToTheChosenProfileAgain() {
+        family()
+        dz.profiles()
+        dz.setProfile("222")
+        // A new session: Deezer answers as the holder again until moved.
+        switched = false
+        DeezerWebClient.forget()
+        BridgeMock.answer("""{"error":[],"results":{"TAB":{"playlists":{"data":[]}}}}""")
+        dz.libraryPlaylists()
+        assertEquals(2, gwCalls("user.loginMulti").size)
+        assertEquals("222", gwCalls("deezer.pageProfile").single().json()["USER_ID"].str)
+    }
+
+    @Test fun aRefusedSwitchKeepsTheChoiceBeforeAndNeverActsAsAnotherProfile() {
+        family()
+        dz.profiles()
+        switchWorks = false
+        try { dz.setProfile("222"); fail() } catch (e: BridgeException) { assertEquals(DeezerWebClient.PROFILE_REFUSED, e.message) }
+        assertNull(dz.chosenProfile())
+        // A chosen profile Deezer no longer moves to: the calls stop, none goes to the holder's library.
+        DeezerBridge.session.put(app, DeezerWebClient.PROFILE, "222")
+        DeezerWebClient.forget()
+        try { dz.libraryPlaylists(); fail() } catch (e: BridgeException) { assertEquals(DeezerWebClient.PROFILE_REFUSED, e.message) }
+        assertEquals(0, gwCalls("deezer.pageProfile").size)
+    }
+
+    @Test fun backToTheHoldersOwnProfile() {
+        family()
+        dz.profiles()
+        dz.setProfile("222")
+        // The holder is a profile like the others: the session is moved back to it the same way.
+        val multi = { switched = false }
+        BridgeMock.fixed.let { f -> BridgeMock.fixed = { r -> if (r.requestUrl?.queryParameter("method") == "user.loginMulti" && r.body.clone().readUtf8().contains("1234567")) { multi(); MockResponse().setBody("""{"error":[],"results":true}""") } else f(r) } }
+        assertEquals("1234567", dz.setProfile("1234567").id)
+        assertTrue(dz.profiles().first { it.holder }.selected)
+    }
 }

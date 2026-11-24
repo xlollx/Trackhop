@@ -60,7 +60,37 @@ class DeezerBridgeProvider(override val slot: String = "") : MusicProvider, WebA
         BridgePlugin.installed(ctx) && runCatching { call(ctx, "deezer.status").containsKey("connected") }.getOrDefault(false)
     override fun isConnected(ctx: Env): Boolean =
         BridgePlugin.installed(ctx) && runCatching { call(ctx, "deezer.status").getBoolean("connected", false) }.getOrDefault(false)
-    override fun accountName(ctx: Env): String? = runCatching { call(ctx, "deezer.status").getString("account") }.getOrNull()
+    /** The account's name; on a Deezer Family account moved to another profile, that profile's, said as such (#82). */
+    override fun accountName(ctx: Env): String? = runCatching {
+        val b = call(ctx, "deezer.status")
+        b.getString("profileName")?.let { ctx.text("deezer_profile_as", it) } ?: b.getString("account")
+    }.getOrNull()
+
+    /** A profile of a Deezer Family account: [holder] the account holder's own, [selected] the one the calls are made as. */
+    class Profile(val id: String, val name: String, val picture: String?, val holder: Boolean, val selected: Boolean)
+
+    /**
+     * What the connectors know of the account's Family profiles, read from their status: whether they
+     * offer the choice at all (an older Bridge does not), whether the account is a Family one (null:
+     * not known yet) and whether a profile was chosen. Cheap: no call to Deezer.
+     */
+    class FamilyState(val supported: Boolean, val family: Boolean?, val chosen: Boolean)
+
+    fun familyState(ctx: Env): FamilyState = runCatching {
+        if (!BridgePlugin.installed(ctx)) return@runCatching null
+        val b = call(ctx, "deezer.status")
+        FamilyState(b.containsKey("profiles"), if (b.containsKey("family")) b.getBoolean("family") else null, b.getString("profile") != null)
+    }.getOrNull() ?: FamilyState(false, null, false)
+
+    /** The profiles the account can act as, the chosen one marked; empty when it is not a Family account. Blocking: off the main thread. */
+    fun profiles(ctx: Env): List<Profile> = parseJson(call(ctx, "deezer.profiles").getString("json") ?: "[]").arr.mapNotNull { j ->
+        Profile(j["id"].str ?: return@mapNotNull null, j["name"].str ?: return@mapNotNull null, j["picture"].str, j["holder"].bool == true, j["selected"].bool == true)
+    }
+
+    /** Makes the account's calls as [profile]; Deezer refusing it keeps the profile before and throws. Blocking: off the main thread. */
+    fun setProfile(ctx: Env, profile: Profile) {
+        call(ctx, "deezer.profile", profile.id)
+    }
 
     override fun startAuth(ctx: Env) {
         if (BridgePlugin.packageName(ctx) == null) {

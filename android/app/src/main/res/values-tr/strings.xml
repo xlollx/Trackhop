@@ -709,7 +709,7 @@
     <string name="onboarding_title">Trackhop\'a hoş geldiniz</string>
     <string name="onboarding_intro">Çalma listelerinizi bir müzik servisinden diğerine kopyalayın ve elle ya da zamanlayarak güncel tutun. Ücretsiz, abonelik yok, oluşturulacak hesap yok.</string>
     <string name="onboarding_step1_title">1. Servislerinizi bağlayın</string>
-    <string name="onboarding_step1_desc">Spotify, Apple Music, YouTube Music, TIDAL, Deezer, kendi sunucunuz veya bir dosya.</string>
+    <string name="onboarding_step1_desc">Spotify, Apple Music, YouTube Music, TIDAL, kendi sunucunuz veya bir dosya.</string>
     <string name="onboarding_step2_title">2. Bir senkronizasyon oluşturun</string>
     <string name="onboarding_step2_desc">Bir kaynak çalma listesi ve bir hedef seçin. Önizleme, herhangi bir şey olmadan önce tam olarak nelerin değişeceğini gösterir.</string>
     <string name="onboarding_step3_title">3. Çalışmasına izin verin</string>
@@ -3518,6 +3518,17 @@
         <item quantity="one">%1$d unutuldu: sonraki senkronizasyon yeniden arar.</item>
         <item quantity="other">%1$d unutuldu: sonraki senkronizasyon yeniden arar.</item>
     </plurals>
+    <string name="deezer_profile">Deezer profili</string>
+    <string name="deezer_profile_title">Hangi profil?</string>
+    <string name="deezer_profile_hint">Bu Deezer hesabı bir Family planı. Trackhop seçtiğin profilin çalma listelerini ve favorilerini okur ve yazar. Daha sonra hesabın ⋮ menüsünden değiştirebilirsin.</string>
+    <string name="deezer_profile_holder">Hesap sahibi</string>
+    <string name="deezer_profile_later">Daha sonra</string>
+    <string name="deezer_profile_use">Bu profili kullan</string>
+    <string name="deezer_profile_failed">Deezer bu profile geçmedi: önceki profil kalıyor. Daha sonra tekrar dene.</string>
+    <string name="deezer_profile_as">%1$s · Family profili</string>
+    <string name="deezer_why_title">Deezer neden yok?</string>
+    <string name="deezer_why_official_title">Resmi Deezer neden yok?</string>
+    <string name="deezer_why_body">Deezer artık API\'sini kullanan yeni uygulamaları kabul etmiyor: şimdilik burada sunamıyoruz.</string>
     <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
     <string name="ytm_profile_title">Hangi YouTube Music profili?</string>
     <string name="ytm_profile_body">Google hesabınızda %1$d profil var. Trackhop çalma listelerini ve beğenilen şarkıları seçtiğiniz profilde okur ve yazar.</string>

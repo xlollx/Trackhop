@@ -701,7 +701,7 @@
     <string name="onboarding_title">欢迎使用 Trackhop</string>
     <string name="onboarding_intro">把歌单从一个音乐服务复制到另一个，并保持更新，可手动同步，也可按计划同步。免费，无订阅，无需创建账号。</string>
     <string name="onboarding_step1_title">1. 连接你的服务</string>
-    <string name="onboarding_step1_desc">Spotify、Apple Music、YouTube Music、TIDAL、Deezer、你自己的服务器，或文件。</string>
+    <string name="onboarding_step1_desc">Spotify、Apple Music、YouTube Music、TIDAL、你自己的服务器，或文件。</string>
     <string name="onboarding_step2_title">2. 创建同步</string>
     <string name="onboarding_step2_desc">选择来源歌单和目标。在任何操作发生之前，预览会准确显示将要更改的内容。</string>
     <string name="onboarding_step3_title">3. 让它自动运行</string>
@@ -3403,6 +3403,17 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="other">已忘记 %1$d 项：下次同步会重新查找。</item>
     </plurals>
+    <string name="deezer_profile">Deezer 个人资料</string>
+    <string name="deezer_profile_title">选择哪个个人资料？</string>
+    <string name="deezer_profile_hint">这个 Deezer 账号是 Family 套餐。Trackhop 会读写你所选个人资料的歌单和收藏。之后可在账号的 ⋮ 菜单中更改。</string>
+    <string name="deezer_profile_holder">账号持有人</string>
+    <string name="deezer_profile_later">以后再说</string>
+    <string name="deezer_profile_use">使用此个人资料</string>
+    <string name="deezer_profile_failed">Deezer 没有切换到此个人资料：仍使用之前的个人资料。请稍后再试。</string>
+    <string name="deezer_profile_as">%1$s · Family 个人资料</string>
+    <string name="deezer_why_title">为什么没有 Deezer？</string>
+    <string name="deezer_why_official_title">为什么没有官方 Deezer？</string>
+    <string name="deezer_why_body">Deezer 不再接受使用其 API 的新应用：目前我们无法在这里提供。</string>
     <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
     <string name="ytm_profile_title">使用哪个 YouTube Music 个人资料？</string>
     <string name="ytm_profile_body">你的 Google 账号有 %1$d 个个人资料。Trackhop 会在你选择的那个里读写播放列表和喜欢的歌曲。</string>

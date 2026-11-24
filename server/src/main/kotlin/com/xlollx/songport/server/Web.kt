@@ -8,6 +8,7 @@ import com.xlollx.songport.model.PlaylistRef
 import com.xlollx.songport.model.Schedule
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.providers.CredentialsProvider
+import com.xlollx.songport.providers.DeezerProvider
 import com.xlollx.songport.providers.JellyfinProvider
 import com.xlollx.songport.providers.LastFmProvider
 import com.xlollx.songport.providers.LocalFilesProvider
@@ -605,7 +606,9 @@ $removals"""
                     val result = runCatching { runBlocking { provider.connect(env, r.form["cookies"].orEmpty(), r.form["userAgent"]) } }
                     result.exceptionOrNull()?.let { return redirect(r.ex, "$back?err=${q(it.message ?: it.javaClass.simpleName)}") }
                     env.log("auth", "${provider.id} connected (pasted session)")
-                    return redirect(r.ex, "$back?ok=${q("Connected.")}")
+                    // A Deezer Family account: the profile is chosen on the page it lands on (#82).
+                    val family = provider is DeezerWebServerProvider && provider.isFamily(env) && runCatching { runBlocking { provider.profiles(env) }.none { it.selected && !it.holder } }.getOrDefault(false)
+                    return redirect(r.ex, "$back?ok=${q(if (family) "Connected. This is a Deezer Family account: choose the profile below." else "Connected.")}")
                 }
                 if (provider is CredentialsProvider) {
                     // The API key form (OpenSubsonic) posts mode=apikey: the key, no user or password.
@@ -643,6 +646,13 @@ $removals"""
                     ?: runCatching { runBlocking { ytm.channels(env) } }.getOrNull()?.firstOrNull { it.id == id }?.name
                 ytmProfiles.remove(ytm.id)
                 val result = runCatching { runBlocking { ytm.setChannel(env, id, name) } }
+                result.exceptionOrNull()?.let { return redirect(r.ex, "$back?err=${q(it.message ?: it.javaClass.simpleName)}") }
+                redirect(r.ex, "$back?ok=${q("Saved.")}")
+            }
+            // Deezer (web): the Family profile the account acts as (#82).
+            "profile" -> {
+                val dz = provider as? DeezerWebServerProvider ?: return send(r.ex, 404, errorPage(404))
+                val result = runCatching { runBlocking { dz.setProfile(env, r.form["profile"].orEmpty()) } }
                 result.exceptionOrNull()?.let { return redirect(r.ex, "$back?err=${q(it.message ?: it.javaClass.simpleName)}") }
                 redirect(r.ex, "$back?ok=${q("Saved.")}")
             }
@@ -731,6 +741,7 @@ $removals"""
             else -> body.append("""<div class="card muted">This service can't sign in from the server.</div>""")
         }
         if (p is YtmServerProvider && p.isConnected(env)) body.append(ytmChannelCard(p))
+        if (p is DeezerWebServerProvider && p.isConnected(env)) body.append(deezerProfileCard(p))
         if (p is YouTubeProvider && p.isConnected(env)) body.append(youtubeEmptyNote(p))
         // Last.fm read with the user name only: the password, once, makes Loved tracks a target (#51).
         if (p is LastFmProvider && p.isConnected(env) && !p.canLove(env)) body.append(
@@ -796,6 +807,29 @@ $removals"""
         if (list.none { it.id.isEmpty() }) sb.append("""<label class="row"><input type="radio" name="channel" value=""${if (chosen.isEmpty()) " checked" else ""}> The account's own channel</label>""")
         sb.append("""<p><button class="secondary">Use this profile</button></p></form>""")
         return sb.toString()
+    }
+
+    /**
+     * The profile of a Deezer Family account the calls are made as (#82): its profiles with their
+     * pictures, read from Deezer when the page opens; nothing for an account that is not a Family one.
+     */
+    private fun deezerProfileCard(p: DeezerWebServerProvider): String {
+        val list = runCatching { runBlocking { p.profiles(env) } }
+        list.exceptionOrNull()?.let { e ->
+            return if (!p.isFamily(env)) "" else """<div class="card"><h3>Profile</h3><p class="muted">The profiles could not be read: ${h(e.message ?: e.javaClass.simpleName)}</p></div>"""
+        }
+        val profiles = list.getOrThrow()
+        if (profiles.isEmpty()) return ""
+        val sb = StringBuilder("""<form method="post" action="/connectors/${q(p.id)}/profile" class="card"><h3>Profile</h3>
+<p class="muted">A Deezer Family account: playlists and favourites are read from and written to this profile. Without a choice the account holder's profile is used, as before.</p>""")
+        profiles.forEach { pr ->
+            val pic = pr.picture?.let { """<img src="${h(it)}" alt="" width="32" height="32" style="border-radius:50%;vertical-align:middle" loading="lazy" referrerpolicy="no-referrer">""" }
+                ?: """<span style="display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#a238ff;color:#fff;font-weight:600;vertical-align:middle">${h(pr.name.trim().take(1).uppercase())}</span>"""
+            sb.append("""<label class="row"><input type="radio" name="profile" value="${h(pr.id)}"${if (pr.selected) " checked" else ""}> $pic ${h(pr.name)}""")
+            if (pr.holder) sb.append(""" <span class="muted">(account holder)</span>""")
+            sb.append("</label>")
+        }
+        return sb.append("""<p><button class="secondary">Use this profile</button></p></form>""").toString()
     }
 
     /**

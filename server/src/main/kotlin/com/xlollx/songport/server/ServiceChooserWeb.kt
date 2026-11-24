@@ -18,7 +18,14 @@ import kotlinx.serialization.json.put
  */
 internal object ServiceChooser {
     /** The services the server offers to add (a link-only source is offered where a link is pasted). */
-    fun families(): List<ServiceCatalog.Family> = ServiceCatalog.families(Providers.services().filter { !it.linkOnly })
+    fun families(env: com.xlollx.songport.platform.Env): List<ServiceCatalog.Family> =
+        ServiceCatalog.families(Providers.services().filter { !it.linkOnly && !withheld(env, it) })
+
+    /** Deezer accepts no new apps that use its API: its official route only with an app id here, or once added. */
+    fun withheld(env: com.xlollx.songport.platform.Env, p: MusicProvider): Boolean = p is com.xlollx.songport.providers.DeezerProvider && !p.offered(env)
+
+    /** True when this server keeps the official Deezer from new users. */
+    fun deezerWithheld(env: com.xlollx.songport.platform.Env): Boolean = Providers.services().any { withheld(env, it) }
 
     /** Country and language from the browser's Accept-Language ("it-IT,it;q=0.9"), else the server's own language. */
     fun place(acceptLanguage: String?, fallback: java.util.Locale): Pair<String?, String?> {
@@ -39,7 +46,7 @@ internal object ServiceChooser {
 
     /** The catalogue as JSON (GET /api/v1/catalog): each service with its category, other names and ways in. */
     fun json(env: ServerEnv, query: String?, category: Category?): JsonArray {
-        val all = families()
+        val all = families(env)
         val list = if (!query.isNullOrBlank()) ServiceCatalog.search(all, query) else all.filter { category == null || it.category == category }
         return JsonArray(list.map { f ->
             buildJsonObject {
@@ -64,7 +71,7 @@ internal object ServiceChooser {
 
 /** GET /connectors/add: the chooser (?q= search, ?cat= a category), or one service's ways in (?service=). */
 internal fun Web.serviceChooser(r: Web.Req) {
-    val families = ServiceChooser.families()
+    val families = ServiceChooser.families(env)
     r.query["service"]?.let { id ->
         val f = families.firstOrNull { f -> f.members.any { it.id == id } } ?: return send(r.ex, 404, errorPage(404))
         return send(r.ex, 200, page(f.name, routesPage(f)))
@@ -114,8 +121,14 @@ internal fun Web.serviceChooser(r: Web.Req) {
         if (chip == null && s.more) body.append("""<p><a href="/connectors/add?cat=${q(s.category.key)}">${h(env.text("chooser_show_all", s.total))} ›</a></p>""")
         body.append("</div>")
     }
+    // No Deezer at all (the Microsoft Store build): why, in a line.
+    if (chip == null && families.none { it.name == "Deezer" } && ServiceChooser.deezerWithheld(env)) body.append(deezerWhy(official = false))
     send(r.ex, 200, page(env.text("connector_pick_title"), body.toString()))
 }
+
+/** Why Deezer, or its official route, is not offered: Deezer accepts no new apps (as the app says it). */
+private fun Web.deezerWhy(official: Boolean): String =
+    """<div class="card"><b>${h(env.text(if (official) "deezer_why_official_title" else "deezer_why_title"))}</b><p class="muted">${h(env.text("deezer_why_body"))}</p></div>"""
 
 private fun Web.chipLink(label: String, href: String, on: Boolean) =
     """<a class="chip${if (on) " on" else ""}" href="$href"${if (on) " aria-current=\"page\"" else ""}>${h(label)}</a>"""
@@ -165,6 +178,8 @@ private fun Web.routesPage(f: ServiceCatalog.Family): String {
         }
         sb.append("</div>")
     }
+    // Deezer with its web route only: why the official one is missing, where its card was.
+    if (f.name == "Deezer" && f.members.none { it is com.xlollx.songport.providers.DeezerProvider } && ServiceChooser.deezerWithheld(env)) sb.append(deezerWhy(official = true))
     return sb.toString()
 }
 

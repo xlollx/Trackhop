@@ -119,7 +119,9 @@ internal fun ServiceChooserDialog(
     fun explained(f: ServiceCatalog.Family) = f.members.all(::taken) && f.members.any { WebAccounts.reason(ctx, it) != null }
     fun open(f: ServiceCatalog.Family) {
         val usable = f.members.filter { ServiceCatalog.reason(it, role) == null }
-        if (f.members.size == 1 && usable.size == 1 && !explained(f)) onPick(usable[0]) else familyName = f.name
+        // Deezer without its official route opens its routes too, where the line says why.
+        val why = f.name == "Deezer" && deezerOfficialWithheld(ctx)
+        if (f.members.size == 1 && usable.size == 1 && !explained(f) && !why) onPick(usable[0]) else familyName = f.name
     }
 
     FitDialog(
@@ -190,6 +192,8 @@ internal fun ServiceChooserDialog(
                             Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
                         }
                     }
+                    // No Deezer at all (Play build without the connectors): why, in a line.
+                    if (chip == null && families.none { it.name == "Deezer" } && deezerOfficialWithheld(ctx)) DeezerWhyRow(official = false)
                 }
             }
         },
@@ -301,4 +305,6 @@ private fun RoutesPage(chosen: ServiceCatalog.Family, role: Role, taken: (MusicP
             Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
+    // Deezer with its web route only: why the official one is missing, where its card was.
+    if (chosen.name == "Deezer" && chosen.members.none { it is com.xlollx.songport.providers.DeezerProvider } && deezerOfficialWithheld(LocalContext.current)) DeezerWhyRow(official = true)
 }

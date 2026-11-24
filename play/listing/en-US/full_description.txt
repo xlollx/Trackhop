@@ -14,10 +14,10 @@ Keep your playlists identical across music services, without rebuilding them by 
 - Sync cards in your colours and style, home-screen widgets and shortcuts
 - Connection test for every account, and a review of every sync
 
-Works with Spotify, Apple Music, YouTube Music, TIDAL, Deezer, personal Navidrome/Subsonic, Jellyfin and Plex servers, Last.fm and ListenBrainz, and files. Some connectors are marked beta in the app: they work, but they have had less use than the others.
+Works with Spotify, Apple Music, YouTube Music, TIDAL, personal Navidrome/Subsonic, Jellyfin and Plex servers, Last.fm and ListenBrainz, and files. Some connectors are marked beta in the app: they work, but they have had less use than the others.
 
 Free, no subscriptions, no in-app purchases, no ads.
-No account to create and no server of ours: everything stays on your phone, access tokens are encrypted with the Android Keystore and never pass through anyone else. You sign in on each service's own page; for Spotify, YouTube Music, TIDAL and Deezer you create a free key in your own name in about two minutes, and the app walks you through it.
+No account to create and no server of ours: everything stays on your phone, access tokens are encrypted with the Android Keystore and never pass through anyone else. You sign in on each service's own page; for Spotify, YouTube Music and TIDAL you create a free key in your own name in about two minutes, and the app walks you through it.
 
 Scheduled syncs run on your phone, without servers: if the phone is off or battery saving blocks the app, they resume at the first opportunity.
 

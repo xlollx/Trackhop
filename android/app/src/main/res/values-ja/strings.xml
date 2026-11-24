@@ -701,7 +701,7 @@
     <string name="onboarding_title">Trackhop へようこそ</string>
     <string name="onboarding_intro">音楽サービスから別の音楽サービスへプレイリストをコピーし、手動でもスケジュールでも最新の状態に保ちます。無料で、サブスクリプションもアカウント作成も不要です。</string>
     <string name="onboarding_step1_title">1. サービスを接続</string>
-    <string name="onboarding_step1_desc">Spotify、Apple Music、YouTube Music、TIDAL、Deezer、ご自身のサーバー、またはファイル。</string>
+    <string name="onboarding_step1_desc">Spotify、Apple Music、YouTube Music、TIDAL、ご自身のサーバー、またはファイル。</string>
     <string name="onboarding_step2_title">2. 同期を作成</string>
     <string name="onboarding_step2_desc">同期元プレイリストと同期先を選びます。プレビューで、実行前に何が変わるかを正確に確認できます。</string>
     <string name="onboarding_step3_title">3. あとはおまかせ</string>
@@ -3403,6 +3403,17 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="other">%1$d 件を忘れました。次の同期でもう一度検索します。</item>
     </plurals>
+    <string name="deezer_profile">Deezer のプロフィール</string>
+    <string name="deezer_profile_title">どのプロフィール？</string>
+    <string name="deezer_profile_hint">この Deezer アカウントは Family プランです。Trackhop は選んだプロフィールのプレイリストとお気に入りを読み書きします。あとでアカウントの ⋮ メニューから変更できます。</string>
+    <string name="deezer_profile_holder">アカウント所有者</string>
+    <string name="deezer_profile_later">あとで</string>
+    <string name="deezer_profile_use">このプロフィールを使う</string>
+    <string name="deezer_profile_failed">Deezer がこのプロフィールに切り替わりませんでした。前のプロフィールのままです。あとでもう一度お試しください。</string>
+    <string name="deezer_profile_as">%1$s · Family プロフィール</string>
+    <string name="deezer_why_title">Deezer がないのはなぜ？</string>
+    <string name="deezer_why_official_title">公式の Deezer がないのはなぜ？</string>
+    <string name="deezer_why_body">Deezer は API を使う新しいアプリを受け付けなくなりました。そのため、今はここで提供できません。</string>
     <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
     <string name="ytm_profile_title">どの YouTube Music プロフィールを使いますか？</string>
     <string name="ytm_profile_body">この Google アカウントには %1$d 個のプロフィールがあります。Trackhop は選んだプロフィールでプレイリストと高く評価した曲を読み書きします。</string>

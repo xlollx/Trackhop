@@ -3,6 +3,7 @@ package com.xlollx.songport.ui
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -396,7 +397,24 @@ internal fun addConnector(store: Store, service: MusicProvider, name: String): S
 
 /** The services offered to add, in display order: plugin-based ones only where this build may name them or a plugin is installed. */
 internal fun addableServices(ctx: android.content.Context): List<MusicProvider> =
-    Providers.services().filter { !it.linkOnly && (!it.pluginBased || BuildConfig.PLUGIN_LINKS || it.isConfigured(ctx)) }
+    Providers.services().filter { !it.linkOnly && (!it.pluginBased || BuildConfig.PLUGIN_LINKS || it.isConfigured(ctx)) && !(it is DeezerProvider && !it.offered(ctx.env)) }
+
+/** The official Deezer is kept from new users (Deezer accepts no new apps): true when this build is in that case. */
+internal fun deezerOfficialWithheld(ctx: android.content.Context): Boolean =
+    Providers.services().any { it is DeezerProvider && !it.offered(ctx.env) }
+
+/** Why Deezer, or its official route, is not offered: a plain fact, nothing to tap, no other way named. */
+@Composable
+internal fun DeezerWhyRow(official: Boolean) {
+    Row(Modifier.fillMaxWidth().padding(top = 12.dp), verticalAlignment = Alignment.Top) {
+        Icon(Icons.Filled.Info, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+        Spacer(Modifier.width(10.dp))
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(if (official) R.string.deezer_why_official_title else R.string.deezer_why_title), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.deezer_why_body), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
 
 @Composable
 private fun NameDialog(title: String, initial: String, onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
@@ -589,6 +607,22 @@ private fun ProviderCard(
                 if (connected && !tight) encrypted(Modifier.weight(1f)) else Spacer(Modifier.weight(1f))
                 var testing by remember { mutableStateOf(false) }
                 if (testing) ConnectionTestDialog(p) { testing = false }
+                // Deezer Family (#82): the profile the account acts as. Asked once right after the sign-in
+                // (the connectors then hold a choice), changeable later from the menu.
+                var choosingProfile by remember { mutableStateOf(false) }
+                var askProfiles by remember { mutableStateOf<List<DeezerBridgeProvider.Profile>?>(null) }
+                var family by remember(p.id) { mutableStateOf(false) }
+                if (p is DeezerBridgeProvider && connected) LaunchedEffect(p.id) {
+                    val state = kotlinx.coroutines.withContext(Dispatchers.IO) { p.familyState(ctx.env) }
+                    family = state.supported && state.family == true
+                    if (!state.supported || state.chosen || state.family == false) return@LaunchedEffect
+                    val list = kotlinx.coroutines.withContext(Dispatchers.IO) { runCatching { p.profiles(ctx.env) }.getOrNull() }.orEmpty()
+                    if (list.size >= 2) { family = true; askProfiles = list }
+                }
+                if (p is DeezerBridgeProvider) {
+                    if (askProfiles != null) DeezerProfileDialog(p, firstTime = true, preloaded = askProfiles, onDismiss = { askProfiles = null }) { askProfiles = null; onChanged() }
+                    if (choosingProfile) DeezerProfileDialog(p, firstTime = false, onDismiss = { choosingProfile = false }) { choosingProfile = false; onChanged() }
+                }
                 var startingOver by remember { mutableStateOf(false) }
                 val cardScope = rememberCoroutineScope()
                 if (startingOver && p is com.xlollx.songport.providers.StartsOver) FitDialog(
@@ -610,6 +644,7 @@ private fun ProviderCard(
                 val actions = listOfNotNull(
                     if (connected) MenuAction(stringResource(R.string.account_test), { testing = true }) else null,
                     if (channels) MenuAction(stringResource(R.string.ytm_channel), { choosingChannel = true }) else null,
+                    if (family) MenuAction(stringResource(R.string.deezer_profile), { choosingProfile = true }) else null,
                     if (p.setupGuide != null && p.slot.isEmpty() && configured) MenuAction(stringResource(R.string.setup_cta), { onSetup(p) }) else null,
                     if (connected && p.revokeUrl != null) MenuAction(stringResource(R.string.account_revoke, p.displayName), {
                         ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(p.revokeUrl)))
