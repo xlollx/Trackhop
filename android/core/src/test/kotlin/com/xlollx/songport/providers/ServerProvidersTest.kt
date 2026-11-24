@@ -397,6 +397,38 @@ class FakeServerProvidersTest {
         assertEquals(listOf("oxygene part 4", "Oxygene, Pt. 4", "oxygene"), requests.filter { it.path == "/hubs/search" }.map { it.query["query"]?.single() })
     }
 
+    @Test fun plexVersionsAPlaylistByItsLastChangeButNeverASmartOne() = runBlocking {
+        var updated = 1_700_000_000L
+        answer = { r ->
+            when (r.path) {
+                "/identity" -> 200 to """{"MediaContainer":{"machineIdentifier":"abc"}}"""
+                "/playlists/10" -> 200 to """{"MediaContainer":{"Metadata":[{"ratingKey":"10","smart":false,"updatedAt":$updated,"leafCount":12,"duration":2400000}]}}"""
+                "/playlists/11" -> 200 to """{"MediaContainer":{"Metadata":[{"ratingKey":"11","smart":"1","updatedAt":$updated,"leafCount":40}]}}"""
+                else -> 404 to ""
+            }
+        }
+        val p = PlexProvider()
+        p.login(ctx, url, "", "token")
+        val v = p.playlistVersion(ctx, "10")
+        assertEquals("1700000000|12|2400000", v)
+        updated++
+        assertTrue(p.playlistVersion(ctx, "10") != v)
+        // A smart playlist changes with the library: no version, read on every run.
+        assertNull(p.playlistVersion(ctx, "11"))
+        assertNull(p.playlistVersion(ctx, MusicProvider.LIKED_ID))
+    }
+
+    @Test fun aFileIsVersionedByItsContent() = runBlocking {
+        val files = LocalFilesProvider
+        val list = files.createPlaylist(ctx, "Versioned", "")
+        val empty = files.playlistVersion(ctx, list.id)
+        files.addTracks(ctx, list.id, listOf(Track(id = "a", title = "Alpha", artists = listOf("A"))))
+        val one = files.playlistVersion(ctx, list.id)
+        assertTrue(empty != null && one != null && empty != one)
+        assertEquals(one, files.playlistVersion(ctx, list.id))
+        assertNull(files.playlistVersion(ctx, "missing"))
+    }
+
     @Test fun plexCreatesAnEmptyPlaylistOnTheLibrary() = runBlocking {
         // Plex 1.43: POST /playlists with the library's uri and no item makes an empty audio playlist.
         answer = { r ->
