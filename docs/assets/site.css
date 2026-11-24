@@ -344,3 +344,29 @@ ul.press .press-kind.article { background: #5b3fd9; }
 .tools-strip .ti svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .tools-strip b { display: block; font-size: 15px; line-height: 1.3; }
 .tools-strip small { display: block; font-size: 13px; line-height: 1.35; color: var(--ink-2); }
+
+/* trackhop.org/services: one table per group; on a phone each row becomes a card. */
+.svc-legend, .svc-jump { font-size: 15px; }
+.prose table.svc-table { display: table; width: 100%; font-size: 14.5px; }
+.svc-table th, .svc-table td { text-align: left; vertical-align: top; padding: 7px 8px; border-bottom: 1px solid var(--line); }
+.svc-table .c { text-align: center; white-space: nowrap; }
+.svc-table .y { color: var(--accent); font-weight: 700; }
+.svc-table .n { color: var(--ink-3); }
+.svc-table tr.more td { border-top: 0; }
+.svc-extra { color: var(--ink-3); font-size: 13.5px; }
+@media (max-width: 700px) {
+  .prose table.svc-table, .svc-table tbody, .svc-table tr, .svc-table td { display: block; width: auto; }
+  .svc-table thead { display: none; }
+  .svc-table tr { border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; margin: 10px 0; }
+  .svc-table tr.more { margin-top: -6px; border-top-style: dashed; }
+  .svc-table td { border: 0; padding: 2px 0; text-align: left; }
+  .svc-table td.c { display: inline-block; margin-right: 14px; }
+  .svc-table td[data-l]:not(:first-child)::before { content: attr(data-l) ": "; color: var(--ink-3); font-size: 13px; }
+}
+
+/* trackhop.org/whats-new */
+.wn-rss { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.wn-rel { border-left: 3px solid var(--accent); padding: 2px 0 2px 14px; margin: 22px 0; }
+.prose .wn-rel h2 { margin: 0 0 2px; font-size: 19px; }
+.wn-rel h2 small { font-weight: 500; color: var(--ink-3); font-size: 14px; }
+.wn-rel > p:first-of-type { margin: 0 0 6px; }

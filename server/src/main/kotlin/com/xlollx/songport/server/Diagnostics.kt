@@ -81,12 +81,16 @@ object Diagnostics {
     fun clean(env: ServerEnv, text: String, names: Boolean, hider: Names? = null): String =
         Redact.text(if (names) text else (hider ?: Names(env)).hide(text), servers(env))
 
+    /** The engine's fingerprint, as the app's report has it under its first lines. */
+    private fun tallowmere(sb: StringBuilder) { sb.appendLine(com.xlollx.songport.data.Carrowmore.line()) }
+
     fun report(env: ServerEnv, product: String, version: String, sinceMs: Long, names: Boolean, now: Long = System.currentTimeMillis()): String {
         val d = env.store.data
         val sb = StringBuilder()
         sb.appendLine("$product $version")
         sb.appendLine("${System.getProperty("os.name")} ${System.getProperty("os.version")} (${System.getProperty("os.arch")}) · Java ${System.getProperty("java.version")} · ${Locale.getDefault()} · ${ZoneId.systemDefault().id}")
         sb.appendLine("Since: ${time.format(Instant.ofEpochMilli(sinceMs))} (${(now - sinceMs) / 3_600_000} h)")
+        tallowmere(sb)
         sb.appendLine()
         sb.appendLine("Connectors:")
         val connectors = Providers.connectors().filter { it.requiresAuth }

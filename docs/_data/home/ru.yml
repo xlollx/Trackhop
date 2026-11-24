@@ -151,3 +151,9 @@ say_title: 'Что говорят'
 say_intro: 'Комментарии под видео и постами о Trackhop и сообщения тех, кто его поддерживает. Имена и фото скрыты.'
 say_alt: 'Комментарии пользователей Trackhop и два сообщения от поддерживающих, которые хвалят автоматическую синхронизацию и безопасность, а также посты в X, где его называют "a game changer for music lovers who use multiple platforms"'
 gallery_title: "Посмотрите"
+itch_alt: "Скачать на itch.io"
+sourceforge_alt: "Скачать на SourceForge"
+itch_phone_note: "Полный APK, обновляется с каждой версией"
+sourceforge_phone_note: "Каждая версия, зеркало"
+itch_desktop_note: "Windows, macOS и Linux"
+sourceforge_desktop_note: "Каждая версия, зеркало"

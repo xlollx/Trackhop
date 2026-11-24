@@ -232,6 +232,16 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         // A radio sync whose window is open listens from here if it could not start in the background.
         runCatching { com.xlollx.songport.sync.RadioPlan.refresh(this, start = true) }
+        // Which services are signed in, read once in the background for the editors (a sign-in may have just happened elsewhere).
+        com.xlollx.songport.ui.Connections.refreshAsync(com.xlollx.songport.platform.AndroidEnv.of(this)) { slow ->
+            android.util.Log.d("tkh.vornelle", "slow sign-in checks (ms): $slow")
+        }
+    }
+
+    override fun onPause() {
+        // Signing in or out happens in other screens and apps: asked again on the way back.
+        com.xlollx.songport.ui.Connections.invalidate()
+        super.onPause()
     }
 
     override fun onDestroy() {
