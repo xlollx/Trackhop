@@ -47,7 +47,8 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
     override val routeNoteName: String? get() = "route_note_apple_api"
     override val familyName: String get() = "Apple Music"
     override val brandColor = 0xFFFA243C
-    override val noteName = "provider_note_apple"
+    /** Where removals are tried (2.2, [fullListWrites]) the note says so; elsewhere it says the API only adds. */
+    override val noteName: String get() = if (fullListWrites && serviceId == SERVICE) "provider_note_apple_full" else "provider_note_apple"
     override val beta = true
     override val searchesByIsrc: Boolean get() = true
     /** Only where the whole-list write is allowed ([fullListWrites]); a refusal is then reported per account. */

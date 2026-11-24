@@ -172,7 +172,8 @@ class CliCommandsTest {
         File(data, "csv/Mirror.csv").writeText("title,artist\nSong One,Band A\n" + (1..12).joinToString("") { "Gone $it,Old Band $it\n" })
         env.store.upsertJob(SyncJob("m", "Mirrored", PlaylistRef(LocalFilesProvider.id, "Road trip", "Road trip"), PlaylistRef(LocalFilesProvider.id, "Mirror", "Mirror"), mirrorRemovals = true))
         val held = cli("run", "Mirrored", "--wait")
-        assertEquals(held.toString(), 0, held.code)
+        // 2.2: a run that held its removals back is partly done (4), not done (0).
+        assertEquals(held.toString(), Cli.PARTIAL, held.code)
         assertTrue(held.out, held.out.contains("12 removals held back") && held.out.contains("--confirm-removals"))
         cli("preview", "Mirrored").let { assertTrue(it.toString(), it.out.contains("--confirm-removals")) }
         // Only for syncs named, never a whole group.
