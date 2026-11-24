@@ -97,6 +97,7 @@ any build: development lives on voluntary donations. Listed in the [Navidrome ap
 routes go through the service's own web player: they are not official interfaces and live in the GitHub and
 F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and AppGallery, in the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) plugin).
 
+<!-- services:start -->
 | Service | Read | Write | Remove | How you connect | Where |
 |---|:-:|:-:|:-:|---|---|
 | **Spotify** | ✓ | ✓ | ✓ | Quick sign-in with your usual account, no key, no Premium | GitHub, F-Droid, Desktop, Docker · plugin |
@@ -131,6 +132,7 @@ F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and A
 | **Internet radio, Shazam** | ✓ | — | — | What a station plays, or every song you Shazam | All builds |
 | **Charts** (Apple Music, Deezer) | ✓ | — | — | A country's Top 100, refreshed as it changes, no account; with an Apple Music developer token (the build's or your own) also Apple's Daily Top 100 of the world and of each country and the Top 25 of each city | All builds |
 | **Files** (CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, JSON, text; rekordbox XML read only) | ✓ | ✓ | ✓ | Import and export | All builds |
+<!-- services:end -->
 
 Details, keys and limits of each service: [Supported services and their limits](#supported-services-and-their-limits).
 Not connectable: Pandora (no public API, United States only): use files.
