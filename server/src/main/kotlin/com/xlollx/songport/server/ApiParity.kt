@@ -18,6 +18,7 @@ import kotlinx.serialization.json.put
  */
 internal fun Web.apiParity(ex: HttpExchange, method: String, rest: List<String>, query: Map<String, String>, json: (Int, JsonElement) -> Unit, error: (Int, String) -> Unit): Boolean {
     fun body(): JsonObject? = apiJson(ex)
+    if (apiToFix(method, rest, query, ::body, json, error)) return true
     when {
         rest == listOf("tools", "unplayable", "weekly") && method == "GET" -> json(200, unplayableWeeklyJson())
         rest == listOf("tools", "unplayable", "weekly") && (method == "PATCH" || method == "PUT") -> {
@@ -53,6 +54,8 @@ private fun Web.unplayableWeeklyJson() = buildJsonObject {
 
 /** Their lines in the API's description (ApiDocs), and so in openapi.json and the guide's test. */
 internal val PARITY_CALLS: List<ApiDocs.Call> = listOf(
+    ApiDocs.Call("GET", "/tofix", "Runs", "To fix: every song the last run of every sync left not found or matched loosely (to check), once per pair of services: key, kind (not_found or to_check), track, suggestion with its score (%), on (the service it is missing on), syncs. Grouped by sync, or by service with by=service; later lists those set aside until their sync runs again.", listOf("by")),
+    ApiDocs.Call("POST", "/tofix", "Runs", "Fix songs of To fix, for every sync between the same two services, in their playlists at once: action use (the suggestion), ignore (not searched for again), later, back (a song set aside returns), pick (one song, choice: a link, \"Artist - Title\" or its id there). keys: the rows' keys, or \"all\". Answers done, syncs (playlists written), failed (written by their next run), left.", body = "{\"action\": \"use\" | \"ignore\" | \"later\" | \"back\" | \"pick\", \"keys\": [\"<key>\"] | \"all\", \"choice\"?}"),
     ApiDocs.Call("GET", "/tools/unplayable/weekly", "Tools", "The weekly look for unplayable tracks: whether it is on, the services it asks, how many notification channels take its news (those with \"Tracks to review\"), the last look (unplayable, playlists, notRead, summary) and the next."),
     ApiDocs.Call("PATCH", "/tools/unplayable/weekly", "Tools", "Turn the weekly look for unplayable tracks on or off. Nothing is ever changed by it: your channels are told, and Tools › Unplayable tracks fixes them.", body = "{\"enabled\": true}"),
     ApiDocs.Call("POST", "/tools/unplayable/weekly/run", "Tools", "Look for unplayable tracks now (a background task, as GET /tasks/{task} follows), telling the channels as the weekly look does."),

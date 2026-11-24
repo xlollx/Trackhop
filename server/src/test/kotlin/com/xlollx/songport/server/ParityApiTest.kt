@@ -110,4 +110,33 @@ class ParityApiTest {
         assertTrue(UnplayableWeekly.isDue(env, System.currentTimeMillis() + UnplayableWeekly.EVERY_MS))
         assertEquals(400, call("PATCH", "tools/unplayable/weekly", "{}").code)
     }
+
+    @Test fun toFixListsOnceAndFixesEverywhere() {
+        val missing = com.xlollx.songport.model.Track("x1", "Lost Song", listOf("Nobody"))
+        val loose = com.xlollx.songport.model.Track("x2", "Song", listOf("Band"))
+        val chosen = com.xlollx.songport.model.Track("Band - Song (Live)", "Song (Live)", listOf("Band"))
+        env.store.upsertJob(com.xlollx.songport.model.SyncJob("j1", "Mine", com.xlollx.songport.model.PlaylistRef("csv", "In", "In"), com.xlollx.songport.model.PlaylistRef("csv", "Out", "Out")))
+        env.store.addReport(com.xlollx.songport.model.SyncReport("r1", "j1", "Mine", 1_780_000_000_000, 10, unmatched = listOf(missing.toString()), unmatchedTracks = listOf(missing),
+            reviewTracks = listOf(com.xlollx.songport.model.MatchReview(loose, chosen, 0.74))))
+        val list = call("GET", "tofix").also { assertEquals(it.text, 200, it.code) }.obj
+        assertEquals("2", list.s("count"))
+        val rows = list["groups"]!!.jsonArray[0].jsonObject["items"]!!.jsonArray.map { it.jsonObject }
+        val lost = rows.first { it.o("track").s("title") == "Lost Song" }.s("key")!!
+        val check = rows.first { it.o("track").s("title") == "Song" }
+        assertEquals("to_check", check.s("kind"))
+        assertEquals("74", check.s("score"))
+        assertEquals("1", call("GET", "tofix?by=service").obj["groups"]!!.jsonArray.size.toString())
+        // Later, then back.
+        assertEquals("1", call("POST", "tofix", """{"action":"later","keys":["$lost"]}""").obj.s("left"))
+        assertEquals(1, call("GET", "tofix").obj["later"]!!.jsonArray.size)
+        assertEquals("2", call("POST", "tofix", """{"action":"back","keys":"all"}""").obj.s("left"))
+        // Ignored: not searched for again by this sync.
+        assertEquals("1", call("POST", "tofix", """{"action":"ignore","keys":["$lost"]}""").obj.s("left"))
+        assertTrue("x1" in env.store.job("j1")!!.ignoredSourceIds)
+        // The suggestion kept: nothing left.
+        assertEquals("0", call("POST", "tofix", """{"action":"use","keys":"all"}""").obj.s("left"))
+        assertEquals(400, call("POST", "tofix", """{"action":"use","keys":["nope"]}""").code)
+        assertEquals(400, call("POST", "tofix", """{"action":"frob","keys":"all"}""").code)
+        assertEquals(400, call("GET", "tofix?by=year").code)
+    }
 }

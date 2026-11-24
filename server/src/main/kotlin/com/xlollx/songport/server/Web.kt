@@ -200,6 +200,7 @@ class Web(
             path[0] == "tools" -> tools(r, path.drop(1))
             path == listOf("settings") -> settingsPage(r)
             path == listOf("settings", "notifications") -> notificationsPage(r)
+            path == listOf("tofix") -> toFixPage(r)
             path[0] == "playlists" -> playlists(r, path.drop(1))
             path[0] == "syncs" -> syncs(r, path.drop(1))
             // Multi syncs: one source, several targets (MultiWeb.kt).
@@ -313,7 +314,7 @@ class Web(
         val listedCount = com.xlollx.songport.shared.Nway.listedSyncs(env.store.data).size
         body.append(
             """<div class="hero"><h2>Your playlists, everywhere</h2><p class="muted">${listedCount} ${if (listedCount == 1) "sync" else "syncs"} · ${connected.size} ${if (connected.size == 1) "service" else "services"}${if (lastRun > 0) " · last sync ${Html.date(lastRun)}" else ""}</p>
-<div class="actions">${if (jobs.any { it.enabled }) Html.postButton("/syncs/all", if (running.isNotEmpty()) "Syncing…" else "Sync all now") else ""} <a class="hero-link" href="/tools/stats">Your numbers ›</a></div></div>""",
+<div class="actions">${if (jobs.any { it.enabled }) Html.postButton("/syncs/all", if (running.isNotEmpty()) "Syncing…" else "Sync all now") else ""} <a class="hero-link" href="/tools/stats">Your numbers ›</a>${com.xlollx.songport.sync.ToFix.count(env.store.data).takeIf { it > 0 }?.let { """ <a class="hero-link" href="/tofix">To fix ($it) ›</a>""" } ?: ""}</div></div>""",
         )
         if (connected.size < 1) {
             body.append("""<div class="card">Connect a service first: <a href="/connectors">Services</a>.</div>""")

@@ -26,9 +26,20 @@ internal class CliParity(private val c: CliCommands) {
                 "On, every service that can tell them apart is asked each week; when some are found, your notification channels that\n" +
                     "take \"Tracks to review\" are told. Nothing is changed: Tools, Unplayable tracks on the page replaces them. now looks at once.",
                 listOf("weekly")),
+            Cli.Cmd("tofix", "Runs and review", listOf(
+                "tofix [--by sync|service]",
+                "tofix use|ignore|later <n>...|all",
+                "tofix pick <n> <track>",
+                "tofix back <n>...|all",
+            ), "the songs your syncs could not find or matched loosely, all in one list, and what to do with them",
+                "One row per song and pair of services: a choice holds for every sync between them, and goes into their playlists now.\n" +
+                    "use: take the suggestion; ignore: not on that service, not searched for again; later: set aside until its sync runs again;\n" +
+                    "pick: use <track> instead (a link from any service, \"Artist - Title\", or its id there); back: a song set aside returns.\n" +
+                    "<n> is a row's number from the list (back: from the Later list).",
+                listOf("use", "ignore", "later", "pick", "back")),
         )
 
-        val valued: Set<String> = emptySet()
+        val valued: Set<String> = setOf("by")
 
         private val pretty = Json { prettyPrint = true }
     }
@@ -48,6 +59,7 @@ internal class CliParity(private val c: CliCommands) {
     /** The exit code, or null for a command that is not one of these. */
     fun run(command: String, p: List<String>, o: Cli.Opts): Int? = when (command) {
         "unplayable" -> unplayable(p, o)
+        "tofix" -> toFix(p, o)
         else -> null
     }
 
@@ -84,6 +96,52 @@ internal class CliParity(private val c: CliCommands) {
         out.println("Services asked: ${(r["services"] as? JsonArray).orEmpty().joinToString(", ") { it.str().orEmpty() }.ifEmpty { "none connected that can tell" }}")
         out.println("Channels told: ${r.n("channels")}${if (r.n("channels") == 0) " (none takes \"Tracks to review\": trackhop notify)" else ""}")
         (r["last"] as? JsonObject)?.let { out.println("Last look: ${date(it.l("at"))}: ${it.s("summary")}") }
+        return 0
+    }
+
+    // ------------------------------------------------------------------ tofix
+
+    private fun toFix(p: List<String>, o: Cli.Opts): Int {
+        val by = o.value("by")
+        val r = api.get("tofix" + (by?.let { "?by=${enc(it)}" } ?: "")).jsonObject
+        val rows = r.list("groups").flatMap { it.list("items") }
+        val later = r.list("later")
+        fun keys(list: List<JsonObject>, ask: List<String>): kotlinx.serialization.json.JsonElement =
+            if (ask == listOf("all")) JsonPrimitive("all")
+            else JsonArray(ask.map { a ->
+                val n = a.toIntOrNull()
+                JsonPrimitive(n?.let { list.getOrNull(it - 1)?.s("key") } ?: list.firstOrNull { it.s("key") == a }?.s("key") ?: throw Cli.Failure(1, "no row $a: see trackhop tofix"))
+            })
+        val action = p.firstOrNull()
+        if (action == null) {
+            if (c.asJson) return print(r).let { 0 }
+            if (rows.isEmpty() && later.isEmpty()) return out.println("Nothing to fix: every song of your syncs was found.").let { 0 }
+            var n = 0
+            for (g in r.list("groups")) {
+                out.println(g.s("name"))
+                for (i in g.list("items")) {
+                    n++
+                    val t = i["track"] as JsonObject
+                    val sug = (i["suggestion"] as? JsonObject)?.let { "suggested: ${it.s("artist")} - ${it.s("title")} (${i.n("score")}%)" } ?: "not found on ${i.s("on")}"
+                    out.println("  $n. ${t.s("artist")} - ${t.s("title")}  [$sug]${i.list("syncs").size.takeIf { it > 1 }?.let { "  in $it syncs" } ?: ""}")
+                }
+            }
+            if (later.isNotEmpty()) {
+                out.println("Later (back <n> returns them):")
+                later.forEachIndexed { k, i -> val t = i["track"] as JsonObject; out.println("  ${k + 1}. ${t.s("artist")} - ${t.s("title")}") }
+            }
+            return 0
+        }
+        val body = when (action) {
+            "use", "ignore", "later" -> { if (p.size < 2) throw Cli.Failure(2, "usage: trackhop tofix $action <n>...|all"); buildJsonObject { put("action", action); put("keys", keys(rows, p.drop(1))) } }
+            "back" -> { if (p.size < 2) throw Cli.Failure(2, "usage: trackhop tofix back <n>...|all"); buildJsonObject { put("action", "back"); put("keys", keys(later, p.drop(1))) } }
+            "pick" -> { if (p.size < 3) throw Cli.Failure(2, "usage: trackhop tofix pick <n> <track>"); buildJsonObject { put("action", "pick"); put("keys", keys(rows, listOf(p[1]))); put("choice", p.drop(2).joinToString(" ")) } }
+            else -> throw Cli.Failure(2, "usage: trackhop tofix [use|ignore|later|pick|back]")
+        }
+        val done = api.post("tofix", body).jsonObject
+        if (c.asJson) return print(done).let { 0 }
+        out.println("Done: ${done.n("done")}${if (done.n("syncs") > 0) ", ${done.n("syncs")} playlists written" else ""}. ${done.n("left")} left to fix.")
+        (done["failed"] as? JsonArray).orEmpty().takeIf { it.isNotEmpty() }?.let { f -> out.println("Not written now (the next run does it): ${f.joinToString(", ") { it.str().orEmpty() }}") }
         return 0
     }
 }

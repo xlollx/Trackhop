@@ -761,6 +761,8 @@ multi sync whole.
 | `GET /api/v1/runs/{run}` | One run with its tracks (added, removed, not found, to check) and its notes. |
 | `GET /api/v1/runs/{run}/review` | A run's review: not found, to check, removed. |
 | `POST /api/v1/runs/{run}/review` | Review a run: ignore, keep, discard, pick, replace or restore. |
+| `GET /api/v1/tofix` | To fix: every song the last run of every sync left not found or matched loosely, once per pair of services (`key`, `kind` `not_found` or `to_check`, `track`, `suggestion` with its `score` in %, `on`, `syncs`); `?by=service` groups them by the service they are missing on; `later` lists those set aside. |
+| `POST /api/v1/tofix` | Fix songs of To fix for every sync between the same two services, in their playlists at once: `{"action": "use" \| "ignore" \| "later" \| "back" \| "pick", "keys": ["<key>"] \| "all", "choice"?}` (`pick`: one song, `choice` a link, "Artist - Title" or its id there). |
 
 **Services**
 
@@ -781,6 +783,9 @@ multi sync whole.
 | `POST /api/v1/tools/nolyrics/lookup` | Looks the songs without lyrics up on LRCLIB, about one a second: `?limit=25&offset=0` (`next` gives the following batch). Each is `synced`, `plain`, `none` or `error`. Writes nothing. |
 | `POST /api/v1/tools/nolyrics/save` | Adds what the last lookup found: through Jellyfin's API, or as new `.lrc`/`.txt` files in the music folder set on the page. Songs with lyrics by now are kept as they are; nothing is replaced or deleted. |
 | `GET /api/v1/tools/mbtags` | The songs on a Navidrome, Jellyfin, Emby or Plex server without MusicBrainz tags (`?service=subsonic`; not needed when only one is connected). Read only; a large library takes a while. |
+| `GET /api/v1/tools/unplayable/weekly` | The weekly look for unplayable tracks: `enabled`, the `services` it asks, how many notification `channels` take its news (those with "Tracks to review"), the `last` look and the `next`. |
+| `PATCH /api/v1/tools/unplayable/weekly` | Turn it on or off: `{"enabled": true}`. It never changes anything: your channels are told, **Tools › Unplayable tracks** replaces them. |
+| `POST /api/v1/tools/unplayable/weekly/run` | Look now (a background task: `GET /api/v1/tasks/{task}`), telling the channels as the weekly look does. |
 
 **Discover**
 

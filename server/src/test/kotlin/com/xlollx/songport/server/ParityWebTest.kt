@@ -119,4 +119,21 @@ class ParityWebTest {
         assertTrue(location(now).startsWith("/tools/task/"))
         assertTrue(taskPage(location(now)).contains("No connected service can tell"))
     }
+
+    @Test fun toFixIsAPageWithBoxesAndButtons() {
+        sync()
+        assertTrue(get("/tofix").body().contains("Nothing to fix"))
+        val missing = com.xlollx.songport.model.Track("x1", "Lost Song", listOf("Nobody"))
+        env.store.addReport(com.xlollx.songport.model.SyncReport("r1", "s1", "Mine", 1_780_000_000_000, 10, unmatched = listOf(missing.toString()), unmatchedTracks = listOf(missing)))
+        assertTrue(get("/").body().contains("To fix (1)"))
+        val page = get("/tofix").body()
+        assertTrue(page.contains("Lost Song") && page.contains("form=\"tofix\"") && page.contains("Choose another song"))
+        val key = com.xlollx.songport.sync.ToFix.items(env.store.data).single().key
+        assertEquals(303, post("/tofix", "action" to "later", "key" to key).statusCode())
+        assertTrue(get("/tofix").body().contains("Later (1)"))
+        assertTrue(location(post("/tofix", "action" to "ignore")).contains("err="))
+        assertEquals(303, post("/tofix", "action" to "back", "key" to key).statusCode())
+        assertEquals(303, post("/tofix", "action" to "ignore", "key" to key).statusCode())
+        assertTrue(get("/tofix").body().contains("Nothing to fix"))
+    }
 }
