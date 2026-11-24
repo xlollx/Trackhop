@@ -500,6 +500,15 @@ interface MusicProvider {
         fun description(appName: String) = "Synced with $appName"
 
         /**
+         * The description of a playlist Trackhop creates: the source's own ([source], made safe by
+         * [plainDescription]) when there is one, else the credit ([description]) unless the user turned
+         * it off ([com.xlollx.songport.data.Settings.creditInDescription]). A playlist that exists is
+         * never given a description: this is only for one being created.
+         */
+        fun newDescription(env: Env, appName: String, source: String? = null): String =
+            plainDescription(source).ifBlank { if (env.store.data.settings.creditInDescription) description(appName) else "" }
+
+        /**
          * A source playlist's description made safe to copy: Spotify writes some as HTML (a daylist links
          * its moods with <a href=…> tags) and YouTube refuses a description with "<" or ">" (HTTP 400).
          * Tags go, entities are read, what is left is plain text of at most [max] characters.

@@ -116,7 +116,7 @@ object PlaylistTwins {
             // Two copies of one name are saved as two files, not as versions of one.
             val base = savedAs(c.playlist.name)
             val n = used.merge(base, 1, Int::plus)!!
-            LocalFilesProvider.writeBackup(env, service, if (n == 1) base else "$base $n", c.tracks, inUse)
+            LocalFilesProvider.writeBackup(env, service, if (n == 1) base else "$base $n", Origins.stamp(provider, c.tracks), inUse)
             provider.deletePlaylist(env, c.playlist.id)
             deleted += c.playlist.id
         }

@@ -83,6 +83,10 @@ fun isTransientNetwork(msg: String?): Boolean {
 
 /** Below the match threshold but close enough to be worth proposing in the review. */
 private const val HINT_THRESHOLD = 0.45
+/** From this score a target track about to be removed is held as a likely match of a source track not found. */
+internal const val LOOKALIKE_MIN = 0.6
+/** Above this many (target, source) pairs to score, the lookalike check is skipped for the run. */
+private const val LOOKALIKE_MAX_PAIRS = 2_000_000L
 /** A run stopped by the target's size check ([SyncReport.targetShrunkFrom]): [expected] is what the last run left. */
 class TargetShrunkException(message: String, val expected: Int) : Exception(message)
 
@@ -458,8 +462,7 @@ class SyncEngine(
             // No name given for the new playlist: the shared one's own name, read now (a link pasted
             // without a name resolves here), then whatever the sync is called.
             val name = job.target.playlistName.ifBlank { info?.name?.takeIf { it.isNotBlank() } ?: srcName.ifBlank { job.name } }
-            val description = MusicProvider.plainDescription(info?.description)
-            val created = createOnce(dst, name, description.ifBlank { MusicProvider.description(str("app_name")) }, onProgress)
+            val created = createOnce(dst, name, MusicProvider.newDescription(env, str("app_name"), info?.description), onProgress)
             targetId = created.id
             targetCreated = true
             // From the stored job, not the one this run started with: whatever was changed meanwhile
@@ -699,7 +702,26 @@ class SyncEngine(
                 store.putKeptOnRemoval(dst.id, listedId, back.map { it.id })
                 env.log("engine", "${job.name}: ${dst.displayName} keeps ${back.size} ${tracksWord(back.size)} that removing does not take away: ${named(back)}")
             }
-            val stays = keptBefore + back.map { it.id }
+            // A copy that removes: a target track close to a source track the search did not find is
+            // most likely that very song under another name ("Remastered", a translated title). It is
+            // not removed but asked about in the review, where OK keeps it as the match.
+            val backIds = back.mapTo(HashSet()) { it.id }
+            val lookalikes = if (pairOn) emptyMap() else similarToUnmatched(unmatchedOnTarget.filter { it.id !in keptBefore && it.id !in backIds }, unmatched, job.policy)
+            if (lookalikes.isNotEmpty()) {
+                for ((d, r) in lookalikes) {
+                    uncertain += MatchReview(r.first, d, r.second)
+                    // Remembered as an unsure match found by a search is: asked about once, Remove in the
+                    // review takes it away. The preview does not remember it, as for its other unsure ones.
+                    val key = FileStore.cacheKey(src.id, r.first.id, dstKey)
+                    newCache[key] = d.id
+                    if (interactive) unsure += key
+                }
+                val asked = lookalikes.values.mapTo(HashSet()) { it.first.id }
+                unmatched.removeAll { it.id in asked }
+                notes += str("note_removals_similar_review", lookalikes.size)
+                env.log("engine", "${job.name}: ${lookalikes.size} ${tracksWord(lookalikes.size)} on ${dst.displayName} close to a source track not found, kept for the review: ${named(lookalikes.keys)}")
+            }
+            val stays = keptBefore + backIds + lookalikes.keys.map { it.id }
             val extra = unmatchedOnTarget.filter { it.id !in stays }
             // Un quarto o piu' della destinazione (playlist svuotata per sbaglio, account cambiato, o un
             // elenco letto a meta' dal servizio): solo una persona puo' dire se va tolto davvero.
@@ -843,6 +865,33 @@ class SyncEngine(
      * not send, an answer in a new layout) looks like an emptied playlist: every source track would
      * be added again, thousands of writes the service may hold against the account.
      */
+    /**
+     * Among [candidates] (target tracks about to be removed), those that score at least
+     * [LOOKALIKE_MIN] against one of the source tracks the search did not find ([unmatched]), each with
+     * that source track and the score. Each source track goes to one target track at most, the
+     * closest. Skipped when the pairs to score are too many for one run.
+     */
+    internal fun similarToUnmatched(candidates: List<Track>, unmatched: List<Track>, policy: MatchPolicy): Map<Track, Pair<Track, Double>> {
+        if (candidates.isEmpty() || unmatched.isEmpty() || candidates.size.toLong() * unmatched.size > LOOKALIKE_MAX_PAIRS) return emptyMap()
+        val src = unmatched.map { Matcher.norm(it) }
+        val pairs = ArrayList<Triple<Track, Track, Double>>()
+        for (d in candidates) {
+            val dn = Matcher.norm(d)
+            for (s in src) {
+                val score = Matcher.scoreN(s, dn, policy)
+                if (score >= LOOKALIKE_MIN) pairs += Triple(d, s.track, score)
+            }
+        }
+        val out = LinkedHashMap<Track, Pair<Track, Double>>()
+        val usedSources = HashSet<String>()
+        for ((d, s, score) in pairs.sortedByDescending { it.third }) {
+            if (d in out || s.id in usedSources) continue
+            out[d] = s to score
+            usedSources += s.id
+        }
+        return out
+    }
+
     private fun shrunkFrom(job: SyncJob, targetId: String, now: Int): Int {
         val last = store.data.reports.firstOrNull { it.jobId == job.id && !it.partial && it.error == null && it.targetId == targetId } ?: return 0
         val expected = last.targetCount + last.added - last.removed
@@ -996,9 +1045,13 @@ class SyncEngine(
                 chunk.map { s ->
                     async {
                         val cached = store.cachedMatch(src.id, s.id, dstKey)
+                        val restored = Origins.idOn(dst, s)
                         if (direct && s.id.isNotBlank()) {
                             // Source and target on the same account: the track is the source's own, nothing to search.
                             Result.success<Pair<Track?, Double?>>(s.copy(itemId = null) to null)
+                        } else if (restored != null && cached == null) {
+                            // A file exported from this very service (a backup, a CSV or JSPF of Trackhop's): its id, as it was.
+                            Result.success<Pair<Track?, Double?>>(dst.rehydrate(s.copy(id = restored, uri = null, itemId = null, origin = null)) to null)
                         } else if (cached != null) {
                             // Abbinato in passato (o confermato a mano): lo aggiungiamo senza ripetere la ricerca.
                             Result.success<Pair<Track?, Double?>>(dst.rehydrate(s.copy(id = cached, uri = null, itemId = null)) to null)
@@ -1573,6 +1626,19 @@ class SyncEngine(
                 "$added added, ${notAdded.size} ${tracksWord(notAdded.size)} left for the next run")
         }
         if (limitedWhy != null && notAdded.isNotEmpty()) notes += str("note_not_added_limited", notAdded.size, dst.displayName)
+        // A one-off transfer has no next run to find what the service said it added and did not keep:
+        // the playlist is read back now, and those tracks are "not added", with a note ([ReadBack]).
+        if (job.oneOff && addedList.isNotEmpty() && !offline) {
+            val gone = ReadBack.check(env, dst, targetId, addedList)
+            if (gone.isNotEmpty()) {
+                val goneIds = gone.mapTo(HashSet()) { it.id }
+                addedList.removeAll { it.id in goneIds }
+                added = (added - gone.size).coerceAtLeast(0)
+                notAdded += gone
+                notes += str("note_readback_not_kept", gone.size, dst.displayName)
+                env.log("engine", "${job.name}: ${gone.size} ${tracksWord(gone.size)} added on ${dst.displayName} but not in the playlist read back: ${named(gone)}")
+            }
+        }
         if (alreadyThere.isNotEmpty()) {
             store.putPresentUnlisted(dst.id, targetId, alreadyThere.map { it.id })
             env.log("engine", "${job.name}: ${alreadyThere.size} tracks already on ${dst.displayName} but missing from its playlist listing: " +

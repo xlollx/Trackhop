@@ -3403,4 +3403,7 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="other">%1$d 件を忘れました。次の同期でもう一度検索します。</item>
     </plurals>
+    <string name="note_removals_similar_review">削除していません：同期先の %1$d 曲が、見つからなかった同期元の曲に似ています。確認画面でチェックしてください。OK で一致として残します。</string>
+    <string name="readback_not_kept">%1$s は追加したと応答しましたが、プレイリストに表示されません</string>
+    <string name="note_readback_not_kept">保持されませんでした：%2$s は %1$d 曲を追加したと応答しましたが、読み直したプレイリストにはありません。未追加として表示します。</string>
 </resources>

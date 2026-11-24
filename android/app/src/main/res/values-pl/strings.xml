@@ -3756,4 +3756,7 @@
         <item quantity="many">Zapomniano: %1$d. Następna synchronizacja wyszuka ponownie.</item>
         <item quantity="other">Zapomniano: %1$d. Następna synchronizacja wyszuka ponownie.</item>
     </plurals>
+    <string name="note_removals_similar_review">Nie usunięto: %1$d utworów w celu przypomina nieznalezione utwory ze źródła. Sprawdź je w przeglądzie: OK zachowuje je jako dopasowanie.</string>
+    <string name="readback_not_kept">%1$s zgłosił dodanie, ale playlista go nie pokazuje</string>
+    <string name="note_readback_not_kept">Nie zachowano: %2$s zgłosił dodanie %1$d utworów, ale ponownie odczytana playlista ich nie pokazuje. Są na liście niedodanych.</string>
 </resources>

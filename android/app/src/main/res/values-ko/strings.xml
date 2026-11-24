@@ -3402,4 +3402,7 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="other">%1$d개를 잊었어요. 다음 동기화에서 다시 검색합니다.</item>
     </plurals>
+    <string name="note_removals_similar_review">삭제하지 않았어요: 대상의 %1$d곡이 찾지 못한 원본 곡과 비슷해요. 검토에서 확인하세요. 확인을 누르면 일치 항목으로 유지돼요.</string>
+    <string name="readback_not_kept">%1$s에서 추가했다고 했지만 플레이리스트에 보이지 않아요</string>
+    <string name="note_readback_not_kept">유지되지 않음: %2$s에서 %1$d곡을 추가했다고 했지만 다시 읽은 플레이리스트에 없어요. 추가되지 않은 곡으로 표시돼요.</string>
 </resources>

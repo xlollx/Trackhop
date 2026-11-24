@@ -104,7 +104,7 @@ internal fun Web.createMulti(spec: MultiSpec): SharedGroup {
     // The new playlists first, each kept in the draft as soon as it exists, as the app does.
     for ((i, t) in draft.targets.withIndex()) if (t.playlistId == null) {
         val p = Providers.byId(t.provider)!!
-        val made = runBlocking { p.createPlaylist(env, name, MusicProvider.description("Trackhop")) }
+        val made = runBlocking { p.createPlaylist(env, name, MusicProvider.newDescription(env, "Trackhop")) }
         draft = draft.copy(targets = draft.targets.toMutableList().also { it[i] = t.copy(playlistId = made.id, name = made.name, count = 0) })
     }
     val timed: (SyncJob) -> SyncJob = { j -> Timing.apply(j, spec.every, spec.at, spec.days).copy(enabled = spec.enabled) }
@@ -142,7 +142,7 @@ internal fun Web.addTarget(group: SharedGroup, provider: String, playlistId: Str
     if (runner.isGroupRunning(group.id)) throw IllegalStateException(BUSY)
     val made = if (playlistId != null) item else {
         require(p.canCreatePlaylists) { "${p.label(env)} cannot create playlists: pick one of yours." }
-        val pl = runBlocking { p.createPlaylist(env, group.name, MusicProvider.description("Trackhop")) }
+        val pl = runBlocking { p.createPlaylist(env, group.name, MusicProvider.newDescription(env, "Trackhop")) }
         item.copy(playlistId = pl.id, name = pl.name, count = 0)
     }
     saveMulti(group, draft.copy(targets = draft.targets + made))

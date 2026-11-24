@@ -3524,4 +3524,7 @@
         <item quantity="one">%1$d forgotten: the next sync searches it again.</item>
         <item quantity="other">%1$d forgotten: the next sync searches them again.</item>
     </plurals>
+    <string name="note_removals_similar_review">Not removed: %1$d tracks in the target look like source tracks that were not found. Check them in the review: OK keeps them as the match.</string>
+    <string name="readback_not_kept">%1$s said it was added, but the playlist does not show it</string>
+    <string name="note_readback_not_kept">Not kept: %2$s said it added %1$d tracks, but the playlist read back does not show them. They are listed as not added.</string>
 </resources>

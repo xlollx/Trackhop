@@ -289,7 +289,7 @@ private fun Web.exportTool(r: Web.Req) {
     val playlist = playlistId?.let { id -> lists.getOrNull()?.firstOrNull { it.id == id } }
     if (playlist != null) {
         // Only playlists the service listed: an id is never typed in.
-        val tracks = runCatching { runBlocking { service.tracks(env, playlist.id) } }
+        val tracks = runCatching { runBlocking { com.xlollx.songport.sync.Origins.stamp(service, service.tracks(env, playlist.id)) } }
             .getOrElse { return redirect(r.ex, "/tools/export?service=${q(service.id)}&err=${q(it.message ?: "Error")}") }
         if (r.method == "POST" && params["to"] == "file") {
             val id = LocalFilesProvider.importTracks(env, playlist.name, tracks)

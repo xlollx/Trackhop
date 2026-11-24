@@ -152,6 +152,11 @@ data class Settings(
     val concertCity: String = "",
     /** Settings › Notifications › Concerts: which ticket and date alerts are wanted (sync/ConcertAlerts). */
     val concertAlerts: com.xlollx.songport.sync.ConcertAlerts.Kinds = com.xlollx.songport.sync.ConcertAlerts.Kinds(),
+    /**
+     * A playlist Trackhop creates without a description of its source to copy says "Synced with
+     * Trackhop" ([com.xlollx.songport.providers.MusicProvider.newDescription]); off, it has none.
+     */
+    val creditInDescription: Boolean = true,
 )
 
 /** Unita' di quota consumate in un giorno (chiave = data nel fuso del servizio). */

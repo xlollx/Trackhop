@@ -4,7 +4,7 @@ import com.xlollx.songport.model.Track
 import java.security.MessageDigest
 
 /**
- * CSV di playlist. Scrive `title,artist,album,duration_ms,isrc`; in lettura riconosce anche le
+ * CSV di playlist. Scrive `title,artist,album,duration_ms,isrc` (e, dove ci sono, le colonne del podcast, delle stelle e dell'origine); in lettura riconosce anche le
  * intestazioni degli export piu' comuni (Exportify, TuneMyMusic, Soundiiz, Apple Music via terze parti).
  */
 object CsvCodec {
@@ -25,16 +25,32 @@ object CsvCodec {
      * and read only from a file Trackhop wrote (its own header first), so any other file reads as it did.
      */
     private val RATING_HEADER = listOf("rating", "album_rating")
+    /**
+     * Where each track came from and what its service said of it (Exportify's idea): the service and
+     * its id (see [Origins]), a link, when it was added, explicit or not, the year. Written only when
+     * a track has one of them, read only from a file Trackhop wrote: a backup synced back to the same
+     * service restores the very tracks, without a search.
+     */
+    private val ORIGIN_HEADER = listOf("service", "service_id", "url", "added_at", "explicit", "year")
 
     fun encode(tracks: List<Track>): String = buildString {
         val shows = tracks.any { !it.feedUrl.isNullOrBlank() || !it.itunesId.isNullOrBlank() }
         val rated = tracks.any { it.rating > 0 || it.albumRating > 0 }
-        append((HEADER + (if (shows) PODCAST_HEADER else emptyList()) + (if (rated) RATING_HEADER else emptyList())).joinToString(",")).append("\r\n")
+        val origins = tracks.any { it.origin != null || it.addedAt > 0 || it.explicit != null || it.year > 0 }
+        append((HEADER + (if (shows) PODCAST_HEADER else emptyList()) + (if (rated) RATING_HEADER else emptyList()) + (if (origins) ORIGIN_HEADER else emptyList())).joinToString(",")).append("\r\n")
         fun stars(n: Int) = if (n > 0) n.toString() else ""
         for (t in tracks) {
             var cells = listOf(t.title, t.artistLine, t.album, if (t.durationMs > 0) t.durationMs.toString() else "", t.isrc ?: "")
             if (shows) cells = cells + listOf(t.feedUrl.orEmpty(), t.itunesId.orEmpty())
             if (rated) cells = cells + listOf(stars(t.rating), stars(t.albumRating))
+            if (origins) {
+                val (service, id) = Origins.split(t.origin) ?: ("" to "")
+                cells = cells + listOf(
+                    service, id, Origins.url(t.origin).orEmpty(),
+                    if (t.addedAt > 0) java.time.Instant.ofEpochMilli(t.addedAt).toString() else "",
+                    t.explicit?.toString().orEmpty(), if (t.year > 0) t.year.toString() else "",
+                )
+            }
             append(cells.joinToString(",") { quote(it) }).append("\r\n")
         }
     }
@@ -63,6 +79,7 @@ object CsvCodec {
         private val raw = headerRow.map { it.trim().lowercase() }
         private val iRating = if (ours) raw.indexOf(RATING_HEADER[0]).takeIf { it >= 0 } else null
         private val iAlbumRating = if (ours) raw.indexOf(RATING_HEADER[1]).takeIf { it >= 0 } else null
+        private val iOrigin = ORIGIN_HEADER.map { h -> if (ours) raw.indexOf(h).takeIf { it >= 0 } else null }
         // "duration_ms" (ours, Exportify's "Duration (ms)") is milliseconds whatever the size: an 8-second
         // interlude is 8000 ms, not 8000 seconds.
         private val inMs = iDur != null && header[iDur].endsWith("ms")
@@ -81,9 +98,12 @@ object CsvCodec {
             val feed = if (hasHeader) at(iFeed).ifEmpty { null } else null
             val itunes = if (hasHeader) at(iItunes).ifEmpty { null } else null
             fun stars(i: Int?) = at(i).toIntOrNull()?.takeIf { it in 1..5 } ?: 0
+            val added = at(iOrigin[3]).takeIf { it.isNotEmpty() }?.let { runCatching { java.time.Instant.parse(it).toEpochMilli() }.getOrNull() } ?: 0L
             return withStableId(Track(
                 id = "", title = title, artists = splitArtists(artist), album = album, durationMs = dur, isrc = isrc, feedUrl = feed, itunesId = itunes,
                 rating = stars(iRating), albumRating = stars(iAlbumRating),
+                origin = Origins.of(at(iOrigin[0]), at(iOrigin[1])), addedAt = added,
+                explicit = at(iOrigin[4]).lowercase().toBooleanStrictOrNull(), year = at(iOrigin[5]).toIntOrNull()?.takeIf { it in 1..9999 } ?: 0,
             ))
         }
     }

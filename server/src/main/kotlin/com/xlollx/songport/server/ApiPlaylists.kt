@@ -49,7 +49,7 @@ internal object ApiPlaylists {
                         if (!p.canCreatePlaylists) return@runBlocking error(405, "${p.label(env)} cannot create playlists.")
                         val body = body(ex) ?: return@runBlocking error(400, "Send JSON: {\"name\": \"…\"}")
                         val name = body["name"]?.jsonPrimitive?.contentOrNull?.trim().orEmpty().ifEmpty { return@runBlocking error(400, "The playlist needs a name.") }
-                        val made = p.createPlaylist(env, name, body["description"]?.jsonPrimitive?.contentOrNull ?: MusicProvider.description("Trackhop"))
+                        val made = p.createPlaylist(env, name, body["description"]?.jsonPrimitive?.contentOrNull ?: MusicProvider.newDescription(env, "Trackhop"))
                         env.log("api", "${p.label(env)}: created playlist $name")
                         json(201, buildJsonObject { put("id", made.id); put("name", made.name) })
                     }

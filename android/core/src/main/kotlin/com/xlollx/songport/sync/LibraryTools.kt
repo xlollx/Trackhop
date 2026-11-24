@@ -48,7 +48,7 @@ object LibraryTools {
                 val items = provider.tracks(ctx, pl.id)
                 // One dated version per run; a playlist that has not changed since the last backup
                 // is not written again, so the Files screen holds versions, not copies.
-                if (LocalFilesProvider.writeBackup(ctx, service, pl.name, items, inUse, now) != LocalFilesProvider.BackupOutcome.WRITTEN) unchanged++
+                if (LocalFilesProvider.writeBackup(ctx, service, pl.name, Origins.stamp(provider, items), inUse, now) != LocalFilesProvider.BackupOutcome.WRITTEN) unchanged++
                 tracks += items.size
             } catch (e: Exception) {
                 failed += Failure(pl.name, e.message ?: e.javaClass.simpleName)
@@ -289,7 +289,7 @@ object LibraryTools {
         // and "Continue" adds what is missing ([continueHalfMade]). Crossed out once it is whole.
         val meant = if (tracks.isEmpty()) null else Unfinished.HalfMade(provider.id, pl.id, pl.name.ifBlank { name }, tracks, System.currentTimeMillis())
         if (meant != null) runCatching { Unfinished.halfMade.change(ctx) { it + meant } }
-        val (added, failed) = addInOrder(ctx, provider, pl.id, tracks, onProgress)
+        val (added, failed) = readBack(ctx, provider, pl.id, tracks, addInOrder(ctx, provider, pl.id, tracks, onProgress))
         if (meant != null) runCatching { Unfinished.halfMade.change(ctx) { it - meant } }
         return Created(pl, added, failed)
     }
@@ -311,15 +311,32 @@ object LibraryTools {
         for (t in provider.tracks(ctx, entry.playlistId)) there.merge(t.id, 1, Int::plus)
         // As many copies as were meant: a song meant twice and there once is added once more.
         val missing = entry.tracks.filter { t -> (there[t.id] ?: 0).let { n -> if (n > 0) { there[t.id] = n - 1; false } else true } }
-        val (added, failed) = addInOrder(ctx, provider, entry.playlistId, missing, onProgress)
+        val (added, failed) = readBack(ctx, provider, entry.playlistId, missing, addInOrder(ctx, provider, entry.playlistId, missing, onProgress))
         runCatching { forgetHalfMade(ctx, entry) }
         return Created(Playlist(entry.playlistId, entry.name), added, failed)
     }
 
+    /** What [addInOrder] did: how many went in, the ones refused as said, and their ids. */
+    private class Added(val count: Int, val failed: List<String>, val failedIds: Set<String>)
+
+    /**
+     * The playlist read back after [added] ([ReadBack]): a track the service took without keeping it
+     * is not counted as added but listed with the refused ones, with what happened.
+     */
+    private suspend fun readBack(ctx: Env, provider: MusicProvider, playlistId: String, tracks: List<Track>, added: Added): Pair<Int, List<String>> {
+        if (added.count == 0) return added.count to added.failed
+        val gone = ReadBack.check(ctx, provider, playlistId, tracks.filter { it.id !in added.failedIds })
+        if (gone.isEmpty()) return added.count to added.failed
+        ctx.log("tools", "${provider.displayName}: ${gone.size} of the tracks added are not in the playlist read back: ${gone.take(20).joinToString("; ")}")
+        val why = ctx.text("readback_not_kept", provider.displayName)
+        return (added.count - gone.size).coerceAtLeast(0) to added.failed + gone.map { "$it ($why)" }
+    }
+
     /** [tracks] added to [playlistId] in blocks of 50; a block refused is tried track by track. Returns how many went in, and the ones refused. */
-    private suspend fun addInOrder(ctx: Env, provider: MusicProvider, playlistId: String, tracks: List<Track>, onProgress: (Progress) -> Unit): Pair<Int, List<String>> {
+    private suspend fun addInOrder(ctx: Env, provider: MusicProvider, playlistId: String, tracks: List<Track>, onProgress: (Progress) -> Unit): Added {
         var added = 0
         val failed = ArrayList<String>()
+        val failedIds = HashSet<String>()
         for (chunk in tracks.chunked(50)) {
             onProgress(Progress(Progress.Step.ADDING, added, tracks.size))
             try {
@@ -332,12 +349,12 @@ object LibraryTools {
                 for (t in chunk) {
                     try { provider.addTracks(ctx, playlistId, listOf(t)); added++ }
                     catch (e2: kotlinx.coroutines.CancellationException) { throw e2 }
-                    catch (e2: Exception) { failed += "$t (${e2.message})" }
+                    catch (e2: Exception) { failed += "$t (${e2.message})"; failedIds += t.id }
                 }
             }
         }
         onProgress(Progress(Progress.Step.ADDING, added, tracks.size))
-        return added to failed
+        return Added(added, failed, failedIds)
     }
 
     /** A personal server's library: how many songs it has, and the ones whose file carries no MusicBrainz tag. */

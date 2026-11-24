@@ -217,7 +217,7 @@ fun AiPlaylistCard(snackbar: SnackbarHostState, onSyncStarted: () -> Unit) {
                         d.busy = true
                         // Through the tool that writes down what the playlist is meant to hold: stopped half
                         // way, Tools offers to continue it with only the tracks that are missing.
-                        val created = com.xlollx.songport.sync.Tools.createWith(app, target, finalName, MusicProvider.description(app.getString(R.string.app_name)), kept).playlist
+                        val created = com.xlollx.songport.sync.Tools.createWith(app, target, finalName, MusicProvider.newDescription(app.env, app.getString(R.string.app_name)), kept).playlist
                         val job = SyncJob(
                             id = UUID.randomUUID().toString(),
                             name = finalName,

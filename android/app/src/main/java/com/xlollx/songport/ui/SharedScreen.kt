@@ -599,7 +599,7 @@ private fun CreateGroupDialog(from: SharedUi.Request.Create?, onDismiss: () -> U
                         val made = withContext(Dispatchers.IO) {
                             runCatching {
                                 val local = if (pl != null) PlaylistRef(p.id, pl.id, pl.name)
-                                else kept.reuse(p.id, name) { p.createPlaylist(ctx.env, name, MusicProvider.description(ctx.getString(R.string.app_name))).let { PlaylistRef(p.id, it.id, it.name) } }
+                                else kept.reuse(p.id, name) { p.createPlaylist(ctx.env, name, MusicProvider.newDescription(ctx.env, ctx.getString(R.string.app_name))).let { PlaylistRef(p.id, it.id, it.name) } }
                                 when (transport) {
                                     Invite.NTFY -> SharedGroups.create(ctx.env, name, server, NtfyServer.hostOf(server), myName, p.displayName, local, Invite.NTFY, signIn.auth)
                                     Invite.SERVER -> SharedGroups.create(ctx.env, name, myServer!!, NtfyServer.hostOf(myServer), myName, p.displayName, local, Invite.SERVER)
@@ -756,7 +756,7 @@ private fun JoinGroupDialog(initial: String, onDismiss: () -> Unit, onCollection
                             runCatching {
                                 if (SharedGroups.group(ctx.env, inv.groupId) != null) throw com.xlollx.songport.model.ProviderException(ctx.getString(R.string.shared_error_already, inv.name))
                                 // The member's own copy: a new playlist on their service, filled by the first sync.
-                                val local = kept.reuse(p.id, inv.name) { p.createPlaylist(ctx.env, inv.name, MusicProvider.description(ctx.getString(R.string.app_name))).let { PlaylistRef(p.id, it.id, it.name) } }
+                                val local = kept.reuse(p.id, inv.name) { p.createPlaylist(ctx.env, inv.name, MusicProvider.newDescription(ctx.env, ctx.getString(R.string.app_name))).let { PlaylistRef(p.id, it.id, it.name) } }
                                 SharedGroups.join(ctx.env, inv, folder.orEmpty(), folderName, myName, p.displayName, local, signIn.auth?.takeIf { inv.transport == Invite.NTFY })
                             }
                         }

@@ -192,8 +192,9 @@ internal class XmlTokens(private val src: CharSource) {
 
 /**
  * A picked file's bytes as text, decoded as they are read: UTF-8 (a BOM is dropped), UTF-16 with a
- * BOM, and otherwise Windows-1252 from the first byte that is not UTF-8 on: what Windows players
- * write in a plain .m3u (where "Beyoncé" is not valid UTF-8). What [PlaylistFiles.decode] does for
+ * BOM, and otherwise a legacy encoding from the first byte that is not UTF-8 on: Windows-1252, what
+ * Windows players write in a plain .m3u (where "Beyoncé" is not valid UTF-8), or the Chinese,
+ * Japanese, Korean or Cyrillic one the text reads right in ([TextCharsets]). What [PlaylistFiles.decode] does for
  * a file held whole.
  */
 internal class DecodingReader(input: InputStream) : Reader() {
@@ -234,7 +235,9 @@ internal class DecodingReader(input: InputStream) : Reader() {
             val r = decoder.decode(bytes, out, ended)
             if (r.isError && !fallback) {
                 fallback = true
-                decoder = charset("windows-1252").newDecoder()
+                // The legacy encoding is told from what is left in the buffer (up to 64 KB from the first byte that is not UTF-8).
+                val sample = ByteArray(bytes.remaining()).also { bytes.duplicate().get(it) }
+                decoder = TextCharsets.guess(sample, complete = ended).newDecoder()
                     .onMalformedInput(CodingErrorAction.REPLACE).onUnmappableCharacter(CodingErrorAction.REPLACE)
                 continue
             }

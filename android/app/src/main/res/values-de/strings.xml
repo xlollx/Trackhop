@@ -3520,4 +3520,7 @@
         <item quantity="one">%1$d vergessen: Der nächste Sync sucht erneut.</item>
         <item quantity="other">%1$d vergessen: Der nächste Sync sucht erneut.</item>
     </plurals>
+    <string name="note_removals_similar_review">Nicht entfernt: %1$d Titel im Ziel ähneln Titeln der Quelle, die nicht gefunden wurden. Prüfe sie in der Überprüfung: OK behält sie als Zuordnung.</string>
+    <string name="readback_not_kept">%1$s meldete ihn als hinzugefügt, aber die Playlist zeigt ihn nicht</string>
+    <string name="note_readback_not_kept">Nicht übernommen: %2$s meldete %1$d Titel als hinzugefügt, aber die erneut gelesene Playlist zeigt sie nicht. Sie stehen bei den nicht hinzugefügten.</string>
 </resources>

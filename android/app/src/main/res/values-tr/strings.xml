@@ -3518,4 +3518,7 @@
         <item quantity="one">%1$d unutuldu: sonraki senkronizasyon yeniden arar.</item>
         <item quantity="other">%1$d unutuldu: sonraki senkronizasyon yeniden arar.</item>
     </plurals>
+    <string name="note_removals_similar_review">Kaldırılmadı: hedefteki %1$d parça, kaynakta bulunamayan parçalara benziyor. İncelemede kontrol et: Tamam, onları eşleşme olarak tutar.</string>
+    <string name="readback_not_kept">%1$s eklendiğini söyledi ama çalma listesinde görünmüyor</string>
+    <string name="note_readback_not_kept">Tutulmadı: %2$s %1$d parça eklediğini söyledi ama yeniden okunan çalma listesinde yoklar. Eklenmeyenler arasında listelendiler.</string>
 </resources>

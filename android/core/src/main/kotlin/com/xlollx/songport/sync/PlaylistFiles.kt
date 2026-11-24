@@ -8,6 +8,9 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 /**
  * Import/export di playlist come file, in tutti i formati che i servizi musicali (o i loro
@@ -60,7 +63,8 @@ object PlaylistFiles {
 
     /**
      * A picked file's bytes as text: UTF-8 (a BOM is dropped), UTF-16 with a BOM, and otherwise
-     * Windows-1252, what Windows players write in a plain .m3u (where "Beyoncé" is not valid UTF-8).
+     * Windows-1252, what Windows players write in a plain .m3u (where "Beyoncé" is not valid UTF-8),
+     * or the Chinese, Japanese, Korean or Cyrillic encoding the text reads right in ([TextCharsets]).
      */
     fun decode(bytes: ByteArray): String {
         fun starts(vararg b: Int) = bytes.size >= b.size && b.indices.all { bytes[it] == b[it].toByte() }
@@ -71,7 +75,7 @@ object PlaylistFiles {
             else -> try {
                 Charsets.UTF_8.newDecoder().decode(java.nio.ByteBuffer.wrap(bytes)).toString()
             } catch (e: java.nio.charset.CharacterCodingException) {
-                String(bytes, charset("windows-1252"))
+                String(bytes, TextCharsets.guess(bytes))
             }
         }
     }
@@ -315,6 +319,9 @@ object PlaylistFiles {
         if (t.artists.isEmpty()) t.title else t.artistLine + " - " + t.title
     }
 
+    /** The key of Trackhop's own fields in a JSPF track's "extension" (an application URI, as JSPF asks). */
+    const val JSPF_EXTENSION = "https://trackhop.org/jspf/track"
+
     /** JSPF (XSPF in JSON), il formato di ListenBrainz: creator/title/album/duration e l'ISRC fra gli identificatori. */
     fun toJspf(name: String, tracks: List<Track>): String {
         val list = tracks.map { t ->
@@ -323,7 +330,17 @@ object PlaylistFiles {
                 if (t.artists.isNotEmpty()) put("creator", t.artistLine)
                 if (t.album.isNotBlank()) put("album", t.album)
                 if (t.durationMs > 0) put("duration", t.durationMs)
-                t.isrcNorm?.let { put("identifier", JsonArray(listOf(JsonPrimitive("isrc:$it")))) }
+                val ids = listOfNotNull(t.isrcNorm?.let { "isrc:$it" }, Origins.url(t.origin))
+                if (ids.isNotEmpty()) put("identifier", JsonArray(ids.map { JsonPrimitive(it) }))
+                // Where the track came from and what its service said of it, as in the CSV (see Origins).
+                if (t.origin != null || t.addedAt > 0 || t.explicit != null || t.year > 0) put("extension", buildJsonObject {
+                    put(JSPF_EXTENSION, buildJsonObject {
+                        Origins.split(t.origin)?.let { (service, id) -> put("service", service); put("service_id", id) }
+                        if (t.addedAt > 0) put("added_at", java.time.Instant.ofEpochMilli(t.addedAt).toString())
+                        t.explicit?.let { put("explicit", it) }
+                        if (t.year > 0) put("year", t.year)
+                    })
+                })
             }
         }
         val root = buildJsonObject { put("playlist", buildJsonObject { put("title", name); put("track", JsonArray(list)) }) }
@@ -591,8 +608,22 @@ object PlaylistFiles {
             artists = CsvCodec.splitArtists(pick(o, ARTIST_KEYS).orEmpty()),
             album = pick(o, ALBUM_KEYS).orEmpty(),
             durationMs = CsvCodec.parseDuration(pick(o, DURATION_KEYS).orEmpty()),
-            isrc = pick(o, ISRC_KEYS)?.takeIf { it.isNotBlank() },
-        )
+            // JSPF (ListenBrainz, ours) names it among the identifiers, "isrc:…".
+            isrc = pick(o, ISRC_KEYS)?.takeIf { it.isNotBlank() } ?: runCatching {
+                (o["identifier"] as? JsonArray)?.firstNotNullOfOrNull { (it as? JsonPrimitive)?.content?.takeIf { v -> v.startsWith("isrc:", true) }?.substring(5) }
+                    ?: (o["identifier"] as? JsonPrimitive)?.content?.takeIf { v -> v.startsWith("isrc:", true) }?.substring(5)
+            }.getOrNull()?.takeIf { it.isNotBlank() },
+        ).let { t ->
+            // Trackhop's own JSPF: the origin and what the service said of the track (see toJspf).
+            val ext = runCatching { o["extension"]?.jsonObject?.get(JSPF_EXTENSION)?.jsonObject }.getOrNull() ?: return@let t
+            fun str(k: String) = runCatching { ext[k]?.jsonPrimitive?.contentOrNull }.getOrNull()
+            t.copy(
+                origin = Origins.of(str("service"), str("service_id")),
+                addedAt = str("added_at")?.let { runCatching { java.time.Instant.parse(it).toEpochMilli() }.getOrNull() } ?: 0L,
+                explicit = str("explicit")?.toBooleanStrictOrNull(),
+                year = str("year")?.toIntOrNull()?.takeIf { it in 1..9999 } ?: 0,
+            )
+        }
     }
 
     /** One object of a list is parsed on its own, up to this size; a bigger one is not a track. */

@@ -3528,4 +3528,7 @@
         <item quantity="one">%1$d esquecida: a próxima sincronização busca de novo.</item>
         <item quantity="other">%1$d esquecidas: a próxima sincronização busca de novo.</item>
     </plurals>
+    <string name="note_removals_similar_review">Não removidas: %1$d faixas do destino parecem faixas da origem que não foram encontradas. Confira na revisão: OK as mantém como correspondência.</string>
+    <string name="readback_not_kept">%1$s disse que adicionou, mas a playlist não mostra</string>
+    <string name="note_readback_not_kept">Não mantidas: %2$s disse que adicionou %1$d faixas, mas a playlist lida de novo não as mostra. Estão listadas como não adicionadas.</string>
 </resources>

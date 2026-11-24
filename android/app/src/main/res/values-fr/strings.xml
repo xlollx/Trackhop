@@ -3528,4 +3528,7 @@
         <item quantity="one">%1$d oubliée : la prochaine synchro la recherche à nouveau.</item>
         <item quantity="other">%1$d oubliées : la prochaine synchro les recherche à nouveau.</item>
     </plurals>
+    <string name="note_removals_similar_review">Non supprimés : %1$d titres de la destination ressemblent à des titres de la source introuvables. Vérifie-les dans la revue : OK les garde comme correspondance.</string>
+    <string name="readback_not_kept">%1$s a indiqué l\'avoir ajouté, mais la playlist ne l\'affiche pas</string>
+    <string name="note_readback_not_kept">Non conservés : %2$s a indiqué avoir ajouté %1$d titres, mais la playlist relue ne les montre pas. Ils sont listés comme non ajoutés.</string>
 </resources>

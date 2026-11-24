@@ -227,7 +227,7 @@ fun NwayEditorScreen(
      * syncs are written as one change. Not cut short by the screen going away.
      */
     suspend fun save() {
-        val description = MusicProvider.description(ctx.getString(R.string.app_name))
+        val description = MusicProvider.newDescription(ctx.env, ctx.getString(R.string.app_name))
         val app = ctx.applicationContext
         withContext(NonCancellable + Dispatchers.IO) {
             // Checked again at the moment of saving: a run may have started since the button was tapped.

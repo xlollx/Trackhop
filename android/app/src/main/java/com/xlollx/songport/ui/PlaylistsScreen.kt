@@ -195,7 +195,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
         scope.launch {
             try {
                 val tracks = provider.tracks(ctx, pl.id)
-                val text = LocalFilesProvider.encodeLooked(ctx.env, fmt, pl.name, tracks).first
+                val text = LocalFilesProvider.encodeLooked(ctx.env, fmt, pl.name, com.xlollx.songport.sync.Origins.stamp(provider, tracks)).first
                 withContext(Dispatchers.IO) { com.xlollx.songport.data.DocumentWrite.text(ctx, uri, text) }
                 snackbar.showSnackbar(ctx.getString(R.string.tools_export_done, tracks.size))
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { fail(e) }

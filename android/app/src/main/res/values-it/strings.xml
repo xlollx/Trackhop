@@ -3520,4 +3520,7 @@
         <item quantity="one">%1$d dimenticata: la prossima sync la cerca di nuovo.</item>
         <item quantity="other">%1$d dimenticate: la prossima sync le cerca di nuovo.</item>
     </plurals>
+    <string name="note_removals_similar_review">Non rimossi: %1$d brani della destinazione somigliano a brani della sorgente non trovati. Controllali nella revisione: OK li tiene come abbinamento.</string>
+    <string name="readback_not_kept">%1$s ha detto di averlo aggiunto, ma la playlist non lo mostra</string>
+    <string name="note_readback_not_kept">Non tenuti: %2$s ha detto di aver aggiunto %1$d brani, ma riletta la playlist non ci sono. Sono elencati come non aggiunti.</string>
 </resources>

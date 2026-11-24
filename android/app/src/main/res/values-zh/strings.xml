@@ -3403,4 +3403,7 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="other">已忘记 %1$d 项：下次同步会重新查找。</item>
     </plurals>
+    <string name="note_removals_similar_review">未移除：目标中有 %1$d 首歌曲与源中未找到的歌曲相似。请在审核中检查：确定即保留为匹配。</string>
+    <string name="readback_not_kept">%1$s 表示已添加，但播放列表中没有显示</string>
+    <string name="note_readback_not_kept">未保留：%2$s 表示已添加 %1$d 首歌曲，但重新读取的播放列表中没有。它们已列为未添加。</string>
 </resources>

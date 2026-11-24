@@ -438,7 +438,7 @@ object Collections {
                     val local = mine.firstOrNull { it.id !in used && it.trackCount <= 0 && it.name.trim().equals(e.name.trim(), ignoreCase = true) }
                         ?: run {
                             if (!p.canCreatePlaylists) throw ProviderException(env.text("collection_error_cannot_create", p.displayName))
-                            p.createPlaylist(env, e.name, MusicProvider.description("Trackhop")).also { mine += it }
+                            p.createPlaylist(env, e.name, MusicProvider.newDescription(env, "Trackhop")).also { mine += it }
                         }
                     val ref = PlaylistRef(service, local.id, local.name)
                     val group = SharedGroups.group(env, e.groupId)

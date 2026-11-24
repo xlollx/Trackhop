@@ -58,6 +58,12 @@ data class Track(
      * `albumId`): the album whose rating a sync with [SyncJob.copyRatings] sets. Only lives during a run.
      */
     @kotlinx.serialization.Transient val albumId: String? = null,
+    /**
+     * Where a track read from a file came from: "service:id" of the service it was exported from
+     * (see [com.xlollx.songport.sync.Origins]). A sync of the file back to that service takes the
+     * id as it is, without a search. Null for anything else.
+     */
+    val origin: String? = null,
 ) {
     val artistLine: String get() = artists.joinToString(", ")
     val isrcNorm: String? get() = isrc?.trim()?.uppercase()?.takeIf { it.length >= 10 }

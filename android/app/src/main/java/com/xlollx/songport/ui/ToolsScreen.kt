@@ -388,7 +388,7 @@ private fun ExportCard(provider: MusicProvider, snackbar: SnackbarHostState) {
         scope.launch {
             try {
                 val tracks = provider.tracks(ctx, pl.id)
-                val (text, noFeed) = LocalFilesProvider.encodeLooked(ctx.env, fmt, pl.name, tracks) { done, total -> lookups = done to total }
+                val (text, noFeed) = LocalFilesProvider.encodeLooked(ctx.env, fmt, pl.name, com.xlollx.songport.sync.Origins.stamp(provider, tracks)) { done, total -> lookups = done to total }
                 withContext(Dispatchers.IO) {
                     com.xlollx.songport.data.DocumentWrite.text(ctx, uri, text)
                 }

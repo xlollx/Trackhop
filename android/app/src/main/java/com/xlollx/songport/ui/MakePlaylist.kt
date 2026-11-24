@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import com.xlollx.songport.platform.env
 import com.xlollx.songport.providers.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -197,7 +198,7 @@ fun MakePlaylistCard(provider: MusicProvider, snackbar: SnackbarHostState) {
                             var added = 0
                             var failed = 0
                             for ((n, tracks) in parts) {
-                                val r = Tools.createWith(ctx, provider, n, MusicProvider.description(ctx.getString(R.string.app_name)), tracks) { progress = it }
+                                val r = Tools.createWith(ctx, provider, n, MusicProvider.newDescription(ctx.env, ctx.getString(R.string.app_name)), tracks) { progress = it }
                                 added += r.added; failed += r.failed.size
                             }
                             val done = if (parts.size == 1) ctx.getString(R.string.tools_make_done, parts.first().first, added)

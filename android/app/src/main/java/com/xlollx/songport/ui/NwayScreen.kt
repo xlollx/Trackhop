@@ -412,7 +412,7 @@ fun NwayCreateScreen(onClose: () -> Unit, onDone: () -> Unit) {
     if (pickSchedule) SchedulePicker(schedule, { pickSchedule = false }) { schedule = it; pickSchedule = false }
     val env = ctx.env
     if (firstRun) NwayFirstRunSheet(name.trim(), members, onDismiss = { firstRun = false }, onDone = { firstRun = false; onDone() }) {
-        val description = MusicProvider.description(ctx.getString(R.string.app_name))
+        val description = MusicProvider.newDescription(ctx.env, ctx.getString(R.string.app_name))
         val g = withContext(Dispatchers.IO) {
             val refs = members.map { m ->
                 val p = Providers.byId(m.provider) ?: throw IllegalStateException(m.provider)
