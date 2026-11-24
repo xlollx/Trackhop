@@ -91,7 +91,10 @@ elif [ "$os" = macos ]; then
   mv "$work"/Trackhop-*.dmg "dist/$name-macos-$arch.dmg"
 else
   tar -C "$work/out" -czf "dist/$name-$suffix.tar.gz" Trackhop
+  # server/desktop/deb: jpackage's postinst and prerm with the menu steps allowed to fail, so the
+  # package installs on a system without a desktop (Raspberry Pi OS Lite, a server).
   jpackage --type deb --app-image "$work/out/Trackhop" --name Trackhop --dest "$work" \
+    --resource-dir server/desktop/deb \
     --app-version "$version" --vendor xlollx --description "Trackhop Desktop (beta)" \
     --linux-package-name trackhop --linux-shortcut --linux-menu-group "AudioVideo;Audio" \
     --linux-app-category sound \
