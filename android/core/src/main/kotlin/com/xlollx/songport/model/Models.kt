@@ -156,6 +156,14 @@ data class SyncJob(
     /** Versioni (vedi MusicProvider.playlistVersion) viste all'ultimo giro riuscito: uguali = niente da fare. */
     val sourceVersion: String? = null,
     val targetVersion: String? = null,
+    /**
+     * What the last run that read the source whole ran under (the matching's revision and this sync's
+     * rules, see SyncEngine.runKey), and when: a scheduled run skips an unchanged source only under
+     * the same ones and for a day at most, so a new matching, a changed rule or an expired "not
+     * found" is searched again.
+     */
+    val versionsKey: Int = 0,
+    val fullRunEpoch: Long = 0,
     val policy: MatchPolicy = MatchPolicy(),
     /** After adding, put the target in the source's order (where the target service can move tracks). */
     val keepOrder: Boolean = false,
@@ -263,6 +271,12 @@ data class MatchPolicy(
     val sameAlbum: Boolean = false,
     /** Mai una versione live/remix/acustica/karaoke al posto di una che non lo e'. */
     val studioOnly: Boolean = false,
+    /**
+     * "Artist names can differ" (#81): the same title (0.95) and length (3 s) with the same album is
+     * the song even when the artists' names do not meet (周杰伦 on one service, Jay Chou on the other);
+     * without an album to compare it is a song to check. Off by default.
+     */
+    val artistsMayDiffer: Boolean = false,
 ) {
     val acceptThreshold: Double get() = 0.70 + 0.08 * strictness
     val reviewThreshold: Double get() = 0.86 + 0.05 * strictness

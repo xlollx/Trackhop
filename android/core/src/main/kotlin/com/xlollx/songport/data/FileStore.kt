@@ -166,7 +166,13 @@ data class StoreData(
     val reports: List<SyncReport> = emptyList(),
     /** Cache abbinamenti: "srcProvider:trackId>dstProvider" -> id brano sulla destinazione. */
     val matchCache: Map<String, String> = emptyMap(),
-    /** Ricerche senza esito, stessa chiave -> quando (epoch ms): non si ripetono per una settimana. */
+    /**
+     * The matches of [matchCache] the engine found by itself, same key -> "<Matcher.REVISION>|<target id>":
+     * a later matching checks them again (see [FileStore.autoRevision]). One chosen or confirmed by
+     * the user has none, nor has one saved before 2.2: both stay as they are.
+     */
+    val autoMatches: Map<String, String> = emptyMap(),
+    /** Ricerche senza esito, stessa chiave -> quando (epoch ms): non si ripetono per un mese ([FileStore.MISS_TTL_MS]). */
     val missCache: Map<String, Long> = emptyMap(),
     /** The [Matcher.REVISION] the misses were found under: another one searches them again. */
     val missRevision: Int = 0,
@@ -601,13 +607,39 @@ open class FileStore(dir: File) {
             .map { it.key.substring(prefix.length, it.key.length - suffix.length) }
     }
 
-    fun putMatches(entries: Map<String, String>) {
+    /**
+     * Remembers matches. [auto]: found by the engine itself, noted with the matching's revision (a
+     * match it only found again, unchanged, keeps what it was: a choice of the user stays theirs).
+     * Otherwise chosen by the user: never checked again by a later matching.
+     */
+    fun putMatches(entries: Map<String, String>, auto: Boolean = false) {
         if (entries.isEmpty()) return
         update { d ->
             var cache = d.matchCache + entries
             if (cache.size > MAX_CACHE) cache = cache.entries.drop(cache.size - MAX_CACHE).associate { it.key to it.value }
+            var autos = if (auto) d.autoMatches + entries.filter { (k, v) -> d.matchCache[k] != v }.mapValues { (_, v) -> "${Matcher.REVISION}|$v" }
+                else d.autoMatches - entries.keys
+            if (autos.size > cache.size) autos = autos.filterKeys { it in cache }
             // Un abbinamento trovato (o scelto a mano) cancella il ricordo della ricerca fallita.
-            d.copy(matchCache = cache, missCache = d.missCache - entries.keys)
+            d.copy(matchCache = cache, autoMatches = autos, missCache = d.missCache - entries.keys)
+        }
+    }
+
+    /**
+     * The [Matcher.REVISION] the engine found the match under [key] with, or null for one chosen by
+     * the user, one saved before revisions were noted, or one changed by hand since.
+     */
+    fun autoRevision(key: String): Int? {
+        val d = data
+        val (rev, id) = d.autoMatches[key]?.split('|', limit = 2)?.takeIf { it.size == 2 } ?: return null
+        return rev.toIntOrNull()?.takeIf { d.matchCache[key] == id }
+    }
+
+    /** Matches found under an older revision that the current matching finds as good: noted under it. */
+    fun markChecked(keys: Collection<String>) {
+        if (keys.isEmpty()) return
+        update { d ->
+            d.copy(autoMatches = d.autoMatches + keys.mapNotNull { k -> d.matchCache[k]?.let { k to "${Matcher.REVISION}|$it" } })
         }
     }
 
@@ -703,7 +735,8 @@ open class FileStore(dir: File) {
         private const val WRITE_DELAY_MS = 500L
         private const val MAX_CACHE = 20_000
         /** Una ricerca fallita si ripete dopo una settimana: i cataloghi cambiano, ma non ogni giorno. */
-        const val MISS_TTL_MS = 7L * 24 * 3_600_000
+        /** A track not found is searched again after a month, or at once when the matching changes ([Matcher.REVISION]). */
+        const val MISS_TTL_MS = 30L * 24 * 3_600_000
         /** A removal confirmation not used within this time is dropped: it was meant for the run started then. */
         const val CONFIRMATION_TTL_MS = 12L * 3_600_000
 
