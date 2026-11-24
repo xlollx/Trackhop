@@ -52,6 +52,7 @@ internal class CliCommands(
         "review" -> review(p, o)
         "services" -> services()
         "playlists" -> playlists(one(p, "playlists <service>"))
+        "profiles" -> { need(p, 1, "profiles <service> [<profile>]"); profiles(p[0], p.drop(1).joinToString(" ").takeIf { it.isNotEmpty() }) }
         "tracks" -> { need(p, 2, "tracks <service> <playlist>"); tracks(p[0], p[1]) }
         "add", "remove" -> { need(p, 3, "$command <service> <playlist> <track>..."); edit(command, p[0], p[1], p.drop(2)) }
         "create" -> { need(p, 2, "create <service> <name>"); create(p[0], p.drop(1).joinToString(" ")) }
@@ -260,6 +261,35 @@ internal class CliCommands(
         if (asJson) return print(JsonArray(list)).let { 0 }
         if (list.isEmpty()) out.println("No services added yet: add them on Trackhop's page, Services.")
         for (o in list) out.println("${o.s("name")}  (${o.s("id")})  ${if (o.b("connected")) "connected" + (o["account"].str()?.let { " as $it" } ?: "") else "not connected"}")
+        return 0
+    }
+
+    /** YouTube Music (web): the profiles with how much music each holds and the one the music seems to be on; with [ask], use that one. */
+    private fun profiles(serviceAsk: String, ask: String?): Int {
+        val s = service(serviceAsk)
+        val r = api.get("services/${enc(s.s("id"))}/channels").jsonObject
+        val list = r["channels"]?.jsonArray?.map { it.jsonObject }.orEmpty()
+        if (ask != null) {
+            val c = list.firstOrNull { it.s("id") == ask } ?: list.firstOrNull { it.s("name").equals(ask, ignoreCase = true) }
+                ?: throw Cli.Failure(1, "no profile \"$ask\". See: trackhop profiles ${s.s("id")}")
+            val done = api.post("services/${enc(s.s("id"))}/channels", kotlinx.serialization.json.buildJsonObject { put("id", c.s("id")) })
+            if (asJson) return print(done).let { 0 }
+            out.println("${s.s("name")} now uses ${c.s("name")}.")
+            return 0
+        }
+        if (asJson) return print(r).let { 0 }
+        val current = r.s("current"); val suggested = r.s("suggested")
+        for (c in list) {
+            val counts = listOfNotNull(
+                (c["playlists"] as? JsonPrimitive)?.intOrNull?.let { if (it == 1) "1 playlist" else "$it playlists" },
+                (c["likedSongs"] as? JsonPrimitive)?.intOrNull?.let { if (it == 1) "1 liked song" else "$it liked songs" },
+            ).joinToString(", ")
+            val mark = if (c.s("id") == current) "* " else "  "
+            out.println("$mark${c.s("name")}  (${if (c.b("own")) "own channel" else c.s("byline").ifEmpty { "brand account" }})${if (counts.isNotEmpty()) "  $counts" else ""}  ${c.s("id")}")
+        }
+        if (suggested.isNotEmpty()) list.firstOrNull { it.s("id") == suggested }?.let {
+            out.println("The profile in use is empty; your music seems to be on ${it.s("name")}: trackhop profiles ${s.s("id")} \"${it.s("name")}\"")
+        }
         return 0
     }
 

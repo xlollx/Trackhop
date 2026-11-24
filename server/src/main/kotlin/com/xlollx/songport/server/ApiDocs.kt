@@ -66,6 +66,8 @@ internal object ApiDocs {
         Call("POST", "/runs/{run}/review", "Runs", "Review a run: ignore, keep, discard, pick, replace or restore.", body = "{\"action\", \"tracks\": [source ids] | \"all\", \"choice\"?: track}"),
         Call("GET", "/services", "Services", "The services added, and whether each is connected."),
         Call("GET", "/services/{service}", "Services", "One service: connected, account, and what it can do."),
+        Call("GET", "/services/{service}/channels", "Services", "YouTube Music (web): the profiles the account can act as (its own channel, brand accounts), with playlists and likedSongs for each (library=false skips those reads), current and suggested (the profile the music seems to be on when the current one is empty).", listOf("library")),
+        Call("POST", "/services/{service}/channels", "Services", "YouTube Music (web): read and write as this profile from now on.", body = "{\"id\": \"<profile id>\" | \"\"}"),
         Call("GET", "/services/{service}/search", "Services", "Look for a track: q is \"Artist - Title\" or a link.", listOf("q", "limit")),
         Call("GET", "/services/{service}/playlists", "Playlists", "A service's playlists and library entries."),
         Call("POST", "/services/{service}/playlists", "Playlists", "Make a playlist.", body = "{\"name\", \"description\"?}"),
