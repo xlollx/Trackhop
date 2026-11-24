@@ -95,6 +95,8 @@ private fun LoginForm(provider: CredentialsProvider, onDone: (String) -> Unit) {
     val ctx = androidx.compose.ui.platform.LocalContext.current
     // What was typed survives a rotation; the password in memory only, never in the saved state.
     var url by rememberSaveable { mutableStateOf("") }
+    // A second address, used when the first does not answer (2.2): home and away from home.
+    var away by rememberSaveable { mutableStateOf(runCatching { provider.awayAddress(com.xlollx.songport.platform.AndroidEnv.of(ctx)) }.getOrNull().orEmpty()) }
     var user by rememberSaveable { mutableStateOf("") }
     var secret by com.xlollx.songport.ui.rememberUnsavedSecret("login:" + provider.id) { "" }
     var busy by remember { mutableStateOf(false) }
@@ -148,6 +150,12 @@ private fun LoginForm(provider: CredentialsProvider, onDone: (String) -> Unit) {
                 label = { Text(stringResource(R.string.login_url)) }, placeholder = { Text("https://…") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri), modifier = Modifier.fillMaxWidth(),
             )
+            if (form.needsUrl && provider.offersSecondAddress) OutlinedTextField(
+                value = away, onValueChange = { away = it; error = null }, singleLine = true, enabled = !busy,
+                label = { Text(stringResource(R.string.login_url_away)) }, placeholder = { Text("https://…") },
+                supportingText = { Text(stringResource(R.string.login_url_away_hint)) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri), modifier = Modifier.fillMaxWidth(),
+            )
             if (form.needsUser && !byKey) OutlinedTextField(
                 value = user, onValueChange = { user = it; error = null }, singleLine = true, enabled = !busy,
                 label = { Text(stringResource(R.string.login_user)) }, modifier = Modifier.fillMaxWidth(),
@@ -168,7 +176,9 @@ private fun LoginForm(provider: CredentialsProvider, onDone: (String) -> Unit) {
                     scope.launch {
                         try {
                             if (askKey) com.xlollx.songport.ui.LastFmKey.save(ctx, lfKey, lfSecret)
-                            if (byKey) provider.loginWithApiKey(com.xlollx.songport.platform.AndroidEnv.of(ctx), url, secret)
+                            if (form.needsUrl && provider.offersSecondAddress)
+                                provider.loginWithAddresses(com.xlollx.songport.platform.AndroidEnv.of(ctx), url, away, user, secret, apiKey = if (byKey) secret else null)
+                            else if (byKey) provider.loginWithApiKey(com.xlollx.songport.platform.AndroidEnv.of(ctx), url, secret)
                             else provider.login(ctx, url, user, secret)
                             onDone(ctx.getString(R.string.auth_done, provider.displayName))
                         } catch (e: Exception) {

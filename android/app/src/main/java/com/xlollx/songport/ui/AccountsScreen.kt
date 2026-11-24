@@ -592,6 +592,15 @@ private fun ProviderCard(
                 }
                 if (!tight) { Spacer(Modifier.width(8.dp)); state() }
             }
+            // A server with two addresses (2.2): which one the requests go to now.
+            val via = remember(p.id) { (p as? com.xlollx.songport.providers.CredentialsProvider)?.takeIf { connected }?.let { c -> runCatching { c.awayAddress(ctx.env)?.let { away -> c.addressInUse(ctx.env)?.let { it to (it == away) } } }.getOrNull() } }
+            via?.let { (address, isAway) ->
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    stringResource(if (isAway) R.string.account_via_away else R.string.account_via_home, address.removePrefix("https://").removePrefix("http://")),
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             if (connected && quotaUsed != null) QuotaCard(used = quotaUsed, sharedCredentials = !p.usesOwnCredentials(ctx), searches = searchesUsed)
             // Detto una volta, dove si sceglie di usarlo: meglio qui che come sorpresa a sync finita.
             if (p.alpha || p.beta) {

@@ -178,6 +178,15 @@ internal fun Web.apiMore(ex: HttpExchange, method: String, rest: List<String>, q
             val p = Providers.byId(rest[1]) ?: return true.also { error(404, "No service with that id: see GET /api/v1/services.") }
             json(200, serviceJson(p))
         }
+        // A personal server's second address (2.2): {"away": "https://…"}, or null / "" to take it away.
+        rest.size == 3 && rest[0] == "services" && rest[2] == "address" && (method == "PUT" || method == "PATCH") -> {
+            val p = (connected(rest[1], error) ?: return true) as? com.xlollx.songport.providers.CredentialsProvider
+            if (p == null || !p.offersSecondAddress) return true.also { error(400, "Only a personal server reached at an address has a second one.") }
+            val b = body() ?: return true.also { badJson() }
+            p.setAwayAddress(env, b.text("away"))
+            env.log("auth", "${p.id}: second address ${if (p.awayAddress(env) == null) "taken away" else "set"} through the API")
+            json(200, serviceJson(p))
+        }
         rest.size == 3 && rest[0] == "services" && rest[2] == "search" && method == "GET" -> {
             val p = connected(rest[1], error) ?: return true
             val q = query["q"]?.trim().orEmpty().ifEmpty { return true.also { error(400, "Say what to look for: ?q=Artist - Title (or a link).") } }
@@ -338,6 +347,11 @@ internal fun Web.serviceJson(p: MusicProvider) = buildJsonObject {
     // What it can do: a script asks before it tries.
     put("canWrite", p.canWrite); put("canCreatePlaylists", p.canCreatePlaylists); put("canRenamePlaylists", p.canRenamePlaylists)
     put("canDeletePlaylists", p.canDeletePlaylists); put("canRemoveTracks", p.canRemoveTracks); put("linkOnly", p.linkOnly)
+    // A personal server's addresses (2.2): the second one, away from home, and the one requests go to now.
+    if (p is com.xlollx.songport.providers.CredentialsProvider && p.offersSecondAddress && p.isConnected(env)) {
+        put("awayAddress", p.awayAddress(env)?.let { JsonPrimitive(it) } ?: JsonNull)
+        put("addressInUse", p.addressInUse(env)?.let { JsonPrimitive(it) } ?: JsonNull)
+    }
 }
 
 private fun Web.fileSettings() = buildJsonObject {
