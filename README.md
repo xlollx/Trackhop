@@ -54,6 +54,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <a href="https://trackhop.org/guide/docker"><img src="docs/assets/badges/docker.svg" height="56" alt="Run it on Docker"></a>
   <a href="https://github.com/xlollx/umbrel-apps"><img src="docs/assets/badges/umbrel.svg" height="56" alt="Get it on Umbrel (community app store)"></a>
   <a href="https://trackhop.org/guide/docker#one-click-installs"><img src="docs/assets/badges/caprover.svg" height="56" alt="Get it on CapRover (One-Click Apps)"></a>
+  <a href="https://trackhop.org/guide/docker#one-click-installs"><img src="docs/assets/badges/dokploy.svg" height="56" alt="Get it on Dokploy (templates)"></a>
 </p>
 
 <p align="center">
