@@ -85,7 +85,7 @@ internal fun Web.playlists(r: Web.Req, rest: List<String>) {
     val tracks = runCatching { runBlocking { service.tracks(env, playlist.id) } }
         .getOrElse { return send(r.ex, 200, page(playlist.name, """<div class="card err">${h(it.message)}</div>""")) }
     val body = StringBuilder(notice(r))
-    body.append("""<p class="muted"><a href="$base">${h(service.label(env))}</a> · ${tracks.size} tracks · <a href="/tools/export?service=${q(service.id)}&playlist=${q(playlist.id)}">Export</a> · <a href="/syncs/new?src=${q(service.id)}&amp;srcPlaylist=${q(playlist.id)}">Sync it to another service</a></p>""")
+    body.append("""<p class="muted"><a href="$base">${h(service.label(env))}</a> · ${tracks.size} tracks · <a href="/tools/export?service=${q(service.id)}&playlist=${q(playlist.id)}">Export</a> · <a href="/syncs/new?src=${q(service.id)}&amp;srcPlaylist=${q(playlist.id)}">Sync it to another service</a>${if (service is com.xlollx.songport.providers.PlexProvider && !com.xlollx.songport.providers.MusicProvider.isLibrary(playlist.id)) """ · <a href="/tools/plex?account=${q(service.id)}&amp;copy=${q(playlist.id)}#copy">Copy to a Plex Home user</a>""" else ""}</p>""")
     val owned = playlist.ownedByMe && !MusicProvider.isLibrary(playlist.id)
     body.append(makeCard(service, playlist, back))
     body.append(shareLinkCard(service, playlist, tracks))

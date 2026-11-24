@@ -746,6 +746,7 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `POST /api/v1/syncs/{sync}/disable` | Turn a sync's schedule off (both halves of a two-way pair). |
 | `POST /api/v1/syncs/{sync}/move` | Move a sync in the list: a position from 1, or up, down, top, bottom. |
 | `GET /api/v1/syncs/{sync}/preview` | What a run would do now, without changing anything. |
+| `GET /api/v1/syncs/{sync}/why` | Why a track was not matched (`?track=<id from the last run's not found>` or `?q=Artist - Title`): the closest candidates with their score, the threshold and the parts of the score. |
 | `GET /api/v1/syncs/{sync}/decisions` | The review's choices between the sync's two services (ignored, matched by hand, kept), each with when it was made. |
 | `POST /api/v1/syncs/{sync}/decisions` | Bring in review choices made elsewhere: `{"decisions": [{"source": "<id>", "kind": "ignore" \| "match" \| "keep", "track": "<id>", "at": 1731234567890}]}`; the newest choice of each track wins, and the answer lists them all. |
 | `GET /api/v1/syncs/crowded` | Whether many syncs reach one service at about the same time: the service, the time, the syncs, `dismissed` (the page's *Got it*) and `canSpread`. |
@@ -790,6 +791,7 @@ multi sync whole.
 | Call | What it does |
 |---|---|
 | `GET /api/v1/services` | The services added, and whether each is connected; each account apart (`id` `jellyfin@2`, with `serviceId` and `slot`). `web` marks the unofficial ones; `q=` finds them by name or account, `kind=` `official`, `web` or `connected` narrows the list. |
+| `GET /api/v1/catalog` | Every service the server can add, with its category and other names ("Navidrome" finds Subsonic); `q` searches, `category` narrows (`streaming`, `server`, `radio`, `listening`, `regional`, `files`…). |
 | `GET /api/v1/services/{service}` | One service: connected, account, and what it can do. YouTube (official API) adds `quota`: the day's `units` and `searches` this Trackhop used, of `unitsDaily` and `searchesDaily`. |
 | `POST /api/v1/services/{service}/test` | Test the connection: three calls, one after the other (who is signed in, the playlist list, one search), each with `ok` and what the service answered (`detail`). Read only. |
 | `GET /api/v1/services/{service}/search` | Look for a track: q is "Artist - Title" or a link. |
@@ -799,6 +801,14 @@ multi sync whole.
 | `GET /api/v1/services/{service}/playlists/{playlist}/link` | The playlist as universal links (`trackhop.org/open`), which open it on any service; a long playlist takes several (`url`, `part`, `parts`, `first`, `last`, `songs`, `total`); `qr` is the link as an SVG QR code where it is short enough for one. |
 | `PUT /api/v1/services/{service}/playlists/{playlist}/cover` | Put a cover on a playlist of yours, where the service takes one (`canSetCover` in `GET /api/v1/services/{service}`): a drawn one (`{"variant": 0}`: from its title and artists, no AI; another number, another cover) or an image of yours as the body (`Content-Type: image/jpeg` or `image/png`). |
 | `POST /api/v1/services/{service}/twins` | Keep one copy and delete the others, each saved in Files first: `{"group", "keep": "<playlist id>", "addMissing"?: true}`. A copy a sync uses is never deleted. |
+| `GET /api/v1/services/{service}/channels` | YouTube Music (web): the profiles the account can act as (its own channel, brand accounts), each with `playlists` and `likedSongs` (`library=false` skips those reads), `current`, and `suggested`: the profile your music seems to be on when the one in use is empty. |
+| `POST /api/v1/services/{service}/channels` | YouTube Music (web): read and write as this profile from now on: `{"id": "<profile id>"}`, `""` for the account's own channel. |
+| `PUT /api/v1/services/{service}/address` | A personal server's second address, for away from home: `{"away": "https://…"}`, or `null` to take it away. |
+| `GET /api/v1/plex/{account}/search` | Plex: songs of the library by title (`?q=`), to pick one for the calls below. |
+| `GET /api/v1/plex/{account}/sounds-like` | Plex: songs that sound like one (`?track=`), from the server's sonic analysis (Plex Pass). |
+| `GET /api/v1/plex/{account}/sonic-adventure` | Plex: a journey from one song to another through songs that sound alike (`?from=&to=`). |
+| `GET /api/v1/plex/{account}/home-users` | Plex: the users the server is shared with (Plex Home), for a copy. |
+| `POST /api/v1/plex/{account}/playlists/{playlist}/copy` | Copy a Plex playlist into a user's library on the same server: `{"user": "<id>"}`. |
 | `GET /api/v1/convert` | A track on another service: track is "Artist - Title" or a link, to the service's id. |
 | `POST /api/v1/convert` | Several tracks on another service. |
 | `POST /api/v1/tracks/link` | A song's link from any service, on one of yours: `{"link", "service", "playlist"?, "choice"?}`. Answers `source` (the song the link is about), `exact` (the same recording there, where song.link knows it), `candidates` (with their `score` in %) and `best`; with `playlist` (one of yours) the best, or `choice` (a candidate's id), is added: `added`. |
@@ -872,7 +882,7 @@ also reads the tour dates on Spotify's artist pages when you have **Spotify (web
 | `POST /api/v1/services/{service}/playlists/{playlist}/tracks/remove` | Remove tracks (for tools that cannot send a body with DELETE). |
 | `GET /api/v1/services/{service}/playlists/{playlist}/duplicates` | The tracks a playlist holds more than once. |
 | `POST /api/v1/services/{service}/playlists/{playlist}/duplicates/remove` | Remove the extra copies (a background task). |
-| `GET /api/v1/services/{service}/playlists/{playlist}/export` | A playlist as a file: csv, m3u, xspf, jspf, wpl, zpl or txt. |
+| `GET /api/v1/services/{service}/playlists/{playlist}/export` | A playlist as a file: csv, m3u, xspf, jspf, wpl, zpl, txt or json (Soundiiz). |
 
 **Files**
 
@@ -880,7 +890,7 @@ also reads the tour dates on Spotify's artist pages when you have **Spotify (web
 |---|---|
 | `GET /api/v1/files` | The File playlists. |
 | `POST /api/v1/files/text` | A playlist pasted as text saved as a File playlist: `{"name"?, "text": "Artist - Title\nArtist - Title"}` (numbers in front and your own name patterns are understood). Answers the file's `name` and its `tracks`. |
-| `GET /api/v1/files/{file}` | A File playlist, in a format: csv, m3u, xspf, jspf, wpl, zpl or txt. |
+| `GET /api/v1/files/{file}` | A File playlist, in a format: csv, m3u, xspf, jspf, wpl, zpl, txt or json (Soundiiz). |
 | `PUT /api/v1/files/{file}` | Bring in a playlist file (CSV, M3U, PLS, XSPF, JSPF, WPL/ZPL, iTunes XML, rekordbox XML, JSON, text) as the body, of any size: it is read a piece at a time. From an Apple Music/iTunes library or a rekordbox collection each of your playlists becomes a file; `?playlists=A,B` picks them by name, `?whole=true` adds the library as one file. |
 | `POST /api/v1/files/{file}` | The same as PUT, for tools that only POST. |
 | `DELETE /api/v1/files/{file}` | Delete a File playlist. |

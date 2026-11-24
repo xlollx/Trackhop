@@ -179,6 +179,8 @@ object LocalFilesProvider : MusicProvider {
         WPL("application/vnd.ms-wpl", "wpl"),
         ZPL("application/vnd.ms-wpl", "zpl"),
         TXT("text/plain", "txt"),
+        /** A JSON list Soundiiz imports (2.2). */
+        SOUNDIIZ("application/json", "json"),
         /** Podcast subscriptions, for AntennaPod, Pocket Casts, Podcast Addict: only for followed podcasts (see [forShows]). */
         OPML("text/x-opml", "opml"),
         ;
@@ -192,6 +194,7 @@ object LocalFilesProvider : MusicProvider {
             WPL -> PlaylistFiles.toWpl(name, tracks)
             ZPL -> PlaylistFiles.toWpl(name, tracks, zune = true)
             TXT -> PlaylistFiles.toText(tracks)
+            SOUNDIIZ -> PlaylistFiles.toSoundiizJson(tracks)
             OPML -> PlaylistFiles.toOpml(name, tracks)
         }
 

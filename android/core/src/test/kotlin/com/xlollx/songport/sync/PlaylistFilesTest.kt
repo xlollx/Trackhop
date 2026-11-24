@@ -341,4 +341,23 @@ class PlaylistFilesTest {
         assertEquals(emptyList<String>(), PlaylistFiles.fromPath("Music/Some Album/Title.mp3").artists)
         assertEquals("1989", PlaylistFiles.fromPath("Music/Taylor Swift/1989/Style.mp3").album)
     }
+
+    /** 2.2: the JSON list Soundiiz imports, read back by Trackhop too. */
+    @Test fun soundiizJsonRoundTrip() {
+        val tracks = listOf(
+            Track("1", "One \"Quoted\"", listOf("A", "B"), album = "Al", durationMs = 245_000, isrc = "usrc17607839", addedAt = 1_700_000_000_000L),
+            Track("2", "Two", listOf("C")),
+        )
+        val text = PlaylistFiles.toSoundiizJson(tracks)
+        val arr = kotlinx.serialization.json.Json.parseToJsonElement(text) as kotlinx.serialization.json.JsonArray
+        val first = arr[0] as kotlinx.serialization.json.JsonObject
+        assertEquals("\"track\"", first["type"].toString())
+        assertEquals("\"245\"", first["duration"].toString())
+        assertEquals("\"USRC17607839\"", first["isrc"].toString())
+        assertEquals("1700000000", first["addedDate"].toString())
+        assertEquals("null", (arr[1] as kotlinx.serialization.json.JsonObject)["addedDate"].toString())
+        val back = PlaylistFiles.parse("x.json", text)
+        assertEquals(listOf("One \"Quoted\"", "Two"), back.map { it.title })
+        assertEquals(listOf("A", "B"), back[0].artists)
+    }
 }

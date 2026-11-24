@@ -274,6 +274,27 @@ internal fun Web.apiSyncs(ex: HttpExchange, method: String, rest: List<String>, 
                     val now = env.store.job(job.id) ?: job
                     json(200, buildJsonObject { put("syncId", job.id); put("decisions", ReviewDecisions.toJson(ReviewDecisions.ofSync(env.store.data, now))) })
                 }
+                // "Why wasn't it matched?" (2.2): ?track=<id of a track not found in the last run> or ?q=Artist - Title.
+                rest[2] == "why" && method == "GET" -> {
+                    val source = query["track"]?.let { id ->
+                        env.store.data.reports.filter { it.jobId == job.id }.maxByOrNull { it.startedEpoch }?.unmatchedTracks?.firstOrNull { it.id == id }
+                            ?: return true.also { error(404, "No track with that id among the last run's not found.") }
+                    } ?: query["q"]?.trim()?.takeIf { it.isNotEmpty() }?.let { q ->
+                        val (artists, title) = com.xlollx.songport.sync.PlaylistFiles.splitArtistTitle(q)
+                        Track(id = "", title = title, artists = artists)
+                    } ?: return true.also { error(400, "Say which track: ?track=<id from the last run's not found> or ?q=Artist - Title.") }
+                    val rows = runCatching { runBlocking { whyRows(job, source) } }.getOrElse { e -> return true.also { error(502, e.message ?: e.javaClass.simpleName) } }
+                    json(200, buildJsonObject {
+                        put("source", trackRef(source))
+                        put("threshold", job.policy.acceptThreshold)
+                        put("candidates", JsonArray(rows.map { e -> buildJsonObject {
+                            put("track", trackRef(e.track)); put("score", e.score); put("matched", e.matched)
+                            put("title", e.title); put("artist", e.artist?.let { JsonPrimitive(it) } ?: JsonNull)
+                            put("length", e.length); put("lengthDiffMs", e.lengthDiffMs); put("version", e.version); put("album", e.album)
+                            put("reasons", JsonArray(e.reasons.map { JsonPrimitive(it.name.lowercase()) }))
+                        } }))
+                    })
+                }
                 rest[2] == "preview" && method == "GET" -> preview(job, json, error)
                 rest[2] == "runs" && method == "GET" -> runsPage(job.id, query, json, error)
                 else -> return false

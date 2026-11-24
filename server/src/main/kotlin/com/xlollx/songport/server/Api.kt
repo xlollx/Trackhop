@@ -361,6 +361,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
     // The app's features brought here in 2.2 (ApiParity.kt).
     if (apiParity(ex, method, rest, query, ::json, ::error)) return
     if (apiMore(ex, method, rest, query, ::json, ::error)) return
+    if (apiPlex(ex, method, rest, query, ::json, ::error)) return
     if (apiWanted(ex, method, rest, query, ::json, ::error)) return
     if (apiConcerts(method, rest, query, ::json, ::error)) return
     if (apiSetlists(method, rest, query, ::json, ::error)) return
@@ -499,6 +500,8 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
             json(200, Api.run(report))
         }
         rest.size >= 3 && rest[0] == "services" -> ApiPlaylists.handle(this, ex, method, rest, ::json, ::error)
+        // "Which service?": every service this server offers, with its category and other names; ?q= searches, ?category= narrows.
+        rest == listOf("catalog") && method == "GET" -> json(200, catalogJson(env, query["q"], query["category"]))
         rest == listOf("services") && method == "GET" -> {
             // The Services page's search and chips: q= words, kind= all, official, web or connected.
             val chip = ServicesFilter.chip(query["kind"]) ?: return error(400, "\"kind\" is all, official, web or connected.")

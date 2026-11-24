@@ -38,16 +38,36 @@ import kotlin.system.exitProcess
  * set up; any other server with --url and --token (or TRACKHOP_URL and TRACKHOP_TOKEN), the token
  * made on its page, Tools › API. Plain text for people (ASCII arrows and signs: Windows consoles
  * often lack the others), --json for scripts. Exit codes: 0 done,
- * 1 failed (a sync that ended with an error, a call refused), 2 wrong use, 3 no Trackhop reached.
+ * 1 failed (a sync that ended with an error, a call refused), 2 wrong use, 3 no Trackhop reached,
+ * 4 partly done (run --wait: some syncs ended well and others failed, or removals were held back).
  */
 object Cli {
     class Failure(val code: Int, message: String) : Exception(message)
+
+    /** Some of what was asked was done, not all of it ([runExit]). 2 already says "wrong use", so scripts keep their meaning. */
+    const val PARTIAL = 4
+
+    /**
+     * The exit code of `run --wait` from the syncs' last results: 0 when every one ended well with
+     * nothing held back, 1 when none did, [PARTIAL] in between (some failed, or a run held back its
+     * removals for a look first). Tracks not found do not count: most playlists have a few.
+     */
+    fun runExit(results: List<JsonObject?>): Int {
+        val ok = results.count { it?.get("ok")?.let { v -> (v as? kotlinx.serialization.json.JsonPrimitive)?.content == "true" } == true }
+        val held = results.any { r -> (r?.get("heldRemovals") as? kotlinx.serialization.json.JsonPrimitive)?.content?.toIntOrNull()?.let { it > 0 } == true }
+        return when {
+            results.isEmpty() -> 0
+            ok == results.size && !held -> 0
+            ok == 0 -> 1
+            else -> PARTIAL
+        }
+    }
 
     /** One command, for `help`, `help <command>` and the shell completions: its words and what it does. */
     class Cmd(val name: String, val group: String, val usage: List<String>, val summary: String, val more: String = "", val subs: List<String> = emptyList())
 
     /** Every command: these, and the next release's (Features.v2, CliV2.kt). */
-    val COMMANDS: List<Cmd> get() = BASE_COMMANDS.filter { Features.v2 || it.name !in Features.V2_TOOLS } + CliV2.commands + CliParity.commands
+    val COMMANDS: List<Cmd> get() = BASE_COMMANDS.filter { Features.v2 || it.name !in Features.V2_TOOLS } + CliConn.commands + CliV2.commands + CliParity.commands
 
     private val BASE_COMMANDS = listOf(
         Cmd("syncs", "Syncs", listOf("syncs [--tag KEY=VALUE] [--label NAME] [--favorite]", "list [...]"), "list the syncs, with their last result",
@@ -88,7 +108,9 @@ object Cli {
             listOf("ignore", "keep", "discard", "pick", "replace", "restore")),
         Cmd("services", "Services and playlists", listOf("services [<words>] [--kind official|web|connected]"), "the services and whether they are connected",
             "<words> finds a service by its name or the account it is connected as; --kind keeps the official ones, the unofficial (web) ones or the connected ones."),
+        Cmd("catalog", "Services and playlists", listOf("catalog [<words>] [--category streaming|server|radio|listening|regional|files]"), "every service that can be added, by category; words also match other names (Navidrome finds Subsonic)"),
         Cmd("playlists", "Services and playlists", listOf("playlists <service>"), "a service's playlists"),
+        Cmd("profiles", "Services and playlists", listOf("profiles <service> [<profile>]"), "YouTube Music (web): the profiles (own channel, brand accounts) with their music, or read and write as one from now on"),
         Cmd("tracks", "Services and playlists", listOf("tracks <service> <playlist>"), "a playlist's tracks"),
         Cmd("add", "Services and playlists", listOf("add <service> <playlist> <track>..."), "add tracks: \"Artist - Title\", a link from any service, or an id"),
         Cmd("remove", "Services and playlists", listOf("remove <service> <playlist> <track>..."), "remove tracks, named the same way"),
@@ -117,7 +139,7 @@ object Cli {
             "What your syncs to your own server could not find, without doubles. --format prints the list as a file (to save with > file);\n" +
                 "lidarr is Lidarr's Custom List (artists with a known MusicBrainz id). --albums groups by album, --all shows the ticked ones too,\n" +
                 "--sync and --service narrow it (a sync's name or id; a source or target service), --since 7d, 24h or 2026-11-01 only the newer ones."),
-        Cmd("export", "Services and playlists", listOf("export <service> <playlist> [<file>] [--format csv|m3u|xspf|jspf|wpl|zpl|txt|opml]"), "a playlist as a file (to stdout without <file>)"),
+        Cmd("export", "Services and playlists", listOf("export <service> <playlist> [<file>] [--format csv|m3u|xspf|jspf|wpl|zpl|txt|json|opml]"), "a playlist as a file (to stdout without <file>)"),
         Cmd("files", "Files and backups", listOf(
             "files",
             "files get <name> [<file>] [--format F]",
@@ -165,7 +187,7 @@ object Cli {
 
     /** The switches with no value, and the options that take one (--name NAME or --name=NAME). */
     private val FLAGS = setOf("json", "wait", "all", "albums", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals", "apply", "names", "upcoming", "encrypted", "replaces-device", "replace-sign-ins", "same-album", "any-album", "studio-only", "any-version", "keep-order", "no-keep-order") + CliParity.flags
-    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency", "playlists", "way", "strictness", "explicit", "kind") + CliV2.valued + CliParity.valued
+    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency", "playlists", "way", "strictness", "explicit", "kind", "category") + CliV2.valued + CliConn.valued + CliParity.valued
     val OPTIONS: List<String> get() = (FLAGS + VALUED).sorted().map { "--$it" }
 
     /** The options a command was given: switches and values (a value given twice is a list: --set). */

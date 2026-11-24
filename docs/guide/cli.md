@@ -66,6 +66,7 @@ Without it, the admin's.
 | `trackhop multi remove-target <multi> <target>` | Removes a target (its service, or its id from `show`); its playlist stays as it is. |
 | `trackhop multi way <multi> <target> exact\|keep\|two_way` | Changes how a target follows. |
 | `trackhop preview <sync>` | What a run would add, remove, not find and want checked now, changing nothing. |
+| `trackhop why <sync> "Artist - Title"` | Why a track was not matched: the closest candidates on the target, each with its score against the sync's threshold and the parts of it (title, artist, length, version, album). |
 
 The options of `new` and `edit`: `--name NAME`; `--schedule manual|hourly|every_6h|daily|weekly` or
 `--every MINUTES`; `--at 07:30`; `--days mon,fri` (or `1,5`); `--changes add|mirror|archive` (only
@@ -112,6 +113,8 @@ this server or the same sync on both, and the app's reach here: see
 | Command | What it does |
 |---|---|
 | `trackhop services` | The services you added, and whether they are connected. |
+| `trackhop catalog [words] [--category regional]` | Every service you can add, with its category; words also match other names (`trackhop catalog navidrome` finds Subsonic). |
+| `trackhop address <service> [<url> \| none]` | A personal server's second address, for away from home: tried when the first one does not answer, the one that worked last first. Without `<url>` it shows both. |
 | `trackhop playlists <service>` | A service's playlists, with their ids. |
 | `trackhop tracks <service> <playlist>` | A playlist's tracks. |
 | `trackhop add <service> <playlist> <track>…` | Adds tracks. A track is `"Artist - Title"` (searched and matched as a sync does), a link from any service, or its id on that service. Tracks already there are not added again. |
@@ -121,13 +124,14 @@ this server or the same sync on both, and the app's reach here: see
 | `trackhop convert <service> <track>…` | The same tracks on another service: their ids there, and how sure each match is. |
 | `trackhop duplicates <service> <playlist>` | The tracks a playlist has more than once; `--remove` takes the extra copies out (`--wait` to wait for the end). |
 | `trackhop nolyrics [<service>]` | The songs on your Navidrome, Jellyfin, Emby, Plex or Lyrion server without lyrics. Nothing is changed; to add lyrics from LRCLIB, use Tools › Synced lyrics on the page. |
+| `trackhop plex sounds-like "<song>"`, `plex adventure "<from>" "<to>"`, `plex users`, `plex copy "<playlist>" --to <user>` | Plex: songs that sound like one, a sonic adventure from one song to another (both need a Plex Pass server that analysed its music), the users the server is shared with, and a playlist copied into one's library. `--service plex@2` picks another Plex account. |
 | `trackhop mbtags [<service>]` | The songs on your Navidrome, Jellyfin, Emby or Plex server without MusicBrainz tags (with them a sync finds the exact recording). Nothing is changed; `<service>` can be left out when only one such server is connected. |
 | `trackhop releases <service> <playlist> [--days 7\|30\|90] [--upcoming]` | The new albums, EPs and singles of a playlist's artists (Deezer and MusicBrainz, no account), with the date and a link: released in the last 30 days, or `--days 7` / `90`; `--upcoming` adds what is announced. A first search takes about a second per artist. |
 | `trackhop wanted [--format json\|csv\|m3u\|text\|lidarr] [--albums] [--all] [--sync S] [--service S] [--since 7d]` | The tracks of your playlists missing on your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy), each once, with the syncs that miss them. `--format` prints it as a file (`> list.csv`), `lidarr` as Lidarr's Custom List; `--albums` groups by album, `--all` shows the ticked ones too; `--sync`, `--service` and `--since` (`24h`, `7d`, `2026-11-01`) narrow it. |
 | `trackhop setlists <service> <playlist>` | The latest setlist.fm setlists of a playlist's artists (date, venue, city, number of songs, link); `--json` adds the songs (encores, tapes, covers) and each setlist's tracks, ready to add to a playlist. Asked only now, cached a week. Needs a setlist.fm key: Settings › setlist.fm key, or `SETLISTFM_API_KEY`. |
 | `trackhop concerts <service> <playlist> [--country IT]` | The upcoming concerts of a playlist's artists in a country (date, city, venue, link), from Ticketmaster and MusicBrainz; the artists without dates are named (`--json` for their search links). Asked only now, cached a day. Ticketmaster needs a key: Settings › Ticketmaster key, or `TICKETMASTER_API_KEY`. |
 | `trackhop records <service> <playlist> [--currency EUR]` | The records (CD, vinyl, cassette) of a playlist's artists from Discogs, and their official site, shop and Bandcamp from MusicBrainz (`--json` for the shop searches too). With the server's Discogs token (Settings › Discogs token), the copies for sale and the lowest price. Plain links; Discogs kept six hours, the links a week. |
-| `trackhop export <service> <playlist> [<file>]` | A playlist as a file: `--format csv`, `m3u`, `xspf`, `jspf`, `wpl`, `zpl` or `txt` (or from the file's extension); to the screen without `<file>`. |
+| `trackhop export <service> <playlist> [<file>]` | A playlist as a file: `--format csv`, `m3u`, `xspf`, `jspf`, `wpl`, `zpl`, `txt` or `json` (for Soundiiz) (or from the file's extension); to the screen without `<file>`. |
 
 A `<service>` is its name or id (`spotify`, `tidal`, `subsonic`, `csv` for File…, as `trackhop services`
 shows); a `<playlist>` its name or id.
@@ -196,7 +200,8 @@ shows); a `<playlist>` its name or id.
 - Options take their value after a space or an `=` (`--every=180`); after `--`, every word is a
   word, even one that starts with dashes.
 - The exit code: `0` done, `1` failed (a sync that ended with an error, a call refused, a sync or
-  playlist not found), `2` wrong use, `3` no Trackhop reached.
+  playlist not found), `2` wrong use, `3` no Trackhop reached, `4` partly done (`run --wait`: some syncs ended well and
+  others failed, or a run held its removals back for you to see first).
 
 ```
 # Every night at 3, in cron: run everything and keep a log.
