@@ -3400,4 +3400,15 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="other">已忘记 %1$d 项：下次同步会重新查找。</item>
     </plurals>
+    <string name="deezer_profile">Deezer 个人资料</string>
+    <string name="deezer_profile_title">选择哪个个人资料？</string>
+    <string name="deezer_profile_hint">这个 Deezer 账号是 Family 套餐。Trackhop 会读写你所选个人资料的歌单和收藏。之后可在账号的 ⋮ 菜单中更改。</string>
+    <string name="deezer_profile_holder">账号持有人</string>
+    <string name="deezer_profile_later">以后再说</string>
+    <string name="deezer_profile_use">使用此个人资料</string>
+    <string name="deezer_profile_failed">Deezer 没有切换到此个人资料：仍使用之前的个人资料。请稍后再试。</string>
+    <string name="deezer_profile_as">%1$s · Family 个人资料</string>
+    <string name="deezer_why_title">为什么没有 Deezer？</string>
+    <string name="deezer_why_official_title">为什么没有官方 Deezer？</string>
+    <string name="deezer_why_body">Deezer 不再接受使用其 API 的新应用：目前我们无法在这里提供。</string>
 </resources>

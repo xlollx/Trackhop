@@ -3400,4 +3400,15 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="other">%1$d 件を忘れました。次の同期でもう一度検索します。</item>
     </plurals>
+    <string name="deezer_profile">Deezer のプロフィール</string>
+    <string name="deezer_profile_title">どのプロフィール？</string>
+    <string name="deezer_profile_hint">この Deezer アカウントは Family プランです。Trackhop は選んだプロフィールのプレイリストとお気に入りを読み書きします。あとでアカウントの ⋮ メニューから変更できます。</string>
+    <string name="deezer_profile_holder">アカウント所有者</string>
+    <string name="deezer_profile_later">あとで</string>
+    <string name="deezer_profile_use">このプロフィールを使う</string>
+    <string name="deezer_profile_failed">Deezer がこのプロフィールに切り替わりませんでした。前のプロフィールのままです。あとでもう一度お試しください。</string>
+    <string name="deezer_profile_as">%1$s · Family プロフィール</string>
+    <string name="deezer_why_title">Deezer がないのはなぜ？</string>
+    <string name="deezer_why_official_title">公式の Deezer がないのはなぜ？</string>
+    <string name="deezer_why_body">Deezer は API を使う新しいアプリを受け付けなくなりました。そのため、今はここで提供できません。</string>
 </resources>

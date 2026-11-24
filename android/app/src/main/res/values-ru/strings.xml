@@ -3751,4 +3751,15 @@
         <item quantity="many">Забыто: %1$d. Следующая синхронизация поищет снова.</item>
         <item quantity="other">Забыто: %1$d. Следующая синхронизация поищет снова.</item>
     </plurals>
+    <string name="deezer_profile">Профиль Deezer</string>
+    <string name="deezer_profile_title">Какой профиль?</string>
+    <string name="deezer_profile_hint">Этот аккаунт Deezer — тариф Family. Trackhop читает и записывает плейлисты и избранное выбранного профиля. Изменить его можно позже в меню ⋮ аккаунта.</string>
+    <string name="deezer_profile_holder">Владелец аккаунта</string>
+    <string name="deezer_profile_later">Позже</string>
+    <string name="deezer_profile_use">Использовать этот профиль</string>
+    <string name="deezer_profile_failed">Deezer не переключился на этот профиль: остаётся прежний. Попробуйте позже.</string>
+    <string name="deezer_profile_as">%1$s · профиль Family</string>
+    <string name="deezer_why_title">Почему нет Deezer?</string>
+    <string name="deezer_why_official_title">Почему нет официального Deezer?</string>
+    <string name="deezer_why_body">Deezer больше не принимает новые приложения, использующие его API: пока мы не можем предложить его здесь.</string>
 </resources>

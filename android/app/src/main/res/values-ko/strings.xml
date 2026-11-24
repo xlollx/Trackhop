@@ -3399,4 +3399,15 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="other">%1$d개를 잊었어요. 다음 동기화에서 다시 검색합니다.</item>
     </plurals>
+    <string name="deezer_profile">Deezer 프로필</string>
+    <string name="deezer_profile_title">어떤 프로필인가요?</string>
+    <string name="deezer_profile_hint">이 Deezer 계정은 Family 요금제입니다. Trackhop은 선택한 프로필의 플레이리스트와 즐겨찾기를 읽고 씁니다. 나중에 계정의 ⋮ 메뉴에서 바꿀 수 있습니다.</string>
+    <string name="deezer_profile_holder">계정 소유자</string>
+    <string name="deezer_profile_later">나중에</string>
+    <string name="deezer_profile_use">이 프로필 사용</string>
+    <string name="deezer_profile_failed">Deezer가 이 프로필로 전환하지 않았습니다. 이전 프로필이 유지됩니다. 나중에 다시 시도하세요.</string>
+    <string name="deezer_profile_as">%1$s · Family 프로필</string>
+    <string name="deezer_why_title">Deezer가 없는 이유는?</string>
+    <string name="deezer_why_official_title">공식 Deezer가 없는 이유는?</string>
+    <string name="deezer_why_body">Deezer가 더 이상 API를 사용하는 새 앱을 받지 않습니다. 그래서 지금은 여기서 제공할 수 없습니다.</string>
 </resources>

@@ -64,6 +64,14 @@ class DeezerProvider(override val slot: String = "") : OAuthProvider() {
 
     override fun isConfigured(ctx: Env) = clientId(ctx).isNotBlank() && redirectUri(ctx).startsWith("https://")
 
+    /**
+     * Whether this route is offered to add: Deezer no longer accepts new apps that use its API, so
+     * only with an app id (the build's, or one the user saved) or for an account already added
+     * through it. Those keep it as it was; new users are told why it is missing.
+     */
+    fun offered(ctx: Env): Boolean = clientId(ctx).isNotBlank() ||
+        ctx.store.data.settings.connectors.any { it == SERVICE || it.startsWith("$SERVICE@") }
+
     override fun authUrl(ctx: Env, state: String, codeChallenge: String): String =
         authorizeEndpoint + "?" + Http.query(
             mapOf(

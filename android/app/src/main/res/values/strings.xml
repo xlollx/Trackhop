@@ -3519,4 +3519,15 @@
         <item quantity="one">%1$d forgotten: the next sync searches it again.</item>
         <item quantity="other">%1$d forgotten: the next sync searches them again.</item>
     </plurals>
+    <string name="deezer_profile">Deezer profile</string>
+    <string name="deezer_profile_title">Which profile?</string>
+    <string name="deezer_profile_hint">This Deezer account is a Family plan. Trackhop reads and writes the playlists and favourites of the profile you choose. You can change it later from the account\'s ⋮ menu.</string>
+    <string name="deezer_profile_holder">Account holder</string>
+    <string name="deezer_profile_later">Later</string>
+    <string name="deezer_profile_use">Use this profile</string>
+    <string name="deezer_profile_failed">Deezer did not switch to this profile: the profile used before stays. Try again later.</string>
+    <string name="deezer_profile_as">%1$s · Family profile</string>
+    <string name="deezer_why_title">Why no Deezer?</string>
+    <string name="deezer_why_official_title">Why no official Deezer?</string>
+    <string name="deezer_why_body">Deezer no longer accepts new apps that use its API: for now we can\'t offer it here.</string>
 </resources>

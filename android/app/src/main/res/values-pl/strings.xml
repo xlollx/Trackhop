@@ -3753,4 +3753,15 @@
         <item quantity="many">Zapomniano: %1$d. Następna synchronizacja wyszuka ponownie.</item>
         <item quantity="other">Zapomniano: %1$d. Następna synchronizacja wyszuka ponownie.</item>
     </plurals>
+    <string name="deezer_profile">Profil Deezer</string>
+    <string name="deezer_profile_title">Który profil?</string>
+    <string name="deezer_profile_hint">To konto Deezer to plan Family. Trackhop czyta i zapisuje playlisty i ulubione wybranego profilu. Możesz go później zmienić w menu ⋮ konta.</string>
+    <string name="deezer_profile_holder">Właściciel konta</string>
+    <string name="deezer_profile_later">Później</string>
+    <string name="deezer_profile_use">Użyj tego profilu</string>
+    <string name="deezer_profile_failed">Deezer nie przełączył się na ten profil: zostaje poprzedni. Spróbuj później.</string>
+    <string name="deezer_profile_as">%1$s · profil Family</string>
+    <string name="deezer_why_title">Dlaczego nie ma Deezera?</string>
+    <string name="deezer_why_official_title">Dlaczego nie ma oficjalnego Deezera?</string>
+    <string name="deezer_why_body">Deezer nie przyjmuje już nowych aplikacji korzystających z jego API: na razie nie możemy go tu zaoferować.</string>
 </resources>
