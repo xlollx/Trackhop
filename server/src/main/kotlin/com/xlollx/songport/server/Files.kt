@@ -23,6 +23,7 @@ internal enum class ExportFormat(val label: String, val ext: String, val mime: S
     WPL("WPL (Windows Media Player)", "wpl", "application/vnd.ms-wpl"),
     ZPL("ZPL (Zune)", "zpl", "application/vnd.ms-wpl"),
     TEXT("Text", "txt", "text/plain"),
+    SOUNDIIZ("JSON (Soundiiz)", "json", "application/json"),
     OPML("OPML (podcasts)", "opml", "text/x-opml"),
     ;
 
@@ -34,6 +35,7 @@ internal enum class ExportFormat(val label: String, val ext: String, val mime: S
         WPL -> PlaylistFiles.toWpl(name, tracks)
         ZPL -> PlaylistFiles.toWpl(name, tracks, zune = true)
         TEXT -> PlaylistFiles.toText(tracks)
+        SOUNDIIZ -> PlaylistFiles.toSoundiizJson(tracks)
         OPML -> PlaylistFiles.toOpml(name, tracks)
     }
 

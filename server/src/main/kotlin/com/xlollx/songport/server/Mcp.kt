@@ -262,7 +262,7 @@ object Mcp {
             listOf(SERVICE, PLAYLIST, WAIT), readOnly = false, destructive = true) { a ->
             Call("duplicates", listOf(a.text("service"), a.text("playlist")), wait = a.flag("wait"), flags = setOf("remove"))
         },
-        Tool("export_playlist", "Export a playlist", "A playlist as a file's text: csv, m3u, xspf, jspf, wpl, zpl or txt (opml for followed podcasts).",
+        Tool("export_playlist", "Export a playlist", "A playlist as a file's text: csv, m3u, xspf, jspf, wpl, zpl, txt or json for Soundiiz (opml for followed podcasts).",
             listOf(SERVICE, PLAYLIST, Param("format", "string", "csv (default), m3u, xspf, jspf, txt, or opml for followed podcasts.", required = false)), readOnly = true) { a ->
             Call("export", listOf(a.text("service"), a.text("playlist")), values = a.values("format"))
         },
