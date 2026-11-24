@@ -96,6 +96,23 @@ private fun changed(job: SyncJob, b: JsonObject): SyncJob {
     return job.copy(mirrorRemovals = mode == "mirror", followsChanges = mode == "mirror" && (follows ?: job.followsChanges), archive = mode == "archive")
 }
 
+/**
+ * [job] with the matching rules in [b]'s "matching" object, the ones it names: "strictness" (loose,
+ * normal, strict), "explicit" (either, explicit, clean), "sameAlbum", "studioOnly" and
+ * "artistNamesCanDiffer" (#81: the same title, length and album is enough when the artists' names differ).
+ */
+private fun matched(job: SyncJob, b: JsonObject): SyncJob {
+    val m = b["matching"] ?: return job
+    if (m !is JsonObject) throw IllegalArgumentException("\"matching\" is an object: {\"strictness\": \"normal\", \"artistNamesCanDiffer\": true}.")
+    var p = job.policy
+    m.text("strictness")?.let { v -> p = p.copy(strictness = Api.STRICTNESS.entries.firstOrNull { it.value == v.lowercase() }?.key ?: throw IllegalArgumentException("\"strictness\" is loose, normal or strict.")) }
+    m.text("explicit")?.let { v -> p = p.copy(explicit = Api.EXPLICIT.entries.firstOrNull { it.value == v.lowercase() }?.key ?: throw IllegalArgumentException("\"explicit\" is either, explicit or clean.")) }
+    m.flag("sameAlbum")?.let { p = p.copy(sameAlbum = it) }
+    m.flag("studioOnly")?.let { p = p.copy(studioOnly = it) }
+    m.flag("artistNamesCanDiffer")?.let { p = p.copy(artistsMayDiffer = it) }
+    return job.copy(policy = p)
+}
+
 /** [job] with "copyRatings" (true/false) from [b], when it says it. */
 private fun ratings(job: SyncJob, b: JsonObject): SyncJob = b.flag("copyRatings")?.let { job.copy(copyRatings = it) } ?: job
 
@@ -196,6 +213,7 @@ internal fun Web.apiSyncs(ex: HttpExchange, method: String, rest: List<String>, 
                 b.flag("enabled")?.let { j = j.copy(enabled = it) }
                 // A radio sync's source only grows and is timed by its window: its schedule and changes stay.
                 if (j.radio == null) j = ratings(changed(timed(j, b), b), b)
+                j = matched(j, b)
                 // Two-way made or unmade, and whether removals travel too (Pairs.kt); the other half follows below.
                 pairing(grouped(coloured(j, b), b, env.store.data.settings.labels), b.flag("twoWay"), b.flag("twoWayRemovals"))
             }.getOrElse { e -> return true.also { bad(e) } }
@@ -308,7 +326,7 @@ private fun Web.createSyncFromApi(b: JsonObject, json: (Int, JsonElement) -> Uni
     }.getOrElse { return if (it is IllegalArgumentException) error(400, it.message ?: "Wrong request.") else error(502, it.message ?: it.javaClass.simpleName) }
     val job = runCatching {
         val base = SyncJob(id = givenId ?: UUID.randomUUID().toString(), name = b.text("name") ?: chosen.third, source = chosen.first, target = chosen.second)
-        grouped(coloured(ratings(changed(timed(base, b), b), b), b), b, env.store.data.settings.labels).let { j -> b.flag("enabled")?.let { j.copy(enabled = it) } ?: j }
+        grouped(coloured(matched(ratings(changed(timed(base, b), b), b), b), b), b, env.store.data.settings.labels).let { j -> b.flag("enabled")?.let { j.copy(enabled = it) } ?: j }
             .let { j -> pairing(j, b.flag("twoWay"), b.flag("twoWayRemovals")) }
     }.getOrElse { return error(400, it.message ?: "Wrong request.") }
     val warning = conflictWarning(job)

@@ -535,6 +535,24 @@ class ApiCallsTest {
         assertEquals("3", Api.run(SyncReport("r", id, "Renamed", 0, 0, ratingsSet = 3), tracks = false).s("ratingsSet"))
     }
 
+    @Test fun theMatchingRulesAreTakenAndGivenBack() {
+        val made = call("POST", "syncs", """{"source":{"service":"csv","playlist":"In"},"target":{"service":"csv","playlist":"Out"},"matching":{"strictness":"strict","artistNamesCanDiffer":true}}""")
+        assertEquals(made.text, 201, made.code)
+        val id = made.obj.s("id")!!
+        val m = made.obj["matching"]!!.jsonObject
+        assertEquals("strict", m.s("strictness"))
+        assertEquals("either", m.s("explicit"))
+        assertEquals("true", m.s("artistNamesCanDiffer"))
+        assertEquals(com.xlollx.songport.model.MatchPolicy(strictness = 1, artistsMayDiffer = true), env.store.job(id)!!.policy)
+        // Named in part: the rest stays.
+        val edited = call("PATCH", "syncs/$id", """{"matching":{"explicit":"clean","sameAlbum":true,"artistNamesCanDiffer":false}}""")
+        assertEquals(edited.text, 200, edited.code)
+        assertEquals(com.xlollx.songport.model.MatchPolicy(strictness = 1, explicit = -1, sameAlbum = true), env.store.job(id)!!.policy)
+        assertEquals("clean", edited.obj["matching"]!!.jsonObject.s("explicit"))
+        assertEquals(400, call("PATCH", "syncs/$id", """{"matching":{"strictness":"very"}}""").code)
+        assertEquals(400, call("PATCH", "syncs/$id", """{"matching":true}""").code)
+    }
+
     @Test fun aSyncMadeWithItsOwnIdIsMadeOnceHoweverOftenAsked() {
         // The app's hand-over, sent again after its answer was lost: the sync made then, not a second one.
         val body = """{"id":"phone-0f5c-9a","source":{"service":"csv","playlist":"In"},"target":{"service":"csv"},"name":"Handed"}"""

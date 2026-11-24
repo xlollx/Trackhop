@@ -189,6 +189,7 @@ internal class CliCommands(
         out.println("  ${route(o)}")
         out.println("  schedule ${o.s("schedule")}${if (o.b("archive")) ", keeps every track (archive)" else if (o.b("mirrorRemovals")) ", mirrors removals" else ""}${pair(o)}${if (!o.b("enabled")) ", off" else ""}${if (o.b("running")) ", running now" else ""}")
         (o["radio"] as? JsonObject)?.let { out.println("  listens ${it.s("window")}") }
+        matchingLine(o).takeIf { it.isNotEmpty() }?.let { out.println("  matching: $it") }
         groups(o).takeIf { it.isNotEmpty() }?.let { out.println("  $it") }
         o.l("nextRun")?.let { out.println("  next run ${whenAt(it)}") }
         val runs = o["runs"]?.jsonArray.orEmpty()
@@ -471,6 +472,28 @@ internal class CliCommands(
         if (o.has("one-way")) put("twoWay", false)
         if (o.has("two-way-removals")) put("twoWayRemovals", true)
         if (o.has("no-two-way-removals")) put("twoWayRemovals", false)
+        // The matching rules: only the ones named.
+        val matching = buildJsonObject {
+            o.value("strictness")?.let { put("strictness", it) }
+            o.value("explicit")?.let { put("explicit", it) }
+            for ((flag, field) in listOf("same-album" to "sameAlbum", "studio-only" to "studioOnly", "artist-names-differ" to "artistNamesCanDiffer")) {
+                if (o.has(flag) && o.has("no-$flag")) throw Cli.Failure(2, "--$flag or --no-$flag, not both")
+                if (o.has(flag)) put(field, true)
+                if (o.has("no-$flag")) put(field, false)
+            }
+        }
+        if (matching.isNotEmpty()) put("matching", matching)
+    }
+
+    /** A sync's matching rules other than the defaults, in words ("strict, artist names can differ"); "" for the defaults. */
+    private fun matchingLine(o: JsonObject): String {
+        val m = o["matching"] as? JsonObject ?: return ""
+        return listOfNotNull(
+            m.s("strictness").takeIf { it.isNotEmpty() && it != "normal" },
+            when (m.s("explicit")) { "explicit" -> "prefers explicit"; "clean" -> "prefers clean"; else -> null },
+            "same album".takeIf { m.b("sameAlbum") }, "studio versions only".takeIf { m.b("studioOnly") },
+            "artist names can differ".takeIf { m.b("artistNamesCanDiffer") },
+        ).joinToString(", ")
     }
 
     /** [now] (a sync's tags as the API gives them) with --tag KEY=VALUE added or changed and --untag KEY taken off; null when neither is given. */
@@ -516,7 +539,7 @@ internal class CliCommands(
     private fun editSync(p: List<String>, o: Cli.Opts): Int {
         val target = sync(one(p, "edit <sync> [options]"))
         val body = buildJsonObject { syncFields(o); tagsField(o, target["tags"] as? JsonObject)?.let { put("tags", it) } }
-        if (body.isEmpty()) throw Cli.Failure(2, "say what to change: --name, --schedule or --every, --at, --days, --changes, --follows, --color, --label, --tag, --untag, --favorite, --two-way (trackhop help edit)")
+        if (body.isEmpty()) throw Cli.Failure(2, "say what to change: --name, --schedule or --every, --at, --days, --changes, --follows, --color, --label, --tag, --untag, --favorite, --two-way, --strictness, --artist-names-differ (trackhop help edit)")
         val r = api.send("PATCH", "syncs/${enc(target.s("id"))}", body).jsonObject
         if (asJson) return print(r).let { 0 }
         out.println("${r.s("name")}: ${route(r)}, ${r.s("timing")}${if (r.b("archive")) ", archive" else if (r.b("mirrorRemovals")) ", mirrors removals" else ""}${pair(r)}${groups(r).let { if (it.isEmpty()) "" else ", $it" }}")

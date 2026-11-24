@@ -100,6 +100,21 @@ class CliCommandsTest {
         assertEquals(2, cli("run").code)
     }
 
+    @Test fun theMatchingRulesFromTheCommandLine() {
+        val edited = cli("edit", "Road trip", "--strictness", "strict", "--artist-names-differ", "--studio-only")
+        assertEquals(edited.toString(), 0, edited.code)
+        assertEquals(com.xlollx.songport.model.MatchPolicy(strictness = 1, studioOnly = true, artistsMayDiffer = true), env.store.job("j1")!!.policy)
+        val shown = cli("show", "Road trip")
+        assertTrue(shown.out, shown.out.contains("matching: strict, studio versions only, artist names can differ"))
+        cli("edit", "Road trip", "--no-artist-names-differ", "--explicit", "clean")
+        assertEquals(com.xlollx.songport.model.MatchPolicy(strictness = 1, explicit = -1, studioOnly = true), env.store.job("j1")!!.policy)
+        assertEquals(2, cli("edit", "Road trip", "--same-album", "--no-same-album").code)
+        assertTrue(cli("edit", "Road trip", "--strictness", "very").code != 0)
+        // The defaults say nothing.
+        cli("edit", "Road trip", "--strictness", "normal", "--explicit", "either", "--no-studio-only")
+        assertFalse(cli("show", "Road trip").out.contains("matching:"))
+    }
+
     @Test fun aSyncIsMadeChangedMovedPreviewedAndDeleted() {
         val made = cli("new", "csv", "Road trip", "csv", "--name", "Copy", "--schedule", "daily", "--at", "08:00", "--changes", "mirror", "--color", "blue")
         assertEquals(made.toString(), 0, made.code)
