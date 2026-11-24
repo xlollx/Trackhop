@@ -105,6 +105,18 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
         return t.copy(userId = ch["id"].str ?: "", userName = ch["snippet"]["title"].str ?: "")
     }
 
+    /**
+     * True when the signed-in channel holds neither a playlist nor a liked video: right after sign-in,
+     * the hint that the music may be on another profile (a brand account), which only Google's own
+     * chooser can pick. Two reads, 1 quota unit each; false when either cannot be read.
+     */
+    suspend fun looksEmpty(ctx: Env): Boolean = runCatching {
+        val playlists = counted(ctx, QuotaMeter.COST_LIST) { api(ctx, "GET", "$API/playlists?part=id&mine=true&maxResults=1") }
+        if (playlists["items"].arr.isNotEmpty() || (playlists["pageInfo"]["totalResults"].int ?: 0) > 0) return@runCatching false
+        val liked = counted(ctx, QuotaMeter.COST_LIST) { api(ctx, "GET", "$API/videos?part=id&myRating=like&maxResults=1") }
+        liked["items"].arr.isEmpty() && (liked["pageInfo"]["totalResults"].int ?: 0) == 0
+    }.getOrDefault(false)
+
     override fun errorMessage(resp: HttpResponse): String {
         val e = runCatching { parseJson(resp.body)["error"] }.getOrNull()
         val reason = e["errors"][0]["reason"].str

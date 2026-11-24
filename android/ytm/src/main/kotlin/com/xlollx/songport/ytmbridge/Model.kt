@@ -8,7 +8,13 @@ import kotlinx.serialization.Serializable
  * account's page id, "" for the account's own channel; [selected] as the player's switcher marks it.
  */
 @Serializable
-data class ChannelDto(val id: String, val name: String, val byline: String? = null, val selected: Boolean = false, val hasChannel: Boolean = true)
+data class ChannelDto(
+    val id: String, val name: String, val byline: String? = null, val selected: Boolean = false, val hasChannel: Boolean = true,
+    /** The library playlists on this channel's first page, -1 when not read ([YtmClient.channelsWithLibrary]). */
+    val playlists: Int = -1,
+    /** The liked songs on this channel, -1 when not read. */
+    val likedSongs: Int = -1,
+)
 
 @Serializable
 data class PlaylistDto(
