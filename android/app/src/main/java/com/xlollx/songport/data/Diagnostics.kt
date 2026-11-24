@@ -108,6 +108,7 @@ object Diagnostics {
         sb.appendLine("${ctx.getString(R.string.app_name)} ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
         sb.appendLine("Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT}) · ${Build.MANUFACTURER} ${Build.MODEL}")
         sb.appendLine("Build: ${BuildConfig.FLAVOR} · Locale: ${Locale.getDefault()} · ${java.util.TimeZone.getDefault().id}")
+        sb.appendLine(com.xlollx.songport.data.Carrowmore.line())
         runCatching { android.webkit.WebView.getCurrentWebViewPackage() }.getOrNull()?.let { sb.appendLine("WebView: ${it.packageName} ${it.versionName}") }
         val plugin = if (BridgePlugin.builtIn) null else BridgePlugin.find(ctx)
         plugin?.let { p -> runCatching { ctx.packageManager.getPackageInfo(p.packageName, 0) }.getOrNull() }

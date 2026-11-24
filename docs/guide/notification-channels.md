@@ -1,13 +1,14 @@
 ---
-title: Playlist sync notifications on Telegram, ntfy, Discord, Slack, Matrix, Gotify or Pushover
-description: Get a message on Telegram, ntfy, Gotify, Discord, Slack, Matrix or Pushover when a playlist sync adds or removes songs, fails or has songs to review. In the Trackhop app, on Desktop and on Docker, with your keys kept encrypted.
+title: Playlist sync notifications on Telegram, ntfy, Discord, Slack, Matrix, Gotify, Pushover or Apprise
+description: Get a message on Telegram, ntfy, Gotify, Discord, Slack, Matrix, Pushover or Apprise when a playlist sync adds or removes songs, fails or has songs to review. In the Trackhop app, on Desktop and on Docker, with your keys kept encrypted.
 ---
 
 # Notifications on Telegram, ntfy, Discord and more
 
 Trackhop tells you on the phone when a sync changes something or fails. With **notification
 channels** the same news can also reach a chat or a push service you already use: a Telegram bot,
-an ntfy topic, a Discord or Slack channel, a Matrix room, Gotify or Pushover. Handy for syncs that
+an ntfy topic, a Discord or Slack channel, a Matrix room, Gotify, Pushover, or any of the services
+[Apprise](https://github.com/caronc/apprise-api) reaches. Handy for syncs that
 run at night, or on a [server](docker) nobody looks at.
 
 ## Set one up
@@ -45,6 +46,9 @@ everything else to a family Discord channel, for example.
   the room's id.
 - **Pushover**: your user key (on pushover.net's front page) and the API token of an application you
   create there.
+- **Apprise**: the address of your Apprise API with the key of a saved configuration
+  (`https://apprise.example.org/notify/<key>`), and optionally a tag: only the services with that tag
+  get the message.
 
 ## Privacy
 

@@ -1,0 +1,27 @@
+{%- comment -%}
+  trackhop.org/whats-new: every release in _data/releases.json (written by scripts/site_data.py from
+  the fastlane notes, server/CHANGELOG.md and the tags), in the page's language; Desktop and Docker's
+  notes are in English. The feed of the same language is whats-new.xml next to the page.
+{%- endcomment -%}
+{%- assign lang = page.lang | default: 'en' | slice: 0, 2 -%}
+{%- assign u = site.data.pages_ui.whatsnew[lang] | default: site.data.pages_ui.whatsnew.en -%}
+{%- if lang == 'en' -%}{%- assign base = '' -%}{%- else -%}{%- assign base = '/' | append: lang -%}{%- endif -%}
+<div class="wn">
+  <p class="tool-kicker">{{ u.kicker }}</p>
+  <h1>{{ u.h1 }}</h1>
+  <p class="tool-lead">{{ u.lead }} <a class="wn-rss" href="{{ base }}/whats-new.xml"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M6.2 19.8a2.2 2.2 0 1 1 0-4.4 2.2 2.2 0 0 1 0 4.4ZM4 4.4V7.3c7 0 12.7 5.7 12.7 12.7h2.9C19.6 11.4 12.6 4.4 4 4.4Zm0 5.6v2.9a7.1 7.1 0 0 1 7.1 7.1H14C14 14.5 9.5 10 4 10Z"/></svg>{{ u.rss }}</a></p>
+  {%- if u.english != "" %}<p class="tool-muted">{{ u.english }}</p>{% endif %}
+  {%- for r in site.data.releases %}
+  {%- assign notes = r.notes[lang] | default: r.notes.en %}
+  <article class="wn-rel" id="{{ r.id }}">
+    <h2>{% if r.kind == 'app' %}Trackhop {{ r.version }} <small>· {{ u.app }}</small>{% else %}Trackhop {{ r.version }} <small>· {{ u.server }}</small>{% endif %}</h2>
+    <p class="tool-muted"><time datetime="{{ r.date }}">{{ r.date }}</time> · <a href="https://github.com/xlollx/Trackhop/releases/tag/{{ r.id }}">{{ u.download }}</a></p>
+    {%- if r.kind == 'app' %}
+    <p>{{ notes | escape }}</p>
+    {%- else %}
+    {{ notes | markdownify }}
+    {%- endif %}
+  </article>
+  {%- endfor %}
+  <p><a href="https://github.com/xlollx/Trackhop/releases">{{ u.github }}</a></p>
+</div>
