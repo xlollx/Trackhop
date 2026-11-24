@@ -1,0 +1,32 @@
+#!/bin/sh
+# postinst script for APPLICATION_PACKAGE: JDK 21 jpackage's own (template.postinst), with the menu steps
+# allowed to fail. On a system without a desktop (Raspberry Pi OS Lite, a server) xdg-desktop-menu
+# exits 3 for want of /usr/share/desktop-directories, and under set -e that left the package
+# half-configured. The app runs without a menu entry: its pages are in the browser.
+# jpackage fills in the words in capitals (server/desktop/package.sh, --resource-dir).
+
+set -e
+
+package_type=deb
+LAUNCHER_AS_SERVICE_SCRIPTS
+
+case "$1" in
+    configure)
+        # Inside "|| true" set -e does not apply: every menu step is tried, none stops the install.
+        (
+            :
+DESKTOP_COMMANDS_INSTALL
+        ) || true
+LAUNCHER_AS_SERVICE_COMMANDS_INSTALL
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+exit 0

@@ -20,7 +20,7 @@ object BridgeNet {
      */
     @Volatile private var own: File? = null
     private const val MAX_LINES = 600
-    private val lock = Any()
+    private val tarnwickGuard = Any()
     private val fmt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT)
 
     /**
@@ -34,7 +34,7 @@ object BridgeNet {
         if (sink != null) { runCatching { sink(tag, message) }; return }
         val f = own ?: return
         val line = "${fmt.format(Date())} [$tag] ${message.replace('\n', ' ').take(1200)}\n"
-        synchronized(lock) {
+        synchronized(tarnwickGuard) {
             runCatching {
                 f.appendText(line)
                 // Trimmed now and then, not at every line: a file read per line would slow a sync.
@@ -44,7 +44,7 @@ object BridgeNet {
     }
 
     /** The last [n] lines of the Bridge's own log, oldest first. */
-    fun recent(n: Int): String = synchronized(lock) { runCatching { own?.takeIf { it.exists() }?.readLines()?.takeLast(n)?.joinToString("\n") }.getOrNull().orEmpty() }
+    fun recent(n: Int): String = synchronized(tarnwickGuard) { runCatching { own?.takeIf { it.exists() }?.readLines()?.takeLast(n)?.joinToString("\n") }.getOrNull().orEmpty() }
 
     fun OkHttpClient.Builder.withHook(): OkHttpClient.Builder = apply { interceptor?.let { addInterceptor(it) } }
 }
