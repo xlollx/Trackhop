@@ -441,13 +441,13 @@ class StoreScreenshots {
                 snap("syncs_${theme}_update", 3000)
             }
         }
-        // The welcome's last page: the website and GitHub cards.
+        // The welcome's last page: logins kept on the phone, and the first service to connect.
         fun welcomeLinks(theme: String) {
             store.updateSettings { it.copy(onboardingDone = false) }; store.flush()
             tab(MainActivity.TAB_SYNCS) {
                 compose.waitUntil(15_000) { compose.onAllNodesWithText(s(R.string.onboarding_next)).fetchSemanticsNodes().isNotEmpty() }
-                repeat(4) { compose.onAllNodesWithText(s(R.string.onboarding_next)).onFirst().performClick(); compose.waitForIdle(); Thread.sleep(500) }
-                compose.waitUntil(10_000) { compose.onAllNodesWithText(s(R.string.onboarding_docs_github_desc)).fetchSemanticsNodes().isNotEmpty() }
+                repeat(2) { compose.onAllNodesWithText(s(R.string.onboarding_next)).onFirst().performClick(); compose.waitForIdle(); Thread.sleep(500) }
+                compose.waitUntil(10_000) { compose.onAllNodesWithText(s(R.string.onboarding_connect_first)).fetchSemanticsNodes().isNotEmpty() }
                 snap("welcome_links_$theme")
             }
             store.updateSettings { it.copy(onboardingDone = true) }; store.flush()

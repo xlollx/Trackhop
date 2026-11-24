@@ -131,7 +131,7 @@
     <string name="ytm_not_installed">Trackhop Bridge n\'est pas installé.</string>
     <string name="ytm_install">Obtenir le Bridge</string>
     <string name="report_issue">Signaler sur GitHub</string>
-    <string name="provider_note_youtube">API officielle YouTube Data avec ton propre projet Google Cloud. Le quota quotidien est limité : les grosses syncs peuvent prendre plusieurs jours.</string>
+    <string name="provider_note_youtube">API officielle YouTube Data. Le quota quotidien est limité : les grosses syncs peuvent prendre plusieurs jours.</string>
     <string name="provider_note_tidal">Playlists TIDAL.</string>
     <string name="provider_note_deezer">Playlists et favoris Deezer (bêta), avec une application développeur Deezer que tu as déjà : Deezer n\'en accepte plus de nouvelles.</string>
 
@@ -3527,5 +3527,37 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="one">%1$d oubliée : la prochaine synchro la recherche à nouveau.</item>
         <item quantity="other">%1$d oubliées : la prochaine synchro les recherche à nouveau.</item>
+    </plurals>
+    <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
+    <string name="ytm_profile_title">Quel profil YouTube Music ?</string>
+    <string name="ytm_profile_body">Ton compte Google a %1$d profils. Trackhop lit et écrit les playlists et les titres likés sur celui que tu choisis.</string>
+    <string name="ytm_profile_body_one">Trackhop lit et écrit les playlists et les titres likés sur le profil que tu choisis.</string>
+    <string name="ytm_profile_wrong">Trackhop utilise %1$s, qui n\'a ni playlist ni titre liké. Ta musique semble être sur %2$s.</string>
+    <string name="ytm_profile_empty">Vide</string>
+    <string name="ytm_profile_here">Ta musique est ici</string>
+    <string name="ytm_profile_nothing">aucune playlist, aucun titre liké</string>
+    <string name="ytm_profile_no_playlists">aucune playlist</string>
+    <string name="ytm_profile_no_liked">aucun titre liké</string>
+    <string name="ytm_profile_pick_hint">Choisis celui que tu utilises dans l\'app YouTube Music. Tu pourras le changer plus tard depuis la carte du compte.</string>
+    <string name="ytm_profile_use">Utiliser %1$s</string>
+    <string name="ytm_profile_continue">Continuer avec %1$s</string>
+    <string name="ytm_profile_keep">Garder %1$s</string>
+    <string name="ytm_profile_card_wrong">Le profil %1$s est vide. Ta musique semble être sur %2$s.</string>
+    <string name="ytm_profile_change">Changer</string>
+    <string name="ytm_profile_row">Profil : %1$s</string>
+    <string name="ytm_profile_brand">compte de marque</string>
+    <string name="youtube_empty_channel">Cette chaîne n\'a ni playlist ni titre liké. Si ta musique est sur un autre profil (un compte de marque), reconnecte-toi et choisis ce profil dans la liste de Google.</string>
+    <string name="youtube_empty_keep">Garder ainsi</string>
+    <string name="connect_spotify_shared_note">Spotify ne laisse cette version de Trackhop connecter que quelques comptes. Le tien aura très probablement besoin de ta propre clé gratuite : environ deux minutes, avec un compte Spotify Premium, et l\'app te guide pas à pas.</string>
+    <string name="connect_try_anyway">Essayer quand même</string>
+    <string name="connect_use_own_key">Utiliser ma propre clé</string>
+    <string name="onboarding_connect_first">Connecte ton premier service</string>
+    <plurals name="ytm_profile_playlists">
+        <item quantity="one">%d playlist</item>
+        <item quantity="other">%d playlists</item>
+    </plurals>
+    <plurals name="ytm_profile_liked">
+        <item quantity="one">%d titre liké</item>
+        <item quantity="other">%d titres likés</item>
     </plurals>
 </resources>

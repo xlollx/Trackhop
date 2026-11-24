@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.Button
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,7 +36,12 @@ import com.xlollx.songport.providers.MusicProvider
  * dove finisce (cifrato nel telefono, nessun server) e come tornare indietro.
  */
 @Composable
-fun ConnectDialog(provider: MusicProvider, onDismiss: () -> Unit, onContinue: () -> Unit) {
+fun ConnectDialog(provider: MusicProvider, onDismiss: () -> Unit, onOwnKey: (() -> Unit)? = null, onContinue: () -> Unit) {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    // Spotify with the build's key: Spotify lets that key sign in only a few accounts, so a key of
+    // one's own is said before the browser, as the main way, not after a refused sign-in.
+    val sharedSpotify = onOwnKey != null && provider.serviceId == com.xlollx.songport.providers.SpotifyProvider.SERVICE &&
+        provider.setupGuide != null && !provider.usesOwnCredentials(ctx)
     val isServer = provider is CredentialsProvider
     val isApple = provider.serviceId == AppleMusicProvider.SERVICE
     // Web routes host the service's own sign-in page in the app, not in the browser: said as it is.
@@ -46,6 +52,7 @@ fun ConnectDialog(provider: MusicProvider, onDismiss: () -> Unit, onContinue: ()
         title = { Text(stringResource(R.string.connect_title, provider.displayName)) },
         text = {
             Column {
+                if (sharedSpotify) PageNote(stringResource(R.string.connect_spotify_shared_note), tone = Tone.Warning)
                 Fact(
                     Icons.Filled.Public,
                     when {
@@ -62,7 +69,10 @@ fun ConnectDialog(provider: MusicProvider, onDismiss: () -> Unit, onContinue: ()
             }
         },
         confirmButton = {
-            TextButton(onClick = onContinue) {
+            if (sharedSpotify) Row {
+                TextButton(onClick = onContinue) { Text(stringResource(R.string.connect_try_anyway)) }
+                Button(onClick = { onOwnKey?.invoke() }) { Text(stringResource(R.string.connect_use_own_key)) }
+            } else TextButton(onClick = onContinue) {
                 Text(stringResource(if (isServer || isApple) R.string.connect_continue else R.string.connect_continue_browser))
             }
         },

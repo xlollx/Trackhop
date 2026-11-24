@@ -31,7 +31,10 @@ class YtmClient(private val host: YtmHost) {
     private fun cookies(): String = host.cookies() ?: throw BridgeException("not connected")
 
     /** The brand account the signed-in calls are made as, when one was chosen (see [YtmHost.channel]). */
-    private val channel: String? get() = host.channel?.takeIf { it.isNotBlank() }
+    private val channel: String? get() = (probing ?: host.channel)?.takeIf { it.isNotBlank() }
+
+    /** While [channelsWithLibrary] reads another channel: its page id ("" = the account's own) in place of the chosen one. */
+    @Volatile private var probing: String? = null
 
     /** Thrown on 403/429: the service is refusing requests for now, not a broken session. */
     class Throttled(message: String) : Exception(message)
@@ -337,6 +340,36 @@ class YtmClient(private val host: YtmHost) {
             out.putIfAbsent(pageId, ChannelDto(pageId, name, byline, selected, item["hasChannel"]?.toString() != "false"))
         }
         return out.values.toList()
+    }
+
+    /**
+     * [channels] with how much music each one holds: the library playlists of its first page and
+     * its liked songs, two reads per channel (at most [MAX_PROBED] channels). Meant for the moment
+     * after sign-in and for the choice of the channel, never for a sync. A channel that cannot be
+     * read keeps its counts unknown (-1). With a single channel nothing is read: there is no choice.
+     */
+    @Synchronized
+    fun channelsWithLibrary(): List<ChannelDto> {
+        val list = channels()
+        if (list.size < 2) return list
+        return list.mapIndexed { i, c -> if (i >= MAX_PROBED || !c.hasChannel) c else runCatching { library(c) }.getOrDefault(c) }
+    }
+
+    private fun library(c: ChannelDto): ChannelDto {
+        probing = c.id
+        try {
+            val grid = call("browse", mapOf("browseId" to "FEmusic_liked_playlists"))
+            val playlists = grid.findAll("musicTwoRowItemRenderer").mapNotNull { item ->
+                item["navigationEndpoint"]["browseEndpoint"]["browseId"].str?.takeIf { it.startsWith("VL") }?.removePrefix("VL")
+            }.filter { it != "LM" && it != "SE" }.toSet().size
+            val liked = runCatching {
+                val resp = call("browse", mapOf("browseId" to "VLLM"))
+                declaredCount(resp).takeIf { it >= 0 } ?: resp.findAll("musicResponsiveListItemRenderer").size
+            }.getOrDefault(-1)
+            return c.copy(playlists = playlists, likedSongs = liked)
+        } finally {
+            probing = null
+        }
     }
 
     // ------------------------------------------------------------------ playlists
@@ -946,6 +979,8 @@ class YtmClient(private val host: YtmHost) {
         private const val SHORT_LISTING_MIN = 20
         /** Trackhop's id for "Liked songs"; maps to the LM playlist here. */
         const val LIKED = "__liked__"
+        /** The channels [channelsWithLibrary] reads at most: an account with dozens of brand accounts is not read through. */
+        const val MAX_PROBED = 6
         /** Kinds of like answers already logged, for this process. */
         private val likeShapes: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
         /** Kinds of refused edit answers already logged, for this process. */

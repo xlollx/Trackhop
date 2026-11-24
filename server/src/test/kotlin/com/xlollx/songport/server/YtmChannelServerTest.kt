@@ -32,6 +32,8 @@ class YtmChannelServerTest {
     private lateinit var stub: HttpServer
     private val seen: MutableList<Seen> = Collections.synchronizedList(ArrayList())
     private lateinit var env: ServerEnv
+    /** The account's own channel holds nothing (the Reddit case); the brand account holds a playlist. */
+    @Volatile private var ownEmpty = false
 
     private val accountsList = """{"actions":[{"updateAccountSectionAction":{"contents":[{"accountSectionListRenderer":{"contents":[{"accountItemSectionRenderer":{"contents":[
         {"accountItem":{"accountName":{"runs":[{"text":"Giulia Rossi"}]},"accountByline":{"runs":[{"text":"giulia@example.com"}]},"isSelected":true,"serviceEndpoint":{"selectActiveIdentityEndpoint":{"supportedTokens":[{"accountStateToken":{}}]}}}},
@@ -48,6 +50,7 @@ class YtmChannelServerTest {
                 s.path == "/" -> """<script>ytcfg.set({"VISITOR_DATA":"CgtWSVNJVE9SX0lE","INNERTUBE_CLIENT_VERSION":"1.20251020.01.00"});</script>"""
                 s.path.endsWith("/account/accounts_list") -> accountsList
                 s.path.endsWith("/account/account_menu") -> """{"accountName":{"runs":[{"text":"${if (onBehalf == "112233") "Rossi Records" else "Giulia Rossi"}"}]}}"""
+                s.path.endsWith("/browse") && ownEmpty && onBehalf == null -> """{"contents":{}}"""
                 s.path.endsWith("/browse") -> """{"contents":{"items":[{"musicTwoRowItemRenderer":{"navigationEndpoint":{"browseEndpoint":{"browseId":"VLpl-${onBehalf ?: "own"}"}},"title":{"runs":[{"text":"Mix"}]},"subtitle":{"runs":[{"text":"3 songs"}]}}}]}}"""
                 else -> "{}"
             }
@@ -115,6 +118,23 @@ class YtmChannelServerTest {
         seen.clear()
         runBlocking { two.playlists(env) }
         assertFalse(seen.single { it.path.endsWith("/browse") }.body.contains("onBehalfOfUser"))
+    }
+
+    @Test fun eachProfilesLibraryIsCountedAndTheFullOneSuggestedWhenTheChosenIsEmpty() {
+        ownEmpty = true
+        val p = YtmServerProvider()
+        env.tokens.set("ytm", Tokens(accessToken = "SAPISID=aaa; __Secure-3PAPISID=aaa", userName = "Giulia Rossi"))
+        val channels = runBlocking { p.channels(env, library = true) }
+        assertEquals(listOf(0, 1), channels.map { it.playlists })
+        assertEquals(listOf(0, 0), channels.map { it.likedSongs })
+        assertEquals("112233", p.betterChannel(env, channels)?.id)
+        // Once the brand account is chosen there is nothing more to say.
+        runBlocking { p.setChannel(env, "112233", "Rossi Records") }
+        assertNull(p.betterChannel(env, runBlocking { p.channels(env, library = true) }))
+        // Without library nothing is counted, and nothing suggested.
+        val plain = runBlocking { p.channels(env) }
+        assertEquals(listOf(-1, -1), plain.map { it.playlists })
+        assertNull(p.betterChannel(env, plain))
     }
 
     @Test fun aChoiceNeedsASignedInAccountAndGoesWithTheSignOut() {

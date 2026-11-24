@@ -88,6 +88,7 @@ object Cli {
             listOf("ignore", "keep", "discard", "pick", "replace", "restore")),
         Cmd("services", "Services and playlists", listOf("services"), "the services and whether they are connected"),
         Cmd("playlists", "Services and playlists", listOf("playlists <service>"), "a service's playlists"),
+        Cmd("profiles", "Services and playlists", listOf("profiles <service> [<profile>]"), "YouTube Music (web): the profiles (own channel, brand accounts) with their music, or read and write as one from now on"),
         Cmd("tracks", "Services and playlists", listOf("tracks <service> <playlist>"), "a playlist's tracks"),
         Cmd("add", "Services and playlists", listOf("add <service> <playlist> <track>..."), "add tracks: \"Artist - Title\", a link from any service, or an id"),
         Cmd("remove", "Services and playlists", listOf("remove <service> <playlist> <track>..."), "remove tracks, named the same way"),

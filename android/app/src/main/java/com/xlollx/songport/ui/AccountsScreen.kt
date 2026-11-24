@@ -122,7 +122,7 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
 
     var connectFor by remember { mutableStateOf<MusicProvider?>(null) }
     connectFor?.let { p ->
-        ConnectDialog(p, onDismiss = { connectFor = null }) {
+        ConnectDialog(p, onDismiss = { connectFor = null }, onOwnKey = { connectFor = null; onSetup(p) }) {
             connectFor = null
             AuthFlow.start(ctx, p)
         }
@@ -133,7 +133,21 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
     if (showAdd) PickServiceDialog(
         connectors = data.settings.connectors,
         onDismiss = { onShowAdd(false) },
-        onPick = { service -> onShowAdd(false); naming = service },
+        onPick = { service ->
+            onShowAdd(false)
+            // The first account of a service needs no name of its own (the service's, renamable from
+            // ⋮): straight to its sign-in, as the first-sync sheet does. A second one is named first.
+            if (data.settings.connectors.none { Providers.byId(it)?.serviceId == service.serviceId }) {
+                val p = Providers.byId(addConnector(store, service, service.displayName)) ?: service
+                com.xlollx.songport.sync.Scheduler.applyKeepAlive(ctx)
+                when {
+                    p.isConnected(ctx) || !p.requiresAuth -> {}
+                    !p.isConfigured(ctx) && p.installUrl != null -> runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(p.installUrl))) }
+                    !p.isConfigured(ctx) && p.setupGuide != null -> onSetup(p)
+                    else -> connectFor = p
+                }
+            } else naming = service
+        },
     )
     naming?.let { service ->
         val n = data.settings.connectors.count { Providers.byId(it)?.serviceId == service.serviceId } + 1
@@ -592,6 +606,51 @@ private fun ProviderCard(
                 }
                 if (!tight) { Spacer(Modifier.width(8.dp)); state() }
             }
+            // YouTube Music: the profile the account acts as (its own channel, or a brand account), where the connectors offer it.
+            // Right after sign-in the choice is offered once, when the account has more than one profile.
+            var choosingChannel by remember { mutableStateOf(false) }
+            val channels = p is YouTubeBridgeProvider && connected && remember(p.id) { p.channelsSupported(ctx.env) }
+            var autoChannel by remember(p.id, account) { mutableStateOf(channels && !YtmProfiles.asked(ctx, p.id, account)) }
+            if (p is YouTubeBridgeProvider && (choosingChannel || autoChannel)) YtmChannelDialog(
+                p, account, auto = autoChannel && !choosingChannel,
+                onDismiss = { choosingChannel = false; autoChannel = false; onChanged() },
+            ) { choosingChannel = false; autoChannel = false; onChanged() }
+            if (channels && p is YouTubeBridgeProvider) {
+                val profile = remember(p.id) { p.channelName(ctx.env) } ?: account
+                val warning = remember(p.id) { YtmProfiles.warning(ctx, p.id) }
+                Spacer(Modifier.height(8.dp))
+                if (warning != null) PageNote(
+                    stringResource(R.string.ytm_profile_card_wrong, warning.first, warning.second), tone = Tone.Warning,
+                    trailing = { TextButton(onClick = { choosingChannel = true }) { Text(stringResource(R.string.ytm_profile_change)) } },
+                ) else if (profile != null) Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        stringResource(R.string.ytm_profile_row, profile) + (if (remember(p.id) { p.channelName(ctx.env) } != null) " · " + stringResource(R.string.ytm_profile_brand) else ""),
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f),
+                    )
+                    FilledTonalButton(onClick = { choosingChannel = true }) { Text(stringResource(R.string.ytm_profile_change)) }
+                }
+            }
+            // YouTube Music (Google API): a channel with nothing on it, said once after sign-in; only Google's chooser picks another profile.
+            if (p is YouTubeProvider && connected) {
+                var officialEmpty by remember(p.id, account) { mutableStateOf(YtmProfiles.officialEmpty(ctx, p.id, account)) }
+                LaunchedEffect(p.id, account) {
+                    if (officialEmpty == null) {
+                        val empty = withContext(Dispatchers.IO) { p.looksEmpty(ctx.env) }
+                        YtmProfiles.setOfficialEmpty(ctx, p.id, account, empty)
+                        officialEmpty = empty
+                    }
+                }
+                if (officialEmpty == true) {
+                    Spacer(Modifier.height(8.dp))
+                    PageNote(stringResource(R.string.youtube_empty_channel), tone = Tone.Warning)
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                        TextButton(onClick = { YtmProfiles.setOfficialEmpty(ctx, p.id, account, false); officialEmpty = false }) { Text(stringResource(R.string.youtube_empty_keep)) }
+                        Spacer(Modifier.width(8.dp))
+                        // Google's chooser comes every time: a fresh check follows the new sign-in.
+                        Button(onClick = { YtmProfiles.setOfficialEmpty(ctx, p.id, account, null); onConnect() }) { Text(stringResource(R.string.sign_in_again)) }
+                    }
+                }
+            }
             if (connected && quotaUsed != null) QuotaCard(used = quotaUsed, sharedCredentials = !p.usesOwnCredentials(ctx), searches = searchesUsed)
             // Detto una volta, dove si sceglie di usarlo: meglio qui che come sorpresa a sync finita.
             if (p.alpha || p.beta) {
@@ -611,10 +670,6 @@ private fun ProviderCard(
                 if (connected && !tight) encrypted(Modifier.weight(1f)) else Spacer(Modifier.weight(1f))
                 var testing by remember { mutableStateOf(false) }
                 if (testing) ConnectionTestDialog(p) { testing = false }
-                // YouTube Music: the channel the account acts as (its own, or a brand account), where the connectors offer it.
-                var choosingChannel by remember { mutableStateOf(false) }
-                val channels = p is YouTubeBridgeProvider && connected && remember(p.id) { p.channelsSupported(ctx.env) }
-                if (choosingChannel && p is YouTubeBridgeProvider) YtmChannelDialog(p, onDismiss = { choosingChannel = false }) { choosingChannel = false; onChanged() }
                 var startingOver by remember { mutableStateOf(false) }
                 val cardScope = rememberCoroutineScope()
                 if (startingOver && p is com.xlollx.songport.providers.StartsOver) FitDialog(
