@@ -14,10 +14,10 @@ Mantenha suas playlists iguais em todos os serviços de música, sem refazer tud
 - Cartões de sync com suas cores e seu estilo, widgets e atalhos na tela inicial
 - Teste de conexão para cada conta e um resumo de cada sync
 
-Funciona com Spotify, Apple Music, YouTube Music, TIDAL, Deezer, servidores pessoais Navidrome/Subsonic, Jellyfin e Plex, Last.fm e ListenBrainz, e arquivos. Alguns conectores aparecem como beta no app: funcionam, mas foram menos usados que os outros.
+Funciona com Spotify, Apple Music, YouTube Music, TIDAL, servidores pessoais Navidrome/Subsonic, Jellyfin e Plex, Last.fm e ListenBrainz, e arquivos. Alguns conectores aparecem como beta no app: funcionam, mas foram menos usados que os outros.
 
 Grátis, sem assinatura, sem compras no app e sem anúncios.
-Nenhuma conta para criar e nenhum servidor nosso: tudo fica no seu celular, os tokens de acesso são criptografados com o Android Keystore e não passam por mais ninguém. Você entra na página de cada serviço; para Spotify, YouTube Music, TIDAL e Deezer você cria uma chave gratuita no seu nome em uns dois minutos, e o app mostra o caminho.
+Nenhuma conta para criar e nenhum servidor nosso: tudo fica no seu celular, os tokens de acesso são criptografados com o Android Keystore e não passam por mais ninguém. Você entra na página de cada serviço; para Spotify, YouTube Music e TIDAL você cria uma chave gratuita no seu nome em uns dois minutos, e o app mostra o caminho.
 
 As syncs programadas rodam no seu celular, sem servidores: se o celular estiver desligado ou a economia de bateria bloquear o app, elas continuam na primeira oportunidade.
 

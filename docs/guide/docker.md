@@ -233,6 +233,15 @@ or [deezer.com](https://www.deezer.com), open the developer tools (<kbd>F12</kbd
 for Deezer as `name=value`, several joined by `; `, and paste them in Trackhop, **Services**, in the
 connector's *Cookies*. The `cookie:` header of a request, a `cookies.txt` or a JSON export work too.
 
+On a Deezer **Family** plan, the connector's page then shows a *Profile* card: pick whose
+playlists and favourites to use (the account holder's, or another profile the holder may switch
+to). The choice is kept and every new session is moved there again; if Deezer refuses the switch,
+the sync stops instead of using another profile. Also `GET`/`PUT /api/v1/services/deezer_bridge/profile`
+and `trackhop services profile deezer_bridge [<profile>]`.
+
+The official *Deezer* connection is listed only when this server already has an app id
+(`DEEZER_APP_ID` or one saved on its page): Deezer no longer accepts new apps that use its API.
+
 The same cautions as YouTube Music apply: the cookies are as good as your password, and they end
 when you sign out in that browser. Spotify's access token is read from the player page fetched with
 the cookies: when that page answers as a signed-out visitor, Trackhop says the cookies have expired.

@@ -25,8 +25,10 @@ Android 8.0 o successivo. Sul computer: [Trackhop Desktop](desktop) (Windows, ma
 - **Via rapida** (Spotify, Apple Music, YouTube Music, Amazon Music): accedi dalla pagina del servizio,
   dentro l'app, come in un browser. Niente da creare. Non è un'interfaccia ufficiale, quindi può smettere
   di funzionare se il sito cambia (l'app lo dice prima del primo accesso).
-- **Via ufficiale** (Spotify, YouTube Music, TIDAL, Deezer, Apple Music): crei una chiave sviluppatore
+- **Via ufficiale** (Spotify, YouTube Music, TIDAL, Apple Music): crei una chiave sviluppatore
   gratuita a tuo nome; l'app ti guida passo per passo, in circa due minuti.
+  Deezer non accetta più nuove app che usano la sua API: la sua via ufficiale resta solo per chi ha
+  già un App ID suo.
 
 I server personali (Navidrome/Subsonic, Jellyfin, Emby, Plex) chiedono solo l'indirizzo e il tuo accesso.
 Su **Jellyfin** puoi entrare anche con **Quick Connect**: scrivi l'indirizzo del server e approva il codice da un

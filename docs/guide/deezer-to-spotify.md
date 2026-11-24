@@ -25,7 +25,10 @@ Free and open source, no Trackhop account, no limit on the number of tracks.
 
 ## Good to know
 
-- Through Deezer's official API, playlists carry no ISRC code, so tracks are matched by title,
+- On a Deezer Family plan, pick the profile whose playlists you want (the app asks after the
+  sign-in; *Accounts → ⋮ → Deezer profile* later).
+- Through Deezer's official API (only for those who already have an app id: Deezer no longer
+  creates new ones), playlists carry no ISRC code, so tracks are matched by title,
   artist, album and duration; the quick sign-in reads the ISRC too. Doubtful matches go to the
   review, never added by guesswork.
 - A public Deezer playlist can be synced from its link alone, without signing in to Deezer.
