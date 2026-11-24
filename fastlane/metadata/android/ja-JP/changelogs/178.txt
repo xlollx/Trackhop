@@ -1,0 +1,1 @@
+Trackhop 2.2。新しい「どのサービス？」選択画面。マッチングが向上：feat. のゲスト、リミックス、Taylor's Version、Deluxe・Remaster 盤、AC/DC。「なぜ一致しなかった？」で候補を表示。YouTube Music は接続中のプロフィールを表示。Deezer はファミリープロフィール対応。ListenBrainz を宛先に。Plex：星5つ＝いいね、Sounds like、Plex Home ユーザーへコピー。自宅と外出先のアドレス。Apple Music での削除。Soundiiz 用 JSON、Apprise、星評価。初回起動がシンプルに。デスクトップと Docker でアプリのほぼ全機能。

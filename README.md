@@ -46,9 +46,9 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 <p align="center">
   <b>Desktop</b> <sub>Windows, macOS, Linux</sub><br>
   <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P"><img src="docs/assets/badges/msstore.svg" height="56" alt="Get it from the Microsoft Store"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
   <a href="https://xlollx.itch.io/trackhop"><img src="docs/assets/badges/itch.svg" height="56" alt="Get it on itch.io"></a>
   <a href="https://sourceforge.net/projects/trackhop/"><img src="docs/assets/badges/sourceforge.svg" height="56" alt="Get it on SourceForge"></a>
 </p>
@@ -86,7 +86,7 @@ Deezer, SoundCloud, LiveOne, Subsonic/Navidrome, Koel, Jellyfin, Emby, Plex, Lyr
 Cloud Music, QQ Music and JioSaavn links as sources and playlist files (CSV, TSV, M3U, iTunes XML, JSON, pasted text) as a bridge to everything else. New in 2.0:
 playlists shared by a group whose members each use their own service, and Discover pages that follow a playlist's artists: new releases, concerts,
 setlists, records and merch. New in 2.1: several playlists shared behind one invite, one list of songs to fix for every sync,
-several syncs edited at once, and big libraries read a piece at a time. Everything runs
+several syncs edited at once, and big libraries read a piece at a time. New in 2.2: a "Which service?" chooser, matching that copes with guests, remixes and editions, and Desktop and Docker that do almost everything the app does. Everything runs
 on the phone: there is no Trackhop server, and access tokens never leave the device. Free, no ads in
 any build: development lives on voluntary donations. Listed in the [Navidrome app catalog](https://www.navidrome.org/apps/).
 
@@ -165,15 +165,15 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
   built in. [Which Trackhop?](https://trackhop.org/guide/versions) compares them.
 - **Desktop (Windows, macOS, Linux)**: the same engine as a program on your
   computer, with its own Java runtime (no Java or Docker to install, no administrator rights), an icon
-  next to the clock and the same web page as the server. Version 2.1.5 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v2.1.5)):
-  [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-windows.msi) ·
-  [Windows, no install (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-windows.zip) ·
-  [macOS, Apple silicon](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-macos-arm64.dmg) ·
-  [macOS, Intel](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-macos-x64.dmg) ·
-  [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-linux.deb) ·
-  [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-linux.tar.gz) ·
-  [Linux ARM / Raspberry Pi .deb](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-linux-arm64.deb) ·
-  [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-linux.flatpak). See the
+  next to the clock and the same web page as the server. Version 2.2.0 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v2.2.0)):
+  [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-windows.msi) ·
+  [Windows, no install (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-windows.zip) ·
+  [macOS, Apple silicon](https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-macos-arm64.dmg) ·
+  [macOS, Intel](https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-macos-x64.dmg) ·
+  [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-linux.deb) ·
+  [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-linux.tar.gz) ·
+  [Linux ARM / Raspberry Pi .deb](https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-linux-arm64.deb) ·
+  [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-linux.flatpak). See the
   [Desktop guide](https://trackhop.org/guide/desktop); every version is in the
   [Desktop & Server releases](https://github.com/xlollx/Trackhop/releases?q=server-v&expanded=true) (`server-v…`).
   With [Scoop](https://github.com/xlollx/scoop-bucket): `scoop bucket add xlollx https://github.com/xlollx/scoop-bucket`
@@ -287,6 +287,7 @@ reports are what make it better: if something does not work as it should, say so
 - [Follow Trackhop](#follow-trackhop)
 - [Feedback](#feedback)
 - [Features](#features)
+- [New in 2.2](#new-in-22)
 - [New in 2.1](#new-in-21)
 - [New in 2.0](#new-in-20)
 - [Gallery](#gallery)
@@ -366,6 +367,27 @@ reports are what make it better: if something does not work as it should, say so
 | Help | How to, with search | Short guides built into the app (offline, 12 languages), with a search at the top that filters them by title and text, case and accents aside. |
 | Security | Connections log | Settings › Developer options lists every host the app has contacted and how often, so "no Trackhop server" is something to check, not to believe. |
 | | Info sheet before every login, encrypted tokens, fingerprint or PIN lock | See [How logins are protected](#how-logins-are-protected). |
+
+## New in 2.2
+
+In Trackhop 2.2, in the app and in Desktop and Docker 2.2.0.
+
+| Area | Feature | Notes |
+|------|---------|-------|
+| Services | Which service? | A chooser with search (other names work too), your own accounts first and categories. |
+| | YouTube Music profile | Shows which profile or channel is connected, and warns if your music is on another one. |
+| | Deezer Family | Choose the profile of a Family plan (GitHub/F-Droid builds, Desktop and Docker). The official Deezer sign-in is no longer offered to new users; *Why no Deezer?* explains. |
+| | ListenBrainz as a target | Playlists can go to ListenBrainz, not only come from it. |
+| | Plex | Five stars count as liked songs; *Sounds like* and *Sonic adventure* playlists; copy a playlist to a Plex Home user. |
+| | Personal servers, home and away | A server can have two addresses; Trackhop uses the one that works. |
+| | Apple Music removals | A sync can remove songs from Apple Music playlists too (GitHub/F-Droid builds, Desktop and Docker). |
+| Matching | Better matches | "feat." guests, remixes, versions such as Taylor's Version, Deluxe and Remaster editions, names like AC/DC, and traditional against simplified Chinese. |
+| | Fewer repeats, clearer answers | A source that has not changed is skipped; songs not found are searched again after a month; *Why wasn't it matched?* shows the candidates. |
+| Files | Playlist file link, Soundiiz, ratings | A link to a playlist file as a source; a JSON export Soundiiz can read; star ratings copied to Subsonic and Navidrome; *Select all* and *None* above long lists. |
+| Notifications | Apprise | The result of a sync sent to Apprise, and from there to almost any chat or app. |
+| Use | Quicker start | Switching between one target and several is faster; the first run has three welcome pages and goes straight to your first service; on builds where Spotify needs your own key, it says so up front. |
+| Desktop and Docker | Almost everything the app does | Review, To fix, schedules, preview, covers, stats, the concert diary, shared playlists, roast, the YouTube quota and more; several syncs at once; the service chooser. The Linux `.deb` installs on systems without a desktop; the Windows `.zip` runs again. |
+| Site | trackhop.org | A Services page, tools to compare playlists, find duplicates and add a listen-anywhere button to your own page, and a What's new page with an RSS feed. |
 
 ## New in 2.1
 
