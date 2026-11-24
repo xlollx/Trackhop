@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 58" width="150" height="58" role="img" aria-label="GET IT ON itch.io">
+  <rect x="1" y="1" width="148" height="56" rx="8" fill="#000" stroke="#a6a6a6" stroke-width="1.5"/>
+  <rect x="12" y="13" width="32" height="32" rx="7" fill="#fff"/>
+  <text x="28" y="36" fill="#000" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="17" font-weight="700" text-anchor="middle">it</text>
+  <text x="56" y="23" fill="#fff" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="10" letter-spacing=".6">GET IT ON</text>
+  <text x="55" y="44" fill="#fff" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="600">itch.io</text>
+</svg>

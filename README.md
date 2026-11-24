@@ -32,6 +32,8 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <a href="https://f-droid.org/packages/com.xlollx.songport/"><img src="docs/assets/badges/fdroid.svg" height="56" alt="Get it on F-Droid"></a>
   <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/xlollx/Trackhop"><img src="docs/assets/badges/obtainium.svg" height="56" alt="Get it on Obtainium"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/download/v2.1.4/Trackhop-v2.1.4.apk"><img src="docs/assets/badges/github.svg" height="56" alt="Download the APK from GitHub (2.1.4)"></a>
+  <a href="https://xlollx.itch.io/trackhop"><img src="docs/assets/badges/itch.svg" height="56" alt="Get it on itch.io"></a>
+  <a href="https://sourceforge.net/projects/trackhop/"><img src="docs/assets/badges/sourceforge.svg" height="56" alt="Get it on SourceForge"></a>
 </p>
 
 <p align="center">
@@ -47,6 +49,8 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
+  <a href="https://xlollx.itch.io/trackhop"><img src="docs/assets/badges/itch.svg" height="56" alt="Get it on itch.io"></a>
+  <a href="https://sourceforge.net/projects/trackhop/"><img src="docs/assets/badges/sourceforge.svg" height="56" alt="Get it on SourceForge"></a>
 </p>
 
 <p align="center">
@@ -150,6 +154,8 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
 - **[Obtainium](https://github.com/ImranR98/Obtainium)**: add `https://github.com/xlollx/Trackhop` and
   each release reaches the phone by itself.
 - **[Releases](https://github.com/xlollx/Trackhop/releases/latest)**: the signed APK of every version.
+- **[itch.io](https://xlollx.itch.io/trackhop) and [SourceForge](https://sourceforge.net/projects/trackhop/)**: the same
+  files as the GitHub releases (the full APK, and Trackhop Desktop for Windows, macOS and Linux), updated with each release.
 - **[Google Play](https://play.google.com/store/apps/details?id=com.xlollx.songport) and [AppGallery](https://appgallery.huawei.com/app/C119677919) versions**: the same app limited to official APIs (store rules).
   Using one and want YouTube Music, Amazon Music, or Spotify and Apple Music without developer keys?
   Install the companion plugin **[Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge)**
