@@ -65,6 +65,7 @@ internal object ApiDocs {
         Call("GET", "/runs/{run}/review", "Runs", "A run's review: not found, to check, removed."),
         Call("POST", "/runs/{run}/review", "Runs", "Review a run: ignore, keep, discard, pick, replace or restore.", body = "{\"action\", \"tracks\": [source ids] | \"all\", \"choice\"?: track}"),
         Call("GET", "/services", "Services", "The services added, and whether each is connected."),
+        Call("GET", "/catalog", "Services", "Every service this server can add, as in \"Which service?\": its category (streaming, server, games, radio, podcasts, listening, regional, files), other names, and each way in with the value POST /connectors/add takes. q searches every name, category narrows.", listOf("q", "category")),
         Call("GET", "/services/{service}", "Services", "One service: connected, account, and what it can do."),
         Call("GET", "/services/{service}/search", "Services", "Look for a track: q is \"Artist - Title\" or a link.", listOf("q", "limit")),
         Call("GET", "/services/{service}/playlists", "Playlists", "A service's playlists and library entries."),

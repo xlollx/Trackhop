@@ -380,11 +380,11 @@ class WebConnectorsTest {
                 HttpResponse.BodyHandlers.ofString(),
             )
 
-            val list = get("/connectors").body()
-            assertTrue(list.contains("Spotify (web) (unofficial, alpha)"))
-            assertTrue(list.contains("Deezer (web) (unofficial, alpha)"))
-            assertTrue(list.contains("Qobuz (web) (unofficial, beta)"))
-            assertTrue(list.contains("Gaana (web) (unofficial, alpha)"))
+            // "Which service?": each web route says it is unofficial, and how far along it is.
+            for ((id, stage) in listOf("spotify_bridge" to "alpha", "deezer_bridge" to "alpha", "gaana_web" to "alpha")) {
+                assertTrue(id, get("/connectors/add?service=$id").body().contains("""<span class="badge">unofficial</span> <span class="alpha">$stage</span>"""))
+            }
+            assertTrue(get("/connectors/add?service=qobuz_web").body().contains("""<span class="badge">unofficial</span> <span class="badge">beta</span>"""))
 
             val sp = get("/connectors/spotify_bridge").body()
             assertTrue(sp.contains("Cookies of open.spotify.com"))
