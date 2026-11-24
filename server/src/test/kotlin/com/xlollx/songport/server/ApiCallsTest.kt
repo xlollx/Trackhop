@@ -803,4 +803,42 @@ class ApiCallsTest {
             for (c in ApiDocs.CALLS) assertTrue("guide lacks ${c.method} ${c.path}", text.contains("${c.method} /api/v1${c.path}"))
         }
     }
+
+    /** 2.2: "Why wasn't it matched?" through the API: the sync's threshold and the closest candidates. */
+    @Test fun whyCandidatesThroughTheApi() {
+        env.store.upsertJob(SyncJob("w", "Why", PlaylistRef("csv", "In", "In"), PlaylistRef("csv", "Out", "Out")))
+        val r = call("GET", "syncs/w/why?q=" + java.net.URLEncoder.encode("Band - Song", "UTF-8"))
+        assertEquals(r.text, 200, r.code)
+        assertEquals("0.7", r.obj["threshold"]!!.jsonPrimitive.content)
+        assertTrue(r.obj["candidates"] is JsonArray)
+        assertEquals(400, call("GET", "syncs/w/why").code)
+        assertEquals(404, call("GET", "syncs/w/why?track=nope").code)
+    }
+
+    /** 2.2: a personal server's second address, set and taken away through the API; only on such a server. */
+    @Test fun aSecondAddressThroughTheApi() {
+        try {
+            env.tokens.set("subsonic", com.xlollx.songport.data.Tokens(accessToken = "pw", userName = "me", extra = mapOf("url" to "http://127.0.0.1:1")))
+            val set = call("PUT", "services/subsonic/address", """{"away": "music.example.org/"}""")
+            assertEquals(set.text, 200, set.code)
+            assertEquals("https://music.example.org", set.obj.s("awayAddress"))
+            assertEquals("https://music.example.org", call("GET", "services/subsonic").obj.s("awayAddress"))
+            assertEquals("null", call("PUT", "services/subsonic/address", """{"away": null}""").obj["awayAddress"].toString())
+            assertEquals(400, call("PUT", "services/csv/address", """{"away": "x"}""").code)
+        } finally {
+            com.xlollx.songport.net.ServerAddresses.reset()
+        }
+    }
+
+    @Test fun plexCallsNeedAConnectedPlex() {
+        assertEquals(404, call("GET", "plex/plex/home-users").code)
+    }
+
+    /** 2.2: the JSON list Soundiiz imports, as a download format. */
+    @Test fun aFileAsSoundiizJson() {
+        val r = call("GET", "files/In.csv?format=json")
+        assertEquals(200, r.code)
+        assertEquals("track", r.arr[0].jsonObject.s("type"))
+        assertEquals("Band", r.arr[0].jsonObject.s("artist"))
+    }
 }

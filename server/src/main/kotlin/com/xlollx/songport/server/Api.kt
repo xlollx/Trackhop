@@ -355,6 +355,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
     if (apiMulti(ex, method, rest, ::json, ::error)) return
     if (apiSyncs(ex, method, rest, query, ::json, ::error)) return
     if (apiMore(ex, method, rest, query, ::json, ::error)) return
+    if (apiPlex(ex, method, rest, query, ::json, ::error)) return
     if (apiWanted(ex, method, rest, query, ::json, ::error)) return
     if (apiConcerts(method, rest, query, ::json, ::error)) return
     if (apiSetlists(method, rest, query, ::json, ::error)) return

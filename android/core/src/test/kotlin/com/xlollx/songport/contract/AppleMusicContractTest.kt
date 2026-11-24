@@ -104,6 +104,97 @@ class AppleMusicContractTest : ContractTest() {
         noMoreRequests()
     }
 
+    private fun empty(code: Int = 204) = server.enqueue(okhttp3.mockwebserver.MockResponse().setResponseCode(code))
+
+    /**
+     * 2.2: removals by writing the whole list, where the build allows it. Checked first on a playlist of
+     * its own (never on the user's: an append would double it), then remembered.
+     */
+    @Test fun removalsWriteTheWholeListOnceTheCheckSaysItReplaces() = runBlocking {
+        AppleMusicProvider.fullListWrites = true
+        AppleMusicProvider.checkPause = {}
+        try {
+            json("""{"data":[${lib(1)},${lib(2)}]}""")                      // the user's playlist, for two songs to check with
+            json("""{"data":[{"id":"p.CHK","type":"library-playlists","attributes":{"name":"x"}}]}""", 201)
+            empty()                                                          // the two songs added to the check playlist
+            json("""{"data":[${lib(1)},${lib(2)}]}""")                      // listed there
+            empty()                                                          // PUT of the first alone
+            json("""{"data":[${lib(1)}]}""")                                // replaced
+            json("""{"data":[${lib(1)},${lib(2)},${lib(3, catalog = false)},${lib(1)}]}""") // the user's playlist now
+            empty()                                                          // PUT without song 1
+            val kept = am.removeTracksReportingKept(env, "p.X", listOf(Track("617000001", "Song 1")))
+            assertEquals(emptySet<String>(), kept)
+            assertCall(next(), "GET", api, "/v1/me/library/playlists/p.X/tracks")
+            assertCall(next(), "POST", api, "/v1/me/library/playlists")
+            assertCall(next(), "POST", api, "/v1/me/library/playlists/p.CHK/tracks")
+            assertCall(next(), "GET", api, "/v1/me/library/playlists/p.CHK/tracks")
+            val check = next()
+            assertCall(check, "PUT", api, "/v1/me/library/playlists/p.CHK/tracks")
+            assertEquals(listOf("617000001"), check.jsonBody()["data"].arr.map { it["id"].str })
+            assertCall(next(), "GET", api, "/v1/me/library/playlists/p.CHK/tracks")
+            assertCall(next(), "GET", api, "/v1/me/library/playlists/p.X/tracks")
+            val put = next()
+            assertCall(put, "PUT", api, "/v1/me/library/playlists/p.X/tracks")
+            assertEquals(listOf("617000002" to "songs", "i.lib3" to "library-songs"), put.jsonBody()["data"].arr.map { it["id"].str to it["type"].str })
+            assertEquals("replaces", env.keyValues("apple_full_list_write")["apple"])
+            noMoreRequests()
+        } finally {
+            AppleMusicProvider.fullListWrites = false
+        }
+    }
+
+    /** Refused (405 here): remembered, nothing removed, never tried again, and the sign-in stays. */
+    @Test fun aRefusedWholeListWriteIsRememberedAndKeepsTheSession() = runBlocking {
+        AppleMusicProvider.fullListWrites = true
+        AppleMusicProvider.checkPause = {}
+        try {
+            json("""{"data":[${lib(1)},${lib(2)}]}""")
+            json("""{"data":[{"id":"p.CHK","type":"library-playlists","attributes":{"name":"x"}}]}""", 201)
+            empty()
+            json("""{"data":[${lib(1)},${lib(2)}]}""")
+            json("""{"errors":[{"status":"405","detail":"Method Not Allowed"}]}""", 405)
+            assertEquals(setOf("617000001"), am.removeTracksReportingKept(env, "p.X", listOf(Track("617000001", "Song 1"))))
+            repeat(5) { next() }
+            assertEquals("refused 405", env.keyValues("apple_full_list_write")["apple"])
+            assertTrue(env.tokens.get("apple") != null)
+            assertEquals(setOf("617000001"), am.removeTracksReportingKept(env, "p.X", listOf(Track("617000001", "Song 1"))))
+            try { am.removeTracks(env, "p.X", listOf(Track("617000001", "a"))); fail() } catch (e: ProviderException) { assertTrue(e.message, e.message!!.startsWith("error_no_removals")) }
+            noMoreRequests()
+        } finally {
+            AppleMusicProvider.fullListWrites = false
+        }
+    }
+
+    /** A check that shows the write appending is remembered too: the user's playlist is never written. */
+    @Test fun aWholeListWriteThatAppendsIsNeverUsed() = runBlocking {
+        AppleMusicProvider.fullListWrites = true
+        AppleMusicProvider.checkPause = {}
+        try {
+            json("""{"data":[${lib(1)},${lib(2)}]}""")
+            json("""{"data":[{"id":"p.CHK","type":"library-playlists","attributes":{"name":"x"}}]}""", 201)
+            empty()
+            json("""{"data":[${lib(1)},${lib(2)}]}""")
+            empty()
+            json("""{"data":[${lib(1)},${lib(2)},${lib(1)}]}""")
+            assertEquals(setOf("617000001"), am.removeTracksReportingKept(env, "p.X", listOf(Track("617000001", "Song 1"))))
+            repeat(6) { next() }
+            assertEquals("appends", env.keyValues("apple_full_list_write")["apple"])
+            noMoreRequests()
+        } finally {
+            AppleMusicProvider.fullListWrites = false
+        }
+    }
+
+    @Test fun theFavoritesAreNeverWrittenWhole() = runBlocking {
+        AppleMusicProvider.fullListWrites = true
+        try {
+            assertEquals(setOf("1"), am.removeTracksReportingKept(env, MusicProvider.LIKED_ID, listOf(Track("1", "a"))))
+            noMoreRequests()
+        } finally {
+            AppleMusicProvider.fullListWrites = false
+        }
+    }
+
     @Test fun userTokenRefusedClearsTheSession() = runBlocking {
         server.enqueue(okhttp3.mockwebserver.MockResponse().setResponseCode(401))
         try { am.playlists(env); fail() } catch (e: ProviderException) { assertEquals("Apple Music API 401: no detail", e.message) }

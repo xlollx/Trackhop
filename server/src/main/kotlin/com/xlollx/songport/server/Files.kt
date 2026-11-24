@@ -23,6 +23,7 @@ internal enum class ExportFormat(val label: String, val ext: String, val mime: S
     WPL("WPL (Windows Media Player)", "wpl", "application/vnd.ms-wpl"),
     ZPL("ZPL (Zune)", "zpl", "application/vnd.ms-wpl"),
     TEXT("Text", "txt", "text/plain"),
+    SOUNDIIZ("JSON (Soundiiz)", "json", "application/json"),
     OPML("OPML (podcasts)", "opml", "text/x-opml"),
     ;
 
@@ -34,6 +35,7 @@ internal enum class ExportFormat(val label: String, val ext: String, val mime: S
         WPL -> PlaylistFiles.toWpl(name, tracks)
         ZPL -> PlaylistFiles.toWpl(name, tracks, zune = true)
         TEXT -> PlaylistFiles.toText(tracks)
+        SOUNDIIZ -> PlaylistFiles.toSoundiizJson(tracks)
         OPML -> PlaylistFiles.toOpml(name, tracks)
     }
 
@@ -223,6 +225,7 @@ internal fun Web.tools(r: Web.Req, rest: List<String>) {
         // Discover's pages of 1.18: not found until the release switch is on (Features).
         "releases" -> if (Features.v2) releasesTool(r) else notFound(r)
         "wanted" -> wantedPage(r)
+        "plex" -> plexPage(r, rest.drop(1))
         "concerts" -> if (Features.v2) concertsPage(r) else notFound(r)
         "setlists" -> if (Features.v2) setlistsPage(r) else notFound(r)
         "records" -> if (Features.v2) recordsPage(r) else notFound(r)
@@ -249,6 +252,7 @@ private fun Web.toolsIndex(r: Web.Req) {
     if (Features.v2) tool("/tools/setlists", "Setlists", "The latest setlists of a playlist's artists, from setlist.fm: pick a concert and make it a playlist on any service.")
     tool("/tools/stats", "Your numbers", "What your syncs did: tracks moved, time saved, the busiest route, the most added artists.")
     body.append(v2ToolCards())
+    body.append(plexToolCard())
     body.append("<h2>Make</h2>")
     if (Features.v2) tool("/tools/releases", "New releases", "The new albums, EPs and singles of a playlist's artists (Deezer and MusicBrainz, no account): as a playlist on any service, now or every week.")
     tool("/tools/ai", "Playlist generator", "From artists you like, with no key (MusicBrainz and ListenBrainz data); or describe a playlist and your own AI writes it (free tiers and local models work). Trackhop creates it on a service.")

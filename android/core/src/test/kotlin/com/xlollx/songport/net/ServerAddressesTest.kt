@@ -1,0 +1,64 @@
+package com.xlollx.songport.net
+
+import kotlinx.coroutines.runBlocking
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Before
+import org.junit.Test
+
+/** 2.2: a personal server at home and away. */
+class ServerAddressesTest {
+    private val server = MockWebServer()
+
+    @Before fun start() { ServerAddresses.reset(); server.start() }
+    @After fun stop() { ServerAddresses.reset(); server.shutdown() }
+
+    /** Nothing listens on port 1: the home address does not answer. */
+    private val home = "http://127.0.0.1:1"
+    private val away get() = server.url("/").toString().trimEnd('/')
+
+    @Test fun firstChoiceFollowsTheNetwork() {
+        ServerAddresses.register(home, "https://music.example.org/")
+        assertEquals(home, ServerAddresses.current(home))
+        ServerAddresses.onWifi = { false }
+        assertEquals("https://music.example.org", ServerAddresses.current(home))
+        assertEquals("https://music.example.org/rest/ping?x=1", ServerAddresses.route("$home/rest/ping?x=1"))
+        ServerAddresses.onWifi = { true }
+        assertEquals("$home/rest/ping", ServerAddresses.route("$home/rest/ping"))
+        // Another server, or a longer name that only starts the same, is never rewritten.
+        assertEquals("http://127.0.0.1:12/x", ServerAddresses.route("http://127.0.0.1:12/x"))
+    }
+
+    @Test fun anUnreachableAddressFailsOverAndTheOtherIsRemembered() = runBlocking {
+        ServerAddresses.register(home, away)
+        server.enqueue(MockResponse().setBody("one"))
+        server.enqueue(MockResponse().setBody("two"))
+        val r = Http.send("POST", "$home/rest/createPlaylist?name=a", body = Http.jsonBody("{}"))
+        assertEquals("one", r.body)
+        assertEquals("/rest/createPlaylist?name=a", server.takeRequest().path)
+        // Next time straight to the one that answered.
+        assertEquals(away, ServerAddresses.current(home))
+        assertEquals("two", Http.send("GET", "$home/rest/ping").body)
+        assertEquals(2, server.requestCount)
+    }
+
+    @Test fun withoutASecondAddressTheErrorIsTheCallers() = runBlocking {
+        try { Http.send("GET", "$home/x"); throw AssertionError("expected a failure") } catch (e: java.io.IOException) { }
+        assertNull(ServerAddresses.failover("$home/x", java.net.ConnectException()))
+    }
+
+    @Test fun aTimeoutAfterSendingIsNotSentAgainElsewhere() {
+        ServerAddresses.register(home, away)
+        assertNull(ServerAddresses.failover("$home/x", java.net.SocketTimeoutException("timeout")))
+        assertEquals("$away/x", ServerAddresses.failover("$home/x", java.net.SocketTimeoutException("connect timed out")))
+    }
+
+    @Test fun unregisterForgetsThePair() {
+        ServerAddresses.register(home, away)
+        ServerAddresses.unregister(home)
+        assertEquals("$home/x", ServerAddresses.route("$home/x"))
+    }
+}

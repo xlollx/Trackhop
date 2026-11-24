@@ -4,6 +4,7 @@ import com.xlollx.songport.model.Track
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
@@ -328,6 +329,35 @@ object PlaylistFiles {
         }
         val root = buildJsonObject { put("playlist", buildJsonObject { put("title", name); put("track", JsonArray(list)) }) }
         return Json { prettyPrint = true }.encodeToString(JsonObject.serializer(), root) + "\n"
+    }
+
+    /**
+     * A JSON list Soundiiz imports (the shape of its own JSON export): one object a track, with title,
+     * artist, album, ISRC and the length in seconds. [platform] and the ids are left empty: Soundiiz then
+     * finds each track by its ISRC, or by its names, on whichever service the user imports into.
+     */
+    fun toSoundiizJson(tracks: List<Track>): String {
+        val list = tracks.map { t ->
+            buildJsonObject {
+                put("platform", "")
+                put("type", "track")
+                put("id", "")
+                put("title", t.title)
+                put("artist", t.artistLine)
+                put("artistLink", "")
+                put("album", t.album)
+                put("albumLink", "")
+                put("isrc", t.isrcNorm.orEmpty())
+                put("duration", if (t.durationMs > 0) (t.durationMs / 1000).toString() else "")
+                put("trackLink", "")
+                put("preview", "")
+                put("picture", "")
+                if (t.addedAt > 0) put("addedDate", t.addedAt / 1000) else put("addedDate", JsonNull)
+                put("position", "")
+                put("shareUrls", JsonArray(emptyList()))
+            }
+        }
+        return Json { prettyPrint = true }.encodeToString(JsonArray.serializer(), JsonArray(list)) + "\n"
     }
 
     /** XSPF, la playlist XML aperta che leggono VLC, Strawberry, Clementine e altri. */

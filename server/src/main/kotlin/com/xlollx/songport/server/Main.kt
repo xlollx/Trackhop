@@ -42,6 +42,8 @@ fun installServerConnectors(officialOnly: Boolean = false) {
     com.xlollx.songport.sync.TikTokShare.enabled = !officialOnly
     // Concerts: Vivaticket's dates in Italy, read from its site (unofficial too).
     com.xlollx.songport.sync.Vivaticket.enabled = !officialOnly
+    // Apple Music removals by writing the whole list (an undocumented endpoint): not in the Microsoft Store's package.
+    com.xlollx.songport.providers.AppleMusicProvider.fullListWrites = !officialOnly
     if (!officialOnly) com.xlollx.songport.sync.TikTokShare.recognizer = ServerAudio.recognizer
     installServerConnectorsOnly(officialOnly)
 }
@@ -73,6 +75,8 @@ private fun installServerConnectorsOnly(officialOnly: Boolean) = Providers.insta
         LocalFilesProvider,
         // Apple Music's and Deezer's public charts: official feeds, so on every build.
         com.xlollx.songport.providers.ChartsProvider,
+        // A playlist file kept online, from its link (2.2): no service involved, so on every build.
+        com.xlollx.songport.providers.PlaylistUrlProvider,
         SoundCloudProvider.takeUnless { officialOnly },
         NeteaseProvider.takeUnless { officialOnly },
         AnghamiProvider.takeUnless { officialOnly },

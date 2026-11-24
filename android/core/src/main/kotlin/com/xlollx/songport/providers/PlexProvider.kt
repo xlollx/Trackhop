@@ -37,6 +37,14 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider(), Play
     override val searchesTitleOnly: Boolean get() = true
     override val loginForm = LoginForm(needsUrl = true, needsUser = false, needsSecret = true, secretLabelName = "login_token", hintName = "login_hint_plex")
 
+    /**
+     * Liked songs (2.2): Plex has none, so a song rated five stars is one, as Plexist does it. Trackhop
+     * keeps a register of the songs it rated ([LOVED]): taking a like away clears only those, never
+     * a five-star rating the user gave by hand.
+     */
+    override val supportsLikedSongs: Boolean get() = true
+    override val supportsLikedTarget: Boolean get() = true
+
     override suspend fun login(ctx: Env, url: String, user: String, secret: String) {
         val base = normalizeUrl(url)
         val t = Tokens(accessToken = secret.trim(), extra = mapOf("url" to base))
@@ -70,8 +78,42 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider(), Play
             Playlist(p["ratingKey"].str ?: return@mapNotNull null, p["title"].str ?: "", p["leafCount"].int ?: -1)
         }
 
-    override suspend fun tracks(ctx: Env, playlistId: String): List<Track> =
-        api(ctx, "GET", "/playlists/$playlistId/items?includeGuids=1")["MediaContainer"]["Metadata"].arr.mapNotNull { toTrack(it) }
+    override suspend fun tracks(ctx: Env, playlistId: String): List<Track> {
+        if (playlistId == MusicProvider.LIKED_ID) return fiveStars(ctx)
+        return api(ctx, "GET", "/playlists/$playlistId/items?includeGuids=1")["MediaContainer"]["Metadata"].arr.mapNotNull { toTrack(it) }
+    }
+
+    override suspend fun playlistInfo(ctx: Env, playlistId: String): Playlist {
+        if (MusicProvider.isLibrary(playlistId)) return super.playlistInfo(ctx, playlistId)
+        val m = api(ctx, "GET", "/playlists/${Http.enc(playlistId)}")["MediaContainer"]["Metadata"][0]
+        return Playlist(playlistId, m["title"].str ?: playlistId, m["leafCount"].int ?: -1, description = m["summary"].str.orEmpty())
+    }
+
+    private suspend fun musicSections(ctx: Env, t: Tokens = creds(ctx)): List<String> =
+        api(ctx, "GET", "/library/sections", t)["MediaContainer"]["Directory"].arr.filter { it["type"].str == "artist" }.mapNotNull { it["key"].str }
+
+    /** Every song rated five stars (userRating 10) in the music libraries, a page at a time. */
+    private suspend fun fiveStars(ctx: Env): List<Track> {
+        val out = ArrayList<Track>()
+        for (section in musicSections(ctx)) {
+            var offset = 0
+            while (true) {
+                val page = api(ctx, "GET", "/library/sections/$section/all?type=10&userRating=$FIVE_STARS&includeGuids=1&X-Plex-Container-Start=$offset&X-Plex-Container-Size=$LIBRARY_PAGE")["MediaContainer"]["Metadata"].arr
+                out += page.mapNotNull { m -> toTrack(m)?.takeIf { (m["userRating"].str?.toDoubleOrNull() ?: FIVE_STARS.toDouble()) >= FIVE_STARS } }
+                offset += page.size
+                if (page.size < LIBRARY_PAGE) break
+            }
+        }
+        return out
+    }
+
+    private fun loved(ctx: Env): MutableSet<String> = ctx.keyValues(LOVED)[id].orEmpty().split('\n').filterTo(LinkedHashSet()) { it.isNotBlank() }
+    private fun saveLoved(ctx: Env, keys: Set<String>) { ctx.keyValues(LOVED)[id] = keys.joinToString("\n") }
+
+    /** A song's rating, 0 to 10 (10 = five stars), -1 to clear it: PUT /:/rate, as Plex's own apps do. */
+    private suspend fun rate(ctx: Env, ratingKey: String, rating: Int) {
+        api(ctx, "PUT", "/:/rate?key=${Http.enc(ratingKey)}&identifier=com.plexapp.plugins.library&rating=$rating")
+    }
 
     /**
      * A playlist's last change, size and length, from its own metadata (one light call): a scheduled
@@ -176,8 +218,9 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider(), Play
 
     private fun fileOf(m: JsonElement?): String? = m["Media"].arr.firstNotNullOfOrNull { media -> media["Part"].arr.firstNotNullOfOrNull { it["file"].str } }
 
-    override suspend fun createPlaylist(ctx: Env, name: String, description: String): Playlist {
-        val t = creds(ctx)
+    override suspend fun createPlaylist(ctx: Env, name: String, description: String): Playlist = createWith(ctx, creds(ctx), name, description)
+
+    private suspend fun createWith(ctx: Env, t: Tokens, name: String, description: String): Playlist {
         val machine = t.extra["machine"] ?: throw ProviderException("$displayName: reconnect")
         // An empty audio playlist: the uri names the library only, no item (Plex wants a uri even then).
         val uri = "server://$machine/com.plexapp.plugins.library"
@@ -215,20 +258,117 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider(), Play
     }
 
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
-        val machine = creds(ctx).extra["machine"] ?: throw ProviderException("$displayName: reconnect")
+        if (playlistId == MusicProvider.LIKED_ID) {
+            val register = loved(ctx)
+            for (t in tracks) {
+                rate(ctx, t.id, FIVE_STARS)
+                register += t.id
+                saveLoved(ctx, register)
+            }
+            return
+        }
+        addItems(ctx, creds(ctx), playlistId, tracks)
+    }
+
+    private suspend fun addItems(ctx: Env, t: Tokens, playlistId: String, tracks: List<Track>) {
+        val machine = t.extra["machine"] ?: throw ProviderException("$displayName: reconnect")
         tracks.chunked(50).forEach { chunk ->
             val uri = "server://$machine/com.plexapp.plugins.library/library/metadata/${chunk.joinToString(",") { it.id }}"
-            api(ctx, "PUT", "/playlists/$playlistId/items?uri=${Http.enc(uri)}")
+            api(ctx, "PUT", "/playlists/$playlistId/items?uri=${Http.enc(uri)}", t)
         }
     }
 
     override val removesSingleEntry: Boolean get() = true
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
+        if (playlistId == MusicProvider.LIKED_ID) { removeTracksReportingKept(ctx, playlistId, tracks); return }
         tracks.mapNotNull { it.itemId }.forEach { api(ctx, "DELETE", "/playlists/$playlistId/items/$it") }
+    }
+
+    /** A like taken away clears the five stars Trackhop gave; one the user gave stays, said as kept. */
+    override suspend fun removeTracksReportingKept(ctx: Env, playlistId: String, tracks: List<Track>): Set<String> {
+        if (playlistId != MusicProvider.LIKED_ID) return super.removeTracksReportingKept(ctx, playlistId, tracks)
+        val register = loved(ctx)
+        val kept = HashSet<String>()
+        for (t in tracks) {
+            if (t.id !in register) { kept += t.id; continue }
+            rate(ctx, t.id, -1)
+            register -= t.id
+            saveLoved(ctx, register)
+        }
+        if (kept.isNotEmpty()) ctx.log(id, "${kept.size} five-star rating(s) given outside Trackhop left as they are")
+        return kept
+    }
+
+    // ---- 2.2: sonic analysis (Plex Pass) and Plex Home
+
+    /** Songs of the library matching [query] by title, for picking a song to start from. */
+    suspend fun findSongs(ctx: Env, query: String): List<Track> =
+        api(ctx, "GET", "/hubs/search?query=${Http.enc(query)}&limit=20")["MediaContainer"]["Hub"].arr
+            .filter { it["type"].str == "track" }.flatMap { it["Metadata"].arr }.mapNotNull { toTrack(it) }
+
+    /**
+     * Songs that sound like [trackId], the closest first (`/library/metadata/{id}/nearest`, Plex's sonic
+     * analysis: a Plex Pass server that analysed its music). Empty where the server has no analysis.
+     */
+    suspend fun soundsLike(ctx: Env, trackId: String, limit: Int = 25, maxDistance: Double = 0.25): List<Track> =
+        api(ctx, "GET", "/library/metadata/${Http.enc(trackId)}/nearest?limit=${limit.coerceIn(1, 100)}&maxDistance=$maxDistance")["MediaContainer"]["Metadata"].arr
+            .mapNotNull { toTrack(it) }.filter { it.id != trackId }
+
+    /** A journey from [fromId] to [toId] through songs that sound alike (Plex's Sonic adventure, `computePath`), both ends included. */
+    suspend fun sonicAdventure(ctx: Env, fromId: String, toId: String): List<Track> {
+        val section = api(ctx, "GET", "/library/metadata/${Http.enc(fromId)}")["MediaContainer"]["Metadata"][0]["librarySectionID"].let { it.str ?: it.long?.toString() }
+            ?: throw ProviderException("$displayName: song not found")
+        return api(ctx, "GET", "/library/sections/$section/computePath?startID=${Http.enc(fromId)}&endID=${Http.enc(toId)}")["MediaContainer"]["Metadata"].arr.mapNotNull { toTrack(it) }
+    }
+
+    /** A user of the server's Plex Home (or a friend it is shared with): their id, their name, and the token that acts as them on this server. */
+    data class HomeUser(val id: String, val name: String, internal val token: String)
+
+    /**
+     * The users this server is shared with, managed Home users among them, from plex.tv
+     * (`/api/servers/{machine}/shared_servers`, the server owner's token): each with the token that
+     * reaches this server as them, so no PIN is asked.
+     */
+    suspend fun homeUsers(ctx: Env): List<HomeUser> {
+        val t = creds(ctx)
+        val machine = t.extra["machine"] ?: throw ProviderException("$displayName: reconnect")
+        val resp = Http.send("GET", "$PLEX_TV/api/servers/$machine/shared_servers", mapOf("X-Plex-Token" to t.accessToken, "Accept" to "application/xml"))
+        if (resp.code == 401 || resp.code == 403) throw ProviderException(ctx.text("plex_home_owner_only"))
+        if (!resp.ok) throw ProviderException("plex.tv ${resp.code}: ${resp.body.take(160)}")
+        return sharedServers(resp.body)
+    }
+
+    /** Copies playlist [playlistId] into [userId]'s library on this server, under the same name; answers the new playlist. */
+    suspend fun copyToUser(ctx: Env, playlistId: String, userId: String): Playlist {
+        val user = homeUsers(ctx).firstOrNull { it.id == userId } ?: throw ProviderException(ctx.text("plex_home_user_unknown"))
+        val info = playlistInfo(ctx, playlistId)
+        val tracks = tracks(ctx, playlistId)
+        val asUser = creds(ctx).let { it.copy(accessToken = user.token) }
+        val made = createWith(ctx, asUser, info.name, info.description)
+        if (tracks.isNotEmpty()) addItems(ctx, asUser, made.id, tracks.distinctBy { it.id })
+        ctx.log(id, "playlist ${info.name} copied to ${user.name} (${tracks.size} songs)")
+        return made.copy(trackCount = tracks.size)
     }
 
     companion object {
         const val SERVICE = "plex"
+        private const val PLEX_TV = "https://plex.tv"
+        /** Plex rates 0 to 10: 10 is five stars. */
+        private const val FIVE_STARS = 10
+        /** The songs each Plex account had rated five stars by Trackhop (ratingKeys, one a line). */
+        private const val LOVED = "plex_loved"
+
+        /** The users of plex.tv's shared_servers answer (XML): `<SharedServer userID name|username accessToken …/>`. */
+        internal fun sharedServers(xml: String): List<HomeUser> =
+            Regex("""<SharedServer\b([^>]*)>""").findAll(xml).mapNotNull { m ->
+                val attrs = Regex("""(\w+)="([^"]*)"""").findAll(m.groupValues[1]).associate { it.groupValues[1] to xmlUnescape(it.groupValues[2]) }
+                val token = attrs["accessToken"]?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                val id = attrs["userID"] ?: attrs["id"] ?: return@mapNotNull null
+                val name = listOf("name", "username", "email").firstNotNullOfOrNull { attrs[it]?.takeIf { v -> v.isNotBlank() } } ?: id
+                HomeUser(id, name, token)
+            }.distinctBy { it.id }.toList()
+
+        private fun xmlUnescape(s: String) = s.replace("&quot;", "\"").replace("&apos;", "'").replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&")
         private const val LIBRARY_PAGE = 500
         /** Tracks whose details one request reads for the lyrics report. */
         private const val LYRICS_BATCH = 50
