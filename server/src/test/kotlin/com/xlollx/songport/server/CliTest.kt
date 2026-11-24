@@ -118,4 +118,16 @@ class CliTest {
         assertEquals(0, cli("status", env = mapOf("TRACKHOP_URL" to url, "TRACKHOP_TOKEN" to token)).code)
         assertEquals(3, cli("--url", url, "--token", "th_wrong", "status").code)
     }
+
+    /** 2.2: `run --wait` says "partly done" (4) apart from "failed" (1); 2 keeps meaning wrong use. */
+    @Test fun runExitTellsPartlyDoneApart() {
+        fun r(ok: Boolean, held: Int = 0, notFound: Int = 0) = kotlinx.serialization.json.buildJsonObject {
+            put("ok", kotlinx.serialization.json.JsonPrimitive(ok)); put("heldRemovals", kotlinx.serialization.json.JsonPrimitive(held)); put("notFound", kotlinx.serialization.json.JsonPrimitive(notFound))
+        }
+        assertEquals(0, Cli.runExit(listOf(r(true), r(true, notFound = 3))))
+        assertEquals(1, Cli.runExit(listOf(r(false), null)))
+        assertEquals(Cli.PARTIAL, Cli.runExit(listOf(r(true), r(false))))
+        assertEquals(Cli.PARTIAL, Cli.runExit(listOf(r(true, held = 2))))
+        assertEquals(4, Cli.PARTIAL)
+    }
 }
