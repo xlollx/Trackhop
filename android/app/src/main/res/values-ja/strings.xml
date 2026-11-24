@@ -3400,4 +3400,34 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="other">%1$d 件を忘れました。次の同期でもう一度検索します。</item>
     </plurals>
+    <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
+    <string name="ytm_profile_title">どの YouTube Music プロフィールを使いますか？</string>
+    <string name="ytm_profile_body">この Google アカウントには %1$d 個のプロフィールがあります。Trackhop は選んだプロフィールでプレイリストと高く評価した曲を読み書きします。</string>
+    <string name="ytm_profile_body_one">Trackhop は選んだプロフィールでプレイリストと高く評価した曲を読み書きします。</string>
+    <string name="ytm_profile_wrong">Trackhop は %1$s を使っていますが、プレイリストも高く評価した曲もありません。音楽は %2$s にあるようです。</string>
+    <string name="ytm_profile_empty">空</string>
+    <string name="ytm_profile_here">音楽はここにあります</string>
+    <string name="ytm_profile_nothing">プレイリストなし、高く評価した曲なし</string>
+    <string name="ytm_profile_no_playlists">プレイリストなし</string>
+    <string name="ytm_profile_no_liked">高く評価した曲なし</string>
+    <string name="ytm_profile_pick_hint">YouTube Music アプリで使っているものを選んでください。あとでアカウントのカードから変更できます。</string>
+    <string name="ytm_profile_use">%1$s を使う</string>
+    <string name="ytm_profile_continue">%1$s で続ける</string>
+    <string name="ytm_profile_keep">%1$s のままにする</string>
+    <string name="ytm_profile_card_wrong">プロフィール %1$s は空です。音楽は %2$s にあるようです。</string>
+    <string name="ytm_profile_change">変更</string>
+    <string name="ytm_profile_row">プロフィール: %1$s</string>
+    <string name="ytm_profile_brand">ブランド アカウント</string>
+    <string name="youtube_empty_channel">このチャンネルにはプレイリストも高く評価した曲もありません。音楽が別のプロフィール（ブランド アカウント）にある場合は、もう一度ログインして Google のリストでそのプロフィールを選んでください。</string>
+    <string name="youtube_empty_keep">このままにする</string>
+    <string name="connect_spotify_shared_note">Spotify は、このバージョンの Trackhop で接続できるアカウントをごく少数に制限しています。あなたのアカウントには、ほぼ確実に無料の自分用キーが必要です。Spotify Premium アカウントで約2分、アプリが順を追って案内します。</string>
+    <string name="connect_try_anyway">それでも試す</string>
+    <string name="connect_use_own_key">自分のキーを使う</string>
+    <string name="onboarding_connect_first">最初のサービスを接続</string>
+    <plurals name="ytm_profile_playlists">
+        <item quantity="other">プレイリスト %d 件</item>
+    </plurals>
+    <plurals name="ytm_profile_liked">
+        <item quantity="other">高く評価した曲 %d 曲</item>
+    </plurals>
 </resources>

@@ -3517,4 +3517,36 @@
         <item quantity="one">%1$d dimenticata: la prossima sync la cerca di nuovo.</item>
         <item quantity="other">%1$d dimenticate: la prossima sync le cerca di nuovo.</item>
     </plurals>
+    <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
+    <string name="ytm_profile_title">Quale profilo di YouTube Music?</string>
+    <string name="ytm_profile_body">Il tuo account Google ha %1$d profili. Trackhop legge e scrive playlist e brani piaciuti su quello che scegli.</string>
+    <string name="ytm_profile_body_one">Trackhop legge e scrive playlist e brani piaciuti sul profilo che scegli.</string>
+    <string name="ytm_profile_wrong">Trackhop sta usando %1$s, che non ha playlist né brani piaciuti. La tua musica sembra essere su %2$s.</string>
+    <string name="ytm_profile_empty">Vuoto</string>
+    <string name="ytm_profile_here">La tua musica è qui</string>
+    <string name="ytm_profile_nothing">nessuna playlist, nessun brano piaciuto</string>
+    <string name="ytm_profile_no_playlists">nessuna playlist</string>
+    <string name="ytm_profile_no_liked">nessun brano piaciuto</string>
+    <string name="ytm_profile_pick_hint">Scegli quello che usi nell\'app YouTube Music. Puoi cambiarlo dopo dalla scheda dell\'account.</string>
+    <string name="ytm_profile_use">Usa %1$s</string>
+    <string name="ytm_profile_continue">Continua con %1$s</string>
+    <string name="ytm_profile_keep">Tieni %1$s</string>
+    <string name="ytm_profile_card_wrong">Il profilo %1$s è vuoto. La tua musica sembra essere su %2$s.</string>
+    <string name="ytm_profile_change">Cambia</string>
+    <string name="ytm_profile_row">Profilo: %1$s</string>
+    <string name="ytm_profile_brand">account brand</string>
+    <string name="youtube_empty_channel">Questo canale non ha playlist né brani piaciuti. Se la tua musica è su un altro profilo (un account brand), accedi di nuovo e scegli quel profilo nell\'elenco di Google.</string>
+    <string name="youtube_empty_keep">Va bene così</string>
+    <string name="connect_spotify_shared_note">Spotify permette a questa versione di Trackhop di collegare solo pochi account. Il tuo avrà quasi certamente bisogno di una chiave tua, gratuita: circa due minuti, con un account Spotify Premium, e l\'app ti guida passo passo.</string>
+    <string name="connect_try_anyway">Prova comunque</string>
+    <string name="connect_use_own_key">Usa una mia chiave</string>
+    <string name="onboarding_connect_first">Collega il primo servizio</string>
+    <plurals name="ytm_profile_playlists">
+        <item quantity="one">%d playlist</item>
+        <item quantity="other">%d playlist</item>
+    </plurals>
+    <plurals name="ytm_profile_liked">
+        <item quantity="one">%d brano piaciuto</item>
+        <item quantity="other">%d brani piaciuti</item>
+    </plurals>
 </resources>

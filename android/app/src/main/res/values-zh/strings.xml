@@ -3400,4 +3400,34 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="other">已忘记 %1$d 项：下次同步会重新查找。</item>
     </plurals>
+    <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
+    <string name="ytm_profile_title">使用哪个 YouTube Music 个人资料？</string>
+    <string name="ytm_profile_body">你的 Google 账号有 %1$d 个个人资料。Trackhop 会在你选择的那个里读写播放列表和喜欢的歌曲。</string>
+    <string name="ytm_profile_body_one">Trackhop 会在你选择的个人资料里读写播放列表和喜欢的歌曲。</string>
+    <string name="ytm_profile_wrong">Trackhop 正在使用 %1$s，那里没有播放列表，也没有喜欢的歌曲。你的音乐似乎在 %2$s。</string>
+    <string name="ytm_profile_empty">空</string>
+    <string name="ytm_profile_here">你的音乐在这里</string>
+    <string name="ytm_profile_nothing">没有播放列表，没有喜欢的歌曲</string>
+    <string name="ytm_profile_no_playlists">没有播放列表</string>
+    <string name="ytm_profile_no_liked">没有喜欢的歌曲</string>
+    <string name="ytm_profile_pick_hint">选择你在 YouTube Music 应用里使用的那个。之后可以在账号卡片上更改。</string>
+    <string name="ytm_profile_use">使用 %1$s</string>
+    <string name="ytm_profile_continue">继续使用 %1$s</string>
+    <string name="ytm_profile_keep">保留 %1$s</string>
+    <string name="ytm_profile_card_wrong">个人资料 %1$s 是空的。你的音乐似乎在 %2$s。</string>
+    <string name="ytm_profile_change">更改</string>
+    <string name="ytm_profile_row">个人资料：%1$s</string>
+    <string name="ytm_profile_brand">品牌账号</string>
+    <string name="youtube_empty_channel">这个频道没有播放列表，也没有喜欢的歌曲。如果你的音乐在另一个个人资料（品牌账号）里，请重新登录并在 Google 的列表中选择它。</string>
+    <string name="youtube_empty_keep">保持不变</string>
+    <string name="connect_spotify_shared_note">Spotify 只允许这个版本的 Trackhop 连接少数几个账号。你的账号几乎肯定需要一个属于你自己的免费密钥：大约两分钟，需要 Spotify Premium 账号，应用会一步步引导你。</string>
+    <string name="connect_try_anyway">仍然尝试</string>
+    <string name="connect_use_own_key">使用我自己的密钥</string>
+    <string name="onboarding_connect_first">连接第一个服务</string>
+    <plurals name="ytm_profile_playlists">
+        <item quantity="other">%d 个播放列表</item>
+    </plurals>
+    <plurals name="ytm_profile_liked">
+        <item quantity="other">%d 首喜欢的歌曲</item>
+    </plurals>
 </resources>

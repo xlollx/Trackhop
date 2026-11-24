@@ -3515,4 +3515,36 @@
         <item quantity="one">%1$d unutuldu: sonraki senkronizasyon yeniden arar.</item>
         <item quantity="other">%1$d unutuldu: sonraki senkronizasyon yeniden arar.</item>
     </plurals>
+    <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
+    <string name="ytm_profile_title">Hangi YouTube Music profili?</string>
+    <string name="ytm_profile_body">Google hesabınızda %1$d profil var. Trackhop çalma listelerini ve beğenilen şarkıları seçtiğiniz profilde okur ve yazar.</string>
+    <string name="ytm_profile_body_one">Trackhop çalma listelerini ve beğenilen şarkıları seçtiğiniz profilde okur ve yazar.</string>
+    <string name="ytm_profile_wrong">Trackhop %1$s profilini kullanıyor; orada çalma listesi ya da beğenilen şarkı yok. Müziğiniz %2$s üzerinde görünüyor.</string>
+    <string name="ytm_profile_empty">Boş</string>
+    <string name="ytm_profile_here">Müziğiniz burada</string>
+    <string name="ytm_profile_nothing">çalma listesi yok, beğenilen şarkı yok</string>
+    <string name="ytm_profile_no_playlists">çalma listesi yok</string>
+    <string name="ytm_profile_no_liked">beğenilen şarkı yok</string>
+    <string name="ytm_profile_pick_hint">YouTube Music uygulamasında kullandığınızı seçin. Daha sonra hesabın kartından değiştirebilirsiniz.</string>
+    <string name="ytm_profile_use">%1$s kullan</string>
+    <string name="ytm_profile_continue">%1$s ile devam et</string>
+    <string name="ytm_profile_keep">%1$s kalsın</string>
+    <string name="ytm_profile_card_wrong">%1$s profili boş. Müziğiniz %2$s üzerinde görünüyor.</string>
+    <string name="ytm_profile_change">Değiştir</string>
+    <string name="ytm_profile_row">Profil: %1$s</string>
+    <string name="ytm_profile_brand">marka hesabı</string>
+    <string name="youtube_empty_channel">Bu kanalda çalma listesi ya da beğenilen şarkı yok. Müziğiniz başka bir profildeyse (marka hesabı), yeniden giriş yapın ve Google\'ın listesinde o profili seçin.</string>
+    <string name="youtube_empty_keep">Böyle kalsın</string>
+    <string name="connect_spotify_shared_note">Spotify, Trackhop\'un bu sürümünün yalnızca birkaç hesap bağlamasına izin veriyor. Sizinki büyük olasılıkla ücretsiz, kendinize ait bir anahtar gerektirecek: yaklaşık iki dakika, bir Spotify Premium hesabıyla; uygulama adım adım yol gösterir.</string>
+    <string name="connect_try_anyway">Yine de dene</string>
+    <string name="connect_use_own_key">Kendi anahtarımı kullan</string>
+    <string name="onboarding_connect_first">İlk hizmetini bağla</string>
+    <plurals name="ytm_profile_playlists">
+        <item quantity="one">%d çalma listesi</item>
+        <item quantity="other">%d çalma listesi</item>
+    </plurals>
+    <plurals name="ytm_profile_liked">
+        <item quantity="one">%d beğenilen şarkı</item>
+        <item quantity="other">%d beğenilen şarkı</item>
+    </plurals>
 </resources>

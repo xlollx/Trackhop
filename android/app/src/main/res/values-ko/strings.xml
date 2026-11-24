@@ -3399,4 +3399,34 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="other">%1$d개를 잊었어요. 다음 동기화에서 다시 검색합니다.</item>
     </plurals>
+    <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
+    <string name="ytm_profile_title">어떤 YouTube Music 프로필을 쓸까요?</string>
+    <string name="ytm_profile_body">Google 계정에 프로필이 %1$d개 있어요. Trackhop은 선택한 프로필에서 플레이리스트와 좋아요 표시한 곡을 읽고 써요.</string>
+    <string name="ytm_profile_body_one">Trackhop은 선택한 프로필에서 플레이리스트와 좋아요 표시한 곡을 읽고 써요.</string>
+    <string name="ytm_profile_wrong">Trackhop이 %1$s 프로필을 쓰고 있는데, 여기엔 플레이리스트도 좋아요 표시한 곡도 없어요. 음악은 %2$s에 있는 것 같아요.</string>
+    <string name="ytm_profile_empty">비어 있음</string>
+    <string name="ytm_profile_here">음악이 여기 있어요</string>
+    <string name="ytm_profile_nothing">플레이리스트 없음, 좋아요 표시한 곡 없음</string>
+    <string name="ytm_profile_no_playlists">플레이리스트 없음</string>
+    <string name="ytm_profile_no_liked">좋아요 표시한 곡 없음</string>
+    <string name="ytm_profile_pick_hint">YouTube Music 앱에서 쓰는 프로필을 고르세요. 나중에 계정 카드에서 바꿀 수 있어요.</string>
+    <string name="ytm_profile_use">%1$s 사용</string>
+    <string name="ytm_profile_continue">%1$s(으)로 계속</string>
+    <string name="ytm_profile_keep">%1$s 유지</string>
+    <string name="ytm_profile_card_wrong">%1$s 프로필이 비어 있어요. 음악은 %2$s에 있는 것 같아요.</string>
+    <string name="ytm_profile_change">변경</string>
+    <string name="ytm_profile_row">프로필: %1$s</string>
+    <string name="ytm_profile_brand">브랜드 계정</string>
+    <string name="youtube_empty_channel">이 채널에는 플레이리스트도 좋아요 표시한 곡도 없어요. 음악이 다른 프로필(브랜드 계정)에 있다면 다시 로그인해 Google 목록에서 그 프로필을 고르세요.</string>
+    <string name="youtube_empty_keep">그대로 두기</string>
+    <string name="connect_spotify_shared_note">Spotify는 이 버전의 Trackhop이 몇 개의 계정만 연결하도록 허용해요. 내 계정은 거의 확실히 무료 개인 키가 필요해요. Spotify Premium 계정으로 약 2분, 앱이 단계별로 안내해요.</string>
+    <string name="connect_try_anyway">그래도 시도</string>
+    <string name="connect_use_own_key">내 키 사용</string>
+    <string name="onboarding_connect_first">첫 서비스 연결</string>
+    <plurals name="ytm_profile_playlists">
+        <item quantity="other">플레이리스트 %d개</item>
+    </plurals>
+    <plurals name="ytm_profile_liked">
+        <item quantity="other">좋아요 표시한 곡 %d곡</item>
+    </plurals>
 </resources>
