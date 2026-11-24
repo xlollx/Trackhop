@@ -112,6 +112,7 @@ this server or the same sync on both, and the app's reach here: see
 | Command | What it does |
 |---|---|
 | `trackhop services` | The services you added, and whether they are connected. |
+| `trackhop catalog [words] [--category regional]` | Every service you can add, with its category; words also match other names (`trackhop catalog navidrome` finds Subsonic). |
 | `trackhop playlists <service>` | A service's playlists, with their ids. |
 | `trackhop tracks <service> <playlist>` | A playlist's tracks. |
 | `trackhop add <service> <playlist> <track>…` | Adds tracks. A track is `"Artist - Title"` (searched and matched as a sync does), a link from any service, or its id on that service. Tracks already there are not added again. |
@@ -166,7 +167,7 @@ shows); a `<playlist>` its name or id.
 | Command | What it does |
 |---|---|
 | `trackhop notify` | The [notification channels](docker#notifications), their tokens masked. |
-| `trackhop notify kinds` | The kinds of channel (Telegram, ntfy, Gotify, Discord, Slack, Matrix, Pushover) and their settings. |
+| `trackhop notify kinds` | The kinds of channel (Telegram, ntfy, Gotify, Discord, Slack, Matrix, Pushover, Apprise) and their settings. |
 | `trackhop notify add <kind> --set key=value…` | Adds a channel: `--name`, `--set` for each setting (`--set topic=trackhop-…`), `--events changes,failed,review,removals`. |
 | `trackhop notify edit <channel> …` | Changes one; a token left out keeps its value. |
 | `trackhop notify on <channel>`, `off`, `rm` | Turns it on or off, or removes it. |

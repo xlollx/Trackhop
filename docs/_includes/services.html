@@ -1,0 +1,41 @@
+{%- comment -%}
+  trackhop.org/services: the table of _data/services.yml (the same file the README's table is written
+  from, by scripts/site_data.py), grouped, in the page's language; the texts around it are in
+  _data/pages_ui.yml. No script.
+{%- endcomment -%}
+{%- assign lang = page.lang | default: 'en' | slice: 0, 2 -%}
+{%- assign d = site.data.services -%}
+{%- assign rwr = "read,write,remove" | split: "," -%}
+{%- assign u = site.data.pages_ui.services[lang] | default: site.data.pages_ui.services.en -%}
+<div class="svc">
+  <p class="tool-kicker">{{ u.kicker }}</p>
+  <h1>{{ u.h1 }}</h1>
+  <p class="tool-lead">{{ u.lead }}</p>
+  <p class="svc-legend">{{ u.legend }}</p>
+  <p class="svc-jump">{{ u.jump }} {% for g in d.groups %}<a href="#{{ g[0] }}">{{ g[1][lang] | default: g[1].en }}</a>{% unless forloop.last %} · {% endunless %}{% endfor %}</p>
+  {%- for g in d.groups %}
+  <h2 id="{{ g[0] }}">{{ g[1][lang] | default: g[1].en }}</h2>
+  <table class="svc-table">
+    <thead><tr>{% for c in u.cols %}<th{% if forloop.index > 1 and forloop.index < 5 %} class="c"{% endif %}>{{ c }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {%- assign last = "" -%}
+    {%- for r in d.rows -%}
+      {%- if r.name != "" -%}{%- assign last = r.name -%}{%- endif -%}
+      {%- if r.group != g[0] -%}{%- continue -%}{%- endif -%}
+      {%- if r.name == "" -%}{%- assign shown = "" -%}{%- assign more = true -%}{%- else -%}{%- assign more = false -%}{%- if r.name[lang] -%}{%- assign shown = r.name[lang] -%}{%- else -%}{%- assign shown = r.name -%}{%- endif -%}{%- endif %}
+      <tr{% if more %} class="more"{% endif %}>
+        <td data-l="{{ u.cols[0] }}">{% if shown != "" %}<b>{{ shown }}</b>{% endif %}{% if r.extra %} <span class="svc-extra">({% if r.extra[lang] %}{{ r.extra[lang] }}{% elsif r.extra.en %}{{ r.extra.en }}{% else %}{{ r.extra }}{% endif %})</span>{% endif %}</td>
+        {%- for k in rwr %}
+        {%- assign v = r[k] %}
+        <td class="c" data-l="{{ u.cols[forloop.index] }}">{% if v == "yes" %}<span class="y" aria-label="✓">✓</span>{% elsif v == "no" %}<span class="n">—</span>{% else %}{{ d.marks[v][lang] | default: d.marks[v].en }}{% endif %}</td>
+        {%- endfor %}
+        <td data-l="{{ u.cols[4] }}">{{ r.how[lang] | default: r.how.en }}</td>
+        <td data-l="{{ u.cols[5] }}">{{ d.where[r.where][lang] | default: d.where[r.where].en }}</td>
+      </tr>
+    {%- endfor %}
+    </tbody>
+  </table>
+  {%- endfor %}
+  <p class="tool-muted">{{ u.quick }}</p>
+  <p>{{ u.more }}</p>
+</div>

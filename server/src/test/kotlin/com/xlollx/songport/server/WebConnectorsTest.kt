@@ -380,11 +380,11 @@ class WebConnectorsTest {
                 HttpResponse.BodyHandlers.ofString(),
             )
 
-            val list = get("/connectors").body()
-            assertTrue(list.contains("Spotify (web) (unofficial, alpha)"))
-            assertTrue(list.contains("Deezer (web) (unofficial, alpha)"))
-            assertTrue(list.contains("Qobuz (web) (unofficial, beta)"))
-            assertTrue(list.contains("Gaana (web) (unofficial, alpha)"))
+            // "Which service?": each web route says it is unofficial, and how far along it is.
+            for ((id, stage) in listOf("spotify_bridge" to "alpha", "deezer_bridge" to "alpha", "gaana_web" to "alpha")) {
+                assertTrue(id, get("/connectors/add?service=$id").body().contains("""<span class="badge">unofficial</span> <span class="alpha">$stage</span>"""))
+            }
+            assertTrue(get("/connectors/add?service=qobuz_web").body().contains("""<span class="badge">unofficial</span> <span class="badge">beta</span>"""))
 
             val sp = get("/connectors/spotify_bridge").body()
             assertTrue(sp.contains("Cookies of open.spotify.com"))
@@ -476,27 +476,26 @@ class WebConnectorsTest {
         }
     }
 
-    @Test fun theOfficialDeezerIsOfferedOnlyWithAnAppIdAndTheListSaysWhy() {
+    @Test fun theOfficialDeezerIsOfferedOnlyWithAnAppIdAndTheChooserSaysWhy() {
         val data = tmp.newFolder("withheld")
         installServerConnectors()
-        val env = ServerEnv(data, Strings(emptyMap()), "https://songport.example.org")
+        val env = ServerEnv(data, Strings.load(null), "https://songport.example.org")
         val server = Web(env, Runner(env), Auth(env), "sekret", "test").start(0)
         try {
             val base = "http://127.0.0.1:${server.address.port}"
             val auth = "Basic " + Base64.getEncoder().encodeToString("any:sekret".toByteArray())
             val client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build()
             fun get(path: String) = client.send(HttpRequest.newBuilder(URI("$base$path")).header("Authorization", auth).GET().build(), HttpResponse.BodyHandlers.ofString()).body()
-            val list = get("/connectors")
-            assertFalse(list.contains("""<option value="deezer">"""))
-            assertTrue(list.contains("""<option value="deezer_bridge">"""))
-            assertTrue(list.contains("Why no Deezer?"))
-            assertTrue(list.contains("Deezer no longer accepts new apps that use its API: for now we can't offer it here."))
-            assertTrue(list.contains("Add Deezer (web)"))
+            val routes = get("/connectors/add?service=deezer_bridge")
+            assertFalse(routes.contains("""name="service" value="deezer">"""))
+            assertTrue(routes.contains("""name="service" value="deezer_bridge">"""))
+            assertTrue(routes.contains("Why no official Deezer?"))
+            assertTrue(routes.contains("Deezer no longer accepts new apps that use its API"))
             // An app id of one's own: the official route is offered as before, and nothing is explained.
             env.store.updateSettings { it.copy(clientIds = mapOf("deezer" to "123456")) }
-            val withId = get("/connectors")
-            assertTrue(withId.contains("""<option value="deezer">"""))
-            assertFalse(withId.contains("Why no Deezer?"))
+            val withId = get("/connectors/add?service=deezer_bridge")
+            assertTrue(withId.contains("""name="service" value="deezer">"""))
+            assertFalse(withId.contains("Why no official Deezer?"))
         } finally {
             server.stop(0)
         }

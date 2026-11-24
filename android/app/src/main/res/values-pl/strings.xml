@@ -131,7 +131,7 @@
     <string name="ytm_not_installed">Trackhop Bridge nie jest zainstalowany.</string>
     <string name="ytm_install">Pobierz Bridge</string>
     <string name="report_issue">Zgłoś na GitHub</string>
-    <string name="provider_note_youtube">Oficjalne YouTube Data API z własnym projektem Google Cloud. Dzienny limit jest niewielki: duże synchronizacje mogą zająć kilka dni.</string>
+    <string name="provider_note_youtube">Oficjalne YouTube Data API. Dzienny limit jest niewielki: duże synchronizacje mogą zająć kilka dni.</string>
     <string name="provider_note_tidal">Playlisty TIDAL.</string>
     <string name="provider_note_deezer">Playlisty i ulubione Deezer (beta), z aplikacją deweloperską Deezer, którą już masz: Deezer nie przyjmuje już nowych.</string>
 
@@ -2320,6 +2320,9 @@
     <string name="notify_help_slack">Utwórz aplikację z incoming webhookiem dla kanału (api.slack.com/messaging/webhooks) i wklej jej URL.</string>
     <string name="notify_help_matrix">Konto (bot) w pokoju: jego token dostępu (Element: Ustawienia › Pomoc i informacje) i id pokoju (Ustawienia pokoju › Zaawansowane).</string>
     <string name="notify_help_pushover">Twój user key jest na stronie głównej pushover.net; utwórz tam aplikację, aby dostać jej token API.</string>
+    <string name="notify_help_apprise">Adres Twojego Apprise API z kluczem zapisanej konfiguracji (…/notify/klucz). Tag wysyła tylko do oznaczonych nim usług; pusty — do wszystkich.</string>
+    <string name="notify_field_apprise_url">URL Apprise API</string>
+    <string name="notify_field_apprise_tag">Tag (opcjonalnie)</string>
     <string name="notify_field_telegram_token">Token bota</string>
     <string name="notify_field_telegram_chat">Chat id</string>
     <string name="notify_field_ntfy_server">Serwer</string>
@@ -3764,4 +3767,64 @@
     <string name="deezer_why_title">Dlaczego nie ma Deezera?</string>
     <string name="deezer_why_official_title">Dlaczego nie ma oficjalnego Deezera?</string>
     <string name="deezer_why_body">Deezer nie przyjmuje już nowych aplikacji korzystających z jego API: na razie nie możemy go tu zaoferować.</string>
+    <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
+    <string name="ytm_profile_title">Który profil YouTube Music?</string>
+    <string name="ytm_profile_body">Liczba profili na twoim koncie Google: %1$d. Trackhop czyta i zapisuje playlisty i polubione utwory w tym, który wybierzesz.</string>
+    <string name="ytm_profile_body_one">Trackhop czyta i zapisuje playlisty i polubione utwory w profilu, który wybierzesz.</string>
+    <string name="ytm_profile_wrong">Trackhop używa profilu %1$s, który nie ma playlist ani polubionych utworów. Twoja muzyka wygląda na profil %2$s.</string>
+    <string name="ytm_profile_empty">Pusty</string>
+    <string name="ytm_profile_here">Tu jest twoja muzyka</string>
+    <string name="ytm_profile_nothing">brak playlist, brak polubionych utworów</string>
+    <string name="ytm_profile_no_playlists">brak playlist</string>
+    <string name="ytm_profile_no_liked">brak polubionych utworów</string>
+    <string name="ytm_profile_pick_hint">Wybierz ten, którego używasz w aplikacji YouTube Music. Możesz go później zmienić na karcie konta.</string>
+    <string name="ytm_profile_use">Użyj %1$s</string>
+    <string name="ytm_profile_continue">Dalej z %1$s</string>
+    <string name="ytm_profile_keep">Zostaw %1$s</string>
+    <string name="ytm_profile_card_wrong">Profil %1$s jest pusty. Twoja muzyka wygląda na profil %2$s.</string>
+    <string name="ytm_profile_change">Zmień</string>
+    <string name="ytm_profile_row">Profil: %1$s</string>
+    <string name="ytm_profile_brand">konto marki</string>
+    <string name="youtube_empty_channel">Ten kanał nie ma playlist ani polubionych utworów. Jeśli twoja muzyka jest w innym profilu (koncie marki), zaloguj się ponownie i wybierz ten profil na liście Google.</string>
+    <string name="youtube_empty_keep">Zostaw tak</string>
+    <string name="connect_spotify_shared_note">Spotify pozwala tej wersji Trackhop połączyć tylko kilka kont. Twoje najpewniej będzie potrzebować własnego, darmowego klucza: około dwóch minut, z kontem Spotify Premium, a aplikacja poprowadzi cię krok po kroku.</string>
+    <string name="connect_try_anyway">Spróbuj mimo to</string>
+    <string name="connect_use_own_key">Użyj własnego klucza</string>
+    <string name="onboarding_connect_first">Połącz pierwszy serwis</string>
+    <plurals name="ytm_profile_playlists">
+        <item quantity="one">%d playlista</item>
+        <item quantity="few">%d playlisty</item>
+        <item quantity="many">%d playlist</item>
+        <item quantity="other">%d playlisty</item>
+    </plurals>
+    <plurals name="ytm_profile_liked">
+        <item quantity="one">%d polubiony utwór</item>
+        <item quantity="few">%d polubione utwory</item>
+        <item quantity="many">%d polubionych utworów</item>
+        <item quantity="other">%d polubionego utworu</item>
+    </plurals>
+    <string name="chooser_your_accounts">Twoje konta</string>
+    <string name="chooser_all">Wszystkie</string>
+    <string name="chooser_cat_games">Gry</string>
+    <string name="chooser_cat_radio">Radio i listy przebojów</string>
+    <string name="chooser_cat_podcasts">Podcasty</string>
+    <string name="chooser_cat_listening">Słuchanie</string>
+    <string name="chooser_cat_regional">Regionalne</string>
+    <string name="chooser_cat_files">Pliki</string>
+    <string name="chooser_area_east_asia">Azja Wschodnia</string>
+    <string name="chooser_area_india_middle_east">Indie · Bliski Wschód</string>
+    <string name="chooser_area_africa">Afryka</string>
+    <string name="chooser_area_europe">Europa</string>
+    <string name="chooser_area_americas">Ameryki</string>
+    <string name="chooser_show_all">Pokaż wszystkie (%1$d)</string>
+    <string name="chooser_suggested_here">Polecane tam, gdzie jesteś</string>
+    <string name="chooser_cannot_target">Nie może być celem</string>
+    <string name="chooser_no_results">Brak usługi dla „%1$s”</string>
+    <string name="chooser_clear_search">Wyczyść wyszukiwanie</string>
+    <plurals name="chooser_search">
+        <item quantity="one">Szukaj w %1$d usłudze</item>
+        <item quantity="few">Szukaj w %1$d usługach</item>
+        <item quantity="many">Szukaj w %1$d usługach</item>
+        <item quantity="other">Szukaj w %1$d usługach</item>
+    </plurals>
 </resources>

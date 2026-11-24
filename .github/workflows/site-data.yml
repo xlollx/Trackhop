@@ -1,0 +1,62 @@
+# The site's data that comes from the repository (scripts/site_data.py):
+# - services: docs/_data/services.yml is the one source of the README's "Music services at a glance"
+#   table and of trackhop.org/services. Checked on every pull request and push: if the README's table
+#   was edited by hand, or services.yml without running the script, this fails and says what to run.
+# - releases: docs/_data/releases.json (trackhop.org/whats-new and its RSS feeds), from the fastlane
+#   notes, server/CHANGELOG.md and the release tags. Rewritten after each release build and straight
+#   to main when it changed (as the supporters' list is), then the site is rebuilt.
+name: Site data
+
+on:
+  pull_request:
+    paths: [docs/_data/services.yml, README.md, scripts/site_data.py]
+  push:
+    branches: [main]
+    paths: [docs/_data/services.yml, README.md, scripts/site_data.py, server/CHANGELOG.md, 'fastlane/metadata/android/*/changelogs/**']
+  workflow_run:
+    workflows: [Build, Desktop]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: site-data-${{ github.event_name == 'pull_request' && github.ref || 'main' }}
+  cancel-in-progress: false
+
+jobs:
+  services:
+    if: github.event_name != 'workflow_run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - run: pip install --quiet pyyaml
+      - name: README table matches services.yml
+        run: python3 scripts/site_data.py services --check
+
+  releases:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Release notes
+        run: python3 scripts/site_data.py releases
+      - name: Publish
+        run: |
+          if git diff --quiet -- docs/_data/releases.json; then echo "Nothing new."; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/_data/releases.json
+          git commit -m "Site: what's new"
+          for i in 1 2 3; do git pull --rebase -q origin main && git push origin HEAD:main && break; sleep 5; done
+          # A push made with the workflow's token may not start the site's build on its own.
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" > /dev/null || true

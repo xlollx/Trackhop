@@ -683,6 +683,8 @@ enter them again (the channels wait, turned off). On a server for several people
   settings › Advanced*).
 - **Pushover**: your user key (pushover.net's front page) and the API token of an application you
   create there.
+- **Apprise**: your [Apprise API](https://github.com/caronc/apprise-api)'s address with the key of a
+  saved configuration (`…/notify/<key>`), and optionally a tag (only the services with that tag).
 
 From a terminal, `trackhop notify` lists the channels and `trackhop notify test <name or id>` sends a
 test. For the whole run as JSON (Home Assistant, n8n), use the [webhook](#api) instead.
@@ -775,10 +777,13 @@ multi sync whole.
 | Call | What it does |
 |---|---|
 | `GET /api/v1/services` | The services added, and whether each is connected; each account apart (`id` `jellyfin@2`, with `serviceId` and `slot`). |
+| `GET /api/v1/catalog` | Every service the server can add, with its category and other names ("Navidrome" finds Subsonic); `q` searches, `category` narrows (`streaming`, `server`, `radio`, `listening`, `regional`, `files`…). |
 | `GET /api/v1/services/{service}` | One service: connected, account, and what it can do. |
 | `GET /api/v1/services/{service}/search` | Look for a track: q is "Artist - Title" or a link. |
 | `GET /api/v1/services/{service}/profile` | Deezer (web) on a Family plan: its profiles, the one the account acts as marked (`selected`), the holder's (`holder`). |
 | `PUT /api/v1/services/{service}/profile` | Deezer (web) on a Family plan: act as another profile, `{"profile": "id or name"}`; Deezer refusing the switch is a 409 and the profile before stays. |
+| `GET /api/v1/services/{service}/channels` | YouTube Music (web): the profiles the account can act as (its own channel, brand accounts), each with `playlists` and `likedSongs` (`library=false` skips those reads), `current`, and `suggested`: the profile your music seems to be on when the one in use is empty. |
+| `POST /api/v1/services/{service}/channels` | YouTube Music (web): read and write as this profile from now on: `{"id": "<profile id>"}`, `""` for the account's own channel. |
 | `GET /api/v1/convert` | A track on another service: track is "Artist - Title" or a link, to the service's id. |
 | `POST /api/v1/convert` | Several tracks on another service. |
 | `GET /api/v1/wanted` | Missing on my server: the tracks your syncs to your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy) could not find, each once, with artist, title, album, length, ISRC, MusicBrainz id (when your syncs' lookups found it), the syncs that miss it and when it was first seen. `?format=json` (default), `csv`, `m3u`, `text` or `lidarr`; `group=album`, `all=true` (with the ticked ones), `sync=`, `service=`, `since=7d` (or `24h`, `2026-11-01`). |

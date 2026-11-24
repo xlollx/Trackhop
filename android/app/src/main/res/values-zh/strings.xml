@@ -131,7 +131,7 @@
     <string name="ytm_not_installed">未安装 Trackhop Bridge。</string>
     <string name="ytm_install">获取 Bridge</string>
     <string name="report_issue">在 GitHub 上报告</string>
-    <string name="provider_note_youtube">官方 YouTube Data API，需要你自己的 Google Cloud 项目。每日配额有限：大型同步可能需要好几天。</string>
+    <string name="provider_note_youtube">官方 YouTube Data API。每日配额有限：大型同步可能需要好几天。</string>
     <string name="provider_note_tidal">TIDAL 歌单。</string>
     <string name="provider_note_deezer">Deezer 播放列表和收藏（测试版），需要你已有的 Deezer 开发者应用：Deezer 已不再接受新的应用。</string>
 
@@ -2183,6 +2183,9 @@
     <string name="notify_help_slack">为某个频道创建一个带 incoming webhook 的应用(api.slack.com/messaging/webhooks),然后粘贴它的 URL。</string>
     <string name="notify_help_matrix">房间里的一个(机器人)账号:它的访问令牌(Element:设置 › 帮助与关于)和房间 id(房间设置 › 高级)。</string>
     <string name="notify_help_pushover">你的用户密钥在 pushover.net 首页;在那里创建一个应用以获取 API token。</string>
+    <string name="notify_help_apprise">你的 Apprise API 地址，加上已保存配置的密钥（…/notify/密钥）。填写标签时只发送到带该标签的服务；留空则发送到全部。</string>
+    <string name="notify_field_apprise_url">Apprise API 地址</string>
+    <string name="notify_field_apprise_tag">标签（可选）</string>
     <string name="notify_field_telegram_token">机器人 token</string>
     <string name="notify_field_telegram_chat">Chat id</string>
     <string name="notify_field_ntfy_server">服务器</string>
@@ -3411,4 +3414,55 @@
     <string name="deezer_why_title">为什么没有 Deezer？</string>
     <string name="deezer_why_official_title">为什么没有官方 Deezer？</string>
     <string name="deezer_why_body">Deezer 不再接受使用其 API 的新应用：目前我们无法在这里提供。</string>
+    <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
+    <string name="ytm_profile_title">使用哪个 YouTube Music 个人资料？</string>
+    <string name="ytm_profile_body">你的 Google 账号有 %1$d 个个人资料。Trackhop 会在你选择的那个里读写播放列表和喜欢的歌曲。</string>
+    <string name="ytm_profile_body_one">Trackhop 会在你选择的个人资料里读写播放列表和喜欢的歌曲。</string>
+    <string name="ytm_profile_wrong">Trackhop 正在使用 %1$s，那里没有播放列表，也没有喜欢的歌曲。你的音乐似乎在 %2$s。</string>
+    <string name="ytm_profile_empty">空</string>
+    <string name="ytm_profile_here">你的音乐在这里</string>
+    <string name="ytm_profile_nothing">没有播放列表，没有喜欢的歌曲</string>
+    <string name="ytm_profile_no_playlists">没有播放列表</string>
+    <string name="ytm_profile_no_liked">没有喜欢的歌曲</string>
+    <string name="ytm_profile_pick_hint">选择你在 YouTube Music 应用里使用的那个。之后可以在账号卡片上更改。</string>
+    <string name="ytm_profile_use">使用 %1$s</string>
+    <string name="ytm_profile_continue">继续使用 %1$s</string>
+    <string name="ytm_profile_keep">保留 %1$s</string>
+    <string name="ytm_profile_card_wrong">个人资料 %1$s 是空的。你的音乐似乎在 %2$s。</string>
+    <string name="ytm_profile_change">更改</string>
+    <string name="ytm_profile_row">个人资料：%1$s</string>
+    <string name="ytm_profile_brand">品牌账号</string>
+    <string name="youtube_empty_channel">这个频道没有播放列表，也没有喜欢的歌曲。如果你的音乐在另一个个人资料（品牌账号）里，请重新登录并在 Google 的列表中选择它。</string>
+    <string name="youtube_empty_keep">保持不变</string>
+    <string name="connect_spotify_shared_note">Spotify 只允许这个版本的 Trackhop 连接少数几个账号。你的账号几乎肯定需要一个属于你自己的免费密钥：大约两分钟，需要 Spotify Premium 账号，应用会一步步引导你。</string>
+    <string name="connect_try_anyway">仍然尝试</string>
+    <string name="connect_use_own_key">使用我自己的密钥</string>
+    <string name="onboarding_connect_first">连接第一个服务</string>
+    <plurals name="ytm_profile_playlists">
+        <item quantity="other">%d 个播放列表</item>
+    </plurals>
+    <plurals name="ytm_profile_liked">
+        <item quantity="other">%d 首喜欢的歌曲</item>
+    </plurals>
+    <string name="chooser_your_accounts">你的账号</string>
+    <string name="chooser_all">全部</string>
+    <string name="chooser_cat_games">游戏</string>
+    <string name="chooser_cat_radio">电台和榜单</string>
+    <string name="chooser_cat_podcasts">播客</string>
+    <string name="chooser_cat_listening">收听记录</string>
+    <string name="chooser_cat_regional">地区</string>
+    <string name="chooser_cat_files">文件</string>
+    <string name="chooser_area_east_asia">东亚</string>
+    <string name="chooser_area_india_middle_east">印度 · 中东</string>
+    <string name="chooser_area_africa">非洲</string>
+    <string name="chooser_area_europe">欧洲</string>
+    <string name="chooser_area_americas">美洲</string>
+    <string name="chooser_show_all">显示全部（%1$d）</string>
+    <string name="chooser_suggested_here">你所在地区推荐</string>
+    <string name="chooser_cannot_target">不能作为目标</string>
+    <string name="chooser_no_results">没有找到“%1$s”对应的服务</string>
+    <string name="chooser_clear_search">清除搜索</string>
+    <plurals name="chooser_search">
+        <item quantity="other">搜索 %1$d 个服务</item>
+    </plurals>
 </resources>

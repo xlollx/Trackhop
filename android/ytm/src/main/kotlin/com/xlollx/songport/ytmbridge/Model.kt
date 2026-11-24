@@ -16,7 +16,13 @@ import kotlinx.serialization.Serializable
 data class ProfileDto(val id: String, val name: String, val picture: String? = null, val holder: Boolean = false, val selected: Boolean = false)
 
 @Serializable
-data class ChannelDto(val id: String, val name: String, val byline: String? = null, val selected: Boolean = false, val hasChannel: Boolean = true)
+data class ChannelDto(
+    val id: String, val name: String, val byline: String? = null, val selected: Boolean = false, val hasChannel: Boolean = true,
+    /** The library playlists on this channel's first page, -1 when not read ([YtmClient.channelsWithLibrary]). */
+    val playlists: Int = -1,
+    /** The liked songs on this channel, -1 when not read. */
+    val likedSongs: Int = -1,
+)
 
 @Serializable
 data class PlaylistDto(

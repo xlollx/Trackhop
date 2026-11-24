@@ -131,7 +131,7 @@
     <string name="ytm_not_installed">Trackhop Bridge non è installato.</string>
     <string name="ytm_install">Scarica il Bridge</string>
     <string name="report_issue">Segnala su GitHub</string>
-    <string name="provider_note_youtube">API ufficiale YouTube Data con un tuo progetto Google Cloud. La quota giornaliera è limitata: le sync grandi possono richiedere più giorni.</string>
+    <string name="provider_note_youtube">API ufficiale YouTube Data. La quota giornaliera è limitata: le sync grandi possono richiedere più giorni.</string>
     <string name="provider_note_tidal">Playlist TIDAL.</string>
     <string name="provider_note_deezer">Playlist e preferiti di Deezer (beta), con un\'app sviluppatore Deezer che hai già: Deezer non ne accetta più di nuove.</string>
 
@@ -2228,6 +2228,9 @@
     <string name="notify_help_slack">Crea un\'app con un incoming webhook per un canale (api.slack.com/messaging/webhooks) e incolla il suo URL.</string>
     <string name="notify_help_matrix">Un account (bot) nella stanza: il suo access token (Element: Impostazioni › Aiuto e informazioni) e l\'id della stanza (Impostazioni stanza › Avanzate).</string>
     <string name="notify_help_pushover">La tua user key è nella pagina principale di pushover.net; lì crea un\'applicazione per il suo API token.</string>
+    <string name="notify_help_apprise">L\'indirizzo della tua Apprise API con la chiave di una configurazione salvata (…/notify/chiave). Un tag invia solo ai servizi che segna; vuoto, a tutti.</string>
+    <string name="notify_field_apprise_url">URL dell\'Apprise API</string>
+    <string name="notify_field_apprise_tag">Tag (facoltativo)</string>
     <string name="notify_field_telegram_token">Token del bot</string>
     <string name="notify_field_telegram_chat">Chat id</string>
     <string name="notify_field_ntfy_server">Server</string>
@@ -3528,4 +3531,58 @@
     <string name="deezer_why_title">Perché non c\'è Deezer?</string>
     <string name="deezer_why_official_title">Perché non c\'è Deezer ufficiale?</string>
     <string name="deezer_why_body">Deezer non accetta più nuove app che usano la sua API: per ora non possiamo offrirlo qui.</string>
+    <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
+    <string name="ytm_profile_title">Quale profilo di YouTube Music?</string>
+    <string name="ytm_profile_body">Il tuo account Google ha %1$d profili. Trackhop legge e scrive playlist e brani piaciuti su quello che scegli.</string>
+    <string name="ytm_profile_body_one">Trackhop legge e scrive playlist e brani piaciuti sul profilo che scegli.</string>
+    <string name="ytm_profile_wrong">Trackhop sta usando %1$s, che non ha playlist né brani piaciuti. La tua musica sembra essere su %2$s.</string>
+    <string name="ytm_profile_empty">Vuoto</string>
+    <string name="ytm_profile_here">La tua musica è qui</string>
+    <string name="ytm_profile_nothing">nessuna playlist, nessun brano piaciuto</string>
+    <string name="ytm_profile_no_playlists">nessuna playlist</string>
+    <string name="ytm_profile_no_liked">nessun brano piaciuto</string>
+    <string name="ytm_profile_pick_hint">Scegli quello che usi nell\'app YouTube Music. Puoi cambiarlo dopo dalla scheda dell\'account.</string>
+    <string name="ytm_profile_use">Usa %1$s</string>
+    <string name="ytm_profile_continue">Continua con %1$s</string>
+    <string name="ytm_profile_keep">Tieni %1$s</string>
+    <string name="ytm_profile_card_wrong">Il profilo %1$s è vuoto. La tua musica sembra essere su %2$s.</string>
+    <string name="ytm_profile_change">Cambia</string>
+    <string name="ytm_profile_row">Profilo: %1$s</string>
+    <string name="ytm_profile_brand">account brand</string>
+    <string name="youtube_empty_channel">Questo canale non ha playlist né brani piaciuti. Se la tua musica è su un altro profilo (un account brand), accedi di nuovo e scegli quel profilo nell\'elenco di Google.</string>
+    <string name="youtube_empty_keep">Va bene così</string>
+    <string name="connect_spotify_shared_note">Spotify permette a questa versione di Trackhop di collegare solo pochi account. Il tuo avrà quasi certamente bisogno di una chiave tua, gratuita: circa due minuti, con un account Spotify Premium, e l\'app ti guida passo passo.</string>
+    <string name="connect_try_anyway">Prova comunque</string>
+    <string name="connect_use_own_key">Usa una mia chiave</string>
+    <string name="onboarding_connect_first">Collega il primo servizio</string>
+    <plurals name="ytm_profile_playlists">
+        <item quantity="one">%d playlist</item>
+        <item quantity="other">%d playlist</item>
+    </plurals>
+    <plurals name="ytm_profile_liked">
+        <item quantity="one">%d brano piaciuto</item>
+        <item quantity="other">%d brani piaciuti</item>
+    </plurals>
+    <string name="chooser_your_accounts">I tuoi account</string>
+    <string name="chooser_all">Tutti</string>
+    <string name="chooser_cat_games">Giochi</string>
+    <string name="chooser_cat_radio">Radio e classifiche</string>
+    <string name="chooser_cat_podcasts">Podcast</string>
+    <string name="chooser_cat_listening">Ascolti</string>
+    <string name="chooser_cat_regional">Regionali</string>
+    <string name="chooser_cat_files">File</string>
+    <string name="chooser_area_east_asia">Asia orientale</string>
+    <string name="chooser_area_india_middle_east">India · Medio Oriente</string>
+    <string name="chooser_area_africa">Africa</string>
+    <string name="chooser_area_europe">Europa</string>
+    <string name="chooser_area_americas">Americhe</string>
+    <string name="chooser_show_all">Mostra tutti (%1$d)</string>
+    <string name="chooser_suggested_here">Consigliati dove sei</string>
+    <string name="chooser_cannot_target">Non può essere una destinazione</string>
+    <string name="chooser_no_results">Nessun servizio trovato per “%1$s”</string>
+    <string name="chooser_clear_search">Cancella la ricerca</string>
+    <plurals name="chooser_search">
+        <item quantity="one">Cerca tra %1$d servizio</item>
+        <item quantity="other">Cerca tra %1$d servizi</item>
+    </plurals>
 </resources>

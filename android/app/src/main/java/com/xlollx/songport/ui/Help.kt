@@ -203,7 +203,6 @@ object Helps {
     val test = HelpTopic(R.string.account_test, R.string.help_test_body, more = HowTo.ACCOUNTS)
     val extraActions = HelpTopic(R.string.help_extra_actions_title, R.string.help_extra_actions_body)
     val routes = HelpTopic(R.string.help_routes_title, R.string.help_routes_body, more = HowTo.ACCOUNTS)
-    val unavailable = HelpTopic(R.string.services_group_unavailable, R.string.help_unavailable_body, more = HowTo.PLUGINS)
 
     // Setup wizard
     val redirect = HelpTopic(R.string.help_redirect_title, R.string.help_redirect_body, more = HowTo.ACCOUNTS)

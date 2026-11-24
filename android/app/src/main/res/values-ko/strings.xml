@@ -131,7 +131,7 @@
     <string name="ytm_not_installed">Trackhop Bridge가 설치되어 있지 않아요.</string>
     <string name="ytm_install">Bridge 받기</string>
     <string name="report_issue">GitHub에 신고</string>
-    <string name="provider_note_youtube">직접 만든 Google Cloud 프로젝트로 쓰는 공식 YouTube Data API예요. 하루 할당량이 제한되어 큰 동기화는 며칠 걸릴 수 있어요.</string>
+    <string name="provider_note_youtube">공식 YouTube Data API예요. 하루 할당량이 제한되어 큰 동기화는 며칠 걸릴 수 있어요.</string>
     <string name="provider_note_tidal">TIDAL 플레이리스트.</string>
     <string name="provider_note_deezer">Deezer 플레이리스트와 즐겨찾기(베타). 이미 가지고 있는 Deezer 개발자 앱이 필요해요. Deezer는 새 앱을 더 이상 받지 않아요.</string>
 
@@ -2182,6 +2182,9 @@
     <string name="notify_help_slack">채널용 incoming webhook이 있는 앱을 만들고(api.slack.com/messaging/webhooks) URL을 붙여 넣으세요.</string>
     <string name="notify_help_matrix">방에 있는 (봇) 계정의 액세스 토큰(Element: 설정 › 도움말 및 정보)과 방 id(방 설정 › 고급).</string>
     <string name="notify_help_pushover">사용자 키는 pushover.net 첫 페이지에 있어요. 그곳에서 애플리케이션을 만들어 API 토큰을 받으세요.</string>
+    <string name="notify_help_apprise">Apprise API 주소와 저장된 구성의 키(…/notify/키). 태그를 넣으면 그 태그가 붙은 서비스에만 보내고, 비우면 모두에게 보내요.</string>
+    <string name="notify_field_apprise_url">Apprise API URL</string>
+    <string name="notify_field_apprise_tag">태그(선택)</string>
     <string name="notify_field_telegram_token">봇 토큰</string>
     <string name="notify_field_telegram_chat">Chat id</string>
     <string name="notify_field_ntfy_server">서버</string>
@@ -3410,4 +3413,55 @@
     <string name="deezer_why_title">Deezer가 없는 이유는?</string>
     <string name="deezer_why_official_title">공식 Deezer가 없는 이유는?</string>
     <string name="deezer_why_body">Deezer가 더 이상 API를 사용하는 새 앱을 받지 않습니다. 그래서 지금은 여기서 제공할 수 없습니다.</string>
+    <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
+    <string name="ytm_profile_title">어떤 YouTube Music 프로필을 쓸까요?</string>
+    <string name="ytm_profile_body">Google 계정에 프로필이 %1$d개 있어요. Trackhop은 선택한 프로필에서 플레이리스트와 좋아요 표시한 곡을 읽고 써요.</string>
+    <string name="ytm_profile_body_one">Trackhop은 선택한 프로필에서 플레이리스트와 좋아요 표시한 곡을 읽고 써요.</string>
+    <string name="ytm_profile_wrong">Trackhop이 %1$s 프로필을 쓰고 있는데, 여기엔 플레이리스트도 좋아요 표시한 곡도 없어요. 음악은 %2$s에 있는 것 같아요.</string>
+    <string name="ytm_profile_empty">비어 있음</string>
+    <string name="ytm_profile_here">음악이 여기 있어요</string>
+    <string name="ytm_profile_nothing">플레이리스트 없음, 좋아요 표시한 곡 없음</string>
+    <string name="ytm_profile_no_playlists">플레이리스트 없음</string>
+    <string name="ytm_profile_no_liked">좋아요 표시한 곡 없음</string>
+    <string name="ytm_profile_pick_hint">YouTube Music 앱에서 쓰는 프로필을 고르세요. 나중에 계정 카드에서 바꿀 수 있어요.</string>
+    <string name="ytm_profile_use">%1$s 사용</string>
+    <string name="ytm_profile_continue">%1$s(으)로 계속</string>
+    <string name="ytm_profile_keep">%1$s 유지</string>
+    <string name="ytm_profile_card_wrong">%1$s 프로필이 비어 있어요. 음악은 %2$s에 있는 것 같아요.</string>
+    <string name="ytm_profile_change">변경</string>
+    <string name="ytm_profile_row">프로필: %1$s</string>
+    <string name="ytm_profile_brand">브랜드 계정</string>
+    <string name="youtube_empty_channel">이 채널에는 플레이리스트도 좋아요 표시한 곡도 없어요. 음악이 다른 프로필(브랜드 계정)에 있다면 다시 로그인해 Google 목록에서 그 프로필을 고르세요.</string>
+    <string name="youtube_empty_keep">그대로 두기</string>
+    <string name="connect_spotify_shared_note">Spotify는 이 버전의 Trackhop이 몇 개의 계정만 연결하도록 허용해요. 내 계정은 거의 확실히 무료 개인 키가 필요해요. Spotify Premium 계정으로 약 2분, 앱이 단계별로 안내해요.</string>
+    <string name="connect_try_anyway">그래도 시도</string>
+    <string name="connect_use_own_key">내 키 사용</string>
+    <string name="onboarding_connect_first">첫 서비스 연결</string>
+    <plurals name="ytm_profile_playlists">
+        <item quantity="other">플레이리스트 %d개</item>
+    </plurals>
+    <plurals name="ytm_profile_liked">
+        <item quantity="other">좋아요 표시한 곡 %d곡</item>
+    </plurals>
+    <string name="chooser_your_accounts">내 계정</string>
+    <string name="chooser_all">전체</string>
+    <string name="chooser_cat_games">게임</string>
+    <string name="chooser_cat_radio">라디오 및 차트</string>
+    <string name="chooser_cat_podcasts">팟캐스트</string>
+    <string name="chooser_cat_listening">감상 기록</string>
+    <string name="chooser_cat_regional">지역</string>
+    <string name="chooser_cat_files">파일</string>
+    <string name="chooser_area_east_asia">동아시아</string>
+    <string name="chooser_area_india_middle_east">인도 · 중동</string>
+    <string name="chooser_area_africa">아프리카</string>
+    <string name="chooser_area_europe">유럽</string>
+    <string name="chooser_area_americas">아메리카</string>
+    <string name="chooser_show_all">모두 보기(%1$d)</string>
+    <string name="chooser_suggested_here">현재 지역 추천</string>
+    <string name="chooser_cannot_target">대상이 될 수 없음</string>
+    <string name="chooser_no_results">“%1$s”에 해당하는 서비스 없음</string>
+    <string name="chooser_clear_search">검색 지우기</string>
+    <plurals name="chooser_search">
+        <item quantity="other">서비스 %1$d개 검색</item>
+    </plurals>
 </resources>

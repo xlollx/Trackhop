@@ -178,6 +178,37 @@ internal fun Web.apiMore(ex: HttpExchange, method: String, rest: List<String>, q
             val p = Providers.byId(rest[1]) ?: return true.also { error(404, "No service with that id: see GET /api/v1/services.") }
             json(200, serviceJson(p))
         }
+        // YouTube Music (web): the profiles (own channel, brand accounts) the account can act as, with how
+        // much music each holds and which one the music seems to be on; POST picks one.
+        rest.size == 3 && rest[0] == "services" && rest[2] == "channels" && method == "GET" -> {
+            val p = connected(rest[1], error) ?: return true
+            if (p !is YtmServerProvider) return true.also { error(400, "Only YouTube Music (web) has profiles to choose from.") }
+            val list = runCatching { runBlocking { p.channels(env, library = query["library"] != "false") } }
+                .getOrElse { return true.also { _ -> error(502, "${p.label(env)}: ${it.message ?: it.javaClass.simpleName}") } }
+            val better = p.betterChannel(env, list)
+            json(200, buildJsonObject {
+                put("current", p.channel(env).orEmpty())
+                put("suggested", better?.id)
+                put("channels", JsonArray(list.map { c ->
+                    buildJsonObject {
+                        put("id", c.id); put("name", c.name); put("byline", c.byline); put("own", c.id.isEmpty()); put("selected", c.selected)
+                        put("playlists", c.playlists.takeIf { it >= 0 }); put("likedSongs", c.likedSongs.takeIf { it >= 0 })
+                    }
+                }))
+            })
+        }
+        rest.size == 3 && rest[0] == "services" && rest[2] == "channels" && method == "POST" -> {
+            val p = connected(rest[1], error) ?: return true
+            if (p !is YtmServerProvider) return true.also { error(400, "Only YouTube Music (web) has profiles to choose from.") }
+            val b = body() ?: return true.also { badJson() }
+            val id = b.text("id")?.trim() ?: return true.also { error(400, "\"id\" is needed: a profile's id from GET, \"\" for the account's own channel.") }
+            val list = runCatching { runBlocking { p.channels(env) } }.getOrElse { emptyList() }
+            val c = list.firstOrNull { it.id == id }
+            if (c == null && id.isNotEmpty()) return true.also { error(404, "No profile with that id on this account: see GET.") }
+            runCatching { runBlocking { p.setChannel(env, id, c?.name) } }
+                .getOrElse { return true.also { _ -> error(502, "${p.label(env)}: ${it.message ?: it.javaClass.simpleName}") } }
+            json(200, buildJsonObject { put("current", id); put("name", c?.name) })
+        }
         // Deezer (web) on a Family account: the profiles, and the one the account acts as (#82).
         rest.size == 3 && rest[0] == "services" && rest[2] == "profile" && (method == "GET" || method == "PUT") -> {
             val p = connected(rest[1], error) ?: return true

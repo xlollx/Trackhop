@@ -12,7 +12,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <a href="https://hub.docker.com/r/xlollx/trackhop"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/docker.svg" alt="Docker Hub pulls"></a>
   <br>
   <a href="https://github.com/xlollx/Trackhop/stargazers"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/stars.svg" alt="GitHub stars"></a>
-  <a href="#music-services-at-a-glance"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/services.svg" alt="Music services supported"></a>
+  <a href="https://trackhop.org/services"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/services.svg" alt="Music services supported"></a>
   <a href="LICENSE"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/license.svg" alt="License: AGPL-3.0-only"></a>
   <a href="https://www.navidrome.org/apps/"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/navidrome.svg" alt="Listed in the Navidrome app catalog"></a>
   <br>
@@ -32,6 +32,8 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <a href="https://f-droid.org/packages/com.xlollx.songport/"><img src="docs/assets/badges/fdroid.svg" height="56" alt="Get it on F-Droid"></a>
   <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/xlollx/Trackhop"><img src="docs/assets/badges/obtainium.svg" height="56" alt="Get it on Obtainium"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/download/v2.1.4/Trackhop-v2.1.4.apk"><img src="docs/assets/badges/github.svg" height="56" alt="Download the APK from GitHub (2.1.4)"></a>
+  <a href="https://xlollx.itch.io/trackhop"><img src="docs/assets/badges/itch.svg" height="56" alt="Get it on itch.io"></a>
+  <a href="https://sourceforge.net/projects/trackhop/"><img src="docs/assets/badges/sourceforge.svg" height="56" alt="Get it on SourceForge"></a>
 </p>
 
 <p align="center">
@@ -47,6 +49,8 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
+  <a href="https://xlollx.itch.io/trackhop"><img src="docs/assets/badges/itch.svg" height="56" alt="Get it on itch.io"></a>
+  <a href="https://sourceforge.net/projects/trackhop/"><img src="docs/assets/badges/sourceforge.svg" height="56" alt="Get it on SourceForge"></a>
 </p>
 
 <p align="center">
@@ -93,6 +97,7 @@ any build: development lives on voluntary donations. Listed in the [Navidrome ap
 routes go through the service's own web player: they are not official interfaces and live in the GitHub and
 F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and AppGallery, in the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) plugin).
 
+<!-- services:start -->
 | Service | Read | Write | Remove | How you connect | Where |
 |---|:-:|:-:|:-:|---|---|
 | **Spotify** | ✓ | ✓ | ✓ | Quick sign-in with your usual account, no key, no Premium | GitHub, F-Droid, Desktop, Docker · plugin |
@@ -128,8 +133,9 @@ F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and A
 | **Internet radio, Shazam** | ✓ | — | — | What a station plays, or every song you Shazam | All builds |
 | **Charts** (Apple Music, Deezer) | ✓ | — | — | A country's Top 100, refreshed as it changes, no account; with an Apple Music developer token (the build's or your own) also Apple's Daily Top 100 of the world and of each country and the Top 25 of each city | All builds |
 | **Files** (CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, JSON, text; rekordbox XML read only) | ✓ | ✓ | ✓ | Import and export | All builds |
+<!-- services:end -->
 
-Details, keys and limits of each service: [Supported services and their limits](#supported-services-and-their-limits).
+The same table in every language of the site: [trackhop.org/services](https://trackhop.org/services). Details, keys and limits of each service: [Supported services and their limits](#supported-services-and-their-limits).
 Not connectable: Pandora (no public API, United States only): use files.
 
 **Why not an online transfer service?** Soundiiz, TuneMyMusic and FreeYourMusic are good at a one-off
@@ -151,6 +157,8 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
 - **[Obtainium](https://github.com/ImranR98/Obtainium)**: add `https://github.com/xlollx/Trackhop` and
   each release reaches the phone by itself.
 - **[Releases](https://github.com/xlollx/Trackhop/releases/latest)**: the signed APK of every version.
+- **[itch.io](https://xlollx.itch.io/trackhop) and [SourceForge](https://sourceforge.net/projects/trackhop/)**: the same
+  files as the GitHub releases (the full APK, and Trackhop Desktop for Windows, macOS and Linux), updated with each release.
 - **[Google Play](https://play.google.com/store/apps/details?id=com.xlollx.songport) and [AppGallery](https://appgallery.huawei.com/app/C119677919) versions**: the same app limited to official APIs (store rules).
   Using one and want YouTube Music, Amazon Music, or Spotify and Apple Music without developer keys?
   Install the companion plugin **[Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge)**
@@ -352,7 +360,7 @@ reports are what make it better: if something does not work as it should, say so
 | | Shazam | Share a song from the Shazam app: title and artist are read from the shared text (nothing is asked of Shazam) and the song goes into a playlist on any connected service. To have every Shazam everywhere, make a Shazam sync (above): "Sync my Shazams" in the sheet opens one. |
 | | TikTok | Share a TikTok video (GitHub and F-Droid builds, store builds with the plugin): the song it uses is read from the video's public page (no account) and goes into a playlist on any connected service. A sound the creator recorded ("original sound") names no song: Trackhop then listens to the sound itself (a short audio signature sent to Shazam, see Credits below) and often finds the song playing in it, marked as recognised so you can check it. Also in Desktop and Docker: paste the link in a review search. |
 | Widget and shortcuts | Home widget and long-press on the icon | Last sync, "Sync all", "New sync". |
-| Notifications | Notification channels | A message on Telegram, ntfy, Gotify, Discord, Slack, Matrix or Pushover when a sync changes something or fails, has tracks to review or removals to confirm; events per channel, Send test, keys encrypted and never exported. [Guide](https://trackhop.org/guide/notification-channels). |
+| Notifications | Notification channels | A message on Telegram, ntfy, Gotify, Discord, Slack, Matrix, Pushover or Apprise when a sync changes something or fails, has tracks to review or removals to confirm; events per channel, Send test, keys encrypted and never exported. [Guide](https://trackhop.org/guide/notification-channels). |
 | Diagnostics | "Share technical details" in the log | Version, device, services, last runs, error log; no tokens. |
 | | "Test the connection" per account | Account, playlist list and one search, with the service's answer on failure. |
 | Appearance | Theme and Material You | Settings › Appearance: system, light or dark; "Dynamic colours" takes the phone's wallpaper palette (Android 12+) instead of the brand's, off by default. |

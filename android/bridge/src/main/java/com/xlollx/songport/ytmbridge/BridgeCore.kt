@@ -89,9 +89,11 @@ object BridgeCore {
                     }
                 }
                 // The channels the account can act as; the chosen one is marked by the stored choice, not by Google's switcher.
+                // With the extra "library", each channel also says how much music it holds (after sign-in, in the choice).
                 "channels" -> {
                     val chosen = ytm.channel(ctx).orEmpty()
-                    ok(json.encodeToString(client.channels().map { it.copy(selected = it.id == chosen) }))
+                    val list = if (extras?.getBoolean("library") == true) client.channelsWithLibrary() else client.channels()
+                    ok(json.encodeToString(list.map { it.copy(selected = it.id == chosen) }))
                 }
                 // Keeps the chosen channel (arg: its page id, "" or absent for the account's own) and names the account as it.
                 "channel" -> {

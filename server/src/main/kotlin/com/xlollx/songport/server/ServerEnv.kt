@@ -62,6 +62,10 @@ class ServerEnv(
     override fun text(name: String, vararg args: Any): String = SERVER_TEXTS[name]?.let { if (args.isEmpty()) it else String.format(it, *args) } ?: strings.text(name, *args)
     fun textArray(name: String): List<String> = strings.array(name)
     fun hasText(name: String) = strings.has(name)
+    /** The plural form of [name] for [count] ([Strings.plural]). */
+    fun plural(name: String, count: Int, vararg args: Any): String = strings.plural(name, count, *args)
+    /** The language the pages speak. */
+    val locale: java.util.Locale get() = strings.locale
 
     override fun log(tag: String, message: String) = Log.add(tag, message)
 
