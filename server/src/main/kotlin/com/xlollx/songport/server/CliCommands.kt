@@ -471,6 +471,18 @@ internal class CliCommands(
         if (o.has("one-way")) put("twoWay", false)
         if (o.has("two-way-removals")) put("twoWayRemovals", true)
         if (o.has("no-two-way-removals")) put("twoWayRemovals", false)
+        // Matching: how close a match must be, explicit versions, same album, studio versions only; the source's order.
+        val policy = buildJsonObject {
+            o.value("strictness")?.let { put("strictness", it) }
+            o.value("explicit")?.let { put("explicit", it) }
+            if (o.has("same-album")) put("sameAlbum", true)
+            if (o.has("any-album")) put("sameAlbum", false)
+            if (o.has("studio-only")) put("studioOnly", true)
+            if (o.has("any-version")) put("studioOnly", false)
+        }
+        if (policy.isNotEmpty()) put("policy", policy)
+        if (o.has("keep-order")) put("keepOrder", true)
+        if (o.has("no-keep-order")) put("keepOrder", false)
     }
 
     /** [now] (a sync's tags as the API gives them) with --tag KEY=VALUE added or changed and --untag KEY taken off; null when neither is given. */
@@ -516,7 +528,7 @@ internal class CliCommands(
     private fun editSync(p: List<String>, o: Cli.Opts): Int {
         val target = sync(one(p, "edit <sync> [options]"))
         val body = buildJsonObject { syncFields(o); tagsField(o, target["tags"] as? JsonObject)?.let { put("tags", it) } }
-        if (body.isEmpty()) throw Cli.Failure(2, "say what to change: --name, --schedule or --every, --at, --days, --changes, --follows, --color, --label, --tag, --untag, --favorite, --two-way (trackhop help edit)")
+        if (body.isEmpty()) throw Cli.Failure(2, "say what to change: --name, --schedule or --every, --at, --days, --changes, --follows, --color, --label, --tag, --untag, --favorite, --two-way, --strictness, --explicit, --studio-only, --keep-order (trackhop help edit)")
         val r = api.send("PATCH", "syncs/${enc(target.s("id"))}", body).jsonObject
         if (asJson) return print(r).let { 0 }
         out.println("${r.s("name")}: ${route(r)}, ${r.s("timing")}${if (r.b("archive")) ", archive" else if (r.b("mirrorRemovals")) ", mirrors removals" else ""}${pair(r)}${groups(r).let { if (it.isEmpty()) "" else ", $it" }}")

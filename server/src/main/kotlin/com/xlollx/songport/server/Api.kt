@@ -134,6 +134,9 @@ object Api {
         put("archive", j.archive)
         // Copies the source's star ratings (an iTunes library's, kept in a playlist file) to the target.
         put("copyRatings", j.copyRatings)
+        // How close a match must be, and the rest of the editor's matching choices (MatchPolicy); the source's order kept.
+        put("policy", policyJson(j.policy))
+        put("keepOrder", j.keepOrder)
         // Half of a two-way pair: the other half's id, whether this is the "↔" half, and whether removals travel too.
         val other = j.linkedJobId?.let { env.store.job(it) }
         put("twoWay", other != null)
@@ -160,6 +163,14 @@ object Api {
                 put("end", "%02d:%02d".format(r.endMinute / 60, r.endMinute % 60))
             })
         }
+    }
+
+    /** A sync's matching choices as the API gives them: strictness and explicit as words, the two ticks. */
+    fun policyJson(p: com.xlollx.songport.model.MatchPolicy) = buildJsonObject {
+        put("strictness", when { p.strictness < 0 -> "lenient"; p.strictness > 0 -> "strict"; else -> "normal" })
+        put("explicit", when { p.explicit < 0 -> "clean"; p.explicit > 0 -> "explicit"; else -> "either" })
+        put("sameAlbum", p.sameAlbum)
+        put("studioOnly", p.studioOnly)
     }
 
     /**
