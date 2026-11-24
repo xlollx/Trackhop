@@ -90,6 +90,7 @@ object Cli {
         Cmd("soundtracks", "Services and playlists", listOf("soundtracks <words>..."), "soundtracks on MusicBrainz: each one's service and playlist make a sync's source"),
         Cmd("truck-radio", "Services and playlists", listOf("truck-radio", "truck-radio add <stream> <name> [--game \"Euro Truck Simulator 2\"]"),
             "the radio list of Euro Truck Simulator 2 and American Truck Simulator on this computer; add: a station joins it (close the game first)"),
+        Cmd("catalog", "Services and playlists", listOf("catalog [<words>] [--category streaming|server|radio|listening|regional|files]"), "every service that can be added, by category; words also match other names (Navidrome finds Subsonic)"),
         Cmd("playlists", "Services and playlists", listOf("playlists <service>"), "a service's playlists"),
         Cmd("tracks", "Services and playlists", listOf("tracks <service> <playlist>"), "a playlist's tracks"),
         Cmd("add", "Services and playlists", listOf("add <service> <playlist> <track>..."), "add tracks: \"Artist - Title\", a link from any service, or an id"),

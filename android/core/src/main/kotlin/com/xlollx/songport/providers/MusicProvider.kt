@@ -91,6 +91,10 @@ interface MusicProvider {
     val routeNoteName: String? get() = null
     /** Le varianti dello stesso servizio (API e web) si raggruppano sotto questo nome. */
     val familyName: String get() = displayName
+    /** Its chip in "Which service?" (see [ServiceCatalog]): override here, or add a line there. */
+    val category: ServiceCatalog.Category get() = ServiceCatalog.info(serviceId).category
+    /** Other names the chooser's search finds it by ("Navidrome" for Subsonic, "Plexamp" for Plex). */
+    val aliases: List<String> get() = ServiceCatalog.info(serviceId).aliases
 
     enum class Route { EASY, OFFICIAL }
 

@@ -1,0 +1,87 @@
+kicker: Trackhop · Werkzeuge
+choose: Datei auswählen
+noscript: Dieses Werkzeug läuft in deinem Browser und braucht JavaScript. Es wird so oder so nichts verschickt.
+get: Trackhop holen
+priv: "Nur auf dieser Seite gelesen: nichts wird hochgeladen"
+formats: CSV, M3U, XSPF, JSPF, eine Apple-Music- oder iTunes-Playlist, eine einfache Liste und mehr
+compare:
+  title: "Zwei Playlists vergleichen: was wo fehlt"
+  description: "Zieh zwei Playlist-Dateien herein (CSV, M3U, XSPF, JSPF, iTunes XML) und sieh, welche Songs nur in einer sind und welche in beiden. In deinem Browser: nichts wird hochgeladen. Kostenlos, ohne Konto."
+  h1: Zwei Playlists vergleichen
+  lead: Zwei Playlist-Dateien rein, und du siehst, was wo fehlt. Praktisch nach einer Übertragung oder um zu sehen, was zwei Playlists gemeinsam haben.
+  a: Playlist A
+  b: Playlist B
+  drop: Datei hier ablegen oder auswählen
+  cta: Sollen die fehlenden Songs für dich hinzugefügt und die beiden Playlists gleich gehalten werden?
+  how_h: Wie Songs zugeordnet werden
+  how: "Über den ISRC, den Code einer Aufnahme, wenn beide Dateien ihn haben; sonst über Titel und Interpreten, egal ob Groß- oder Kleinschreibung, Akzente, „feat.“ oder „Remastered“, bei passender Länge. Eine Live-, Akustik- oder Remix-Version zählt als anderer Song, wie in der Trackhop-App."
+  stays_h: Was mit deinen Dateien passiert
+  stays: "Dein Browser liest sie auf dieser Seite. Sie gehen weder an Trackhop noch an sonst jemanden; kein Konto, keine Cookies, keine Statistik darüber, wer die Seite nutzt."
+  guide: 'Deine Playlists sind bei einem Dienst und nicht in einer Datei? <a href="/convert">Convert</a> liest die Exporte der meisten Dienste, und <a href="/guide/playlists-uebertragen">die App exportiert jede Playlist</a>.'
+duplicates:
+  title: "Doppelte Songs in einer Playlist-Datei finden und entfernen"
+  description: "Zieh eine Playlist-Datei herein (CSV, M3U, XSPF, JSPF, iTunes XML): Songs, die doppelt drin sind, werden gruppiert, du wählst, welche Kopie bleibt, und bekommst die bereinigte Datei zurück. In deinem Browser, kostenlos, ohne Konto."
+  h1: Doppelte finden und entfernen
+  lead: Zieh eine Playlist-Datei herein. Songs, die mehr als einmal drin sind, werden gruppiert, du wählst, welche Kopie bleibt, und bekommst die bereinigte Datei zurück.
+  drop: Playlist-Datei hier ablegen oder auswählen
+  cta: Deine Playlist ist bei Spotify, YouTube Music, TIDAL oder Deezer? Die App räumt sie direkt dort auf.
+  what_h: Was als doppelt zählt
+  what:
+    - "<strong>Dieselbe Aufnahme</strong>: derselbe ISRC, auch wenn eine Kopie vom Album und die andere von einer Single oder Compilation stammt."
+    - "<strong>Derselbe Titel und dieselben Interpreten</strong>, egal ob Groß- oder Kleinschreibung, Akzente, „feat.“ oder „Remastered“, bei passender Länge."
+    - "Nie <strong>eine andere Version</strong>: eine Live-, Akustik- oder Remix-Aufnahme bleibt ein eigener Song."
+  stays_h: Was mit deiner Datei passiert
+  stays: "Dein Browser liest sie auf dieser Seite und schreibt dort die bereinigte Datei. In jeder Gruppe bleibt die erste Kopie, außer du wählst eine andere, und die Reihenfolge der Playlist ändert sich nicht. Nichts geht an Trackhop oder an sonst jemanden."
+  guide: 'Schritt für Schritt in der App, direkt beim Dienst: <a href="/guide/remove-duplicates-spotify">Remove duplicate songs</a> (auf Englisch).'
+button:
+  title: "Ein „Auf jedem Dienst anhören“-Button für deine Website oder deinen Blog"
+  description: "Füge den Link eines Songs oder Albums ein und erhalte einen Button für deinen Blog, Newsletter oder deine Website: Leser öffnen den Song bei dem Dienst, den sie nutzen. Einfaches HTML, kein Skript, kein Tracking. Kostenlos."
+  h1: Ein „Auf jedem Dienst anhören“-Button
+  lead: Für deinen Blog, Newsletter oder deine Website. Leser öffnen den Song bei dem Dienst, den sie nutzen, egal welcher es ist.
+  label: Link eines Songs oder Albums einfügen (Spotify, Apple Music oder Deezer)
+  go: Button erstellen
+  style: Stil
+  styles: {dark: Dunkel, light: Hell, violet: Violett}
+  text: Text auf dem Button
+  default_text: Auf jedem Dienst anhören
+  preview: Vorschau
+  code: Code zum Einfügen
+  copy: Code kopieren
+  copy_link: Nur den Link kopieren
+  how_h: Was der Button macht
+  how: 'Ein Klick öffnet <a href="/link">A link for every service</a> mit deinem Song: Leser wählen Spotify, Apple Music, YouTube Music, Deezer, TIDAL, Amazon Music oder einen anderen Dienst, und der Song öffnet sich dort.'
+  stays_h: Kein Tracking
+  stays: "Der Button ist einfaches HTML: kein Skript, kein Bild und keine Schrift von Trackhop, kein Cookie. Bei Trackhop kommt nichts an, bis jemand klickt, und dann nur der Link des Songs, um ihn nachzuschlagen. Trackhop zählt die Klicks nicht."
+js:
+  lang: de
+  reading: "{name} wird gelesen… {pct} %"
+  cancel: Abbrechen
+  choose: Datei auswählen
+  err_incomplete: "{name} endet zu früh: Der Download oder die Kopie wurde abgebrochen. Hol dir die Datei noch einmal und leg sie hier ab."
+  err_unreadable: "{name} kann nicht gelesen werden: Die Datei ist beschädigt oder keine Art von Datei, die diese Seite kennt."
+  err_empty: "In {name} wurden keine Songs gefunden."
+  err_unsupported: "Dieser Browser kann die Datei nicht öffnen. Nimm einen aktuellen Browser."
+  err_toobig: "Die Datei ist zu groß."
+  songs_n: ["{n} Song", "{n} Songs"]
+  another: Andere Datei auswählen
+  download: Herunterladen
+  as: als
+  outputs: {csv: CSV, m3u8: M3U8, xspf: XSPF, jspf: JSPF, text: Text}
+  compare:
+    only_a: Nur in A
+    only_b: Nur in B
+    both: In beiden
+    nothing: Hier ist nichts.
+    same: "Die beiden Playlists haben dieselben Songs."
+    both_note: "So angezeigt, wie sie in Playlist A stehen."
+  duplicates:
+    none: "Keine Doppelten in {name}: Jeder Song ist nur einmal drin."
+    found: ["{n} Song ist mehr als einmal drin.", "{n} Songs sind mehr als einmal drin."]
+    keep: Diesen behalten
+    why_isrc: dieselbe Aufnahme (ISRC)
+    why_same: gleicher Titel und Interpreten
+    download: Ohne Doppelte herunterladen
+    position: "Nr. {n}"
+  button:
+    err_link: "Das ist kein Song- oder Album-Link von Spotify, Apple Music oder Deezer. Öffne den Song in der App oder im Web, nimm Teilen › Link kopieren und füge ihn hier ein."
+    copied: Kopiert

@@ -53,6 +53,7 @@ internal class CliCommands(
         "services" -> services()
         "soundtracks" -> soundtracks(one(p, "soundtracks <words>..."))
         "truck-radio" -> truckRadio(p, o)
+        "catalog" -> catalog(p.joinToString(" "), o)
         "playlists" -> playlists(one(p, "playlists <service>"))
         "tracks" -> { need(p, 2, "tracks <service> <playlist>"); tracks(p[0], p[1]) }
         "add", "remove" -> { need(p, 3, "$command <service> <playlist> <track>..."); edit(command, p[0], p[1], p.drop(2)) }
@@ -262,6 +263,20 @@ internal class CliCommands(
         if (asJson) return print(JsonArray(list)).let { 0 }
         if (list.isEmpty()) out.println("No services added yet: add them on Trackhop's page, Services.")
         for (o in list) out.println("${o.s("name")}  (${o.s("id")})  ${if (o.b("connected")) "connected" + (o["account"].str()?.let { " as $it" } ?: "") else "not connected"}")
+        return 0
+    }
+
+    /** "Which service?" on the command line: every service that can be added, by category, or those matching [words]. */
+    private fun catalog(words: String, o: Cli.Opts): Int {
+        val params = listOfNotNull(words.takeIf { it.isNotBlank() }?.let { "q=${enc(it)}" }, o.value("category")?.let { "category=${enc(it)}" })
+        val list = api.get("catalog" + if (params.isEmpty()) "" else "?" + params.joinToString("&")).jsonArray.map { it.jsonObject }
+        if (asJson) return print(JsonArray(list)).let { 0 }
+        if (list.isEmpty()) out.println("No service found.")
+        for (f in list) {
+            val routes = f["routes"]!!.jsonArray.map { it.jsonObject }
+            val add = routes.mapNotNull { it["add"].str() }.joinToString(", ").ifEmpty { "added" }
+            out.println("${f.s("name")}  [${f.s("categoryName")}]  $add")
+        }
         return 0
     }
 

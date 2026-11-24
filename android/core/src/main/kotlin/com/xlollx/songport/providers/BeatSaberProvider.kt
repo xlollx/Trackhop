@@ -30,6 +30,8 @@ class BeatSaberProvider(override val slot: String = "") : CredentialsProvider() 
     override val canCreatePlaylists = false
     override val canRemoveTracks = false
     override val searchParallelism = 1
+    override val category get() = ServiceCatalog.Category.GAMES
+    override val aliases get() = listOf("BeatLeader", "ScoreSaber", "BeatSaver")
     override val loginForm = LoginForm(needsUrl = false, needsUser = true, needsSecret = false, hintName = "login_hint_beatsaber")
 
     override fun webSearchUrl(ctx: Env, query: String): String = "https://beatsaver.com/?q=${Http.enc(query)}"

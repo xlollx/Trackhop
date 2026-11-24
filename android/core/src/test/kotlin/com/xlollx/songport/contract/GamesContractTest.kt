@@ -144,3 +144,15 @@ class GamesContractTest : ContractTest() {
         try { bs.login(env, "", "999", ""); fail() } catch (e: ProviderException) { assertEquals("beatsaber_not_found", e.message) }
     }
 }
+
+/** The game connectors sit under "Games" in "Which service?", and are found by their games' other names. */
+class GamesCategoryTest {
+    @Test fun gamesChip() {
+        val games = listOf(OsuProvider(), BeatSaberProvider(), com.xlollx.songport.providers.FortniteFestivalProvider, com.xlollx.songport.providers.GameFolderProvider())
+        games.forEach { assertEquals(it.displayName, com.xlollx.songport.providers.ServiceCatalog.Category.GAMES, it.category) }
+        val families = com.xlollx.songport.providers.ServiceCatalog.families(games)
+        assertEquals(listOf(com.xlollx.songport.providers.ServiceCatalog.Category.GAMES), com.xlollx.songport.providers.ServiceCatalog.categories(families))
+        assertEquals(listOf("Rhythm game songs"), com.xlollx.songport.providers.ServiceCatalog.search(families, "clone hero").map { it.name })
+        assertEquals(listOf("Beat Saber"), com.xlollx.songport.providers.ServiceCatalog.search(families, "scoresaber").map { it.name })
+    }
+}

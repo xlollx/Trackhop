@@ -151,6 +151,8 @@
     <string name="settings_advanced_desc">Trackhop ships without keys of its own: the official routes of Spotify, YouTube, TIDAL, Deezer, Last.fm and Apple Music use a free key created in your name, so their limits and quotas are yours alone. Here you can see and change them.</string>
     <string name="settings_privacy_policy">Privacy policy</string>
     <string name="settings_about">About</string>
+    <!-- The build series of this app, the About row's tag (not shown, the same in every build). -->
+    <string name="settings_about_series" translatable="false">marrow-ledge-77c</string>
     <string name="settings_developer">Developer options</string>
     <string name="settings_developer_switch">Show developer tools</string>
     <string name="settings_developer_desc">Connections log, technical report to share, traffic capture for the web connectors. Off, they stay out of the way.</string>
@@ -2229,6 +2231,9 @@
     <string name="notify_help_slack">Make an app with an incoming webhook for a channel (api.slack.com/messaging/webhooks) and paste its URL.</string>
     <string name="notify_help_matrix">A (bot) account in the room: its access token (Element: Settings › Help &amp; About), and the room\'s id (Room settings › Advanced).</string>
     <string name="notify_help_pushover">Your user key is on pushover.net\'s front page; create an application there for its API token.</string>
+    <string name="notify_help_apprise">Your Apprise API\'s address with the key of a saved configuration (…/notify/key). A tag sends only to the services it marks; empty, to all of them.</string>
+    <string name="notify_field_apprise_url">Apprise API URL</string>
+    <string name="notify_field_apprise_tag">Tag (optional)</string>
     <string name="notify_field_telegram_token">Bot token</string>
     <string name="notify_field_telegram_chat">Chat id</string>
     <string name="notify_field_ntfy_server">Server</string>
@@ -3551,4 +3556,26 @@
     <string name="gamefolder_missing">No folder at %1$s.</string>
     <string name="gamefolder_empty">No songs found in this folder (song.ini, .sm, .ssc or Info.dat).</string>
     <string name="gamefolder_all">All songs</string>
+    <string name="chooser_your_accounts">Your accounts</string>
+    <string name="chooser_all">All</string>
+    <string name="chooser_cat_games">Games</string>
+    <string name="chooser_cat_radio">Radio &amp; charts</string>
+    <string name="chooser_cat_podcasts">Podcasts</string>
+    <string name="chooser_cat_listening">Listening</string>
+    <string name="chooser_cat_regional">Regional</string>
+    <string name="chooser_cat_files">Files</string>
+    <string name="chooser_area_east_asia">East Asia</string>
+    <string name="chooser_area_india_middle_east">India · Middle East</string>
+    <string name="chooser_area_africa">Africa</string>
+    <string name="chooser_area_europe">Europe</string>
+    <string name="chooser_area_americas">Americas</string>
+    <string name="chooser_show_all">Show all %1$d</string>
+    <string name="chooser_suggested_here">Suggested where you are</string>
+    <string name="chooser_cannot_target">Can\'t be a target</string>
+    <string name="chooser_no_results">No service found for “%1$s”</string>
+    <string name="chooser_clear_search">Clear search</string>
+    <plurals name="chooser_search">
+        <item quantity="one">Search %1$d service</item>
+        <item quantity="other">Search %1$d services</item>
+    </plurals>
 </resources>

@@ -2318,6 +2318,9 @@
     <string name="notify_help_slack">Создай приложение с incoming webhook для канала (api.slack.com/messaging/webhooks) и вставь его URL.</string>
     <string name="notify_help_matrix">Аккаунт (бот) в комнате: его токен доступа (Element: Настройки › Помощь и о программе) и id комнаты (Настройки комнаты › Дополнительно).</string>
     <string name="notify_help_pushover">Твой user key — на главной странице pushover.net; создай там приложение, чтобы получить его API-токен.</string>
+    <string name="notify_help_apprise">Адрес твоего Apprise API с ключом сохранённой конфигурации (…/notify/ключ). Тег отправляет только в отмеченные им сервисы; пустой — во все.</string>
+    <string name="notify_field_apprise_url">URL Apprise API</string>
+    <string name="notify_field_apprise_tag">Тег (необязательно)</string>
     <string name="notify_field_telegram_token">Токен бота</string>
     <string name="notify_field_telegram_chat">Chat id</string>
     <string name="notify_field_ntfy_server">Сервер</string>
@@ -3783,4 +3786,28 @@
     <string name="gamefolder_missing">Нет папки по пути %1$s.</string>
     <string name="gamefolder_empty">В этой папке не найдено песен (song.ini, .sm, .ssc или Info.dat).</string>
     <string name="gamefolder_all">Все песни</string>
+    <string name="chooser_your_accounts">Ваши аккаунты</string>
+    <string name="chooser_all">Все</string>
+    <string name="chooser_cat_games">Игры</string>
+    <string name="chooser_cat_radio">Радио и чарты</string>
+    <string name="chooser_cat_podcasts">Подкасты</string>
+    <string name="chooser_cat_listening">Прослушивания</string>
+    <string name="chooser_cat_regional">Региональные</string>
+    <string name="chooser_cat_files">Файлы</string>
+    <string name="chooser_area_east_asia">Восточная Азия</string>
+    <string name="chooser_area_india_middle_east">Индия · Ближний Восток</string>
+    <string name="chooser_area_africa">Африка</string>
+    <string name="chooser_area_europe">Европа</string>
+    <string name="chooser_area_americas">Америка</string>
+    <string name="chooser_show_all">Показать все (%1$d)</string>
+    <string name="chooser_suggested_here">Рекомендуем для вашего региона</string>
+    <string name="chooser_cannot_target">Не может быть получателем</string>
+    <string name="chooser_no_results">Нет сервиса по запросу «%1$s»</string>
+    <string name="chooser_clear_search">Очистить поиск</string>
+    <plurals name="chooser_search">
+        <item quantity="one">Искать среди %1$d сервиса</item>
+        <item quantity="few">Искать среди %1$d сервисов</item>
+        <item quantity="many">Искать среди %1$d сервисов</item>
+        <item quantity="other">Искать среди %1$d сервиса</item>
+    </plurals>
 </resources>

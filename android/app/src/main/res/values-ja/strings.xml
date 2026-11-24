@@ -2183,6 +2183,9 @@
     <string name="notify_help_slack">チャンネル用の incoming webhook を持つアプリを作成し(api.slack.com/messaging/webhooks)、その URL を貼り付けます。</string>
     <string name="notify_help_matrix">ルームにいる(ボット)アカウントのアクセストークン(Element: 設定 › ヘルプと概要)と、ルームの id(ルームの設定 › 詳細)。</string>
     <string name="notify_help_pushover">ユーザーキーは pushover.net のトップページにあります。そこでアプリケーションを作成して API トークンを取得します。</string>
+    <string name="notify_help_apprise">Apprise API のアドレスと、保存した設定のキー（…/notify/キー）。タグを入れると、そのタグが付いたサービスにだけ送ります。空ならすべてに送ります。</string>
+    <string name="notify_field_apprise_url">Apprise API の URL</string>
+    <string name="notify_field_apprise_tag">タグ（任意）</string>
     <string name="notify_field_telegram_token">ボットのトークン</string>
     <string name="notify_field_telegram_chat">Chat id</string>
     <string name="notify_field_ntfy_server">サーバー</string>
@@ -3432,4 +3435,25 @@
     <string name="gamefolder_missing">%1$s にフォルダーがありません。</string>
     <string name="gamefolder_empty">このフォルダーに曲が見つかりません（song.ini、.sm、.ssc、Info.dat）。</string>
     <string name="gamefolder_all">すべての曲</string>
+    <string name="chooser_your_accounts">あなたのアカウント</string>
+    <string name="chooser_all">すべて</string>
+    <string name="chooser_cat_games">ゲーム</string>
+    <string name="chooser_cat_radio">ラジオとチャート</string>
+    <string name="chooser_cat_podcasts">ポッドキャスト</string>
+    <string name="chooser_cat_listening">再生履歴</string>
+    <string name="chooser_cat_regional">地域</string>
+    <string name="chooser_cat_files">ファイル</string>
+    <string name="chooser_area_east_asia">東アジア</string>
+    <string name="chooser_area_india_middle_east">インド・中東</string>
+    <string name="chooser_area_africa">アフリカ</string>
+    <string name="chooser_area_europe">ヨーロッパ</string>
+    <string name="chooser_area_americas">南北アメリカ</string>
+    <string name="chooser_show_all">すべて表示（%1$d）</string>
+    <string name="chooser_suggested_here">お住まいの地域のおすすめ</string>
+    <string name="chooser_cannot_target">同期先にはできません</string>
+    <string name="chooser_no_results">「%1$s」に一致するサービスはありません</string>
+    <string name="chooser_clear_search">検索をクリア</string>
+    <plurals name="chooser_search">
+        <item quantity="other">%1$d 件のサービスを検索</item>
+    </plurals>
 </resources>

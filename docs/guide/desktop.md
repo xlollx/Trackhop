@@ -27,7 +27,7 @@ The current version is **2.1.5** ([what's in it](https://github.com/xlollx/Track
 
 ### Package managers and stores
 
-Scoop, Chocolatey, Homebrew, the Microsoft Store and the Snap Store have Trackhop Desktop already; the others are on their way,
+Scoop, Chocolatey, Homebrew, the Microsoft Store, the Snap Store, itch.io and SourceForge have Trackhop Desktop already; the others are on their way,
 and their commands do not work until the *(soon)* goes away here:
 
 | Where | Command |
@@ -39,6 +39,8 @@ and their commands do not work until the *(soon)* goes away here:
 | Microsoft Store (Windows) | [Trackhop Desktop on the Store](https://apps.microsoft.com/detail/9PFX74Q2XN9P), or `winget install 9PFX74Q2XN9P` (official connections only, see [Services](#services)) |
 | Flathub (Linux) | `flatpak install flathub io.github.xlollx.Trackhop` *(soon)* |
 | Snap Store (Ubuntu and others) | `sudo snap install trackhop`, or *Trackhop* in Ubuntu's App Center |
+| itch.io | [xlollx.itch.io/trackhop](https://xlollx.itch.io/trackhop): the Windows .zip, the macOS .dmg and the Linux .tar.gz of each release, also through the itch app |
+| SourceForge | [sourceforge.net/projects/trackhop](https://sourceforge.net/projects/trackhop/): a mirror of every release's files |
 
 **Windows warns about an unrecognised app** ("Windows protected your PC"): the installer is not
 signed with a paid certificate, as is usual for open-source projects. Choose *More info*, then
@@ -116,8 +118,8 @@ shows the exact address and the steps.
 
 ## Notifications
 
-Settings › Notifications sends a short message to Telegram, ntfy, Gotify, Discord, Slack, Matrix or
-Pushover when a sync changes something, fails or waits for you, while Trackhop Desktop runs. How to
+Settings › Notifications sends a short message to Telegram, ntfy, Gotify, Discord, Slack, Matrix,
+Pushover or Apprise when a sync changes something, fails or waits for you, while Trackhop Desktop runs. How to
 set up each one: [Notifications](docker#notifications), the same as on Docker.
 
 ## Command line

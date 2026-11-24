@@ -560,6 +560,8 @@ $removals"""
     private fun connectors(r: Req, rest: List<String>) {
         val store = env.store
         if (rest.isEmpty()) return connectorList(r)
+        // "Which service?": the chooser, or one service's ways in.
+        if (rest == listOf("add") && r.method == "GET") return serviceChooser(r)
         if (rest == listOf("add") && r.method == "POST") {
             val service = r.form["service"].orEmpty()
             // "jellyfin@new" (or another=on): one more account of a service already on the list.
@@ -663,17 +665,8 @@ $removals"""
             }
             body.append("""<div class="card"><div class="who">${logo(p.id, 40)}<div><a href="/connectors/${q(p.id)}"><b>${h(p.label(env))}</b></a>${unofficialBadges(p)}<br>$state</div></div></div>""")
         }
-        // A link-only source (SoundCloud) is not added: it is offered when a sync is created.
-        val available = Providers.services().filter { s -> !s.linkOnly && added.none { it.id == s.id } }
-        // A service already on the list that can hold one more account: Jellyfin at home and at a friend's.
-        val more = Providers.services().filter { s -> Accounts.allowsAnother(s) && added.any { it.serviceId == s.serviceId } && s !in available }
-        if (available.isNotEmpty() || more.isNotEmpty()) {
-            body.append("""<h2>Add a service</h2><form method="post" action="/connectors/add" class="card"><select name="service">""")
-            available.forEach { body.append("""<option value="${h(it.id)}">${h(it.displayName)}${if (it is CookieConnector) (if (it.alpha) " (unofficial, alpha)" else if (it.beta) " (unofficial, beta)" else " (unofficial)") else ""}</option>""") }
-            more.forEach { body.append("""<option value="${h(it.serviceId + Accounts.ANOTHER)}">${h(it.displayName)}: ${h(env.text("account_add"))}</option>""") }
-            body.append("""</select><label>${h(env.text("connector_name_label"))} (optional)</label><input type="text" name="name" maxlength="80" autocomplete="off">""")
-            body.append("""<p><button>Add</button></p></form>""")
-        }
+        // Adding one: "Which service?", with search and categories, as in the app (ServiceChooserWeb).
+        body.append("""<p><a class="button" href="/connectors/add">${h(env.text("connector_add"))}</a></p>""")
         send(r.ex, 200, page("Services", body.toString()))
     }
 

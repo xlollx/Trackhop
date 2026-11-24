@@ -68,6 +68,7 @@ internal object ApiDocs {
         Call("GET", "/soundtracks", "Games", "Soundtracks on MusicBrainz whose title holds q: each one's service and playlist make a sync's source.", listOf("q")),
         Call("GET", "/truck-radio", "Games", "The radio lists of Euro Truck Simulator 2 and American Truck Simulator on this computer, with their stations."),
         Call("POST", "/truck-radio", "Games", "Add a station to the games' radio lists (or game's only): the stations there stay, a copy of the list is kept. Close the game first.", body = "{\"stream\", \"name\", \"genre\"?, \"language\"?, \"bitrate\"?, \"game\"?}"),
+        Call("GET", "/catalog", "Services", "Every service this server can add, as in \"Which service?\": its category (streaming, server, games, radio, podcasts, listening, regional, files), other names, and each way in with the value POST /connectors/add takes. q searches every name, category narrows.", listOf("q", "category")),
         Call("GET", "/services/{service}", "Services", "One service: connected, account, and what it can do."),
         Call("GET", "/services/{service}/search", "Services", "Look for a track: q is \"Artist - Title\" or a link.", listOf("q", "limit")),
         Call("GET", "/services/{service}/playlists", "Playlists", "A service's playlists and library entries."),

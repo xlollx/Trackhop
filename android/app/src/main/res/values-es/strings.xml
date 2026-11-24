@@ -2236,6 +2236,9 @@
     <string name="notify_help_slack">Crea una app con un incoming webhook para un canal (api.slack.com/messaging/webhooks) y pega su URL.</string>
     <string name="notify_help_matrix">Una cuenta (bot) en la sala: su token de acceso (Element: Ajustes › Ayuda y acerca de) y el id de la sala (Ajustes de la sala › Avanzado).</string>
     <string name="notify_help_pushover">Tu user key está en la portada de pushover.net; crea allí una aplicación para su token de API.</string>
+    <string name="notify_help_apprise">La dirección de tu Apprise API con la clave de una configuración guardada (…/notify/clave). Una etiqueta envía solo a los servicios que marca; vacía, a todos.</string>
+    <string name="notify_field_apprise_url">URL de la Apprise API</string>
+    <string name="notify_field_apprise_tag">Etiqueta (opcional)</string>
     <string name="notify_field_telegram_token">Token del bot</string>
     <string name="notify_field_telegram_chat">Chat id</string>
     <string name="notify_field_ntfy_server">Servidor</string>
@@ -3557,4 +3560,26 @@
     <string name="gamefolder_missing">No hay ninguna carpeta en %1$s.</string>
     <string name="gamefolder_empty">No se encontraron canciones en esta carpeta (song.ini, .sm, .ssc o Info.dat).</string>
     <string name="gamefolder_all">Todas las canciones</string>
+    <string name="chooser_your_accounts">Tus cuentas</string>
+    <string name="chooser_all">Todos</string>
+    <string name="chooser_cat_games">Juegos</string>
+    <string name="chooser_cat_radio">Radio y listas</string>
+    <string name="chooser_cat_podcasts">Pódcasts</string>
+    <string name="chooser_cat_listening">Escuchas</string>
+    <string name="chooser_cat_regional">Regionales</string>
+    <string name="chooser_cat_files">Archivos</string>
+    <string name="chooser_area_east_asia">Asia oriental</string>
+    <string name="chooser_area_india_middle_east">India · Oriente Medio</string>
+    <string name="chooser_area_africa">África</string>
+    <string name="chooser_area_europe">Europa</string>
+    <string name="chooser_area_americas">Américas</string>
+    <string name="chooser_show_all">Ver los %1$d</string>
+    <string name="chooser_suggested_here">Sugeridos donde estás</string>
+    <string name="chooser_cannot_target">No puede ser un destino</string>
+    <string name="chooser_no_results">Ningún servicio para «%1$s»</string>
+    <string name="chooser_clear_search">Borrar la búsqueda</string>
+    <plurals name="chooser_search">
+        <item quantity="one">Buscar en %1$d servicio</item>
+        <item quantity="other">Buscar en %1$d servicios</item>
+    </plurals>
 </resources>

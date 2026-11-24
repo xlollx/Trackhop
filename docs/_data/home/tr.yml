@@ -149,3 +149,9 @@ say_title: 'Ne diyorlar'
 say_intro: 'Trackhop hakkındaki video ve gönderilerin altındaki yorumlar ve destekçilerin mesajları. İsimler ve fotoğraflar gizlendi.'
 say_alt: 'Trackhop kullananların yorumları ve otomatik senkronizasyonu ve güvenliği öven iki destekçi mesajı, ve X''te onu "a game changer for music lovers who use multiple platforms" diye anlatan gönderiler'
 gallery_title: "Bir göz at"
+itch_alt: "itch.io'dan edinin"
+sourceforge_alt: "SourceForge'dan edinin"
+itch_phone_note: "Tam APK, her sürümle güncellenir"
+sourceforge_phone_note: "Her sürüm, yansı olarak"
+itch_desktop_note: "Windows, macOS ve Linux"
+sourceforge_desktop_note: "Her sürüm, yansı olarak"

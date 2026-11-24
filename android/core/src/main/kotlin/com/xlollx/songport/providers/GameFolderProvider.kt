@@ -27,6 +27,8 @@ class GameFolderProvider(override val slot: String = "") : CredentialsProvider()
     override val canWrite = false
     override val canCreatePlaylists = false
     override val canRemoveTracks = false
+    override val category get() = ServiceCatalog.Category.GAMES
+    override val aliases get() = listOf("Clone Hero", "YARG", "Phase Shift", "StepMania", "ITGmania", "OutFox", "Beat Saber")
     override val loginForm = LoginForm(needsUrl = true, needsUser = false, needsSecret = false, hintName = "login_hint_gamefolder", urlIsFolder = true)
 
     override fun accountName(ctx: Env): String? = ctx.tokens.get(id)?.userName?.ifBlank { null }

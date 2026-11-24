@@ -29,6 +29,8 @@ object FortniteFestivalProvider : MusicProvider {
     override val canCreatePlaylists = false
     override val canRemoveTracks = false
     override val searchParallelism = 1
+    override val category get() = ServiceCatalog.Category.GAMES
+    override val aliases get() = listOf("Fortnite", "Jam Tracks")
 
     override fun isConfigured(ctx: Env) = Relay.available(ctx)
     override fun isConnected(ctx: Env) = Relay.available(ctx)

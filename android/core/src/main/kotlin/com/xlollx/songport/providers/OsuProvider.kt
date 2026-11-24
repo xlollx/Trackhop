@@ -34,6 +34,8 @@ class OsuProvider(override val slot: String = "") : CredentialsProvider() {
     override val canCreatePlaylists = false
     override val canRemoveTracks = false
     override val searchParallelism = 1
+    override val category get() = ServiceCatalog.Category.GAMES
+    override val aliases get() = listOf("osu!lazer", "Featured Artists")
     override val loginForm = LoginForm(needsUrl = false, needsUser = true, needsSecret = false, hintName = "login_hint_osu")
     override val setupGuide = SetupGuide(
         dashboardUrl = "https://osu.ppy.sh/home/account/edit#oauth",

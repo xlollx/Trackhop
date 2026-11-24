@@ -2182,6 +2182,9 @@
     <string name="notify_help_slack">채널용 incoming webhook이 있는 앱을 만들고(api.slack.com/messaging/webhooks) URL을 붙여 넣으세요.</string>
     <string name="notify_help_matrix">방에 있는 (봇) 계정의 액세스 토큰(Element: 설정 › 도움말 및 정보)과 방 id(방 설정 › 고급).</string>
     <string name="notify_help_pushover">사용자 키는 pushover.net 첫 페이지에 있어요. 그곳에서 애플리케이션을 만들어 API 토큰을 받으세요.</string>
+    <string name="notify_help_apprise">Apprise API 주소와 저장된 구성의 키(…/notify/키). 태그를 넣으면 그 태그가 붙은 서비스에만 보내고, 비우면 모두에게 보내요.</string>
+    <string name="notify_field_apprise_url">Apprise API URL</string>
+    <string name="notify_field_apprise_tag">태그(선택)</string>
     <string name="notify_field_telegram_token">봇 토큰</string>
     <string name="notify_field_telegram_chat">Chat id</string>
     <string name="notify_field_ntfy_server">서버</string>
@@ -3431,4 +3434,25 @@
     <string name="gamefolder_missing">%1$s 위치에 폴더가 없습니다.</string>
     <string name="gamefolder_empty">이 폴더에서 곡을 찾지 못했습니다(song.ini, .sm, .ssc 또는 Info.dat).</string>
     <string name="gamefolder_all">모든 곡</string>
+    <string name="chooser_your_accounts">내 계정</string>
+    <string name="chooser_all">전체</string>
+    <string name="chooser_cat_games">게임</string>
+    <string name="chooser_cat_radio">라디오 및 차트</string>
+    <string name="chooser_cat_podcasts">팟캐스트</string>
+    <string name="chooser_cat_listening">감상 기록</string>
+    <string name="chooser_cat_regional">지역</string>
+    <string name="chooser_cat_files">파일</string>
+    <string name="chooser_area_east_asia">동아시아</string>
+    <string name="chooser_area_india_middle_east">인도 · 중동</string>
+    <string name="chooser_area_africa">아프리카</string>
+    <string name="chooser_area_europe">유럽</string>
+    <string name="chooser_area_americas">아메리카</string>
+    <string name="chooser_show_all">모두 보기(%1$d)</string>
+    <string name="chooser_suggested_here">현재 지역 추천</string>
+    <string name="chooser_cannot_target">대상이 될 수 없음</string>
+    <string name="chooser_no_results">“%1$s”에 해당하는 서비스 없음</string>
+    <string name="chooser_clear_search">검색 지우기</string>
+    <plurals name="chooser_search">
+        <item quantity="other">서비스 %1$d개 검색</item>
+    </plurals>
 </resources>

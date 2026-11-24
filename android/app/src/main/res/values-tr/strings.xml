@@ -2226,6 +2226,9 @@
     <string name="notify_help_slack">Bir kanal için incoming webhook\'lu bir uygulama oluştur (api.slack.com/messaging/webhooks) ve URL\'sini yapıştır.</string>
     <string name="notify_help_matrix">Odada bir (bot) hesap: erişim token\'ı (Element: Ayarlar › Yardım ve hakkında) ve odanın id\'si (Oda ayarları › Gelişmiş).</string>
     <string name="notify_help_pushover">User key\'in pushover.net ana sayfasında; API token\'ı için orada bir uygulama oluştur.</string>
+    <string name="notify_help_apprise">Apprise API\'nin adresi ve kayıtlı bir yapılandırmanın anahtarı (…/notify/anahtar). Etiket yalnızca işaretlediği servislere gönderir; boşsa hepsine.</string>
+    <string name="notify_field_apprise_url">Apprise API URL\'si</string>
+    <string name="notify_field_apprise_tag">Etiket (isteğe bağlı)</string>
     <string name="notify_field_telegram_token">Bot token\'ı</string>
     <string name="notify_field_telegram_chat">Chat id</string>
     <string name="notify_field_ntfy_server">Sunucu</string>
@@ -3547,4 +3550,26 @@
     <string name="gamefolder_missing">%1$s konumunda klasör yok.</string>
     <string name="gamefolder_empty">Bu klasörde şarkı bulunamadı (song.ini, .sm, .ssc veya Info.dat).</string>
     <string name="gamefolder_all">Tüm şarkılar</string>
+    <string name="chooser_your_accounts">Hesapların</string>
+    <string name="chooser_all">Tümü</string>
+    <string name="chooser_cat_games">Oyunlar</string>
+    <string name="chooser_cat_radio">Radyo ve listeler</string>
+    <string name="chooser_cat_podcasts">Podcast\'ler</string>
+    <string name="chooser_cat_listening">Dinlemeler</string>
+    <string name="chooser_cat_regional">Bölgesel</string>
+    <string name="chooser_cat_files">Dosyalar</string>
+    <string name="chooser_area_east_asia">Doğu Asya</string>
+    <string name="chooser_area_india_middle_east">Hindistan · Orta Doğu</string>
+    <string name="chooser_area_africa">Afrika</string>
+    <string name="chooser_area_europe">Avrupa</string>
+    <string name="chooser_area_americas">Amerika</string>
+    <string name="chooser_show_all">Tümünü göster (%1$d)</string>
+    <string name="chooser_suggested_here">Bulunduğun yer için öneriler</string>
+    <string name="chooser_cannot_target">Hedef olamaz</string>
+    <string name="chooser_no_results">“%1$s” için hizmet bulunamadı</string>
+    <string name="chooser_clear_search">Aramayı temizle</string>
+    <plurals name="chooser_search">
+        <item quantity="one">%1$d hizmette ara</item>
+        <item quantity="other">%1$d hizmette ara</item>
+    </plurals>
 </resources>

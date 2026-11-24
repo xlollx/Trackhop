@@ -2158,6 +2158,8 @@ private val PolicySaver = androidx.compose.runtime.saveable.Saver<com.xlollx.son
 @Composable
 fun SyncEditorScreen(
     job: SyncJob, onCancel: () -> Unit, onConnectService: () -> Unit = {}, twinName: String? = null,
+    /** A service picked in "Which service?" (the Connect tile): Accounts takes it from there, to name and sign in. */
+    onAddService: (MusicProvider) -> Unit = { onConnectService() },
     /**
      * New sync › Multi sync (one playlist on several services, 1.18): set when it is offered. From
      * 2.1.1 "New sync" asks which kind first; here it stays as a second way, with the source chosen
@@ -2172,9 +2174,11 @@ fun SyncEditorScreen(
     // Solo i connettori aggiunti nella scheda Account: uno tolto di li' non deve piu' essere
     // scegliibile, anche se il token o la sessione nell'app plugin sono ancora validi. I servizi gia'
     // usati dal job che si sta modificando restano nell'elenco per non cambiarlo di nascosto.
-    val available = remember {
-        (Providers.connectors().filter { it.isConnected(ctx) } +
-            listOfNotNull(Providers.byId(job.source.provider), Providers.byId(job.target.provider))).distinctBy { it.id }
+    // Who is signed in, from the answers read in the background (Connections): swapping to "Several
+    // targets" and back asks no connector again. Kept with the list, so the count below needs no call.
+    val signedIn = remember { Connections.connected(ctx.env) }
+    val available = remember(signedIn) {
+        (signedIn + listOfNotNull(Providers.byId(job.source.provider), Providers.byId(job.target.provider))).distinctBy { it.id }
     }
 
     // Saved, so a rotation or a fold keeps what was chosen (the job itself travels as JSON).
@@ -2209,7 +2213,7 @@ fun SyncEditorScreen(
     val writable = writers.let { w ->
         if (w.size < 2 && w.none { it.id == com.xlollx.songport.providers.LocalFilesProvider.id }) w + com.xlollx.songport.providers.LocalFilesProvider else w
     }
-    val loginServices = remember(available) { available.count { it.requiresAuth && it.isConnected(ctx) } }
+    val loginServices = remember(signedIn) { signedIn.count { it.requiresAuth } }
     // A new sync with no target given starts with none: the user chooses where it writes (owner
     // 12/11, "the target is always already filled in"). Filled in only where there is no choice to
     // make: a single place to write to, or the File kept inside Trackhop beside a single service.
@@ -2294,6 +2298,24 @@ fun SyncEditorScreen(
     // The pickers' sheets: the services and what each offers, opened from the Source and Target fields.
     var srcSheet by rememberSaveable { mutableStateOf(false) }
     var dstSheet by rememberSaveable { mutableStateOf(false) }
+    // "Which service?" from the Connect tile, for the source or the target (Role's name), the same chooser as Accounts › Add.
+    var chooserFor by rememberSaveable { mutableStateOf<String?>(null) }
+    chooserFor?.let { which ->
+        val role = ServiceCatalog.Role.valueOf(which)
+        ServiceChooserDialog(
+            role = role,
+            connectors = Store.get(ctx).data.settings.connectors,
+            // "Your accounts": what this sync can use now; one that cannot be a target stays, greyed, saying so.
+            accounts = (available + listOfNotNull(Providers.byId(LocalFilesProvider.id))).distinctBy { it.id },
+            onDismiss = { chooserFor = null },
+            onPick = { chooserFor = null; onAddService(it) },
+            onAccount = { p ->
+                chooserFor = null
+                if (role == ServiceCatalog.Role.TARGET) { dstProvider = p.id; dstPlaylist = null; dstSheet = true }
+                else { srcProvider = p.id; srcPlaylist = null; linkMode = false; shazamMode = false; radioMode = false; srcSheet = true }
+            },
+        )
+    }
     // Liked songs to a service that can like: propose "liked songs" as the target instead of a new playlist.
     // Not on the same account: liked songs into the same liked songs would be one list synced onto itself.
     LaunchedEffect(srcPlaylist?.id, dstProvider) {
@@ -2341,7 +2363,7 @@ fun SyncEditorScreen(
         if (!shazamMode) return@LaunchedEffect
         shazamLookup = ShazamLookup.Looking
         val hosts = (listOfNotNull(Providers.byId(srcProvider)) + Providers.connectors())
-            .filter { ShazamLibrary.canHost(it.serviceId) && it.isConnected(ctx) }.distinctBy { it.id }
+            .filter { ShazamLibrary.canHost(it.serviceId) && Connections.isConnected(ctx.env, it) }.distinctBy { it.id }
         val errors = ArrayList<String>()
         for (p in hosts) {
             val l = loadPlaylists(ctx, p.id, forTarget = false)
@@ -2590,7 +2612,7 @@ fun SyncEditorScreen(
                                     // Shazam needs nothing more chosen: the page shows what it found.
                                     shazam = true, shazamSelected = shazamMode, onShazam = { if (!shazamMode) useShazam(); srcSheet = false },
                                     radio = true, radioSelected = radioMode, onRadio = { useRadio() },
-                                    onConnect = { srcSheet = false; onConnectService() },
+                                    onConnect = { srcSheet = false; chooserFor = ServiceCatalog.Role.SOURCE.name },
                                 ) { srcProvider = it; srcPlaylist = null; linkMode = false; shazamMode = false; radioMode = false }
                             },
                             other = other,
@@ -2661,7 +2683,7 @@ fun SyncEditorScreen(
                                 PickerRow(stringResource(R.string.editor_new_playlist), onClick = { createNew = true; dstSheet = false }, selected = createNew) { NewPlaylistThumb(48.dp) }
                             }
                         }) else null,
-                        header = { ProviderPicker(writable, dstProvider, onConnect = { dstSheet = false; onConnectService() }) { dstProvider = it; dstPlaylist = null } },
+                        header = { ProviderPicker(writable, dstProvider, onConnect = { dstSheet = false; chooserFor = ServiceCatalog.Role.TARGET.name }) { dstProvider = it; dstPlaylist = null } },
                         other = if (noTarget) ({}) else null,
                     )
                 }
@@ -2785,7 +2807,7 @@ fun SyncEditorScreen(
                     // Bidirezionale: crea la sync gemella al contrario, senza rimozioni (niente cancellazioni a ping-pong).
                     val srcObj = Providers.byId(srcProvider)
                     // A public link or someone else's playlist can be read, not written: nothing to send back to.
-                    val srcOwned = srcPlaylist?.ownedByMe == true && srcObj?.isConnected(ctx) == true
+                    val srcOwned = srcPlaylist?.ownedByMe == true && srcObj != null && Connections.isConnected(ctx.env, srcObj)
                     // Not into Shazam's own playlist: Shazam alone writes there.
                     val biPossible = !shazamMode && !createNew && srcObj?.canWrite == true && srcOwned &&
                         srcObj.supportsLibrary(srcPlaylist?.id, asTarget = true) &&
@@ -3565,7 +3587,7 @@ private fun BubbleOver(text: String, onDismiss: () -> Unit) {
 /** The Syncs tab with no sync yet: what to do first, by whether a service is connected. */
 @Composable
 private fun EmptySyncs(ctx: android.content.Context, onIdea: (Idea) -> Unit, onTour: (() -> Unit)?, onGoToAccounts: () -> Unit) {
-    val anyConnected = remember { Providers.connectors().any { it.requiresAuth && it.isConnected(ctx) } }
+    val anyConnected = remember { Connections.connected(ctx.env, Providers.connectors().filter { it.requiresAuth }).isNotEmpty() }
     // With a service connected: what one service alone can do, a tap away, under the usual words.
     val primary = remember { ServiceIdeas.connected(ctx).firstOrNull() }
     if (anyConnected && primary != null) {

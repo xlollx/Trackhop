@@ -1,0 +1,98 @@
+# The texts of /compare, /duplicates and /button, one file per language (same keys in each).
+# "title" and "description" go into the pages' front matter (scripts/site_pages.py writes the pages).
+# "js" is handed to the page's script as it is; {name} and {n} are filled in there.
+kicker: Trackhop · Tools
+choose: Choose a file
+noscript: This tool runs in your browser and needs JavaScript. Nothing is sent anywhere either way.
+get: Get Trackhop
+priv: "Read on this page only: nothing is uploaded"
+formats: CSV, M3U, XSPF, JSPF, an Apple Music or iTunes playlist, a plain list and more
+compare:
+  title: "Compare two playlists: what is missing where"
+  description: "Drop two playlist files (CSV, M3U, XSPF, JSPF, iTunes XML) and see which songs are only in one, and which are in both. In your browser: nothing is uploaded. Free, no account."
+  h1: Compare two playlists
+  lead: Two playlist files in, what is missing where out. Handy after a transfer, or to see what two playlists share.
+  a: Playlist A
+  b: Playlist B
+  drop: Drop a file here, or choose one
+  cta: Want the missing songs added for you, and the two playlists kept in step?
+  how_h: How songs are matched
+  how: "By ISRC, the code of a recording, when both files have it; otherwise by title and artists, whatever the capitals, accents, \"feat.\" or \"Remastered\", with a length that agrees. A live, acoustic or remixed version counts as another song, as in the Trackhop app."
+  stays_h: What happens to your files
+  stays: "Your browser reads them on this page. They are not sent to Trackhop or to anyone else; there is no account, no cookies and no statistics about who uses the page."
+  guide: 'Your playlists are on a service, not in a file? <a href="/convert">Convert</a> reads the exports of most services, and <a href="/guide/export-playlist-csv">the app exports any playlist</a>.'
+duplicates:
+  title: "Find and remove duplicates in a playlist file"
+  description: "Drop a playlist file (CSV, M3U, XSPF, JSPF, iTunes XML): the songs that are in it twice are grouped, you choose which copy stays, and you get the clean file back. In your browser, free, no account."
+  h1: Find and remove duplicates
+  lead: Drop a playlist file. The songs that are in it more than once are grouped, you choose which copy stays, and you get the clean file back.
+  drop: Drop a playlist file here, or choose one
+  cta: Your playlist is on Spotify, YouTube Music, TIDAL or Deezer? The app cleans it right there.
+  what_h: What counts as a duplicate
+  what:
+    - "<strong>The same recording</strong>: the same ISRC, even when one copy comes from the album and the other from a single or a compilation."
+    - "<strong>The same title and the same artists</strong>, whatever the capitals, accents, \"feat.\" or \"Remastered\", with a length that agrees."
+    - "Never <strong>another version</strong>: a live, acoustic or remixed take stays a song of its own."
+  stays_h: What happens to your file
+  stays: "Your browser reads it on this page and writes the clean file there. In each group the first copy stays unless you pick another, and the order of the playlist does not change. Nothing is sent to Trackhop or to anyone else."
+  guide: 'Step by step in the app, on the service itself: <a href="/guide/remove-duplicates-spotify">Remove duplicate songs</a> · <a href="/guide/merge-playlists-remove-duplicates">Merge playlists, remove duplicates</a>.'
+button:
+  title: "A \"Listen on any service\" button for your site or blog"
+  description: "Paste a song or album link and get a button to put on your blog, newsletter or site: readers open the song on the service they use. Plain HTML, no script, no tracking. Free."
+  h1: A "Listen on any service" button
+  lead: For your blog, newsletter or site. Readers open the song on the service they use, whichever it is.
+  label: Paste a song or album link (Spotify, Apple Music or Deezer)
+  go: Make the button
+  style: Style
+  styles:
+    dark: Dark
+    light: Light
+    violet: Violet
+  text: Text on the button
+  default_text: Listen on any service
+  preview: Preview
+  code: Code to paste
+  copy: Copy the code
+  copy_link: Copy just the link
+  how_h: What the button does
+  how: 'A click opens <a href="/link">A link for every service</a> with your song: the reader picks Spotify, Apple Music, YouTube Music, Deezer, TIDAL, Amazon Music or another service, and the song opens there.'
+  stays_h: No tracking
+  stays: "The button is plain HTML: no script, no image and no font from Trackhop, no cookie. Nothing reaches Trackhop until a reader clicks it, and then only the song's link, to look it up. Trackhop keeps no count of the clicks."
+js:
+  lang: en
+  reading: "Reading {name}… {pct}%"
+  cancel: Cancel
+  choose: Choose a file
+  err_incomplete: "{name} ends before it should: the download or the copy was cut short. Get the file again and drop it here once more."
+  err_unreadable: "{name} cannot be read: it is damaged, or not a kind of file this page knows."
+  err_empty: "No songs were found in {name}."
+  err_unsupported: "This browser cannot open this file. Use a current browser."
+  err_toobig: "The file is too large."
+  songs_n: ["{n} song", "{n} songs"]
+  another: Choose another file
+  download: Download
+  as: as
+  outputs:
+    csv: CSV
+    m3u8: M3U8
+    xspf: XSPF
+    jspf: JSPF
+    text: Text
+  compare:
+    only_a: Only in A
+    only_b: Only in B
+    both: In both
+    nothing: Nothing here.
+    same: "The two playlists have the same songs."
+    both_note: "Shown as they are in playlist A."
+  duplicates:
+    none: "No duplicates in {name}: every song is in it once."
+    found: ["{n} song is in it more than once.", "{n} songs are in it more than once."]
+    keep: Keep this one
+    why_isrc: same recording (ISRC)
+    why_same: same title and artists
+    download: Download without duplicates
+    position: "No. {n}"
+  button:
+    err_link: "That is not a song or album link from Spotify, Apple Music or Deezer. Open the song in the app or on the web, use Share › Copy link, and paste it here."
+    copied: Copied

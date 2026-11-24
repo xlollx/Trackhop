@@ -148,3 +148,9 @@ say_title: 'Ce qu''on en dit'
 say_intro: 'Commentaires sous des vidéos et des posts sur Trackhop, et messages de soutiens. Noms et photos masqués.'
 say_alt: 'Commentaires de personnes qui utilisent Trackhop et deux messages de soutiens qui saluent la synchro automatique et la sécurité, et des posts sur X qui le qualifient de "a game changer for music lovers who use multiple platforms"'
 gallery_title: "Jette un œil"
+itch_alt: "Disponible sur itch.io"
+sourceforge_alt: "Disponible sur SourceForge"
+itch_phone_note: "L'APK complet, mis à jour à chaque version"
+sourceforge_phone_note: "Chaque version, en miroir"
+itch_desktop_note: "Windows, macOS et Linux"
+sourceforge_desktop_note: "Chaque version, en miroir"

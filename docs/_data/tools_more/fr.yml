@@ -1,0 +1,87 @@
+kicker: Trackhop · Outils
+choose: Choisir un fichier
+noscript: Cet outil fonctionne dans votre navigateur et a besoin de JavaScript. Rien n’est envoyé, dans tous les cas.
+get: Obtenir Trackhop
+priv: "Lu sur cette page uniquement : rien n’est envoyé"
+formats: CSV, M3U, XSPF, JSPF, une playlist Apple Music ou iTunes, une simple liste et plus
+compare:
+  title: "Comparer deux playlists : ce qui manque et où"
+  description: "Déposez deux fichiers de playlist (CSV, M3U, XSPF, JSPF, iTunes XML) et voyez quels titres ne sont que dans l’une, et lesquels sont dans les deux. Dans votre navigateur : rien n’est envoyé. Gratuit, sans compte."
+  h1: Comparer deux playlists
+  lead: Deux fichiers de playlist, et vous voyez ce qui manque où. Pratique après un transfert, ou pour voir ce que deux playlists ont en commun.
+  a: Playlist A
+  b: Playlist B
+  drop: Déposez un fichier ici, ou choisissez-en un
+  cta: Vous voulez que les titres manquants soient ajoutés pour vous, et que les deux playlists restent identiques ?
+  how_h: Comment les titres sont rapprochés
+  how: "Par l’ISRC, le code d’un enregistrement, quand les deux fichiers l’ont ; sinon par titre et artistes, sans tenir compte des majuscules, des accents, de « feat. » ou « Remastered », avec une durée qui concorde. Une version live, acoustique ou remixée compte comme un autre titre, comme dans l’appli Trackhop."
+  stays_h: Ce que deviennent vos fichiers
+  stays: "Votre navigateur les lit sur cette page. Ils ne sont envoyés ni à Trackhop ni à personne ; pas de compte, pas de cookies, pas de statistiques sur qui utilise la page."
+  guide: 'Vos playlists sont sur un service, pas dans un fichier ? <a href="/convert">Convertir</a> lit les exports de la plupart des services, et <a href="/guide/transferer-playlists">l’appli exporte n’importe quelle playlist</a>.'
+duplicates:
+  title: "Trouver et supprimer les doublons d’un fichier de playlist"
+  description: "Déposez un fichier de playlist (CSV, M3U, XSPF, JSPF, iTunes XML) : les titres présents deux fois sont regroupés, vous choisissez la copie à garder et récupérez le fichier nettoyé. Dans votre navigateur, gratuit, sans compte."
+  h1: Trouver et supprimer les doublons
+  lead: Déposez un fichier de playlist. Les titres présents plus d’une fois sont regroupés, vous choisissez la copie à garder et récupérez le fichier nettoyé.
+  drop: Déposez ici un fichier de playlist, ou choisissez-en un
+  cta: Votre playlist est sur Spotify, YouTube Music, TIDAL ou Deezer ? L’appli la nettoie directement là-bas.
+  what_h: Ce qui compte comme doublon
+  what:
+    - "<strong>Le même enregistrement</strong> : le même ISRC, même quand une copie vient de l’album et l’autre d’un single ou d’une compilation."
+    - "<strong>Le même titre et les mêmes artistes</strong>, sans tenir compte des majuscules, des accents, de « feat. » ou « Remastered », avec une durée qui concorde."
+    - "Jamais <strong>une autre version</strong> : une prise live, acoustique ou remixée reste un titre à part."
+  stays_h: Ce que devient votre fichier
+  stays: "Votre navigateur le lit sur cette page et y écrit le fichier nettoyé. Dans chaque groupe, la première copie reste sauf si vous en choisissez une autre, et l’ordre de la playlist ne change pas. Rien n’est envoyé à Trackhop ni à personne."
+  guide: 'Pas à pas dans l’appli, sur le service lui-même : <a href="/guide/remove-duplicates-spotify">Remove duplicate songs</a> (en anglais).'
+button:
+  title: "Un bouton « Écouter sur n’importe quel service » pour votre site ou blog"
+  description: "Collez le lien d’un titre ou d’un album et obtenez un bouton pour votre blog, votre newsletter ou votre site : vos lecteurs ouvrent le titre sur le service qu’ils utilisent. HTML simple, sans script, sans pistage. Gratuit."
+  h1: Un bouton « Écouter sur n’importe quel service »
+  lead: Pour votre blog, votre newsletter ou votre site. Vos lecteurs ouvrent le titre sur le service qu’ils utilisent, quel qu’il soit.
+  label: Collez le lien d’un titre ou d’un album (Spotify, Apple Music ou Deezer)
+  go: Créer le bouton
+  style: Style
+  styles: {dark: Sombre, light: Clair, violet: Violet}
+  text: Texte du bouton
+  default_text: Écouter sur n’importe quel service
+  preview: Aperçu
+  code: Code à coller
+  copy: Copier le code
+  copy_link: Copier seulement le lien
+  how_h: Ce que fait le bouton
+  how: 'Un clic ouvre <a href="/link">A link for every service</a> avec votre titre : le lecteur choisit Spotify, Apple Music, YouTube Music, Deezer, TIDAL, Amazon Music ou un autre service, et le titre s’ouvre là.'
+  stays_h: Aucun pistage
+  stays: "Le bouton est du HTML simple : pas de script, pas d’image ni de police venant de Trackhop, pas de cookie. Rien n’arrive à Trackhop tant que personne ne clique, et alors seulement le lien du titre, pour le chercher. Trackhop ne compte pas les clics."
+js:
+  lang: fr
+  reading: "Lecture de {name}… {pct} %"
+  cancel: Annuler
+  choose: Choisir un fichier
+  err_incomplete: "{name} s’arrête trop tôt : le téléchargement ou la copie a été interrompu. Récupérez le fichier à nouveau et déposez-le ici."
+  err_unreadable: "{name} ne peut pas être lu : il est endommagé, ou ce n’est pas un type de fichier que cette page connaît."
+  err_empty: "Aucun titre trouvé dans {name}."
+  err_unsupported: "Ce navigateur ne peut pas ouvrir ce fichier. Utilisez un navigateur récent."
+  err_toobig: "Le fichier est trop volumineux."
+  songs_n: ["{n} titre", "{n} titres"]
+  another: Choisir un autre fichier
+  download: Télécharger
+  as: en
+  outputs: {csv: CSV, m3u8: M3U8, xspf: XSPF, jspf: JSPF, text: Texte}
+  compare:
+    only_a: Seulement dans A
+    only_b: Seulement dans B
+    both: Dans les deux
+    nothing: Rien ici.
+    same: "Les deux playlists ont les mêmes titres."
+    both_note: "Affichés tels qu’ils sont dans la playlist A."
+  duplicates:
+    none: "Aucun doublon dans {name} : chaque titre n’y est qu’une fois."
+    found: ["{n} titre y est plus d’une fois.", "{n} titres y sont plus d’une fois."]
+    keep: Garder celui-ci
+    why_isrc: même enregistrement (ISRC)
+    why_same: même titre et mêmes artistes
+    download: Télécharger sans doublons
+    position: "N° {n}"
+  button:
+    err_link: "Ce n’est pas le lien d’un titre ou d’un album Spotify, Apple Music ou Deezer. Ouvrez le titre dans l’appli ou sur le web, utilisez Partager › Copier le lien, et collez-le ici."
+    copied: Copié

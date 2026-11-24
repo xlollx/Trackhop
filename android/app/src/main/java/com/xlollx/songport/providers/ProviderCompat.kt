@@ -20,7 +20,7 @@ fun MusicProvider.accountName(ctx: Context): String? = accountName(ctx.env)
 fun MusicProvider.label(ctx: Context): String = label(ctx.env)
 fun MusicProvider.startAuth(ctx: Context) = startAuth(ctx.env)
 suspend fun MusicProvider.completeAuth(ctx: Context, params: Map<String, String>, verifier: String) = completeAuth(ctx.env, params, verifier)
-fun MusicProvider.disconnect(ctx: Context) = disconnect(ctx.env)
+fun MusicProvider.disconnect(ctx: Context) { disconnect(ctx.env); com.xlollx.songport.ui.Connections.invalidate(id) }
 suspend fun MusicProvider.playlists(ctx: Context): List<Playlist> = playlists(ctx.env)
 suspend fun MusicProvider.tracks(ctx: Context, playlistId: String): List<Track> = tracks(ctx.env, playlistId)
 suspend fun MusicProvider.unplayable(ctx: Context, playlistId: String): List<com.xlollx.songport.model.UnplayableEntry> = unplayable(ctx.env, playlistId)
