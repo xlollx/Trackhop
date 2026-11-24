@@ -174,6 +174,8 @@ class Web(
         val type = ex.requestHeaders.getFirst("Content-Type").orEmpty()
         // A playlist file goes to disk as it arrives, never whole into memory (#67): a library can be big.
         if (method == "POST" && path == listOf("files") && type.startsWith("multipart/form-data")) return uploadToDisk(ex, type)
+        // A listening history export: big too (Tools › All-time stats).
+        if (method == "POST" && path == listOf("tools", "lifetime") && type.startsWith("multipart/form-data")) return lifetimeUpload(ex, type)
         val bytes = if (method == "POST") ex.requestBody.readNBytes(MAX_BODY + 1) else ByteArray(0)
         if (bytes.size > MAX_BODY) return send(ex, 413, page("Too large", "<p>Files up to ${MAX_BODY / 1_000_000} MB.</p>"))
         val parts = if (type.startsWith("multipart/form-data")) Multipart.parse(type, bytes) else null
@@ -192,6 +194,7 @@ class Web(
             // Before files/<name>: the playlist files all end in .csv, so "try" is never one.
             path == listOf("files", "try") && method == "POST" -> tryPatterns(r)
             path == listOf("files", "bulk") && method == "POST" -> bulkFiles(r)
+            path == listOf("files", "text") && method == "POST" -> pasteText(r)
             path == listOf("files", "library") && method == "GET" -> libraryPage(r)
             path == listOf("files", "library") && method == "POST" -> libraryAdd(r)
             path.size == 2 && path[0] == "files" && method == "GET" -> download(r, path[1])
@@ -336,6 +339,8 @@ class Web(
         val listedIds = com.xlollx.songport.shared.Nway.listedSyncs(env.store.data).mapTo(HashSet()) { it.id }
         val listed = jobs.filter { it.id in listedIds }
         val shown = Labels.favoritesFirst(filter.select(listed, env.store.data.reports, running.keys, env.store.data.settings.labels) { label(it) })
+        // "Up to date", checked in the background: the next load (or the refresh while syncing) shows it.
+        FreshnessServer.refresh(env, shown)
         if (jobs.isNotEmpty() && shown.isEmpty()) body.append("""<p class="muted">No sync matches. <a href="/">Show them all</a></p>""")
         // Several syncs at once: "Select" ticks them (plain links and a form, no JavaScript needed).
         val selecting = r.query["select"] == "1"
@@ -418,7 +423,7 @@ class Web(
             // The connection's failure in plain words, calmly: it runs again by itself.
             last.error != null && last.netError != null -> """<span class="net">☁︎ ${h(last.error)}</span>"""
             last.error != null -> """<span class="err">${h(last.error)}</span>"""
-            else -> """<span class="ok">+${last.added} −${last.removed}</span>""" + ratingsSet(last.ratingsSet) +
+            else -> """<span class="ok">+${last.added} −${last.removed}</span>""" + ratingsSet(last.ratingsSet) + FreshnessServer.badge(env, job) +
                 (if (last.unmatched.isNotEmpty()) """ <span class="muted">· ${last.unmatched.size} not found</span>""" else "") +
                 (if (last.sourceEmpty && job.radio == null) """ <span class="err">· the source is empty</span>""" else "") +
                 (if (last.hasReview()) """ · <a href="/syncs/${q(job.id)}/review/${q(last.id)}">Review</a>""" else "") +
@@ -588,6 +593,8 @@ $removals"""
         if (rest.size == 3 && rest[1] == "quickconnect" && rest[2] == "poll") return quickConnectPoll(r, provider)
         when (rest.getOrNull(1)) {
             null -> connectorPage(r, provider)
+            // Test the connection (ConnectionTestWeb.kt): three calls, read only.
+            "test" -> if (!provider.requiresAuth || provider.isConnected(env)) connectionTestPage(r, provider) else redirect(r.ex, back)
             "settings" -> {
                 val id = provider.serviceId
                 store.updateSettings { s ->
@@ -702,8 +709,9 @@ $removals"""
             p is LocalFilesProvider -> body.append(fileList(r.query["sample"].orEmpty(), all = r.query["all"] == "1"))
             !p.requiresAuth -> Unit
             p.isConnected(env) -> body.append(
-                """<div class="card row"><div><span class="ok">Connected</span>${p.accountName(env)?.let { " as <b>" + h(it) + "</b>" } ?: ""}</div>""" +
-                    Html.postButton("/connectors/${q(p.id)}/disconnect", "Disconnect", "secondary") + "</div>",
+                """<div class="card row"><div><span class="ok">Connected</span>${p.accountName(env)?.let { " as <b>" + h(it) + "</b>" } ?: ""}</div><div class="actions">""" +
+                    Html.postButton("/connectors/${q(p.id)}/test", "Test the connection", "secondary") + " " +
+                    Html.postButton("/connectors/${q(p.id)}/disconnect", "Disconnect", "secondary") + "</div></div>" + quotaCard(p),
             )
             p is CookieConnector -> body.append(cookieForm(p))
             p is CredentialsProvider -> {

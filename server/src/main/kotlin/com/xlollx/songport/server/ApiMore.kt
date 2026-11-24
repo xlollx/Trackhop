@@ -337,7 +337,9 @@ internal fun Web.serviceJson(p: MusicProvider) = buildJsonObject {
     put("account", p.accountName(env)?.let { JsonPrimitive(it) } ?: JsonNull)
     // What it can do: a script asks before it tries.
     put("canWrite", p.canWrite); put("canCreatePlaylists", p.canCreatePlaylists); put("canRenamePlaylists", p.canRenamePlaylists)
-    put("canDeletePlaylists", p.canDeletePlaylists); put("canRemoveTracks", p.canRemoveTracks); put("linkOnly", p.linkOnly)
+    put("canDeletePlaylists", p.canDeletePlaylists); put("canRemoveTracks", p.canRemoveTracks); put("linkOnly", p.linkOnly); put("canSetCover", p.canSetCover)
+    // YouTube (official API): the day's quota this Trackhop used.
+    quotaJson(p)?.let { put("quota", it) }
 }
 
 private fun Web.fileSettings() = buildJsonObject {

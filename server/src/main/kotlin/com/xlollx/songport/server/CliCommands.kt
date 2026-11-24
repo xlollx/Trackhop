@@ -63,7 +63,7 @@ internal class CliCommands(
         "wanted" -> wanted(o)
         "records" -> { need(p, 2, "records <service> <playlist> [--currency EUR] [--kind all|records|merch]"); records(p[0], p.drop(1).joinToString(" "), o) }
         "concerts" -> { need(p, 2, "concerts <service> <playlist> [--country IT]"); concerts(p[0], p.drop(1).joinToString(" "), o) }
-        "setlists" -> { need(p, 2, "setlists <service> <playlist>"); setlists(p[0], p.drop(1).joinToString(" ")) }
+        "setlists" -> { need(p, 2, "setlists <service> <playlist>"); setlists(p[0], p.drop(1).joinToString(" "), o.value("artists")) }
         "export" -> { need(p, 2, "export <service> <playlist> [<file>]"); export(p[0], p[1], p.getOrNull(2), o) }
         "files" -> filesCommand(p, o)
         "import" -> import(one(p, "import <file>"), o)
@@ -742,7 +742,7 @@ internal class CliCommands(
         val s = service(serviceAsk)
         val pl = playlist(s.s("id"), playlistAsk)
         if (!asJson) out.println("Looking up the artists of ${pl.s("name")} (MusicBrainz asks for one request a second: this can take a minute)...")
-        val r = api.get("concerts?service=${enc(s.s("id"))}&playlist=${enc(pl.s("id"))}" + (o.value("country")?.let { "&country=${enc(it)}" } ?: "")).jsonObject
+        val r = api.get("concerts?service=${enc(s.s("id"))}&playlist=${enc(pl.s("id"))}" + (o.value("country")?.let { "&country=${enc(it)}" } ?: "") + (o.value("artists")?.let { "&artists=${enc(it)}" } ?: "")).jsonObject
         if (asJson) return print(r).let { 0 }
         val artists = r["artists"]?.jsonArray.orEmpty().map { it.jsonObject }
         val dated = artists.filter { it["events"]?.jsonArray.orEmpty().isNotEmpty() }
@@ -764,11 +764,11 @@ internal class CliCommands(
         return 0
     }
 
-    private fun setlists(serviceAsk: String, playlistAsk: String): Int {
+    private fun setlists(serviceAsk: String, playlistAsk: String, artists: String? = null): Int {
         val s = service(serviceAsk)
         val pl = playlist(s.s("id"), playlistAsk)
         if (!asJson) out.println("Looking up the artists of ${pl.s("name")} on setlist.fm (two a second: this can take a moment)...")
-        val r = api.get("setlists?service=${enc(s.s("id"))}&playlist=${enc(pl.s("id"))}").jsonObject
+        val r = api.get("setlists?service=${enc(s.s("id"))}&playlist=${enc(pl.s("id"))}" + (artists?.let { "&artists=${enc(it)}" } ?: "")).jsonObject
         if (asJson) return print(r).let { 0 }
         val artists = r["artists"]?.jsonArray.orEmpty().map { it.jsonObject }
         val found = artists.filter { it["setlists"]?.jsonArray.orEmpty().isNotEmpty() }
@@ -791,7 +791,7 @@ internal class CliCommands(
         val s = service(serviceAsk)
         val pl = playlist(s.s("id"), playlistAsk)
         if (!asJson) out.println("Looking up the artists of ${pl.s("name")} (Discogs, MusicBrainz and the shops ask to go slowly: this can take a few minutes)...")
-        val r = api.get("records?service=${enc(s.s("id"))}&playlist=${enc(pl.s("id"))}" + (o.value("currency")?.let { "&currency=${enc(it)}" } ?: "") +
+        val r = api.get("records?service=${enc(s.s("id"))}&playlist=${enc(pl.s("id"))}" + (o.value("currency")?.let { "&currency=${enc(it)}" } ?: "") + (o.value("artists")?.let { "&artists=${enc(it)}" } ?: "") +
             (o.value("kind")?.let { "&kind=${enc(it)}" } ?: "")).jsonObject
         if (asJson) return print(r).let { 0 }
         r["artists"]?.jsonArray.orEmpty().map { it.jsonObject }.forEach { a ->

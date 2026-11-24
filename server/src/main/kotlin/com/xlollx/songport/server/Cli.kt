@@ -101,13 +101,13 @@ object Cli {
         Cmd("releases", "Services and playlists", listOf("releases <service> <playlist> [--days 7|30|90] [--upcoming]"), "the new albums, EPs and singles of a playlist's artists",
             "From Deezer and MusicBrainz, no account needed; each artist is asked once a day (a first search takes about a second per artist).\n" +
                 "--days: released in the last 7, 30 (default) or 90 days; --upcoming: also what is announced."),
-        Cmd("concerts", "Services and playlists", listOf("concerts <service> <playlist> [--country IT]"), "the upcoming concerts of a playlist's artists in a country (Ticketmaster, MusicBrainz)",
+        Cmd("concerts", "Services and playlists", listOf("concerts <service> <playlist> [--country IT] [--artists A,B]"), "the upcoming concerts of a playlist's artists in a country (Ticketmaster, MusicBrainz)",
             "Asked only now, never on a schedule; answers are kept a day. --country is a two-letter code (the last one used on the page, or the\n" +
                 "server's language's, without it). Ticketmaster needs a key: the server's own (Settings) or TICKETMASTER_API_KEY; without one, MusicBrainz's dates."),
-        Cmd("setlists", "Services and playlists", listOf("setlists <service> <playlist>"), "the latest setlist.fm setlists of a playlist's artists, with their songs",
+        Cmd("setlists", "Services and playlists", listOf("setlists <service> <playlist> [--artists A,B]"), "the latest setlist.fm setlists of a playlist's artists, with their songs",
             "Asked only now, never on a schedule; answers are kept a week. Needs a setlist.fm key: the server's own (Settings) or SETLISTFM_API_KEY.\n" +
                 "--json gives each setlist's tracks, ready for \"trackhop add\" or a File playlist (Tools › Setlists on the page saves one)."),
-        Cmd("records", "Services and playlists", listOf("records <service> <playlist> [--currency EUR] [--kind all|records|merch]"), "the records (CD, vinyl, cassette), merch and official shops of a playlist's artists (Discogs, MusicBrainz, their shops)",
+        Cmd("records", "Services and playlists", listOf("records <service> <playlist> [--currency EUR] [--kind all|records|merch] [--artists A,B]"), "the records (CD, vinyl, cassette), merch and official shops of a playlist's artists (Discogs, MusicBrainz, their shops)",
             "Asked only now; Discogs answers are kept six hours, MusicBrainz's links a week, the shops' merch a day. With the server's Discogs token (Settings)\n" +
                 "the first records of each artist also say how many copies are for sale and from what price. --kind records leaves the merch out, --kind merch\n" +
                 "skips Discogs. The artist's own Shopify shop and Bandcamp are read for both (their public product lists, robots.txt honoured): their records\n" +

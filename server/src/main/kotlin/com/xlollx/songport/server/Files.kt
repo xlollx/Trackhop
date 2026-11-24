@@ -93,9 +93,27 @@ Or a regular expression after <code>re:</code> with named groups, such as <code>
 <textarea name="patterns" rows="4" spellcheck="false" style="font-family:monospace">${h(env.store.data.settings.fileNamePatterns.joinToString("\n"))}</textarea>
 <label>Try a line from your file</label><input name="sample" value="${h(sample)}" spellcheck="false">
 <p><button class="secondary" formaction="/files/try" formnovalidate>Try the patterns</button></p></details>
-<p><button>Upload</button></p></form>""",
+<p><button>Upload</button></p></form>
+<form method="post" action="/files/text" class="card"><h3>Paste a playlist</h3><label for="ptname">Name</label><input type="text" id="ptname" name="name" maxlength="120" placeholder="From the radio">
+<label for="pttext">One song per line: Artist - Title (numbers in front and a file's own patterns are understood)</label><textarea id="pttext" name="text" rows="6" required placeholder="Moderat - A New Error&#10;Bonobo - Kerala"></textarea>
+<p><button>Save as a File playlist</button></p></form>""",
     )
     return sb.toString()
+}
+
+/** "Paste a playlist": the text's lines as a File playlist (PlaylistFiles.parseText, with the user's own patterns). The file's name and its songs. */
+internal fun Web.importText(name: String, text: String): Pair<String, Int> {
+    val tracks = PlaylistFiles.parseText(text, NamePatterns.compileAll(env.store.data.settings.fileNamePatterns))
+    if (tracks.isEmpty()) throw IllegalArgumentException("No songs found: one per line, as Artist - Title.")
+    val n = name.trim().ifEmpty { "Pasted " + java.time.LocalDateTime.now().withNano(0).withSecond(0).toString().replace('T', ' ') }
+    val id = LocalFilesProvider.importTracks(env, n, tracks)
+    env.log("files", "pasted $id: ${tracks.size} tracks")
+    return id to tracks.size
+}
+
+internal fun Web.pasteText(r: Web.Req) {
+    val (id, n) = runCatching { importText(r.form["name"].orEmpty(), r.form["text"].orEmpty()) }.getOrElse { return redirect(r.ex, "/connectors/csv?err=${q(it.message ?: "Error")}") }
+    redirect(r.ex, "/connectors/csv?ok=${q("Saved $id: $n songs.")}")
 }
 
 /** One of [csvFiles], by its exact name: nothing else in the data folder can be asked for. */
@@ -226,6 +244,20 @@ internal fun Web.tools(r: Web.Req, rest: List<String>) {
         "concerts" -> if (Features.v2) concertsPage(r) else notFound(r)
         "setlists" -> if (Features.v2) setlistsPage(r) else notFound(r)
         "records" -> if (Features.v2) recordsPage(r) else notFound(r)
+        "transfers" -> transfersPage(r)
+        "scan" -> scanPage(r)
+        "twins" -> twinsPage(r)
+        "addlink" -> addLinkPage(r)
+        "roast" -> roastPage(r)
+        "vanished" -> vanishedPage(r)
+        "overlap" -> overlapPage(r)
+        "compat" -> compatPage(r)
+        "listened" -> listenedPage(r)
+        "lifetime" -> lifetimePage(r)
+        "myrecords" -> myRecordsPage(r)
+        "venues" -> venuesPage(r)
+        "shared" -> sharedPage(r)
+        "diary" -> diaryPage(r)
         else -> if (!v2Tool(r, rest)) notFound(r)
     }
 }
@@ -242,17 +274,30 @@ private fun Web.toolsIndex(r: Web.Req) {
     body.append("<h2>Move</h2>")
     tool("/playlists", "Playlists and transfer", "See a service's playlists and their tracks, rename, delete, take tracks out; or copy several to another service at once.")
     tool("/tools/export", "Export a playlist", "Any playlist of a connected service as CSV, M3U, XSPF, JSPF, WPL/ZPL or plain text${if (Features.v2) ", followed podcasts as OPML" else ""}, or saved into File.")
+    tool("/tools/addlink", "Add a song from a link", "A song's link from any music app (a friend's Spotify link, a YouTube video) into one of your playlists on any service.")
     tool("/connectors/csv", "File playlists", "Upload a playlist file to sync it anywhere; download the ones Trackhop saved.")
     tool("/tools/wanted", "Missing on my server", "The tracks of your playlists that your Navidrome, Jellyfin, Emby, Plex, Lyrion or Mopidy server does not have, each once: by album, tick what you got, download the list (CSV, M3U, text, Lidarr).")
     if (Features.v2) tool("/tools/records", "Records and merch", "The CDs, vinyl and cassettes of a playlist's artists on Discogs, the merch in their own shops, their official sites and shops, and searches on shops: plain links.")
+    tool("/tools/myrecords", "My records", "Your Discogs collection, with what it is worth, and your wantlist, with the copies for sale; the collection's songs as a playlist.")
     if (Features.v2) tool("/tools/concerts", "Concerts", "The upcoming concerts of a playlist's artists in a country, from Ticketmaster and MusicBrainz, with links to the tickets.")
+    tool("/tools/venues", "Venues", "Follow the clubs and halls you go to, and see their nights in the coming weeks and the concerts in your city.")
+    tool("/tools/diary", "Concert diary", "The concerts you went to, from setlist.fm: what you heard each night, as a playlist.")
     if (Features.v2) tool("/tools/setlists", "Setlists", "The latest setlists of a playlist's artists, from setlist.fm: pick a concert and make it a playlist on any service.")
+    if (env.store.data.jobs.any { it.oneOff }) tool("/tools/transfers", "Recent transfers", "The playlists sent once to a service (a setlist, a pasted list): what each did, and the songs to review.")
+    tool("/tools/vanished", "Vanished songs", "The songs that left your playlists, from your backups' dated copies and what mirror syncs removed.")
+    tool("/tools/overlap", "Two subscriptions", "How much of your music on two services is on both, what they cost, and whether one would do.")
+    tool("/tools/compat", "Compatibility", "Your playlist and a friend's side by side: a score, the songs and artists in common, and what each would enjoy from the other.")
+    tool("/tools/listened", "Mark as listened", "An album, a playlist or a list you listened to away from your services, sent to Last.fm and ListenBrainz as listens.")
+    tool("/tools/lifetime", "All-time stats", "Your service's export of your listening history, added up: hours, songs, artists, year by year; sent to ListenBrainz if you like.")
     tool("/tools/stats", "Your numbers", "What your syncs did: tracks moved, time saved, the busiest route, the most added artists.")
     body.append(v2ToolCards())
     body.append("<h2>Make</h2>")
     if (Features.v2) tool("/tools/releases", "New releases", "The new albums, EPs and singles of a playlist's artists (Deezer and MusicBrainz, no account): as a playlist on any service, now or every week.")
+    tool("/tools/roast", "Roast my playlist", "Your own AI teases one of your playlists: gently, spicy or savage.")
     tool("/tools/ai", "Playlist generator", "From artists you like, with no key (MusicBrainz and ListenBrainz data); or describe a playlist and your own AI writes it (free tiers and local models work). Trackhop creates it on a service.")
     body.append("<h2>Clean up</h2>")
+    tool("/tools/scan", "Library scan", "The songs that are in more than one of your playlists, and the liked songs in none: read only, each list can be saved as a File playlist.")
+    tool("/tools/twins", "Playlist twins", "The copies of one playlist on a service: keep one, add to it what the others have, delete the others (each saved in Files first).")
     tool("/tools/dedupe", "Duplicates", "The tracks a playlist has more than once, and the extra copies removed.")
     tool("/tools/unplayable", "Unplayable tracks", "The tracks a service still lists but no longer plays, replaced by a playable version.")
     tool("/tools/mbtags", "MusicBrainz tags", "The songs on your Navidrome, Jellyfin, Emby or Plex server without MusicBrainz tags: with them, a sync finds the exact recording.")
@@ -262,6 +307,7 @@ private fun Web.toolsIndex(r: Web.Req) {
         tool("/tools/lyrics", "Lyrics", "Lyrics for the music files of your server, saved next to them, where Navidrome, Jellyfin and Plex show them.")
     }
     body.append("<h2>Connect</h2>")
+    tool("/tools/shared", "Shared playlists", "Join a playlist shared with friends from its invite link: songs added on either side reach the others.")
     tool("/tools/api", "API and webhook", "Let Home Assistant, n8n or a script start syncs and read how they went; be told when a run ends.")
     body.append("<h2>Safety</h2>")
     tool("/tools/backup", "Backup &amp; restore", "Your set-up (syncs, settings, chosen matches) in one file to keep or move between the app, Docker and Desktop; your playlists as dated files, now or on a schedule, copied to a folder.")

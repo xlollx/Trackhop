@@ -155,6 +155,8 @@ object Api {
         put("interrupted", env.marks.interrupted(RunMarks.SYNC, j.id) != null)
         put("lastRun", if (j.lastRunEpoch > 0) JsonPrimitive(j.lastRunEpoch) else JsonNull)
         put("nextRun", Runner.nextRun(j)?.let { JsonPrimitive(it) } ?: JsonNull)
+        // Whether its source is as it was at the last run (checked in the background, kept ten minutes): current, changed, unknown, or null when not checked yet.
+        put("fresh", FreshnessServer.word(FreshnessServer.stateOf(env, j))?.let { JsonPrimitive(it) } ?: JsonNull)
         put("lastResult", j.lastReportId?.let { env.store.report(it) }?.let { run(it, tracks = false) } ?: JsonNull)
         j.radio?.let { r ->
             put("radio", buildJsonObject {
@@ -183,7 +185,8 @@ object Api {
     fun selected(env: ServerEnv, query: Map<String, String>): List<SyncJob> {
         val d = env.store.data
         val favorite = query["favorite"]?.let { it.toBooleanStrictOrNull() ?: throw IllegalArgumentException("\"favorite\" is true or false.") }
-        return Labels.select(d.jobs, d.settings.labels, query["tag"].orEmpty().split(',').filter { it.isNotBlank() }, query["label"], favorite)
+        // The one-off transfers (Recent transfers) are not syncs.
+        return Labels.select(d.syncs, d.settings.labels, query["tag"].orEmpty().split(',').filter { it.isNotBlank() }, query["label"], favorite)
     }
 
     fun grouped(query: Map<String, String>) = listOf("tag", "label", "favorite").any { !query[it].isNullOrBlank() }
@@ -456,6 +459,8 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
             val job = env.store.job(rest[1]) ?: return error(404, "No sync with that id.")
             when {
                 rest.size == 2 && method == "GET" -> json(200, buildJsonObject {
+                    // ?fresh=check looks the source up now; otherwise a check starts in the background.
+                    if (query["fresh"] == "check" && FreshnessServer.worthChecking(job)) kotlinx.coroutines.runBlocking { FreshnessServer.checkNow(env, job) } else FreshnessServer.refresh(env, listOf(job))
                     Api.job(env, job, job.id in running).forEach { (k, v) -> put(k, v) }
                     put("runs", JsonArray(env.store.data.reports.filter { it.jobId == job.id }.take(20).map { Api.run(it, tracks = false) }))
                 })

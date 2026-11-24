@@ -527,6 +527,19 @@ folder: mount one, for example `-v /mnt/nas/trackhop:/backups`, and enter `/back
 **Duplicates**, **Unplayable tracks**, **MusicBrainz tags** (the songs on your Navidrome, Jellyfin, Emby or Plex server without them), **[Missing on my server](self-hosted-playlist-sync#missing-on-my-server)** (the tracks of your playlists your own server lacks, to tick and download), **AI playlists** and, on Docker only, **[Lyrics](#lyrics)**. Long runs go on in the background: their
 page refreshes until the result, and you can leave it.
 
+Since 2.2 the app's other tools are here too: **To fix** (every song your syncs could not find or
+matched loosely, in one list, fixed once for every sync: the link on the home page), **Settings ›
+Schedules** (a timing kept once for many syncs) and **Select › Edit…** on the home page (the
+schedule, colour or removals of several syncs at once), a sync's **Preview** and its matching
+choices (how close a match must be, explicit versions, same album, studio versions only, the
+source's order), the weekly check for **Unplayable tracks**, **Library scan**, **Playlist twins**,
+**Add a song from a link**, **Recent transfers**, **Vanished songs**, **Two subscriptions**,
+**Compatibility**, **Roast my playlist**, extending a playlist with your AI, **Mark as listened**,
+**All-time stats**, **My records** (Discogs), **Venues** and the **Concert diary**, **Shared
+playlists** (joining one as a member) and, on a playlist's page, a new playlist from it (copy,
+merge, split, sort, shuffle), its universal link and its cover. The Services page has a search and
+the app's filters, and each connected service a **Test the connection** button.
+
 ## Lyrics
 
 Trackhop can give a music library on the server its lyrics: for each audio file without them, it
@@ -720,7 +733,7 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `POST /api/v1/labels` | Name a ready colour, or save a colour of your own as a label. |
 | `PATCH /api/v1/labels/{label}` | Rename a label or give it another colour: its syncs follow. |
 | `DELETE /api/v1/labels/{label}` | Delete a label: its syncs keep their colour, without the name. |
-| `GET /api/v1/syncs/{sync}` | One sync and its last runs. |
+| `GET /api/v1/syncs/{sync}` | One sync and its last runs. `fresh` says whether its source is as it was at the last run (`current`, `changed`, `unknown`; `null` until checked, in the background); `?fresh=check` looks it up now. |
 | `PATCH /api/v1/syncs/{sync}` | Change a sync: any of name, enabled, schedule, every, at, days, changes, follows, color, label, tags, favorite, twoWay, twoWayRemovals; `policy` (how close a match must be: `{"strictness": "lenient" \| "normal" \| "strict", "explicit": "clean" \| "either" \| "explicit", "sameAlbum", "studioOnly"}`) and `keepOrder` (the destination keeps the source's order). |
 | `DELETE /api/v1/syncs/{sync}` | Delete a sync (the playlists stay as they are); the other half of a two-way pair goes with it. |
 | `POST /api/v1/syncs/{sync}/run` | Start a sync now; anyway=true after a run held back by the target's size check; `{"confirmRemovals": true}` lets this run make the removals a run holds back. |
@@ -775,16 +788,35 @@ multi sync whole.
 | Call | What it does |
 |---|---|
 | `GET /api/v1/services` | The services added, and whether each is connected; each account apart (`id` `jellyfin@2`, with `serviceId` and `slot`). `web` marks the unofficial ones; `q=` finds them by name or account, `kind=` `official`, `web` or `connected` narrows the list. |
-| `GET /api/v1/services/{service}` | One service: connected, account, and what it can do. |
+| `GET /api/v1/services/{service}` | One service: connected, account, and what it can do. YouTube (official API) adds `quota`: the day's `units` and `searches` this Trackhop used, of `unitsDaily` and `searchesDaily`. |
+| `POST /api/v1/services/{service}/test` | Test the connection: three calls, one after the other (who is signed in, the playlist list, one search), each with `ok` and what the service answered (`detail`). Read only. |
 | `GET /api/v1/services/{service}/search` | Look for a track: q is "Artist - Title" or a link. |
+| `POST /api/v1/services/{service}/playlists/{playlist}/new` | A new playlist on the same service from this one: `{"op": "copy" \| "merge" \| "split" \| "sort" \| "shuffle", "with"?: ["<playlist>"], "size"?: 50, "by"?: "artist", "dropDuplicates"?: true, "name"?}` (`by`: `artist`, `title`, `album`, `year`, `added`, `duration`, `reverse`). The original never changes. A background task. |
+| `GET /api/v1/services/{service}/scan` | Library scan, read only: the songs in more than one of your playlists (`repeats`: `track` and its `playlists`) and the liked songs in no playlist (`likedInNoPlaylist`). Reads every playlist once: a large library takes a while. |
+| `GET /api/v1/services/{service}/twins` | Playlist twins: the copies of one playlist on the service (same name, or nine songs in ten the same): each `group` with its `copies` (`id`, `name`, `tracks`, the `syncs` that use it, `notInKept`) and the one proposed to `keep`. |
+| `GET /api/v1/services/{service}/playlists/{playlist}/link` | The playlist as universal links (`trackhop.org/open`), which open it on any service; a long playlist takes several (`url`, `part`, `parts`, `first`, `last`, `songs`, `total`); `qr` is the link as an SVG QR code where it is short enough for one. |
+| `PUT /api/v1/services/{service}/playlists/{playlist}/cover` | Put a cover on a playlist of yours, where the service takes one (`canSetCover` in `GET /api/v1/services/{service}`): a drawn one (`{"variant": 0}`: from its title and artists, no AI; another number, another cover) or an image of yours as the body (`Content-Type: image/jpeg` or `image/png`). |
+| `POST /api/v1/services/{service}/twins` | Keep one copy and delete the others, each saved in Files first: `{"group", "keep": "<playlist id>", "addMissing"?: true}`. A copy a sync uses is never deleted. |
 | `GET /api/v1/convert` | A track on another service: track is "Artist - Title" or a link, to the service's id. |
 | `POST /api/v1/convert` | Several tracks on another service. |
+| `POST /api/v1/tracks/link` | A song's link from any service, on one of yours: `{"link", "service", "playlist"?, "choice"?}`. Answers `source` (the song the link is about), `exact` (the same recording there, where song.link knows it), `candidates` (with their `score` in %) and `best`; with `playlist` (one of yours) the best, or `choice` (a candidate's id), is added: `added`. |
 | `GET /api/v1/wanted` | Missing on my server: the tracks your syncs to your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy) could not find, each once, with artist, title, album, length, ISRC, MusicBrainz id (when your syncs' lookups found it), the syncs that miss it and when it was first seen. `?format=json` (default), `csv`, `m3u`, `text` or `lidarr`; `group=album`, `all=true` (with the ticked ones), `sync=`, `service=`, `since=7d` (or `24h`, `2026-11-01`). |
 | `GET /api/v1/releases` | New releases: the albums, EPs and singles the artists of a playlist released lately (Deezer and MusicBrainz, no account). `?service=spotify&playlist=<id>` (or `playlist=spotify:<id>`), `days=30` (1 to 365), `upcoming=true` adds what is announced, `artists=50` (up to 100), `tracks=true` adds the songs. Each artist is cached a day; a first search takes about a second per artist. The answer's `source` is the source of a weekly "New releases" sync: `POST /api/v1/syncs` with it, `"schedule": "weekly"`, `"changes": "archive"`. |
 | `POST /api/v1/wanted/got` | Tick entries as got (`{"ids": ["…"]}`; `"got": false` puts them back). |
-| `GET /api/v1/concerts` | Concerts of a playlist's artists: `?service=spotify&playlist=<id or name>&country=IT`. The upcoming dates (date, time, city, venue, country, link, source) of the artists the playlist holds most, from Ticketmaster (your key in Settings, or `TICKETMASTER_API_KEY`) and MusicBrainz, a date both know once; artists without dates get search links; `notes` (the day's Ticketmaster limit reached, coverage) and `attribution` to show with them. Asked only on this call; answers kept a day per artist and country. |
-| `GET /api/v1/setlists` | Setlists of a playlist's artists: `?service=spotify&playlist=<id or name>`. The latest setlist.fm setlists (up to 5 each) of the artists the playlist holds most: date, venue, city, country, tour, `url` (its setlist.fm page), `songs` (title, `coverOf`, `tape`, `encore`) and `tracks` ("Artist - Title", tapes left out, ready for a playlist). Needs a setlist.fm key (Settings, or `SETLISTFM_API_KEY`); `notes` (the day's limit reached…) and `attribution` to show with them. Asked only on this call; answers kept a week per artist. |
-| `GET /api/v1/records` | Records and merch of a playlist's artists: `?service=spotify&playlist=<id or name>&currency=EUR`. For each artist their CDs, vinyl and cassettes on Discogs (title, year, formats, link; with your Discogs token in Settings, `forSale`, `lowestPrice`, `currency`, `sellUrl`), the records (`shopRecords`, with their `format`) and the other merch (`merch`) on sale in their own shops (Shopify, Bandcamp, WooCommerce, Big Cartel, Squarespace or the shop pages of their own site), their official site, shop, Bandcamp and social pages from MusicBrainz, and shop searches. `&kind=records` leaves the merch out, `&kind=merch` leaves Discogs and the shops' records out. Plain links; `records` is `null` when Discogs was not asked (`slowedDown`); show `attribution` with them. |
+| `GET /api/v1/concerts` | Concerts of a playlist's artists: `?service=spotify&playlist=<id or name>&country=IT`. The upcoming dates (date, time, city, venue, country, link, source) of the artists the playlist holds most, from Ticketmaster (your key in Settings, or `TICKETMASTER_API_KEY`) and MusicBrainz, a date both know once; artists without dates get search links; `notes` (the day's Ticketmaster limit reached, coverage) and `attribution` to show with them. Asked only on this call; answers kept a day per artist and country. `artists=` (names separated by commas) looks up only those, all of them. |
+| `GET /api/v1/setlists` | Setlists of a playlist's artists: `?service=spotify&playlist=<id or name>`. The latest setlist.fm setlists (up to 5 each) of the artists the playlist holds most: date, venue, city, country, tour, `url` (its setlist.fm page), `songs` (title, `coverOf`, `tape`, `encore`) and `tracks` ("Artist - Title", tapes left out, ready for a playlist). Needs a setlist.fm key (Settings, or `SETLISTFM_API_KEY`); `notes` (the day's limit reached…) and `attribution` to show with them. Asked only on this call; answers kept a week per artist. `?link=` a setlist.fm link gives that concert alone (`setlist`, `tracks`). `artists=` (names separated by commas) looks up only those, all of them. |
+| `GET /api/v1/transfers` | Recent transfers: the File playlists sent once to a service (a setlist, a pasted list), newest first, for a week: `name`, `created`, `target`, `running`, `result` (`added`, `alreadyThere`, `notFound`, `toReview`, `runId` for `GET /api/v1/runs/{run}/review`). |
+| `GET /api/v1/vanished` | Vanished songs: what left your playlists, from the dated backup copies and what mirror syncs removed, newest first (`track`, `where`, `lastSeen`, `sync`). Not the playlists that renew themselves (a daylist, Discover Weekly). |
+| `POST /api/v1/transfers` | Send a File playlist once to a service, as a new playlist there: `{"file": "<File playlist>", "to": "<service>", "name"?}`. Not a sync. |
+| `GET /api/v1/transfers/{transfer}` | One recent transfer. |
+| `DELETE /api/v1/transfers/{transfer}` | Take it off the list; the playlist it made stays. |
+| `GET /api/v1/records` | Records and merch of a playlist's artists: `?service=spotify&playlist=<id or name>&currency=EUR`. For each artist their CDs, vinyl and cassettes on Discogs (title, year, formats, link; with your Discogs token in Settings, `forSale`, `lowestPrice`, `currency`, `sellUrl`), the records (`shopRecords`, with their `format`) and the other merch (`merch`) on sale in their own shops (Shopify, Bandcamp, WooCommerce, Big Cartel, Squarespace or the shop pages of their own site), their official site, shop, Bandcamp and social pages from MusicBrainz, and shop searches. `&kind=records` leaves the merch out, `&kind=merch` leaves Discogs and the shops' records out. Plain links; `records` is `null` when Discogs was not asked (`slowedDown`); show `attribution` with them. `artists=` (names separated by commas) looks up only those, all of them. |
+| `GET /api/v1/records/mine` | My records, with your Discogs token: `?kind=collection` (the default: `items` and the collection's `value`) or `wantlist` (`items` and their `markets`: `forSale`, `lowest`, `currency`). As last read; `refresh=true` reads Discogs again. |
+| `GET /api/v1/venues` | The venues you follow and your city; `?nights=true` adds their dates of the coming weeks (`date`, `artist`, `venue`, `city`, `url`). |
+| `GET /api/v1/venues/search` | Find a venue to follow: `?q=` its name, `country=` a two-letter code. |
+| `POST /api/v1/venues` | Follow a venue, as the search found it: `{"id", "name", "city"?, "country"?}`. |
+| `DELETE /api/v1/venues/{venue}` | Stop following a venue. |
+| `GET /api/v1/diary` | Your concert diary from setlist.fm (a key needed): `?user=` your setlist.fm user name (kept), `refresh=true` reads it again. `concerts`, `artists`, `venues`, `topArtist` and the `setlists`, the latest first. |
 | `GET /api/v1/tools/nolyrics` | Synced lyrics: the songs on a Navidrome (or other Subsonic), Jellyfin, Emby, Plex or Lyrion server without lyrics, with their file's `path` where the server reports it (`?service=subsonic`; not needed when only one is connected). `support` is `api` (Jellyfin), `files` (`.lrc`/`.txt` next to the music) or `report` (Lyrion); `canAdd` says whether lyrics can be added from here. Read only. |
 | `POST /api/v1/tools/nolyrics/lookup` | Looks the songs without lyrics up on LRCLIB, about one a second: `?limit=25&offset=0` (`next` gives the following batch). Each is `synced`, `plain`, `none` or `error`. Writes nothing. |
 | `POST /api/v1/tools/nolyrics/save` | Adds what the last lookup found: through Jellyfin's API, or as new `.lrc`/`.txt` files in the music folder set on the page. Songs with lyrics by now are kept as they are; nothing is replaced or deleted. |
@@ -792,6 +824,10 @@ multi sync whole.
 | `GET /api/v1/tools/unplayable/weekly` | The weekly look for unplayable tracks: `enabled`, the `services` it asks, how many notification `channels` take its news (those with "Tracks to review"), the `last` look and the `next`. |
 | `PATCH /api/v1/tools/unplayable/weekly` | Turn it on or off: `{"enabled": true}`. It never changes anything: your channels are told, **Tools › Unplayable tracks** replaces them. |
 | `POST /api/v1/tools/unplayable/weekly/run` | Look now (a background task: `GET /api/v1/tasks/{task}`), telling the channels as the weekly look does. |
+| `POST /api/v1/tools/ai/extend` | Extend a playlist with your own AI (**Tools › Playlist generator**): `{"service", "playlist": "<id or name>", "description"?, "count"?: 10, "into"?: "end" \| "new", "name"?}`. The songs already there go to the AI with the description (or alone: more of the same); only the songs found on the service are added. A background task. |
+| `POST /api/v1/tools/roast` | Roast a playlist with your own AI: `{"service", "playlist": "<id or name>", "level"?: "gentle" \| "spicy" \| "savage", "explicit"?}`. Only the playlist's name and a summary of its songs go to the AI. Answers `playlist`, `level` and `roast`. |
+| `POST /api/v1/tools/overlap` | Two subscriptions: how much of your libraries on two connected services (liked songs and your own playlists, up to sixty each) is on both: `{"a": "<service>", "b": "<service>"}`. Answers `songsA`, `songsB`, `both`, `percent`, `coveredA`, `coveredB`, `verdict` (`same`, `a_in_b`, `b_in_a`, `partial`, `apart`), `summary`, `onlyA`, `onlyB`. |
+| `POST /api/v1/tools/compatibility` | Compatibility of two playlists, yours and a friend's (one of yours, or a public link): `{"a": {"service", "playlist"} \| {"link"}, "b": {...}}`. Answers `score` (0-100), `songsA`, `songsB`, `commonPercent`, `common`, `sharedArtists`, `forA` (what A would likely enjoy from B) and `forB`. |
 
 **Discover**
 
@@ -804,6 +840,10 @@ multi sync whole.
 | `GET /api/v1/poster` | A playlist poster's contents: `?service=spotify&playlist=<id or name>&layout=classic` (`minimal`, `bold`). The songs it lists, those you play most first (from the playlist's own server, else the first listening service connected; `fromPlays` marks them), the `lineup` of its most present artists, the `palette` from its cover (`ground`, `groundEnd`, `ink`, `accent`), its header, a `note` on where the plays came from and `coverPrompt`, the words for an image AI. The page draws the poster: **Tools › Playlist poster**. |
 | `GET /api/v1/followed` | The artists you follow, what each is checked for (`releases`, `concerts`, `merch`, `records`) and whether `muted`; whether the look runs on a schedule (`enabled`, `every` day or week), the concerts' `country`, how many notification `channels` take the news, and the `latest` news. |
 | `PATCH /api/v1/followed` | Turn the scheduled look on or off, every day or week: `{"enabled": true, "every": "week"}`. |
+| `POST /api/v1/listens` | Mark as listened: an album (`album`, a Deezer album id, with `albumTitle` and `albumArtist`), a playlist (`service`, `playlist`) or a list (`text`) sent to Last.fm and ListenBrainz (`lastfm`, `listenbrainz`; both connected ones by default) as listens, one song after the other, ending at `at` (`2026-11-24T21:00` or epoch ms; now by default; starting then with `"finished": false`). Last.fm takes the last 14 days only. |
+| `GET /api/v1/tools/lifetime` | All-time stats, as last read from your service's export of your listening history: `sources`, `from`, `to`, `plays`, `ms`, `timed`, `artists`, `tracks`, `clock`, `topArtists`, `topTracks`, `years`; `null` when none was read. |
+| `PUT /api/v1/tools/lifetime` | Read an export of your listening history (Spotify's extended streaming history, YouTube's Takeout, Deezer's export: the `.zip`, a `.json` or the `.xlsx`) sent as the body; only the sums are kept. |
+| `DELETE /api/v1/tools/lifetime` | Forget the all-time stats. |
 | `POST /api/v1/followed` | Follow an artist: `{"name": "Muse", "merch": false}` (your defaults for what is left out). |
 | `PATCH /api/v1/followed/{artist}` | Mute an artist (still followed, nothing said) or turn it on again, or change what it is checked for: `{"muted": true}`, `{"records": false}`. |
 | `DELETE /api/v1/followed/{artist}` | Stop following an artist. |
@@ -837,6 +877,7 @@ also reads the tour dates on Spotify's artist pages when you have **Spotify (web
 | Call | What it does |
 |---|---|
 | `GET /api/v1/files` | The File playlists. |
+| `POST /api/v1/files/text` | A playlist pasted as text saved as a File playlist: `{"name"?, "text": "Artist - Title\nArtist - Title"}` (numbers in front and your own name patterns are understood). Answers the file's `name` and its `tracks`. |
 | `GET /api/v1/files/{file}` | A File playlist, in a format: csv, m3u, xspf, jspf, wpl, zpl or txt. |
 | `PUT /api/v1/files/{file}` | Bring in a playlist file (CSV, M3U, PLS, XSPF, JSPF, WPL/ZPL, iTunes XML, rekordbox XML, JSON, text) as the body, of any size: it is read a piece at a time. From an Apple Music/iTunes library or a rekordbox collection each of your playlists becomes a file; `?playlists=A,B` picks them by name, `?whole=true` adds the library as one file. |
 | `POST /api/v1/files/{file}` | The same as PUT, for tools that only POST. |
@@ -894,6 +935,9 @@ calls of its own group and nothing else here. [More](#shared-playlists-on-this-s
 | Call | What it does |
 |---|---|
 | `GET /api/v1/groups` | The mailboxes of shared playlists kept here: `id`, `name`, `items`, `bytes`, `cursor`, `created`, `lastWrite`. |
+| `GET /api/v1/shared` | The shared playlists this Trackhop is in as a member (**Tools › Shared playlists**): `id`, `name`, `transport`, `syncId` and the `members`. |
+| `POST /api/v1/shared` | Join a shared playlist from its invite link (an encrypted ntfy channel's or a Trackhop server's mailbox; a shared folder's needs the phone): `{"link", "service", "name"?, "playlist"?}`. |
+| `DELETE /api/v1/shared/{group}` | Leave it: the others are told, your playlist stays as it is. |
 | `POST /api/v1/groups` | Make a group's mailbox (the app does it): `{"group": "<16 hex>", "creator": "<the creator's public key>", "name"?}`. Answers the group's `key`, shown once; only its hash is kept. |
 | `GET /api/v1/groups/{group}` | One mailbox: its name, items, bytes, cursor, created, last write. |
 | `DELETE /api/v1/groups/{group}` | Delete a mailbox and everything in it: its key stops working. |
@@ -1110,6 +1154,6 @@ services or other groups). Each member's Trackhop sends its signed changes and r
 The connectors that run a service's own web player (Amazon Music, Apple Music, SoundCloud with an
 account) need a browser inside Trackhop, so they stay in the app. Spotify and Deezer without a key
 work here with [pasted cookies](#spotify-and-deezer-without-a-key-unofficial).
-The compatibility card is not on the page yet either (the playlist poster is: **Tools › Playlist poster**).
+The playlist poster is on the page (**Tools › Playlist poster**), and the compatibility of two playlists too (**Tools › Compatibility**), without the app's picture card to share.
 
 [Back to the guide](./)

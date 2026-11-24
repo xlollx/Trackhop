@@ -33,6 +33,7 @@ class ParityWebTest {
         installServerConnectors()
         env = ServerEnv(data, Strings(emptyMap()), "https://songport.example.org")
         server = Web(env, Runner(env), Auth(env), "sekret", "test").start(0)
+        Features.v2 = true
         base = "http://127.0.0.1:${server.address.port}"
         File(data, "csv").mkdirs()
         File(data, "csv/In.csv").writeText("title,artist\nSong,Band\nOther Song,Other Band\n")
@@ -159,5 +160,56 @@ class ParityWebTest {
         post("/settings/schedules", "action" to "delete", "id" to s.id)
         assertEquals(null, env.store.job("s1")!!.scheduleId)
         assertEquals("10:00", env.store.job("s1")!!.at)
+    }
+
+    @Test fun recentTransfersAndASetlistLink() {
+        assertTrue(get("/tools/transfers").body().contains("No transfers"))
+        env.store.upsertJob(com.xlollx.songport.sync.Setlists.job("t1", "Muse at Forum", "In", PlaylistRef("csv", null, "")))
+        assertTrue(get("/tools").body().contains("/tools/transfers"))
+        assertTrue(get("/tools/transfers").body().contains("Muse at Forum"))
+        // Not on the home page: it is not a sync.
+        assertTrue(!get("/").body().contains("Muse at Forum"))
+        assertEquals(303, post("/tools/transfers", "action" to "delete", "id" to "t1").statusCode())
+        assertEquals(null, env.store.job("t1"))
+        Features.v2 = true
+        assertTrue(get("/tools/setlists").body().contains("A setlist.fm link"))
+        assertTrue(location(get("/tools/setlists?link=https://example.org/nothing")).contains("err="))
+    }
+
+    @Test fun theNewToolsPages() {
+        env.store.updateSettings { it.copy(connectors = listOf("csv")) }
+        val tools = get("/tools").body()
+        for (t in listOf("/tools/scan", "/tools/twins")) assertTrue(t, tools.contains(t))
+        val scan = post("/tools/scan", "service" to "csv")
+        assertTrue(location(scan), location(scan).startsWith("/tools/task/") || location(scan).contains("err="))
+        assertTrue(get("/tools/twins").body().contains("Playlist twins"))
+        assertTrue(location(post("/tools/twins", "service" to "csv", "action" to "delete")).contains("err="))
+        // New playlist from one: on the playlist's page.
+        assertTrue(get("/playlists/csv/In").body().contains("New playlist from this one"))
+        val made = post("/playlists/csv/In", "action" to "make", "op" to "shuffle", "name" to "Mixed")
+        assertTrue(location(made).startsWith("/tools/task/"))
+        taskPage(location(made))
+        assertTrue(File(data, "csv/Mixed.csv").isFile)
+    }
+
+    @Test fun aPlaylistPastedOnTheFilePage() {
+        assertTrue(get("/connectors/csv").body().contains("Paste a playlist"))
+        val r = post("/files/text", "name" to "Pasted", "text" to "Moderat - A New Error\nBonobo - Kerala")
+        assertTrue(location(r), location(r).contains("ok="))
+        assertTrue(File(data, "csv/Pasted.csv").readText().contains("Moderat"))
+        assertTrue(location(post("/files/text", "name" to "X", "text" to "")).contains("err="))
+    }
+
+    @Test fun theArtistsOfADiscoverSearchArePicked() {
+        Features.v2 = true
+        val page = get("/tools/concerts?service=csv&playlist=In&pick=1").body()
+        assertTrue(page, page.contains("value=\"Band\"") && page.contains("value=\"Other Band\""))
+        val narrowed = get("/tools/concerts?service=csv&playlist=In&pick=1&find=oth").body()
+        assertTrue(!narrowed.contains("value=\"Band\"") && narrowed.contains("value=\"Other Band\""))
+        assertTrue(get("/tools/concerts?service=csv&playlist=In&pick=1&find=Muse").body().contains("Add “Muse”"))
+        assertEquals(setOf("Band", "Muse"), ArtistPicks.of(listOf("Band"), " Muse ,"))
+        assertEquals(null, ArtistPicks.of(emptyList(), ""))
+        val tracks = listOf(com.xlollx.songport.model.Track("1", "S", listOf("Björk")), com.xlollx.songport.model.Track("2", "T", listOf("Other")))
+        assertEquals(listOf("Björk", "Muse"), ArtistPicks.chosen(tracks, setOf("bjork", "Muse")))
     }
 }
