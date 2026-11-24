@@ -234,7 +234,7 @@ class MainActivity : ComponentActivity() {
         runCatching { com.xlollx.songport.sync.RadioPlan.refresh(this, start = true) }
         // Which services are signed in, read once in the background for the editors (a sign-in may have just happened elsewhere).
         com.xlollx.songport.ui.Connections.refreshAsync(com.xlollx.songport.platform.AndroidEnv.of(this)) { slow ->
-            android.util.Log.d("Connections", "slow sign-in checks (ms): $slow")
+            android.util.Log.d("tkh.vornelle", "slow sign-in checks (ms): $slow")
         }
     }
 
