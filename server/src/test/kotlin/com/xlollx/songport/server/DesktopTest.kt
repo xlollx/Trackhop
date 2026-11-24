@@ -33,7 +33,10 @@ class DesktopTest {
         installServerConnectors(officialOnly = true)
         val ids = com.xlollx.songport.providers.Providers.services().map { it.id }
         assertTrue(ids.containsAll(listOf("spotify", "tidal", "subsonic", "jellyfin", "plex", "csv")))
-        assertTrue(com.xlollx.songport.providers.Providers.services().none { it is CookieConnector || it.linkOnly })
+        // No unofficial connector and no unofficial link source. A playlist file kept online (2.2) is no
+        // service at all, read as any page is: in every build.
+        assertTrue(com.xlollx.songport.providers.Providers.services().none { it is CookieConnector || (it.linkOnly && it !is com.xlollx.songport.providers.PlaylistUrlProvider) })
+        assertTrue(com.xlollx.songport.providers.Providers.services().any { it is com.xlollx.songport.providers.PlaylistUrlProvider })
         installServerConnectors()
         assertTrue(com.xlollx.songport.providers.Providers.services().any { it is CookieConnector })
     }

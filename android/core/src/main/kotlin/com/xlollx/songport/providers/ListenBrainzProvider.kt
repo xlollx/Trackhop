@@ -19,8 +19,10 @@ import com.xlollx.songport.sync.Matcher
 import kotlinx.serialization.json.JsonElement
 
 /**
- * ListenBrainz (https://listenbrainz.readthedocs.io): sorgente in sola lettura, API aperta senza
- * chiave. Espone le playlist dell'utente (formato JSPF) e i brani "amati" (feedback +1).
+ * ListenBrainz (https://listenbrainz.readthedocs.io): API aperta senza chiave. Espone le playlist
+ * dell'utente (formato JSPF) e i brani "amati" (feedback +1). With the user token (2.2) it is also a
+ * destination: playlists made, renamed, deleted, filled and emptied by MusicBrainz recording id
+ * (the metadata lookup finds it, the matcher's usual threshold decides), and loved tracks written.
  */
 class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider() {
     override val serviceId = SERVICE
@@ -28,9 +30,11 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
     override val brandColor = 0xFFEB743B
     override val noteName = "provider_note_listenbrainz"
     override val beta = true
-    /** Writes reach only the loved tracks, and only with the user token; playlists stay read-only. */
+    /** Writes need the user token: loved tracks, and (2.2) the user's own playlists. */
     override val canWrite = true
-    override val canCreatePlaylists = false
+    override val canCreatePlaylists = true
+    /** A removal names the entry by its position, checked again against the playlist just before. */
+    override val removesSingleEntry: Boolean get() = true
     override val supportsLikedSongs = true
     override val supportsLikedTarget = true
     override val supportsRecent = true
@@ -92,17 +96,21 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
     private fun mbidOf(identifier: String?): String? = identifier?.trimEnd('/')?.substringAfterLast('/')?.takeIf { it.isNotBlank() }
 
     override suspend fun playlists(ctx: Env): List<Playlist> {
-        val user = Http.enc(creds(ctx).userName)
+        val name = creds(ctx).userName
+        val user = Http.enc(name)
         val out = ArrayList<Playlist>()
         var offset = 0
         do {
-            val j = api(ctx, "/1/user/$user/playlists?count=50&offset=$offset")
+            // With the token the private playlists are listed too.
+            val j = api(ctx, "/1/user/$user/playlists?count=50&offset=$offset", token = token(ctx))
             val items = j["playlists"].arr
             for (p in items) {
                 val pl = p["playlist"]
                 val id = mbidOf(pl["identifier"].str) ?: continue
                 val count = pl["extension"]["https://musicbrainz.org/doc/jspf#playlist"]["track_count"].int ?: pl["track"].arr.size
-                out += Playlist(id, pl["title"].str ?: id, count)
+                // A playlist the user only collaborates on is written to as well, but it is not theirs.
+                val creator = pl["creator"].str ?: pl["extension"][JSPF_PLAYLIST]["creator"].str
+                out += Playlist(id, pl["title"].str ?: id, count, ownedByMe = creator == null || creator.equals(name, ignoreCase = true))
             }
             offset += items.size
         } while (items.size == 50 && offset < 1000)
@@ -206,8 +214,8 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
             mbidOf(latestCreatedFor(ctx, kind)?.get("identifier").str)
                 ?: throw ProviderException("$displayName: no playlist \"$kind\" made for ${creds(ctx).userName} now")
         }
-        val pl = api(ctx, "/1/playlist/$mbid")["playlist"]
-        return pl["track"].arr.mapNotNull { t ->
+        val pl = api(ctx, "/1/playlist/$mbid", token = token(ctx))["playlist"]
+        return pl["track"].arr.withIndex().mapNotNull { (index, t) ->
             val title = t["title"].str ?: return@mapNotNull null
             val artists = t["extension"]["https://musicbrainz.org/doc/jspf#track"]["additional_metadata"]["artists"].arr
                 .mapNotNull { it["artist_credit_name"].str }.ifEmpty { listOfNotNull(t["creator"].str) }
@@ -217,6 +225,8 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
                 artists = artists,
                 album = t["album"].str ?: "",
                 durationMs = t["duration"].long ?: 0,
+                // The entry's position: what a removal names (see [removeTracks]).
+                itemId = index.toString(),
             )
         }
     }
@@ -242,7 +252,56 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
         ))
     }
 
-    override suspend fun createPlaylist(ctx: Env, name: String, description: String): Playlist = unsupported(ctx)
+    private fun needToken(ctx: Env): String = token(ctx) ?: throw ProviderException(ctx.text("listenbrainz_token_needed"))
+
+    /** A private playlist (JSPF, POST /1/playlist/create): the user makes it public on ListenBrainz if they want. */
+    override suspend fun createPlaylist(ctx: Env, name: String, description: String): Playlist {
+        val token = needToken(ctx)
+        val jspf = mapOf(
+            "title" to name,
+            "annotation" to description.takeIf { it.isNotBlank() },
+            "extension" to mapOf(JSPF_PLAYLIST to mapOf("public" to false)),
+            "track" to emptyList<Any>(),
+        ).filterValues { it != null }
+        val j = api(ctx, "/1/playlist/create", "POST", jsonObj("playlist" to jspf), token)
+        val id = j["playlist_mbid"].str ?: throw ProviderException("$displayName: playlist not created")
+        return Playlist(id, name, 0)
+    }
+
+    override suspend fun renamePlaylist(ctx: Env, playlistId: String, name: String) {
+        if (playlistId.startsWith(CREATED_FOR)) unsupported(ctx)
+        api(ctx, "/1/playlist/edit/$playlistId", "POST", jsonObj("playlist" to mapOf("title" to name)), needToken(ctx))
+    }
+
+    override suspend fun deletePlaylist(ctx: Env, playlistId: String) {
+        if (playlistId.startsWith(CREATED_FOR)) unsupported(ctx)
+        api(ctx, "/1/playlist/$playlistId/delete", "POST", null, needToken(ctx))
+    }
+
+    /** Recordings by MBID, [ADD_BATCH] a request (ListenBrainz's most); anything without an MBID cannot go in. */
+    private suspend fun addToPlaylist(ctx: Env, playlistId: String, tracks: List<Track>) {
+        if (playlistId.startsWith(CREATED_FOR)) unsupported(ctx)
+        val token = needToken(ctx)
+        tracks.filter { MBID.matches(it.id) }.chunked(ADD_BATCH).forEach { chunk ->
+            val items = chunk.map { mapOf("identifier" to "$RECORDING${it.id}") }
+            api(ctx, "/1/playlist/$playlistId/item/add", "POST", jsonObj("playlist" to mapOf("track" to items)), token)
+        }
+    }
+
+    /**
+     * Removes the entries [tracks] name by position ([Track.itemId]), each checked against the playlist
+     * as it is now: one that moved is found by its recording, one that is gone is left alone. The last
+     * first, so the positions before it stay where they are.
+     */
+    private suspend fun removeFromPlaylist(ctx: Env, playlistId: String, tracks: List<Track>) {
+        if (playlistId.startsWith(CREATED_FOR)) unsupported(ctx)
+        val token = needToken(ctx)
+        val now = read(ctx, playlistId).map { it.id }
+        val positions = entryPositions(now, tracks)
+        for (i in positions.sortedDescending()) {
+            api(ctx, "/1/playlist/$playlistId/item/delete", "POST", jsonObj("index" to i, "count" to 1), token)
+        }
+    }
 
     private suspend fun feedback(ctx: Env, tracks: List<Track>, score: Int) {
         val token = token(ctx) ?: throw ProviderException(ctx.text("listenbrainz_token_needed"))
@@ -253,13 +312,15 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
     }
 
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
-        if (playlistId != MusicProvider.LIKED_ID) unsupported(ctx)
-        feedback(ctx, tracks, 1)
+        if (playlistId == MusicProvider.LIKED_ID) return feedback(ctx, tracks, 1)
+        if (MusicProvider.isLibrary(playlistId) || playlistId == MusicProvider.RECENT_ID) unsupported(ctx)
+        addToPlaylist(ctx, playlistId, tracks)
     }
 
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
-        if (playlistId != MusicProvider.LIKED_ID) unsupported(ctx)
-        feedback(ctx, tracks, 0)
+        if (playlistId == MusicProvider.LIKED_ID) return feedback(ctx, tracks, 0)
+        if (MusicProvider.isLibrary(playlistId) || playlistId == MusicProvider.RECENT_ID) unsupported(ctx)
+        removeFromPlaylist(ctx, playlistId, tracks)
     }
 
     /** Listens can be submitted: the user token was given at sign-in. */
@@ -294,6 +355,25 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
         /** The id of a kind of playlist made for the user ("createdfor:weekly-jams"): it reads the latest of that kind. */
         const val CREATED_FOR = "createdfor:"
         private const val JSPF_PLAYLIST = "https://musicbrainz.org/doc/jspf#playlist"
+        private const val RECORDING = "https://musicbrainz.org/recording/"
+        /** Recordings one add takes (ListenBrainz's MAX_RECORDINGS_PER_ADD). */
+        private const val ADD_BATCH = 100
+
+        /**
+         * The positions in [now] (the playlist's recording ids, in order) of the entries [wanted] name:
+         * its own position ([Track.itemId]) when that still holds the same recording, else the first
+         * other entry with it not taken yet; none when the recording is no longer there.
+         */
+        internal fun entryPositions(now: List<String>, wanted: List<Track>): List<Int> {
+            val taken = HashSet<Int>()
+            for (t in wanted) {
+                val at = t.itemId?.toIntOrNull()?.takeIf { it in now.indices && now[it] == t.id && it !in taken }
+                    ?: now.indices.firstOrNull { now[it] == t.id && it !in taken }
+                    ?: continue
+                taken += at
+            }
+            return taken.toList()
+        }
         private val MBID = Regex("""[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}""")
     }
 }

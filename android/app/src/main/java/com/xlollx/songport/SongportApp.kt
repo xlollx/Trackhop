@@ -14,6 +14,8 @@ class SongportApp : Application() {
         com.xlollx.songport.data.CrashLog.install(this)
         // The release switch: the 1.18 features in a 1.18 build, or on this device with Preview upcoming features on.
         com.xlollx.songport.Features.build = BuildConfig.V2
+        // Apple Music removals by writing the whole list (undocumented): GitHub and F-Droid only, not the stores' builds.
+        com.xlollx.songport.providers.AppleMusicProvider.fullListWrites = !BuildConfig.STORE_BUILD
         com.xlollx.songport.Features.preview = { com.xlollx.songport.data.Store.get(this).data.settings.preview2 }
         // The engine's platform: build-time credentials, resource names, and the connectors this build offers.
         com.xlollx.songport.platform.BuildDefaults.values = com.xlollx.songport.platform.AndroidEnv.buildDefaults()
@@ -33,6 +35,17 @@ class SongportApp : Application() {
         com.xlollx.songport.net.HostLog.init(this)
         // Whether there is internet now: the offline banner, runs that wait for it, the engine's plain words.
         com.xlollx.songport.net.Connectivity.start(this)
+        // A personal server with a home and an away address: on Wi-Fi the home one first, on mobile data the away one (2.2).
+        com.xlollx.songport.net.ServerAddresses.onWifi = {
+            val cm = getSystemService(android.net.ConnectivityManager::class.java)
+            val caps = cm?.getNetworkCapabilities(cm.activeNetwork)
+            when {
+                caps == null -> null
+                caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI) || caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_CELLULAR) -> false
+                else -> null
+            }
+        }
         com.xlollx.songport.sync.OfflineQueue.init(this)
         // The web connectors' extra accounts ask the connectors whether they can be added: from anywhere, with the app.
         com.xlollx.songport.providers.WebAccounts.app = this

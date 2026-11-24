@@ -53,8 +53,24 @@ internal fun Web.apiKeyForm(p: CredentialsProvider): String =
 <p class="muted">${h(env.text("login_apikey_hint"))}</p>
 <input type="hidden" name="mode" value="apikey">
 <label>${h(env.text("login_url"))}</label><input type="url" name="url" required>
+${if (p.offersSecondAddress) awayField() else ""}
 <label>${h(env.text("login_apikey"))}</label><input type="password" name="apiKey" autocomplete="off" required>
 <p><button class="secondary">${h(env.text("login_submit"))}</button></p></form>"""
+
+// ------------------------------------------------------------------ Two addresses (2.2)
+
+/** The second address of a sign-in form: optional, tried when the first does not answer. */
+internal fun Web.awayField(value: String = ""): String =
+    """<label>${h(env.text("login_url_away"))}</label><input type="url" name="url2" value="${h(value)}" placeholder="https://…">
+<p class="muted">${h(env.text("login_url_away_hint"))}</p>"""
+
+/** On a connected server: which address the requests go to now, and its second address to set or take away. */
+internal fun Web.addressCard(p: CredentialsProvider): String {
+    val away = p.awayAddress(env)
+    val now = p.addressInUse(env)
+    val via = if (away != null && now != null) """<p>${h(env.text(if (now == away) "account_via_away" else "account_via_home", now.removePrefix("https://").removePrefix("http://")))}</p>""" else ""
+    return """<form method="post" action="/connectors/${q(p.id)}/address" class="card">$via${awayField(away.orEmpty())}<p><button class="secondary">Save</button></p></form>"""
+}
 
 // ------------------------------------------------------------------ Jellyfin Quick Connect
 

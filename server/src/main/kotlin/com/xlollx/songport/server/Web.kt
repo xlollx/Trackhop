@@ -612,7 +612,9 @@ $removals"""
                     val byKey = r.form["mode"] == "apikey" && provider.loginForm.offersApiKey
                     val result = runCatching {
                         runBlocking {
-                            if (byKey) provider.loginWithApiKey(env, r.form["url"].orEmpty(), r.form["apiKey"].orEmpty())
+                            if (provider.loginForm.needsUrl && provider.offersSecondAddress)
+                                provider.loginWithAddresses(env, r.form["url"].orEmpty(), r.form["url2"], r.form["user"].orEmpty(), r.form["secret"].orEmpty(), apiKey = if (byKey) r.form["apiKey"].orEmpty() else null)
+                            else if (byKey) provider.loginWithApiKey(env, r.form["url"].orEmpty(), r.form["apiKey"].orEmpty())
                             else provider.login(env, r.form["url"].orEmpty(), r.form["user"].orEmpty(), r.form["secret"].orEmpty())
                         }
                     }
@@ -625,6 +627,13 @@ $removals"""
                 redirect(r.ex, url)
             }
             "disconnect" -> { provider.disconnect(env); redirect(r.ex, "$back?ok=${q("Disconnected.")}") }
+            // A personal server's second address, set or taken away on a connected account (2.2).
+            "address" -> {
+                val c = provider as? CredentialsProvider
+                if (c == null || !c.offersSecondAddress || !c.isConnected(env)) return redirect(r.ex, "$back?err=${q("Only a connected personal server has a second address.")}")
+                c.setAwayAddress(env, r.form["url2"])
+                redirect(r.ex, "$back?ok=${q("Saved.")}")
+            }
             // YouTube Music: the channel the account acts as (its own, or one of its brand accounts).
             "channel" -> {
                 val ytm = provider as? YtmServerProvider ?: return send(r.ex, 404, errorPage(404))
@@ -678,7 +687,7 @@ $removals"""
     /** The web connectors are not an official API: said next to their name wherever they are listed. */
     private fun unofficialBadges(p: MusicProvider): String = when {
         p is CookieConnector -> """ <span class="badge">unofficial</span>""" + if (p.alpha) """ <span class="alpha">alpha</span>""" else ""
-        p.linkOnly -> """ <span class="badge">unofficial</span>"""
+        p.linkOnly && p !is com.xlollx.songport.providers.PlaylistUrlProvider -> """ <span class="badge">unofficial</span>"""
         else -> ""
     }
 
@@ -694,16 +703,20 @@ $removals"""
         when {
             p is LocalFilesProvider -> body.append(fileList(r.query["sample"].orEmpty(), all = r.query["all"] == "1"))
             !p.requiresAuth -> Unit
-            p.isConnected(env) -> body.append(
-                """<div class="card row"><div><span class="ok">Connected</span>${p.accountName(env)?.let { " as <b>" + h(it) + "</b>" } ?: ""}</div>""" +
-                    Html.postButton("/connectors/${q(p.id)}/disconnect", "Disconnect", "secondary") + "</div>",
-            )
+            p.isConnected(env) -> {
+                body.append(
+                    """<div class="card row"><div><span class="ok">Connected</span>${p.accountName(env)?.let { " as <b>" + h(it) + "</b>" } ?: ""}</div>""" +
+                        Html.postButton("/connectors/${q(p.id)}/disconnect", "Disconnect", "secondary") + "</div>",
+                )
+                if (p is CredentialsProvider && p.loginForm.needsUrl && p.offersSecondAddress) body.append(addressCard(p))
+            }
             p is CookieConnector -> body.append(cookieForm(p))
             p is CredentialsProvider -> {
                 val f = p.loginForm
                 body.append("""<form method="post" action="/connectors/${q(p.id)}/connect" class="card">""")
                 body.append("""<p class="muted">${h(env.text(f.hintName))}</p>""")
                 if (f.needsUrl) body.append("""<label>${h(env.text("login_url"))}</label><input type="url" name="url" required>""")
+                if (f.needsUrl && p.offersSecondAddress) body.append(awayField())
                 if (f.needsUser) body.append("""<label>${h(env.text("login_user"))}</label><input type="text" name="user" autocomplete="off"${if (f.userOptional) "" else " required"}>""")
                 if (f.needsSecret) body.append(
                     """<label>${h(env.text(f.secretLabelName))}</label><input type="password" name="secret" autocomplete="new-password"${if (f.secretOptional) "" else " required"}>""",
@@ -995,6 +1008,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
         com.xlollx.songport.sync.QqMusicPublic.SERVICE -> "https://y.qq.com/n/ryqq/playlist/…"
         com.xlollx.songport.sync.JioSaavnPublic.SERVICE -> "https://www.jiosaavn.com/featured/…"
         com.xlollx.songport.sync.GaanaPublic.SERVICE -> "https://gaana.com/playlist/…"
+        com.xlollx.songport.providers.PlaylistUrlProvider.SERVICE -> "https://example.org/my-playlist.xspf"
         else -> "https://soundcloud.com/user/sets/…"
     }
 

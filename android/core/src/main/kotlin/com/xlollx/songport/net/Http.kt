@@ -78,13 +78,23 @@ object Http {
         retryServerErrors: Boolean = method != "POST" && method != "PATCH",
     ): HttpResponse = withContext(Dispatchers.IO) {
         var last: HttpResponse? = null
+        // A personal server with two addresses (home and away): sent to the one chosen now, and to
+        // the other when that one cannot be reached at all (see ServerAddresses).
+        var target = ServerAddresses.route(url)
         for (attempt in 0..maxRateLimitRetries) {
-            val req = Request.Builder().url(url).apply {
+            fun request(to: String) = Request.Builder().url(to).apply {
                 headers.forEach { (k, v) -> header(k, v) }
                 val b = body ?: if (method == "POST" || method == "PUT" || method == "PATCH") ByteArray(0).toRequestBody(null) else null
                 method(method, b)
             }.build()
-            val resp = client.newCall(req).execute()
+            val resp = try {
+                client.newCall(request(target)).execute()
+            } catch (e: java.io.IOException) {
+                val other = ServerAddresses.failover(target, e) ?: throw e
+                target = other
+                client.newCall(request(target)).execute()
+            }
+            ServerAddresses.answered(target)
             val text = resp.body?.string() ?: ""
             val out = HttpResponse(resp.code, text, resp.headers, resp.request.url.toString())
             last = out
