@@ -403,6 +403,9 @@ The same image, installed from the app store of your server's system:
   is new: if it isn't there yet, use *Docker › Add Container* ([how](playlist-sync-nas#per-system)).
 - **CapRover**: *Apps › One-Click Apps/Databases*, search **Trackhop**: choose an app name and a
   password (at least 8 characters). Turn on HTTPS for the app before signing in.
+- **Dokploy**: in a project, *Create Service › Template*, search **Trackhop**, then *Create* and
+  *Deploy*. Dokploy makes a password for you: it is `SONGPORT_PASSWORD` in the service's
+  *Environment* tab. Turn on HTTPS for its domain before signing in.
 
 ## On Azure (beta)
 
