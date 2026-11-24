@@ -131,7 +131,7 @@
     <string name="ytm_not_installed">Trackhop Bridge n\'est pas installé.</string>
     <string name="ytm_install">Obtenir le Bridge</string>
     <string name="report_issue">Signaler sur GitHub</string>
-    <string name="provider_note_youtube">API officielle YouTube Data avec ton propre projet Google Cloud. Le quota quotidien est limité : les grosses syncs peuvent prendre plusieurs jours.</string>
+    <string name="provider_note_youtube">API officielle YouTube Data. Le quota quotidien est limité : les grosses syncs peuvent prendre plusieurs jours.</string>
     <string name="provider_note_tidal">Playlists TIDAL.</string>
     <string name="provider_note_deezer">Playlists et favoris Deezer (bêta), avec une application développeur Deezer que tu as déjà : Deezer n\'en accepte plus de nouvelles.</string>
 
@@ -3527,6 +3527,60 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="one">%1$d oubliée : la prochaine synchro la recherche à nouveau.</item>
         <item quantity="other">%1$d oubliées : la prochaine synchro les recherche à nouveau.</item>
+    </plurals>
+    <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
+    <string name="ytm_profile_title">Quel profil YouTube Music ?</string>
+    <string name="ytm_profile_body">Ton compte Google a %1$d profils. Trackhop lit et écrit les playlists et les titres likés sur celui que tu choisis.</string>
+    <string name="ytm_profile_body_one">Trackhop lit et écrit les playlists et les titres likés sur le profil que tu choisis.</string>
+    <string name="ytm_profile_wrong">Trackhop utilise %1$s, qui n\'a ni playlist ni titre liké. Ta musique semble être sur %2$s.</string>
+    <string name="ytm_profile_empty">Vide</string>
+    <string name="ytm_profile_here">Ta musique est ici</string>
+    <string name="ytm_profile_nothing">aucune playlist, aucun titre liké</string>
+    <string name="ytm_profile_no_playlists">aucune playlist</string>
+    <string name="ytm_profile_no_liked">aucun titre liké</string>
+    <string name="ytm_profile_pick_hint">Choisis celui que tu utilises dans l\'app YouTube Music. Tu pourras le changer plus tard depuis la carte du compte.</string>
+    <string name="ytm_profile_use">Utiliser %1$s</string>
+    <string name="ytm_profile_continue">Continuer avec %1$s</string>
+    <string name="ytm_profile_keep">Garder %1$s</string>
+    <string name="ytm_profile_card_wrong">Le profil %1$s est vide. Ta musique semble être sur %2$s.</string>
+    <string name="ytm_profile_change">Changer</string>
+    <string name="ytm_profile_row">Profil : %1$s</string>
+    <string name="ytm_profile_brand">compte de marque</string>
+    <string name="youtube_empty_channel">Cette chaîne n\'a ni playlist ni titre liké. Si ta musique est sur un autre profil (un compte de marque), reconnecte-toi et choisis ce profil dans la liste de Google.</string>
+    <string name="youtube_empty_keep">Garder ainsi</string>
+    <string name="connect_spotify_shared_note">Spotify ne laisse cette version de Trackhop connecter que quelques comptes. Le tien aura très probablement besoin de ta propre clé gratuite : environ deux minutes, avec un compte Spotify Premium, et l\'app te guide pas à pas.</string>
+    <string name="connect_try_anyway">Essayer quand même</string>
+    <string name="connect_use_own_key">Utiliser ma propre clé</string>
+    <string name="onboarding_connect_first">Connecte ton premier service</string>
+    <plurals name="ytm_profile_playlists">
+        <item quantity="one">%d playlist</item>
+        <item quantity="other">%d playlists</item>
+    </plurals>
+    <plurals name="ytm_profile_liked">
+        <item quantity="one">%d titre liké</item>
+        <item quantity="other">%d titres likés</item>
+    </plurals>
+    <string name="chooser_your_accounts">Tes comptes</string>
+    <string name="chooser_all">Tous</string>
+    <string name="chooser_cat_games">Jeux</string>
+    <string name="chooser_cat_radio">Radio et classements</string>
+    <string name="chooser_cat_podcasts">Podcasts</string>
+    <string name="chooser_cat_listening">Écoutes</string>
+    <string name="chooser_cat_regional">Régionaux</string>
+    <string name="chooser_cat_files">Fichiers</string>
+    <string name="chooser_area_east_asia">Asie de l\'Est</string>
+    <string name="chooser_area_india_middle_east">Inde · Moyen-Orient</string>
+    <string name="chooser_area_africa">Afrique</string>
+    <string name="chooser_area_europe">Europe</string>
+    <string name="chooser_area_americas">Amériques</string>
+    <string name="chooser_show_all">Tout afficher (%1$d)</string>
+    <string name="chooser_suggested_here">Suggérés là où tu es</string>
+    <string name="chooser_cannot_target">Ne peut pas être une destination</string>
+    <string name="chooser_no_results">Aucun service pour « %1$s »</string>
+    <string name="chooser_clear_search">Effacer la recherche</string>
+    <plurals name="chooser_search">
+        <item quantity="one">Rechercher parmi %1$d service</item>
+        <item quantity="other">Rechercher parmi %1$d services</item>
     </plurals>
     <string name="policy_artists_differ">Les noms d\'artistes peuvent différer</string>
     <string name="policy_artists_differ_desc">Pour les artistes que chaque service écrit autrement (周杰倫 et Jay Chou) : le même titre, la même durée et le même album suffisent. Sans album, le titre part en vérification.</string>

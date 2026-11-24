@@ -135,6 +135,54 @@ class YtmChannelsTest {
         assertFalse(anonymous.body.clone().readUtf8().contains("onBehalfOfUser"))
     }
 
+    private fun grid(vararg ids: String) = """{"contents":{"gridRenderer":{"items":[""" +
+        ids.joinToString(",") { """{"musicTwoRowItemRenderer":{"title":{"runs":[{"text":"$it"}]},"navigationEndpoint":{"browseEndpoint":{"browseId":"VL$it"}}}}""" } + "]}}}"
+    private fun liked(header: String?) = if (header == null) """{"contents":{}}"""
+        else """{"header":{"musicResponsiveHeaderRenderer":{"title":{"runs":[{"text":"Liked music"}]},"secondSubtitle":{"runs":[{"text":"$header"}]}}}}"""
+
+    /**
+     * After sign-in each channel's library is read as that channel (its page id on the calls, none
+     * for the account's own), the chosen one is restored afterwards, and the counts come back per channel.
+     */
+    @Test fun eachChannelsLibraryIsReadAsThatChannel() {
+        channel = null
+        answer(accountsList)
+        answer(grid("LM", "SE"))           // own channel: only the built-in lists
+        answer(liked(null))                // and no liked songs
+        answer(grid("PLa", "PLb", "LM"))   // brand account: two playlists
+        answer(liked("312 songs"))
+        val channels = client.channelsWithLibrary()
+        assertEquals(listOf(0, 2), channels.map { it.playlists })
+        assertEquals(listOf(0, 312), channels.map { it.likedSongs })
+        assertNull(calls[1].getHeader("X-Goog-PageId"))
+        assertNull(calls[2].getHeader("X-Goog-PageId"))
+        assertEquals("112233445566778899001", calls[3].getHeader("X-Goog-PageId"))
+        assertEquals("112233445566778899001", calls[4].getHeader("X-Goog-PageId"))
+        // The probe is over: the next call is the chosen channel's again (none here).
+        answer("""{"contents":{}}""")
+        client.playlists()
+        assertNull(calls[5].getHeader("X-Goog-PageId"))
+    }
+
+    @Test fun aChosenBrandAccountIsRestoredAfterReadingTheOwnChannel() {
+        channel = "112233445566778899001"
+        answer(accountsList)
+        answer(grid("PLx")); answer(liked("3 songs"))
+        answer(grid()); answer(liked(null))
+        client.channelsWithLibrary()
+        assertNull(calls[1].getHeader("X-Goog-PageId"))
+        answer("""{"contents":{}}""")
+        client.playlists()
+        assertEquals("112233445566778899001", calls[5].getHeader("X-Goog-PageId"))
+    }
+
+    @Test fun aSingleChannelIsNotRead() {
+        answer("""{"actions":[{"updateAccountSectionAction":{"contents":[{"accountItem":{"accountName":{"simpleText":"Only Me"},"isSelected":true}}]}}]}""")
+        val channels = client.channelsWithLibrary()
+        assertEquals(1, calls.size)
+        assertEquals(-1, channels.single().playlists)
+    }
+
     /** Unfollowing artists goes one by one: one refused id no longer takes the others with it, and a 400 retries with the Subscribe button's channel. */
     @Test fun unfollowingArtistsGoesOneByOneAndRetriesWithTheButtonsChannel() {
         val bad = MockResponse().setResponseCode(400).setBody("""{"error":{"code":400,"message":"Request contains an invalid argument."}}""")

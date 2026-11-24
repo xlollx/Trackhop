@@ -2158,6 +2158,8 @@ private val PolicySaver = androidx.compose.runtime.saveable.Saver<com.xlollx.son
 @Composable
 fun SyncEditorScreen(
     job: SyncJob, onCancel: () -> Unit, onConnectService: () -> Unit = {}, twinName: String? = null,
+    /** A service picked in "Which service?" (the Connect tile): Accounts takes it from there, to name and sign in. */
+    onAddService: (MusicProvider) -> Unit = { onConnectService() },
     /**
      * New sync › Multi sync (one playlist on several services, 1.18): set when it is offered. From
      * 2.1.1 "New sync" asks which kind first; here it stays as a second way, with the source chosen
@@ -2296,6 +2298,24 @@ fun SyncEditorScreen(
     // The pickers' sheets: the services and what each offers, opened from the Source and Target fields.
     var srcSheet by rememberSaveable { mutableStateOf(false) }
     var dstSheet by rememberSaveable { mutableStateOf(false) }
+    // "Which service?" from the Connect tile, for the source or the target (Role's name), the same chooser as Accounts › Add.
+    var chooserFor by rememberSaveable { mutableStateOf<String?>(null) }
+    chooserFor?.let { which ->
+        val role = ServiceCatalog.Role.valueOf(which)
+        ServiceChooserDialog(
+            role = role,
+            connectors = Store.get(ctx).data.settings.connectors,
+            // "Your accounts": what this sync can use now; one that cannot be a target stays, greyed, saying so.
+            accounts = (available + listOfNotNull(Providers.byId(LocalFilesProvider.id))).distinctBy { it.id },
+            onDismiss = { chooserFor = null },
+            onPick = { chooserFor = null; onAddService(it) },
+            onAccount = { p ->
+                chooserFor = null
+                if (role == ServiceCatalog.Role.TARGET) { dstProvider = p.id; dstPlaylist = null; dstSheet = true }
+                else { srcProvider = p.id; srcPlaylist = null; linkMode = false; shazamMode = false; radioMode = false; srcSheet = true }
+            },
+        )
+    }
     // Liked songs to a service that can like: propose "liked songs" as the target instead of a new playlist.
     // Not on the same account: liked songs into the same liked songs would be one list synced onto itself.
     LaunchedEffect(srcPlaylist?.id, dstProvider) {
@@ -2592,7 +2612,7 @@ fun SyncEditorScreen(
                                     // Shazam needs nothing more chosen: the page shows what it found.
                                     shazam = true, shazamSelected = shazamMode, onShazam = { if (!shazamMode) useShazam(); srcSheet = false },
                                     radio = true, radioSelected = radioMode, onRadio = { useRadio() },
-                                    onConnect = { srcSheet = false; onConnectService() },
+                                    onConnect = { srcSheet = false; chooserFor = ServiceCatalog.Role.SOURCE.name },
                                 ) { srcProvider = it; srcPlaylist = null; linkMode = false; shazamMode = false; radioMode = false }
                             },
                             other = other,
@@ -2663,7 +2683,7 @@ fun SyncEditorScreen(
                                 PickerRow(stringResource(R.string.editor_new_playlist), onClick = { createNew = true; dstSheet = false }, selected = createNew) { NewPlaylistThumb(48.dp) }
                             }
                         }) else null,
-                        header = { ProviderPicker(writable, dstProvider, onConnect = { dstSheet = false; onConnectService() }) { dstProvider = it; dstPlaylist = null } },
+                        header = { ProviderPicker(writable, dstProvider, onConnect = { dstSheet = false; chooserFor = ServiceCatalog.Role.TARGET.name }) { dstProvider = it; dstPlaylist = null } },
                         other = if (noTarget) ({}) else null,
                     )
                 }

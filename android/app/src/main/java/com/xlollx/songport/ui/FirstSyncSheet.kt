@@ -30,8 +30,6 @@ import com.xlollx.songport.providers.MusicProvider
 /** How many services the sheet shows: the most common streaming ones; the rest are a tap away in Accounts. */
 private const val FIRST_SYNC_TILES = 6
 
-/** Personal servers and read-only sources: not where a first-time user's music usually is. */
-private val NOT_FIRST = setOf("subsonic", "koel", "jellyfin", "emby", "plex", "lyrion", "mopidy", "lastfm", "listenbrainz", "csv")
 
 /**
  * "New sync" with no service connected: instead of an editor with nothing to pick, what a sync
@@ -45,7 +43,8 @@ fun FirstSyncSheet(onDismiss: () -> Unit, onPick: (MusicProvider) -> Unit, onSee
     // One tile per service family; where a service has two routes, the easier one.
     val tiles = remember {
         addableServices(ctx).groupBy { it.familyName }
-            .filter { (_, members) -> members.first().serviceId !in NOT_FIRST }
+            // Streaming only: personal servers, listening stats and files are not where a first-time user's music usually is.
+            .filter { (_, members) -> members.first().category == com.xlollx.songport.providers.ServiceCatalog.Category.STREAMING }
             .map { (name, members) -> name to (members.firstOrNull { it.route == MusicProvider.Route.EASY } ?: members.first()) }
             .take(FIRST_SYNC_TILES)
     }

@@ -519,6 +519,8 @@ private fun MainScreen(
     var discoverSubpage by remember { mutableStateOf(false) }
     var discoverHome by remember { mutableIntStateOf(0) }
     var addConnector by rememberSaveable { mutableStateOf(false) }
+    // A service picked in the sync editor's "Which service?": Accounts names it and signs in.
+    var addService by rememberSaveable { mutableStateOf<String?>(null) }
     // A single track shared from a service's app: which of your playlists it goes to.
     var sharedTrack by remember { mutableStateOf<Pair<MusicProvider, com.xlollx.songport.model.Track>?>(null) }
     // A track link from any music app, headed for any connected service (ShareTrackSheet).
@@ -674,6 +676,8 @@ private fun MainScreen(
         OnboardingScreen(
             onDone = { store.updateSettings { it.copy(onboardingDone = true, whatsNewSeen = newest) } },
             onTour = { store.updateSettings { it.copy(onboardingDone = true, whatsNewSeen = newest) }; com.xlollx.songport.ui.Tour.start() },
+            // The welcome ends on the choice of the first service, the sheet "New sync" opens with nothing connected.
+            onConnect = { store.updateSettings { it.copy(onboardingDone = true, whatsNewSeen = newest) }; tab = MainActivity.TAB_SYNCS; firstSheet = true },
         )
         return
     }
@@ -709,7 +713,7 @@ private fun MainScreen(
         onSeeAll = { firstSheet = false; tab = MainActivity.TAB_ACCOUNTS; addConnector = true },
     )
     connectNow?.let { p ->
-        com.xlollx.songport.ui.ConnectDialog(p, onDismiss = { connectNow = null }) {
+        com.xlollx.songport.ui.ConnectDialog(p, onDismiss = { connectNow = null }, onOwnKey = { connectNow = null; tab = MainActivity.TAB_ACCOUNTS; wizardFor = p }) {
             connectNow = null
             com.xlollx.songport.auth.AuthFlow.start(ctx, p)
         }
@@ -840,6 +844,7 @@ private fun MainScreen(
                     onCancel = { editing = null },
                     // To Accounts with its service grid open; the sync not saved yet is left.
                     onConnectService = { editing = null; tab = MainActivity.TAB_ACCOUNTS; addConnector = true },
+                    onAddService = { editing = null; tab = MainActivity.TAB_ACCOUNTS; addService = it.id },
                     twinName = editingTwinId?.let { store.job(it) }?.takeIf { it.linkedJobId == current.id }?.name,
                     onSeveral = if (com.xlollx.songport.Features.v2(data.settings)) ({ ref -> editing = null; nwayStart = ref; nwayEdit = com.xlollx.songport.ui.NwayUi.NEW }) else null,
                     onSave = { job, reverse ->
@@ -1093,7 +1098,8 @@ private fun MainScreen(
                     onMessage = { msg -> snackScope.launch { snackbar.currentSnackbarData?.dismiss(); snackbar.showSnackbar(msg) } },
                     onOpenGroup = { nwayOpen = it },
                 )
-                MainActivity.TAB_ACCOUNTS -> AccountsScreen(snackbar, addConnector, { addConnector = it }, { wizardFor = it }, onManageFiles = { filesOpen = true }, onSendTo = sendToService)
+                MainActivity.TAB_ACCOUNTS -> AccountsScreen(snackbar, addConnector, { addConnector = it }, { wizardFor = it }, onManageFiles = { filesOpen = true }, onSendTo = sendToService,
+                    pendingAdd = addService, onPendingAddTaken = { addService = null })
                 MainActivity.TAB_DISCOVER -> com.xlollx.songport.ui.DiscoverScreen(
                     snackbar, compareLinks = compareLinks, onCompareClosed = { compareLinks = null }, onSubpage = { discoverSubpage = it }, homeRequests = discoverHome,
                     onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onBackup = { backupOpen = true },

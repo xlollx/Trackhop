@@ -131,7 +131,7 @@
     <string name="ytm_not_installed">Trackhop Bridge не установлен.</string>
     <string name="ytm_install">Получить Bridge</string>
     <string name="report_issue">Сообщить на GitHub</string>
-    <string name="provider_note_youtube">Официальный YouTube Data API с вашим собственным проектом Google Cloud. Дневная квота ограничена: большие синхронизации могут занять несколько дней.</string>
+    <string name="provider_note_youtube">Официальный YouTube Data API. Дневная квота ограничена: большие синхронизации могут занять несколько дней.</string>
     <string name="provider_note_tidal">Плейлисты TIDAL.</string>
     <string name="provider_note_deezer">Плейлисты и избранное Deezer (бета), с приложением разработчика Deezer, которое у вас уже есть: новые Deezer больше не принимает.</string>
 
@@ -3753,6 +3753,66 @@
         <item quantity="few">Забыто: %1$d. Следующая синхронизация поищет снова.</item>
         <item quantity="many">Забыто: %1$d. Следующая синхронизация поищет снова.</item>
         <item quantity="other">Забыто: %1$d. Следующая синхронизация поищет снова.</item>
+    </plurals>
+    <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
+    <string name="ytm_profile_title">Какой профиль YouTube Music?</string>
+    <string name="ytm_profile_body">Профилей в вашем аккаунте Google: %1$d. Trackhop читает и записывает плейлисты и понравившиеся треки в том, который вы выберете.</string>
+    <string name="ytm_profile_body_one">Trackhop читает и записывает плейлисты и понравившиеся треки в профиле, который вы выберете.</string>
+    <string name="ytm_profile_wrong">Trackhop использует %1$s, где нет ни плейлистов, ни понравившихся треков. Похоже, ваша музыка в %2$s.</string>
+    <string name="ytm_profile_empty">Пусто</string>
+    <string name="ytm_profile_here">Ваша музыка здесь</string>
+    <string name="ytm_profile_nothing">нет плейлистов, нет понравившихся треков</string>
+    <string name="ytm_profile_no_playlists">нет плейлистов</string>
+    <string name="ytm_profile_no_liked">нет понравившихся треков</string>
+    <string name="ytm_profile_pick_hint">Выберите тот, которым пользуетесь в приложении YouTube Music. Позже его можно сменить в карточке аккаунта.</string>
+    <string name="ytm_profile_use">Использовать %1$s</string>
+    <string name="ytm_profile_continue">Продолжить с %1$s</string>
+    <string name="ytm_profile_keep">Оставить %1$s</string>
+    <string name="ytm_profile_card_wrong">Профиль %1$s пуст. Похоже, ваша музыка в %2$s.</string>
+    <string name="ytm_profile_change">Сменить</string>
+    <string name="ytm_profile_row">Профиль: %1$s</string>
+    <string name="ytm_profile_brand">аккаунт бренда</string>
+    <string name="youtube_empty_channel">На этом канале нет ни плейлистов, ни понравившихся треков. Если ваша музыка в другом профиле (аккаунте бренда), войдите снова и выберите этот профиль в списке Google.</string>
+    <string name="youtube_empty_keep">Оставить так</string>
+    <string name="connect_spotify_shared_note">Spotify разрешает этой версии Trackhop подключать лишь несколько аккаунтов. Вашему почти наверняка понадобится собственный бесплатный ключ: около двух минут, с аккаунтом Spotify Premium, приложение проведёт вас по шагам.</string>
+    <string name="connect_try_anyway">Всё равно попробовать</string>
+    <string name="connect_use_own_key">Использовать свой ключ</string>
+    <string name="onboarding_connect_first">Подключите первый сервис</string>
+    <plurals name="ytm_profile_playlists">
+        <item quantity="one">%d плейлист</item>
+        <item quantity="few">%d плейлиста</item>
+        <item quantity="many">%d плейлистов</item>
+        <item quantity="other">%d плейлиста</item>
+    </plurals>
+    <plurals name="ytm_profile_liked">
+        <item quantity="one">%d понравившийся трек</item>
+        <item quantity="few">%d понравившихся трека</item>
+        <item quantity="many">%d понравившихся треков</item>
+        <item quantity="other">%d понравившегося трека</item>
+    </plurals>
+    <string name="chooser_your_accounts">Ваши аккаунты</string>
+    <string name="chooser_all">Все</string>
+    <string name="chooser_cat_games">Игры</string>
+    <string name="chooser_cat_radio">Радио и чарты</string>
+    <string name="chooser_cat_podcasts">Подкасты</string>
+    <string name="chooser_cat_listening">Прослушивания</string>
+    <string name="chooser_cat_regional">Региональные</string>
+    <string name="chooser_cat_files">Файлы</string>
+    <string name="chooser_area_east_asia">Восточная Азия</string>
+    <string name="chooser_area_india_middle_east">Индия · Ближний Восток</string>
+    <string name="chooser_area_africa">Африка</string>
+    <string name="chooser_area_europe">Европа</string>
+    <string name="chooser_area_americas">Америка</string>
+    <string name="chooser_show_all">Показать все (%1$d)</string>
+    <string name="chooser_suggested_here">Рекомендуем для вашего региона</string>
+    <string name="chooser_cannot_target">Не может быть получателем</string>
+    <string name="chooser_no_results">Нет сервиса по запросу «%1$s»</string>
+    <string name="chooser_clear_search">Очистить поиск</string>
+    <plurals name="chooser_search">
+        <item quantity="one">Искать среди %1$d сервиса</item>
+        <item quantity="few">Искать среди %1$d сервисов</item>
+        <item quantity="many">Искать среди %1$d сервисов</item>
+        <item quantity="other">Искать среди %1$d сервиса</item>
     </plurals>
     <string name="policy_artists_differ">Имена исполнителей могут отличаться</string>
     <string name="policy_artists_differ_desc">Для исполнителей, которых каждый сервис пишет по-своему (周杰倫 и Jay Chou): достаточно того же названия, длительности и альбома. Без альбома трек отправляется на проверку.</string>
