@@ -701,7 +701,7 @@
     <string name="onboarding_title">Trackhop へようこそ</string>
     <string name="onboarding_intro">音楽サービスから別の音楽サービスへプレイリストをコピーし、手動でもスケジュールでも最新の状態に保ちます。無料で、サブスクリプションもアカウント作成も不要です。</string>
     <string name="onboarding_step1_title">1. サービスを接続</string>
-    <string name="onboarding_step1_desc">Spotify、Apple Music、YouTube Music、TIDAL、Deezer、ご自身のサーバー、またはファイル。</string>
+    <string name="onboarding_step1_desc">Spotify、Apple Music、YouTube Music、TIDAL、ご自身のサーバー、またはファイル。</string>
     <string name="onboarding_step2_title">2. 同期を作成</string>
     <string name="onboarding_step2_desc">同期元プレイリストと同期先を選びます。プレビューで、実行前に何が変わるかを正確に確認できます。</string>
     <string name="onboarding_step3_title">3. あとはおまかせ</string>

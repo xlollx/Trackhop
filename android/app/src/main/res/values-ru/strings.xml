@@ -727,7 +727,7 @@
     <string name="onboarding_title">Добро пожаловать в Trackhop</string>
     <string name="onboarding_intro">Копируйте плейлисты с одного музыкального сервиса на другой и держите их актуальными, вручную или по расписанию. Бесплатно, без подписки и без создания аккаунта.</string>
     <string name="onboarding_step1_title">1. Подключите сервисы</string>
-    <string name="onboarding_step1_desc">Spotify, Apple Music, YouTube Music, TIDAL, Deezer, ваш собственный сервер или файл.</string>
+    <string name="onboarding_step1_desc">Spotify, Apple Music, YouTube Music, TIDAL, ваш собственный сервер или файл.</string>
     <string name="onboarding_step2_title">2. Создайте синхронизацию</string>
     <string name="onboarding_step2_desc">Выберите исходный плейлист и цель. Предпросмотр показывает, что именно изменится, прежде чем что-то произойдёт.</string>
     <string name="onboarding_step3_title">3. Пусть работает</string>

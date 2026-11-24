@@ -700,7 +700,7 @@
     <string name="onboarding_title">Trackhop에 오신 것을 환영해요</string>
     <string name="onboarding_intro">플레이리스트를 한 음악 서비스에서 다른 서비스로 복사하고, 수동으로 또는 예약으로 최신 상태를 유지하세요. 무료이고 구독도 만들 계정도 없어요.</string>
     <string name="onboarding_step1_title">1. 서비스 연결</string>
-    <string name="onboarding_step1_desc">Spotify, Apple Music, YouTube Music, TIDAL, Deezer, 내 서버 또는 파일.</string>
+    <string name="onboarding_step1_desc">Spotify, Apple Music, YouTube Music, TIDAL, 내 서버 또는 파일.</string>
     <string name="onboarding_step2_title">2. 동기화 만들기</string>
     <string name="onboarding_step2_desc">원본 플레이리스트와 대상을 고르세요. 미리보기가 실행 전에 무엇이 바뀌는지 정확히 보여줘요.</string>
     <string name="onboarding_step3_title">3. 알아서 실행</string>

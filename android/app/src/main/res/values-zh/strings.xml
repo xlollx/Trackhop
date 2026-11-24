@@ -701,7 +701,7 @@
     <string name="onboarding_title">欢迎使用 Trackhop</string>
     <string name="onboarding_intro">把歌单从一个音乐服务复制到另一个，并保持更新，可手动同步，也可按计划同步。免费，无订阅，无需创建账号。</string>
     <string name="onboarding_step1_title">1. 连接你的服务</string>
-    <string name="onboarding_step1_desc">Spotify、Apple Music、YouTube Music、TIDAL、Deezer、你自己的服务器，或文件。</string>
+    <string name="onboarding_step1_desc">Spotify、Apple Music、YouTube Music、TIDAL、你自己的服务器，或文件。</string>
     <string name="onboarding_step2_title">2. 创建同步</string>
     <string name="onboarding_step2_desc">选择来源歌单和目标。在任何操作发生之前，预览会准确显示将要更改的内容。</string>
     <string name="onboarding_step3_title">3. 让它自动运行</string>

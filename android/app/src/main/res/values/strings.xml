@@ -709,7 +709,7 @@
     <string name="onboarding_title">Welcome to Trackhop</string>
     <string name="onboarding_intro">Copy your playlists from one music service to another and keep them up to date, by hand or on a schedule. Free, no subscription, no account to create.</string>
     <string name="onboarding_step1_title">1. Connect your services</string>
-    <string name="onboarding_step1_desc">Spotify, Apple Music, YouTube Music, TIDAL, Deezer, your own server, or a file.</string>
+    <string name="onboarding_step1_desc">Spotify, Apple Music, YouTube Music, TIDAL, your own server, or a file.</string>
     <string name="onboarding_step2_title">2. Create a sync</string>
     <string name="onboarding_step2_desc">Pick a source playlist and a target. Preview shows exactly what will change before anything happens.</string>
     <string name="onboarding_step3_title">3. Let it run</string>

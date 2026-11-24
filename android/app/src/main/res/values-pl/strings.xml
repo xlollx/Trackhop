@@ -727,7 +727,7 @@
     <string name="onboarding_title">Witaj w Trackhop</string>
     <string name="onboarding_intro">Kopiuj playlisty z jednego serwisu muzycznego do drugiego i utrzymuj je aktualne, ręcznie lub według harmonogramu. Bezpłatnie, bez subskrypcji, bez zakładania konta.</string>
     <string name="onboarding_step1_title">1. Połącz swoje serwisy</string>
-    <string name="onboarding_step1_desc">Spotify, Apple Music, YouTube Music, TIDAL, Deezer, własny serwer lub plik.</string>
+    <string name="onboarding_step1_desc">Spotify, Apple Music, YouTube Music, TIDAL, własny serwer lub plik.</string>
     <string name="onboarding_step2_title">2. Utwórz synchronizację</string>
     <string name="onboarding_step2_desc">Wybierz playlistę źródłową i cel. Podgląd pokazuje dokładnie, co się zmieni, zanim cokolwiek się stanie.</string>
     <string name="onboarding_step3_title">3. Pozwól jej działać</string>

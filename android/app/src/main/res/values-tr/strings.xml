@@ -709,7 +709,7 @@
     <string name="onboarding_title">Trackhop\'a hoş geldiniz</string>
     <string name="onboarding_intro">Çalma listelerinizi bir müzik servisinden diğerine kopyalayın ve elle ya da zamanlayarak güncel tutun. Ücretsiz, abonelik yok, oluşturulacak hesap yok.</string>
     <string name="onboarding_step1_title">1. Servislerinizi bağlayın</string>
-    <string name="onboarding_step1_desc">Spotify, Apple Music, YouTube Music, TIDAL, Deezer, kendi sunucunuz veya bir dosya.</string>
+    <string name="onboarding_step1_desc">Spotify, Apple Music, YouTube Music, TIDAL, kendi sunucunuz veya bir dosya.</string>
     <string name="onboarding_step2_title">2. Bir senkronizasyon oluşturun</string>
     <string name="onboarding_step2_desc">Bir kaynak çalma listesi ve bir hedef seçin. Önizleme, herhangi bir şey olmadan önce tam olarak nelerin değişeceğini gösterir.</string>
     <string name="onboarding_step3_title">3. Çalışmasına izin verin</string>
