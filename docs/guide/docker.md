@@ -236,8 +236,7 @@ connector's *Cookies*. The `cookie:` header of a request, a `cookies.txt` or a J
 On a Deezer **Family** plan, the connector's page then shows a *Profile* card: pick whose
 playlists and favourites to use (the account holder's, or another profile the holder may switch
 to). The choice is kept and every new session is moved there again; if Deezer refuses the switch,
-the sync stops instead of using another profile. Also `GET`/`PUT /api/v1/services/deezer_bridge/profile`
-and `trackhop services profile deezer_bridge [<profile>]`.
+the sync stops instead of using another profile. Also through the [API](#api) and `trackhop services profile deezer_bridge [<profile>]`.
 
 The official *Deezer* connection is listed only when this server already has an app id
 (`DEEZER_APP_ID` or one saved on its page): Deezer no longer accepts new apps that use its API.
@@ -778,6 +777,8 @@ multi sync whole.
 | `GET /api/v1/services` | The services added, and whether each is connected; each account apart (`id` `jellyfin@2`, with `serviceId` and `slot`). |
 | `GET /api/v1/services/{service}` | One service: connected, account, and what it can do. |
 | `GET /api/v1/services/{service}/search` | Look for a track: q is "Artist - Title" or a link. |
+| `GET /api/v1/services/{service}/profile` | Deezer (web) on a Family plan: its profiles, the one the account acts as marked (`selected`), the holder's (`holder`). |
+| `PUT /api/v1/services/{service}/profile` | Deezer (web) on a Family plan: act as another profile, `{"profile": "id or name"}`; Deezer refusing the switch is a 409 and the profile before stays. |
 | `GET /api/v1/convert` | A track on another service: track is "Artist - Title" or a link, to the service's id. |
 | `POST /api/v1/convert` | Several tracks on another service. |
 | `GET /api/v1/wanted` | Missing on my server: the tracks your syncs to your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy) could not find, each once, with artist, title, album, length, ISRC, MusicBrainz id (when your syncs' lookups found it), the syncs that miss it and when it was first seen. `?format=json` (default), `csv`, `m3u`, `text` or `lidarr`; `group=album`, `all=true` (with the ticked ones), `sync=`, `service=`, `since=7d` (or `24h`, `2026-11-01`). |

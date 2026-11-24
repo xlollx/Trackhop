@@ -67,6 +67,8 @@ internal object ApiDocs {
         Call("GET", "/services", "Services", "The services added, and whether each is connected."),
         Call("GET", "/services/{service}", "Services", "One service: connected, account, and what it can do."),
         Call("GET", "/services/{service}/search", "Services", "Look for a track: q is \"Artist - Title\" or a link.", listOf("q", "limit")),
+        Call("GET", "/services/{service}/profile", "Services", "Deezer (web) on a Family account: its profiles, the one the account acts as marked."),
+        Call("PUT", "/services/{service}/profile", "Services", "Deezer (web) on a Family account: act as another profile, checked with Deezer.", body = "{\"profile\": \"id or name\"}"),
         Call("GET", "/services/{service}/playlists", "Playlists", "A service's playlists and library entries."),
         Call("POST", "/services/{service}/playlists", "Playlists", "Make a playlist.", body = "{\"name\", \"description\"?}"),
         Call("PATCH", "/services/{service}/playlists/{playlist}", "Playlists", "Rename a playlist.", body = "{\"name\"}"),

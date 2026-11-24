@@ -411,6 +411,97 @@ class WebConnectorsTest {
         }
     }
 
+    // ------------------------------------------------------------------ Deezer Family profiles (#82), Deezer official withheld
+
+    /** A Family account: the holder (42, dz) and a member it may act as (222, Giulia), moved to by user.loginMulti. */
+    @Volatile private var switched = false
+    private fun deezerFamily(): (Seen) -> Answer? = { r ->
+        when {
+            r.host != "www.deezer.com" -> null
+            r.query["method"] == "deezer.getUserData" -> Answer(
+                if (switched) """{"error":[],"results":{"USER":{"USER_ID":"222","BLOG_NAME":"Giulia","LOVEDTRACKS_ID":"8"},"checkForm":"tok2"}}"""
+                else """{"error":[],"results":{"USER":{"USER_ID":"42","BLOG_NAME":"dz","LOVEDTRACKS_ID":"9","MULTI_ACCOUNT":{"ENABLED":true}},"checkForm":"tok"}}""",
+            )
+            r.query["method"] == "deezer.getChildAccounts" -> Answer("""{"error":[],"results":[{"USER_ID":"222","BLOG_NAME":"Giulia","USER_PICTURE":"ab12","EXTRA_FAMILY":{"IS_LOGGABLE_AS":true}}]}""")
+            r.query["method"] == "user.loginMulti" -> { switched = r.body.contains("222"); Answer("""{"error":[],"results":true}""", setCookie = "arl=${"e".repeat(64)}; path=/; domain=.deezer.com") }
+            r.query["method"] == "deezer.userAutolog" -> Answer("""{"error":[],"results":true}""")
+            else -> null
+        }
+    }
+
+    @Test fun deezerFamilyProfileIsChosenOnThePageAndKeptWithFreshCookies() {
+        answer = deezerFamily()
+        val data = tmp.newFolder("family")
+        installServerConnectors()
+        val env = ServerEnv(data, Strings(emptyMap()), "https://songport.example.org")
+        val server = Web(env, Runner(env), Auth(env), "sekret", "test").start(0)
+        try {
+            val base = "http://127.0.0.1:${server.address.port}"
+            val auth = "Basic " + Base64.getEncoder().encodeToString("any:sekret".toByteArray())
+            val client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build()
+            fun get(path: String) = client.send(HttpRequest.newBuilder(URI("$base$path")).header("Authorization", auth).GET().build(), HttpResponse.BodyHandlers.ofString())
+            fun post(path: String, body: String) = client.send(
+                HttpRequest.newBuilder(URI("$base$path")).header("Authorization", auth).header("Origin", base)
+                    .header("Content-Type", "application/x-www-form-urlencoded").POST(HttpRequest.BodyPublishers.ofString(body)).build(),
+                HttpResponse.BodyHandlers.ofString(),
+            )
+            val r = post("/connectors/deezer_bridge/connect", "cookies=" + java.net.URLEncoder.encode("arl=web-arl; dzr_uniq_id=u", "UTF-8"))
+            assertTrue(java.net.URLDecoder.decode(r.headers().firstValue("Location").orElse(""), "UTF-8").contains("This is a Deezer Family account: choose the profile below."))
+            val page = get("/connectors/deezer_bridge").body()
+            assertTrue(page.contains("""action="/connectors/deezer_bridge/profile""""))
+            assertTrue(page.contains("""value="42" checked> """))
+            assertTrue(page.contains("(account holder)"))
+            assertTrue(page.contains("https://cdn-images.dzcdn.net/images/user/ab12/100x100-000000-80-0-0.jpg"))
+
+            val chosen = post("/connectors/deezer_bridge/profile", "profile=222")
+            assertTrue(chosen.headers().firstValue("Location").orElse(""), chosen.headers().firstValue("Location").orElse("").contains("ok=Saved"))
+            assertEquals("Giulia", env.tokens.get("deezer_bridge")!!.userName)
+            assertTrue(seen.any { it.query["method"] == "user.loginMulti" && it.headers["cookie"].orEmpty().contains("familyUserId=222") })
+            assertTrue(get("/connectors/deezer_bridge").body().contains("""value="222" checked> """))
+            // The calls go as the profile, with the sign-in Deezer handed out for it.
+            val lists = seen.size
+            answer = { s -> if (s.query["method"] == "deezer.pageProfile") Answer("""{"error":[],"results":{"TAB":{"playlists":{"data":[]}}}}""") else deezerFamily()(s) }
+            runBlocking { com.xlollx.songport.providers.Providers.byId("deezer_bridge")!!.playlists(env) }
+            val call = seen.drop(lists).last { it.query["method"] == "deezer.pageProfile" }
+            assertTrue(call.body.contains("\"222\""))
+            assertTrue(call.headers["cookie"].orEmpty().contains("arl=${"e".repeat(64)}"))
+
+            // Fresh cookies of the same account: the session starts as the holder's and is moved back to the profile.
+            switched = false
+            post("/connectors/deezer_bridge/connect", "cookies=" + java.net.URLEncoder.encode("arl=web-arl-2", "UTF-8"))
+            assertEquals("Giulia", env.tokens.get("deezer_bridge")!!.userName)
+            assertEquals("222", env.tokens.get("deezer_bridge")!!.userId)
+        } finally {
+            server.stop(0)
+        }
+    }
+
+    @Test fun theOfficialDeezerIsOfferedOnlyWithAnAppIdAndTheListSaysWhy() {
+        val data = tmp.newFolder("withheld")
+        installServerConnectors()
+        val env = ServerEnv(data, Strings(emptyMap()), "https://songport.example.org")
+        val server = Web(env, Runner(env), Auth(env), "sekret", "test").start(0)
+        try {
+            val base = "http://127.0.0.1:${server.address.port}"
+            val auth = "Basic " + Base64.getEncoder().encodeToString("any:sekret".toByteArray())
+            val client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build()
+            fun get(path: String) = client.send(HttpRequest.newBuilder(URI("$base$path")).header("Authorization", auth).GET().build(), HttpResponse.BodyHandlers.ofString()).body()
+            val list = get("/connectors")
+            assertFalse(list.contains("""<option value="deezer">"""))
+            assertTrue(list.contains("""<option value="deezer_bridge">"""))
+            assertTrue(list.contains("Why no Deezer?"))
+            assertTrue(list.contains("Deezer no longer accepts new apps that use its API: for now we can't offer it here."))
+            assertTrue(list.contains("Add Deezer (web)"))
+            // An app id of one's own: the official route is offered as before, and nothing is explained.
+            env.store.updateSettings { it.copy(clientIds = mapOf("deezer" to "123456")) }
+            val withId = get("/connectors")
+            assertTrue(withId.contains("""<option value="deezer">"""))
+            assertFalse(withId.contains("Why no Deezer?"))
+        } finally {
+            server.stop(0)
+        }
+    }
+
     companion object {
         const val ORIGINAL_HOST = "X-Test-Original-Host"
     }

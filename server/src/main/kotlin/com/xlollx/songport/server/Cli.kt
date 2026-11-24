@@ -86,7 +86,7 @@ object Cli {
                 "pick: the track to add for one not found; replace: the right one for a match to check; restore: put back what the run removed.\n" +
                 "A <track> is \"Artist - Title\", a link from any service, or its id on the sync's destination.",
             listOf("ignore", "keep", "discard", "pick", "replace", "restore")),
-        Cmd("services", "Services and playlists", listOf("services"), "the services and whether they are connected"),
+        Cmd("services", "Services and playlists", listOf("services", "services profile <service> [<profile>]"), "the services and whether they are connected; a Deezer Family account's profile (shown, or chosen by id or name)"),
         Cmd("playlists", "Services and playlists", listOf("playlists <service>"), "a service's playlists"),
         Cmd("tracks", "Services and playlists", listOf("tracks <service> <playlist>"), "a playlist's tracks"),
         Cmd("add", "Services and playlists", listOf("add <service> <playlist> <track>..."), "add tracks: \"Artist - Title\", a link from any service, or an id"),
