@@ -32,8 +32,10 @@ import java.util.Locale
  *    Dura al massimo 6 mesi, poi va rigenerato.
  *  - **music user token**: ottenuto con MusicKit JS dentro una WebView (AppleAuthActivity).
  *
- * Limite dell'API (non dell'app): si possono **aggiungere** brani a una playlist ma non toglierli,
- * quindi `canRemoveTracks` e' false e le sync a specchio verso Apple Music aggiungono soltanto.
+ * Limite dell'API (non dell'app): l'API documentata **aggiunge** brani a una playlist ma non li toglie.
+ * 2.2: where [fullListWrites] is on (GitHub, F-Droid, Desktop/Docker builds) a removal writes the whole
+ * list again (PUT …/tracks, undocumented, as Cider does), checked once per account on a small playlist
+ * of its own; refused or not replacing, it is remembered and the sync goes back to adding only.
  * Le playlist del catalogo (id `pl.…`, quelle dei link pubblici) si leggono col solo developer token.
  */
 open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
@@ -45,10 +47,12 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
     override val routeNoteName: String? get() = "route_note_apple_api"
     override val familyName: String get() = "Apple Music"
     override val brandColor = 0xFFFA243C
-    override val noteName = "provider_note_apple"
+    /** Where removals are tried (2.2, [fullListWrites]) the note says so; elsewhere it says the API only adds. */
+    override val noteName: String get() = if (fullListWrites && serviceId == SERVICE) "provider_note_apple_full" else "provider_note_apple"
     override val beta = true
     override val searchesByIsrc: Boolean get() = true
-    override val canRemoveTracks: Boolean get() = false
+    /** Only where the whole-list write is allowed ([fullListWrites]); a refusal is then reported per account. */
+    override val canRemoveTracks: Boolean get() = fullListWrites
     override val canRenamePlaylists: Boolean get() = false
     override val canDeletePlaylists: Boolean get() = false
     /** Library albums can be listed and added; the API has no "followed artists". */
@@ -138,7 +142,11 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
      */
     protected open fun renewUserToken(ctx: Env, refused: String): Boolean = false
 
-    private suspend fun api(ctx: Env, method: String, url: String, body: JsonElement? = null, emptyOn40403: Boolean = false, renewed: Boolean = false): JsonElement {
+    /**
+     * [probe]: an undocumented call (the whole-list write): a refusal is passed on as is, with its code,
+     * and never taken for an expired sign-in (no renewal, no sign-out).
+     */
+    private suspend fun api(ctx: Env, method: String, url: String, body: JsonElement? = null, emptyOn40403: Boolean = false, renewed: Boolean = false, probe: Boolean = false): JsonElement {
         // The web route fetches its tokens over the network: never on the caller's (main) thread.
         val dev = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { developerToken(ctx) }
         if (dev.isBlank()) throw ProviderException(ctx.text("apple_token_missing"))
@@ -159,6 +167,7 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
             return parseJson("""{"data":[]}""")
         if (!resp.ok) {
             val detail = runCatching { parseJson(resp.body)["errors"][0]["detail"].str }.getOrNull() ?: resp.body.take(200).ifBlank { "no detail" }
+            if (probe) throw ProviderException("$displayName API ${resp.code}: $detail", code = resp.code)
             // A refused user token is renewed once where the route can, and the call made again;
             // only then is it cleared (a sign-in is needed).
             if (resp.code == 401 && sentUser != null && !renewed &&
@@ -174,6 +183,7 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
                 throw ProviderException(ctx.text("apple_subscription_needed", displayName, detail))
             throw ProviderException("$displayName API ${resp.code}: $detail")
         }
+        if (resp.body.isBlank()) return kotlinx.serialization.json.JsonNull
         return parseJson(resp.body)
     }
 
@@ -500,13 +510,128 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
         return r.report.copy(tracks = r.order.mapNotNull { sid -> r.report.tracks.firstOrNull { it.track.id == sid } ?: found[sid]?.let { (t, cover) -> com.xlollx.songport.sync.Listening.Play(t, cover = cover) } })
     }
 
-    /** L'API Apple Music non espone la rimozione di brani da una playlist (vedi canRemoveTracks). */
+    /** Removals: see [removeTracksReportingKept]; what stays is an error here (the tools that call this want them gone). */
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
-        throw ProviderException(ctx.text("error_no_removals", displayName))
+        if (removeTracksReportingKept(ctx, playlistId, tracks).isNotEmpty()) throw ProviderException(ctx.text("error_no_removals", displayName))
+    }
+
+    /** One entry of a library playlist as the whole-list write names it: the catalogue song, or the library song when it has none. */
+    private data class Entry(val id: String, val type: String, val trackId: String)
+
+    /** Every entry of library playlist [playlistId], in order, titled or not: the whole-list write must leave none out by mistake. */
+    private suspend fun entries(ctx: Env, playlistId: String): List<Entry> {
+        val out = ArrayList<Entry>()
+        var url: String? = "$API/v1/me/library/playlists/$playlistId/tracks?limit=100"
+        while (url != null) {
+            val j = api(ctx, "GET", url, emptyOn40403 = true)
+            for (d in j["data"].arr) {
+                val libId = d["id"].str ?: throw ProviderException("$displayName: an entry without an id, nothing removed")
+                val catalogId = d["attributes"]["playParams"]["catalogId"].str
+                out += if (catalogId != null) Entry(catalogId, "songs", catalogId) else Entry(libId, "library-songs", libId)
+            }
+            url = nextUrl(j)
+        }
+        return out
+    }
+
+    private suspend fun putEntries(ctx: Env, playlistId: String, keep: List<Entry>) {
+        api(ctx, "PUT", "$API/v1/me/library/playlists/$playlistId/tracks",
+            jsonObj("data" to jsonArr(keep.map { mapOf("id" to it.id, "type" to it.type) })), probe = true)
+    }
+
+    /**
+     * Removes [tracks] from a library playlist by writing again the whole list without them (every copy
+     * of each), where [fullListWrites] allows it and this account's check ([checkFullListWrite]) said the
+     * write replaces the list. Anything else (the favorites, a catalogue playlist, a refused or untried
+     * write) leaves every track where it is and says so: the sync counts them as kept.
+     */
+    override suspend fun removeTracksReportingKept(ctx: Env, playlistId: String, tracks: List<Track>): Set<String> {
+        val ids = tracks.mapTo(HashSet()) { it.id }
+        if (ids.isEmpty()) return emptySet()
+        if (!fullListWrites || MusicProvider.isLibrary(playlistId) || playlistId.startsWith(CATALOG_PREFIX)) return ids
+        val state = checkFullListWrite(ctx, playlistId) ?: return ids
+        if (state != WRITE_OK) return ids
+        val now = entries(ctx, playlistId)
+        val keep = now.filter { it.trackId !in ids }
+        if (keep.size == now.size) return emptySet()
+        if (keep.isEmpty()) {
+            // An empty list in the body may read as "nothing to change": not a removal to try blind.
+            ctx.log(id, "removing every track of the playlist is left to you: Apple Music's list write is not tried empty")
+            return ids
+        }
+        try {
+            putEntries(ctx, playlistId, keep)
+        } catch (e: ProviderException) {
+            if (e.code in REFUSALS) { remember(ctx, "refused ${e.code}"); return ids }
+            throw e
+        }
+        ctx.log(id, "removed ${now.size - keep.size} entr${if (now.size - keep.size == 1) "y" else "ies"} by writing the list again (${keep.size} kept)")
+        return emptySet()
+    }
+
+    private fun remembered(ctx: Env): String? = ctx.keyValues(FULL_LIST)[id]
+    private fun remember(ctx: Env, state: String) {
+        ctx.keyValues(FULL_LIST)[id] = state
+        ctx.log(id, "whole-list write (removals): $state")
+    }
+
+    /**
+     * Whether this account's whole-list write replaces a playlist: [WRITE_OK], another remembered answer
+     * (refused, appends, ignored), or null when it could not be told now. Tried once per account, on a
+     * private playlist of its own ([CHECK_NAME]) made with two songs of [playlistId], never on the user's:
+     * a write that appended instead of replacing would double their playlist. The answer is remembered.
+     */
+    private suspend fun checkFullListWrite(ctx: Env, playlistId: String): String? {
+        remembered(ctx)?.let { return it }
+        val sample = entries(ctx, playlistId).filter { it.type == "songs" }.distinctBy { it.id }.take(2)
+        if (sample.size < 2) return null
+        val made = createPlaylist(ctx, ctx.text("apple_removal_check_name"), ctx.text("apple_removal_check_description"))
+        addTracks(ctx, made.id, sample.map { Track(id = it.id, title = "") })
+        // The library catches up with a new playlist in a few seconds.
+        var before = emptyList<Entry>()
+        for (wait in listOf(0L, 2_000L, 4_000L, 6_000L)) {
+            if (wait > 0) checkPause(wait)
+            before = entries(ctx, made.id)
+            if (before.size >= 2) break
+        }
+        if (before.size != 2) return null.also { ctx.log(id, "whole-list write not checked: the check playlist lists ${before.size} songs") }
+        try {
+            putEntries(ctx, made.id, before.take(1))
+        } catch (e: ProviderException) {
+            if (e.code in REFUSALS) { remember(ctx, "refused ${e.code}"); return remembered(ctx) }
+            throw e
+        }
+        var after = before
+        for (wait in listOf(1_000L, 2_000L, 4_000L, 6_000L)) {
+            checkPause(wait)
+            after = entries(ctx, made.id)
+            if (after.size != 2) break
+        }
+        val state = when (after.size) {
+            1 -> WRITE_OK
+            2 -> "ignored"
+            else -> "appends"
+        }
+        remember(ctx, state)
+        return state
     }
 
     companion object {
         const val SERVICE = "apple"
+
+        /**
+         * Removals by writing a playlist's whole list (PUT …/tracks, an undocumented endpoint): on in the
+         * GitHub and F-Droid builds and on Desktop/Docker (not the Microsoft Store's); off on Google Play
+         * and AppGallery until it is known to work, and wherever nothing sets it.
+         */
+        @Volatile @JvmStatic var fullListWrites: Boolean = false
+        /** What each account's whole-list write did when checked ([WRITE_OK], "refused 405", "appends", "ignored"). */
+        private const val FULL_LIST = "apple_full_list_write"
+        private const val WRITE_OK = "replaces"
+        /** Apple's "this endpoint is not for you" answers. */
+        private val REFUSALS = setOf(401, 403, 405)
+        /** Tests skip the check's waits. */
+        @Volatile internal var checkPause: suspend (Long) -> Unit = { kotlinx.coroutines.delay(it) }
         private const val API = "https://api.music.apple.com"
         /** Prefisso degli id delle playlist del catalogo (pubbliche/editoriali). */
         private const val CATALOG_PREFIX = "pl."

@@ -40,7 +40,8 @@ fun installConnectors() = Providers.install(
     // The read-only link sources with no official route (NetEase Cloud Music, QQ Music, Anghami, JioSaavn, Gaana): read
     // here by the builds that carry unofficial connectors; on Google Play only through a plugin that
     // relays their requests (PluginRelay), and not offered without one.
-    singletons = listOf(LocalFilesProvider, ChartsProvider, NeteaseProvider, AnghamiProvider, QqMusicProvider, JioSaavnProvider, GaanaProvider),
+    // A playlist file kept online (2.2) is no service at all: in every build.
+    singletons = listOf(LocalFilesProvider, ChartsProvider, PlaylistUrlProvider, NeteaseProvider, AnghamiProvider, QqMusicProvider, JioSaavnProvider, GaanaProvider),
 )
 
 /**

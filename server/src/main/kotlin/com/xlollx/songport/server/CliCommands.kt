@@ -88,7 +88,7 @@ internal class CliCommands(
         "crowded" -> crowded()
         "spread" -> spread(o.has("apply"))
         "multi" -> CliMulti(this).run(p, o)
-        else -> CliV2(this).run(command, p, o) ?: throw Cli.Failure(2, "unknown command \"$command\". See: trackhop help")
+        else -> CliConn(this).run(command, p, o) ?: CliV2(this).run(command, p, o) ?: throw Cli.Failure(2, "unknown command \"$command\". See: trackhop help")
     }
 
     private fun need(p: List<String>, n: Int, form: String) { if (p.size < n) throw Cli.Failure(2, "usage: trackhop $form") }
@@ -118,7 +118,7 @@ internal class CliCommands(
     private fun allSyncs() = api.get("syncs").jsonArray.map { it.jsonObject }
 
     /** The sync named [ask]: its id, its exact name, or the only one whose name starts with or holds it. */
-    private fun sync(ask: String): JsonObject {
+    internal fun sync(ask: String): JsonObject {
         val list = allSyncs()
         list.firstOrNull { it.s("id") == ask }?.let { return it }
         val exact = list.filter { it.s("name").equals(ask, ignoreCase = true) }
@@ -236,7 +236,7 @@ internal class CliCommands(
         }
         if (asJson) print(JsonArray(done.values.map { o -> buildJsonObject { put("id", o.s("id")); put("name", o.s("name")); put("result", o["lastResult"] ?: JsonNull) } }))
         if (done.size < targets.size) throw Cli.Failure(1, "still running after 6 hours: ${targets.filter { it.s("id") !in done }.joinToString(", ") { it.s("name") }}")
-        return if (done.values.all { (it["lastResult"] as? JsonObject)?.b("ok") == true }) 0 else 1
+        return Cli.runExit(done.values.map { it["lastResult"] as? JsonObject })
     }
 
     private fun toggle(ask: String, on: Boolean): Int {
@@ -290,6 +290,10 @@ internal class CliCommands(
         }
         if (suggested.isNotEmpty()) list.firstOrNull { it.s("id") == suggested }?.let {
             out.println("The profile in use is empty; your music seems to be on ${it.s("name")}: trackhop profiles ${s.s("id")} \"${it.s("name")}\"")
+        }
+        return 0
+    }
+
     /** "Which service?" on the command line: every service that can be added, by category, or those matching [words]. */
     private fun catalog(words: String, o: Cli.Opts): Int {
         val params = listOfNotNull(words.takeIf { it.isNotBlank() }?.let { "q=${enc(it)}" }, o.value("category")?.let { "category=${enc(it)}" })
@@ -889,7 +893,7 @@ internal class CliCommands(
     private fun export(serviceAsk: String, playlistAsk: String, file: String?, o: Cli.Opts): Int {
         val s = service(serviceAsk)
         val pl = playlist(s.s("id"), playlistAsk)
-        val format = o.value("format") ?: file?.substringAfterLast('.', "")?.takeIf { it in setOf("csv", "m3u", "xspf", "jspf", "wpl", "zpl", "txt") } ?: "csv"
+        val format = o.value("format") ?: file?.substringAfterLast('.', "")?.takeIf { it in setOf("csv", "m3u", "xspf", "jspf", "wpl", "zpl", "txt", "json") } ?: "csv"
         val text = api.raw("GET", "services/${enc(s.s("id"))}/playlists/${enc(pl.s("id"))}/export?format=${enc(format)}", null)
         if (file == null) out.print(text) else { CliFiles.save(file, text); out.println("Saved ${pl.s("name")} to $file") }
         return 0
@@ -908,7 +912,7 @@ internal class CliCommands(
         "get" -> {
             val name = file(p.getOrNull(1) ?: throw Cli.Failure(2, "usage: trackhop files get <name> [<file>] [--format F]"))
             val to = p.getOrNull(2)
-            val format = o.value("format") ?: to?.substringAfterLast('.', "")?.takeIf { it in setOf("csv", "m3u", "xspf", "jspf", "wpl", "zpl", "txt") } ?: "csv"
+            val format = o.value("format") ?: to?.substringAfterLast('.', "")?.takeIf { it in setOf("csv", "m3u", "xspf", "jspf", "wpl", "zpl", "txt", "json") } ?: "csv"
             val text = api.raw("GET", "files/${enc(name)}?format=${enc(format)}", null)
             if (to == null) out.print(text) else { CliFiles.save(to, text); out.println("Saved $name to $to") }
             0
