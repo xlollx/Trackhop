@@ -116,8 +116,8 @@ shows the exact address and the steps.
 
 ## Notifications
 
-Settings › Notifications sends a short message to Telegram, ntfy, Gotify, Discord, Slack, Matrix or
-Pushover when a sync changes something, fails or waits for you, while Trackhop Desktop runs. How to
+Settings › Notifications sends a short message to Telegram, ntfy, Gotify, Discord, Slack, Matrix,
+Pushover or Apprise when a sync changes something, fails or waits for you, while Trackhop Desktop runs. How to
 set up each one: [Notifications](docker#notifications), the same as on Docker.
 
 ## Command line

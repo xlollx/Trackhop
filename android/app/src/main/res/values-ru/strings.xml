@@ -2318,6 +2318,9 @@
     <string name="notify_help_slack">Создай приложение с incoming webhook для канала (api.slack.com/messaging/webhooks) и вставь его URL.</string>
     <string name="notify_help_matrix">Аккаунт (бот) в комнате: его токен доступа (Element: Настройки › Помощь и о программе) и id комнаты (Настройки комнаты › Дополнительно).</string>
     <string name="notify_help_pushover">Твой user key — на главной странице pushover.net; создай там приложение, чтобы получить его API-токен.</string>
+    <string name="notify_help_apprise">Адрес твоего Apprise API с ключом сохранённой конфигурации (…/notify/&lt;ключ&gt;). Тег отправляет только в отмеченные им сервисы; пустой — во все.</string>
+    <string name="notify_field_apprise_url">URL Apprise API</string>
+    <string name="notify_field_apprise_tag">Тег (необязательно)</string>
     <string name="notify_field_telegram_token">Токен бота</string>
     <string name="notify_field_telegram_chat">Chat id</string>
     <string name="notify_field_ntfy_server">Сервер</string>

@@ -2226,6 +2226,9 @@
     <string name="notify_help_slack">Bir kanal için incoming webhook\'lu bir uygulama oluştur (api.slack.com/messaging/webhooks) ve URL\'sini yapıştır.</string>
     <string name="notify_help_matrix">Odada bir (bot) hesap: erişim token\'ı (Element: Ayarlar › Yardım ve hakkında) ve odanın id\'si (Oda ayarları › Gelişmiş).</string>
     <string name="notify_help_pushover">User key\'in pushover.net ana sayfasında; API token\'ı için orada bir uygulama oluştur.</string>
+    <string name="notify_help_apprise">Apprise API\'nin adresi ve kayıtlı bir yapılandırmanın anahtarı (…/notify/&lt;anahtar&gt;). Etiket yalnızca işaretlediği servislere gönderir; boşsa hepsine.</string>
+    <string name="notify_field_apprise_url">Apprise API URL\'si</string>
+    <string name="notify_field_apprise_tag">Etiket (isteğe bağlı)</string>
     <string name="notify_field_telegram_token">Bot token\'ı</string>
     <string name="notify_field_telegram_chat">Chat id</string>
     <string name="notify_field_ntfy_server">Sunucu</string>
