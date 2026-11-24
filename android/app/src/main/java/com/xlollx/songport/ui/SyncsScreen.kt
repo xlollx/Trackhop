@@ -2856,6 +2856,11 @@ fun SyncEditorScreen(
                     }
                     SwitchRow(stringResource(R.string.policy_same_album), stringResource(R.string.policy_same_album_desc), policy.sameAlbum, help = { HelpButton(Helps.sameAlbum) }) { policy = policy.copy(sameAlbum = it) }
                     SwitchRow(stringResource(R.string.policy_studio), stringResource(R.string.policy_studio_desc), policy.studioOnly) { policy = policy.copy(studioOnly = it) }
+                    // #81: artists each service writes otherwise (周杰倫, Jay Chou): title, length and album decide.
+                    SwitchRow(
+                        stringResource(R.string.policy_artists_differ), stringResource(R.string.policy_artists_differ_desc), policy.artistsMayDiffer,
+                        modifier = Modifier.testTag("policy_artists_differ"),
+                    ) { policy = policy.copy(artistsMayDiffer = it) }
                 }
             }
             Spacer(Modifier.height(8.dp))

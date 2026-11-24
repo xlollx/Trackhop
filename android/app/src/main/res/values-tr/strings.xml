@@ -3518,4 +3518,6 @@
         <item quantity="one">%1$d unutuldu: sonraki senkronizasyon yeniden arar.</item>
         <item quantity="other">%1$d unutuldu: sonraki senkronizasyon yeniden arar.</item>
     </plurals>
+    <string name="policy_artists_differ">Sanatçı adları farklı olabilir</string>
+    <string name="policy_artists_differ_desc">Her hizmetin farklı yazdığı sanatçılar için (周杰倫 ve Jay Chou): aynı ad, süre ve albüm yeterlidir. Albüm yoksa parça incelemeye gider.</string>
 </resources>

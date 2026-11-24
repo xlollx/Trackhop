@@ -3528,4 +3528,6 @@
         <item quantity="one">%1$d olvidada: la próxima sincronización la busca de nuevo.</item>
         <item quantity="other">%1$d olvidadas: la próxima sincronización las busca de nuevo.</item>
     </plurals>
+    <string name="policy_artists_differ">Los nombres de artista pueden ser distintos</string>
+    <string name="policy_artists_differ_desc">Para artistas que cada servicio escribe a su manera (周杰倫 y Jay Chou): basta con el mismo título, la misma duración y el mismo álbum. Sin álbum, la canción va a revisión.</string>
 </resources>

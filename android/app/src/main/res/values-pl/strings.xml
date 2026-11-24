@@ -3756,4 +3756,6 @@
         <item quantity="many">Zapomniano: %1$d. Następna synchronizacja wyszuka ponownie.</item>
         <item quantity="other">Zapomniano: %1$d. Następna synchronizacja wyszuka ponownie.</item>
     </plurals>
+    <string name="policy_artists_differ">Nazwy wykonawców mogą się różnić</string>
+    <string name="policy_artists_differ_desc">Dla wykonawców, których każdy serwis zapisuje inaczej (周杰倫 i Jay Chou): wystarczy ten sam tytuł, długość i album. Bez albumu utwór trafia do przeglądu.</string>
 </resources>

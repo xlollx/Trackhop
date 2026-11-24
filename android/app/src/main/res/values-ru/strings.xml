@@ -3754,4 +3754,6 @@
         <item quantity="many">Забыто: %1$d. Следующая синхронизация поищет снова.</item>
         <item quantity="other">Забыто: %1$d. Следующая синхронизация поищет снова.</item>
     </plurals>
+    <string name="policy_artists_differ">Имена исполнителей могут отличаться</string>
+    <string name="policy_artists_differ_desc">Для исполнителей, которых каждый сервис пишет по-своему (周杰倫 и Jay Chou): достаточно того же названия, длительности и альбома. Без альбома трек отправляется на проверку.</string>
 </resources>

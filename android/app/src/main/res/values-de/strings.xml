@@ -3520,4 +3520,6 @@
         <item quantity="one">%1$d vergessen: Der nächste Sync sucht erneut.</item>
         <item quantity="other">%1$d vergessen: Der nächste Sync sucht erneut.</item>
     </plurals>
+    <string name="policy_artists_differ">Künstlernamen dürfen abweichen</string>
+    <string name="policy_artists_differ_desc">Für Künstler, die jeder Dienst anders schreibt (周杰倫 und Jay Chou): Gleicher Titel, gleiche Länge und gleiches Album genügen. Ohne Album kommt der Titel zur Überprüfung.</string>
 </resources>

@@ -3403,4 +3403,6 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="other">已忘记 %1$d 项：下次同步会重新查找。</item>
     </plurals>
+    <string name="policy_artists_differ">艺人名称可以不同</string>
+    <string name="policy_artists_differ_desc">适用于各服务写法不同的艺人（周杰倫 与 Jay Chou）：标题、时长和专辑相同即可。没有专辑时，歌曲会进入复核。</string>
 </resources>

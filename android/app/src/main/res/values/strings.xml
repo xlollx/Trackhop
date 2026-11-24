@@ -3524,4 +3524,6 @@
         <item quantity="one">%1$d forgotten: the next sync searches it again.</item>
         <item quantity="other">%1$d forgotten: the next sync searches them again.</item>
     </plurals>
+    <string name="policy_artists_differ">Artist names can differ</string>
+    <string name="policy_artists_differ_desc">For artists each service writes another way (周杰倫 and Jay Chou): the same title, length and album is enough. Without an album the track goes to the review.</string>
 </resources>

@@ -3403,4 +3403,6 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="other">%1$d 件を忘れました。次の同期でもう一度検索します。</item>
     </plurals>
+    <string name="policy_artists_differ">アーティスト名が違っていてもよい</string>
+    <string name="policy_artists_differ_desc">サービスごとに表記が違うアーティスト（周杰倫とJay Chou）向け：曲名・長さ・アルバムが同じなら十分です。アルバムがない場合は確認に回ります。</string>
 </resources>

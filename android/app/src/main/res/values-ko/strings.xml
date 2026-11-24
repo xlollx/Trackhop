@@ -3402,4 +3402,6 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="other">%1$d개를 잊었어요. 다음 동기화에서 다시 검색합니다.</item>
     </plurals>
+    <string name="policy_artists_differ">아티스트 이름이 달라도 돼요</string>
+    <string name="policy_artists_differ_desc">서비스마다 다르게 적는 아티스트(周杰倫과 Jay Chou)를 위해: 제목, 길이, 앨범이 같으면 충분해요. 앨범이 없으면 곡은 검토로 가요.</string>
 </resources>

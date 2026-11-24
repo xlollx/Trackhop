@@ -528,6 +528,31 @@ $removals"""
     internal fun withRatings(job: SyncJob, r: Req): SyncJob =
         if (r.form["ratings"] == "1") job.copy(copyRatings = r.form["copyRatings"] == "on") else job
 
+    /** The sync's matching rules on its form, as the app's editor has them: how a track is chosen among the candidates. */
+    internal fun matchingFields(job: SyncJob?): String {
+        val p = job?.policy ?: com.xlollx.songport.model.MatchPolicy()
+        fun radio(name: String, value: Int, now: Int, text: String) =
+            """<label class="check" style="display:inline-flex;margin-right:10px"><input type="radio" name="$name" value="$value"${if (value == now) " checked" else ""}> $text</label>"""
+        fun box(name: String, on: Boolean, text: String) = """<label class="check"><input type="checkbox" name="$name"${if (on) " checked" else ""}> $text</label>"""
+        return """
+<input type="hidden" name="matching" value="1"><label>Matching rules</label><p class="muted">How a track is chosen among the candidates.</p>
+<span class="muted">Strictness</span><div>${radio("strictness", -1, p.strictness, "Loose")}${radio("strictness", 0, p.strictness, "Normal")}${radio("strictness", 1, p.strictness, "Strict")}</div>
+<span class="muted">Explicit versions</span><div>${radio("explicit", 0, p.explicit, "Either")}${radio("explicit", 1, p.explicit, "Prefer explicit")}${radio("explicit", -1, p.explicit, "Prefer clean")}</div>
+${box("sameAlbum", p.sameAlbum, "Same album <span class=\"muted\">(a candidate from another album loses much more ground)</span>")}
+${box("studioOnly", p.studioOnly, "Studio versions only <span class=\"muted\">(never a live, remix, acoustic or karaoke version in place of one that is not)</span>")}
+${box("artistNamesCanDiffer", p.artistsMayDiffer, "Artist names can differ <span class=\"muted\">(the same title, length and album is enough, as for 周杰倫 and Jay Chou; without an album, to review)</span>")}"""
+    }
+
+    /** [job] with the matching rules its form says, when the form offered them ([matchingFields]). */
+    internal fun withMatching(job: SyncJob, r: Req): SyncJob {
+        if (r.form["matching"] != "1") return job
+        return job.copy(policy = job.policy.copy(
+            strictness = r.form["strictness"]?.toIntOrNull()?.coerceIn(-1, 1) ?: job.policy.strictness,
+            explicit = r.form["explicit"]?.toIntOrNull()?.coerceIn(-1, 1) ?: job.policy.explicit,
+            sameAlbum = r.form["sameAlbum"] == "on", studioOnly = r.form["studioOnly"] == "on", artistsMayDiffer = r.form["artistNamesCanDiffer"] == "on",
+        ))
+    }
+
     /** A run's ratings set, after its added and removed figures; nothing when none. */
     internal fun ratingsSet(n: Int): String = if (n > 0) """ <span class="muted">· ★ $n ${if (n == 1) "rating" else "ratings"} set</span>""" else ""
 
@@ -899,7 +924,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                         val tags = if (grouped) Labels.cleanTags(r.form["tags"].orEmpty().split(',').mapNotNull { Labels.parseTag(it) }.associate { it.first to it.second.orEmpty() }) else job.tags
                         val timed = withTiming(job.copy(name = name, schedule = s, favorite = if (grouped) r.form["favorite"] != null else job.favorite, tags = tags), r)
                         // A radio sync's form has no choice about changes: its source only grows.
-                        val changed = if (job.radio != null) timed else withRatings(withChanges(timed, r), r)
+                        val changed = withMatching(if (job.radio != null) timed else withRatings(withChanges(timed, r), r), r)
                         // Two-way and its removals, where the form offers them (see pairFields).
                         val paired = job.linkedJobId?.let { env.store.job(it) } != null
                         val offered = r.form["pair"] == "1"
@@ -1014,7 +1039,7 @@ ${if (src.linkOnly) """<label>Public link on ${h(src.label(env))}</label><input 
 <label>To ${h(dst.label(env))}</label><select name="dstPlaylist">${if (dst.canCreatePlaylists) "<option value=\"\">A new playlist with the same name</option>" else ""}${opts(dstLists.getOrDefault(emptyList()))}</select>
 <label>Name of the sync (optional)</label><input type="text" name="name">
 ${timingFields(null)}
-${changesFields(null)}${ratingsField(null, src, dst)}${pairFields(null)}
+${changesFields(null)}${ratingsField(null, src, dst)}${pairFields(null)}${matchingFields(null)}
 <p><button>Create</button> <a class="button secondary" href="/syncs/new">Back</a></p></form>""",
         )
         send(r.ex, 200, page("New sync", body.toString()))
@@ -1053,7 +1078,7 @@ ${changesFields(null)}${ratingsField(null, src, dst)}${pairFields(null)}
             source = PlaylistRef(src.id, srcId, srcName),
             target = PlaylistRef(dst.id, dstId, dstName),
             schedule = runCatching { Schedule.valueOf(r.form["schedule"].orEmpty()) }.getOrDefault(Schedule.MANUAL),
-        ).let { withRatings(withChanges(withTiming(it, r), r), r) }
+        ).let { withMatching(withRatings(withChanges(withTiming(it, r), r), r), r) }
             .let { j -> runCatching { pairing(j, r.form["twoWay"] == "on", r.form["twoWay"] == "on" && r.form["twoWayRemovals"] == "on") }.getOrElse { return redirect(r.ex, "$back&err=${q(it.message ?: "Error")}") } }
         val warning = conflictWarning(job)
         env.store.upsertJob(job)
@@ -1091,7 +1116,7 @@ ${changesFields(null)}${ratingsField(null, src, dst)}${pairFields(null)}
         val schedules = Schedule.values().joinToString("") { """<option value="${it.name}"${if (it == job.schedule) " selected" else ""}>${h(scheduleName(it))}</option>""" }
         body.append(
             """<form method="post" action="/syncs/$id/schedule" class="card"><label>Name</label><input type="text" name="name" value="${h(job.name)}">${if (job.radio != null) """<input type="hidden" name="schedule" value="MANUAL">""" else """${timingFields(job)}
-${changesFields(job)}${ratingsField(job, Providers.byId(job.source.provider), Providers.byId(job.target.provider))}${pairFields(job)}"""}
+${changesFields(job)}${ratingsField(job, Providers.byId(job.source.provider), Providers.byId(job.target.provider))}${pairFields(job)}"""}${matchingFields(job)}
 <label>Colour</label><div class="swatches"><label title="None"><input type="radio" name="color" value=""${if (job.color == null) " checked" else ""} aria-label="None"><span class="dot none"></span></label>${Html.JOB_COLORS.entries.joinToString("") { (k, v) -> val n = h(labels.firstOrNull { it.id == k }?.name?.takeIf { it.isNotEmpty() } ?: k); """<label title="$n"><input type="radio" name="color" value="$k"${if (job.label == k) " checked" else ""} aria-label="$n"><span class="dot" style="background:${v.first}"></span></label>""" }}${labels.filter { !Labels.isBase(it.id) }.joinToString("") { l -> """<label title="${h(l.name)}"><input type="radio" name="color" value="label:${h(l.id)}"${if (job.label == l.id) " checked" else ""} aria-label="${h(l.name)}"><span class="dot" style="background:${h(l.color)}"></span></label>""" }}<label title="Your own colour"><input type="radio" name="color" value="custom"${if (job.label == null && Html.customColor(job.color) != null) " checked" else ""} aria-label="Your own colour"><input type="color" name="customColor" value="${h((Html.customColor(job.color) ?: "#0B84E8").lowercase())}" aria-label="Pick your own colour" onchange="this.previousElementSibling.checked=true"></label></div>
 <input type="hidden" name="groups" value="1">
 <label for="labelName">Label name</label><input type="text" id="labelName" name="labelName" maxlength="${Labels.MAX_NAME}" value="${h(Labels.name(job, labels))}"><p class="muted">Optional. Every sync with this colour shares the name: you can then search and filter by it. Your own colour with a name is kept among the ready colours.</p>
