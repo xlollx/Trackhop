@@ -68,6 +68,10 @@ private fun installServerConnectorsOnly(officialOnly: Boolean) = Providers.insta
         Factory(MopidyProvider.SERVICE) { MopidyProvider(it) },
         Factory(LastFmProvider.SERVICE) { LastFmProvider(it) },
         Factory(ListenBrainzProvider.SERVICE) { ListenBrainzProvider(it) },
+        // Games: osu! and Beat Saber through their official APIs; a rhythm game's song folder on this computer.
+        Factory(com.xlollx.songport.providers.OsuProvider.SERVICE) { com.xlollx.songport.providers.OsuProvider(it) },
+        Factory(com.xlollx.songport.providers.BeatSaberProvider.SERVICE) { com.xlollx.songport.providers.BeatSaberProvider(it) },
+        Factory(com.xlollx.songport.providers.GameFolderProvider.SERVICE) { com.xlollx.songport.providers.GameFolderProvider(it) },
     ),
     singletons = listOfNotNull(
         LocalFilesProvider,
@@ -79,6 +83,10 @@ private fun installServerConnectorsOnly(officialOnly: Boolean) = Providers.insta
         QqMusicProvider.takeUnless { officialOnly },
         JioSaavnProvider.takeUnless { officialOnly },
         GaanaProvider.takeUnless { officialOnly },
+        // Fortnite Festival's Jam Tracks: a page Epic does not document, so not in the official-only package.
+        com.xlollx.songport.providers.FortniteFestivalProvider.takeUnless { officialOnly },
+        // A MusicBrainz release or soundtrack from a pasted link: the official API, on every build.
+        com.xlollx.songport.providers.SoundtracksProvider,
     ),
 )
 

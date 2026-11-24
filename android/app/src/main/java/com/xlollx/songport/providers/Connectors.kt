@@ -36,11 +36,18 @@ fun installConnectors() = Providers.install(
         Factory(MopidyProvider.SERVICE) { MopidyProvider(it) },
         Factory(LastFmProvider.SERVICE) { LastFmProvider(it) },
         Factory(ListenBrainzProvider.SERVICE) { ListenBrainzProvider(it) },
+        // Games: osu! and Beat Saber, through their official APIs.
+        Factory(OsuProvider.SERVICE) { OsuProvider(it) },
+        Factory(BeatSaberProvider.SERVICE) { BeatSaberProvider(it) },
     ),
     // The read-only link sources with no official route (NetEase Cloud Music, QQ Music, Anghami, JioSaavn, Gaana): read
     // here by the builds that carry unofficial connectors; on Google Play only through a plugin that
     // relays their requests (PluginRelay), and not offered without one.
-    singletons = listOf(LocalFilesProvider, ChartsProvider, NeteaseProvider, AnghamiProvider, QqMusicProvider, JioSaavnProvider, GaanaProvider),
+    // Fortnite Festival (a page Epic does not document) goes the same way; MusicBrainz links are official, on every build.
+    singletons = listOf(
+        LocalFilesProvider, ChartsProvider, NeteaseProvider, AnghamiProvider, QqMusicProvider, JioSaavnProvider, GaanaProvider,
+        FortniteFestivalProvider, SoundtracksProvider,
+    ),
 )
 
 /**

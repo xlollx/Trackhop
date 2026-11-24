@@ -604,6 +604,9 @@ $removals"""
                     env.log("auth", "${provider.id} connected (pasted session)")
                     return redirect(r.ex, "$back?ok=${q("Connected.")}")
                 }
+                // A folder of the server (a game's songs) is read only by whom the admin lets use the server's folders.
+                if (provider is com.xlollx.songport.providers.GameFolderProvider && !env.may(Permissions.FOLDERS))
+                    return redirect(r.ex, "$back?err=${q("Folders on the server are not turned on for you: ask the admin.")}")
                 if (provider is CredentialsProvider) {
                     // The API key form (OpenSubsonic) posts mode=apikey: the key, no user or password.
                     val byKey = r.form["mode"] == "apikey" && provider.loginForm.offersApiKey
@@ -698,11 +701,15 @@ $removals"""
                     Html.postButton("/connectors/${q(p.id)}/disconnect", "Disconnect", "secondary") + "</div>",
             )
             p is CookieConnector -> body.append(cookieForm(p))
+            // A key of the user's own first (osu!: an OAuth application's ID and secret), then the sign-in.
+            p is CredentialsProvider && p.setupGuide != null && !p.isConfigured(env) -> body.append(credentialsKeyForm(p))
             p is CredentialsProvider -> {
                 val f = p.loginForm
                 body.append("""<form method="post" action="/connectors/${q(p.id)}/connect" class="card">""")
                 body.append("""<p class="muted">${h(env.text(f.hintName))}</p>""")
-                if (f.needsUrl) body.append("""<label>${h(env.text("login_url"))}</label><input type="url" name="url" required>""")
+                // A game's song folder is a path on this computer, not a web address.
+                if (f.needsUrl && f.urlIsFolder) body.append("""<label>${h(env.text("login_folder"))}</label><input type="text" name="url" autocomplete="off" required>""")
+                else if (f.needsUrl) body.append("""<label>${h(env.text("login_url"))}</label><input type="url" name="url" required>""")
                 if (f.needsUser) body.append("""<label>${h(env.text("login_user"))}</label><input type="text" name="user" autocomplete="off"${if (f.userOptional) "" else " required"}>""")
                 if (f.needsSecret) body.append(
                     """<label>${h(env.text(f.secretLabelName))}</label><input type="password" name="secret" autocomplete="new-password"${if (f.secretOptional) "" else " required"}>""",
@@ -799,6 +806,26 @@ $help</div>"""
 <input type="text" name="userAgent" autocomplete="off" placeholder="Mozilla/5.0 … Chrome/… Safari/537.36">
 <p class="muted">Stored only in this server's data folder, readable by its owner only, and never written to the log.</p>
 <p><button>Connect</button></p></form>"""
+
+    /**
+     * Your own key for a service signed in with a user name (osu!: an OAuth application's client ID
+     * and secret): the setup steps of the app, then the sign-in form once it is saved.
+     */
+    private fun credentialsKeyForm(p: CredentialsProvider): String {
+        val guide = p.setupGuide ?: return ""
+        val sb = StringBuilder("""<form method="post" action="/connectors/${q(p.id)}/settings" class="card"><p>${h(env.text(guide.whyName))}</p><ol>""")
+        env.textArray(guide.stepsArrayName).forEachIndexed { i, step ->
+            val link = guide.stepUrls.getOrNull(i)?.let { """ <a href="${h(it)}" target="_blank" rel="noopener">open</a>""" } ?: ""
+            sb.append("<li>${h(step)}$link</li>")
+        }
+        sb.append("""</ol><label>${h(env.text(guide.fieldLabelName))}</label><input type="text" name="clientId" value="${h(env.store.data.settings.clientIds[p.serviceId].orEmpty())}" autocomplete="off" required>""")
+        if (guide.needsSecret) {
+            val label = guide.secretLabelName?.let { env.text(it) } ?: env.text("setup_field_secret")
+            sb.append("""<label>${h(label)}</label><input type="password" name="clientSecret" autocomplete="new-password"${if (guide.secretOptional) "" else " required"}>""")
+        }
+        sb.append("""<p><button>Save</button></p></form>""")
+        return sb.toString()
+    }
 
     /** Your own key for an OAuth service: the setup steps of the app, with this server's redirect address. */
     private fun oauthSetup(p: OAuthProvider): String {

@@ -3517,4 +3517,36 @@
         <item quantity="one">%1$d dimenticata: la prossima sync la cerca di nuovo.</item>
         <item quantity="other">%1$d dimenticate: la prossima sync le cerca di nuovo.</item>
     </plurals>
+    <!-- Games: osu!, Beat Saber, Fortnite Festival, MusicBrainz links, rhythm game folders -->
+    <string name="provider_note_osu">I brani delle tue beatmap osu! preferite e più giocate, e dei pacchetti Featured Artist, come playlist da copiare sul tuo servizio musicale. Sola lettura. Serve una tua applicazione OAuth osu! gratuita (client ID e secret).</string>
+    <string name="login_hint_osu">Inserisci il tuo nome utente osu! o il link del profilo. Si leggono solo dati pubblici: la password di osu! non viene mai chiesta.</string>
+    <string name="setup_why_osu">osu! permette alle app di leggere i suoi dati pubblici con una tua applicazione OAuth: gratis, si crea in pochi secondi nelle impostazioni dell\'account.</string>
+    <string-array name="setup_steps_osu">
+        <item>Accedi a osu.ppy.sh e apri Impostazioni › OAuth.</item>
+        <item>Scegli \"New OAuth Application\", dagli un nome qualsiasi (per esempio Trackhop) e lascia vuoto il callback URL. Registrala.</item>
+        <item>Copia qui il \"Client ID\" e nel secondo campo il \"Client Secret\".</item>
+    </string-array>
+    <string name="osu_bad_key">osu! ha rifiutato il client ID o il secret: controllali in osu! Impostazioni › OAuth.</string>
+    <string name="osu_not_found">osu! non conosce questo giocatore o questo elenco.</string>
+    <string name="osu_favourites">Beatmap preferite</string>
+    <string name="osu_most_played">Beatmap più giocate</string>
+    <string name="provider_note_beatsaber">I brani che giochi in Beat Saber (più giocati, recenti, punteggi migliori) come playlist da copiare sul tuo servizio musicale, letti dal tuo profilo BeatLeader o ScoreSaber. Sola lettura, senza account.</string>
+    <string name="login_hint_beatsaber">Inserisci il tuo ID giocatore BeatLeader o ScoreSaber o il link del profilo (il numero in beatleader.com/u/… o scoresaber.com/u/…).</string>
+    <string name="beatsaber_not_found">Né BeatLeader né ScoreSaber conoscono questo giocatore.</string>
+    <string name="beatsaber_most_played">Brani più giocati</string>
+    <string name="beatsaber_recent">Brani giocati di recente</string>
+    <string name="beatsaber_best">Punteggi migliori</string>
+    <string name="provider_note_fortnite">Le Jam Track di Fortnite Festival come origine: tutte, o quelle aggiunte negli ultimi 30 giorni, per tenere aggiornata una playlist sul tuo servizio a ogni stagione. Lette dalle pagine pubbliche di Epic, non da un\'API ufficiale.</string>
+    <string name="fortnite_all">Tutte le Jam Track</string>
+    <string name="fortnite_new">Jam Track aggiunte negli ultimi 30 giorni</string>
+    <string name="fortnite_changed">Non è stato possibile leggere l\'elenco dei brani di Fortnite Festival: Epic potrebbe averlo cambiato.</string>
+    <string name="provider_note_musicbrainz">Una colonna sonora o un album da MusicBrainz, l\'enciclopedia musicale libera: incolla un link musicbrainz.org di una release o di un release group. Sola lettura.</string>
+    <string name="musicbrainz_label">Release MusicBrainz</string>
+    <string name="musicbrainz_unavailable">MusicBrainz non risponde in questo momento, oppure il link non porta a nulla. Riprova tra un minuto.</string>
+    <string name="provider_note_gamefolder">La cartella dei brani di un gioco ritmico su questo computer: Clone Hero, YARG, Phase Shift (song.ini), StepMania, ITGmania (.sm, .ssc) e i livelli personalizzati di Beat Saber. Tutti i brani e ogni pacchetto diventano playlist. Sola lettura: nella cartella non cambia nulla.</string>
+    <string name="login_hint_gamefolder">Il percorso della cartella dei brani come lo vede questo server (con Docker, una cartella che monti nel container).</string>
+    <string name="login_folder">Cartella</string>
+    <string name="gamefolder_missing">Nessuna cartella in %1$s.</string>
+    <string name="gamefolder_empty">Nessun brano trovato in questa cartella (song.ini, .sm, .ssc o Info.dat).</string>
+    <string name="gamefolder_all">Tutti i brani</string>
 </resources>

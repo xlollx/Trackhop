@@ -51,6 +51,8 @@ internal class CliCommands(
         "report" -> if (p.isEmpty()) issue(o) else report(p.joinToString(" "))
         "review" -> review(p, o)
         "services" -> services()
+        "soundtracks" -> soundtracks(one(p, "soundtracks <words>..."))
+        "truck-radio" -> truckRadio(p, o)
         "playlists" -> playlists(one(p, "playlists <service>"))
         "tracks" -> { need(p, 2, "tracks <service> <playlist>"); tracks(p[0], p[1]) }
         "add", "remove" -> { need(p, 3, "$command <service> <playlist> <track>..."); edit(command, p[0], p[1], p.drop(2)) }
@@ -673,6 +675,39 @@ internal class CliCommands(
             out.println("${a.s("asked")}  ->  ${if (m == null) "not found on ${s.s("name")}" else "${line(m)}  ${m.s("id")} (${((a["score"].str()?.toDoubleOrNull() ?: 0.0) * 100).toInt()}%)"}")
         }
         return if (r.all { it["match"] is JsonObject }) 0 else 1
+    }
+
+    /** Soundtracks on MusicBrainz (GET /soundtracks): a sync's source is the service and the playlist shown. */
+    private fun soundtracks(words: String): Int {
+        val list = api.get("soundtracks?q=${enc(words)}").jsonArray.map { it.jsonObject }
+        if (asJson) return print(JsonArray(list)).let { 0 }
+        if (list.isEmpty()) out.println("No soundtrack by that name on MusicBrainz.")
+        for (o in list) out.println("${o.s("title")}  (${listOf(o.s("artist"), o.s("year").takeIf { it != "0" }.orEmpty()).filter { it.isNotBlank() }.joinToString(", ")})  musicbrainz ${o.s("playlist")}")
+        return 0
+    }
+
+    /** The truck games' radio lists (GET /truck-radio), or a station added to them (POST). */
+    private fun truckRadio(p: List<String>, o: Cli.Opts): Int {
+        if (p.firstOrNull() == "add") {
+            need(p, 3, "truck-radio add <stream> <name>")
+            val body = kotlinx.serialization.json.buildJsonObject {
+                put("stream", JsonPrimitive(p[1])); put("name", JsonPrimitive(p.drop(2).joinToString(" ")))
+                o.value("game")?.let { put("game", JsonPrimitive(it)) }
+            }
+            val done = api.post("truck-radio", body).jsonArray.map { it.jsonObject }
+            if (asJson) return print(JsonArray(done)).let { 0 }
+            for (d in done) out.println("${d.s("game")}: ${if (d.b("added")) "added" else "already there"}")
+            return 0
+        }
+        val files = api.get("truck-radio").jsonArray.map { it.jsonObject }
+        if (asJson) return print(JsonArray(files)).let { 0 }
+        if (files.isEmpty()) out.println("No radio list of Euro Truck Simulator 2 or American Truck Simulator on this computer.")
+        for (f in files) {
+            out.println("${f.s("game")}  ${f.s("file")}")
+            f.s("error").takeIf { it.isNotEmpty() }?.let { out.println("  $it") }
+            f["stations"]?.jsonArray?.map { it.jsonObject }?.forEach { s -> out.println("  ${s.s("name")}  ${s.s("stream")}") }
+        }
+        return 0
     }
 
     private fun duplicates(serviceAsk: String, playlistAsk: String, o: Cli.Opts): Int {

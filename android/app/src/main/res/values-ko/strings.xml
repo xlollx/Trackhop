@@ -3399,4 +3399,36 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="other">%1$d개를 잊었어요. 다음 동기화에서 다시 검색합니다.</item>
     </plurals>
+    <!-- Games: osu!, Beat Saber, Fortnite Festival, MusicBrainz links, rhythm game folders -->
+    <string name="provider_note_osu">osu!에서 즐겨찾기한 비트맵과 가장 많이 플레이한 비트맵, Featured Artist 팩의 곡을 음악 서비스로 복사할 플레이리스트로 만듭니다. 읽기 전용. 직접 만든 무료 osu! OAuth 애플리케이션(클라이언트 ID와 시크릿)이 필요합니다.</string>
+    <string name="login_hint_osu">osu! 사용자 이름이나 프로필 링크를 입력하세요. 공개 데이터만 읽으며 osu! 비밀번호는 절대 묻지 않습니다.</string>
+    <string name="setup_why_osu">osu!는 직접 만든 OAuth 애플리케이션으로 공개 데이터를 읽을 수 있게 해 줍니다. 무료이며 계정 설정에서 몇 초 만에 만들 수 있습니다.</string>
+    <string-array name="setup_steps_osu">
+        <item>osu.ppy.sh에 로그인하고 설정 › OAuth를 엽니다.</item>
+        <item>\"New OAuth Application\"을 선택하고 아무 이름(예: Trackhop)이나 붙인 뒤 callback URL은 비워 두고 등록합니다.</item>
+        <item>\"Client ID\"를 여기에, \"Client Secret\"을 두 번째 칸에 복사합니다.</item>
+    </string-array>
+    <string name="osu_bad_key">osu!가 클라이언트 ID 또는 시크릿을 거부했습니다. osu! 설정 › OAuth에서 확인하세요.</string>
+    <string name="osu_not_found">osu!에서 이 플레이어나 목록을 찾을 수 없습니다.</string>
+    <string name="osu_favourites">즐겨찾기한 비트맵</string>
+    <string name="osu_most_played">가장 많이 플레이한 비트맵</string>
+    <string name="provider_note_beatsaber">Beat Saber에서 플레이한 곡(가장 많이 플레이한 곡, 최근 곡, 최고 점수)을 BeatLeader 또는 ScoreSaber 프로필에서 읽어 음악 서비스로 복사할 플레이리스트로 만듭니다. 읽기 전용, 계정 불필요.</string>
+    <string name="login_hint_beatsaber">BeatLeader 또는 ScoreSaber 플레이어 ID나 프로필 링크를 입력하세요(beatleader.com/u/… 또는 scoresaber.com/u/…의 숫자).</string>
+    <string name="beatsaber_not_found">BeatLeader와 ScoreSaber 모두 이 플레이어를 찾을 수 없습니다.</string>
+    <string name="beatsaber_most_played">가장 많이 플레이한 곡</string>
+    <string name="beatsaber_recent">최근 플레이한 곡</string>
+    <string name="beatsaber_best">최고 점수</string>
+    <string name="provider_note_fortnite">Fortnite Festival의 잼 트랙을 소스로 사용합니다. 전체 또는 최근 30일 동안 추가된 곡으로, 시즌마다 서비스의 플레이리스트를 최신으로 유지할 수 있습니다. Epic의 공개 페이지에서 읽으며 공식 API가 아닙니다.</string>
+    <string name="fortnite_all">모든 잼 트랙</string>
+    <string name="fortnite_new">최근 30일 동안 추가된 잼 트랙</string>
+    <string name="fortnite_changed">Fortnite Festival 곡 목록을 읽을 수 없습니다. Epic이 바꿨을 수 있습니다.</string>
+    <string name="provider_note_musicbrainz">열린 음악 백과사전 MusicBrainz의 사운드트랙이나 앨범: 릴리스 또는 릴리스 그룹의 musicbrainz.org 링크를 붙여 넣으세요. 읽기 전용.</string>
+    <string name="musicbrainz_label">MusicBrainz 릴리스</string>
+    <string name="musicbrainz_unavailable">MusicBrainz가 지금 응답하지 않거나 링크가 가리키는 것이 없습니다. 1분 후에 다시 시도하세요.</string>
+    <string name="provider_note_gamefolder">이 컴퓨터에 있는 리듬 게임의 곡 폴더: Clone Hero, YARG, Phase Shift(song.ini), StepMania, ITGmania(.sm, .ssc), Beat Saber 커스텀 레벨. 모든 곡과 각 팩이 플레이리스트가 됩니다. 읽기 전용: 폴더 안은 아무것도 바뀌지 않습니다.</string>
+    <string name="login_hint_gamefolder">이 서버에서 보이는 곡 폴더 경로(Docker에서는 컨테이너에 마운트한 폴더).</string>
+    <string name="login_folder">폴더</string>
+    <string name="gamefolder_missing">%1$s 위치에 폴더가 없습니다.</string>
+    <string name="gamefolder_empty">이 폴더에서 곡을 찾지 못했습니다(song.ini, .sm, .ssc 또는 Info.dat).</string>
+    <string name="gamefolder_all">모든 곡</string>
 </resources>

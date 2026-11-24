@@ -3400,4 +3400,36 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="other">%1$d 件を忘れました。次の同期でもう一度検索します。</item>
     </plurals>
+    <!-- Games: osu!, Beat Saber, Fortnite Festival, MusicBrainz links, rhythm game folders -->
+    <string name="provider_note_osu">osu! のお気に入りとよくプレイするビートマップ、Featured Artist パックの曲を、音楽サービスにコピーできるプレイリストにします。読み取りのみ。無料の osu! OAuth アプリケーション（クライアント ID とシークレット）を自分で作る必要があります。</string>
+    <string name="login_hint_osu">osu! のユーザー名またはプロフィールのリンクを入力してください。読み取るのは公開データだけで、osu! のパスワードは聞きません。</string>
+    <string name="setup_why_osu">osu! では自分の OAuth アプリケーションで公開データを読み取れます。無料で、アカウント設定から数秒で作れます。</string>
+    <string-array name="setup_steps_osu">
+        <item>osu.ppy.sh にサインインし、設定 › OAuth を開きます。</item>
+        <item>「New OAuth Application」を選び、好きな名前（例: Trackhop）を付け、callback URL は空のまま登録します。</item>
+        <item>「Client ID」をここに、「Client Secret」を2つ目の欄にコピーします。</item>
+    </string-array>
+    <string name="osu_bad_key">osu! がクライアント ID またはシークレットを受け付けませんでした。osu! の設定 › OAuth で確認してください。</string>
+    <string name="osu_not_found">osu! にこのプレイヤーまたはリストが見つかりません。</string>
+    <string name="osu_favourites">お気に入りのビートマップ</string>
+    <string name="osu_most_played">よくプレイするビートマップ</string>
+    <string name="provider_note_beatsaber">Beat Saber でプレイした曲（よくプレイする曲、最近の曲、ベストスコア）を、BeatLeader または ScoreSaber のプロフィールから読み取り、音楽サービスにコピーできるプレイリストにします。読み取りのみ、アカウント不要。</string>
+    <string name="login_hint_beatsaber">BeatLeader または ScoreSaber のプレイヤー ID かプロフィールのリンクを入力してください（beatleader.com/u/… または scoresaber.com/u/… の数字）。</string>
+    <string name="beatsaber_not_found">BeatLeader にも ScoreSaber にもこのプレイヤーは見つかりません。</string>
+    <string name="beatsaber_most_played">よくプレイする曲</string>
+    <string name="beatsaber_recent">最近プレイした曲</string>
+    <string name="beatsaber_best">ベストスコア</string>
+    <string name="provider_note_fortnite">Fortnite Festival のジャムトラックをソースとして使います。すべて、または過去30日に追加されたものを選べ、シーズンごとにサービス上のプレイリストを最新に保てます。Epic の公開ページから読み取るもので、公式 API ではありません。</string>
+    <string name="fortnite_all">すべてのジャムトラック</string>
+    <string name="fortnite_new">過去30日に追加されたジャムトラック</string>
+    <string name="fortnite_changed">Fortnite Festival の曲リストを読み取れませんでした。Epic が変更した可能性があります。</string>
+    <string name="provider_note_musicbrainz">オープンな音楽百科事典 MusicBrainz のサウンドトラックやアルバム。musicbrainz.org のリリースまたはリリースグループのリンクを貼り付けてください。読み取りのみ。</string>
+    <string name="musicbrainz_label">MusicBrainz のリリース</string>
+    <string name="musicbrainz_unavailable">MusicBrainz が今は応答していないか、リンク先に何もありません。1分後にもう一度お試しください。</string>
+    <string name="provider_note_gamefolder">このコンピューター上のリズムゲームの曲フォルダー: Clone Hero、YARG、Phase Shift（song.ini）、StepMania、ITGmania（.sm、.ssc）、Beat Saber のカスタムレベル。全曲と各パックがプレイリストになります。読み取りのみで、フォルダー内は何も変更しません。</string>
+    <string name="login_hint_gamefolder">このサーバーから見た曲フォルダーのパス（Docker ではコンテナーにマウントしたフォルダー）。</string>
+    <string name="login_folder">フォルダー</string>
+    <string name="gamefolder_missing">%1$s にフォルダーがありません。</string>
+    <string name="gamefolder_empty">このフォルダーに曲が見つかりません（song.ini、.sm、.ssc、Info.dat）。</string>
+    <string name="gamefolder_all">すべての曲</string>
 </resources>

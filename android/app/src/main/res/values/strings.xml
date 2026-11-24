@@ -3519,4 +3519,36 @@
         <item quantity="one">%1$d forgotten: the next sync searches it again.</item>
         <item quantity="other">%1$d forgotten: the next sync searches them again.</item>
     </plurals>
+    <!-- Games: osu!, Beat Saber, Fortnite Festival, MusicBrainz links, rhythm game folders -->
+    <string name="provider_note_osu">The songs of your favourite and most played osu! beatmaps, and of the Featured Artist packs, as playlists to copy to your music service. Read-only. Needs your own free osu! OAuth application (client ID and secret).</string>
+    <string name="login_hint_osu">Enter your osu! username or profile link. Only public data is read: your osu! password is never asked.</string>
+    <string name="setup_why_osu">osu! lets apps read its public data with an OAuth application of your own: free, made in seconds in your account settings.</string>
+    <string-array name="setup_steps_osu">
+        <item>Sign in at osu.ppy.sh and open Settings › OAuth.</item>
+        <item>Choose \"New OAuth Application\", give it any name (for example Trackhop) and leave the callback URL empty. Register it.</item>
+        <item>Copy the \"Client ID\" here and the \"Client Secret\" in the second field.</item>
+    </string-array>
+    <string name="osu_bad_key">osu! refused the client ID or secret: check them in osu! Settings › OAuth.</string>
+    <string name="osu_not_found">osu! does not know this player or list.</string>
+    <string name="osu_favourites">Favourite beatmaps</string>
+    <string name="osu_most_played">Most played beatmaps</string>
+    <string name="provider_note_beatsaber">The songs you play in Beat Saber (most played, recent, best scores) as playlists to copy to your music service, read from your BeatLeader or ScoreSaber profile. Read-only, no account needed.</string>
+    <string name="login_hint_beatsaber">Enter your BeatLeader or ScoreSaber player ID or profile link (the number in beatleader.com/u/… or scoresaber.com/u/…).</string>
+    <string name="beatsaber_not_found">Neither BeatLeader nor ScoreSaber knows this player.</string>
+    <string name="beatsaber_most_played">Most played songs</string>
+    <string name="beatsaber_recent">Recently played songs</string>
+    <string name="beatsaber_best">Best scores</string>
+    <string name="provider_note_fortnite">Fortnite Festival\'s Jam Tracks as a source: all of them, or the ones added in the last 30 days, to keep a playlist on your service up to date every season. Read from Epic\'s public pages, not an official API.</string>
+    <string name="fortnite_all">All Jam Tracks</string>
+    <string name="fortnite_new">Jam Tracks added in the last 30 days</string>
+    <string name="fortnite_changed">Fortnite Festival\'s track list could not be read: Epic may have changed it.</string>
+    <string name="provider_note_musicbrainz">A soundtrack or an album from MusicBrainz, the open music encyclopedia: paste a musicbrainz.org release or release group link. Read-only.</string>
+    <string name="musicbrainz_label">MusicBrainz release</string>
+    <string name="musicbrainz_unavailable">MusicBrainz is not answering right now, or the link names nothing there. Try again in a minute.</string>
+    <string name="provider_note_gamefolder">A rhythm game\'s song folder on this computer: Clone Hero, YARG, Phase Shift (song.ini), StepMania, ITGmania (.sm, .ssc) and Beat Saber custom levels. All songs and each pack become playlists. Read-only: nothing in the folder is changed.</string>
+    <string name="login_hint_gamefolder">The path of the songs folder as this server sees it (with Docker, a folder you mount into the container).</string>
+    <string name="login_folder">Folder</string>
+    <string name="gamefolder_missing">No folder at %1$s.</string>
+    <string name="gamefolder_empty">No songs found in this folder (song.ini, .sm, .ssc or Info.dat).</string>
+    <string name="gamefolder_all">All songs</string>
 </resources>

@@ -3525,4 +3525,36 @@
         <item quantity="one">%1$d esquecida: a próxima sincronização busca de novo.</item>
         <item quantity="other">%1$d esquecidas: a próxima sincronização busca de novo.</item>
     </plurals>
+    <!-- Games: osu!, Beat Saber, Fortnite Festival, MusicBrainz links, rhythm game folders -->
+    <string name="provider_note_osu">As músicas dos seus beatmaps favoritos e mais jogados do osu!, e dos pacotes Featured Artist, como playlists para copiar para o seu serviço de música. Somente leitura. Precisa de um aplicativo OAuth do osu! seu, gratuito (client ID e secret).</string>
+    <string name="login_hint_osu">Digite seu nome de usuário do osu! ou o link do perfil. Só dados públicos são lidos: sua senha do osu! nunca é pedida.</string>
+    <string name="setup_why_osu">O osu! deixa apps lerem seus dados públicos com um aplicativo OAuth seu: grátis, criado em segundos nas configurações da conta.</string>
+    <string-array name="setup_steps_osu">
+        <item>Entre em osu.ppy.sh e abra Configurações › OAuth.</item>
+        <item>Escolha \"New OAuth Application\", dê qualquer nome (por exemplo Trackhop) e deixe a callback URL vazia. Registre.</item>
+        <item>Copie aqui o \"Client ID\" e no segundo campo o \"Client Secret\".</item>
+    </string-array>
+    <string name="osu_bad_key">O osu! recusou o client ID ou o secret: confira em osu! Configurações › OAuth.</string>
+    <string name="osu_not_found">O osu! não conhece este jogador ou esta lista.</string>
+    <string name="osu_favourites">Beatmaps favoritos</string>
+    <string name="osu_most_played">Beatmaps mais jogados</string>
+    <string name="provider_note_beatsaber">As músicas que você joga no Beat Saber (mais jogadas, recentes, melhores pontuações) como playlists para copiar para o seu serviço de música, lidas do seu perfil do BeatLeader ou ScoreSaber. Somente leitura, sem conta.</string>
+    <string name="login_hint_beatsaber">Digite seu ID de jogador do BeatLeader ou ScoreSaber ou o link do perfil (o número em beatleader.com/u/… ou scoresaber.com/u/…).</string>
+    <string name="beatsaber_not_found">Nem o BeatLeader nem o ScoreSaber conhecem este jogador.</string>
+    <string name="beatsaber_most_played">Músicas mais jogadas</string>
+    <string name="beatsaber_recent">Músicas jogadas recentemente</string>
+    <string name="beatsaber_best">Melhores pontuações</string>
+    <string name="provider_note_fortnite">As Jam Tracks do Fortnite Festival como origem: todas, ou as adicionadas nos últimos 30 dias, para manter uma playlist atualizada no seu serviço a cada temporada. Lidas das páginas públicas da Epic, não de uma API oficial.</string>
+    <string name="fortnite_all">Todas as Jam Tracks</string>
+    <string name="fortnite_new">Jam Tracks adicionadas nos últimos 30 dias</string>
+    <string name="fortnite_changed">Não foi possível ler a lista de músicas do Fortnite Festival: a Epic pode ter mudado.</string>
+    <string name="provider_note_musicbrainz">Uma trilha sonora ou um álbum do MusicBrainz, a enciclopédia musical livre: cole um link do musicbrainz.org de uma release ou de um release group. Somente leitura.</string>
+    <string name="musicbrainz_label">Release do MusicBrainz</string>
+    <string name="musicbrainz_unavailable">O MusicBrainz não está respondendo agora, ou o link não leva a nada. Tente de novo em um minuto.</string>
+    <string name="provider_note_gamefolder">A pasta de músicas de um jogo de ritmo neste computador: Clone Hero, YARG, Phase Shift (song.ini), StepMania, ITGmania (.sm, .ssc) e níveis personalizados do Beat Saber. Todas as músicas e cada pacote viram playlists. Somente leitura: nada na pasta é alterado.</string>
+    <string name="login_hint_gamefolder">O caminho da pasta de músicas como este servidor a vê (com Docker, uma pasta que você monta no contêiner).</string>
+    <string name="login_folder">Pasta</string>
+    <string name="gamefolder_missing">Nenhuma pasta em %1$s.</string>
+    <string name="gamefolder_empty">Nenhuma música encontrada nesta pasta (song.ini, .sm, .ssc ou Info.dat).</string>
+    <string name="gamefolder_all">Todas as músicas</string>
 </resources>

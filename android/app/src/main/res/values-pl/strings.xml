@@ -3753,4 +3753,36 @@
         <item quantity="many">Zapomniano: %1$d. Następna synchronizacja wyszuka ponownie.</item>
         <item quantity="other">Zapomniano: %1$d. Następna synchronizacja wyszuka ponownie.</item>
     </plurals>
+    <!-- Games: osu!, Beat Saber, Fortnite Festival, MusicBrainz links, rhythm game folders -->
+    <string name="provider_note_osu">Utwory z twoich ulubionych i najczęściej granych beatmap osu! oraz z pakietów Featured Artist jako playlisty do skopiowania do twojego serwisu muzycznego. Tylko odczyt. Wymaga własnej, darmowej aplikacji OAuth osu! (client ID i secret).</string>
+    <string name="login_hint_osu">Wpisz swoją nazwę użytkownika osu! lub link do profilu. Odczytywane są tylko dane publiczne: hasło osu! nigdy nie jest potrzebne.</string>
+    <string name="setup_why_osu">osu! pozwala aplikacjom czytać swoje dane publiczne za pomocą twojej własnej aplikacji OAuth: za darmo, tworzonej w kilka sekund w ustawieniach konta.</string>
+    <string-array name="setup_steps_osu">
+        <item>Zaloguj się na osu.ppy.sh i otwórz Ustawienia › OAuth.</item>
+        <item>Wybierz \"New OAuth Application\", nadaj dowolną nazwę (na przykład Trackhop) i zostaw pusty callback URL. Zarejestruj ją.</item>
+        <item>Skopiuj tutaj \"Client ID\", a do drugiego pola \"Client Secret\".</item>
+    </string-array>
+    <string name="osu_bad_key">osu! odrzuciło client ID lub secret: sprawdź je w osu! Ustawienia › OAuth.</string>
+    <string name="osu_not_found">osu! nie zna tego gracza ani tej listy.</string>
+    <string name="osu_favourites">Ulubione beatmapy</string>
+    <string name="osu_most_played">Najczęściej grane beatmapy</string>
+    <string name="provider_note_beatsaber">Utwory, w które grasz w Beat Saber (najczęściej grane, ostatnie, najlepsze wyniki), jako playlisty do skopiowania do twojego serwisu muzycznego, odczytane z profilu BeatLeader lub ScoreSaber. Tylko odczyt, bez konta.</string>
+    <string name="login_hint_beatsaber">Wpisz swój identyfikator gracza BeatLeader lub ScoreSaber albo link do profilu (liczba w beatleader.com/u/… lub scoresaber.com/u/…).</string>
+    <string name="beatsaber_not_found">Ani BeatLeader, ani ScoreSaber nie zna tego gracza.</string>
+    <string name="beatsaber_most_played">Najczęściej grane utwory</string>
+    <string name="beatsaber_recent">Ostatnio grane utwory</string>
+    <string name="beatsaber_best">Najlepsze wyniki</string>
+    <string name="provider_note_fortnite">Jam Tracki z Fortnite Festival jako źródło: wszystkie albo dodane w ostatnich 30 dniach, aby playlista w twoim serwisie była aktualna w każdym sezonie. Odczytywane z publicznych stron Epic, nie z oficjalnego API.</string>
+    <string name="fortnite_all">Wszystkie Jam Tracki</string>
+    <string name="fortnite_new">Jam Tracki dodane w ostatnich 30 dniach</string>
+    <string name="fortnite_changed">Nie udało się odczytać listy utworów Fortnite Festival: Epic mógł ją zmienić.</string>
+    <string name="provider_note_musicbrainz">Ścieżka dźwiękowa lub album z MusicBrainz, otwartej encyklopedii muzycznej: wklej link musicbrainz.org do release lub release group. Tylko odczyt.</string>
+    <string name="musicbrainz_label">Release MusicBrainz</string>
+    <string name="musicbrainz_unavailable">MusicBrainz teraz nie odpowiada albo link nigdzie nie prowadzi. Spróbuj ponownie za minutę.</string>
+    <string name="provider_note_gamefolder">Folder z utworami gry rytmicznej na tym komputerze: Clone Hero, YARG, Phase Shift (song.ini), StepMania, ITGmania (.sm, .ssc) i własne poziomy Beat Saber. Wszystkie utwory i każdy pakiet stają się playlistami. Tylko odczyt: nic w folderze się nie zmienia.</string>
+    <string name="login_hint_gamefolder">Ścieżka folderu z utworami tak, jak widzi ją ten serwer (w Dockerze folder zamontowany w kontenerze).</string>
+    <string name="login_folder">Folder</string>
+    <string name="gamefolder_missing">Brak folderu w %1$s.</string>
+    <string name="gamefolder_empty">W tym folderze nie znaleziono utworów (song.ini, .sm, .ssc lub Info.dat).</string>
+    <string name="gamefolder_all">Wszystkie utwory</string>
 </resources>

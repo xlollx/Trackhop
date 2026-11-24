@@ -3525,4 +3525,36 @@
         <item quantity="one">%1$d oubliée : la prochaine synchro la recherche à nouveau.</item>
         <item quantity="other">%1$d oubliées : la prochaine synchro les recherche à nouveau.</item>
     </plurals>
+    <!-- Games: osu!, Beat Saber, Fortnite Festival, MusicBrainz links, rhythm game folders -->
+    <string name="provider_note_osu">Les morceaux de tes beatmaps osu! favorites et les plus jouées, et des packs Featured Artist, en playlists à copier sur ton service de musique. Lecture seule. Nécessite ta propre application OAuth osu!, gratuite (client ID et secret).</string>
+    <string name="login_hint_osu">Saisis ton nom d\'utilisateur osu! ou le lien de ton profil. Seules les données publiques sont lues : ton mot de passe osu! n\'est jamais demandé.</string>
+    <string name="setup_why_osu">osu! laisse les applis lire ses données publiques avec une application OAuth à toi : gratuite, créée en quelques secondes dans les paramètres du compte.</string>
+    <string-array name="setup_steps_osu">
+        <item>Connecte-toi sur osu.ppy.sh et ouvre Paramètres › OAuth.</item>
+        <item>Choisis \"New OAuth Application\", donne-lui un nom (par exemple Trackhop) et laisse la callback URL vide. Enregistre-la.</item>
+        <item>Copie ici le \"Client ID\" et dans le second champ le \"Client Secret\".</item>
+    </string-array>
+    <string name="osu_bad_key">osu! a refusé le client ID ou le secret : vérifie-les dans osu! Paramètres › OAuth.</string>
+    <string name="osu_not_found">osu! ne connaît pas ce joueur ou cette liste.</string>
+    <string name="osu_favourites">Beatmaps favorites</string>
+    <string name="osu_most_played">Beatmaps les plus jouées</string>
+    <string name="provider_note_beatsaber">Les morceaux que tu joues dans Beat Saber (les plus joués, récents, meilleurs scores) en playlists à copier sur ton service de musique, lus depuis ton profil BeatLeader ou ScoreSaber. Lecture seule, sans compte.</string>
+    <string name="login_hint_beatsaber">Saisis ton identifiant de joueur BeatLeader ou ScoreSaber ou le lien de ton profil (le nombre dans beatleader.com/u/… ou scoresaber.com/u/…).</string>
+    <string name="beatsaber_not_found">Ni BeatLeader ni ScoreSaber ne connaissent ce joueur.</string>
+    <string name="beatsaber_most_played">Morceaux les plus joués</string>
+    <string name="beatsaber_recent">Morceaux joués récemment</string>
+    <string name="beatsaber_best">Meilleurs scores</string>
+    <string name="provider_note_fortnite">Les Jam Tracks de Fortnite Festival comme source : toutes, ou celles ajoutées ces 30 derniers jours, pour garder une playlist à jour sur ton service à chaque saison. Lues depuis les pages publiques d\'Epic, pas une API officielle.</string>
+    <string name="fortnite_all">Toutes les Jam Tracks</string>
+    <string name="fortnite_new">Jam Tracks ajoutées ces 30 derniers jours</string>
+    <string name="fortnite_changed">Impossible de lire la liste des morceaux de Fortnite Festival : Epic l\'a peut-être modifiée.</string>
+    <string name="provider_note_musicbrainz">Une bande originale ou un album de MusicBrainz, l\'encyclopédie musicale libre : colle un lien musicbrainz.org vers une release ou un release group. Lecture seule.</string>
+    <string name="musicbrainz_label">Release MusicBrainz</string>
+    <string name="musicbrainz_unavailable">MusicBrainz ne répond pas pour le moment, ou le lien ne mène nulle part. Réessaie dans une minute.</string>
+    <string name="provider_note_gamefolder">Le dossier de morceaux d\'un jeu de rythme sur cet ordinateur : Clone Hero, YARG, Phase Shift (song.ini), StepMania, ITGmania (.sm, .ssc) et niveaux personnalisés de Beat Saber. Tous les morceaux et chaque pack deviennent des playlists. Lecture seule : rien n\'est modifié dans le dossier.</string>
+    <string name="login_hint_gamefolder">Le chemin du dossier de morceaux tel que ce serveur le voit (avec Docker, un dossier que tu montes dans le conteneur).</string>
+    <string name="login_folder">Dossier</string>
+    <string name="gamefolder_missing">Aucun dossier à %1$s.</string>
+    <string name="gamefolder_empty">Aucun morceau trouvé dans ce dossier (song.ini, .sm, .ssc ou Info.dat).</string>
+    <string name="gamefolder_all">Tous les morceaux</string>
 </resources>

@@ -3517,4 +3517,36 @@
         <item quantity="one">%1$d vergessen: Der nächste Sync sucht erneut.</item>
         <item quantity="other">%1$d vergessen: Der nächste Sync sucht erneut.</item>
     </plurals>
+    <!-- Games: osu!, Beat Saber, Fortnite Festival, MusicBrainz links, rhythm game folders -->
+    <string name="provider_note_osu">Die Songs deiner Lieblings- und meistgespielten osu!-Beatmaps und der Featured-Artist-Pakete als Playlists zum Kopieren auf deinen Musikdienst. Nur lesen. Braucht eine eigene, kostenlose osu!-OAuth-Anwendung (Client-ID und Secret).</string>
+    <string name="login_hint_osu">Gib deinen osu!-Benutzernamen oder Profillink ein. Gelesen werden nur öffentliche Daten: Dein osu!-Passwort wird nie abgefragt.</string>
+    <string name="setup_why_osu">osu! lässt Apps seine öffentlichen Daten mit einer eigenen OAuth-Anwendung lesen: kostenlos, in Sekunden in den Kontoeinstellungen erstellt.</string>
+    <string-array name="setup_steps_osu">
+        <item>Melde dich bei osu.ppy.sh an und öffne Einstellungen › OAuth.</item>
+        <item>Wähle \"New OAuth Application\", gib ihr einen beliebigen Namen (zum Beispiel Trackhop) und lass die Callback-URL leer. Registriere sie.</item>
+        <item>Kopiere die \"Client ID\" hierher und das \"Client Secret\" ins zweite Feld.</item>
+    </string-array>
+    <string name="osu_bad_key">osu! hat die Client-ID oder das Secret abgelehnt: Prüfe sie in osu! unter Einstellungen › OAuth.</string>
+    <string name="osu_not_found">osu! kennt diesen Spieler oder diese Liste nicht.</string>
+    <string name="osu_favourites">Lieblings-Beatmaps</string>
+    <string name="osu_most_played">Meistgespielte Beatmaps</string>
+    <string name="provider_note_beatsaber">Die Songs, die du in Beat Saber spielst (meistgespielt, zuletzt, beste Scores), als Playlists zum Kopieren auf deinen Musikdienst, gelesen aus deinem BeatLeader- oder ScoreSaber-Profil. Nur lesen, kein Konto nötig.</string>
+    <string name="login_hint_beatsaber">Gib deine BeatLeader- oder ScoreSaber-Spieler-ID oder deinen Profillink ein (die Zahl in beatleader.com/u/… oder scoresaber.com/u/…).</string>
+    <string name="beatsaber_not_found">Weder BeatLeader noch ScoreSaber kennt diesen Spieler.</string>
+    <string name="beatsaber_most_played">Meistgespielte Songs</string>
+    <string name="beatsaber_recent">Zuletzt gespielte Songs</string>
+    <string name="beatsaber_best">Beste Scores</string>
+    <string name="provider_note_fortnite">Die Jam Tracks von Fortnite Festival als Quelle: alle oder die in den letzten 30 Tagen hinzugekommenen, damit eine Playlist auf deinem Dienst jede Saison aktuell bleibt. Gelesen aus Epics öffentlichen Seiten, keine offizielle API.</string>
+    <string name="fortnite_all">Alle Jam Tracks</string>
+    <string name="fortnite_new">Jam Tracks der letzten 30 Tage</string>
+    <string name="fortnite_changed">Die Songliste von Fortnite Festival konnte nicht gelesen werden: Epic hat sie vielleicht geändert.</string>
+    <string name="provider_note_musicbrainz">Ein Soundtrack oder Album von MusicBrainz, der freien Musik-Enzyklopädie: Füge einen musicbrainz.org-Link zu einem Release oder einer Release-Gruppe ein. Nur lesen.</string>
+    <string name="musicbrainz_label">MusicBrainz-Release</string>
+    <string name="musicbrainz_unavailable">MusicBrainz antwortet gerade nicht, oder der Link führt ins Leere. Versuch es in einer Minute noch einmal.</string>
+    <string name="provider_note_gamefolder">Der Songordner eines Rhythmusspiels auf diesem Computer: Clone Hero, YARG, Phase Shift (song.ini), StepMania, ITGmania (.sm, .ssc) und eigene Beat-Saber-Level. Alle Songs und jedes Paket werden zu Playlists. Nur lesen: Im Ordner wird nichts geändert.</string>
+    <string name="login_hint_gamefolder">Der Pfad des Songordners, wie dieser Server ihn sieht (mit Docker ein Ordner, den du in den Container einbindest).</string>
+    <string name="login_folder">Ordner</string>
+    <string name="gamefolder_missing">Kein Ordner unter %1$s.</string>
+    <string name="gamefolder_empty">In diesem Ordner wurden keine Songs gefunden (song.ini, .sm, .ssc oder Info.dat).</string>
+    <string name="gamefolder_all">Alle Songs</string>
 </resources>

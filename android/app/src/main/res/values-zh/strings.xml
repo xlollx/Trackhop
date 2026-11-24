@@ -3400,4 +3400,36 @@
     <plurals name="saved_matches_forgotten_n">
         <item quantity="other">已忘记 %1$d 项：下次同步会重新查找。</item>
     </plurals>
+    <!-- Games: osu!, Beat Saber, Fortnite Festival, MusicBrainz links, rhythm game folders -->
+    <string name="provider_note_osu">把你在 osu! 收藏的和玩得最多的谱面，以及 Featured Artist 曲包里的歌曲，做成可以复制到音乐服务的歌单。只读。需要你自己的免费 osu! OAuth 应用（客户端 ID 和密钥）。</string>
+    <string name="login_hint_osu">输入你的 osu! 用户名或个人主页链接。只读取公开数据：从不需要你的 osu! 密码。</string>
+    <string name="setup_why_osu">osu! 允许应用通过你自己的 OAuth 应用读取公开数据：免费，在账户设置里几秒就能创建。</string>
+    <string-array name="setup_steps_osu">
+        <item>登录 osu.ppy.sh，打开 设置 › OAuth。</item>
+        <item>选择“New OAuth Application”，随便起个名字（例如 Trackhop），callback URL 留空，然后注册。</item>
+        <item>把“Client ID”复制到这里，把“Client Secret”复制到第二个框。</item>
+    </string-array>
+    <string name="osu_bad_key">osu! 拒绝了客户端 ID 或密钥：请在 osu! 设置 › OAuth 中检查。</string>
+    <string name="osu_not_found">osu! 找不到这个玩家或列表。</string>
+    <string name="osu_favourites">收藏的谱面</string>
+    <string name="osu_most_played">玩得最多的谱面</string>
+    <string name="provider_note_beatsaber">你在 Beat Saber 里玩的歌曲（玩得最多、最近、最佳成绩），从你的 BeatLeader 或 ScoreSaber 主页读取，做成可以复制到音乐服务的歌单。只读，无需账户。</string>
+    <string name="login_hint_beatsaber">输入你的 BeatLeader 或 ScoreSaber 玩家 ID 或主页链接（beatleader.com/u/… 或 scoresaber.com/u/… 中的数字）。</string>
+    <string name="beatsaber_not_found">BeatLeader 和 ScoreSaber 都找不到这个玩家。</string>
+    <string name="beatsaber_most_played">玩得最多的歌曲</string>
+    <string name="beatsaber_recent">最近玩过的歌曲</string>
+    <string name="beatsaber_best">最佳成绩</string>
+    <string name="provider_note_fortnite">把 Fortnite Festival 的 Jam Track 作为来源：全部，或最近 30 天新增的，让你服务上的歌单每个赛季都保持最新。从 Epic 的公开页面读取，不是官方 API。</string>
+    <string name="fortnite_all">全部 Jam Track</string>
+    <string name="fortnite_new">最近 30 天新增的 Jam Track</string>
+    <string name="fortnite_changed">无法读取 Fortnite Festival 的歌曲列表：Epic 可能更改了它。</string>
+    <string name="provider_note_musicbrainz">来自开放音乐百科 MusicBrainz 的原声带或专辑：粘贴 musicbrainz.org 上某个发行版或发行组的链接。只读。</string>
+    <string name="musicbrainz_label">MusicBrainz 发行版</string>
+    <string name="musicbrainz_unavailable">MusicBrainz 现在没有响应，或者链接没有指向任何内容。请一分钟后再试。</string>
+    <string name="provider_note_gamefolder">这台电脑上某个节奏游戏的歌曲文件夹：Clone Hero、YARG、Phase Shift（song.ini）、StepMania、ITGmania（.sm、.ssc）以及 Beat Saber 自定义关卡。所有歌曲和每个曲包都会变成歌单。只读：不会改动文件夹里的任何东西。</string>
+    <string name="login_hint_gamefolder">这台服务器看到的歌曲文件夹路径（使用 Docker 时，是你挂载到容器里的文件夹）。</string>
+    <string name="login_folder">文件夹</string>
+    <string name="gamefolder_missing">%1$s 处没有文件夹。</string>
+    <string name="gamefolder_empty">这个文件夹里没有找到歌曲（song.ini、.sm、.ssc 或 Info.dat）。</string>
+    <string name="gamefolder_all">全部歌曲</string>
 </resources>

@@ -3751,4 +3751,36 @@
         <item quantity="many">Забыто: %1$d. Следующая синхронизация поищет снова.</item>
         <item quantity="other">Забыто: %1$d. Следующая синхронизация поищет снова.</item>
     </plurals>
+    <!-- Games: osu!, Beat Saber, Fortnite Festival, MusicBrainz links, rhythm game folders -->
+    <string name="provider_note_osu">Песни из ваших любимых и самых играемых битмап osu!, а также из паков Featured Artist как плейлисты для копирования в ваш музыкальный сервис. Только чтение. Нужно своё бесплатное OAuth-приложение osu! (client ID и secret).</string>
+    <string name="login_hint_osu">Введите имя пользователя osu! или ссылку на профиль. Читаются только открытые данные: пароль osu! никогда не запрашивается.</string>
+    <string name="setup_why_osu">osu! разрешает приложениям читать открытые данные через ваше собственное OAuth-приложение: бесплатно, создаётся за секунды в настройках аккаунта.</string>
+    <string-array name="setup_steps_osu">
+        <item>Войдите на osu.ppy.sh и откройте Настройки › OAuth.</item>
+        <item>Выберите \"New OAuth Application\", дайте любое имя (например, Trackhop) и оставьте callback URL пустым. Зарегистрируйте его.</item>
+        <item>Скопируйте сюда \"Client ID\", а во второе поле \"Client Secret\".</item>
+    </string-array>
+    <string name="osu_bad_key">osu! отклонил client ID или secret: проверьте их в osu! Настройки › OAuth.</string>
+    <string name="osu_not_found">osu! не знает этого игрока или этот список.</string>
+    <string name="osu_favourites">Любимые битмапы</string>
+    <string name="osu_most_played">Самые играемые битмапы</string>
+    <string name="provider_note_beatsaber">Песни, которые вы играете в Beat Saber (самые играемые, недавние, лучшие результаты), как плейлисты для копирования в ваш музыкальный сервис, из вашего профиля BeatLeader или ScoreSaber. Только чтение, без аккаунта.</string>
+    <string name="login_hint_beatsaber">Введите свой ID игрока BeatLeader или ScoreSaber или ссылку на профиль (число в beatleader.com/u/… или scoresaber.com/u/…).</string>
+    <string name="beatsaber_not_found">Ни BeatLeader, ни ScoreSaber не знают этого игрока.</string>
+    <string name="beatsaber_most_played">Самые играемые песни</string>
+    <string name="beatsaber_recent">Недавно сыгранные песни</string>
+    <string name="beatsaber_best">Лучшие результаты</string>
+    <string name="provider_note_fortnite">Jam Tracks из Fortnite Festival как источник: все или добавленные за последние 30 дней, чтобы плейлист в вашем сервисе обновлялся каждый сезон. Читаются с открытых страниц Epic, это не официальный API.</string>
+    <string name="fortnite_all">Все Jam Tracks</string>
+    <string name="fortnite_new">Jam Tracks за последние 30 дней</string>
+    <string name="fortnite_changed">Не удалось прочитать список песен Fortnite Festival: возможно, Epic его изменил.</string>
+    <string name="provider_note_musicbrainz">Саундтрек или альбом из MusicBrainz, открытой музыкальной энциклопедии: вставьте ссылку musicbrainz.org на релиз или группу релизов. Только чтение.</string>
+    <string name="musicbrainz_label">Релиз MusicBrainz</string>
+    <string name="musicbrainz_unavailable">MusicBrainz сейчас не отвечает, или ссылка никуда не ведёт. Попробуйте через минуту.</string>
+    <string name="provider_note_gamefolder">Папка с песнями ритм-игры на этом компьютере: Clone Hero, YARG, Phase Shift (song.ini), StepMania, ITGmania (.sm, .ssc) и пользовательские уровни Beat Saber. Все песни и каждый пак становятся плейлистами. Только чтение: в папке ничего не меняется.</string>
+    <string name="login_hint_gamefolder">Путь к папке с песнями, как его видит этот сервер (в Docker — папка, подключённая в контейнер).</string>
+    <string name="login_folder">Папка</string>
+    <string name="gamefolder_missing">Нет папки по пути %1$s.</string>
+    <string name="gamefolder_empty">В этой папке не найдено песен (song.ini, .sm, .ssc или Info.dat).</string>
+    <string name="gamefolder_all">Все песни</string>
 </resources>

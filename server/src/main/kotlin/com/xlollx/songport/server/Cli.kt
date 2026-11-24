@@ -87,6 +87,9 @@ object Cli {
                 "A <track> is \"Artist - Title\", a link from any service, or its id on the sync's destination.",
             listOf("ignore", "keep", "discard", "pick", "replace", "restore")),
         Cmd("services", "Services and playlists", listOf("services"), "the services and whether they are connected"),
+        Cmd("soundtracks", "Services and playlists", listOf("soundtracks <words>..."), "soundtracks on MusicBrainz: each one's service and playlist make a sync's source"),
+        Cmd("truck-radio", "Services and playlists", listOf("truck-radio", "truck-radio add <stream> <name> [--game \"Euro Truck Simulator 2\"]"),
+            "the radio list of Euro Truck Simulator 2 and American Truck Simulator on this computer; add: a station joins it (close the game first)"),
         Cmd("playlists", "Services and playlists", listOf("playlists <service>"), "a service's playlists"),
         Cmd("tracks", "Services and playlists", listOf("tracks <service> <playlist>"), "a playlist's tracks"),
         Cmd("add", "Services and playlists", listOf("add <service> <playlist> <track>..."), "add tracks: \"Artist - Title\", a link from any service, or an id"),
@@ -164,7 +167,7 @@ object Cli {
 
     /** The switches with no value, and the options that take one (--name NAME or --name=NAME). */
     private val FLAGS = setOf("json", "wait", "all", "albums", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals", "apply", "names", "upcoming", "encrypted", "replaces-device", "replace-sign-ins")
-    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency", "playlists", "way") + CliV2.valued
+    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency", "playlists", "way", "game") + CliV2.valued
     val OPTIONS: List<String> get() = (FLAGS + VALUED).sorted().map { "--$it" }
 
     /** The options a command was given: switches and values (a value given twice is a list: --set). */
