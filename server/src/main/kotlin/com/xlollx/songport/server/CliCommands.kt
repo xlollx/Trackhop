@@ -116,7 +116,7 @@ internal class CliCommands(
     private fun allSyncs() = api.get("syncs").jsonArray.map { it.jsonObject }
 
     /** The sync named [ask]: its id, its exact name, or the only one whose name starts with or holds it. */
-    private fun sync(ask: String): JsonObject {
+    internal fun sync(ask: String): JsonObject {
         val list = allSyncs()
         list.firstOrNull { it.s("id") == ask }?.let { return it }
         val exact = list.filter { it.s("name").equals(ask, ignoreCase = true) }
@@ -450,7 +450,7 @@ internal class CliCommands(
 
     private val dayNames = listOf("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 
-    private fun day(d: String): Int = d.trim().lowercase().let { w -> w.toIntOrNull()?.takeIf { it in 1..7 } ?: (dayNames.indexOfFirst { w.startsWith(it) } + 1).takeIf { it > 0 } }
+    internal fun day(d: String): Int = d.trim().lowercase().let { w -> w.toIntOrNull()?.takeIf { it in 1..7 } ?: (dayNames.indexOfFirst { w.startsWith(it) } + 1).takeIf { it > 0 } }
         ?: throw Cli.Failure(2, "--days takes days as mon,tue… or 1 (Monday) to 7")
 
     /** The sync options (--name, --schedule, --every, --at, --days, --changes, --follows, --color) as the API's body fields. */
@@ -482,6 +482,8 @@ internal class CliCommands(
             if (o.has("any-version")) put("studioOnly", false)
         }
         if (policy.isNotEmpty()) put("policy", policy)
+        // A saved schedule to follow (trackhop schedules), or "none": its own timing again.
+        o.value("use-schedule")?.let { put("savedSchedule", if (it == "none") kotlinx.serialization.json.JsonNull else JsonPrimitive(it)) }
         if (o.has("keep-order")) put("keepOrder", true)
         if (o.has("no-keep-order")) put("keepOrder", false)
     }

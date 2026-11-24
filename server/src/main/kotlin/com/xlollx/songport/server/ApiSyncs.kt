@@ -119,6 +119,14 @@ internal fun matching(job: SyncJob, b: JsonObject): SyncJob {
     return j.copy(policy = policy)
 }
 
+/** [job] linked to the saved schedule "savedSchedule" names (its id or name), or set free of it with null. */
+internal fun Web.linked(job: SyncJob, b: JsonObject): SyncJob {
+    if (!b.containsKey("savedSchedule")) return job
+    val ask = b.text("savedSchedule") ?: return com.xlollx.songport.sync.Schedules.detach(job)
+    val s = findSchedule(ask) ?: throw IllegalArgumentException("No saved schedule called \"$ask\": see GET /api/v1/schedules.")
+    return com.xlollx.songport.sync.Schedules.link(job, s)
+}
+
 /** [job] with "copyRatings" (true/false) from [b], when it says it. */
 private fun ratings(job: SyncJob, b: JsonObject): SyncJob = b.flag("copyRatings")?.let { job.copy(copyRatings = it) } ?: job
 
@@ -218,7 +226,7 @@ internal fun Web.apiSyncs(ex: HttpExchange, method: String, rest: List<String>, 
                 b.text("name")?.let { j = j.copy(name = it) }
                 b.flag("enabled")?.let { j = j.copy(enabled = it) }
                 // A radio sync's source only grows and is timed by its window: its schedule and changes stay.
-                if (j.radio == null) j = matching(ratings(changed(timed(j, b), b), b), b)
+                if (j.radio == null) j = matching(ratings(changed(linked(timed(j, b), b), b), b), b)
                 // Two-way made or unmade, and whether removals travel too (Pairs.kt); the other half follows below.
                 pairing(grouped(coloured(j, b), b, env.store.data.settings.labels), b.flag("twoWay"), b.flag("twoWayRemovals"))
             }.getOrElse { e -> return true.also { bad(e) } }
@@ -331,7 +339,7 @@ private fun Web.createSyncFromApi(b: JsonObject, json: (Int, JsonElement) -> Uni
     }.getOrElse { return if (it is IllegalArgumentException) error(400, it.message ?: "Wrong request.") else error(502, it.message ?: it.javaClass.simpleName) }
     val job = runCatching {
         val base = SyncJob(id = givenId ?: UUID.randomUUID().toString(), name = b.text("name") ?: chosen.third, source = chosen.first, target = chosen.second)
-        grouped(coloured(matching(ratings(changed(timed(base, b), b), b), b), b), b, env.store.data.settings.labels).let { j -> b.flag("enabled")?.let { j.copy(enabled = it) } ?: j }
+        grouped(coloured(matching(ratings(changed(linked(timed(base, b), b), b), b), b), b), b, env.store.data.settings.labels).let { j -> b.flag("enabled")?.let { j.copy(enabled = it) } ?: j }
             .let { j -> pairing(j, b.flag("twoWay"), b.flag("twoWayRemovals")) }
     }.getOrElse { return error(400, it.message ?: "Wrong request.") }
     val warning = conflictWarning(job)

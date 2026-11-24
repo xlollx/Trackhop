@@ -139,4 +139,23 @@ class ParityApiTest {
         assertEquals(400, call("POST", "tofix", """{"action":"frob","keys":"all"}""").code)
         assertEquals(400, call("GET", "tofix?by=year").code)
     }
+
+    @Test fun savedSchedulesAndBulkEditThroughTheApi() {
+        val id = newSync().s("id")!!
+        val made = call("POST", "schedules", """{"name":"Mornings","every":1440,"at":"7:30"}""").also { assertEquals(it.text, 201, it.code) }.obj
+        assertEquals("daily at 07:30", made.s("timing"))
+        val linked = call("PATCH", "syncs/$id", """{"savedSchedule":"Mornings"}""").obj
+        assertEquals(made.s("id"), linked.s("savedSchedule"))
+        assertEquals(1, call("GET", "schedules").arr.single().jsonObject["syncs"]!!.jsonArray.size)
+        assertEquals("08:00", call("PATCH", "schedules/${made.s("id")}", """{"at":"08:00"}""").obj.s("at"))
+        assertEquals("08:00", env.store.job(id)!!.at)
+        assertEquals(400, call("POST", "schedules", """{"every":0}""").code)
+        assertEquals(400, call("PATCH", "syncs/$id", """{"savedSchedule":"Nope"}""").code)
+        val bulk = call("POST", "syncs/bulk", """{"syncs":["$id"],"every":360,"changes":"mirror"}""").also { assertEquals(it.text, 200, it.code) }.obj
+        assertEquals("1", bulk.s("changed"))
+        assertTrue(env.store.job(id)!!.mirrorRemovals)
+        assertEquals(360, env.store.job(id)!!.everyMinutes)
+        assertEquals(404, call("POST", "syncs/bulk", """{"syncs":["nope"]}""").code)
+        assertEquals("1", call("DELETE", "schedules/Mornings").let { call("GET", "schedules").arr.size + 1 }.toString())
+    }
 }

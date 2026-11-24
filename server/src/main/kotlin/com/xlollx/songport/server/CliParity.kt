@@ -37,9 +37,22 @@ internal class CliParity(private val c: CliCommands) {
                     "pick: use <track> instead (a link from any service, \"Artist - Title\", or its id there); back: a song set aside returns.\n" +
                     "<n> is a row's number from the list (back: from the Later list).",
                 listOf("use", "ignore", "later", "pick", "back")),
+            Cli.Cmd("schedules", "Syncs", listOf(
+                "schedules",
+                "schedules add <name> [--every MINUTES] [--at HH:MM] [--days mon,fri]",
+                "schedules edit <schedule> [--name NAME] [--every MINUTES] [--at HH:MM] [--days mon,fri]",
+                "schedules rm <schedule>",
+            ), "saved schedules: a timing kept once, with a name, for many syncs",
+                "A sync follows one with trackhop edit <sync> --use-schedule <schedule>; when the schedule changes, every sync that follows it\n" +
+                    "changes too. Deleted, its syncs keep running at the same times. --every: 60 to 10080 minutes (1440 daily, the default).",
+                listOf("add", "edit", "rm")),
+            Cli.Cmd("edit-many", "Syncs", listOf("edit-many <sync>... [--use-schedule NAME | --every MINUTES] [--at HH:MM] [--label NAME|none] [--changes add|mirror] [--on|--off]"),
+                "change several syncs at once: their schedule, label, what they do with removals",
+                "Both halves of a two-way pair, and all of a multi sync, follow. --changes leaves two-way syncs and archives as they are."),
         )
 
-        val valued: Set<String> = setOf("by")
+        val valued: Set<String> = setOf("by", "use-schedule")
+        val flags: Set<String> = setOf("on", "off")
 
         private val pretty = Json { prettyPrint = true }
     }
@@ -60,6 +73,8 @@ internal class CliParity(private val c: CliCommands) {
     fun run(command: String, p: List<String>, o: Cli.Opts): Int? = when (command) {
         "unplayable" -> unplayable(p, o)
         "tofix" -> toFix(p, o)
+        "schedules" -> schedules(p, o)
+        "edit-many" -> editMany(p, o)
         else -> null
     }
 
@@ -142,6 +157,52 @@ internal class CliParity(private val c: CliCommands) {
         if (c.asJson) return print(done).let { 0 }
         out.println("Done: ${done.n("done")}${if (done.n("syncs") > 0) ", ${done.n("syncs")} playlists written" else ""}. ${done.n("left")} left to fix.")
         (done["failed"] as? JsonArray).orEmpty().takeIf { it.isNotEmpty() }?.let { f -> out.println("Not written now (the next run does it): ${f.joinToString(", ") { it.str().orEmpty() }}") }
+        return 0
+    }
+
+    // ------------------------------------------------------------------ schedules
+
+    private fun scheduleBody(o: Cli.Opts, name: String?) = buildJsonObject {
+        (name ?: o.value("name"))?.let { put("name", it) }
+        o.value("every")?.let { put("every", it.toIntOrNull() ?: throw Cli.Failure(2, "--every takes minutes, e.g. 1440")) }
+        o.value("at")?.let { put("at", it) }
+        o.value("days")?.let { d -> put("days", JsonArray(d.split(',').filter { it.isNotBlank() }.map { JsonPrimitive(c.day(it)) })) }
+    }
+
+    private fun schedules(p: List<String>, o: Cli.Opts): Int {
+        fun show(s: JsonObject) = out.println("${s.s("name").ifEmpty { s.s("timing") }}  (${s.s("id")})  ${s.s("timing")}, ${(s["syncs"] as? JsonArray).orEmpty().size} syncs")
+        val r: JsonElement = when (p.firstOrNull()) {
+            null -> api.get("schedules").also { list ->
+                if (!c.asJson) { val all = (list as JsonArray).map { it.jsonObject }; if (all.isEmpty()) out.println("No saved schedule: trackhop schedules add <name> --every 1440 --at 07:30"); all.forEach(::show); return 0 }
+            }
+            "add" -> api.post("schedules", scheduleBody(o, p.drop(1).joinToString(" ").ifBlank { throw Cli.Failure(2, "usage: trackhop schedules add <name> [--every MINUTES] [--at HH:MM] [--days mon,fri]") }))
+            "edit" -> api.send("PATCH", "schedules/${enc(p.drop(1).joinToString(" ").ifBlank { throw Cli.Failure(2, "usage: trackhop schedules edit <schedule> [options]") })}", scheduleBody(o, null))
+            "rm", "delete" -> api.send("DELETE", "schedules/${enc(p.drop(1).joinToString(" ").ifBlank { throw Cli.Failure(2, "usage: trackhop schedules rm <schedule>") })}")
+                .also { if (!c.asJson) { out.println("Deleted. Its syncs keep running at the same times."); return 0 } }
+            else -> throw Cli.Failure(2, "usage: trackhop schedules [add|edit|rm]")
+        }
+        if (c.asJson) print(r) else show(r.jsonObject)
+        return 0
+    }
+
+    private fun editMany(p: List<String>, o: Cli.Opts): Int {
+        if (p.isEmpty()) throw Cli.Failure(2, "usage: trackhop edit-many <sync>... [options]")
+        val ids = p.map { c.sync(it).s("id") }
+        val body = buildJsonObject {
+            put("syncs", JsonArray(ids.map { JsonPrimitive(it) }))
+            o.value("use-schedule")?.let { put("schedule", it) }
+            o.value("every")?.let { put("every", it.toIntOrNull() ?: throw Cli.Failure(2, "--every takes minutes, e.g. 1440")) }
+            o.value("at")?.let { put("at", it) }
+            o.value("label")?.let { put("label", if (it == "none") JsonNull else JsonPrimitive(it)) }
+            o.value("changes")?.let { put("changes", it) }
+            if (o.has("on")) put("enabled", true)
+            if (o.has("off")) put("enabled", false)
+        }
+        if (body.size == 1) throw Cli.Failure(2, "say what to change: --use-schedule, --every, --at, --label, --changes, --on or --off")
+        val r = api.post("syncs/bulk", body).jsonObject
+        if (c.asJson) return print(r).let { 0 }
+        out.println("${r.n("changed")} syncs changed.")
+        r.list("syncs").forEach { out.println("  ${it.s("name")}: ${it.s("timing")}") }
         return 0
     }
 }

@@ -120,6 +120,8 @@ object Api {
         put("every", com.xlollx.songport.sync.Timing.interval(j))
         put("at", j.at?.let { JsonPrimitive(it) } ?: JsonNull)
         put("days", buildJsonArray { j.days.forEach { add(it) } })
+        // The saved schedule it follows (GET /schedules), if any.
+        put("savedSchedule", j.scheduleId?.let { JsonPrimitive(it) } ?: JsonNull)
         put("color", j.color?.let { JsonPrimitive(it) } ?: JsonNull)
         // The one label it wears (its colour, with a name when the user gave one), its star and its tags.
         put("label", j.label?.let { JsonPrimitive(it) } ?: JsonNull)

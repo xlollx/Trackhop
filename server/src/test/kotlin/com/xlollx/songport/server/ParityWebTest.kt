@@ -136,4 +136,28 @@ class ParityWebTest {
         assertEquals(303, post("/tofix", "action" to "ignore", "key" to key).statusCode())
         assertTrue(get("/tofix").body().contains("Nothing to fix"))
     }
+
+    @Test fun savedSchedulesOnTheirPageAndOnASyncsPage() {
+        sync(); sync("s2")
+        assertTrue(get("/settings").body().contains("/settings/schedules"))
+        assertEquals(303, post("/settings/schedules", "name" to "Weekend", "every" to "1440", "at" to "10:00", "day" to "6", "day" to "7").statusCode())
+        val s = env.store.data.settings.savedSchedules.single()
+        assertEquals(listOf(6, 7), s.days)
+        // A sync's page offers it; picked, the sync follows it.
+        assertTrue(get("/syncs/s1").body().contains("name=\"scheduleId\""))
+        post("/syncs/s1/schedule", "name" to "Mine", "every" to "60", "changes" to "add", "scheduleId" to s.id)
+        assertEquals(s.id, env.store.job("s1")!!.scheduleId)
+        assertEquals("10:00", env.store.job("s1")!!.at)
+        assertTrue(get("/settings/schedules").body().contains("1 sync"))
+        // Several syncs from Select › Edit.
+        assertTrue(post("/syncs/bulk", "action" to "edit", "job" to "s1", "job" to "s2").body().contains("Apply to 2 syncs"))
+        assertEquals(303, post("/syncs/bulk", "action" to "edit-apply", "job" to "s1", "job" to "s2", "when" to "saved:${s.id}", "pick" to "teal", "changes" to "mirror").statusCode())
+        assertEquals(s.id, env.store.job("s2")!!.scheduleId)
+        assertTrue(env.store.job("s2")!!.mirrorRemovals)
+        assertEquals("teal", env.store.job("s1")!!.label)
+        // Deleted: the syncs keep the timing.
+        post("/settings/schedules", "action" to "delete", "id" to s.id)
+        assertEquals(null, env.store.job("s1")!!.scheduleId)
+        assertEquals("10:00", env.store.job("s1")!!.at)
+    }
 }

@@ -200,6 +200,7 @@ class Web(
             path[0] == "tools" -> tools(r, path.drop(1))
             path == listOf("settings") -> settingsPage(r)
             path == listOf("settings", "notifications") -> notificationsPage(r)
+            path == listOf("settings", "schedules") -> schedulesPage(r)
             path == listOf("tofix") -> toFixPage(r)
             path[0] == "playlists" -> playlists(r, path.drop(1))
             path[0] == "syncs" -> syncs(r, path.drop(1))
@@ -905,7 +906,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                         // The page's own form also carries the star, the tags and the colour's name.
                         val grouped = r.form["groups"] == "1"
                         val tags = if (grouped) Labels.cleanTags(r.form["tags"].orEmpty().split(',').mapNotNull { Labels.parseTag(it) }.associate { it.first to it.second.orEmpty() }) else job.tags
-                        val timed = withTiming(job.copy(name = name, schedule = s, favorite = if (grouped) r.form["favorite"] != null else job.favorite, tags = tags), r)
+                        val timed = withSavedSchedule(withTiming(job.copy(name = name, schedule = s, favorite = if (grouped) r.form["favorite"] != null else job.favorite, tags = tags), r), r.form)
                         // A radio sync's form has no choice about changes: its source only grows.
                         val changed = if (job.radio != null) timed else withMatching(withRatings(withChanges(timed, r), r), r.form)
                         // Two-way and its removals, where the form offers them (see pairFields).
@@ -1100,7 +1101,7 @@ ${changesFields(null)}${ratingsField(null, src, dst)}${pairFields(null)}
         val labels = env.store.data.settings.labels
         val schedules = Schedule.values().joinToString("") { """<option value="${it.name}"${if (it == job.schedule) " selected" else ""}>${h(scheduleName(it))}</option>""" }
         body.append(
-            """<form method="post" action="/syncs/$id/schedule" class="card"><label>Name</label><input type="text" name="name" value="${h(job.name)}">${if (job.radio != null) """<input type="hidden" name="schedule" value="MANUAL">""" else """${timingFields(job)}
+            """<form method="post" action="/syncs/$id/schedule" class="card"><label>Name</label><input type="text" name="name" value="${h(job.name)}">${if (job.radio != null) """<input type="hidden" name="schedule" value="MANUAL">""" else """${savedScheduleField(job)}${timingFields(job)}
 ${changesFields(job)}${ratingsField(job, Providers.byId(job.source.provider), Providers.byId(job.target.provider))}${pairFields(job)}${matchingFields(job)}"""}
 <label>Colour</label><div class="swatches"><label title="None"><input type="radio" name="color" value=""${if (job.color == null) " checked" else ""} aria-label="None"><span class="dot none"></span></label>${Html.JOB_COLORS.entries.joinToString("") { (k, v) -> val n = h(labels.firstOrNull { it.id == k }?.name?.takeIf { it.isNotEmpty() } ?: k); """<label title="$n"><input type="radio" name="color" value="$k"${if (job.label == k) " checked" else ""} aria-label="$n"><span class="dot" style="background:${v.first}"></span></label>""" }}${labels.filter { !Labels.isBase(it.id) }.joinToString("") { l -> """<label title="${h(l.name)}"><input type="radio" name="color" value="label:${h(l.id)}"${if (job.label == l.id) " checked" else ""} aria-label="${h(l.name)}"><span class="dot" style="background:${h(l.color)}"></span></label>""" }}<label title="Your own colour"><input type="radio" name="color" value="custom"${if (job.label == null && Html.customColor(job.color) != null) " checked" else ""} aria-label="Your own colour"><input type="color" name="customColor" value="${h((Html.customColor(job.color) ?: "#0B84E8").lowercase())}" aria-label="Pick your own colour" onchange="this.previousElementSibling.checked=true"></label></div>
 <input type="hidden" name="groups" value="1">

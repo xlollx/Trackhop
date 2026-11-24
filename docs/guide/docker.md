@@ -735,6 +735,12 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `POST /api/v1/syncs/{sync}/decisions` | Bring in review choices made elsewhere: `{"decisions": [{"source": "<id>", "kind": "ignore" \| "match" \| "keep", "track": "<id>", "at": 1731234567890}]}`; the newest choice of each track wins, and the answer lists them all. |
 | `GET /api/v1/syncs/crowded` | Whether many syncs reach one service at about the same time: the service, the time, the syncs, `dismissed` (the page's *Got it*) and `canSpread`. |
 | `POST /api/v1/syncs/spread` | New times for those syncs (`changes`: `from`, `to`): only shown, saved with `?apply=true` (or `{"apply": true}`). |
+| `POST /api/v1/syncs/bulk` | Change several syncs at once, as **Select › Edit…** on the page: `{"syncs": ["<id>"], "schedule"?: "<saved schedule>" \| "every"?: 360, "at"?, "label"? (null takes it off), "changes"?: "add" \| "mirror", "enabled"?}`. Both halves of a two-way pair and all of a multi sync follow; two-way syncs and archives keep their own removals. |
+| `GET /api/v1/schedules` | The saved schedules (**Settings › Schedules**): `id`, `name`, `timing`, `every`, `at`, `days`, the `syncs` that follow each, `nextRun`. A sync follows one with `"savedSchedule"` in `PATCH /api/v1/syncs/{sync}` (its id or name; `null` gives it its own timing again). |
+| `POST /api/v1/schedules` | Save a schedule: `{"name"?, "every": 1440, "at"?: "07:30", "days"?: [6, 7]}` (it must run by itself: 60 to 10080 minutes). |
+| `GET /api/v1/schedules/{schedule}` | One saved schedule, by its id or name. |
+| `PATCH /api/v1/schedules/{schedule}` | Change it: every sync that follows it takes the new timing at once. |
+| `DELETE /api/v1/schedules/{schedule}` | Delete it: its syncs keep running at the same times, as their own timing. |
 
 **Multi syncs**
 
