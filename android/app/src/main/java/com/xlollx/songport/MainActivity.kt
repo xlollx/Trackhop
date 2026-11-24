@@ -664,6 +664,8 @@ private fun MainScreen(
         OnboardingScreen(
             onDone = { store.updateSettings { it.copy(onboardingDone = true, whatsNewSeen = newest) } },
             onTour = { store.updateSettings { it.copy(onboardingDone = true, whatsNewSeen = newest) }; com.xlollx.songport.ui.Tour.start() },
+            // The welcome ends on the choice of the first service, the sheet "New sync" opens with nothing connected.
+            onConnect = { store.updateSettings { it.copy(onboardingDone = true, whatsNewSeen = newest) }; tab = MainActivity.TAB_SYNCS; firstSheet = true },
         )
         return
     }
@@ -699,7 +701,7 @@ private fun MainScreen(
         onSeeAll = { firstSheet = false; tab = MainActivity.TAB_ACCOUNTS; addConnector = true },
     )
     connectNow?.let { p ->
-        com.xlollx.songport.ui.ConnectDialog(p, onDismiss = { connectNow = null }) {
+        com.xlollx.songport.ui.ConnectDialog(p, onDismiss = { connectNow = null }, onOwnKey = { connectNow = null; tab = MainActivity.TAB_ACCOUNTS; wizardFor = p }) {
             connectNow = null
             com.xlollx.songport.auth.AuthFlow.start(ctx, p)
         }
