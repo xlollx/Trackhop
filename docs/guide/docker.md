@@ -721,7 +721,7 @@ are the ones the lists give: a sync's `id`, a run's `id`, a service's `id` (`spo
 | `PATCH /api/v1/labels/{label}` | Rename a label or give it another colour: its syncs follow. |
 | `DELETE /api/v1/labels/{label}` | Delete a label: its syncs keep their colour, without the name. |
 | `GET /api/v1/syncs/{sync}` | One sync and its last runs. |
-| `PATCH /api/v1/syncs/{sync}` | Change a sync: any of name, enabled, schedule, every, at, days, changes, follows, color, label, tags, favorite, twoWay, twoWayRemovals. |
+| `PATCH /api/v1/syncs/{sync}` | Change a sync: any of name, enabled, schedule, every, at, days, changes, follows, color, label, tags, favorite, twoWay, twoWayRemovals; `policy` (how close a match must be: `{"strictness": "lenient" \| "normal" \| "strict", "explicit": "clean" \| "either" \| "explicit", "sameAlbum", "studioOnly"}`) and `keepOrder` (the destination keeps the source's order). |
 | `DELETE /api/v1/syncs/{sync}` | Delete a sync (the playlists stay as they are); the other half of a two-way pair goes with it. |
 | `POST /api/v1/syncs/{sync}/run` | Start a sync now; anyway=true after a run held back by the target's size check; `{"confirmRemovals": true}` lets this run make the removals a run holds back. |
 | `POST /api/v1/syncs/{sync}/stop` | Stop a running sync. |
@@ -766,7 +766,7 @@ multi sync whole.
 
 | Call | What it does |
 |---|---|
-| `GET /api/v1/services` | The services added, and whether each is connected; each account apart (`id` `jellyfin@2`, with `serviceId` and `slot`). |
+| `GET /api/v1/services` | The services added, and whether each is connected; each account apart (`id` `jellyfin@2`, with `serviceId` and `slot`). `web` marks the unofficial ones; `q=` finds them by name or account, `kind=` `official`, `web` or `connected` narrows the list. |
 | `GET /api/v1/services/{service}` | One service: connected, account, and what it can do. |
 | `GET /api/v1/services/{service}/search` | Look for a track: q is "Artist - Title" or a link. |
 | `GET /api/v1/convert` | A track on another service: track is "Artist - Title" or a link, to the service's id. |

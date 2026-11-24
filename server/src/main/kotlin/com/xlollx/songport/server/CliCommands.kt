@@ -50,7 +50,7 @@ internal class CliCommands(
         "runs" -> runs(p.takeIf { it.isNotEmpty() }?.joinToString(" "), o)
         "report" -> if (p.isEmpty()) issue(o) else report(p.joinToString(" "))
         "review" -> review(p, o)
-        "services" -> services()
+        "services" -> services(p.joinToString(" "), o.value("kind"))
         "playlists" -> playlists(one(p, "playlists <service>"))
         "tracks" -> { need(p, 2, "tracks <service> <playlist>"); tracks(p[0], p[1]) }
         "add", "remove" -> { need(p, 3, "$command <service> <playlist> <track>..."); edit(command, p[0], p[1], p.drop(2)) }
@@ -255,11 +255,12 @@ internal class CliCommands(
             ?: throw Cli.Failure(1, "no service \"$ask\" here. See: trackhop services")
     }
 
-    private fun services(): Int {
-        val list = allServices()
+    private fun services(find: String = "", kind: String? = null): Int {
+        val list = if (find.isEmpty() && kind == null) allServices()
+            else api.get("services?q=${enc(find)}${kind?.let { "&kind=${enc(it)}" } ?: ""}").jsonArray.map { it.jsonObject }
         if (asJson) return print(JsonArray(list)).let { 0 }
-        if (list.isEmpty()) out.println("No services added yet: add them on Trackhop's page, Services.")
-        for (o in list) out.println("${o.s("name")}  (${o.s("id")})  ${if (o.b("connected")) "connected" + (o["account"].str()?.let { " as $it" } ?: "") else "not connected"}")
+        if (list.isEmpty()) out.println(if (find.isEmpty() && kind == null) "No services added yet: add them on Trackhop's page, Services." else "No service matches.")
+        for (o in list) out.println("${o.s("name")}  (${o.s("id")})  ${if (o.b("connected")) "connected" + (o["account"].str()?.let { " as $it" } ?: "") else "not connected"}${if (o.b("web")) ", unofficial" else ""}")
         return 0
     }
 

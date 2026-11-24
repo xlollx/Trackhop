@@ -83,4 +83,14 @@ class ParityApiTest {
         assertEquals(400, call("PATCH", "syncs/$id", """{"policy":"strict"}""").code)
         assertTrue(env.store.job(id)!!.policy.explicit == -1)
     }
+
+    @Test fun theServicesListFindsAndFilters() {
+        env.store.updateSettings { it.copy(connectors = listOf("csv", "jellyfin", "deezer_bridge")) }
+        val all = call("GET", "services").arr.map { it.jsonObject.s("id") }
+        assertEquals(listOf("csv", "jellyfin", "deezer_bridge"), all)
+        assertEquals(listOf("deezer_bridge"), call("GET", "services?kind=web").arr.map { it.jsonObject.s("id") })
+        assertEquals(listOf("csv", "jellyfin"), call("GET", "services?kind=official").arr.map { it.jsonObject.s("id") })
+        assertEquals(listOf("jellyfin"), call("GET", "services?q=JELLY").arr.map { it.jsonObject.s("id") })
+        assertEquals(400, call("GET", "services?kind=nope").code)
+    }
 }

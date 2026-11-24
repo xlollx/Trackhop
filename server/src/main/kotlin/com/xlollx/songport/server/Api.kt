@@ -490,8 +490,12 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
             json(200, Api.run(report))
         }
         rest.size >= 3 && rest[0] == "services" -> ApiPlaylists.handle(this, ex, method, rest, ::json, ::error)
-        rest == listOf("services") && method == "GET" -> json(200, JsonArray(Providers.connectors().map { p ->
+        rest == listOf("services") && method == "GET" -> {
+            // The Services page's search and chips: q= words, kind= all, official, web or connected.
+            val chip = ServicesFilter.chip(query["kind"]) ?: return error(400, "\"kind\" is all, official, web or connected.")
+            json(200, JsonArray(ServicesFilter.shown(env, Providers.connectors(), query["q"].orEmpty(), chip).map { p ->
             buildJsonObject {
+                put("web", ServicesFilter.web(p))
                 put("id", p.id); put("name", p.label(env))
                 // Which service, and which of its accounts ("" the main one, "2", "3"… the others): id is "jellyfin@2".
                 put("serviceId", p.serviceId); put("slot", p.slot)
@@ -499,6 +503,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
                 put("account", p.accountName(env)?.let { JsonPrimitive(it) } ?: JsonNull)
             }
         }))
+        }
         rest == listOf("files") && method == "GET" -> json(200, JsonArray(csvFiles().map { JsonPrimitive(it.name) }))
         rest.size == 2 && rest[0] == "files" && (method == "POST" || method == "PUT") -> {
             // A playlist file in the body (CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, rekordbox XML, JSON, plain text), named by the path.

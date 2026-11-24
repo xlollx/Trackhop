@@ -651,7 +651,13 @@ $removals"""
     private fun connectorList(r: Req) {
         val added = Providers.connectors()
         val body = StringBuilder(notice(r))
-        for (p in added) {
+        // Find and filter as the app's Accounts: a search and one chip at a time (ServicesFilter).
+        val chip = ServicesFilter.chip(r.query["kind"]) ?: ServicesFilter.Chip.ALL
+        val find = r.query["q"].orEmpty()
+        body.append(servicesFinder(find, chip, added.size))
+        val shown = ServicesFilter.shown(env, added, find, chip)
+        if (added.isNotEmpty() && shown.isEmpty()) body.append("""<p class="muted">No service matches. <a href="/connectors">Show them all</a></p>""")
+        for (p in shown) {
             val state = when {
                 !p.requiresAuth -> """<span class="ok">ready</span>"""
                 p.isConnected(env) -> """<span class="ok">connected</span>""" + (p.accountName(env)?.let { " · " + h(it) } ?: "")
@@ -877,6 +883,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                 if (r.method != "POST") return syncPage(r, job)
                 when (rest.getOrNull(1)) {
                     "run" -> { runner.start(job); redirect(r.ex, back) }
+                    "preview" -> startPreview(r, job)
                     // After a run stopped by the target's size check: the user says the smaller target is real.
                     "run-anyway" -> { env.store.confirmTargetShrink(job.id); runner.start(job); redirect(r.ex, back) }
                     "stop" -> { SyncState.stop(job.id); redirect(r.ex, back) }
@@ -899,7 +906,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                         val tags = if (grouped) Labels.cleanTags(r.form["tags"].orEmpty().split(',').mapNotNull { Labels.parseTag(it) }.associate { it.first to it.second.orEmpty() }) else job.tags
                         val timed = withTiming(job.copy(name = name, schedule = s, favorite = if (grouped) r.form["favorite"] != null else job.favorite, tags = tags), r)
                         // A radio sync's form has no choice about changes: its source only grows.
-                        val changed = if (job.radio != null) timed else withRatings(withChanges(timed, r), r)
+                        val changed = if (job.radio != null) timed else withMatching(withRatings(withChanges(timed, r), r), r.form)
                         // Two-way and its removals, where the form offers them (see pairFields).
                         val paired = job.linkedJobId?.let { env.store.job(it) } != null
                         val offered = r.form["pair"] == "1"
@@ -1078,6 +1085,8 @@ ${changesFields(null)}${ratingsField(null, src, dst)}${pairFields(null)}
         if (running) {
             body.append(if (SyncState.isPaused(job.id)) Html.postButton("/syncs/$id/resume", "Resume") else Html.postButton("/syncs/$id/pause", "Pause", "secondary"))
         }
+        // What a run would do now, changing nothing (the app's Preview).
+        if (job.radio == null && !running) body.append(Html.postButton("/syncs/$id/preview", "Preview", "secondary"))
         body.append(Html.postButton("/syncs/$id/toggle", if (job.enabled) "Turn off" else "Turn on", "secondary"))
         body.append(Html.postButton("/syncs/$id/delete", "Delete", "danger", confirm = if (halves(job).size > 1) "Delete this two-way sync and its other half? The playlists stay as they are." else "Delete this sync? The playlists stay as they are."))
         body.append("</div>")
@@ -1091,7 +1100,7 @@ ${changesFields(null)}${ratingsField(null, src, dst)}${pairFields(null)}
         val schedules = Schedule.values().joinToString("") { """<option value="${it.name}"${if (it == job.schedule) " selected" else ""}>${h(scheduleName(it))}</option>""" }
         body.append(
             """<form method="post" action="/syncs/$id/schedule" class="card"><label>Name</label><input type="text" name="name" value="${h(job.name)}">${if (job.radio != null) """<input type="hidden" name="schedule" value="MANUAL">""" else """${timingFields(job)}
-${changesFields(job)}${ratingsField(job, Providers.byId(job.source.provider), Providers.byId(job.target.provider))}${pairFields(job)}"""}
+${changesFields(job)}${ratingsField(job, Providers.byId(job.source.provider), Providers.byId(job.target.provider))}${pairFields(job)}${matchingFields(job)}"""}
 <label>Colour</label><div class="swatches"><label title="None"><input type="radio" name="color" value=""${if (job.color == null) " checked" else ""} aria-label="None"><span class="dot none"></span></label>${Html.JOB_COLORS.entries.joinToString("") { (k, v) -> val n = h(labels.firstOrNull { it.id == k }?.name?.takeIf { it.isNotEmpty() } ?: k); """<label title="$n"><input type="radio" name="color" value="$k"${if (job.label == k) " checked" else ""} aria-label="$n"><span class="dot" style="background:${v.first}"></span></label>""" }}${labels.filter { !Labels.isBase(it.id) }.joinToString("") { l -> """<label title="${h(l.name)}"><input type="radio" name="color" value="label:${h(l.id)}"${if (job.label == l.id) " checked" else ""} aria-label="${h(l.name)}"><span class="dot" style="background:${h(l.color)}"></span></label>""" }}<label title="Your own colour"><input type="radio" name="color" value="custom"${if (job.label == null && Html.customColor(job.color) != null) " checked" else ""} aria-label="Your own colour"><input type="color" name="customColor" value="${h((Html.customColor(job.color) ?: "#0B84E8").lowercase())}" aria-label="Pick your own colour" onchange="this.previousElementSibling.checked=true"></label></div>
 <input type="hidden" name="groups" value="1">
 <label for="labelName">Label name</label><input type="text" id="labelName" name="labelName" maxlength="${Labels.MAX_NAME}" value="${h(Labels.name(job, labels))}"><p class="muted">Optional. Every sync with this colour shares the name: you can then search and filter by it. Your own colour with a name is kept among the ready colours.</p>

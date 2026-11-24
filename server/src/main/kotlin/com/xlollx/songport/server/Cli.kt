@@ -86,7 +86,8 @@ object Cli {
                 "pick: the track to add for one not found; replace: the right one for a match to check; restore: put back what the run removed.\n" +
                 "A <track> is \"Artist - Title\", a link from any service, or its id on the sync's destination.",
             listOf("ignore", "keep", "discard", "pick", "replace", "restore")),
-        Cmd("services", "Services and playlists", listOf("services"), "the services and whether they are connected"),
+        Cmd("services", "Services and playlists", listOf("services [<words>] [--kind official|web|connected]"), "the services and whether they are connected",
+            "<words> finds a service by its name or the account it is connected as; --kind keeps the official ones, the unofficial (web) ones or the connected ones."),
         Cmd("playlists", "Services and playlists", listOf("playlists <service>"), "a service's playlists"),
         Cmd("tracks", "Services and playlists", listOf("tracks <service> <playlist>"), "a playlist's tracks"),
         Cmd("add", "Services and playlists", listOf("add <service> <playlist> <track>..."), "add tracks: \"Artist - Title\", a link from any service, or an id"),
@@ -164,7 +165,7 @@ object Cli {
 
     /** The switches with no value, and the options that take one (--name NAME or --name=NAME). */
     private val FLAGS = setOf("json", "wait", "all", "albums", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals", "apply", "names", "upcoming", "encrypted", "replaces-device", "replace-sign-ins")
-    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency", "playlists", "way", "strictness", "explicit") + CliV2.valued
+    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency", "playlists", "way", "strictness", "explicit", "kind") + CliV2.valued
     val OPTIONS: List<String> get() = (FLAGS + VALUED).sorted().map { "--$it" }
 
     /** The options a command was given: switches and values (a value given twice is a list: --set). */
