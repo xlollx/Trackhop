@@ -72,9 +72,11 @@ jpackage --type app-image --name Trackhop --dest "$work/out" \
   --jlink-options "--strip-debug --no-man-pages --no-header-files --include-locales=$locales"
 
 if [ "$os" = windows ]; then
-  # PowerShell wants Windows paths, not Git Bash's /d/a/….
+  # Windows' own tar (bsdtar) writes the zip: its names use "/", as the zip format wants. PowerShell's
+  # Compress-Archive wrote "\", which unzip tools outside Windows read as files, not folders.
   zip=$(cygpath -w "$root/dist/$name-windows.zip")
-  (cd "$work/out" && powershell -NoProfile -Command "Compress-Archive -Path Trackhop -DestinationPath '$zip' -Force")
+  rm -f "dist/$name-windows.zip"
+  (cd "$work/out" && "$(cygpath -u "${SYSTEMROOT:-C:\\Windows}")/System32/tar.exe" -a -c -f "$zip" Trackhop)
   # The upgrade code stays the same forever: a newer MSI replaces the installed one.
   jpackage --type msi --app-image "$work/out/Trackhop" --name Trackhop --dest "$work" \
     --app-version "$version" --vendor xlollx --description "Trackhop Desktop (beta)" \

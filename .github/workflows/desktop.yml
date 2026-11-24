@@ -108,6 +108,30 @@ jobs:
             ! dpkg-query -W -f="\${Status}\n" trackhop 2>/dev/null | grep -q " installed"
           '
 
+      - name: The .zip uses "/" in its names
+        # The zip format wants "/": with "\" unzip tools outside Windows make files, not folders. The
+        # names as stored, read from the central directory (Python's zipfile turns "\" into "/" on Windows).
+        if: runner.os == 'Windows'
+        run: |
+          python - dist/*-windows.zip <<'PY'
+          import struct, sys
+          data = open(sys.argv[1], "rb").read()
+          end = data.rfind(b"PK\x05\x06")
+          count, size, at = struct.unpack("<HII", data[end + 10:end + 20])
+          names = []
+          for _ in range(count):
+              assert data[at:at + 4] == b"PK\x01\x02", "bad central directory"
+              n, e, c = struct.unpack("<HHH", data[at + 28:at + 34])
+              names.append(data[at + 46:at + 46 + n].decode("utf-8", "replace"))
+              at += 46 + n + e + c
+          bad = [n for n in names if "\\" in n or not n.startswith("Trackhop/")]
+          print(len(names), "entries")
+          if not names or bad:
+              sys.exit("::error::entries not under Trackhop/ with \"/\": " + ", ".join(bad[:10]))
+          if "Trackhop/Trackhop.exe" not in names:
+              sys.exit("::error::Trackhop/Trackhop.exe missing from the zip")
+          PY
+
       - name: MSIX (Microsoft Store)
         # Unsigned: the Store signs it. The identity is Partner Center's (Product identity), kept as
         # repository variables; the defaults only make a package to try out.
