@@ -24,7 +24,10 @@ import java.util.concurrent.ConcurrentHashMap
  */
 internal object Compat {
     data class Side(val provider: MusicProvider, val playlistId: String, val name: String)
-    data class Done(val a: Side, val b: Side, val result: Compatibility.Result)
+    data class Done(val a: Side, val b: Side, val result: Compatibility.Result) {
+        /** This comparison, for its page's button: a later one does not answer it. */
+        val id: String = java.util.UUID.randomUUID().toString()
+    }
     val last = ConcurrentHashMap<String, Done>()
 
     fun readable(env: ServerEnv) = (Providers.connectors() + LocalFilesProvider).distinctBy { it.id }.filter { (!it.requiresAuth || it.isConnected(env)) && !it.linkOnly && it.serviceId != "lastfm" && it.serviceId != "listenbrainz" }
@@ -55,7 +58,7 @@ internal fun Web.compatPage(r: Web.Req) {
     val services = Compat.readable(env)
     if (r.method == "POST") {
         if (r.form["action"] == "make") {
-            val d = Compat.last[env.owner] ?: return redirect(r.ex, "/tools/compat?err=${q("That comparison is no longer kept: compare again.")}")
+            val d = Compat.last[env.owner]?.takeIf { it.id == r.form["cmp"] } ?: return redirect(r.ex, "/tools/compat?err=${q("That comparison is no longer kept: compare again.")}")
             val p = d.a.provider.takeIf { it.canWrite && it.canCreatePlaylists } ?: LocalFilesProvider
             val task = Tasks.start(title, "/tools/compat", { env.log("compat", it) }, env.owner, env.marks) { t ->
                 val made = LibraryTools.createWith(env, p, "${d.a.name} + ${d.b.name}", "Songs in common", d.result.common.map { it.a }) { x -> t.progress = "Adding ${x.done}/${x.total}" }
@@ -102,7 +105,7 @@ private fun Web.compatHtml(d: Compat.Done): String = buildString {
     if (res.sharedArtists.isNotEmpty()) append("""<p>Artists in common: ${h(res.sharedArtists.take(20).joinToString(", "))}</p>""")
     if (res.forA.isNotEmpty()) append("""<h3>For you, from theirs</h3><ul>${songs(res.forA)}</ul>""")
     if (res.forB.isNotEmpty()) append("""<h3>For them, from yours</h3><ul>${songs(res.forB)}</ul>""")
-    if (res.common.isNotEmpty()) append("""<details><summary>The ${res.common.size} songs in common</summary><ul>${songs(res.common.map { it.a })}</ul></details><p>${Html.postButton("/tools/compat", "Make a playlist of the songs in common", "secondary", mapOf("action" to "make"))}</p>""")
+    if (res.common.isNotEmpty()) append("""<details><summary>The ${res.common.size} songs in common</summary><ul>${songs(res.common.map { it.a })}</ul></details><p>${Html.postButton("/tools/compat", "Make a playlist of the songs in common", "secondary", mapOf("action" to "make", "cmp" to d.id))}</p>""")
     append("</div>")
 }
 

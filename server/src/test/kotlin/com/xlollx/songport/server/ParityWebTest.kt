@@ -204,6 +204,17 @@ class ParityWebTest {
         assertTrue(location(post("/tools/scan", "service" to "csv", "action" to "save", "list" to "repeats", "scan" to now)).contains("ok="))
     }
 
+    @Test fun aCompatibilityPageMakesItsOwnComparisonNotALaterOne() {
+        File(data, "csv/B.csv").writeText("title,artist\nSong,Band\n")
+        File(data, "csv/C.csv").writeText("title,artist\nOther Song,Other Band\n")
+        val first = taskPage(location(post("/tools/compat", "a" to "csv", "pa" to "In", "b" to "csv", "pb" to "B")))
+        val cmp = Regex("name=\"cmp\" value=\"([^\"]+)\"").find(first)!!.groupValues[1]
+        val second = taskPage(location(post("/tools/compat", "a" to "csv", "pa" to "In", "b" to "csv", "pb" to "C")))
+        assertTrue(location(post("/tools/compat", "action" to "make", "cmp" to cmp)).contains("err="))
+        val now = Regex("name=\"cmp\" value=\"([^\"]+)\"").find(second)!!.groupValues[1]
+        assertTrue(location(post("/tools/compat", "action" to "make", "cmp" to now)).startsWith("/tools/task/"))
+    }
+
     @Test fun aPlaylistPastedOnTheFilePage() {
         assertTrue(get("/connectors/csv").body().contains("Paste a playlist"))
         val r = post("/files/text", "name" to "Pasted", "text" to "Moderat - A New Error\nBonobo - Kerala")
