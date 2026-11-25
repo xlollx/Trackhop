@@ -107,6 +107,18 @@ class UnchangedSourceSkipTest {
         assertFalse(skipped(engine.run(saved, unattended = true)))
     }
 
+    @Test fun aTargetChangedWhileARunReadsIsNotCertifiedByIt() = runBlocking {
+        dst.lists["t2"] = mutableListOf()
+        env.store.upsertJob(job())
+        // The target is changed to another playlist while the run reads the source: it synced the old one.
+        onRead = { onRead = {}; env.store.upsertJob(env.store.job("j")!!.let { it.copy(target = PlaylistRef("mdst", "t2", "t2")) }) }
+        engine.run(job())
+        val saved = env.store.job("j")!!
+        assertEquals("t2", saved.target.playlistId)
+        assertTrue(saved.versionsKey != engine.runKey(saved))
+        assertFalse(skipped(engine.run(saved, unattended = true)))
+    }
+
     @Test fun aTargetMadeByTheRunIsCertifiedByIt() = runBlocking {
         val made = job().copy(target = PlaylistRef("mdst", null, "New"))
         env.store.upsertJob(made)
