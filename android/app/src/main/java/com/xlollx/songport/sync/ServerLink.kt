@@ -297,11 +297,11 @@ object ServerLink {
     }
 
     /** Starts the server's sync [serverId]; the answer in words. */
-    suspend fun run(ctx: Context, serverId: String): Outcome {
+    suspend fun run(ctx: Context, serverId: String, multi: Boolean = false): Outcome {
         val api = api(ctx) ?: return Outcome(false, ctx.getString(R.string.server_err_off, ctx.getString(R.string.server_locks_title)))
         return try {
-            api.run(serverId)
-            log(ctx, "started $serverId on ${api.base}")
+            if (multi) api.runMulti(serverId) else api.run(serverId)
+            log(ctx, "started ${if (multi) "multi sync " else ""}$serverId on ${api.base}")
             Outcome(true, ctx.getString(R.string.server_run_started))
         } catch (e: ServerSyncs.Failure) {
             Outcome(false, say(ctx, e))
@@ -312,8 +312,10 @@ object ServerLink {
     fun runHandedOver(ctx: Context, jobId: String) {
         val app = ctx.applicationContext
         val h = handedOver(app, jobId) ?: return
+        // A sync of a multi sync starts the whole multi sync there (the same id), as its own run does here.
+        val group = Store.get(app).let { s -> s.job(jobId)?.let { groupOf(s.data, it) } }
         scope.launch {
-            val o = run(app, h.serverId)
+            val o = if (group != null) run(app, group.id, multi = true) else run(app, h.serverId)
             Toast.makeText(app, o.message, Toast.LENGTH_LONG).show()
             runCatching { refresh(app) }
         }
