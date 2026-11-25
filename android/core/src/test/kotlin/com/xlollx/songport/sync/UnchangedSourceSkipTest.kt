@@ -115,4 +115,12 @@ class UnchangedSourceSkipTest {
         assertTrue(saved.target.playlistId != null)
         assertEquals(engine.runKey(saved), saved.versionsKey)
     }
+
+    @Test fun anotherIgnoredSongOfTheSameCountIsAnotherKey() {
+        val one = job().copy(ignoredSourceIds = listOf("a"))
+        assertTrue(engine.runKey(one) != engine.runKey(one.copy(ignoredSourceIds = listOf("b"))))
+        assertEquals(engine.runKey(one), engine.runKey(one.copy(ignoredSourceIds = listOf("a", "a"))))
+        // None ignored: the key it had before.
+        assertEquals(engine.runKey(job()), engine.runKey(job().copy(ignoredSourceIds = emptyList())))
+    }
 }

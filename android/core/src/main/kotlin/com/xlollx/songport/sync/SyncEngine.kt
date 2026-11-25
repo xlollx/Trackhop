@@ -164,7 +164,7 @@ class SyncEngine(
     /** The matching's revision and what of [job] changes a run's outcome: another one, and an unchanged source is read anyway. */
     internal fun runKey(job: SyncJob): Int = listOf(
         Matcher.REVISION, job.policy, job.source.provider, job.source.playlistId, job.target.provider, job.target.playlistId,
-        job.mirrorRemovals, job.archive, job.followsChanges, job.copyRatings, job.keepOrder, job.ignoredSourceIds.size, job.linkedJobId,
+        job.mirrorRemovals, job.archive, job.followsChanges, job.copyRatings, job.keepOrder, job.ignoredSourceIds.toSet(), job.linkedJobId,
     ).hashCode().let { if (it == 0) 1 else it }
 
     /**
