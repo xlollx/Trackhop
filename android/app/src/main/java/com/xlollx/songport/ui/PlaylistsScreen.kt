@@ -170,7 +170,8 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
                                 failed++; if (reason == null) reason = e.userMessage(ctx)
                             }
                         } finally {
-                            off = turnOffSyncsOf(gone)
+                            // Off the main thread (it writes the store), and done even when the screen goes meanwhile.
+                            off = withContext(kotlinx.coroutines.NonCancellable + Dispatchers.IO) { turnOffSyncsOf(gone) }
                             busy = false
                         }
                         version++
@@ -273,7 +274,7 @@ fun PlaylistsScreen(provider: MusicProvider, onClose: () -> Unit) {
                     scope.launch {
                         try {
                             provider.deletePlaylist(ctx, pl.id)
-                            val off = turnOffSyncsOf(setOf(pl.id))
+                            val off = withContext(kotlinx.coroutines.NonCancellable + Dispatchers.IO) { turnOffSyncsOf(setOf(pl.id)) }
                             version++
                             snackbar.showSnackbar(listOfNotNull(ctx.getString(R.string.manage_deleted), turnedOff(off)).joinToString(" · "))
                         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { fail(e) }
