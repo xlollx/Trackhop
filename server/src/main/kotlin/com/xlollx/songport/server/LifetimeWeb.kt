@@ -100,9 +100,12 @@ internal fun Web.apiLifetime(ex: HttpExchange, method: String, rest: List<String
         "GET" -> json(200, ListeningExport.kept(env)?.let { Json.encodeToJsonElement(ListeningExport.Stats.serializer(), it) } ?: JsonNull)
         "PUT", "POST" -> {
             val dir = LibraryUploads.dir(env).apply { mkdirs() }
+            // Within the space uploads may take, as the form's upload is.
+            val budget = LibraryUploads.budget(dir)
             val tmp = java.io.File.createTempFile("export", ".bin", dir)
             try {
-                ex.requestBody.use { inp -> tmp.outputStream().use { inp.copyTo(it) } }
+                val copied = ex.requestBody.use { inp -> tmp.outputStream().use { copyAtMost(inp, it, budget) } }
+                if (copied > budget) return true.also { error(413, "This file is too big for the space left here.") }
                 val s = runCatching { Lifetime.read(env, tmp) }.getOrElse { return true.also { _ -> error(400, if (it is ListeningExport.NotAnExport) "No listening history in this file." else it.message ?: "Error") } }
                 json(200, Json.encodeToJsonElement(ListeningExport.Stats.serializer(), s))
             } finally { tmp.delete() }

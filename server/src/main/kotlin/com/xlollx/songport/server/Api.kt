@@ -648,7 +648,7 @@ internal fun Web.apiPage(r: Web.Req) {
 }
 
 /** Copies at most [max] + 1 bytes of [inp] to [out]: the count says whether it went over. */
-private fun copyAtMost(inp: java.io.InputStream, out: java.io.OutputStream, max: Long): Long {
+internal fun copyAtMost(inp: java.io.InputStream, out: java.io.OutputStream, max: Long): Long {
     val buf = ByteArray(64 * 1024)
     var total = 0L
     while (true) {
