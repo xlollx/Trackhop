@@ -150,12 +150,18 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
                     for (j in order) {
                         // Read again: an earlier sync of this run may have written to it (its pair's other half); one deleted meanwhile is skipped.
                         val job = env.store.job(j.id)
-                        if (job == null || isRunning(job.id)) {
-                            SyncState.batchDone(batchId, j.id, SyncState.JobResult(skipped = if (job == null) "no longer in the list" else "already running"))
+                        // Checked and marked under the lock [start] holds: a sync started on its own meanwhile is not run twice at once.
+                        val skipped = synchronized(this@Runner) {
+                            when {
+                                job == null -> "no longer in the list"
+                                isRunning(job.id) -> "already running"
+                                else -> { SyncState.finish(job.id); SyncState.start(job.id); null }
+                            }
+                        }
+                        if (skipped != null || job == null) {
+                            SyncState.batchDone(batchId, j.id, SyncState.JobResult(skipped = skipped))
                             continue
                         }
-                        SyncState.finish(job.id)
-                        SyncState.start(job.id)
                         if (!scheduled) env.marks.begin(RunMarks.SYNC, job.id, job.name, "/multi/${group.id}")
                         val report = run(job, scheduled)
                         SyncState.batchDone(batchId, job.id, report?.let { SyncLog.result(it) } ?: SyncState.JobResult(ok = false, error = "not run"))
