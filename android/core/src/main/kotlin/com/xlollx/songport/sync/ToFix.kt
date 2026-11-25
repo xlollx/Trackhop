@@ -108,6 +108,13 @@ object ToFix {
     fun byService(items: List<Item>, name: (String) -> String): List<Group> =
         items.groupBy { it.targetService }.map { (family, list) -> Group(family, name(family), list) }
 
+    /**
+     * The rows ticked in the list ([keys]), in its order, as "Accept suggestions" splits them: first
+     * those with a suggestion, which it accepts, then those it leaves (nothing to accept).
+     */
+    fun ticked(items: List<Item>, keys: Set<String>): Pair<List<Item>, List<Item>> =
+        items.filter { it.key in keys }.partition { it.suggestion != null }
+
     /** "Later": [item] leaves the list until the next run of each sync that lists it. */
     fun later(store: FileStore, item: Item) = store.update { d ->
         // Only a sync's last report is listed: what was set aside in an older one is forgotten.

@@ -40,6 +40,8 @@ umbrel_alt: 'Auf Umbrel holen'
 umbrel_note: 'Unser App-Store für umbrelOS'
 caprover_alt: 'Auf CapRover holen'
 caprover_note: 'Im One-Click-Apps-Katalog'
+dokploy_alt: 'Auf Dokploy holen'
+dokploy_note: 'In den Templates'
 render_alt: 'Auf Render bereitstellen (Beta)'
 render_note: 'Beta · über dein Render-Konto abgerechnet'
 railway_alt: 'Auf Railway bereitstellen (Beta)'
@@ -47,7 +49,6 @@ railway_note: 'Beta · über dein Railway-Konto abgerechnet'
 cloud_more: 'Kein Server zu Hause: Trackhop online in deinem eigenen Konto, mit HTTPS-Adresse und geplanten Syncs'
 virustotal: Jeder Download auf VirusTotal geprüft
 downloads: "{n} Downloads"
-downloads_title: Downloads der GitHub-Releases und Pulls von Docker Hub. F-Droid und die Stores veröffentlichen keine Zahlen, die echte Zahl ist also höher.
 demo_alt: "Ein Rundgang durch Trackhop: Syncs, ein neuer Sync, Konten, Werkzeuge, ein geteilter Titel, die Karten für Kompatibilität und Poster, nicht abspielbare Titel, Einstellungen"
 what_title: Was Trackhop kann
 what_intro: Wähle eine Quelle, ein Ziel und wie oft synchronisiert wird. Trackhop findet jeden Titel auf der anderen Seite, zeigt dir vorher, was sich ändert, und hält beide auf demselben Stand.
@@ -148,3 +149,9 @@ say_title: 'Was andere sagen'
 say_intro: 'Kommentare unter Videos und Posts über Trackhop und Nachrichten von Unterstützern. Namen und Bilder ausgeblendet.'
 say_alt: 'Kommentare von Leuten, die Trackhop nutzen, und zwei Nachrichten von Unterstützern, die den automatischen Sync und die Sicherheit loben, und Posts auf X, die es "a game changer for music lovers who use multiple platforms" nennen'
 gallery_title: "Ein Blick hinein"
+itch_alt: "Auf itch.io holen"
+sourceforge_alt: "Auf SourceForge holen"
+itch_phone_note: "Die vollständige APK, mit jeder Version aktualisiert"
+sourceforge_phone_note: "Jede Version, gespiegelt"
+itch_desktop_note: "Windows, macOS und Linux"
+sourceforge_desktop_note: "Jede Version, gespiegelt"

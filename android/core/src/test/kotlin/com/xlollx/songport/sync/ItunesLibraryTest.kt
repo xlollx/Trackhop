@@ -137,4 +137,45 @@ class ItunesLibraryTest {
     fun readingStopsWhenCancelled() {
         ItunesLibrary.read(BigLibrary(songs = 50_000, lists = 1), cancelled = { true })
     }
+
+    private fun rated(id: Int, rating: String) = """
+      <key>$id</key>
+      <dict>
+        <key>Track ID</key><integer>$id</integer>
+        <key>Name</key><string>Song $id</string>
+        <key>Artist</key><string>Band</string>
+        $rating
+      </dict>"""
+
+    private fun ratedLibrary(vararg tracks: String) = """<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0"><dict><key>Tracks</key><dict>${tracks.joinToString("")}</dict><key>Playlists</key><array></array></dict></plist>"""
+
+    @Test fun ratingsAreReadAsStars() {
+        val lib = ItunesLibrary.read(ratedLibrary(
+            rated(1, "<key>Rating</key><integer>20</integer>"),
+            rated(2, "<key>Rating</key><integer>60</integer><key>Album Rating</key><integer>80</integer>"),
+            rated(3, "<key>Rating</key><integer>100</integer>"),
+            // Half a star (a script's or an older iTunes' value): at least one star.
+            rated(4, "<key>Rating</key><integer>10</integer>"),
+            rated(5, ""),
+            // Worked out by iTunes from the songs, set by nobody: not copied.
+            rated(6, "<key>Rating</key><integer>40</integer><key>Rating Computed</key><true/><key>Album Rating</key><integer>60</integer><key>Album Rating Computed</key><true/>"),
+            rated(7, "<key>Rating</key><integer>40</integer><key>Album Rating</key><integer>100</integer><key>Album Rating Computed</key><true/>"),
+        ))
+        val tracks = lib.asOneList()
+        assertEquals(listOf(1, 3, 5, 1, 0, 0, 2), tracks.map { it.rating })
+        assertEquals(listOf(0, 4, 0, 0, 0, 0, 0), tracks.map { it.albumRating })
+    }
+
+    @Test fun ratingsAreNotPartOfTheStableId() {
+        val lib = ItunesLibrary.read(ratedLibrary(rated(1, "<key>Rating</key><integer>80</integer>")))
+        val unrated = ItunesLibrary.read(ratedLibrary(rated(1, "")))
+        assertEquals(unrated.asOneList().single().id, lib.asOneList().single().id)
+    }
+
+    @Test fun starsRoundHalfUp() {
+        assertEquals(listOf(0, 1, 1, 2, 2, 3, 3, 4, 5, 5), listOf("0", "1", "20", "30", "40", "50", "60", "80", "100", "120").map { ItunesLibrary.stars(it) })
+        assertEquals(0, ItunesLibrary.stars(null))
+        assertEquals(0, ItunesLibrary.stars("80", computed = true))
+    }
 }

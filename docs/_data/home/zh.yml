@@ -40,6 +40,8 @@ umbrel_alt: '在 Umbrel 上获取'
 umbrel_note: '我们为 umbrelOS 提供的应用商店'
 caprover_alt: '在 CapRover 上获取'
 caprover_note: '在其一键应用目录中'
+dokploy_alt: '在 Dokploy 上获取'
+dokploy_note: '在其模板中'
 render_alt: '部署到 Render（测试版）'
 render_note: '测试版 · 从你的 Render 账户计费'
 railway_alt: '部署到 Railway（测试版）'
@@ -47,7 +49,6 @@ railway_note: '测试版 · 从你的 Railway 账户计费'
 cloud_more: '家里没有服务器：在你自己的账户里让 Trackhop 上线，带 HTTPS 地址和定时同步'
 virustotal: 所有下载均经 VirusTotal 检测
 downloads: "{n} 次下载"
-downloads_title: GitHub 发布版下载量加 Docker Hub 拉取量。F-Droid 和各应用商店不公布数据，实际数字更高。
 demo_alt: "Trackhop 导览：同步列表、新建同步、账号、工具、分享的歌曲、契合度和海报卡片、无法播放的歌曲、设置"
 what_title: 它能做什么
 what_intro: 选好来源和目标，设定同步频率。Trackhop 会在另一端找到每一首歌，先告诉你会有哪些变化，再让两边始终保持一致。
@@ -148,3 +149,9 @@ say_title: '大家怎么说'
 say_intro: '介绍 Trackhop 的视频和帖子下的评论，以及支持者的留言。已隐去名字和头像。'
 say_alt: 'Trackhop 用户的评论，以及两位支持者称赞自动同步和安全性的留言，以及 X 上称它为“a game changer for music lovers who use multiple platforms”的帖子'
 gallery_title: "看一看"
+itch_alt: "在 itch.io 上获取"
+sourceforge_alt: "在 SourceForge 上获取"
+itch_phone_note: "完整 APK，每个版本都会更新"
+sourceforge_phone_note: "每个版本的镜像"
+itch_desktop_note: "Windows、macOS 和 Linux"
+sourceforge_desktop_note: "每个版本的镜像"

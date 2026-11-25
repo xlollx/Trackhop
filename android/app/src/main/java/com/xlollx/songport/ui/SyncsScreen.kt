@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import com.xlollx.songport.shared.NwayHistory
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.xlollx.songport.platform.env
 import com.xlollx.songport.sync.Freshness
@@ -549,9 +550,10 @@ fun SyncsScreen(
                     }
                 }
             }
-            // One row under the header: "Sync all", a pill that stays at the top while the list scrolls
-            // (while syncs run it says how many, and a tap brings the first running card into view), then
-            // the filter chips and, at the row's end, cards or tiles. Pinned, only the pill is left.
+            // The rows under the header: "Sync all", a pill that stays at the top while the list scrolls
+            // (while syncs run it says how many, and a tap brings the first running card into view), with
+            // select and cards or tiles at the row's end; the filter chips on a row of their own under it.
+            // Pinned, only the pill is left.
             if (runAllRow) stickyHeader(key = "runall") {
                 // While selecting, the selection's header takes the row's place (same item, so every position after it stays).
                 if (selecting) SelectionHeader(
@@ -565,7 +567,7 @@ fun SyncsScreen(
                 val tally = SyncState.tally(running.keys, pausedSet, parkedSet, stoppingSet)
                 val counts = remember(data.syncs, data.reports, runningIds, standsFor) { SyncFilter.counts(data.syncs, data.reports, runningIds, standsFor) }
                 RunAllRow(
-                    tally.takeIf { data.syncs.size >= 2 }, pinned = pillPinned, modifier = Modifier.onSizeChanged { pillHeight = it.height },
+                    tally.takeIf { data.syncs.size >= 2 }, pinned = pillPinned, onPillHeight = { pillHeight = it },
                     chips = if (chipsShown) ({ SyncFinderChips(data.syncs, effective, counts, data.settings.labels, standsFor) { filter = it } }) else null,
                     // Select syncs (2.1.1): selecting starts here with none ticked, in both views, without a menu.
                     // Then cards or tiles, at a tap; remembered (also in Settings).
@@ -914,27 +916,42 @@ private class PullGuard : NestedScrollConnection {
 }
 
 /**
- * The row under the header: the "sync all" pill first (filled and inviting when idle, a quiet progress
- * state while syncs run; [tally] null with a single sync, which has no pill), then the filter [chips],
- * all in one line that scrolls sideways, and [trailing] (cards or tiles) at its end.
+ * The rows under the header. On top the "sync all" pill (filled and inviting when idle, a quiet progress
+ * state while syncs run; [tally] null with a single sync, which has no pill) with its "?", and
+ * [trailing] (select, cards or tiles) pinned at the row's end. Under it the filter [chips], a row of
+ * their own from the list's side: every chip whole at rest, scrolling sideways when there are many (2.2;
+ * before, they shared the pill's row and the first one started under the trailing buttons). In a low
+ * window (a phone on its side) they stay on the pill's row, scrolling with it, so a card shows whole.
  *
  * The pill floats over the list: pinned, the cards scroll beneath it and show around it. A band behind it
  * (1.3.2–1.4.0, and again briefly in 1.17) was dropped both times on the owner's request. The pill
  * keeps its shadow, and the "?" beside it sits on a small raised circle of its own, so both read
- * over any card. The chips and the button have nothing of the kind: pinned, they fade away and come
- * back with the top of the list, where they are part of the page.
+ * over any card. The chips and the buttons have nothing of the kind: pinned, they fade away (the chips'
+ * row keeping its room, so the list does not jump) and come back with the top of the list, where they
+ * are part of the page. With the help buttons off (Settings › Appearance) the "?" and its circle are gone.
  */
 /** The "?" beside Sync all: the pill, then what a sync card shows (moved here from the top bar, 12/11). */
 private val CARD_HELP = arrayOf(Helps.syncAll, Helps.status, Helps.route, Helps.figures, Helps.toFix, Helps.runNow)
 
+/** For the UI tests: the row of the filter chips, under the pill's. */
+const val SYNC_CHIPS_ROW_TAG = "sync-chips-row"
+
 @Composable
 private fun RunAllRow(
     tally: SyncState.Tally?, pinned: Boolean, modifier: Modifier = Modifier,
-    chips: (@Composable () -> Unit)? = null, trailing: (@Composable () -> Unit)? = null, onClick: () -> Unit,
+    chips: (@Composable () -> Unit)? = null, trailing: (@Composable () -> Unit)? = null,
+    /** The pill's row's height: a card brought into view lands just under it (not under the chips' room). */
+    onPillHeight: (Int) -> Unit = {},
+    onClick: () -> Unit,
 ) {
     val haptic = rememberConfirmHaptic()
     val helpShadow by animateDpAsState(if (pinned) 4.dp else 0.dp, label = "runall-help")
-    Row(
+    val helpOn = LocalHelpButtons.current
+    // A low window (a phone on its side): the chips stay on the pill's row, between the "?" and the
+    // buttons, so the first card still shows whole under the header (2.2, owner's OK 19/11).
+    val inlineChips = chips != null && LocalWindowLayout.current.short
+    val underChips = chips != null && !inlineChips
+    Column(
         // As wide as the window, over the list's own side padding: the chips scroll from edge to edge,
         // and the pill's shadow is not cut at the scroller's side.
         modifier
@@ -942,7 +959,10 @@ private fun RunAllRow(
                 val side = LIST_SIDE.roundToPx()
                 val p = measurable.measure(constraints.copy(minWidth = constraints.maxWidth + 2 * side, maxWidth = constraints.maxWidth + 2 * side))
                 layout(constraints.maxWidth, p.height) { p.place(-side, 0) }
-            }
+            },
+    ) {
+    Row(
+        Modifier.fillMaxWidth().onSizeChanged { onPillHeight(it.height) }
             // Pinned, it floats over the cards: no band behind it (the owner's choice, again on 11/11).
             .then(if (pinned) Modifier.testTag(RUN_ALL_BAND_TAG) else Modifier)
             .padding(end = if (trailing != null) 4.dp else 0.dp),
@@ -964,39 +984,14 @@ private fun RunAllRow(
             androidx.compose.runtime.derivedStateOf { if (boxW > 0 && pillW > 0) (((boxW - pillW) / 2 - sidePx).coerceAtLeast(0) * slide).toInt() else 0 }
         }
         LaunchedEffect(pinned) { if (pinned) scroll.animateScrollTo(0) }
-        // More chips past an edge: the row fades out there, so it reads as one that goes on. Only the
-        // row's own pixels fade (no colour is drawn), and only while there is something to scroll to:
-        // pinned, the pill is alone and nothing is touched.
-        val fadeStart = scroll.canScrollBackward
-        val fadeEnd = scroll.canScrollForward
         val rtl = LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
         // The scroller is only as wide as what it holds: pinned, a touch beside the pill reaches the card beneath.
-        Box(
-            Modifier.weight(1f).onSizeChanged { boxW = it.width }.then(
-                if (fadeStart || fadeEnd) Modifier
-                    .graphicsLayer { compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen }
-                    .drawWithContent {
-                        drawContent()
-                        val w = CHIPS_FADE.toPx()
-                        val left = if (rtl) fadeEnd else fadeStart
-                        val right = if (rtl) fadeStart else fadeEnd
-                        if (left) drawRect(
-                            androidx.compose.ui.graphics.Brush.horizontalGradient(listOf(Color.Transparent, Color.Black), 0f, w),
-                            size = androidx.compose.ui.geometry.Size(w, size.height), blendMode = androidx.compose.ui.graphics.BlendMode.DstIn,
-                        )
-                        if (right) drawRect(
-                            androidx.compose.ui.graphics.Brush.horizontalGradient(listOf(Color.Black, Color.Transparent), size.width - w, size.width),
-                            topLeft = Offset(size.width - w, 0f), size = androidx.compose.ui.geometry.Size(w, size.height),
-                            blendMode = androidx.compose.ui.graphics.BlendMode.DstIn,
-                        )
-                    }
-                else Modifier,
-            ),
-        ) {
+        // It scrolls only when a long pill ("2 syncs running · 1 paused") and the buttons do not fit.
+        Box(Modifier.weight(1f).onSizeChanged { boxW = it.width }) {
             Row(
                 // The room above and below is inside the scroller, where the pill's shadow is drawn.
                 Modifier.offset { androidx.compose.ui.unit.IntOffset(if (rtl) -shift.value else shift.value, 0) }
-                    .horizontalScroll(scroll).padding(start = LIST_SIDE, end = if (trailing != null) 8.dp else LIST_SIDE, top = 4.dp, bottom = 12.dp),
+                    .horizontalScroll(scroll).padding(start = LIST_SIDE, end = if (trailing != null) 8.dp else LIST_SIDE, top = 4.dp, bottom = if (underChips) 8.dp else 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -1035,8 +1030,8 @@ private fun RunAllRow(
                             }
                         }
                     }
-                    // Its own small raised circle: over a card scrolling beneath, the "?" still reads.
-                    androidx.compose.material3.Surface(
+                    // Its own small raised circle: over a card scrolling beneath, the "?" still reads. None with the help buttons off.
+                    if (helpOn) androidx.compose.material3.Surface(
                         shape = CircleShape,
                         color = if (pinned) MaterialTheme.colorScheme.surfaceContainerHigh else Color.Transparent,
                         shadowElevation = helpShadow,
@@ -1044,16 +1039,38 @@ private fun RunAllRow(
                 }
                 // One sync, no pill: the "?" alone leads the row, so what a card shows is still explained.
                 else HelpButton(*CARD_HELP, label = stringResource(R.string.help_cards_title))
-                if (chips != null) androidx.compose.animation.AnimatedVisibility(
+                // On its side: the chips after the "?", scrolling with it; pinned, they fade and only the pill is left.
+                if (inlineChips) androidx.compose.animation.AnimatedVisibility(
                     !pinned, enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(200)), exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(120)),
                 ) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) { chips() }
+                    Row(Modifier.testTag(SYNC_CHIPS_ROW_TAG), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) { chips!!() }
                 }
             }
         }
         if (trailing != null) androidx.compose.animation.AnimatedVisibility(
             !pinned, enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(200)), exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(120)),
-        ) { Box(Modifier.padding(top = 4.dp, bottom = 12.dp)) { trailing() } }
+        ) { Box(Modifier.padding(top = 4.dp, bottom = if (underChips) 8.dp else 12.dp)) { trailing() } }
+    }
+    if (underChips) {
+        // Pinned, the chips fade away but their row keeps its room: the header's height, and so the
+        // list under it, stays put. Nothing is placed there then, so a touch reaches the card beneath.
+        var chipsHeight by remember { mutableIntStateOf(0) }
+        val chipsScroll = rememberScrollState()
+        // Back with the top of the list, the row starts again at its first chip.
+        LaunchedEffect(pinned) { if (pinned) chipsScroll.scrollTo(0) }
+        Box(Modifier.fillMaxWidth().heightIn(min = with(androidx.compose.ui.platform.LocalDensity.current) { chipsHeight.toDp() })) {
+            androidx.compose.animation.AnimatedVisibility(
+                !pinned, enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(200)), exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(120)),
+            ) {
+                Row(
+                    Modifier.onSizeChanged { chipsHeight = it.height }.testTag(SYNC_CHIPS_ROW_TAG)
+                        .horizontalScroll(chipsScroll).padding(horizontal = LIST_SIDE),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) { chips() }
+            }
+        }
+    }
     }
 }
 
@@ -1113,7 +1130,7 @@ private fun JobMenuHost(
     if (colorOpen) JobStyleDialog(
         group?.group?.name ?: job.name.ifBlank { job.source.playlistName }, job.label ?: job.color, job.accentStyle, data.settings.cardAccent, data.settings.labels, onDismiss = { colorOpen = false },
         routeGlow = job.routeGlow, settingsGlow = data.settings.routeGlowMode,
-        sourceBrand = Providers.byId(group?.sourceProvider ?: job.source.provider)?.brandColor, targetBrand = Providers.byId(group?.targetProvider ?: job.target.provider)?.brandColor,
+        sourceBrand = Providers.byId(group?.sourceProvider ?: job.via ?: job.source.provider)?.brandColor, targetBrand = Providers.byId(group?.targetProvider ?: job.target.provider)?.brandColor,
     ) { pick, st, labelName, recolor, glow ->
         Store.get(ctx).update { d ->
             val ids = halves(d)
@@ -1155,7 +1172,8 @@ private fun JobMenuHost(
             else if (job.enabled) MenuAction(stringResource(R.string.sync_menu_disable), { onToggleEnabled(job) }, icon = Icons.Outlined.PauseCircle)
             else MenuAction(stringResource(R.string.sync_menu_enable), { onToggleEnabled(job) }, icon = Icons.Outlined.PlayCircle),
             if (onServer) MenuAction(stringResource(R.string.server_bring_back), { handOverOpen = true }, icon = Icons.Outlined.CloudDownload)
-            else if (v2 && serverOn && sharedGroup == null && group == null) MenuAction(stringResource(R.string.server_handover), { handOverOpen = true }, icon = Icons.Outlined.Cloud)
+            // A multi sync goes whole, its group and all its syncs (ServerLink.handOver).
+            else if (v2 && serverOn && sharedGroup == null && group?.run == null) MenuAction(stringResource(R.string.server_handover), { handOverOpen = true }, icon = Icons.Outlined.Cloud)
             else null,
             MenuAction(
                 stringResource(if (job.favorite) R.string.sync_menu_unfavorite else R.string.sync_menu_favorite),
@@ -1219,6 +1237,9 @@ private fun statusInfo(
     group: GroupCard? = null, onOpenGroup: (String) -> Unit = {},
 ): CardStatusInfo {
     val haptic = rememberConfirmHaptic()
+    // A multi sync handed over (all its syncs are): the server runs it.
+    if (group != null && group.run == null && Store.get(LocalContext.current).state.collectAsState().value.handedOver[job.id] != null)
+        return CardStatusInfo(stringResource(R.string.server_on_server), Tone.Accent, Icons.Filled.Cloud)
     // A multi sync: the most serious state of its services, by the same order, and the service it is about.
     if (group != null) return groupStatusInfo(group, run, onPreview, onReview) { onOpenGroup(group.group.id) }
     // Handed over: the server runs it, whatever this phone last did.
@@ -1298,7 +1319,7 @@ private fun JobCard(
     val handed = data.handedOver[job.id]
     // Handed over: what the server did, not what this phone did before. A multi sync: its services' runs are on its page.
     val report = if (handed != null || group != null) null else data.reports.firstOrNull { it.id == job.lastReportId }
-    val src = Providers.byId(group?.sourceProvider ?: job.source.provider)
+    val src = Providers.byId(group?.sourceProvider ?: job.via ?: job.source.provider)
     val dst = Providers.byId(group?.targetProvider ?: job.target.provider)
     val title = group?.group?.name ?: job.name.ifBlank { job.source.playlistName }
     // The sync at work: the card's own, or the one of the group's service being synced now.
@@ -1311,8 +1332,12 @@ private fun JobCard(
     val groupRuns = if (group == null) null else remember(data.reports, group.members) { NwayHistory.runs(data.reports, group.members) }
     val shown = if (group != null) groupRuns?.lastOrNull() else report
     val statsShown = run == null && shown != null && data.settings.newLook && shown.ok
-    val onAdded = { listOpen = StatList(StatList.Kind.ADDED, shown!!) }
-    val onRemoved = { listOpen = StatList(StatList.Kind.REMOVED, shown!!) }
+    // A multi sync's lists: its last run's reports, one per sync, put together song by song in the sheet.
+    val groupLists = if (group == null) null else remember(data.reports, group.members) {
+        NwayHistory.batches(data.reports, group.members).lastOrNull()?.let { GroupRunLists(it, group.members) }
+    }
+    val onAdded = { listOpen = StatList(StatList.Kind.ADDED, shown!!, groupLists) }
+    val onRemoved = { listOpen = StatList(StatList.Kind.REMOVED, shown!!, groupLists) }
     // A multi sync's not found and its playlist: its page, where each service leads to its own.
     val onNotFound = {
         if (group != null) onOpenGroup(group.group.id)
@@ -1359,8 +1384,8 @@ private fun JobCard(
                     // A multi sync: all its services (the source first), as many as the card's size has room for.
                     if (group != null) GroupLogos(group.members, group.run, logo, max = if (large) 5 else GROUP_LOGOS_MAX, modifier = Modifier.padding(end = overhang, bottom = overhang))
                     else Box(Modifier.padding(end = overhang, bottom = overhang).width(logo + 22.dp).height(logo + 2.dp)) {
-                        ProviderBadge(src, logo)
-                        Box(Modifier.align(Alignment.CenterEnd)) { ProviderBadge(dst, logo) }
+                        ProviderBadge(src, logo, accountRing(src?.id))
+                        Box(Modifier.align(Alignment.CenterEnd)) { ProviderBadge(dst, logo, accountRing(dst?.id)) }
                     }
                     if (statusOnLogos) StatusBadge(status, Modifier.align(Alignment.BottomEnd))
                 }
@@ -1374,7 +1399,8 @@ private fun JobCard(
                         // A multi sync: its source, then every service it reaches.
                         if (group != null) (group.members.firstOrNull()?.let { nwayMember(it) } ?: "") + "  →  " + group.members.drop(1).map { nwayMember(it) }.joinToString(", ") else
                         // A radio sync's source is its station, not the File playlist that keeps what it heard.
-                        (job.radio?.let { stringResource(R.string.editor_source_radio) + " · " + it.station }
+                        // Through its station's connector (2.2): the connector's name, then the station when it differs.
+                        (job.radio?.let { r -> (src?.takeIf { job.via != null }?.label(ctx)?.takeIf { it != r.station } ?: stringResource(R.string.editor_source_radio)) + " · " + r.station }
                             ?: ((sharedLabel(job.source.provider) ?: src?.label(ctx) ?: job.source.provider).let { if (job.source.link != null) stringResource(R.string.source_link_label, it) else it } + " · " + srcName)) +
                             (if (job.linkedJobId != null) "  ↔  " else "  →  ") +
                             (sharedLabel(job.target.provider) ?: dst?.label(ctx) ?: job.target.provider) + " · " + dstName,
@@ -1394,7 +1420,7 @@ private fun JobCard(
                 }
                 if (marksBeside) {
                     Spacer(Modifier.width(12.dp))
-                    SmallStats(job.color, shown!!, onAdded, onRemoved, onNotFound, onTracks, Modifier.width(240.dp), inPlaylist = groupSize)
+                    SmallStats(job.color, shown!!, onAdded, onRemoved, onNotFound, onTracks, Modifier.width(240.dp), inPlaylist = groupSize, ofSource = group != null)
                 }
             }
             if (run != null) {
@@ -1446,10 +1472,11 @@ private fun JobCard(
                 // Beside the name already.
             } else if (statsShown) {
                 Spacer(Modifier.height(when (size) { CardSize.LARGE -> 14.dp; CardSize.MEDIUM -> 12.dp; CardSize.SMALL -> if (low) 8.dp else 10.dp }))
-                if (small) SmallStats(job.color, shown!!, onAdded, onRemoved, onNotFound, onTracks, inPlaylist = groupSize)
+                if (small) SmallStats(job.color, shown!!, onAdded, onRemoved, onNotFound, onTracks, inPlaylist = groupSize, ofSource = group != null)
                 else RunStats(
                     job.color, shown!!, groupRuns ?: data.reports.filter { it.jobId == job.id && !it.partial }.sortedBy { it.startedEpoch }.takeLast(10),
                     onAdded = onAdded, onRemoved = onRemoved, onNotFound = onNotFound, onTracks = onTracks, compact = !large, inPlaylist = groupSize,
+                    ofSource = group != null,
                 )
             } else if (report != null) {
                 Spacer(Modifier.height(if (small) 6.dp else 8.dp))
@@ -1495,7 +1522,8 @@ private fun JobCard(
                         (handed?.let { stringResource(R.string.server_runs_there) }
                             ?: job.scheduledOn?.takeIf { !job.enabled }?.let { stringResource(R.string.job_scheduled_on, it) }
                             ?: job.radio?.let { radioWindowLabel(ctx, it) } ?: timingLabel(job)) +
-                            (if (job.archive) " · " + stringResource(R.string.job_archive_badge) else if (job.mirrorRemovals && job.linkedJobId == null) " · " + stringResource(R.string.editor_mirror) else "") + " · " + last,
+                            (if (job.archive) " · " + stringResource(R.string.job_archive_badge) else if (job.mirrorRemovals && job.linkedJobId == null) " · " + stringResource(R.string.editor_mirror) else "") + " · " + last +
+                            (report?.ratingsSet?.takeIf { it > 0 }?.let { " · " + pluralStringResource(R.plurals.ratings_set, it, it) } ?: ""),
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         // Glides like the name and the services line (the fade shows it is moving, not cut).
                         maxLines = 1,
@@ -1650,7 +1678,7 @@ private fun JobTile(
             colors = CardDefaults.cardColors(containerColor = jobContainer(job.color)),
         ) {
             // A multi sync's glow: its source's colour and its first target's.
-            val src = Providers.byId(group?.sourceProvider ?: job.source.provider)
+            val src = Providers.byId(group?.sourceProvider ?: job.via ?: job.source.provider)
             val dst = Providers.byId(group?.targetProvider ?: job.target.provider)
             val accent = jobAccent(job.color)
             val accentStyle = CardAccent.resolve(job.accentStyle, data.settings.cardAccent)
@@ -1668,8 +1696,8 @@ private fun JobTile(
                     // smaller past two so that they fit beside the button; the one being synced wears a ring.
                     if (group != null) GroupLogos(group.members, group.run, if (group.members.size > 2) 24.dp else 28.dp, modifier = Modifier.height(30.dp))
                     else Box(Modifier.width(46.dp).height(30.dp)) {
-                        ProviderBadge(src, 28.dp)
-                        Box(Modifier.align(Alignment.CenterEnd)) { ProviderBadge(dst, 28.dp) }
+                        ProviderBadge(src, 28.dp, accountRing(src?.id))
+                        Box(Modifier.align(Alignment.CenterEnd)) { ProviderBadge(dst, 28.dp, accountRing(dst?.id)) }
                     }
                     // The sync's marks (a shared playlist, a radio…) beside its services, so the name,
                     // the status and the next run all start on the same edge.
@@ -1769,9 +1797,6 @@ val PILL_FADE = 10.dp
 
 /** The sync list's padding at each side. */
 private val LIST_SIDE = 16.dp
-
-/** How far the row of filter chips fades out at an edge with more chips past it. */
-private val CHIPS_FADE = 24.dp
 
 /** "3 days ago", "5 min ago": how long since [epoch], in the user's language. */
 internal fun relativeTime(epoch: Long, now: Long = System.currentTimeMillis()): String =
@@ -1898,9 +1923,9 @@ private fun LiveSheet2(job: SyncJob, onReview: (String) -> Unit, onRun: (SyncJob
                 Column(Modifier.weight(1f)) {
                     Text(job.name, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        ServiceLogo(src, 18.dp)
+                        ServiceLogo(src, 18.dp, ring = accountRing(src?.id))
                         Text("→", color = muted, style = MaterialTheme.typography.bodySmall)
-                        ServiceLogo(dst, 18.dp)
+                        ServiceLogo(dst, 18.dp, ring = accountRing(dst?.id))
                         Text(
                             listOf(src?.displayName ?: job.source.provider, dst?.displayName ?: job.target.provider).joinToString(" → ") { com.xlollx.songport.sync.Wrapped.brandName(it) },
                             style = MaterialTheme.typography.bodySmall, color = muted, maxLines = 1, overflow = TextOverflow.Ellipsis,
@@ -2072,6 +2097,7 @@ private fun LiveSummary(job: SyncJob, r: SyncReport, onReview: () -> Unit, onRet
             "${r.unmatchedTracks.size}" to R.string.nf_unmatched, "−${r.removed}" to R.string.nf_removed,
         ).forEach { (n, label) -> Stat(n, stringResource(label), Modifier.weight(1f)) }
     }
+    if (r.ratingsSet > 0) Text(pluralStringResource(R.plurals.ratings_set, r.ratingsSet, r.ratingsSet), style = MaterialTheme.typography.bodySmall, color = muted)
     if (r.unmatchedTracks.isNotEmpty()) {
         Text(stringResource(R.string.nf_unmatched), style = MaterialTheme.typography.labelSmall, color = muted)
         Column {
@@ -2133,6 +2159,8 @@ private val PolicySaver = androidx.compose.runtime.saveable.Saver<com.xlollx.son
 @Composable
 fun SyncEditorScreen(
     job: SyncJob, onCancel: () -> Unit, onConnectService: () -> Unit = {}, twinName: String? = null,
+    /** A service picked in "Which service?" (the Connect tile): Accounts takes it from there, to name and sign in. */
+    onAddService: (MusicProvider) -> Unit = { onConnectService() },
     /**
      * New sync › Multi sync (one playlist on several services, 1.18): set when it is offered. From
      * 2.1.1 "New sync" asks which kind first; here it stays as a second way, with the source chosen
@@ -2147,14 +2175,16 @@ fun SyncEditorScreen(
     // Solo i connettori aggiunti nella scheda Account: uno tolto di li' non deve piu' essere
     // scegliibile, anche se il token o la sessione nell'app plugin sono ancora validi. I servizi gia'
     // usati dal job che si sta modificando restano nell'elenco per non cambiarlo di nascosto.
-    val available = remember {
-        (Providers.connectors().filter { it.isConnected(ctx) } +
-            listOfNotNull(Providers.byId(job.source.provider), Providers.byId(job.target.provider))).distinctBy { it.id }
+    // Who is signed in, from the answers read in the background (Connections): swapping to "Several
+    // targets" and back asks no connector again. Kept with the list, so the count below needs no call.
+    val signedIn = remember { Connections.connected(ctx.env) }
+    val available = remember(signedIn) {
+        (signedIn + listOfNotNull(Providers.byId(job.source.provider), Providers.byId(job.target.provider))).distinctBy { it.id }
     }
 
     // Saved, so a rotation or a fold keeps what was chosen (the job itself travels as JSON).
     var name by rememberSaveable { mutableStateOf(job.name) }
-    var srcProvider by rememberSaveable { mutableStateOf(job.source.provider.ifEmpty { available.firstOrNull()?.id ?: "" }) }
+    var srcProvider by rememberSaveable { mutableStateOf(job.source.provider.ifEmpty { available.firstOrNull { !com.xlollx.songport.sync.RadioConnectors.isRadio(it.id) && it.id != com.xlollx.songport.sync.RadioConnectors.SHAZAM }?.id ?: "" }) }
     var srcPlaylist by rememberSaveable(stateSaver = PlaylistSaver) { mutableStateOf<Playlist?>(job.source.playlistId?.let { Playlist(it, job.source.playlistName) }) }
     // A pasted link is a source of its own: the field stays, the service's playlist list does not.
     var linkMode by rememberSaveable { mutableStateOf(job.source.link != null) }
@@ -2176,6 +2206,8 @@ fun SyncEditorScreen(
     var radioStart by rememberSaveable { mutableIntStateOf(job.radio?.startMinute ?: RADIO_DEFAULT_START) }
     var radioEnd by rememberSaveable { mutableIntStateOf(job.radio?.endMinute ?: RADIO_DEFAULT_END) }
     var radioSaving by remember { mutableStateOf(false) }
+    // The radio connector (one per station, Accounts) the sync listens through.
+    var radioVia by rememberSaveable { mutableStateOf(job.via?.takeIf { com.xlollx.songport.sync.RadioConnectors.isRadio(it) }) }
     val radioName = radioStation.trim().takeIf { radioMode && it.isNotEmpty() }?.let { stringResource(R.string.radio_sync_name, it) }
     val editorScope = rememberCoroutineScope()
     // With a single service there is nowhere else to write to: a file on the phone always is, so a
@@ -2184,7 +2216,7 @@ fun SyncEditorScreen(
     val writable = writers.let { w ->
         if (w.size < 2 && w.none { it.id == com.xlollx.songport.providers.LocalFilesProvider.id }) w + com.xlollx.songport.providers.LocalFilesProvider else w
     }
-    val loginServices = remember(available) { available.count { it.requiresAuth && it.isConnected(ctx) } }
+    val loginServices = remember(signedIn) { signedIn.count { it.requiresAuth } }
     // A new sync with no target given starts with none: the user chooses where it writes (owner
     // 12/11, "the target is always already filled in"). Filled in only where there is no choice to
     // make: a single place to write to, or the File kept inside Trackhop beside a single service.
@@ -2225,6 +2257,8 @@ fun SyncEditorScreen(
     var bidirectional by rememberSaveable { mutableStateOf(job.linkedJobId != null) }
     // In a pair: a track removed on one side leaves the other too (off unless turned on).
     var twoWayRemovals by rememberSaveable { mutableStateOf(job.twoWayRemovals) }
+    // A playlist file (an iTunes library's) towards a server that takes ratings: its stars are copied too.
+    var copyRatings by rememberSaveable { mutableStateOf(job.copyRatings) }
     var policy by rememberSaveable(stateSaver = PolicySaver) { mutableStateOf(job.policy) }
     var matchingOpen by rememberSaveable { mutableStateOf(job.policy != com.xlollx.songport.model.MatchPolicy()) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -2235,7 +2269,7 @@ fun SyncEditorScreen(
     fun shape() = listOf(
         name, srcProvider, srcPlaylist?.id, linkMode, linkText, shazamMode, radioMode, radioStation, radioStream, radioHome, radioDays,
         radioStart, radioEnd, dstProvider, createNew, dstPlaylist?.id, newName, schedule, everyM, atStr, daysCsv, scheduleId.takeIf { scheduleSaved }, mirror, keepOrder, follows,
-        archive, wifiOnly, enabled, color, tagDraft.all, accentStyle, bidirectional, twoWayRemovals, policy,
+        archive, wifiOnly, enabled, color, tagDraft.all, accentStyle, bidirectional, twoWayRemovals, policy, copyRatings,
     ).joinToString("\u0001")
     var opened by rememberSaveable { mutableStateOf(shape()) }
     /** Runs [fill] (the editor filling something in) without counting it as the user's change. */
@@ -2267,6 +2301,7 @@ fun SyncEditorScreen(
     // The pickers' sheets: the services and what each offers, opened from the Source and Target fields.
     var srcSheet by rememberSaveable { mutableStateOf(false) }
     var dstSheet by rememberSaveable { mutableStateOf(false) }
+    // "Which service?" from the Connect tile, for the source or the target (Role's name), the same chooser as Accounts › Add.
     // Liked songs to a service that can like: propose "liked songs" as the target instead of a new playlist.
     // Not on the same account: liked songs into the same liked songs would be one list synced onto itself.
     LaunchedEffect(srcPlaylist?.id, dstProvider) {
@@ -2309,12 +2344,49 @@ fun SyncEditorScreen(
         shazamMode = false
         srcPlaylist = null
     }
+    // A radio connector as the source: its station, then the days and hours.
+    fun useRadioConnector(id: String) {
+        val st = Store.get(ctx).data.settings.radioStations[id] ?: return
+        radioVia = id
+        radioStation = st.station
+        radioStream = st.stream
+        radioHome = st.homepage.orEmpty()
+        useRadio()
+    }
+    // A source tile or account picked: a radio station and Shazam are syncs of their own kind.
+    fun pickSource(id: String, sheet: Boolean = false) {
+        when {
+            com.xlollx.songport.sync.RadioConnectors.isRadio(id) -> { useRadioConnector(id); srcSheet = false }
+            id == com.xlollx.songport.sync.RadioConnectors.SHAZAM -> { if (!shazamMode) useShazam(); srcSheet = false }
+            else -> { srcProvider = id; srcPlaylist = null; linkMode = false; shazamMode = false; radioMode = false; if (sheet) srcSheet = true }
+        }
+    }
+    var chooserFor by rememberSaveable { mutableStateOf<String?>(null) }
+    chooserFor?.let { which ->
+        val role = ServiceCatalog.Role.valueOf(which)
+        ServiceChooserDialog(
+            role = role,
+            connectors = Store.get(ctx).data.settings.connectors,
+            // "Your accounts": what this sync can use now; one that cannot be a target stays, greyed, saying so.
+            accounts = (available + listOfNotNull(Providers.byId(LocalFilesProvider.id))).distinctBy { it.id },
+            onDismiss = { chooserFor = null },
+            onPick = { chooserFor = null; onAddService(it) },
+            onAccount = { p ->
+                chooserFor = null
+                if (role == ServiceCatalog.Role.TARGET) { dstProvider = p.id; dstPlaylist = null; dstSheet = true }
+                else pickSource(p.id, sheet = true)
+            },
+        )
+    }
     // Looks for Shazam's playlist on every connected Spotify and Apple Music account, the source's own first.
     LaunchedEffect(shazamMode, shazamTry) {
         if (!shazamMode) return@LaunchedEffect
         shazamLookup = ShazamLookup.Looking
-        val hosts = (listOfNotNull(Providers.byId(srcProvider)) + Providers.connectors())
-            .filter { ShazamLibrary.canHost(it.serviceId) && it.isConnected(ctx) }.distinctBy { it.id }
+        // Off the main thread: an account with no fresh answer is asked now (the connectors app, the encrypted store).
+        val hosts = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            (listOfNotNull(Providers.byId(srcProvider)) + Providers.connectors())
+                .filter { ShazamLibrary.canHost(it.serviceId) && Connections.isConnected(ctx.env, it) }.distinctBy { it.id }
+        }
         val errors = ArrayList<String>()
         for (p in hosts) {
             val l = loadPlaylists(ctx, p.id, forTarget = false)
@@ -2358,6 +2430,7 @@ fun SyncEditorScreen(
                         name = name.ifBlank { defaultName }, source = source, target = target,
                         schedule = Schedule.MANUAL, mirrorRemovals = false, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
                         keepOrder = false, color = pickedColor(color, storeNow.settings.labels), label = pickedLabel(color), tags = tagDraft.all, accentStyle = accentStyle, radio = radio, shazam = false, linkedJobId = null, archive = false,
+                        via = radioVia,
                     ),
                     null,
                 )
@@ -2400,6 +2473,7 @@ fun SyncEditorScreen(
             schedule = schedule, mirrorRemovals = mirror && !archive, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
             keepOrder = keepOrder && !archive, color = pickedColor(color, storeNow.settings.labels), label = pickedLabel(color), tags = tagDraft.all, accentStyle = accentStyle, followsChanges = mirror && follows && !archive,
             archive = archive, shazam = shazamMode && !linkMode,
+            copyRatings = copyRatings && !linkMode && RatingWriter.offered(Providers.byId(srcProvider), Providers.byId(dstProvider)),
         ).let { timed(it) }
         // The other half of the pair takes only what the two share (schedule, rules, the two playlists
         // swapped); its name, ignore list, reports and order setting stay its own. A pair never removes.
@@ -2508,7 +2582,7 @@ fun SyncEditorScreen(
                     // One field: what the sync reads. Its sheet has the services, the link, Shazam and the radio.
                     when {
                         radioMode -> PlaylistField(
-                            stringResource(R.string.editor_source_radio), radioStation.takeIf { radioStream.isNotEmpty() }?.ifBlank { radioStream },
+                            stringResource(R.string.editor_source_radio), (radioVia?.let { Providers.byId(it)?.label(ctx) } ?: radioStation).takeIf { radioStream.isNotEmpty() }?.ifBlank { radioStream },
                             stringResource(R.string.radio_search), onClick = { srcSheet = true },
                             subtitle = radioStream.takeIf { it.isNotEmpty() },
                             thumb = { PlaylistThumb(radioStation.takeIf { radioStream.isNotEmpty() }, null, 48.dp, icon = Icons.Filled.Radio) },
@@ -2531,7 +2605,9 @@ fun SyncEditorScreen(
                         val other: (@Composable () -> Unit)? = when {
                             radioMode -> ({
                                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                    if (radioStream.isEmpty()) RadioStationPicker { st ->
+                                    // A station's connector: the station is the connector's; another station is another tile above.
+                                    if (radioVia != null) RadioStationCard(radioStation, radioStream, onChange = null)
+                                    else if (radioStream.isEmpty()) RadioStationPicker { st ->
                                         radioStation = st.name
                                         radioStream = st.stream
                                         radioHome = st.homepage
@@ -2557,13 +2633,16 @@ fun SyncEditorScreen(
                             onRetry = { srcReload++ }, onSignIn = { srcSheet = false; onConnectService() },
                             networkError = (srcLists as? Loaded.Failed)?.network == true,
                             header = {
-                                ProviderPicker(srcProviders, if (linkMode || shazamMode || radioMode) "" else srcProvider, link = true, linkSelected = linkMode,
+                                // The radio stations and Shazam are accounts like the others (2.2): picked, they make a radio or Shazam sync.
+                                ProviderPicker(srcProviders, when { linkMode -> ""; shazamMode -> com.xlollx.songport.sync.RadioConnectors.SHAZAM; radioMode -> radioVia.orEmpty(); else -> srcProvider }, link = true, linkSelected = linkMode,
                                     onLink = { if (!linkMode) { linkMode = true; shazamMode = false; radioMode = false; srcPlaylist = null } },
-                                    // Shazam needs nothing more chosen: the page shows what it found.
-                                    shazam = true, shazamSelected = shazamMode, onShazam = { if (!shazamMode) useShazam(); srcSheet = false },
-                                    radio = true, radioSelected = radioMode, onRadio = { useRadio() },
-                                    onConnect = { srcSheet = false; onConnectService() },
-                                ) { srcProvider = it; srcPlaylist = null; linkMode = false; shazamMode = false; radioMode = false }
+                                    // Until there is a station or Shazam in Accounts, their tiles: a station picked here becomes one (the store adds it).
+                                    shazam = srcProviders.none { it.id == com.xlollx.songport.sync.RadioConnectors.SHAZAM }, shazamSelected = shazamMode && srcProviders.none { it.id == com.xlollx.songport.sync.RadioConnectors.SHAZAM },
+                                    onShazam = { if (!shazamMode) useShazam(); srcSheet = false },
+                                    radio = srcProviders.none { com.xlollx.songport.sync.RadioConnectors.isRadio(it.id) }, radioSelected = radioMode && radioVia == null,
+                                    onRadio = { radioVia = null; radioStream = ""; radioStation = ""; radioHome = ""; useRadio() },
+                                    onConnect = { srcSheet = false; chooserFor = ServiceCatalog.Role.SOURCE.name },
+                                ) { pickSource(it) }
                             },
                             other = other,
                         )
@@ -2633,7 +2712,7 @@ fun SyncEditorScreen(
                                 PickerRow(stringResource(R.string.editor_new_playlist), onClick = { createNew = true; dstSheet = false }, selected = createNew) { NewPlaylistThumb(48.dp) }
                             }
                         }) else null,
-                        header = { ProviderPicker(writable, dstProvider, onConnect = { dstSheet = false; onConnectService() }) { dstProvider = it; dstPlaylist = null } },
+                        header = { ProviderPicker(writable, dstProvider, onConnect = { dstSheet = false; chooserFor = ServiceCatalog.Role.TARGET.name }) { dstProvider = it; dstPlaylist = null } },
                         other = if (noTarget) ({}) else null,
                     )
                 }
@@ -2750,10 +2829,14 @@ fun SyncEditorScreen(
                             color = MaterialTheme.colorScheme.error,
                         )
                     }
+                    // Stars set in iTunes, kept in the playlist file: copied to a server that takes ratings.
+                    if (!linkMode && RatingWriter.offered(Providers.byId(srcProvider), dstProviderObj)) SwitchRow(
+                        stringResource(R.string.editor_copy_ratings), stringResource(R.string.editor_copy_ratings_desc, dstProviderObj!!.label(ctx)), copyRatings,
+                    ) { copyRatings = it }
                     // Bidirezionale: crea la sync gemella al contrario, senza rimozioni (niente cancellazioni a ping-pong).
                     val srcObj = Providers.byId(srcProvider)
                     // A public link or someone else's playlist can be read, not written: nothing to send back to.
-                    val srcOwned = srcPlaylist?.ownedByMe == true && srcObj?.isConnected(ctx) == true
+                    val srcOwned = srcPlaylist?.ownedByMe == true && srcObj != null && Connections.isConnected(ctx.env, srcObj)
                     // Not into Shazam's own playlist: Shazam alone writes there.
                     val biPossible = !shazamMode && !createNew && srcObj?.canWrite == true && srcOwned &&
                         srcObj.supportsLibrary(srcPlaylist?.id, asTarget = true) &&
@@ -2822,6 +2905,11 @@ fun SyncEditorScreen(
                     }
                     SwitchRow(stringResource(R.string.policy_same_album), stringResource(R.string.policy_same_album_desc), policy.sameAlbum, help = { HelpButton(Helps.sameAlbum) }) { policy = policy.copy(sameAlbum = it) }
                     SwitchRow(stringResource(R.string.policy_studio), stringResource(R.string.policy_studio_desc), policy.studioOnly) { policy = policy.copy(studioOnly = it) }
+                    // #81: artists each service writes otherwise (周杰倫, Jay Chou): title, length and album decide.
+                    SwitchRow(
+                        stringResource(R.string.policy_artists_differ), stringResource(R.string.policy_artists_differ_desc), policy.artistsMayDiffer,
+                        modifier = Modifier.testTag("policy_artists_differ"),
+                    ) { policy = policy.copy(artistsMayDiffer = it) }
                 }
             }
             Spacer(Modifier.height(8.dp))
@@ -3255,6 +3343,8 @@ private fun RunStats(
     compact: Boolean = false,
     /** The playlist's size when the card knows it otherwise (a multi sync: its source's). */
     inPlaylist: Int? = null,
+    /** A multi sync: the last tile counts its source, and says so in a word as short as "in playlist". */
+    ofSource: Boolean = false,
 ) {
     val brush = jobControlBrush(color)
     val ink = jobInk(color)
@@ -3270,7 +3360,7 @@ private fun RunStats(
         val size = inPlaylist ?: if (r.targetCount > 0 || r.added > 0 || r.removed > 0) (r.targetCount + r.added - r.removed).coerceAtLeast(0) else r.sourceCount
         // Apart from this run's figures: a thin rule, then the playlist's size in an outlined tile.
         androidx.compose.material3.VerticalDivider(Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
-        Stat("$size", stringResource(R.string.stat_in_playlist), Modifier.weight(1f), onClick = onTracks, outlined = true, compact = compact)
+        Stat("$size", stringResource(if (ofSource) R.string.stat_in_source else R.string.stat_in_playlist), Modifier.weight(1f), onClick = onTracks, outlined = true, compact = compact)
     }
     if (history.size >= 2) {
         Spacer(Modifier.height(if (compact) 8.dp else 10.dp))
@@ -3328,6 +3418,7 @@ private fun SmallStats(
     color: String?, r: SyncReport, onAdded: () -> Unit, onRemoved: () -> Unit, onNotFound: () -> Unit, onTracks: (() -> Unit)?,
     modifier: Modifier = Modifier.fillMaxWidth(),
     inPlaylist: Int? = null,
+    ofSource: Boolean = false,
 ) {
     val brush = jobControlBrush(color)
     val ink = jobInk(color)
@@ -3354,12 +3445,12 @@ private fun SmallStats(
         Mark(Icons.Filled.Add, r.added, stringResource(R.string.stat_added), Modifier.weight(1f), if (r.added > 0) ink ?: MaterialTheme.colorScheme.primary else null, onAdded.takeIf { r.added > 0 })
         Mark(Icons.Filled.Remove, r.removed, stringResource(R.string.stat_removed), Modifier.weight(1f), onClick = onRemoved.takeIf { r.removed > 0 })
         Mark(Icons.Filled.SearchOff, r.unmatched.size, stringResource(R.string.stat_not_found), Modifier.weight(1f), if (r.unmatched.isNotEmpty()) MaterialTheme.colorScheme.tertiary else null, onNotFound.takeIf { r.unmatched.isNotEmpty() })
-        Mark(Icons.AutoMirrored.Filled.QueueMusic, size, stringResource(R.string.stat_in_playlist), Modifier.weight(1.3f), onClick = onTracks, outlined = true)
+        Mark(Icons.AutoMirrored.Filled.QueueMusic, size, stringResource(if (ofSource) R.string.stat_in_source else R.string.stat_in_playlist), Modifier.weight(1.3f), onClick = onTracks, outlined = true)
     }
 }
 
-/** Which list a figure on the card opens, from which run. */
-private data class StatList(val kind: Kind, val report: SyncReport) {
+/** Which list a figure on the card opens, from which run; [group]: a multi sync's run, its added and removed listed song by song. */
+private data class StatList(val kind: Kind, val report: SyncReport, val group: GroupRunLists? = null) {
     enum class Kind { ADDED, REMOVED, NOT_FOUND }
 }
 
@@ -3373,6 +3464,9 @@ private fun StatListSheet(list: StatList, onDismiss: () -> Unit) {
         StatList.Kind.REMOVED -> Triple(stringResource(R.string.stat_list_removed), r.removedTracks.map { it.toString() }, r.removed)
         StatList.Kind.NOT_FOUND -> Triple(stringResource(R.string.stat_list_not_found), r.unmatched, r.unmatched.size)
     }
+    // A multi sync: one row per song over its targets, not once per target.
+    val group = list.group
+    if (group != null && list.kind != StatList.Kind.NOT_FOUND) return GroupStatListSheet(title, r, group, list.kind == StatList.Kind.ADDED, onDismiss)
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(Modifier.padding(horizontal = 16.dp).padding(bottom = 24.dp)) {
             Text(title, style = MaterialTheme.typography.titleLarge)
@@ -3527,7 +3621,7 @@ private fun BubbleOver(text: String, onDismiss: () -> Unit) {
 /** The Syncs tab with no sync yet: what to do first, by whether a service is connected. */
 @Composable
 private fun EmptySyncs(ctx: android.content.Context, onIdea: (Idea) -> Unit, onTour: (() -> Unit)?, onGoToAccounts: () -> Unit) {
-    val anyConnected = remember { Providers.connectors().any { it.requiresAuth && it.isConnected(ctx) } }
+    val anyConnected = remember { Connections.connected(ctx.env, Providers.connectors().filter { it.requiresAuth }).isNotEmpty() }
     // With a service connected: what one service alone can do, a tap away, under the usual words.
     val primary = remember { ServiceIdeas.connected(ctx).firstOrNull() }
     if (anyConnected && primary != null) {

@@ -89,9 +89,11 @@ object BridgeCore {
                     }
                 }
                 // The channels the account can act as; the chosen one is marked by the stored choice, not by Google's switcher.
+                // With the extra "library", each channel also says how much music it holds (after sign-in, in the choice).
                 "channels" -> {
                     val chosen = ytm.channel(ctx).orEmpty()
-                    ok(json.encodeToString(client.channels().map { it.copy(selected = it.id == chosen) }))
+                    val list = if (extras?.getBoolean("library") == true) client.channelsWithLibrary() else client.channels()
+                    ok(json.encodeToString(list.map { it.copy(selected = it.id == chosen) }))
                 }
                 // Keeps the chosen channel (arg: its page id, "" or absent for the account's own) and names the account as it.
                 "channel" -> {
@@ -398,10 +400,30 @@ object BridgeCore {
                 "apple.renew" -> Bundle().apply { putBoolean("renewed", AppleBridge.renewal.renew(ctx, slot, arg)) }
                 // ---- Deezer web session: the web player's gateway; catalogue search through the public API.
                 "deezer.status" -> Bundle().apply {
-                    putBoolean("connected", DeezerBridge.session(slot).isConnected(ctx))
-                    putString("account", DeezerBridge.session(slot).account(ctx))
+                    val sess = DeezerBridge.session(slot)
+                    putBoolean("connected", sess.isConnected(ctx))
+                    putString("account", sess.account(ctx))
                     putInt("version", VERSION)
                     putBoolean("slots", slotsFor(method))
+                    // Family profiles: this Bridge offers the choice; whether the account is a Family one
+                    // (once known), the chosen profile, and its name when it is not the holder's own.
+                    putBoolean("profiles", true)
+                    sess.get(ctx, DeezerWebClient.FAMILY)?.let { putBoolean("family", it == "1") }
+                    sess.get(ctx, DeezerWebClient.PROFILE)?.let { chosen ->
+                        putString("profile", chosen)
+                        if (chosen != sess.get(ctx, DeezerWebClient.HOLDER)) putString("profileName", sess.account(ctx))
+                    }
+                }
+                // The profiles of a Deezer Family account, the chosen one marked (empty: not a Family account).
+                "deezer.profiles" -> ok(json.encodeToString(DeezerWebClient(ctx, slot).profiles()))
+                // Moves the account's calls to Family profile arg (its id) and names the account as it;
+                // a refusal keeps the profile before. Nothing read from the other profile is reused.
+                "deezer.profile" -> {
+                    val sess = DeezerBridge.session(slot)
+                    val user = DeezerWebClient(ctx, slot).setProfile(arg)
+                    deezerCache.clear()
+                    sess.cookies(ctx)?.let { sess.save(ctx, it, user.name ?: sess.account(ctx)) }
+                    Bundle().apply { putString("profile", arg); putString("account", sess.account(ctx)) }
                 }
                 "deezer.disconnect" -> { DeezerBridge.session(slot).clear(ctx); DeezerWebClient.forget(slot); deezerCache.clear(); Bundle() }
                 "deezer.playlists" -> ok(json.encodeToString(DeezerWebClient(ctx, slot).libraryPlaylists()))

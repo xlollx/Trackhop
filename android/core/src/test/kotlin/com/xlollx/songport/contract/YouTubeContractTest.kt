@@ -67,6 +67,32 @@ class YouTubeContractTest : ContractTest() {
         assertEquals(6L, QuotaMeter.used(env.store.data, "youtube"))
     }
 
+    @Test fun aChannelWithNoPlaylistsAndNoLikesLooksEmpty() = runBlocking {
+        json("""{"items":[],"pageInfo":{"totalResults":0,"resultsPerPage":1}}""")
+        json("""{"items":[],"pageInfo":{"totalResults":0,"resultsPerPage":1}}""")
+        assertEquals(true, yt.looksEmpty(env))
+        val p = next()
+        assertCall(p, "GET", api, "/youtube/v3/playlists")
+        assertEquals("true", p.query("mine"))
+        val l = next()
+        assertCall(l, "GET", api, "/youtube/v3/videos")
+        assertEquals("like", l.query("myRating"))
+        noMoreRequests()
+        assertEquals(2L, QuotaMeter.used(env.store.data, "youtube"))
+    }
+
+    @Test fun aChannelWithAPlaylistDoesNotLookEmptyAndAsksNoMore() = runBlocking {
+        json("""{"items":[{"id":"PL1"}],"pageInfo":{"totalResults":7,"resultsPerPage":1}}""")
+        assertEquals(false, yt.looksEmpty(env))
+        next()
+        noMoreRequests()
+    }
+
+    @Test fun aChannelThatCannotBeReadIsNotCalledEmpty() = runBlocking {
+        json("""{"error":{"code":403,"message":"quota","errors":[{"reason":"quotaExceeded"}]}}""", 403)
+        assertEquals(false, yt.looksEmpty(env))
+    }
+
     @Test fun emptyPlaylistReportedAsNotFound() = runBlocking {
         json("""{"error":{"code":404,"message":"The playlist identified with the request's <code>playlistId</code> parameter cannot be found.","errors":[{"reason":"playlistNotFound","domain":"youtube.playlistItem"}]}}""", 404)
         json("""{"items":[{"id":"PL1","contentDetails":{"itemCount":0}}]}""")

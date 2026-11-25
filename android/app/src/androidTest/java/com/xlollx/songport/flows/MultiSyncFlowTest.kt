@@ -1,5 +1,6 @@
 package com.xlollx.songport.flows
 
+import com.xlollx.songport.shared.NwayRun
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -22,7 +23,6 @@ import com.xlollx.songport.ui.GROUP_BAR_TAG
 import com.xlollx.songport.ui.GROUP_RUN_HEAD_TAG
 import com.xlollx.songport.ui.JOB_CARD_TAG
 import com.xlollx.songport.ui.JOB_TILE_TAG
-import com.xlollx.songport.ui.NwayRun
 import com.xlollx.songport.ui.SELECTION_TICK_TAG
 import com.xlollx.songport.ui.groupLogoTag
 import com.xlollx.songport.ui.groupRowTag

@@ -20,6 +20,7 @@ internal fun Web.accountCard(p: MusicProvider): String {
     val sb = StringBuilder("""<form method="post" action="/connectors/$id/rename" class="card">""")
     sb.append("""<label>${h(env.text("connector_name_label"))}</label><input type="text" name="name" maxlength="80" autocomplete="off" value="${h(com.xlollx.songport.providers.Providers.customName(p.id).orEmpty())}" placeholder="${h(p.displayName)}">""")
     sb.append("""<p><button class="secondary">${h(env.text("connector_rename"))}</button></p></form>""")
+    sb.append(colorForm(p))
     if (p is OAuthProvider && p.slot.isNotEmpty()) {
         sb.append("""<p class="muted">The key above is the one of every ${h(p.displayName)} account on this server: each account signs in on its own.</p>""")
     }
@@ -32,6 +33,18 @@ internal fun Web.accountCard(p: MusicProvider): String {
     return sb.toString()
 }
 
+/** The colour of an account: a ring round its logo here and in the app (AccountColors), seven colours or none. Plain radio buttons, no script. */
+internal fun Web.colorForm(p: MusicProvider): String {
+    val current = com.xlollx.songport.data.AccountColors.of(env.store.data.settings, p.id)
+    fun choice(value: String, name: String, hex: String?) =
+        """<label title="$name"><input type="radio" name="color" value="$value"${if ((current ?: "none") == value) " checked" else ""} aria-label="$name"><span class="dot${if (hex == null) " none" else ""}"${hex?.let { " style=\"background:$it\"" }.orEmpty()}></span></label>"""
+    val choices = choice("none", "None", null) + com.xlollx.songport.data.AccountColors.ALL.joinToString("") { (k, hex) -> choice(k, k.replaceFirstChar { it.uppercase() }, hex) }
+    return """<form method="post" action="/connectors/${q(p.id)}/color" class="card"><label>Colour</label>
+<p class="muted">A ring round this account's logo, here and in the app, to tell it apart.</p>
+<div class="swatches">$choices</div>
+<p><button class="secondary">Save colour</button></p></form>"""
+}
+
 // ------------------------------------------------------------------ OpenSubsonic API key
 
 /** The second sign-in under the password form: the server's address and an API key, no user or password. */
@@ -40,8 +53,24 @@ internal fun Web.apiKeyForm(p: CredentialsProvider): String =
 <p class="muted">${h(env.text("login_apikey_hint"))}</p>
 <input type="hidden" name="mode" value="apikey">
 <label>${h(env.text("login_url"))}</label><input type="url" name="url" required>
+${if (p.offersSecondAddress) awayField() else ""}
 <label>${h(env.text("login_apikey"))}</label><input type="password" name="apiKey" autocomplete="off" required>
 <p><button class="secondary">${h(env.text("login_submit"))}</button></p></form>"""
+
+// ------------------------------------------------------------------ Two addresses (2.2)
+
+/** The second address of a sign-in form: optional, tried when the first does not answer. */
+internal fun Web.awayField(value: String = ""): String =
+    """<label>${h(env.text("login_url_away"))}</label><input type="url" name="url2" value="${h(value)}" placeholder="https://…">
+<p class="muted">${h(env.text("login_url_away_hint"))}</p>"""
+
+/** On a connected server: which address the requests go to now, and its second address to set or take away. */
+internal fun Web.addressCard(p: CredentialsProvider): String {
+    val away = p.awayAddress(env)
+    val now = p.addressInUse(env)
+    val via = if (away != null && now != null) """<p>${h(env.text(if (now == away) "account_via_away" else "account_via_home", now.removePrefix("https://").removePrefix("http://")))}</p>""" else ""
+    return """<form method="post" action="/connectors/${q(p.id)}/address" class="card">$via${awayField(away.orEmpty())}<p><button class="secondary">Save</button></p></form>"""
+}
 
 // ------------------------------------------------------------------ Jellyfin Quick Connect
 

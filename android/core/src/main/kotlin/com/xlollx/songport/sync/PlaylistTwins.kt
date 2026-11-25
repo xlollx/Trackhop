@@ -101,9 +101,11 @@ object PlaylistTwins {
     suspend fun delete(env: Env, provider: MusicProvider, kept: Copy, gone: List<Copy>, addMissing: Boolean, savedAs: (String) -> String): List<String> {
         if (!provider.canDeletePlaylists) throw ProviderException(env.text("error_manage_unsupported", provider.displayName))
         val jobs = env.store.data.syncs
+        // The songs as they are now, not as the page read them: a song added since is kept and saved too.
         val deletable = gone.filter { it.playlist.id != kept.playlist.id && syncsOf(jobs, provider.id, it.playlist.id).isEmpty() }
+            .map { it.copy(tracks = provider.tracks(env, it.playlist.id)) }
         if (addMissing) {
-            val known = kept.tracks.toMutableList()
+            val known = provider.tracks(env, kept.playlist.id).toMutableList()
             val add = ArrayList<Track>()
             deletable.forEach { c -> missing(known, c.tracks).forEach { t -> add += t; known += t } }
             if (add.isNotEmpty()) provider.addTracks(env, kept.playlist.id, add)
@@ -113,6 +115,8 @@ object PlaylistTwins {
         val used = HashMap<String, Int>()
         val deleted = ArrayList<String>()
         for (c in deletable) {
+            // A sync made for it while its songs were read: it stays too.
+            if (syncsOf(env.store.data.syncs, provider.id, c.playlist.id).isNotEmpty()) continue
             // Two copies of one name are saved as two files, not as versions of one.
             val base = savedAs(c.playlist.name)
             val n = used.merge(base, 1, Int::plus)!!

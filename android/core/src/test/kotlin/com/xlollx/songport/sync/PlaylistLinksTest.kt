@@ -97,4 +97,16 @@ class PlaylistLinksTest {
         assertEquals(ref1, ref("https://i.y.qq.com/n2/m/share/details/taoge.html?hosteuin=x&id=7256912512&ADTAG=share"))
         assertEquals("https://y.qq.com/n/ryqq/playlist/7256912512", PlaylistLinks.webUrl("qqmusic", "7256912512"))
     }
+
+    /** 2.2: a playlist file kept online is a source of its own, the whole address its id. */
+    @Test fun playlistFileLinks() {
+        assertEquals(PlaylistLinks.Ref("playlisturl", "https://example.org/lists/road%20trip.xspf"), ref("https://example.org/lists/road%20trip.xspf"))
+        assertEquals(PlaylistLinks.Ref("playlisturl", "http://nas.lan:8080/x.M3U8?v=2"), ref("see http://nas.lan:8080/x.M3U8?v=2 here"))
+        assertEquals("playlisturl", ref("https://a.b/c.jspf")?.providerId)
+        assertEquals("playlisturl", ref("https://a.b/c.pls")?.providerId)
+        assertNull(ref("https://a.b/c.xspf.html"))
+        assertNull(ref("file:///sdcard/c.m3u"))
+        assertEquals("https://a.b/c.m3u", PlaylistLinks.webUrl("playlisturl", "https://a.b/c.m3u"))
+        assertEquals("road trip.xspf", com.xlollx.songport.providers.PlaylistUrlProvider.fileName("https://example.org/lists/road%20trip.xspf?x=1"))
+    }
 }

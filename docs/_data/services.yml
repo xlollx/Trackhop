@@ -1,0 +1,842 @@
+# The music services Trackhop works with, in every language of the site. The one source of the
+# README's "Music services at a glance" table and of the page trackhop.org/services: after a change
+# here, run `python3 scripts/site_data.py services` to rewrite the README's table (CI checks they
+# match; scripts/downloads.py counts the services for the README's badge from that table).
+# A row: name (bold; "" = one more way to connect the service above), group, read/write/remove
+# (yes, no, or a key of "marks"), how (by language), where (a key of "where"), extra (after the name).
+where:
+  unofficial:
+    en: GitHub, F-Droid, Desktop, Docker · plugin
+    it: GitHub, F-Droid, Desktop, Docker · plugin
+    es: GitHub, F-Droid, Desktop, Docker · plugin
+    pt: GitHub, F-Droid, Desktop, Docker · plugin
+    fr: GitHub, F-Droid, Desktop, Docker · plugin
+    de: GitHub, F-Droid, Desktop, Docker · Plugin
+    pl: GitHub, F-Droid, Desktop, Docker · wtyczka
+    ru: GitHub, F-Droid, Desktop, Docker · плагин
+    tr: GitHub, F-Droid, Desktop, Docker · eklenti
+    ja: GitHub, F-Droid, Desktop, Docker · プラグイン
+    ko: GitHub, F-Droid, Desktop, Docker · 플러그인
+    zh: GitHub, F-Droid, Desktop, Docker · 插件
+  unofficial_app:
+    en: GitHub, F-Droid · plugin
+    it: GitHub, F-Droid · plugin
+    es: GitHub, F-Droid · plugin
+    pt: GitHub, F-Droid · plugin
+    fr: GitHub, F-Droid · plugin
+    de: GitHub, F-Droid · Plugin
+    pl: GitHub, F-Droid · wtyczka
+    ru: GitHub, F-Droid · плагин
+    tr: GitHub, F-Droid · eklenti
+    ja: GitHub, F-Droid · プラグイン
+    ko: GitHub, F-Droid · 플러그인
+    zh: GitHub, F-Droid · 插件
+  links:
+    en: GitHub, F-Droid, Desktop, Docker
+    it: GitHub, F-Droid, Desktop, Docker
+    es: GitHub, F-Droid, Desktop, Docker
+    pt: GitHub, F-Droid, Desktop, Docker
+    fr: GitHub, F-Droid, Desktop, Docker
+    de: GitHub, F-Droid, Desktop, Docker
+    pl: GitHub, F-Droid, Desktop, Docker
+    ru: GitHub, F-Droid, Desktop, Docker
+    tr: GitHub, F-Droid, Desktop, Docker
+    ja: GitHub, F-Droid, Desktop, Docker
+    ko: GitHub, F-Droid, Desktop, Docker
+    zh: GitHub, F-Droid, Desktop, Docker
+  all:
+    en: All builds
+    it: Tutte le versioni
+    es: Todas las versiones
+    pt: Todas as versões
+    fr: Toutes les versions
+    de: Alle Versionen
+    pl: Wszystkie wersje
+    ru: Все версии
+    tr: Tüm sürümler
+    ja: すべての版
+    ko: 모든 버전
+    zh: 所有版本
+  apps:
+    en: All apps (not Desktop or Docker)
+    it: Tutte le app (non Desktop né Docker)
+    es: Todas las apps (no Desktop ni Docker)
+    pt: Todos os apps (não Desktop nem Docker)
+    fr: Toutes les applis (pas Desktop ni Docker)
+    de: Alle Apps (nicht Desktop oder Docker)
+    pl: Wszystkie aplikacje (nie Desktop ani Docker)
+    ru: Все приложения (не Desktop и не Docker)
+    tr: Tüm uygulamalar (Desktop ve Docker hariç)
+    ja: すべてのアプリ（Desktop と Docker を除く）
+    ko: 모든 앱 (Desktop, Docker 제외)
+    zh: 所有应用（Desktop 和 Docker 除外）
+  deezer:
+    en: 'All builds · quick sign-in: GitHub, F-Droid, Desktop, Docker, plugin'
+    it: 'Tutte le versioni · accesso rapido: GitHub, F-Droid, Desktop, Docker, plugin'
+    es: 'Todas las versiones · acceso rápido: GitHub, F-Droid, Desktop, Docker, plugin'
+    pt: 'Todas as versões · login rápido: GitHub, F-Droid, Desktop, Docker, plugin'
+    fr: 'Toutes les versions · connexion rapide : GitHub, F-Droid, Desktop, Docker, plugin'
+    de: 'Alle Versionen · Schnellanmeldung: GitHub, F-Droid, Desktop, Docker, Plugin'
+    pl: 'Wszystkie wersje · szybkie logowanie: GitHub, F-Droid, Desktop, Docker, wtyczka'
+    ru: 'Все версии · быстрый вход: GitHub, F-Droid, Desktop, Docker, плагин'
+    tr: 'Tüm sürümler · hızlı giriş: GitHub, F-Droid, Desktop, Docker, eklenti'
+    ja: 'すべての版 · クイックサインイン: GitHub、F-Droid、Desktop、Docker、プラグイン'
+    ko: '모든 버전 · 빠른 로그인: GitHub, F-Droid, Desktop, Docker, 플러그인'
+    zh: 所有版本 · 快速登录：GitHub、F-Droid、Desktop、Docker、插件
+marks:
+  loved:
+    en: ✓ (loved tracks)
+    it: ✓ (brani amati)
+    es: ✓ (temas favoritos)
+    pt: ✓ (faixas favoritas)
+    fr: ✓ (titres aimés)
+    de: ✓ (Lieblingstitel)
+    pl: ✓ (ulubione utwory)
+    ru: ✓ (любимые треки)
+    tr: ✓ (sevilen parçalar)
+    ja: ✓（Loved トラック）
+    ko: ✓ (좋아요한 곡)
+    zh: ✓（喜欢的歌曲）
+groups:
+  streaming:
+    en: Streaming services
+    it: Servizi di streaming
+    es: Servicios de streaming
+    pt: Serviços de streaming
+    fr: Services de streaming
+    de: Streamingdienste
+    pl: Serwisy streamingowe
+    ru: Стриминговые сервисы
+    tr: Müzik akış servisleri
+    ja: ストリーミングサービス
+    ko: 스트리밍 서비스
+    zh: 流媒体服务
+  servers:
+    en: Your own music server
+    it: Il tuo server musicale
+    es: Tu propio servidor de música
+    pt: Seu próprio servidor de música
+    fr: Votre propre serveur musical
+    de: Dein eigener Musikserver
+    pl: Twój własny serwer muzyczny
+    ru: Ваш собственный музыкальный сервер
+    tr: Kendi müzik sunucunuz
+    ja: 自分の音楽サーバー
+    ko: 내 음악 서버
+    zh: 你自己的音乐服务器
+  listening:
+    en: Listening history
+    it: Cronologia di ascolto
+    es: Historial de escucha
+    pt: Histórico de audição
+    fr: Historique d'écoute
+    de: Hörverlauf
+    pl: Historia słuchania
+    ru: История прослушиваний
+    tr: Dinleme geçmişi
+    ja: 再生履歴
+    ko: 감상 기록
+    zh: 收听记录
+  more:
+    en: Links, radio, charts and files
+    it: Link, radio, classifiche e file
+    es: Enlaces, radio, listas y archivos
+    pt: Links, rádio, paradas e arquivos
+    fr: Liens, radio, classements et fichiers
+    de: Links, Radio, Charts und Dateien
+    pl: Linki, radio, listy przebojów i pliki
+    ru: Ссылки, радио, чарты и файлы
+    tr: Bağlantılar, radyo, listeler ve dosyalar
+    ja: リンク、ラジオ、チャート、ファイル
+    ko: 링크, 라디오, 차트, 파일
+    zh: 链接、电台、排行榜和文件
+rows:
+- name: Spotify
+  group: streaming
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: Quick sign-in with your usual account, no key, no Premium
+    it: Accesso rapido con il tuo account di sempre, senza chiave, senza Premium
+    es: Acceso rápido con tu cuenta de siempre, sin clave, sin Premium
+    pt: Login rápido com sua conta de sempre, sem chave, sem Premium
+    fr: Connexion rapide avec votre compte habituel, sans clé, sans Premium
+    de: Schnellanmeldung mit deinem üblichen Konto, ohne Schlüssel, ohne Premium
+    pl: Szybkie logowanie zwykłym kontem, bez klucza, bez Premium
+    ru: Быстрый вход с вашим обычным аккаунтом, без ключа, без Premium
+    tr: Normal hesabınızla hızlı giriş, anahtar yok, Premium yok
+    ja: いつものアカウントでクイックサインイン、キー不要、Premium 不要
+    ko: 평소 계정으로 빠른 로그인, 키 없이, Premium 없이
+    zh: 用你平常的账号快速登录，无需密钥，无需 Premium
+  where: unofficial
+- name: ''
+  group: streaming
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: 'Official: your own free developer key (Spotify requires Premium for it)'
+    it: 'Ufficiale: la tua chiave sviluppatore gratuita (Spotify la dà solo con Premium)'
+    es: 'Oficial: tu propia clave de desarrollador gratuita (Spotify exige Premium para ella)'
+    pt: 'Oficial: sua própria chave de desenvolvedor gratuita (o Spotify exige Premium para ela)'
+    fr: 'Officiel : votre propre clé de développeur gratuite (Spotify exige Premium pour l’obtenir)'
+    de: 'Offiziell: dein eigener kostenloser Entwicklerschlüssel (Spotify verlangt dafür Premium)'
+    pl: 'Oficjalnie: własny darmowy klucz deweloperski (Spotify wymaga do niego Premium)'
+    ru: 'Официально: ваш бесплатный ключ разработчика (Spotify требует для него Premium)'
+    tr: 'Resmi: kendi ücretsiz geliştirici anahtarınız (Spotify bunun için Premium ister)'
+    ja: '公式: 自分の無料デベロッパーキー（Spotify は Premium が必要）'
+    ko: '공식: 무료 개발자 키 직접 발급 (Spotify는 Premium 필요)'
+    zh: 官方：你自己的免费开发者密钥（Spotify 要求 Premium）
+  where: all
+- name: YouTube Music
+  group: streaming
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: Quick sign-in with your Google account
+    it: Accesso rapido con il tuo account Google
+    es: Acceso rápido con tu cuenta de Google
+    pt: Login rápido com sua conta Google
+    fr: Connexion rapide avec votre compte Google
+    de: Schnellanmeldung mit deinem Google-Konto
+    pl: Szybkie logowanie kontem Google
+    ru: Быстрый вход через аккаунт Google
+    tr: Google hesabınızla hızlı giriş
+    ja: Google アカウントでクイックサインイン
+    ko: Google 계정으로 빠른 로그인
+    zh: 用 Google 账号快速登录
+  where: unofficial
+- name: ''
+  group: streaming
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: 'Official: your own Google API key'
+    it: 'Ufficiale: la tua chiave API di Google'
+    es: 'Oficial: tu propia clave de API de Google'
+    pt: 'Oficial: sua própria chave de API do Google'
+    fr: 'Officiel : votre propre clé d’API Google'
+    de: 'Offiziell: dein eigener Google-API-Schlüssel'
+    pl: 'Oficjalnie: własny klucz API Google'
+    ru: 'Официально: ваш ключ Google API'
+    tr: 'Resmi: kendi Google API anahtarınız'
+    ja: '公式: 自分の Google API キー'
+    ko: '공식: 내 Google API 키'
+    zh: 官方：你自己的 Google API 密钥
+  where: all
+- name: Apple Music
+  group: streaming
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: Quick sign-in with your Apple ID
+    it: Accesso rapido con il tuo ID Apple
+    es: Acceso rápido con tu ID de Apple
+    pt: Login rápido com seu ID Apple
+    fr: Connexion rapide avec votre identifiant Apple
+    de: Schnellanmeldung mit deiner Apple-ID
+    pl: Szybkie logowanie Apple ID
+    ru: Быстрый вход с Apple ID
+    tr: Apple kimliğinizle hızlı giriş
+    ja: Apple ID でクイックサインイン
+    ko: Apple ID로 빠른 로그인
+    zh: 用 Apple ID 快速登录
+  where: unofficial_app
+- name: ''
+  group: streaming
+  read: 'yes'
+  write: 'yes'
+  remove: 'no'
+  how:
+    en: 'Official: Apple developer token (Apple''s API cannot remove tracks)'
+    it: 'Ufficiale: token sviluppatore Apple (l''API di Apple non può togliere brani)'
+    es: 'Oficial: token de desarrollador de Apple (la API de Apple no puede quitar temas)'
+    pt: 'Oficial: token de desenvolvedor da Apple (a API da Apple não remove faixas)'
+    fr: 'Officiel : jeton développeur Apple (l’API d’Apple ne peut pas retirer de titres)'
+    de: 'Offiziell: Apple-Entwicklertoken (Apples API kann keine Titel entfernen)'
+    pl: 'Oficjalnie: token deweloperski Apple (API Apple nie usuwa utworów)'
+    ru: 'Официально: токен разработчика Apple (API Apple не умеет удалять треки)'
+    tr: 'Resmi: Apple geliştirici belirteci (Apple''ın API''si parça silemez)'
+    ja: '公式: Apple デベロッパートークン（Apple の API は曲を削除できません）'
+    ko: '공식: Apple 개발자 토큰 (Apple API는 곡을 삭제할 수 없음)'
+    zh: 官方：Apple 开发者令牌（Apple 的 API 不能删除歌曲）
+  where: apps
+- name: Amazon Music
+  group: streaming
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: Quick sign-in with your Amazon account (no public API)
+    it: Accesso rapido con il tuo account Amazon (non c’è un’API pubblica)
+    es: Acceso rápido con tu cuenta de Amazon (no hay API pública)
+    pt: Login rápido com sua conta Amazon (não há API pública)
+    fr: Connexion rapide avec votre compte Amazon (pas d’API publique)
+    de: Schnellanmeldung mit deinem Amazon-Konto (keine öffentliche API)
+    pl: Szybkie logowanie kontem Amazon (brak publicznego API)
+    ru: Быстрый вход через аккаунт Amazon (публичного API нет)
+    tr: Amazon hesabınızla hızlı giriş (herkese açık API yok)
+    ja: Amazon アカウントでクイックサインイン（公開 API なし）
+    ko: Amazon 계정으로 빠른 로그인 (공개 API 없음)
+    zh: 用 Amazon 账号快速登录（没有公开 API）
+  where: unofficial_app
+- name: TIDAL
+  group: streaming
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: 'Official: your own free developer key'
+    it: 'Ufficiale: la tua chiave sviluppatore gratuita'
+    es: 'Oficial: tu propia clave de desarrollador gratuita'
+    pt: 'Oficial: sua própria chave de desenvolvedor gratuita'
+    fr: 'Officiel : votre propre clé de développeur gratuite'
+    de: 'Offiziell: dein eigener kostenloser Entwicklerschlüssel'
+    pl: 'Oficjalnie: własny darmowy klucz deweloperski'
+    ru: 'Официально: ваш бесплатный ключ разработчика'
+    tr: 'Resmi: kendi ücretsiz geliştirici anahtarınız'
+    ja: '公式: 自分の無料デベロッパーキー'
+    ko: '공식: 무료 개발자 키 직접 발급'
+    zh: 官方：你自己的免费开发者密钥
+  where: all
+- name: Deezer
+  group: streaming
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: Quick sign-in with your Deezer account; a Family plan picks its profile
+    it: Accesso rapido con il tuo account Deezer; con un piano Family scegli il profilo
+    es: Acceso rápido con tu cuenta de Deezer; con un plan Family eliges el perfil
+    pt: Login rápido com sua conta Deezer; num plano Family você escolhe o perfil
+    fr: Connexion rapide avec votre compte Deezer ; avec une offre Famille, vous choisissez le profil
+    de: Schnellanmeldung mit deinem Deezer-Konto; bei einem Family-Abo wählst du das Profil
+    pl: Szybkie logowanie kontem Deezer; w planie Family wybierasz profil
+    ru: Быстрый вход с аккаунтом Deezer; в тарифе Family вы выбираете профиль
+    tr: Deezer hesabınızla hızlı giriş; Family planında profili seçersiniz
+    ja: Deezer アカウントでクイックサインイン。Family プランではプロフィールを選択
+    ko: Deezer 계정으로 빠른 로그인. Family 요금제는 프로필 선택
+    zh: 用 Deezer 账号快速登录；家庭套餐可选择个人资料
+  where: unofficial
+- name: ''
+  group: streaming
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: 'Official (beta): only with an app id you already have, Deezer no longer creates new ones'
+    it: 'Ufficiale (beta): solo con un app id che hai già, Deezer non ne crea più di nuovi'
+    es: 'Oficial (beta): solo con un app id que ya tengas, Deezer ya no crea nuevos'
+    pt: 'Oficial (beta): só com um app id que você já tem, a Deezer não cria mais novos'
+    fr: 'Officiel (bêta) : seulement avec un app id que vous avez déjà, Deezer n’en crée plus'
+    de: 'Offiziell (Beta): nur mit einer App-ID, die du schon hast; Deezer vergibt keine neuen mehr'
+    pl: 'Oficjalnie (beta): tylko z app id, które już masz; Deezer nie tworzy już nowych'
+    ru: 'Официально (бета): только с уже имеющимся app id, новые Deezer больше не выдаёт'
+    tr: 'Resmi (beta): yalnızca zaten sahip olduğunuz bir app id ile, Deezer artık yenisini vermiyor'
+    ja: '公式（ベータ）: すでにお持ちの app id でのみ。Deezer は新規発行を終了しています'
+    ko: '공식(베타): 이미 가진 app id로만 가능, Deezer는 더 이상 새로 발급하지 않음'
+    zh: 官方（测试版）：仅限你已有的 app id，Deezer 已不再发放新的
+  where: all
+- name: LiveOne
+  group: streaming
+  read: 'yes'
+  write: 'yes'
+  remove: 'no'
+  how:
+    en: Quick sign-in (liked songs only, beta)
+    it: Accesso rapido (solo brani che ti piacciono, beta)
+    es: Acceso rápido (solo canciones que te gustan, beta)
+    pt: Login rápido (só músicas curtidas, beta)
+    fr: Connexion rapide (titres aimés seulement, bêta)
+    de: Schnellanmeldung (nur Lieblingssongs, Beta)
+    pl: Szybkie logowanie (tylko polubione utwory, beta)
+    ru: Быстрый вход (только понравившиеся, бета)
+    tr: Hızlı giriş (yalnızca beğenilen şarkılar, beta)
+    ja: クイックサインイン（お気に入りの曲のみ、ベータ）
+    ko: 빠른 로그인 (좋아요한 곡만, 베타)
+    zh: 快速登录（仅喜欢的歌曲，测试版）
+  where: unofficial
+- name: Navidrome / Subsonic
+  group: servers
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how: &id001
+    en: Your server's address and login
+    it: L'indirizzo del tuo server e il tuo accesso
+    es: La dirección de tu servidor y tu usuario
+    pt: O endereço do seu servidor e seu login
+    fr: L’adresse de votre serveur et vos identifiants
+    de: Adresse deines Servers und deine Anmeldedaten
+    pl: Adres serwera i dane logowania
+    ru: Адрес вашего сервера и логин
+    tr: Sunucunuzun adresi ve giriş bilgileri
+    ja: サーバーのアドレスとログイン情報
+    ko: 서버 주소와 로그인 정보
+    zh: 你的服务器地址和登录信息
+  where: all
+  extra: Airsonic, Gonic, Ampache, LMS, Funkwhale
+- name: Jellyfin
+  group: servers
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how: *id001
+  where: all
+- name: Koel
+  group: servers
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: Your server's address, your Koel email and the Subsonic API key from your Koel profile
+    it: L'indirizzo del server, la tua email di Koel e la chiave API Subsonic del tuo profilo Koel
+    es: La dirección del servidor, tu correo de Koel y la clave de API Subsonic de tu perfil de Koel
+    pt: O endereço do servidor, seu e-mail do Koel e a chave de API Subsonic do seu perfil no Koel
+    fr: L’adresse du serveur, votre e-mail Koel et la clé d’API Subsonic de votre profil Koel
+    de: Adresse des Servers, deine Koel-E-Mail und der Subsonic-API-Schlüssel aus deinem Koel-Profil
+    pl: Adres serwera, e-mail z Koel i klucz API Subsonic z profilu Koel
+    ru: Адрес сервера, ваш e-mail в Koel и ключ Subsonic API из профиля Koel
+    tr: Sunucu adresi, Koel e-postanız ve Koel profilinizdeki Subsonic API anahtarı
+    ja: サーバーのアドレス、Koel のメールアドレス、Koel プロフィールの Subsonic API キー
+    ko: 서버 주소, Koel 이메일, Koel 프로필의 Subsonic API 키
+    zh: 服务器地址、你的 Koel 邮箱和 Koel 个人资料里的 Subsonic API 密钥
+  where: all
+  extra: &id002
+    en: beta
+    it: beta
+    es: beta
+    pt: beta
+    fr: bêta
+    de: Beta
+    pl: beta
+    ru: бета
+    tr: beta
+    ja: ベータ
+    ko: 베타
+    zh: 测试版
+- name: Emby
+  group: servers
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how: *id001
+  where: all
+  extra: *id002
+- name: Plex
+  group: servers
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: Your server's address and token
+    it: L'indirizzo del tuo server e il token
+    es: La dirección de tu servidor y el token
+    pt: O endereço do seu servidor e o token
+    fr: L’adresse de votre serveur et le jeton
+    de: Adresse deines Servers und Token
+    pl: Adres serwera i token
+    ru: Адрес вашего сервера и токен
+    tr: Sunucunuzun adresi ve belirteci
+    ja: サーバーのアドレスとトークン
+    ko: 서버 주소와 토큰
+    zh: 你的服务器地址和令牌
+  where: all
+- name: Lyrion Music Server
+  group: servers
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: Your server's address (user and password if protected)
+    it: L'indirizzo del tuo server (utente e password se è protetto)
+    es: La dirección de tu servidor (usuario y contraseña si está protegido)
+    pt: O endereço do seu servidor (usuário e senha, se protegido)
+    fr: L’adresse de votre serveur (utilisateur et mot de passe s’il est protégé)
+    de: Adresse deines Servers (Benutzer und Passwort, falls geschützt)
+    pl: Adres serwera (użytkownik i hasło, jeśli jest chroniony)
+    ru: Адрес вашего сервера (логин и пароль, если он защищён)
+    tr: Sunucunuzun adresi (korumalıysa kullanıcı ve parola)
+    ja: サーバーのアドレス（保護されていればユーザーとパスワード）
+    ko: 서버 주소 (보호된 경우 사용자와 비밀번호)
+    zh: 你的服务器地址（如有保护，还要用户名和密码）
+  where: all
+  extra:
+    en: Logitech Media Server, beta
+    it: Logitech Media Server, beta
+    es: Logitech Media Server, beta
+    pt: Logitech Media Server, beta
+    fr: Logitech Media Server, bêta
+    de: Logitech Media Server, Beta
+    pl: Logitech Media Server, beta
+    ru: Logitech Media Server, бета
+    tr: Logitech Media Server, beta
+    ja: Logitech Media Server, ベータ
+    ko: Logitech Media Server, 베타
+    zh: Logitech Media Server, 测试版
+- name: Mopidy
+  group: servers
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: Your server's address
+    it: L'indirizzo del tuo server
+    es: La dirección de tu servidor
+    pt: O endereço do seu servidor
+    fr: L’adresse de votre serveur
+    de: Adresse deines Servers
+    pl: Adres serwera
+    ru: Адрес вашего сервера
+    tr: Sunucunuzun adresi
+    ja: サーバーのアドレス
+    ko: 서버 주소
+    zh: 你的服务器地址
+  where: all
+  extra: *id002
+- name: Last.fm
+  group: listening
+  read: 'yes'
+  write: loved
+  remove: loved
+  how:
+    en: Your username (loved tracks, scrobbles, top tracks); your password too to love tracks
+    it: Il tuo nome utente (brani amati, scrobble, brani più ascoltati); anche la password per amare i brani
+    es: Tu nombre de usuario (temas favoritos, scrobbles, temas más escuchados); también tu contraseña para marcar favoritos
+    pt: Seu nome de usuário (faixas favoritas, scrobbles, mais ouvidas); também a senha para favoritar faixas
+    fr: Votre nom d’utilisateur (titres aimés, scrobbles, titres les plus écoutés) ; votre mot de passe aussi pour aimer des titres
+    de: Dein Benutzername (Lieblingstitel, Scrobbles, Top-Titel); für Lieblingstitel auch dein Passwort
+    pl: Nazwa użytkownika (ulubione, scrobble, najczęściej słuchane); hasło także, by dodawać ulubione
+    ru: Ваше имя пользователя (любимые треки, скробблы, топ треков); для отметки любимых ещё и пароль
+    tr: Kullanıcı adınız (sevilen parçalar, scrobble’lar, en çok dinlenenler); parça sevmek için parolanız da
+    ja: ユーザー名（Loved トラック、Scrobble、トップトラック）。Loved を付けるにはパスワードも
+    ko: 사용자 이름 (좋아요한 곡, 스크로블, 많이 들은 곡). 좋아요를 누르려면 비밀번호도
+    zh: 你的用户名（喜欢的歌曲、Scrobble、最常听的歌曲）；要标记喜欢还需要密码
+  where: all
+- name: ListenBrainz
+  group: listening
+  read: 'yes'
+  write: 'yes'
+  remove: 'no'
+  how:
+    en: Your username (playlists, loved tracks); with your user token, it writes them too
+    it: Il tuo nome utente (playlist, brani amati); con il tuo token utente li scrive anche
+    es: Tu nombre de usuario (playlists, temas favoritos); con tu token de usuario también los escribe
+    pt: Seu nome de usuário (playlists, faixas favoritas); com seu token de usuário também os grava
+    fr: Votre nom d’utilisateur (playlists, titres aimés) ; avec votre jeton utilisateur, il les écrit aussi
+    de: Dein Benutzername (Playlists, Lieblingstitel); mit deinem Benutzer-Token werden sie auch geschrieben
+    pl: Nazwa użytkownika (playlisty, ulubione utwory); z tokenem użytkownika także je zapisuje
+    ru: Ваше имя пользователя (плейлисты, любимые треки); с токеном пользователя они и записываются
+    tr: Kullanıcı adınız (çalma listeleri, sevilen parçalar); kullanıcı jetonunuzla bunlar yazılır da
+    ja: ユーザー名（プレイリスト、Loved トラック）。ユーザートークンがあれば書き込みも
+    ko: 사용자 이름 (플레이리스트, 좋아요한 곡). 사용자 토큰이 있으면 쓰기도 가능
+    zh: 你的用户名（歌单、喜欢的歌曲）；加上用户令牌也可写入
+  where: all
+- name: SoundCloud
+  group: streaming
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: 'Quick sign-in with your SoundCloud account: your sets and likes (beta)'
+    it: 'Accesso rapido con il tuo account SoundCloud: i tuoi set e i tuoi like (beta)'
+    es: 'Acceso rápido con tu cuenta de SoundCloud: tus sets y tus me gusta (beta)'
+    pt: 'Login rápido com sua conta do SoundCloud: seus sets e curtidas (beta)'
+    fr: 'Connexion rapide avec votre compte SoundCloud : vos sets et vos j’aime (bêta)'
+    de: 'Schnellanmeldung mit deinem SoundCloud-Konto: deine Sets und Likes (Beta)'
+    pl: 'Szybkie logowanie kontem SoundCloud: twoje sety i polubienia (beta)'
+    ru: 'Быстрый вход через аккаунт SoundCloud: ваши сеты и лайки (бета)'
+    tr: 'SoundCloud hesabınızla hızlı giriş: setleriniz ve beğenileriniz (beta)'
+    ja: 'SoundCloud アカウントでクイックサインイン: セットといいね（ベータ）'
+    ko: 'SoundCloud 계정으로 빠른 로그인: 내 세트와 좋아요 (베타)'
+    zh: 用 SoundCloud 账号快速登录：你的合辑和点赞（测试版）
+  where: unofficial_app
+- name: ''
+  group: streaming
+  read: 'yes'
+  write: 'no'
+  remove: 'no'
+  how:
+    en: Paste a public set or likes link, no account
+    it: Incolla il link pubblico di un set o dei like, senza account
+    es: Pega el enlace público de un set o de unos me gusta, sin cuenta
+    pt: Cole o link público de um set ou de curtidas, sem conta
+    fr: Collez le lien public d’un set ou de j’aime, sans compte
+    de: Öffentlichen Set- oder Likes-Link einfügen, ohne Konto
+    pl: Wklej publiczny link do setu lub polubień, bez konta
+    ru: Вставьте публичную ссылку на сет или лайки, без аккаунта
+    tr: Herkese açık bir set ya da beğeni bağlantısı yapıştırın, hesap gerekmez
+    ja: 公開セットやいいねのリンクを貼るだけ、アカウント不要
+    ko: 공개 세트나 좋아요 링크 붙여넣기, 계정 불필요
+    zh: 粘贴公开合辑或点赞的链接，无需账号
+  where: links
+- name:
+    en: NetEase Cloud Music, QQ Music
+    it: NetEase Cloud Music, QQ Music
+    es: NetEase Cloud Music, QQ Music
+    pt: NetEase Cloud Music, QQ Music
+    fr: NetEase Cloud Music, QQ Music
+    de: NetEase Cloud Music, QQ Music
+    pl: NetEase Cloud Music, QQ Music
+    ru: NetEase Cloud Music, QQ Music
+    tr: NetEase Cloud Music, QQ Music
+    ja: NetEase Cloud Music、QQ Music
+    ko: NetEase Cloud Music, QQ Music
+    zh: 网易云音乐、QQ 音乐
+  group: streaming
+  read: 'yes'
+  write: 'no'
+  remove: 'no'
+  how:
+    en: Paste a public playlist link
+    it: Incolla il link di una playlist pubblica
+    es: Pega el enlace de una playlist pública
+    pt: Cole o link de uma playlist pública
+    fr: Collez le lien d’une playlist publique
+    de: Link einer öffentlichen Playlist einfügen
+    pl: Wklej link do publicznej playlisty
+    ru: Вставьте ссылку на публичный плейлист
+    tr: Herkese açık bir çalma listesi bağlantısı yapıştırın
+    ja: 公開プレイリストのリンクを貼る
+    ko: 공개 플레이리스트 링크 붙여넣기
+    zh: 粘贴公开歌单的链接
+  where: unofficial
+- name: JioSaavn
+  group: streaming
+  read: 'yes'
+  write: 'no'
+  remove: 'no'
+  how:
+    en: Paste a public playlist, album or song link
+    it: Incolla il link pubblico di una playlist, di un album o di un brano
+    es: Pega el enlace público de una playlist, un álbum o una canción
+    pt: Cole o link público de uma playlist, álbum ou música
+    fr: Collez le lien public d’une playlist, d’un album ou d’un titre
+    de: Öffentlichen Link zu Playlist, Album oder Song einfügen
+    pl: Wklej publiczny link do playlisty, albumu lub utworu
+    ru: Вставьте публичную ссылку на плейлист, альбом или песню
+    tr: Herkese açık bir çalma listesi, albüm ya da şarkı bağlantısı yapıştırın
+    ja: 公開プレイリスト、アルバム、曲のリンクを貼る
+    ko: 공개 플레이리스트, 앨범, 곡 링크 붙여넣기
+    zh: 粘贴公开歌单、专辑或歌曲的链接
+  where: unofficial
+- name: Gaana
+  group: streaming
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: 'Quick sign-in with your Gaana account: your playlists and favourite songs (alpha)'
+    it: 'Accesso rapido con il tuo account Gaana: le tue playlist e i brani preferiti (alpha)'
+    es: 'Acceso rápido con tu cuenta de Gaana: tus playlists y canciones favoritas (alfa)'
+    pt: 'Login rápido com sua conta Gaana: suas playlists e músicas favoritas (alfa)'
+    fr: 'Connexion rapide avec votre compte Gaana : vos playlists et titres favoris (alpha)'
+    de: 'Schnellanmeldung mit deinem Gaana-Konto: deine Playlists und Lieblingssongs (Alpha)'
+    pl: 'Szybkie logowanie kontem Gaana: twoje playlisty i ulubione utwory (alfa)'
+    ru: 'Быстрый вход через аккаунт Gaana: ваши плейлисты и избранные песни (альфа)'
+    tr: 'Gaana hesabınızla hızlı giriş: çalma listeleriniz ve favori şarkılarınız (alfa)'
+    ja: 'Gaana アカウントでクイックサインイン: プレイリストとお気に入りの曲（アルファ）'
+    ko: 'Gaana 계정으로 빠른 로그인: 내 플레이리스트와 즐겨찾는 곡 (알파)'
+    zh: 用 Gaana 账号快速登录：你的歌单和收藏的歌曲（内测版）
+  where: unofficial
+- name: ''
+  group: streaming
+  read: 'yes'
+  write: 'no'
+  remove: 'no'
+  how: &id003
+    en: Paste a public playlist link, no account
+    it: Incolla il link di una playlist pubblica, senza account
+    es: Pega el enlace de una playlist pública, sin cuenta
+    pt: Cole o link de uma playlist pública, sem conta
+    fr: Collez le lien d’une playlist publique, sans compte
+    de: Link einer öffentlichen Playlist einfügen, ohne Konto
+    pl: Wklej link do publicznej playlisty, bez konta
+    ru: Вставьте ссылку на публичный плейлист, без аккаунта
+    tr: Herkese açık bir çalma listesi bağlantısı yapıştırın, hesap gerekmez
+    ja: 公開プレイリストのリンクを貼るだけ、アカウント不要
+    ko: 공개 플레이리스트 링크 붙여넣기, 계정 불필요
+    zh: 粘贴公开歌单的链接，无需账号
+  where: unofficial
+- name: Anghami
+  group: streaming
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: 'Quick sign-in with your Anghami account: your playlists and likes (beta)'
+    it: 'Accesso rapido con il tuo account Anghami: le tue playlist e i tuoi like (beta)'
+    es: 'Acceso rápido con tu cuenta de Anghami: tus playlists y tus me gusta (beta)'
+    pt: 'Login rápido com sua conta Anghami: suas playlists e curtidas (beta)'
+    fr: 'Connexion rapide avec votre compte Anghami : vos playlists et vos j’aime (bêta)'
+    de: 'Schnellanmeldung mit deinem Anghami-Konto: deine Playlists und Likes (Beta)'
+    pl: 'Szybkie logowanie kontem Anghami: twoje playlisty i polubienia (beta)'
+    ru: 'Быстрый вход через аккаунт Anghami: ваши плейлисты и лайки (бета)'
+    tr: 'Anghami hesabınızla hızlı giriş: çalma listeleriniz ve beğenileriniz (beta)'
+    ja: 'Anghami アカウントでクイックサインイン: プレイリストといいね（ベータ）'
+    ko: 'Anghami 계정으로 빠른 로그인: 내 플레이리스트와 좋아요 (베타)'
+    zh: 用 Anghami 账号快速登录：你的歌单和点赞（测试版）
+  where: unofficial
+- name: Qobuz
+  group: streaming
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: 'Quick sign-in with your Qobuz account (Google too): your playlists and favourite tracks (beta)'
+    it: 'Accesso rapido con il tuo account Qobuz (anche con Google): le tue playlist e i brani preferiti (beta)'
+    es: 'Acceso rápido con tu cuenta de Qobuz (también con Google): tus playlists y temas favoritos (beta)'
+    pt: 'Login rápido com sua conta Qobuz (Google também): suas playlists e faixas favoritas (beta)'
+    fr: 'Connexion rapide avec votre compte Qobuz (Google aussi) : vos playlists et titres favoris (bêta)'
+    de: 'Schnellanmeldung mit deinem Qobuz-Konto (auch über Google): deine Playlists und Lieblingstitel (Beta)'
+    pl: 'Szybkie logowanie kontem Qobuz (także przez Google): twoje playlisty i ulubione utwory (beta)'
+    ru: 'Быстрый вход через аккаунт Qobuz (и через Google): ваши плейлисты и избранные треки (бета)'
+    tr: 'Qobuz hesabınızla hızlı giriş (Google ile de): çalma listeleriniz ve favori parçalarınız (beta)'
+    ja: 'Qobuz アカウント（Google でも可）でクイックサインイン: プレイリストとお気に入りのトラック（ベータ）'
+    ko: 'Qobuz 계정(Google도 가능)으로 빠른 로그인: 내 플레이리스트와 즐겨찾는 곡 (베타)'
+    zh: 用 Qobuz 账号（也可用 Google）快速登录：你的歌单和收藏的曲目（测试版）
+  where: unofficial
+- name: ''
+  group: streaming
+  read: 'yes'
+  write: 'no'
+  remove: 'no'
+  how: *id003
+  where: unofficial
+- name: TikTok
+  group: more
+  read: 'yes'
+  write: 'no'
+  remove: 'no'
+  how:
+    en: 'Share a video: Trackhop reads the song it uses, or recognises it from the audio'
+    it: 'Condividi un video: Trackhop legge il brano che usa, o lo riconosce dall’audio'
+    es: 'Comparte un vídeo: Trackhop lee la canción que usa, o la reconoce por el audio'
+    pt: 'Compartilhe um vídeo: o Trackhop lê a música que ele usa, ou a reconhece pelo áudio'
+    fr: 'Partagez une vidéo : Trackhop lit le titre qu’elle utilise, ou le reconnaît à l’audio'
+    de: 'Teile ein Video: Trackhop liest den verwendeten Song oder erkennt ihn am Ton'
+    pl: 'Udostępnij film: Trackhop odczyta użyty utwór albo rozpozna go po dźwięku'
+    ru: 'Поделитесь видео: Trackhop прочитает песню из него или распознает её по звуку'
+    tr: 'Bir video paylaşın: Trackhop kullandığı şarkıyı okur ya da sesten tanır'
+    ja: '動画を共有: Trackhop が使われている曲を読み取るか、音から認識します'
+    ko: '영상 공유: Trackhop이 사용된 곡을 읽거나 소리로 인식해요'
+    zh: 分享一个视频：Trackhop 读取它用的歌曲，或者从音频识别
+  where: unofficial
+- name:
+    en: Internet radio, Shazam
+    it: Radio via internet, Shazam
+    es: Radio por internet, Shazam
+    pt: Rádio pela internet, Shazam
+    fr: Radio sur internet, Shazam
+    de: Internetradio, Shazam
+    pl: Radio internetowe, Shazam
+    ru: Интернет-радио, Shazam
+    tr: İnternet radyosu, Shazam
+    ja: インターネットラジオ、Shazam
+    ko: 인터넷 라디오, Shazam
+    zh: 网络电台、Shazam
+  group: more
+  read: 'yes'
+  write: 'no'
+  remove: 'no'
+  how:
+    en: What a station plays, or every song you Shazam
+    it: Quello che passa una stazione, o ogni brano che riconosci con Shazam
+    es: Lo que pone una emisora, o cada canción que identificas con Shazam
+    pt: O que uma estação toca, ou cada música que você identifica no Shazam
+    fr: Ce que diffuse une station, ou chaque titre que vous shazamez
+    de: Was ein Sender spielt, oder jeder Song, den du mit Shazam erkennst
+    pl: To, co gra stacja, albo każdy utwór rozpoznany w Shazam
+    ru: Что играет станция, или каждая песня, найденная в Shazam
+    tr: Bir istasyonun çaldıkları ya da Shazam’ladığınız her şarkı
+    ja: 局が流す曲、または Shazam した曲すべて
+    ko: 방송국이 트는 곡, 또는 Shazam으로 찾은 모든 곡
+    zh: 电台播放的歌曲，或你用 Shazam 识别的每首歌
+  where: all
+- name:
+    en: Charts
+    it: Classifiche
+    es: Listas de éxitos
+    pt: Paradas
+    fr: Classements
+    de: Charts
+    pl: Listy przebojów
+    ru: Чарты
+    tr: Listeler
+    ja: チャート
+    ko: 차트
+    zh: 排行榜
+  group: more
+  read: 'yes'
+  write: 'no'
+  remove: 'no'
+  how:
+    en: A country's Top 100, refreshed as it changes, no account; with an Apple Music developer token (the build's or your own) also Apple's Daily Top 100 of the world and of each country and the Top 25
+      of each city
+    it: La Top 100 di un paese, aggiornata quando cambia, senza account; con un token sviluppatore di Apple Music (della build o tuo) anche la Daily Top 100 di Apple del mondo e di ogni paese e la Top 25
+      di ogni città
+    es: El Top 100 de un país, actualizado cuando cambia, sin cuenta; con un token de desarrollador de Apple Music (el de la versión o el tuyo) también el Daily Top 100 de Apple del mundo y de cada país
+      y el Top 25 de cada ciudad
+    pt: O Top 100 de um país, atualizado quando muda, sem conta; com um token de desenvolvedor do Apple Music (o da versão ou o seu) também o Daily Top 100 da Apple do mundo e de cada país e o Top 25 de
+      cada cidade
+    fr: Le Top 100 d’un pays, mis à jour quand il change, sans compte ; avec un jeton développeur Apple Music (celui de la version ou le vôtre) aussi le Daily Top 100 d’Apple du monde et de chaque pays
+      et le Top 25 de chaque ville
+    de: Die Top 100 eines Landes, aktualisiert, sobald sie sich ändern, ohne Konto; mit einem Apple-Music-Entwicklertoken (dem der Version oder deinem eigenen) auch Apples Daily Top 100 der Welt und jedes
+      Landes und die Top 25 jeder Stadt
+    pl: Top 100 danego kraju, odświeżane przy każdej zmianie, bez konta; z tokenem deweloperskim Apple Music (wersji lub własnym) także Daily Top 100 Apple świata i każdego kraju oraz Top 25 każdego miasta
+    ru: Топ-100 страны, обновляется при изменениях, без аккаунта; с токеном разработчика Apple Music (сборки или вашим) ещё и Daily Top 100 от Apple по миру и по каждой стране и Топ-25 каждого города
+    tr: Bir ülkenin Top 100 listesi, değiştikçe yenilenir, hesap gerekmez; Apple Music geliştirici belirteciyle (sürümün ya da sizinki) Apple’ın dünya ve her ülke için Daily Top 100 listesi ile her şehrin
+      Top 25 listesi de
+    ja: 国ごとの Top 100（変わるたびに更新、アカウント不要）。Apple Music デベロッパートークン（ビルドのものか自分のもの）があれば、Apple の世界と各国の Daily Top 100、各都市の Top 25 も
+    ko: 국가별 Top 100 (바뀔 때마다 갱신, 계정 불필요). Apple Music 개발자 토큰(버전에 포함된 것 또는 내 것)이 있으면 Apple의 세계·국가별 Daily Top 100과 도시별 Top 25도
+    zh: 某个国家的 Top 100，变化时自动更新，无需账号；有 Apple Music 开发者令牌（版本自带的或你自己的）时，还有 Apple 全球和各国的 Daily Top 100 以及各城市的 Top 25
+  where: all
+  extra: Apple Music, Deezer
+- name:
+    en: Files
+    it: File
+    es: Archivos
+    pt: Arquivos
+    fr: Fichiers
+    de: Dateien
+    pl: Pliki
+    ru: Файлы
+    tr: Dosyalar
+    ja: ファイル
+    ko: 파일
+    zh: 文件
+  group: more
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: Import and export
+    it: Importa ed esporta
+    es: Importar y exportar
+    pt: Importar e exportar
+    fr: Import et export
+    de: Import und Export
+    pl: Import i eksport
+    ru: Импорт и экспорт
+    tr: İçe ve dışa aktarma
+    ja: インポートとエクスポート
+    ko: 가져오기와 내보내기
+    zh: 导入和导出
+  where: all
+  extra:
+    en: CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, JSON, text; rekordbox XML read only
+    it: CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, JSON, testo; rekordbox XML solo lettura
+    es: CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, JSON, texto; rekordbox XML solo lectura
+    pt: CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, JSON, texto; rekordbox XML só leitura
+    fr: CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, JSON, texte ; rekordbox XML en lecture seule
+    de: CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, JSON, Text; rekordbox XML nur lesen
+    pl: CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, JSON, tekst; rekordbox XML tylko odczyt
+    ru: CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, JSON, текст; rekordbox XML только чтение
+    tr: CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, JSON, metin; rekordbox XML yalnızca okuma
+    ja: CSV、M3U、XSPF、JSPF、WPL/ZPL、iTunes XML、JSON、テキスト。rekordbox XML は読み込みのみ
+    ko: CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, JSON, 텍스트. rekordbox XML은 읽기만
+    zh: CSV、M3U、XSPF、JSPF、WPL/ZPL、iTunes XML、JSON、文本；rekordbox XML 仅读取

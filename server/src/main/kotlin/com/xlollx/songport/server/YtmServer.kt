@@ -105,10 +105,21 @@ class YtmServerProvider(override val slot: String = "") : CookieConnector {
     /** The chosen channel's name, for the page; null when none was chosen. */
     fun channelName(ctx: Env): String? = if (channel(ctx) == null) null else ctx.tokens.get(id)?.extra?.get(CHANNEL_NAME)
 
-    /** The channels the signed-in account can act as, the chosen one marked. */
-    suspend fun channels(ctx: Env): List<ChannelDto> {
+    /**
+     * The channels the signed-in account can act as, the chosen one marked; with [library], how much
+     * music each holds (two reads per channel: for the choice, never during a sync).
+     */
+    suspend fun channels(ctx: Env, library: Boolean = false): List<ChannelDto> {
         val chosen = channel(ctx).orEmpty()
-        return io(ctx) { c -> c.channels().map { it.copy(selected = it.id == chosen) } }
+        return io(ctx) { c -> (if (library) c.channelsWithLibrary() else c.channels()).map { it.copy(selected = it.id == chosen) } }
+    }
+
+    /** The channel the music seems to be on when the chosen one looks empty ([ChannelAdvice]); null when there is nothing to say. */
+    fun betterChannel(ctx: Env, channels: List<ChannelDto>): ChannelDto? {
+        val id = com.xlollx.songport.providers.ChannelAdvice.better(
+            channels.map { com.xlollx.songport.providers.ChannelAdvice.Library(it.id, it.playlists, it.likedSongs) }, channel(ctx).orEmpty(),
+        )
+        return channels.firstOrNull { it.id == id }
     }
 
     /**

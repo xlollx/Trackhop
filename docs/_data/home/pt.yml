@@ -42,6 +42,8 @@ umbrel_alt: 'Baixe no Umbrel'
 umbrel_note: 'Nossa loja de apps para o umbrelOS'
 caprover_alt: 'Baixe no CapRover'
 caprover_note: 'No catálogo One-Click Apps'
+dokploy_alt: 'Baixe no Dokploy'
+dokploy_note: 'Nos modelos'
 render_alt: 'Implantar no Render (beta)'
 render_note: 'Beta · cobrado na sua conta do Render'
 railway_alt: 'Implantar no Railway (beta)'
@@ -49,7 +51,6 @@ railway_note: 'Beta · cobrado na sua conta do Railway'
 cloud_more: 'Sem servidor em casa: o Trackhop online na sua própria conta, com endereço HTTPS e sincronizações agendadas'
 virustotal: Cada download verificado no VirusTotal
 downloads: "{n} downloads"
-downloads_title: Downloads das versões no GitHub e pulls no Docker Hub. O F-Droid e as lojas não divulgam números, então o total real é maior.
 demo_alt: "Um tour pelo Trackhop: sincronizações, uma nova sincronização, contas, ferramentas, uma faixa compartilhada, os cartões de compatibilidade e pôster, faixas que não tocam, configurações"
 what_title: O que ele faz
 what_intro: Escolha uma origem e um destino e com que frequência sincronizar. O Trackhop encontra cada faixa do outro lado, mostra o que vai mudar e mantém as duas em dia.
@@ -149,3 +150,9 @@ say_title: 'O que dizem'
 say_intro: 'Comentários em vídeos e posts sobre o Trackhop e mensagens de apoiadores. Nomes e fotos ocultos.'
 say_alt: 'Comentários de quem usa o Trackhop e duas mensagens de apoiadores elogiando a sincronização automática e a segurança, e posts no X que o chamam de "a game changer for music lovers who use multiple platforms"'
 gallery_title: "Dê uma olhada"
+itch_alt: "Baixe no itch.io"
+sourceforge_alt: "Baixe no SourceForge"
+itch_phone_note: "O APK completo, atualizado a cada versão"
+sourceforge_phone_note: "Cada versão, espelhada"
+itch_desktop_note: "Windows, macOS e Linux"
+sourceforge_desktop_note: "Cada versão, espelhada"

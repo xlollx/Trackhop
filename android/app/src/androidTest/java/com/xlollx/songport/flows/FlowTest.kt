@@ -336,6 +336,10 @@ abstract class FlowTest {
     protected fun click(text: String, substring: Boolean = false) =
         tap(compose.onAllNodes(hasClickAction() and (hasText(text, substring = substring) or hasContentDescription(text, substring = substring))).onFirst(), text)
 
+    /** Like [click], but only inside an open dialog: a screen behind it can have a chip or button of the same name (Accounts' "All"). */
+    protected fun clickInDialog(text: String) =
+        tap(compose.onAllNodes(hasClickAction() and hasText(text) and androidx.compose.ui.test.hasAnyAncestor(androidx.compose.ui.test.isDialog())).onFirst(), text)
+
     protected fun clickDesc(desc: String, index: Int = 0) =
         tap(compose.onAllNodes(hasClickAction() and hasContentDescription(desc))[index], desc)
 
@@ -361,6 +365,19 @@ abstract class FlowTest {
             n.performClick()
         } catch (e: AssertionError) {
             if (e.message?.contains("inject") != true) throw e
+            // No such node at all: Compose says that too as "Failed to inject touch input" (it looks
+            // the node up before touching). Nothing was tapped: said as the failure it is, never
+            // taken for a menu that closed under the finger.
+            if (e.message?.contains("could not find any node") == true) throw e
+            // A row of a menu or a picker closes it as the finger lifts: the touch landed, and its
+            // window went away before the injection was over. Nothing left to tap then; the steps
+            // that follow check the choice was made.
+            compose.waitForIdle()
+            if (runCatching { n.fetchSemanticsNode() }.isFailure) {
+                log("touch on \"$what\" closed its window as it landed")
+                compose.waitForIdle()
+                return
+            }
             semanticClicks += what
             log("touch on \"$what\" could not be injected: using its click action")
             n.performSemanticsAction(SemanticsActions.OnClick)

@@ -279,6 +279,26 @@ class NwayEditTest {
         for (s in listOf(a, b, c, d)) assertEquals(s.id, listOf(1, 2, 3, 4, 5), songs(s))
     }
 
+    @Test fun aNewGroupWithTheIdOfOneHereIsRefusedAndThatOneKeepsItsKey() {
+        val g = NwayEdit.create(env, NwayEdit.Draft("Trip", item(a), listOf(item(b))))
+        val keys = env.tokens.ids().filter { it.startsWith("shared:") }.associateWith { env.tokens.get(it) }
+        assertTrue(runCatching { NwayEdit.create(env, NwayEdit.Draft("Other", item(c), listOf(item(d))), id = g.id) }.isFailure)
+        assertEquals(listOf(g), now().groups)
+        // Compared as a yes or no: a failure message would print the keys.
+        assertTrue("The group's key changed", keys == env.tokens.ids().filter { it.startsWith("shared:") }.associateWith { env.tokens.get(it) })
+    }
+
+    @Test fun twoNewGroupsAskedAtOnceWithOneIdMakeOne() {
+        val start = java.util.concurrent.CountDownLatch(1)
+        val pool = java.util.concurrent.Executors.newFixedThreadPool(8)
+        val tries = (1..8).map { pool.submit<Result<SharedGroup>> { start.await(); runCatching { NwayEdit.create(env, NwayEdit.Draft("Trip", item(a), listOf(item(b))), id = "0123456789abcdef") } } }
+        start.countDown()
+        val made = tries.map { it.get() }
+        pool.shutdown()
+        assertEquals(1, made.count { it.isSuccess })
+        assertEquals(listOf(made.single { it.isSuccess }.getOrThrow()), now().groups)
+    }
+
     @Test fun aNewGroupThatCannotBeWrittenLeavesNothingBehind() {
         env.store.failWrites = true
         val made = runCatching { NwayEdit.create(env, NwayEdit.Draft("Trip", item(a), listOf(item(b)))) }

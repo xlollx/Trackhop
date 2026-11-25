@@ -106,7 +106,8 @@ fun LibraryScanScreen(provider: MusicProvider, onClose: () -> Unit) {
                     item {
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
                             Text(stringResource(R.string.scan_orphans, r.orphanLiked.size), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                            OutlinedButton(onClick = { save(ctx.getString(R.string.scan_orphans_file, provider.displayName), r.orphanLiked) }) { Text(stringResource(R.string.scan_save)) }
+                            // Not when a playlist was not read: those tracks may be in it.
+                            if (!r.playlistsUnread) OutlinedButton(onClick = { save(ctx.getString(R.string.scan_orphans_file, provider.displayName), r.orphanLiked) }) { Text(stringResource(R.string.scan_save)) }
                         }
                     }
                     items(r.orphanLiked, key = { "o-" + it.id }) { t -> TrackLine(t) }

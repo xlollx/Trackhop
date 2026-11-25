@@ -1,0 +1,1 @@
+Trackhop 2.2。新的“选哪个服务？”选择器。匹配更好：feat. 嘉宾、混音、Taylor's Version、Deluxe 和 Remaster 版本；“为什么没匹配上？”显示候选。YouTube Music 显示连接的是哪个资料。Deezer 家庭资料。ListenBrainz 可作目标。Plex：五星算喜欢、Sounds like、复制给 Plex Home 用户。在家和外出两个地址。Apple Music 移除。Soundiiz JSON、Apprise、星级评分。首次运行更简单。点按通知会打开相关内容，铃铛保留全部通知。电台和 Shazam 可作为账户。桌面版和 Docker 几乎能做应用能做的一切。

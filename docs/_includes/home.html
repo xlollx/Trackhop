@@ -3,7 +3,7 @@ The home page, in the page's language: its text comes from _data/home/<lang>.yml
 a language lacks). index.html and the translated homes (it/index.html…) only include this.
 The Desktop version is set here, once, for every language.
 {%- endcomment -%}
-{%- assign dv = "2.1.5" -%}
+{%- assign dv = "2.2.0" -%}
 {%- assign dl = "https://github.com/xlollx/Trackhop/releases/download/server-v" | append: dv -%}
 {%- assign hl = page.lang | default: "en" | slice: 0, 2 -%}
 {%- assign en = site.data.home.en -%}
@@ -44,6 +44,14 @@ The Desktop version is set here, once, for every language.
             <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="/assets/badges/github.svg" alt="{{ h.github_alt | default: en.github_alt }}"></a>
             <small>{{ h.github_note | default: en.github_note }}</small>
           </div>
+          <div class="col">
+            <a href="https://xlollx.itch.io/trackhop"><img src="/assets/badges/itch.svg" alt="{{ h.itch_alt | default: en.itch_alt }}"></a>
+            <small>{{ h.itch_phone_note | default: en.itch_phone_note }}</small>
+          </div>
+          <div class="col">
+            <a href="https://sourceforge.net/projects/trackhop/"><img src="/assets/badges/sourceforge.svg" alt="{{ h.sourceforge_alt | default: en.sourceforge_alt }}"></a>
+            <small>{{ h.sourceforge_phone_note | default: en.sourceforge_phone_note }}</small>
+          </div>
         </div>
         <p class="more">{{ h.phone_more | default: en.phone_more }}</p>
       </div>
@@ -65,6 +73,14 @@ The Desktop version is set here, once, for every language.
             <a href="{{ dl }}/Trackhop-Desktop-v{{ dv }}-linux.deb"><img src="/assets/badges/linux.svg" alt="{{ h.linux_alt | default: en.linux_alt }}"></a>
             <small>{{ h.linux_note | default: en.linux_note | replace: '%DL%', dl | replace: '%V%', dv }}</small>
           </div>
+          <div class="col">
+            <a href="https://xlollx.itch.io/trackhop"><img src="/assets/badges/itch.svg" alt="{{ h.itch_alt | default: en.itch_alt }}"></a>
+            <small>{{ h.itch_desktop_note | default: en.itch_desktop_note }}</small>
+          </div>
+          <div class="col">
+            <a href="https://sourceforge.net/projects/trackhop/"><img src="/assets/badges/sourceforge.svg" alt="{{ h.sourceforge_alt | default: en.sourceforge_alt }}"></a>
+            <small>{{ h.sourceforge_desktop_note | default: en.sourceforge_desktop_note }}</small>
+          </div>
         </div>
         <p class="more">{{ h.computer_more | default: en.computer_more }}</p>
       </div>
@@ -81,6 +97,10 @@ The Desktop version is set here, once, for every language.
           <div class="col">
             <a href="/guide/docker#one-click-installs"><img src="/assets/badges/caprover.svg" alt="{{ h.caprover_alt | default: en.caprover_alt }}"></a>
             <small>{{ h.caprover_note | default: en.caprover_note }}</small>
+          </div>
+          <div class="col">
+            <a href="/guide/docker#one-click-installs"><img src="/assets/badges/dokploy.svg" alt="{{ h.dokploy_alt | default: en.dokploy_alt }}"></a>
+            <small>{{ h.dokploy_note | default: en.dokploy_note }}</small>
           </div>
         </div>
         <p class="more">{{ h.server_more | default: en.server_more }}</p>
@@ -125,7 +145,6 @@ The Desktop version is set here, once, for every language.
             if (!d || !(d.total >= 100)) return;
             var el = document.getElementById("downloads");
             el.querySelector("span").textContent = {{ h.downloads | default: en.downloads | jsonify }}.replace("{n}", (Math.floor(d.total / 100) * 100).toLocaleString({{ hl | jsonify }}) + "+");
-            el.title = {{ h.downloads_title | default: en.downloads_title | jsonify }};
             el.hidden = false;
           })
           .catch(function () {});

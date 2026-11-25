@@ -205,6 +205,8 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
     if (current != null) {
         // The tool's own page: its card, full width, with a snackbar of its own (the tab's is behind us).
         val local = remember { SnackbarHostState() }
+        // Rows ticked on the tool's page: its selection bar stands in for the tool's own.
+        val selection = remember(current) { mutableStateOf<ToolSelection?>(null) }
         BackHandler { close() }
         // Nested in the tab, which keeps the status-bar inset (no second gap); the end of the page
         // clears the glass bottom bar.
@@ -213,7 +215,9 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
             snackbarHost = { SnackbarHost(local, Modifier.padding(bottom = LocalBottomBarInset.current)) },
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
             topBar = {
-                TopAppBar(
+                val picked = selection.value
+                if (picked != null) SelectionTopBar(picked, windowInsets = WindowInsets(0, 0, 0, 0))
+                else TopAppBar(
                     title = { Text(stringResource(current.titleRes)) },
                     navigationIcon = { IconButton(onClick = { close() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back)) } },
                     // Saved matches: what changing, accepting a proposal and ignoring do, as in a sync's review.
@@ -221,31 +225,35 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
                     windowInsets = WindowInsets(0, 0, 0, 0),
                 )
             },
+            // What the ticked rows can be given, above the glass bottom bar the page runs under.
+            bottomBar = { selection.value?.bottom?.let { bar -> Box(Modifier.padding(bottom = LocalBottomBarInset.current)) { bar() } } },
         ) { padding ->
-            Column(
-                Modifier.padding(padding).verticalScroll(rememberScrollState())
-                    .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp + LocalBottomBarInset.current),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                if (current.needsService && provider != null && connected.size > 1) {
-                    ServicePicker(connected, provider.id, { selectedId = it })
-                }
-                when (current) {
-                    Tool.FILES -> FilesCard(local, onManage = onManageFiles, onSendTo = onSendTo)
-                    Tool.AI -> AiPlaylistCard(local, onSyncStarted)
-                    Tool.EXPORT -> provider?.let { ExportCard(it, local) }
-                    Tool.MAKE -> provider?.let { MakePlaylistCard(it, local) }
-                    Tool.BACKUP -> Unit
-                    Tool.DEDUPE -> provider?.let { DedupeCard(it, local) }
-                    Tool.MBTAGS -> provider?.let { MbTagsCard(it, local) }
-                    Tool.LYRICS -> provider?.let { LyricsCard(it, local) }
-                    Tool.WANTED -> WantedCard(local)
-                    Tool.SERVER -> ServerSyncsPage(local)
-                    Tool.RECENT -> RecentTransfersPage(onReview)
-                    Tool.MATCHES -> SavedMatchesPage(local) { open = Tool.FILES }
-                    Tool.TWINS -> provider?.let { PlaylistTwinsPage(it, local) }
-                    Tool.LISTENED -> MarkListenedPage(connected, local, onGoToAccounts)
-                    else -> {}
+            androidx.compose.runtime.CompositionLocalProvider(LocalToolSelection provides selection) {
+                Column(
+                    Modifier.padding(padding).verticalScroll(rememberScrollState())
+                        .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp + LocalBottomBarInset.current),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    if (current.needsService && provider != null && connected.size > 1) {
+                        ServicePicker(connected, provider.id, { selectedId = it })
+                    }
+                    when (current) {
+                        Tool.FILES -> FilesCard(local, onManage = onManageFiles, onSendTo = onSendTo)
+                        Tool.AI -> AiPlaylistCard(local, onSyncStarted)
+                        Tool.EXPORT -> provider?.let { ExportCard(it, local) }
+                        Tool.MAKE -> provider?.let { MakePlaylistCard(it, local) }
+                        Tool.BACKUP -> Unit
+                        Tool.DEDUPE -> provider?.let { DedupeCard(it, local) }
+                        Tool.MBTAGS -> provider?.let { MbTagsCard(it, local) }
+                        Tool.LYRICS -> provider?.let { LyricsCard(it, local) }
+                        Tool.WANTED -> WantedCard(local)
+                        Tool.SERVER -> ServerSyncsPage(local)
+                        Tool.RECENT -> RecentTransfersPage(onReview)
+                        Tool.MATCHES -> SavedMatchesPage(local) { open = Tool.FILES }
+                        Tool.TWINS -> provider?.let { PlaylistTwinsPage(it, local) }
+                        Tool.LISTENED -> MarkListenedPage(connected, local, onGoToAccounts)
+                        else -> {}
+                    }
                 }
             }
         }
@@ -348,7 +356,7 @@ private fun ToolRow(tool: Tool, provider: MusicProvider?, beta: Boolean = false,
         badge = if (beta) { { StatusPill(stringResource(R.string.beta), Tone.Neutral) } } else null,
         trailing = if (showService) { {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                ProviderBadge(provider, 24.dp)
+                ProviderBadge(provider, 24.dp, accountRing(provider?.id))
                 Spacer(Modifier.width(4.dp))
                 Icon(Icons.Filled.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }

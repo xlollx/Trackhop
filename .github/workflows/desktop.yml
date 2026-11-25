@@ -89,6 +89,49 @@ jobs:
             if echo "$deps" | grep -q 't64'; then echo "::error::$deb depends on a time64 package name"; exit 1; fi
           done
 
+      - name: The .deb installs on a system without a desktop
+        # Raspberry Pi OS Lite, a server: no menu directories, so xdg-desktop-menu fails there. The
+        # package must still configure (server/desktop/deb) and come off again. A bare Debian, its
+        # dependencies from apt as a user would get them.
+        if: runner.os == 'Linux'
+        run: |
+          docker run --rm -v "$PWD/dist:/dist:ro" debian:bookworm-slim sh -euc '
+            export DEBIAN_FRONTEND=noninteractive
+            apt-get update -q
+            dpkg -i /dist/*.deb || true
+            apt-get install -f -y -q --no-install-recommends
+            test ! -d /usr/share/desktop-directories || echo "note: this image has a menu directory"
+            dpkg-query -W -f="\${Status}\n" trackhop | grep -qx "install ok installed"
+            test -z "$(dpkg --audit)"
+            test -x /opt/trackhop/bin/Trackhop
+            dpkg -r trackhop
+            ! dpkg-query -W -f="\${Status}\n" trackhop 2>/dev/null | grep -q " installed"
+          '
+
+      - name: The .zip uses "/" in its names
+        # The zip format wants "/": with "\" unzip tools outside Windows make files, not folders. The
+        # names as stored, read from the central directory (Python's zipfile turns "\" into "/" on Windows).
+        if: runner.os == 'Windows'
+        run: |
+          python - dist/*-windows.zip <<'PY'
+          import struct, sys
+          data = open(sys.argv[1], "rb").read()
+          end = data.rfind(b"PK\x05\x06")
+          count, size, at = struct.unpack("<HII", data[end + 10:end + 20])
+          names = []
+          for _ in range(count):
+              assert data[at:at + 4] == b"PK\x01\x02", "bad central directory"
+              n, e, c = struct.unpack("<HHH", data[at + 28:at + 34])
+              names.append(data[at + 46:at + 46 + n].decode("utf-8", "replace"))
+              at += 46 + n + e + c
+          bad = [n for n in names if "\\" in n or not n.startswith("Trackhop/")]
+          print(len(names), "entries")
+          if not names or bad:
+              sys.exit("::error::entries not under Trackhop/ with \"/\": " + ", ".join(bad[:10]))
+          if "Trackhop/Trackhop.exe" not in names:
+              sys.exit("::error::Trackhop/Trackhop.exe missing from the zip")
+          PY
+
       - name: MSIX (Microsoft Store)
         # Unsigned: the Store signs it. The identity is Partner Center's (Product identity), kept as
         # repository variables; the defaults only make a package to try out.
@@ -218,6 +261,26 @@ jobs:
     uses: ./.github/workflows/stores.yml
     with:
       version: ${{ needs.release.outputs.version }}
+    secrets: inherit
+
+  sourceforge:
+    # The new release's files as SourceForge's default downloads (sourceforge.yml), once SourceForge's
+    # webhook has copied them. Skipped until SOURCEFORGE_API_KEY exists.
+    needs: release
+    if: ${{ !cancelled() && needs.release.result == 'success' && needs.release.outputs.version != '' }}
+    uses: ./.github/workflows/sourceforge.yml
+    with:
+      tag: server-v${{ needs.release.outputs.version }}
+    secrets: inherit
+
+  itch:
+    # The new release's Windows, macOS and Linux files to Trackhop's itch.io page (itch.yml).
+    # Skipped until BUTLER_API_KEY exists.
+    needs: release
+    if: ${{ !cancelled() && needs.release.result == 'success' && needs.release.outputs.version != '' }}
+    uses: ./.github/workflows/itch.yml
+    with:
+      tag: server-v${{ needs.release.outputs.version }}
     secrets: inherit
 
   telegram:

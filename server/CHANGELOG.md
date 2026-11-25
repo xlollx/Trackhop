@@ -5,6 +5,22 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`, `v2.x`)
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 2.2.0
+
+Released with the app's 2.2.
+
+- **Almost everything the app does**: review before adding, To fix, saved schedules, preview, covers, stats, the concert diary, shared playlists, the playlist roast, the YouTube quota and more now have their pages, with the REST API and the command line where it fits.
+- **Several syncs at once**: run a group of syncs together from one page, the REST API (`/api/v1/multi`) or `trackhop multi`.
+- **Which service?**: a chooser with search (other names work too), your own accounts first and categories.
+- **Matching**: better with "feat." guests, remixes, versions ("Taylor's Version"), Deluxe and Remaster editions and names like AC/DC; traditional and simplified Chinese match each other; a source that has not changed is skipped; songs not found are searched again after a month; "Why wasn't it matched?" lists the candidates.
+- **YouTube Music**: shows which profile or channel is connected, and warns if your music is on another one.
+- **Deezer**: Family plans, choose the profile. The official Deezer sign-in is no longer offered to new users ("Why no Deezer?" explains).
+- **ListenBrainz as a target**, **Plex** (five stars as liked songs, "Sounds like" and "Sonic adventure", copy a playlist to a Plex Home user), personal servers with a home and an away address, **Apple Music removals**, a link to a playlist file as a source, a **Soundiiz-compatible JSON** export, **Apprise** notifications, star ratings copied to Subsonic and Navidrome, and Select all / None above long lists.
+- **Radio stations and Shazam as services**: each station is a service of its own on the Services page (as many as you like), Shazam one more; a sync uses them as its source, from the page, the REST API (`POST /api/v1/services/radio`, `"source": {"service": "radio@2"}`) or `trackhop services add radio` and `trackhop new radio@2 …`. Radio and Shazam syncs already here move over by themselves.
+- **Notifications page**: what was sent to your notification channels, with the channels that took it and a link to the sync, its review or the page it is about (also `GET /api/v1/notifications/history` and `trackhop notifications`).
+- **Linux**: the `.deb` also installs on systems without a desktop.
+- **Windows**: the `.zip` runs again.
+
 ## 2.1.5
 
 - **Linux `.deb` on older systems**: the `.deb` files (PC and ARM) install again on Debian 12, Raspberry Pi OS Bookworm and Ubuntu 22.04; 2.1.4's asked for a package those systems do not have.

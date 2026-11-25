@@ -1,6 +1,10 @@
 package com.xlollx.songport.flows
 
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.isEnabled
+import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onFirst
 import androidx.test.espresso.Espresso
@@ -42,8 +46,31 @@ class MultiSyncEditorFlowTest : FlowTest() {
     private fun pick(service: String?, playlist: String) {
         waitText(s(R.string.shared_service))
         if (service != null) { click(s(R.string.shared_service)); click(service) }
-        click(s(R.string.shared_playlist))
-        click(playlist)
+        openPlaylists()
+        choose(playlist)
+    }
+
+    /**
+     * The dialog's playlist field opened. Its service's playlists load first (a spinner, the field
+     * off until then; again after another service is picked): a tap before that opens nothing.
+     */
+    private fun openPlaylists() {
+        val field = hasText(s(R.string.shared_playlist)) and hasClickAction() and isEnabled()
+        waitFor("the playlists loaded") { compose.onAllNodes(field).fetchSemanticsNodes().isNotEmpty() }
+        val open = { compose.onAllNodes(hasAnyAncestor(isPopup()) and hasClickAction()).fetchSemanticsNodes().isNotEmpty() }
+        // Tapped again should the list not open (the field still turning on): the list must open in the end.
+        repeat(3) {
+            if (open()) return
+            tap(compose.onAllNodes(field).onFirst(), s(R.string.shared_playlist))
+            runCatching { compose.waitUntil(3_000) { runCatching(open).getOrDefault(false) } }
+        }
+        waitFor("the list of playlists open") { open() }
+    }
+
+    /** [playlist] picked in the open list, and shown in the field. */
+    private fun choose(playlist: String) {
+        tap(compose.onAllNodes(hasAnyAncestor(isPopup()) and hasClickAction() and hasText(playlist)).onFirst(), playlist)
+        waitFor("$playlist in the field") { compose.onAllNodes(hasText(playlist) and hasText(s(R.string.shared_playlist))).fetchSemanticsNodes().isNotEmpty() }
     }
 
     @Test
@@ -156,10 +183,10 @@ class MultiSyncEditorFlowTest : FlowTest() {
         click(s(R.string.nway_add_target))
         waitText(s(R.string.shared_service))
         click(s(R.string.shared_service)); click("Deezer")
-        click(s(R.string.shared_playlist))
+        openPlaylists()
         // A new playlist says the whole name it will get.
         waitText(s(R.string.nway_new_playlist_named, "Road Trip"))
-        click("Workout")
+        choose("Workout")
         waitText(s(R.string.nway_mode_keep_desc))
         waitText(s(R.string.nway_mode_two_way_desc))
         tapTag(nwayModeTag(NwayEdit.Mode.TWO_WAY))
@@ -173,8 +200,8 @@ class MultiSyncEditorFlowTest : FlowTest() {
         // An exact copy of a playlist that exists is asked first, as on the group's page; the question survives the activity made anew.
         click(s(R.string.nway_add_target))
         waitText(s(R.string.shared_service))
-        click(s(R.string.shared_playlist))
-        click("Chill Evening")
+        openPlaylists()
+        choose("Chill Evening")
         tapTag(nwayModeTag(NwayEdit.Mode.EXACT))
         waitFor("the question") { tagged(NWAY_EXACT_OK_TAG) }
         waitText(s(R.string.nway_exact_desc))

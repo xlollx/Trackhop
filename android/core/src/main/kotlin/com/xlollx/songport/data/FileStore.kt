@@ -44,6 +44,13 @@ data class Settings(
     val connectors: List<String> = emptyList(),
     /** User-given connector names, by provider id. */
     val connectorNames: Map<String, String> = emptyMap(),
+    /** The colour each connector wears as a ring round its logo, by provider id: an [AccountColors] key; absent = none. */
+    val connectorColors: Map<String, String> = emptyMap(),
+    /**
+     * The station of each radio connector, by connector id ("radio", "radio@2"): one connector per
+     * station, as many as wanted (sync/RadioConnectors). Absent for every other connector.
+     */
+    val radioStations: Map<String, com.xlollx.songport.model.RadioStation> = emptyMap(),
     /** True once existing connections have been turned into connectors (one-time migration). */
     val connectorsInit: Boolean = false,
     /** Richiedi impronta/PIN all'apertura dell'app. */
@@ -95,6 +102,8 @@ data class Settings(
     val minimalSyncs: Boolean = false,
     /** Starred syncs shown first, dragged among themselves only; off: they go anywhere in the order. */
     val favoritesOnTop: Boolean = true,
+    /** The small "?" beside options (ui/Help.kt): on unless turned off in Appearance; the guides stay in Settings › Help › How to. */
+    val helpButtons: Boolean = true,
     /** The Discover tab's cards in the user's order, by id (sync/DiscoverOrder); empty = the default order. */
     val discoverOrder: List<String> = emptyList(),
     /** The guided first sync was finished or skipped: it is no longer offered on the empty Syncs tab. */
@@ -162,7 +171,13 @@ data class StoreData(
     val reports: List<SyncReport> = emptyList(),
     /** Cache abbinamenti: "srcProvider:trackId>dstProvider" -> id brano sulla destinazione. */
     val matchCache: Map<String, String> = emptyMap(),
-    /** Ricerche senza esito, stessa chiave -> quando (epoch ms): non si ripetono per una settimana. */
+    /**
+     * The matches of [matchCache] the engine found by itself, same key -> "<Matcher.REVISION>|<target id>":
+     * a later matching checks them again (see [FileStore.autoRevision]). One chosen or confirmed by
+     * the user has none, nor has one saved before 2.2: both stay as they are.
+     */
+    val autoMatches: Map<String, String> = emptyMap(),
+    /** Ricerche senza esito, stessa chiave -> quando (epoch ms): non si ripetono per un mese ([FileStore.MISS_TTL_MS]). */
     val missCache: Map<String, Long> = emptyMap(),
     /** The [Matcher.REVISION] the misses were found under: another one searches them again. */
     val missRevision: Int = 0,
@@ -320,7 +335,7 @@ open class FileStore(dir: File) {
      * beside it (`store.json.before-restore`). False, and nothing changed, when the copy cannot be read or saved.
      */
     fun restoreGoodCopy(): Boolean {
-        val restored = runCatching { com.xlollx.songport.sync.Schedules.normalized(null, com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(goodCopy.readText()))) }.getOrNull() ?: return false
+        val restored = runCatching { com.xlollx.songport.sync.RadioConnectors.normalized(com.xlollx.songport.sync.Schedules.normalized(null, com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(goodCopy.readText())))) }.getOrNull() ?: return false
         flush()
         runCatching { if (file.exists()) AtomicFiles.copy(file, File(file.parentFile, BEFORE_RESTORE)) }
         val before = synchronized(lock) { _state.value.also { _state.value = restored } }
@@ -356,7 +371,8 @@ open class FileStore(dir: File) {
         if (!file.exists()) return StoreData()
         return try {
             val text = file.readText()
-            com.xlollx.songport.sync.Schedules.normalized(null, com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(text))).also { keepGoodCopy(text) }
+            // Radio and Shazam syncs from before their connectors are brought to them (sync/RadioConnectors).
+            com.xlollx.songport.sync.RadioConnectors.normalized(com.xlollx.songport.sync.Schedules.normalized(null, com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(text)))).also { keepGoodCopy(text) }
         } catch (e: Exception) {
             // The last good copy is kept as it is from here on, until the person decides.
             if (goodCopy.exists()) runCatching { goodCopyOffer.createNewFile() }
@@ -381,7 +397,10 @@ open class FileStore(dir: File) {
             // label gives its colour to the card, a ready colour is its own label, tags are tidy.
             val labelled = if (made.jobs !== before.jobs || made.settings.labels !== before.settings.labels) com.xlollx.songport.sync.Labels.normalized(made) else made
             // And the syncs linked to a saved schedule follow it, whatever wrote either (sync/Schedules).
-            next = if (labelled.jobs !== before.jobs || labelled.settings.savedSchedules !== before.settings.savedSchedules) com.xlollx.songport.sync.Schedules.normalized(before, labelled) else labelled
+            val scheduled = if (labelled.jobs !== before.jobs || labelled.settings.savedSchedules !== before.settings.savedSchedules) com.xlollx.songport.sync.Schedules.normalized(before, labelled) else labelled
+            // And a radio or Shazam sync is on its connector, however it was written (a configuration
+            // file, a backup, an older form of the API): sync/RadioConnectors.
+            next = if (scheduled.jobs !== before.jobs || scheduled.settings.radioStations !== before.settings.radioStations) com.xlollx.songport.sync.RadioConnectors.normalized(scheduled) else scheduled
             _state.value = next
         }
         Providers.configure(next.settings.extraAccounts, next.settings.connectorNames, next.settings.connectors)
@@ -597,13 +616,43 @@ open class FileStore(dir: File) {
             .map { it.key.substring(prefix.length, it.key.length - suffix.length) }
     }
 
-    fun putMatches(entries: Map<String, String>) {
+    /**
+     * Remembers matches. [auto]: found by the engine itself, noted with the matching's revision (a
+     * match it only found again, unchanged, keeps what it was: a choice of the user stays theirs).
+     * Otherwise chosen by the user: never checked again by a later matching.
+     */
+    fun putMatches(entries: Map<String, String>, auto: Boolean = false) {
         if (entries.isEmpty()) return
         update { d ->
             var cache = d.matchCache + entries
             if (cache.size > MAX_CACHE) cache = cache.entries.drop(cache.size - MAX_CACHE).associate { it.key to it.value }
+            var autos = if (auto) d.autoMatches + entries.filter { (k, v) -> d.matchCache[k] != v }.mapValues { (_, v) -> "${Matcher.REVISION}|$v" }
+                else d.autoMatches - entries.keys
+            if (autos.size > cache.size) autos = autos.filterKeys { it in cache }
             // Un abbinamento trovato (o scelto a mano) cancella il ricordo della ricerca fallita.
-            d.copy(matchCache = cache, missCache = d.missCache - entries.keys)
+            d.copy(matchCache = cache, autoMatches = autos, missCache = d.missCache - entries.keys)
+        }
+    }
+
+    /**
+     * The [Matcher.REVISION] the engine found the match under [key] with, or null for one chosen by
+     * the user, one saved before revisions were noted, or one changed by hand since.
+     */
+    fun autoRevision(key: String): Int? {
+        val d = data
+        val (rev, id) = d.autoMatches[key]?.split('|', limit = 2)?.takeIf { it.size == 2 } ?: return null
+        return rev.toIntOrNull()?.takeIf { d.matchCache[key] == id }
+    }
+
+    /**
+     * Matches found under an older revision that the current matching finds as good ([checked]: each
+     * key with the target the engine checked): noted under it, only while the cache still holds that
+     * target (one picked by hand meanwhile gets no engine's mark).
+     */
+    fun markChecked(checked: Map<String, String>) {
+        if (checked.isEmpty()) return
+        update { d ->
+            d.copy(autoMatches = d.autoMatches + checked.mapNotNull { (k, id) -> if (d.matchCache[k] == id) k to "${Matcher.REVISION}|$id" else null })
         }
     }
 
@@ -699,7 +748,8 @@ open class FileStore(dir: File) {
         private const val WRITE_DELAY_MS = 500L
         private const val MAX_CACHE = 20_000
         /** Una ricerca fallita si ripete dopo una settimana: i cataloghi cambiano, ma non ogni giorno. */
-        const val MISS_TTL_MS = 7L * 24 * 3_600_000
+        /** A track not found is searched again after a month, or at once when the matching changes ([Matcher.REVISION]). */
+        const val MISS_TTL_MS = 30L * 24 * 3_600_000
         /** A removal confirmation not used within this time is dropped: it was meant for the run started then. */
         const val CONFIRMATION_TTL_MS = 12L * 3_600_000
 

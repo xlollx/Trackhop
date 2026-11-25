@@ -210,4 +210,26 @@ class BulkEditTest {
         assertEquals(listOf("sunday", "kitchen"), BulkEdit.rescheduled(d, next))
         assertEquals(listOf("night"), BulkEdit.rescheduled(d, BulkEdit.enabled(d, setOf("night"), false)))
     }
+    @Test fun syncsWritingToADeletedPlaylistAreTurnedOffAndNothingElse() {
+        // Night Drive writes to ytm tnight; its two-way twin reads it. Sunday reads tnight only; Garage writes to it but is off.
+        val twin = SyncJob(id = "back", name = "back", source = PlaylistRef("ytm", "tnight"), target = PlaylistRef("spotify", "snight"), linkedJobId = "night")
+        val reader = SyncJob(id = "reader", name = "reader", source = PlaylistRef("ytm", "tnight"), target = PlaylistRef("spotify", "x"))
+        val otherService = SyncJob(id = "deezer", name = "deezer", source = PlaylistRef("spotify", "a"), target = PlaylistRef("deezer", "tnight"))
+        val shared = SyncJob(id = "hub", name = "hub", source = PlaylistRef(com.xlollx.songport.shared.SharedProvider.ID, "g1"), target = PlaylistRef("ytm", "tnight"))
+        val handed = SyncJob(id = "server", name = "server", source = PlaylistRef("spotify", "b"), target = PlaylistRef("ytm", "tnight"))
+        val once = SyncJob(id = "once", name = "once", source = PlaylistRef("spotify", "c"), target = PlaylistRef("ytm", "tnight"), oneOff = true)
+        val start = d.copy(
+            jobs = listOf(night.copy(linkedJobId = "back"), twin, reader, otherService, shared, handed, once, garage.copy(target = PlaylistRef("ytm", "tnight")), kitchen),
+            handedOver = mapOf("server" to HandedOver("srv", 1)),
+        )
+        assertEquals(listOf("night", "garage"), BulkEdit.writingTo(start, "ytm", setOf("tnight")).map { it.id })
+        val next = BulkEdit.offForDeleted(start, "ytm", setOf("tnight", "nothing"))
+        assertEquals(setOf("night", "back", "garage", "kitchen"), next.jobs.filter { !it.enabled }.map { it.id }.toSet())
+        // The rest is as it was: the reader, the same id on another service, a shared playlist's, the server's, a one-off.
+        listOf("reader", "deezer", "hub", "server", "once").forEach { assertTrue(it, next.j(it).enabled) }
+        assertEquals(start.jobs.map { it.copy(enabled = true) }, next.jobs.map { it.copy(enabled = true) })
+        // No sync writes there: the data itself, nothing to save.
+        assertSame(start, BulkEdit.offForDeleted(start, "ytm", setOf("nothing")))
+        assertSame(start, BulkEdit.offForDeleted(start, "ytm", emptySet()))
+    }
 }

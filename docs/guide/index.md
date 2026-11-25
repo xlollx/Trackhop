@@ -42,7 +42,7 @@ description (architecture, matching, services and their limits) stays in the
 - [Self-hosted playlist sync](self-hosted-playlist-sync): your Navidrome, Jellyfin or Plex in step with your streaming service.
 - [Lyrion Music Server](lyrion) (the former Logitech Media Server) and [Mopidy](mopidy): their playlists as a source and a destination (beta).
 - [Missing on my server](missing-on-my-server): the songs your library still lacks, by album, as a list for Lidarr.
-- [On a NAS or home server](playlist-sync-nas): Docker on Synology, Unraid, TrueNAS or a Raspberry Pi; one click on Umbrel, Unraid or CapRover.
+- [On a NAS or home server](playlist-sync-nas): Docker on Synology, Unraid, TrueNAS or a Raspberry Pi; one click on Umbrel, Unraid, CapRover or Dokploy.
 
 **Step by step**
 - [Sync Spotify playlists to YouTube Music](spotify-to-youtube-music), and keep them in sync.
@@ -55,6 +55,12 @@ description (architecture, matching, services and their limits) stays in the
 - [Transfer TIDAL playlists to Spotify](tidal-to-spotify), with exact ISRC matching.
 - [Transfer Spotify playlists to Deezer](spotify-to-deezer) and [to Amazon Music](spotify-to-amazon-music).
 - [Apple Music to YouTube Music, and back](apple-music-to-youtube-music).
+- [A YouTube playlist to Spotify](youtube-to-spotify): music videos read as songs.
+- [Spotify and Qobuz, both ways](spotify-qobuz).
+- [Deezer to YouTube Music](deezer-to-youtube-music).
+- [Amazon Music to Apple Music](amazon-music-to-apple-music).
+- [SoundCloud likes and sets to Spotify](soundcloud-to-spotify).
+- [TIDAL to Apple Music](tidal-to-apple-music).
 - [Keep playlists in sync](sync-playlists) between any two services, on a schedule.
 - [Two-way playlist sync](two-way-sync): changes on either side reach the other, removals too if you want.
 - [Free playlist sync](free-playlist-sync): no paid plan, no track limit, no account.
@@ -69,6 +75,8 @@ description (architecture, matching, services and their limits) stays in the
 - [Save Discover Weekly, Release Radar and daylist](save-discover-weekly) before Spotify replaces them, every week.
 - [Back up all your playlists automatically](backup-spotify-playlists), on Spotify, Apple Music, YouTube Music and more.
 - [Remove duplicate songs](remove-duplicates-spotify) from a playlist, on any service.
+- In your browser, from files: [compare two playlists](/compare), [find and remove duplicates](/duplicates), a ["Listen on any service" button](/button) for your site.
+- [Every music service Trackhop works with](/services) · [What's new](/whats-new).
 - [Fix greyed-out songs](fix-greyed-out-songs): unplayable tracks swapped for versions that play.
 - [Your Wrapped, whenever you want](wrapped-anytime), from any service, with history.
 - [Without a paid service](without-a-paid-service): new music every week on free YouTube Music, Spotify, Deezer or SoundCloud accounts.
@@ -90,6 +98,7 @@ description (architecture, matching, services and their limits) stays in the
 - [Alerts for the artists you follow](artist-alerts): new releases, concerts near you, new merch and records, in one notification.
 
 **Coming from another service**
+- [All of them side by side](compare): Trackhop, Soundiiz, TuneMyMusic, FreeYourMusic and SongShift.
 - [A free Soundiiz alternative](soundiiz-alternative): the same moves, kept in sync, no account, no limits.
 - [A free TuneMyMusic alternative](tunemymusic-alternative): transfers plus automatic sync, free and open source.
 - [A free FreeYourMusic alternative](freeyourmusic-alternative): no paid plan, no track limit.

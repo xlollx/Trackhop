@@ -20,13 +20,22 @@ object CsvCodec {
     // Only these exact columns (Trackhop's own): a file of songs from elsewhere is read as it always was.
     private val FEED_KEYS = setOf("feedurl")
     private val ITUNES_KEYS = setOf("itunesid")
+    /**
+     * Star ratings (1..5, empty = none), from an iTunes library: written only when a track has one,
+     * and read only from a file Trackhop wrote (its own header first), so any other file reads as it did.
+     */
+    private val RATING_HEADER = listOf("rating", "album_rating")
 
     fun encode(tracks: List<Track>): String = buildString {
         val shows = tracks.any { !it.feedUrl.isNullOrBlank() || !it.itunesId.isNullOrBlank() }
-        append((if (shows) HEADER + PODCAST_HEADER else HEADER).joinToString(",")).append("\r\n")
+        val rated = tracks.any { it.rating > 0 || it.albumRating > 0 }
+        append((HEADER + (if (shows) PODCAST_HEADER else emptyList()) + (if (rated) RATING_HEADER else emptyList())).joinToString(",")).append("\r\n")
+        fun stars(n: Int) = if (n > 0) n.toString() else ""
         for (t in tracks) {
-            val cells = listOf(t.title, t.artistLine, t.album, if (t.durationMs > 0) t.durationMs.toString() else "", t.isrc ?: "")
-            append((if (shows) cells + listOf(t.feedUrl.orEmpty(), t.itunesId.orEmpty()) else cells).joinToString(",") { quote(it) }).append("\r\n")
+            var cells = listOf(t.title, t.artistLine, t.album, if (t.durationMs > 0) t.durationMs.toString() else "", t.isrc ?: "")
+            if (shows) cells = cells + listOf(t.feedUrl.orEmpty(), t.itunesId.orEmpty())
+            if (rated) cells = cells + listOf(stars(t.rating), stars(t.albumRating))
+            append(cells.joinToString(",") { quote(it) }).append("\r\n")
         }
     }
 
@@ -50,6 +59,10 @@ object CsvCodec {
         private val iIsrc = col(ISRC_KEYS)
         private val iFeed = col(FEED_KEYS)
         private val iItunes = col(ITUNES_KEYS)
+        private val ours = headerRow.take(HEADER.size).map { it.trim().lowercase() } == HEADER
+        private val raw = headerRow.map { it.trim().lowercase() }
+        private val iRating = if (ours) raw.indexOf(RATING_HEADER[0]).takeIf { it >= 0 } else null
+        private val iAlbumRating = if (ours) raw.indexOf(RATING_HEADER[1]).takeIf { it >= 0 } else null
         // "duration_ms" (ours, Exportify's "Duration (ms)") is milliseconds whatever the size: an 8-second
         // interlude is 8000 ms, not 8000 seconds.
         private val inMs = iDur != null && header[iDur].endsWith("ms")
@@ -67,7 +80,11 @@ object CsvCodec {
             val isrc = (if (hasHeader) at(iIsrc) else r.getOrNull(4)?.trim() ?: "").ifEmpty { null }
             val feed = if (hasHeader) at(iFeed).ifEmpty { null } else null
             val itunes = if (hasHeader) at(iItunes).ifEmpty { null } else null
-            return withStableId(Track(id = "", title = title, artists = splitArtists(artist), album = album, durationMs = dur, isrc = isrc, feedUrl = feed, itunesId = itunes))
+            fun stars(i: Int?) = at(i).toIntOrNull()?.takeIf { it in 1..5 } ?: 0
+            return withStableId(Track(
+                id = "", title = title, artists = splitArtists(artist), album = album, durationMs = dur, isrc = isrc, feedUrl = feed, itunesId = itunes,
+                rating = stars(iRating), albumRating = stars(iAlbumRating),
+            ))
         }
     }
 

@@ -27,8 +27,12 @@ Android 8.0 or newer.
   stop working when the site changes (the app warns before the first sign-in).
   On YouTube Music, if your playlists live on a brand account (a channel of its own), pick it under
   *YouTube Music channel* in the connector's menu on the Accounts page once signed in.
-- **Official route** (Spotify, YouTube Music, TIDAL, Deezer, Apple Music): you create a free developer
+  On a Deezer **Family** plan the app asks which profile to use right after the sign-in; change it
+  later under *Deezer profile* in the same menu.
+- **Official route** (Spotify, YouTube Music, TIDAL, Apple Music): you create a free developer
   key in your own name; the app walks you through it in about two minutes, step by step.
+  Deezer no longer accepts new apps that use its API: its official route is offered only to those
+  who already have an app id of their own.
 
 Personal servers (Navidrome/Subsonic, Jellyfin, Emby, Plex) need only the server address and your login.
 On **Jellyfin** you can also sign in with **Quick Connect**: enter the server address, then approve the

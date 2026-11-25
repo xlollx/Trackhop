@@ -3,6 +3,7 @@ package com.xlollx.songport.contract
 import com.xlollx.songport.data.Tokens
 import com.xlollx.songport.model.ProviderException
 import com.xlollx.songport.model.Track
+import com.xlollx.songport.net.arr
 import com.xlollx.songport.net.get
 import com.xlollx.songport.net.int
 import com.xlollx.songport.net.long
@@ -467,6 +468,123 @@ class ListenBrainzContractTest : ContractTest() {
         assertFalse(lb.canSubmit(env))
         try { lb.submit(env, listOf(com.xlollx.songport.sync.Scrobbles.Listen(Track("a", "b", listOf("c")), 1))); fail() } catch (e: ProviderException) { assertEquals("listenbrainz_token_needed", e.message) }
         noMoreRequests()
+    }
+
+    /** 2.2: a destination. A new playlist is private JSPF, made with the user token. */
+    @Test fun aPlaylistIsMadeWithTheToken() = runBlocking {
+        signIn()
+        json("""{"playlist_mbid":"${mbid(5)}","status":"ok"}""")
+        val p = lb.createPlaylist(env, "Road trip", "From Trackhop")
+        assertEquals(mbid(5), p.id)
+        val r = next()
+        assertCall(r, "POST", host, "/1/playlist/create")
+        assertEquals("Token LBTOKEN", r.getHeader("Authorization"))
+        val pl = r.jsonBody()["playlist"]
+        assertEquals("Road trip", pl["title"].str)
+        assertEquals("From Trackhop", pl["annotation"].str)
+        assertEquals(false, (pl["extension"]["https://musicbrainz.org/doc/jspf#playlist"]["public"] as kotlinx.serialization.json.JsonPrimitive).content.toBoolean())
+        noMoreRequests()
+    }
+
+    @Test fun noTokenNoPlaylist() = runBlocking {
+        signIn(token = null)
+        try { lb.createPlaylist(env, "x", ""); fail() } catch (e: ProviderException) { assertEquals("listenbrainz_token_needed", e.message) }
+        noMoreRequests()
+    }
+
+    /** Recordings go in by MBID, a hundred a request; a track without one cannot go in. */
+    @Test fun tracksAreAddedByRecordingAHundredAtATime() = runBlocking {
+        signIn()
+        repeat(2) { json("""{"status":"ok"}""") }
+        lb.addTracks(env, mbid(5), (0 until 101).map { Track(mbid(100 + it), "t$it") } + Track("Title|Artist", "x"))
+        val a = next()
+        assertCall(a, "POST", host, "/1/playlist/${mbid(5)}/item/add")
+        assertEquals("Token LBTOKEN", a.getHeader("Authorization"))
+        val first = a.jsonBody()["playlist"]["track"] as kotlinx.serialization.json.JsonArray
+        assertEquals(100, first.size)
+        assertEquals("https://musicbrainz.org/recording/${mbid(100)}", first[0]["identifier"].str)
+        assertEquals(1, (next().jsonBody()["playlist"]["track"] as kotlinx.serialization.json.JsonArray).size)
+        noMoreRequests()
+    }
+
+    /** A removal reads the playlist again: an entry that moved is found by its recording, the last goes first. */
+    @Test fun removalsAreByPositionCheckedAgainstThePlaylistNow() = runBlocking {
+        signIn()
+        // Read by the sync: A at 0, B at 1, C at 2. Since then someone put X first.
+        json("""{"playlist":{"track":[
+            {"identifier":"https://musicbrainz.org/recording/${mbid(9)}","title":"X","creator":"x"},
+            {"identifier":"https://musicbrainz.org/recording/${mbid(1)}","title":"A","creator":"a"},
+            {"identifier":"https://musicbrainz.org/recording/${mbid(2)}","title":"B","creator":"b"},
+            {"identifier":"https://musicbrainz.org/recording/${mbid(3)}","title":"C","creator":"c"}]}}""")
+        repeat(2) { json("""{"status":"ok"}""") }
+        lb.removeTracks(env, mbid(5), listOf(Track(mbid(1), "A", itemId = "0"), Track(mbid(3), "C", itemId = "2"), Track(mbid(4), "gone", itemId = "3")))
+        assertCall(next(), "GET", host, "/1/playlist/${mbid(5)}")
+        val d1 = next()
+        assertCall(d1, "POST", host, "/1/playlist/${mbid(5)}/item/delete")
+        assertEquals(3, d1.jsonBody()["index"].int)
+        assertEquals(1, d1.jsonBody()["count"].int)
+        assertEquals(1, next().jsonBody()["index"].int)
+        noMoreRequests()
+    }
+
+    /** An entry without a title is not read, but it holds its place: the one after it is removed, not it. */
+    @Test fun anUntitledEntryKeepsItsPlaceForRemovals() = runBlocking {
+        signIn()
+        json("""{"playlist":{"track":[
+            {"identifier":"https://musicbrainz.org/recording/${mbid(9)}","creator":"x"},
+            {"identifier":"https://musicbrainz.org/recording/${mbid(2)}","title":"B","creator":"b"}]}}""")
+        json("""{"status":"ok"}""")
+        lb.removeTracks(env, mbid(5), listOf(Track(mbid(2), "B", itemId = "1")))
+        assertCall(next(), "GET", host, "/1/playlist/${mbid(5)}")
+        assertEquals(1, next().jsonBody()["index"].int)
+        noMoreRequests()
+    }
+
+    @Test fun entryPositionsKeepTheirOwnPlaceWhenItHolds() {
+        val now = listOf("a", "b", "a", "c")
+        assertEquals(setOf(2), ListenBrainzProvider.entryPositions(now, listOf(Track("a", "", itemId = "2"))).toSet())
+        assertEquals(setOf(0, 2), ListenBrainzProvider.entryPositions(now, listOf(Track("a", "", itemId = "2"), Track("a", "", itemId = "2"))).toSet())
+        assertEquals(emptySet<Int>(), ListenBrainzProvider.entryPositions(now, listOf(Track("z", "", itemId = "0"))).toSet())
+    }
+
+    @Test fun renameAndDeleteOwnPlaylistsButNotTheOnesMadeForTheUser() = runBlocking {
+        signIn()
+        json(plEntry(5))
+        repeat(2) { json("""{"status":"ok"}""") }
+        lb.renamePlaylist(env, mbid(5), "New name")
+        lb.deletePlaylist(env, mbid(5))
+        val read = next()
+        assertCall(read, "GET", host, "/1/playlist/${mbid(5)}")
+        assertEquals("false", read.query("fetch_metadata"))
+        val r = next()
+        assertCall(r, "POST", host, "/1/playlist/edit/${mbid(5)}")
+        assertEquals("New name", r.jsonBody()["playlist"]["title"].str)
+        assertEquals(null, r.jsonBody()["playlist"]["extension"])
+        assertCall(next(), "POST", host, "/1/playlist/${mbid(5)}/delete")
+        try { lb.addTracks(env, "createdfor:weekly-jams", listOf(Track(mbid(1), "a"))); fail() } catch (e: ProviderException) { }
+        noMoreRequests()
+    }
+
+    @Test fun aRenameKeepsThePlaylistsCollaborators() = runBlocking {
+        signIn()
+        json(plEntry(6).replace("\"public\":true", "\"public\":true,\"collaborators\":[\"ann\",\"bob\"]"))
+        json("""{"status":"ok"}""")
+        lb.renamePlaylist(env, mbid(6), "Shared name")
+        assertCall(next(), "GET", host, "/1/playlist/${mbid(6)}")
+        val edit = next().jsonBody()["playlist"]
+        assertEquals("Shared name", edit["title"].str)
+        assertEquals(listOf("ann", "bob"), edit["extension"]["https://musicbrainz.org/doc/jspf#playlist"]["collaborators"].arr.map { it.str })
+        noMoreRequests()
+    }
+
+    @Test fun ownPlaylistsAreMarkedAndListedWithTheToken() = runBlocking {
+        signIn()
+        json("""{"count":2,"offset":0,"playlist_count":2,"playlists":[${plEntry(0).replace("\"creator\":\"rj\",\"date", "\"creator\":\"RJ Ü\",\"date")},
+            {"playlist":{"identifier":"https://listenbrainz.org/playlist/${mbid(1)}","title":"Shared","creator":"someone","extension":{},"track":[]}}]}""")
+        json("""{"count":0,"offset":0,"playlist_count":0,"playlists":[]}""")
+        val ps = lb.playlists(env)
+        assertEquals(listOf(true, false), ps.map { it.ownedByMe })
+        assertEquals("Token LBTOKEN", next().getHeader("Authorization"))
     }
 
     @Test fun loginChecksTheToken() = runBlocking {

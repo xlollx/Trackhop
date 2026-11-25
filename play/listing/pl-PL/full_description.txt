@@ -14,10 +14,10 @@ Utrzymuj te same playlisty we wszystkich serwisach muzycznych, bez odtwarzania i
 - Karty synchronizacji w twoich kolorach i stylu, widżety i skróty na ekranie głównym
 - Test połączenia dla każdego konta i podsumowanie każdej synchronizacji
 
-Działa ze Spotify, Apple Music, YouTube Music, TIDAL, Deezer, własnymi serwerami Navidrome/Subsonic, Jellyfin i Plex, Last.fm i ListenBrainz oraz plikami. Niektóre połączenia są oznaczone w aplikacji jako beta: działają, ale były używane rzadziej niż pozostałe.
+Działa ze Spotify, Apple Music, YouTube Music, TIDAL, własnymi serwerami Navidrome/Subsonic, Jellyfin i Plex, Last.fm i ListenBrainz oraz plikami. Niektóre połączenia są oznaczone w aplikacji jako beta: działają, ale były używane rzadziej niż pozostałe.
 
 Za darmo, bez subskrypcji, bez zakupów w aplikacji i bez reklam.
-Bez zakładania konta i bez naszych serwerów: wszystko zostaje na twoim telefonie, tokeny dostępu są szyfrowane przez Android Keystore i nie przechodzą przez nikogo innego. Logujesz się na stronie każdego serwisu; dla Spotify, YouTube Music, TIDAL i Deezer tworzysz darmowy klucz na swoje nazwisko w około dwie minuty, a aplikacja cię prowadzi.
+Bez zakładania konta i bez naszych serwerów: wszystko zostaje na twoim telefonie, tokeny dostępu są szyfrowane przez Android Keystore i nie przechodzą przez nikogo innego. Logujesz się na stronie każdego serwisu; dla Spotify, YouTube Music i TIDAL tworzysz darmowy klucz na swoje nazwisko w około dwie minuty, a aplikacja cię prowadzi.
 
 Zaplanowane synchronizacje działają na twoim telefonie, bez serwerów: jeśli telefon jest wyłączony albo oszczędzanie baterii blokuje aplikację, wznawiają się przy pierwszej okazji.
 

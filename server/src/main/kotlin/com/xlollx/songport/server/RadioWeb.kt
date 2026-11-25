@@ -51,11 +51,17 @@ internal fun radioWindow(form: Map<String, String>, base: RadioSource): Pair<Rad
  */
 internal fun Web.radioNew(r: Web.Req) {
     val body = StringBuilder(notice(r))
-    val station = r.query["station"].orEmpty()
-    val stream = r.query["stream"].orEmpty()
-    val homepage = r.query["homepage"].orEmpty()
+    // From a radio connector (Services, one per station): its station, already chosen.
+    val connector = r.query["connector"]?.let { Providers.byId(it) as? com.xlollx.songport.providers.RadioProvider }
+    val fromConnector = connector?.station(env)
+    val station = fromConnector?.station ?: r.query["station"].orEmpty()
+    val stream = fromConnector?.stream ?: r.query["stream"].orEmpty()
+    val homepage = fromConnector?.homepage ?: r.query["homepage"].orEmpty()
     body.append("""<div class="card"><p>$RADIO_ICON Trackhop listens to a radio in the hours you choose and saves the songs it plays to a playlist. It reads only the song titles the station sends with its stream; the audio is never kept. Most internet radios and the streams of FM stations send them.</p></div>""")
     if (stream.isEmpty()) {
+        // The stations already added (Services): one tap, no search.
+        val mine = Providers.connectors().filterIsInstance<com.xlollx.songport.providers.RadioProvider>().filter { it.station(env) != null }
+        if (mine.isNotEmpty()) body.append("""<div class="card"><h3>Your stations</h3>${mine.joinToString(" ") { """<a class="button secondary" href="/syncs/radio?connector=${q(it.id)}">${h(it.label(env))}</a>""" }}<p class="muted">Or find another one below: it is added to Services too.</p></div>""")
         val q = r.query["q"].orEmpty()
         body.append("""<form method="get" action="/syncs/radio" class="card"><label>Find a station</label><input type="search" name="q" value="${h(q)}" placeholder="Radio Deejay, KEXP, BBC Radio 1…" required><p><button>Search</button></p></form>""")
         if (q.isNotBlank()) {
@@ -73,8 +79,9 @@ internal fun Web.radioNew(r: Web.Req) {
     }
     val connected = Providers.connectors().filter { (!it.requiresAuth || it.isConnected(env)) && it.canWrite }
     val dst = r.query["dst"]?.let { Providers.byId(it) }
-    val keep = """<input type="hidden" name="station" value="${h(station)}"><input type="hidden" name="stream" value="${h(stream)}"><input type="hidden" name="homepage" value="${h(homepage)}">"""
-    body.append("""<div class="card"><p>$RADIO_ICON <b>${h(station)}</b><br><span class="muted">${h(stream)}</span></p><a href="/syncs/radio">Another station</a></div>""")
+    val keep = """<input type="hidden" name="station" value="${h(station)}"><input type="hidden" name="stream" value="${h(stream)}"><input type="hidden" name="homepage" value="${h(homepage)}">""" +
+        (connector?.let { """<input type="hidden" name="connector" value="${h(it.id)}">""" } ?: "")
+    body.append("""<div class="card"><p>$RADIO_ICON <b>${h(connector?.label(env)?.takeIf { it != station }?.let { "$it · $station" } ?: station)}</b><br><span class="muted">${h(stream)}</span></p><a href="/syncs/radio">Another station</a></div>""")
     if (dst == null) {
         val options = connected.joinToString("") { """<option value="${h(it.id)}">${h(it.label(env))}</option>""" }
         body.append("""<form method="get" action="/syncs/radio" class="card">$keep<label>Save the songs to</label><select name="dst">$options</select><p><button>Next</button></p></form>""")
@@ -96,7 +103,9 @@ internal fun Web.radioCreate(r: Web.Req) {
     val station = r.form["station"].orEmpty().trim()
     val stream = r.form["stream"].orEmpty().trim()
     val dst = Providers.byId(r.form["dst"].orEmpty())
-    val back = "/syncs/radio?station=${q(station)}&stream=${q(stream)}&homepage=${q(r.form["homepage"].orEmpty())}" + (dst?.let { "&dst=${q(it.id)}" } ?: "")
+    // From a radio connector: that one; otherwise the store puts the sync on its station's connector (made when new).
+    val connector = r.form["connector"]?.takeIf { com.xlollx.songport.sync.RadioConnectors.isRadio(it) && env.store.data.settings.radioStations[it]?.stream?.let { s -> com.xlollx.songport.sync.RadioConnectors.sameStream(s, stream) } == true }
+    val back = "/syncs/radio?station=${q(station)}&stream=${q(stream)}&homepage=${q(r.form["homepage"].orEmpty())}" + (dst?.let { "&dst=${q(it.id)}" } ?: "") + (connector?.let { "&connector=${q(it)}" } ?: "")
     if (station.isEmpty() || !(stream.startsWith("http://") || stream.startsWith("https://"))) return redirect(r.ex, "/syncs/radio?err=${q("Pick a station.")}")
     if (dst == null || !dst.canWrite) return redirect(r.ex, "$back&err=${q("Pick where to save the songs.")}")
     val (radio, problem) = radioWindow(r.form, RadioSource(station, stream, r.form["homepage"]?.trim()?.takeIf { it.isNotEmpty() }))
@@ -116,6 +125,7 @@ internal fun Web.radioCreate(r: Web.Req) {
         target = PlaylistRef(dst.id, dstId, dstName),
         schedule = Schedule.MANUAL,
         radio = radio,
+        via = connector,
     )
     env.store.upsertJob(job)
     runner.radio.tick(java.time.LocalDateTime.now())
@@ -132,7 +142,77 @@ internal fun Web.radioPanel(job: SyncJob): String {
         st.error != null -> """<p class="err">${h(radio.station)}: ${h(st.error)}</p>"""
         else -> """<p class="ok">On air: ${h(st.lastTitle ?: "waiting for the first title…")}</p><p class="muted">${st.songs} new songs since ${Html.date(st.since)}. They reach the playlist every ${RadioListener.RUN_EVERY_MS / 60_000} minutes, and when the window closes.</p>"""
     }
-    return """<div class="card">$RADIO_ICON <b>${h(radio.station)}</b>${radio.homepage?.let { """ · <a href="${h(it)}" target="_blank" rel="noopener">site</a>""" } ?: ""}
+    return """<div class="card">$RADIO_ICON <b>${h(radio.station)}</b>${radioSiteLink(radio.homepage)}
 $now<p><a href="/playlists/csv/${q(job.source.playlistId.orEmpty())}">The songs heard so far</a></p></div>
 <form method="post" action="/syncs/${q(job.id)}/radio" class="card"><h3>Days and hours</h3>${radioWindowFields(radio)}<p><button class="secondary">Save</button></p></form>"""
 }
+
+/**
+ * Services › Add › Radio (2.2): find the station (by name, or its stream), then its name and colour;
+ * it becomes a service of its own, one per station, as the app's Accounts makes it.
+ */
+internal fun Web.radioConnectorAdd(r: Web.Req) {
+    if (!env.may(Permissions.RADIO)) return send(r.ex, 403, page("Add a radio", NOT_ALLOWED))
+    if (r.method == "POST") {
+        val station = r.form["station"].orEmpty().trim()
+        val stream = r.form["stream"].orEmpty().trim()
+        if (station.isEmpty() || !(stream.startsWith("http://", true) || stream.startsWith("https://", true))) return redirect(r.ex, "/connectors/station?err=${q("Pick a station.")}")
+        val color = r.form["color"]?.trim()?.lowercase()?.takeIf { com.xlollx.songport.data.AccountColors.hex(it) != null }
+        var id = ""
+        env.store.updateSettings { s ->
+            com.xlollx.songport.sync.RadioConnectors.add(s, com.xlollx.songport.model.RadioStation(station, stream, r.form["homepage"]?.trim()?.takeIf { it.isNotEmpty() }, r.form["country"].orEmpty()), r.form["name"], color)
+                .let { (next, made) -> id = made; next.copy(connectorsInit = true) }
+        }
+        env.log("services", "added radio $station")
+        return redirect(r.ex, "/connectors/${q(id)}?ok=${q("Added. Make a sync from it: New sync, from ${Providers.byId(id)?.label(env) ?: station}.")}")
+    }
+    val body = StringBuilder(notice(r))
+    val station = r.query["station"].orEmpty()
+    val stream = r.query["stream"].orEmpty()
+    body.append("""<div class="card"><p>$RADIO_ICON A radio is one station: add as many as you like. Trackhop notes the songs it plays in the hours each sync chooses. It reads only the song titles the station sends with its stream; the audio is never kept.</p></div>""")
+    if (stream.isEmpty()) {
+        val qy = r.query["q"].orEmpty()
+        body.append("""<form method="get" action="/connectors/station" class="card"><label>Find a station</label><input type="search" name="q" value="${h(qy)}" placeholder="Virgin Radio, Radio 105, KEXP…" required><p><button>Search</button></p></form>""")
+        if (qy.isNotBlank()) {
+            val found = runCatching { RadioBrowser.search(qy) }
+            found.exceptionOrNull()?.let { body.append("""<div class="card err">${h(it.message)}</div>""") }
+            val list = found.getOrDefault(emptyList())
+            if (found.isSuccess && list.isEmpty()) body.append("""<p class="muted">No station by that name. Try another spelling, or paste its stream below.</p>""")
+            for (s in list) {
+                val link = "/connectors/station?station=${q(s.name)}&stream=${q(s.stream)}&homepage=${q(s.homepage)}&country=${q(s.country)}"
+                body.append("""<div class="card"><div class="row"><div><b>${h(s.name)}</b><br><span class="muted">${h(listOf(s.country, s.codec, if (s.bitrate > 0) "${s.bitrate} kbps" else "").filter { it.isNotBlank() }.joinToString(" · "))}</span></div><div class="actions"><a class="button" href="$link">Choose</a></div></div></div>""")
+            }
+        }
+        body.append("""<form method="get" action="/connectors/station" class="card"><label>Or the stream's address</label><input type="url" name="stream" placeholder="https://…/stream.mp3" required><label>Station name</label><input type="text" name="station" required><p><button class="secondary">Use this stream</button></p></form>""")
+        return send(r.ex, 200, page("Add a radio", body.toString()))
+    }
+    val colors = com.xlollx.songport.data.AccountColors.ALL.joinToString("") { (k, hex) ->
+        """<label title="${h(k)}"><input type="radio" name="color" value="${h(k)}" aria-label="${h(k)}"><span class="dot" style="background:$hex"></span></label>"""
+    }
+    body.append(
+        """<form method="post" action="/connectors/station" class="card"><p>$RADIO_ICON <b>${h(station)}</b><br><span class="muted">${h(stream)}</span></p>
+<input type="hidden" name="station" value="${h(station)}"><input type="hidden" name="stream" value="${h(stream)}"><input type="hidden" name="homepage" value="${h(r.query["homepage"].orEmpty())}"><input type="hidden" name="country" value="${h(r.query["country"].orEmpty())}">
+<label>Name</label><input type="text" name="name" value="${h(station)}">
+<label>Colour</label><div class="swatches"><label title="None"><input type="radio" name="color" value="" checked aria-label="None"><span class="dot none"></span></label>$colors</div>
+<p><button>Add</button> <a class="button secondary" href="/connectors/station">Another station</a></p></form>""",
+    )
+    send(r.ex, 200, page("Add a radio", body.toString()))
+}
+
+/** A radio connector's page: its station, the syncs that listen to it, and a new one. */
+internal fun Web.radioConnectorCard(p: com.xlollx.songport.providers.RadioProvider): String {
+    val st = p.station(env) ?: return """<div class="card muted">This radio has no station: remove it and add it again.</div>"""
+    val syncs = com.xlollx.songport.sync.RadioConnectors.syncsOf(env.store.data.jobs, p.id)
+    val list = syncs.joinToString("") { """<li><a href="/syncs/${q(it.id)}">${h(it.name)}</a> <span class="muted">${h(it.radio?.let { r -> RadioTitles.describe(r) }.orEmpty())}</span></li>""" }
+    return """<div class="card">$RADIO_ICON <b>${h(st.station)}</b>${st.country.takeIf { it.isNotBlank() }?.let { " · " + h(it) } ?: ""}${radioSiteLink(st.homepage)}<br><span class="muted">${h(st.stream)}</span>
+${if (syncs.isEmpty()) """<p class="muted">No sync listens to it yet.</p>""" else "<ul>$list</ul>"}
+${if (env.may(Permissions.RADIO)) """<p><a class="button" href="/syncs/radio?connector=${q(p.id)}">$RADIO_ICON New sync from this station</a></p>""" else ""}</div>"""
+}
+
+/**
+ * A station's "site" link: only for an http(s) address. The directory's homepage is the station's
+ * own text, so a `javascript:` one (or any other scheme) gets no link, also for stations saved before.
+ */
+internal fun radioSiteLink(homepage: String?): String =
+    homepage?.trim()?.takeIf { it.startsWith("http://", true) || it.startsWith("https://", true) }
+        ?.let { """ · <a href="${h(it)}" target="_blank" rel="noopener">site</a>""" }.orEmpty()

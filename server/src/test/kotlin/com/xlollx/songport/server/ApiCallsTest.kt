@@ -555,6 +555,37 @@ class ApiCallsTest {
         assertEquals(404, call("DELETE", "syncs/$id").code)
     }
 
+    @Test fun copyRatingsIsTakenAndGivenBack() {
+        val made = call("POST", "syncs", """{"source":{"service":"csv","playlist":"In"},"target":{"service":"csv","playlist":"Out"},"copyRatings":true}""")
+        assertEquals(made.text, 201, made.code)
+        val id = made.obj.s("id")!!
+        assertEquals("true", made.obj.s("copyRatings"))
+        assertTrue(env.store.job(id)!!.copyRatings)
+        // Not named: it stays; named false: off.
+        assertEquals("true", call("PATCH", "syncs/$id", """{"name":"Renamed"}""").obj.s("copyRatings"))
+        assertEquals("false", call("PATCH", "syncs/$id", """{"copyRatings":false}""").obj.s("copyRatings"))
+        // A run's figures carry the ratings it set.
+        assertEquals("3", Api.run(SyncReport("r", id, "Renamed", 0, 0, ratingsSet = 3), tracks = false).s("ratingsSet"))
+    }
+
+    @Test fun theMatchingRulesAreTakenAndGivenBack() {
+        val made = call("POST", "syncs", """{"source":{"service":"csv","playlist":"In"},"target":{"service":"csv","playlist":"Out"},"matching":{"strictness":"strict","artistNamesCanDiffer":true}}""")
+        assertEquals(made.text, 201, made.code)
+        val id = made.obj.s("id")!!
+        val m = made.obj["matching"]!!.jsonObject
+        assertEquals("strict", m.s("strictness"))
+        assertEquals("either", m.s("explicit"))
+        assertEquals("true", m.s("artistNamesCanDiffer"))
+        assertEquals(com.xlollx.songport.model.MatchPolicy(strictness = 1, artistsMayDiffer = true), env.store.job(id)!!.policy)
+        // Named in part: the rest stays.
+        val edited = call("PATCH", "syncs/$id", """{"matching":{"explicit":"clean","sameAlbum":true,"artistNamesCanDiffer":false}}""")
+        assertEquals(edited.text, 200, edited.code)
+        assertEquals(com.xlollx.songport.model.MatchPolicy(strictness = 1, explicit = -1, sameAlbum = true), env.store.job(id)!!.policy)
+        assertEquals("clean", edited.obj["matching"]!!.jsonObject.s("explicit"))
+        assertEquals(400, call("PATCH", "syncs/$id", """{"matching":{"strictness":"very"}}""").code)
+        assertEquals(400, call("PATCH", "syncs/$id", """{"matching":true}""").code)
+    }
+
     @Test fun aSyncMadeWithItsOwnIdIsMadeOnceHoweverOftenAsked() {
         // The app's hand-over, sent again after its answer was lost: the sync made then, not a second one.
         val body = """{"id":"phone-0f5c-9a","source":{"service":"csv","playlist":"In"},"target":{"service":"csv"},"name":"Handed"}"""
@@ -804,5 +835,43 @@ class ApiCallsTest {
             val text = guide.readText()
             for (c in ApiDocs.CALLS) assertTrue("guide lacks ${c.method} ${c.path}", text.contains("${c.method} /api/v1${c.path}"))
         }
+    }
+
+    /** 2.2: "Why wasn't it matched?" through the API: the sync's threshold and the closest candidates. */
+    @Test fun whyCandidatesThroughTheApi() {
+        env.store.upsertJob(SyncJob("w", "Why", PlaylistRef("csv", "In", "In"), PlaylistRef("csv", "Out", "Out")))
+        val r = call("GET", "syncs/w/why?q=" + java.net.URLEncoder.encode("Band - Song", "UTF-8"))
+        assertEquals(r.text, 200, r.code)
+        assertEquals("0.7", r.obj["threshold"]!!.jsonPrimitive.content)
+        assertTrue(r.obj["candidates"] is JsonArray)
+        assertEquals(400, call("GET", "syncs/w/why").code)
+        assertEquals(404, call("GET", "syncs/w/why?track=nope").code)
+    }
+
+    /** 2.2: a personal server's second address, set and taken away through the API; only on such a server. */
+    @Test fun aSecondAddressThroughTheApi() {
+        try {
+            env.tokens.set("subsonic", com.xlollx.songport.data.Tokens(accessToken = "pw", userName = "me", extra = mapOf("url" to "http://127.0.0.1:1")))
+            val set = call("PUT", "services/subsonic/address", """{"away": "music.example.org/"}""")
+            assertEquals(set.text, 200, set.code)
+            assertEquals("https://music.example.org", set.obj.s("awayAddress"))
+            assertEquals("https://music.example.org", call("GET", "services/subsonic").obj.s("awayAddress"))
+            assertEquals("null", call("PUT", "services/subsonic/address", """{"away": null}""").obj["awayAddress"].toString())
+            assertEquals(400, call("PUT", "services/csv/address", """{"away": "x"}""").code)
+        } finally {
+            com.xlollx.songport.net.ServerAddresses.reset()
+        }
+    }
+
+    @Test fun plexCallsNeedAConnectedPlex() {
+        assertEquals(404, call("GET", "plex/plex/home-users").code)
+    }
+
+    /** 2.2: the JSON list Soundiiz imports, as a download format. */
+    @Test fun aFileAsSoundiizJson() {
+        val r = call("GET", "files/In.csv?format=json")
+        assertEquals(200, r.code)
+        assertEquals("track", r.arr[0].jsonObject.s("type"))
+        assertEquals("Band", r.arr[0].jsonObject.s("artist"))
     }
 }

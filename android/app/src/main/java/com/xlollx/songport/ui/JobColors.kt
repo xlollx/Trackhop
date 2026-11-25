@@ -344,7 +344,7 @@ fun CustomColorDialog(initial: Color, onDismiss: () -> Unit, onPick: (Color) -> 
 }
 
 @Composable
-private fun Swatch(color: Color, name: String, chosen: Boolean, onClick: () -> Unit) {
+internal fun Swatch(color: Color, name: String, chosen: Boolean, onClick: () -> Unit) {
     Box(
         Modifier.size(40.dp).clip(CircleShape).background(color)
             .border(if (chosen) 3.dp else 1.dp, if (chosen) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outlineVariant, CircleShape)

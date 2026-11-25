@@ -8,11 +8,11 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 <p align="center">
   <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/release.svg" alt="Latest release"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/updated.svg" alt="Last updated"></a>
-  <a href="https://trackhop.org/#downloads"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/downloads.svg" alt="Downloads from GitHub and Docker Hub"></a>
+  <a href="https://trackhop.org/#downloads"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/downloads.svg" alt="Downloads"></a>
   <a href="https://hub.docker.com/r/xlollx/trackhop"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/docker.svg" alt="Docker Hub pulls"></a>
   <br>
   <a href="https://github.com/xlollx/Trackhop/stargazers"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/stars.svg" alt="GitHub stars"></a>
-  <a href="https://trackhop.org"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/languages.svg" alt="12 languages"></a>
+  <a href="https://trackhop.org/services"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/services.svg" alt="Music services supported"></a>
   <a href="LICENSE"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/license.svg" alt="License: AGPL-3.0-only"></a>
   <a href="https://www.navidrome.org/apps/"><img src="https://raw.githubusercontent.com/xlollx/Trackhop/badges/navidrome.svg" alt="Listed in the Navidrome app catalog"></a>
   <br>
@@ -32,6 +32,8 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <a href="https://f-droid.org/packages/com.xlollx.songport/"><img src="docs/assets/badges/fdroid.svg" height="56" alt="Get it on F-Droid"></a>
   <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/xlollx/Trackhop"><img src="docs/assets/badges/obtainium.svg" height="56" alt="Get it on Obtainium"></a>
   <a href="https://github.com/xlollx/Trackhop/releases/download/v2.1.4/Trackhop-v2.1.4.apk"><img src="docs/assets/badges/github.svg" height="56" alt="Download the APK from GitHub (2.1.4)"></a>
+  <a href="https://xlollx.itch.io/trackhop"><img src="docs/assets/badges/itch.svg" height="56" alt="Get it on itch.io"></a>
+  <a href="https://sourceforge.net/projects/trackhop/"><img src="docs/assets/badges/sourceforge.svg" height="56" alt="Get it on SourceForge"></a>
 </p>
 
 <p align="center">
@@ -44,9 +46,11 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
 <p align="center">
   <b>Desktop</b> <sub>Windows, macOS, Linux</sub><br>
   <a href="https://apps.microsoft.com/detail/9PFX74Q2XN9P"><img src="docs/assets/badges/msstore.svg" height="56" alt="Get it from the Microsoft Store"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-windows.msi"><img src="docs/assets/badges/windows.svg" height="56" alt="Get it for Windows"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-macos-arm64.dmg"><img src="docs/assets/badges/macos.svg" height="56" alt="Get it for macOS"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-linux.deb"><img src="docs/assets/badges/linux.svg" height="56" alt="Get it for Linux"></a>
+  <a href="https://xlollx.itch.io/trackhop"><img src="docs/assets/badges/itch.svg" height="56" alt="Get it on itch.io"></a>
+  <a href="https://sourceforge.net/projects/trackhop/"><img src="docs/assets/badges/sourceforge.svg" height="56" alt="Get it on SourceForge"></a>
 </p>
 
 <p align="center">
@@ -54,6 +58,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <a href="https://trackhop.org/guide/docker"><img src="docs/assets/badges/docker.svg" height="56" alt="Run it on Docker"></a>
   <a href="https://github.com/xlollx/umbrel-apps"><img src="docs/assets/badges/umbrel.svg" height="56" alt="Get it on Umbrel (community app store)"></a>
   <a href="https://trackhop.org/guide/docker#one-click-installs"><img src="docs/assets/badges/caprover.svg" height="56" alt="Get it on CapRover (One-Click Apps)"></a>
+  <a href="https://trackhop.org/guide/docker#one-click-installs"><img src="docs/assets/badges/dokploy.svg" height="56" alt="Get it on Dokploy (templates)"></a>
 </p>
 
 <p align="center">
@@ -81,7 +86,7 @@ Deezer, SoundCloud, LiveOne, Subsonic/Navidrome, Koel, Jellyfin, Emby, Plex, Lyr
 Cloud Music, QQ Music and JioSaavn links as sources and playlist files (CSV, TSV, M3U, iTunes XML, JSON, pasted text) as a bridge to everything else. New in 2.0:
 playlists shared by a group whose members each use their own service, and Discover pages that follow a playlist's artists: new releases, concerts,
 setlists, records and merch. New in 2.1: several playlists shared behind one invite, one list of songs to fix for every sync,
-several syncs edited at once, and big libraries read a piece at a time. Everything runs
+several syncs edited at once, and big libraries read a piece at a time. New in 2.2: a "Which service?" chooser, matching that copes with guests, remixes and editions, and Desktop and Docker that do almost everything the app does. Everything runs
 on the phone: there is no Trackhop server, and access tokens never leave the device. Free, no ads in
 any build: development lives on voluntary donations. Listed in the [Navidrome app catalog](https://www.navidrome.org/apps/).
 
@@ -92,6 +97,7 @@ any build: development lives on voluntary donations. Listed in the [Navidrome ap
 routes go through the service's own web player: they are not official interfaces and live in the GitHub and
 F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and AppGallery, in the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) plugin).
 
+<!-- services:start -->
 | Service | Read | Write | Remove | How you connect | Where |
 |---|:-:|:-:|:-:|---|---|
 | **Spotify** | ✓ | ✓ | ✓ | Quick sign-in with your usual account, no key, no Premium | GitHub, F-Droid, Desktop, Docker · plugin |
@@ -102,7 +108,8 @@ F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and A
 | | ✓ | ✓ | — | Official: Apple developer token (Apple's API cannot remove tracks) | All apps (not Desktop or Docker) |
 | **Amazon Music** | ✓ | ✓ | ✓ | Quick sign-in with your Amazon account (no public API) | GitHub, F-Droid · plugin |
 | **TIDAL** | ✓ | ✓ | ✓ | Official: your own free developer key | All builds |
-| **Deezer** | ✓ | ✓ | ✓ | Official (beta), or quick sign-in | All builds · quick sign-in: GitHub, F-Droid, Desktop, Docker, plugin |
+| **Deezer** | ✓ | ✓ | ✓ | Quick sign-in with your Deezer account; a Family plan picks its profile | GitHub, F-Droid, Desktop, Docker · plugin |
+| | ✓ | ✓ | ✓ | Official (beta): only with an app id you already have, Deezer no longer creates new ones | All builds |
 | **LiveOne** | ✓ | ✓ | — | Quick sign-in (liked songs only, beta) | GitHub, F-Droid, Desktop, Docker · plugin |
 | **Navidrome / Subsonic** (Airsonic, Gonic, Ampache, LMS, Funkwhale) | ✓ | ✓ | ✓ | Your server's address and login | All builds |
 | **Jellyfin** | ✓ | ✓ | ✓ | Your server's address and login | All builds |
@@ -112,7 +119,7 @@ F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and A
 | **Lyrion Music Server** (Logitech Media Server, beta) | ✓ | ✓ | ✓ | Your server's address (user and password if protected) | All builds |
 | **Mopidy** (beta) | ✓ | ✓ | ✓ | Your server's address | All builds |
 | **Last.fm** | ✓ | ✓ (loved tracks) | ✓ (loved tracks) | Your username (loved tracks, scrobbles, top tracks); your password too to love tracks | All builds |
-| **ListenBrainz** | ✓ | — | — | Your username (playlists, loved tracks) | All builds |
+| **ListenBrainz** | ✓ | ✓ | — | Your username (playlists, loved tracks); with your user token, it writes them too | All builds |
 | **SoundCloud** | ✓ | ✓ | ✓ | Quick sign-in with your SoundCloud account: your sets and likes (beta) | GitHub, F-Droid · plugin |
 | | ✓ | — | — | Paste a public set or likes link, no account | GitHub, F-Droid, Desktop, Docker |
 | **NetEase Cloud Music, QQ Music** | ✓ | — | — | Paste a public playlist link | GitHub, F-Droid, Desktop, Docker · plugin |
@@ -126,8 +133,9 @@ F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and A
 | **Internet radio, Shazam** | ✓ | — | — | What a station plays, or every song you Shazam | All builds |
 | **Charts** (Apple Music, Deezer) | ✓ | — | — | A country's Top 100, refreshed as it changes, no account; with an Apple Music developer token (the build's or your own) also Apple's Daily Top 100 of the world and of each country and the Top 25 of each city | All builds |
 | **Files** (CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, JSON, text; rekordbox XML read only) | ✓ | ✓ | ✓ | Import and export | All builds |
+<!-- services:end -->
 
-Details, keys and limits of each service: [Supported services and their limits](#supported-services-and-their-limits).
+The same table in every language of the site: [trackhop.org/services](https://trackhop.org/services). Details, keys and limits of each service: [Supported services and their limits](#supported-services-and-their-limits).
 Not connectable: Pandora (no public API, United States only): use files.
 
 **Why not an online transfer service?** Soundiiz, TuneMyMusic and FreeYourMusic are good at a one-off
@@ -149,6 +157,8 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
 - **[Obtainium](https://github.com/ImranR98/Obtainium)**: add `https://github.com/xlollx/Trackhop` and
   each release reaches the phone by itself.
 - **[Releases](https://github.com/xlollx/Trackhop/releases/latest)**: the signed APK of every version.
+- **[itch.io](https://xlollx.itch.io/trackhop) and [SourceForge](https://sourceforge.net/projects/trackhop/)**: the same
+  files as the GitHub releases (the full APK, and Trackhop Desktop for Windows, macOS and Linux), updated with each release.
 - **[Google Play](https://play.google.com/store/apps/details?id=com.xlollx.songport) and [AppGallery](https://appgallery.huawei.com/app/C119677919) versions**: the same app limited to official APIs (store rules).
   Using one and want YouTube Music, Amazon Music, or Spotify and Apple Music without developer keys?
   Install the companion plugin **[Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge)**
@@ -156,15 +166,15 @@ move. Trackhop is for keeping playlists in step over time, without handing your 
   built in. [Which Trackhop?](https://trackhop.org/guide/versions) compares them.
 - **Desktop (Windows, macOS, Linux)**: the same engine as a program on your
   computer, with its own Java runtime (no Java or Docker to install, no administrator rights), an icon
-  next to the clock and the same web page as the server. Version 2.1.5 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v2.1.5)):
-  [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-windows.msi) ·
-  [Windows, no install (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-windows.zip) ·
-  [macOS, Apple silicon](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-macos-arm64.dmg) ·
-  [macOS, Intel](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-macos-x64.dmg) ·
-  [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-linux.deb) ·
-  [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-linux.tar.gz) ·
-  [Linux ARM / Raspberry Pi .deb](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-linux-arm64.deb) ·
-  [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v2.1.5/Trackhop-Desktop-v2.1.5-linux.flatpak). See the
+  next to the clock and the same web page as the server. Version 2.2.0 ([what's in it](https://github.com/xlollx/Trackhop/releases/tag/server-v2.2.0)):
+  [Windows installer](https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-windows.msi) ·
+  [Windows, no install (.zip)](https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-windows.zip) ·
+  [macOS, Apple silicon](https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-macos-arm64.dmg) ·
+  [macOS, Intel](https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-macos-x64.dmg) ·
+  [Linux .deb](https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-linux.deb) ·
+  [Linux .tar.gz](https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-linux.tar.gz) ·
+  [Linux ARM / Raspberry Pi .deb](https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-linux-arm64.deb) ·
+  [Linux Flatpak](https://github.com/xlollx/Trackhop/releases/download/server-v2.2.0/Trackhop-Desktop-v2.2.0-linux.flatpak). See the
   [Desktop guide](https://trackhop.org/guide/desktop); every version is in the
   [Desktop & Server releases](https://github.com/xlollx/Trackhop/releases?q=server-v&expanded=true) (`server-v…`).
   With [Scoop](https://github.com/xlollx/scoop-bucket): `scoop bucket add xlollx https://github.com/xlollx/scoop-bucket`
@@ -212,8 +222,9 @@ common errors.
 - Deezer (web) is marked **alpha**: covered by offline tests but not yet tried on real accounts. Try
   it on a test playlist first and report what goes wrong. SoundCloud with your account is **beta**.
 - The app ships without service credentials of its own: on the services that require one (Spotify,
-  YouTube Music, TIDAL, Deezer, Last.fm) each user creates a free developer key, and the app walks
-  them through it in about two minutes (Deezer no longer registers new apps: only an existing one). Or use the quick route: sign in on the service's own page.
+  YouTube Music, TIDAL, Last.fm) each user creates a free developer key, and the app walks
+  them through it in about two minutes. Deezer no longer accepts new apps that use its API, so its
+  official route is offered only to those who already have an app id; the others are told why. Or use the quick route: sign in on the service's own page.
   Personal servers and files need nothing.
 - License: AGPL-3.0-only, see [LICENSE](LICENSE). Security reports: [SECURITY.md](SECURITY.md).
 
@@ -278,6 +289,7 @@ reports are what make it better: if something does not work as it should, say so
 - [Follow Trackhop](#follow-trackhop)
 - [Feedback](#feedback)
 - [Features](#features)
+- [New in 2.2](#new-in-22)
 - [New in 2.1](#new-in-21)
 - [New in 2.0](#new-in-20)
 - [Gallery](#gallery)
@@ -349,7 +361,7 @@ reports are what make it better: if something does not work as it should, say so
 | | Shazam | Share a song from the Shazam app: title and artist are read from the shared text (nothing is asked of Shazam) and the song goes into a playlist on any connected service. To have every Shazam everywhere, make a Shazam sync (above): "Sync my Shazams" in the sheet opens one. |
 | | TikTok | Share a TikTok video (GitHub and F-Droid builds, store builds with the plugin): the song it uses is read from the video's public page (no account) and goes into a playlist on any connected service. A sound the creator recorded ("original sound") names no song: Trackhop then listens to the sound itself (a short audio signature sent to Shazam, see Credits below) and often finds the song playing in it, marked as recognised so you can check it. Also in Desktop and Docker: paste the link in a review search. |
 | Widget and shortcuts | Home widget and long-press on the icon | Last sync, "Sync all", "New sync". |
-| Notifications | Notification channels | A message on Telegram, ntfy, Gotify, Discord, Slack, Matrix or Pushover when a sync changes something or fails, has tracks to review or removals to confirm; events per channel, Send test, keys encrypted and never exported. [Guide](https://trackhop.org/guide/notification-channels). |
+| Notifications | Notification channels | A message on Telegram, ntfy, Gotify, Discord, Slack, Matrix, Pushover or Apprise when a sync changes something or fails, has tracks to review or removals to confirm; events per channel, Send test, keys encrypted and never exported. [Guide](https://trackhop.org/guide/notification-channels). |
 | Diagnostics | "Share technical details" in the log | Version, device, services, last runs, error log; no tokens. |
 | | "Test the connection" per account | Account, playlist list and one search, with the service's answer on failure. |
 | Appearance | Theme and Material You | Settings › Appearance: system, light or dark; "Dynamic colours" takes the phone's wallpaper palette (Android 12+) instead of the brand's, off by default. |
@@ -357,6 +369,27 @@ reports are what make it better: if something does not work as it should, say so
 | Help | How to, with search | Short guides built into the app (offline, 12 languages), with a search at the top that filters them by title and text, case and accents aside. |
 | Security | Connections log | Settings › Developer options lists every host the app has contacted and how often, so "no Trackhop server" is something to check, not to believe. |
 | | Info sheet before every login, encrypted tokens, fingerprint or PIN lock | See [How logins are protected](#how-logins-are-protected). |
+
+## New in 2.2
+
+In Trackhop 2.2, in the app and in Desktop and Docker 2.2.0.
+
+| Area | Feature | Notes |
+|------|---------|-------|
+| Services | Which service? | A chooser with search (other names work too), your own accounts first and categories. |
+| | YouTube Music profile | Shows which profile or channel is connected, and warns if your music is on another one. |
+| | Deezer Family | Choose the profile of a Family plan (GitHub/F-Droid builds, Desktop and Docker). The official Deezer sign-in is no longer offered to new users; *Why no Deezer?* explains. |
+| | ListenBrainz as a target | Playlists can go to ListenBrainz, not only come from it. |
+| | Plex | Five stars count as liked songs; *Sounds like* and *Sonic adventure* playlists; copy a playlist to a Plex Home user. |
+| | Personal servers, home and away | A server can have two addresses; Trackhop uses the one that works. |
+| | Apple Music removals | A sync can remove songs from Apple Music playlists too (GitHub/F-Droid builds, Desktop and Docker). |
+| Matching | Better matches | "feat." guests, remixes, versions such as Taylor's Version, Deluxe and Remaster editions, names like AC/DC, and traditional against simplified Chinese. |
+| | Fewer repeats, clearer answers | A source that has not changed is skipped; songs not found are searched again after a month; *Why wasn't it matched?* shows the candidates. |
+| Files | Playlist file link, Soundiiz, ratings | A link to a playlist file as a source; a JSON export Soundiiz can read; star ratings copied to Subsonic and Navidrome; *Select all* and *None* above long lists. |
+| Notifications | Apprise | The result of a sync sent to Apprise, and from there to almost any chat or app. |
+| Use | Quicker start | Switching between one target and several is faster; the first run has three welcome pages and goes straight to your first service; on builds where Spotify needs your own key, it says so up front. |
+| Desktop and Docker | Almost everything the app does | Review, To fix, schedules, preview, covers, stats, the concert diary, shared playlists, roast, the YouTube quota and more; several syncs at once; the service chooser. The Linux `.deb` installs on systems without a desktop; the Windows `.zip` runs again. |
+| Site | trackhop.org | A Services page, tools to compare playlists, find duplicates and add a listen-anywhere button to your own page, and a What's new page with an RSS feed. |
 
 ## New in 2.1
 
@@ -429,7 +462,7 @@ The technical side of each connector (for a quick overview, see [Music services 
 | Apple Music (web) | read, add and remove; rename and delete playlists; built in (GitHub/F-Droid) or via the Trackhop Bridge | Apple ID sign-in on Apple's page | nothing | The Bridge reads the web player's developer token and the music user token cookie; Trackhop then runs the same Apple Music code as above, with removals, renames and deletions sent to the web player's own backend (amp-api.music.apple.com), as music.apple.com does. Not an official route, against Apple's terms, may break without notice. |
 | Amazon Music | complete, built in (GitHub/F-Droid) or via the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) | Amazon sign-in on Amazon's page | nothing | Amazon's official Web API is a closed beta for approved partners, so the Bridge uses the web player's interface (library playlists, playlist rows with their entry ids, search, create, add, remove, rename, delete). Not an official API, may break without notice. |
 | TIDAL | complete | OAuth PKCE | `TIDAL_CLIENT_ID` | API v2 (JSON:API) still evolving; endpoints isolated in `TidalProvider.kt`. |
-| Deezer | beta | OAuth implicit | `DEEZER_APP_ID` and an https redirect page (`docs/deezer-redirect.html`) | Registration of new apps may be closed. Playlists read from Deezer carry no ISRC. Beta: limited real-world use. |
+| Deezer | beta; offered only with an app id (the build's or the user's) or to an account already added | OAuth implicit | `DEEZER_APP_ID` and an https redirect page (`docs/deezer-redirect.html`) | Deezer no longer creates new apps: without an app id the route is not offered, and Accounts › Add says why. Playlists read from Deezer carry no ISRC. Beta: limited real-world use. |
 | LiveOne (web) | presets (liked songs): read and add, beta; GitHub/F-Droid, Docker and Desktop only | LiveOne's own page in the app (Docker/Desktop: paste the `slackerUser` entry) | nothing | No public API: the web player's backend, unofficial. Playlists of one's own need LiveOne's paid plan (not handled yet); no removal; stations play only in the US. |
 | Subsonic / Navidrome (Airsonic, Gonic, Ampache, LMS, Funkwhale) | complete | server URL, user, password (md5+salt token) | nothing | Starred tracks = likes. Ampache checks the token against the separate *Subsonic password* (or the API key) from *Preferences → Account*, not the account password; the app says so when Ampache refuses the login. |
 | Jellyfin | complete | server URL, user, password | nothing | Favourites supported. |
@@ -693,8 +726,9 @@ shared key.
 - TIDAL: a client ID from developer.tidal.com.
 - Deezer: an application ID from developers.deezer.com, for those who already have one: Deezer
   stopped registering new apps in 2025 ([Deezer community](https://en.deezercommunity.com/features-feedback-44/api-auth-impossible-80857)),
-  and an existing app keeps working. Without one, use the "Deezer (web)" connector, which needs no
-  app. The https redirect page is provided by the project (`docs/deezer-redirect.html`, published
+  and an existing app keeps working. Without one the official route is not offered at all (Accounts ›
+  Add says why); use the "Deezer (web)" connector, which needs no app and lets a Family plan pick
+  its profile. The https redirect page is provided by the project (`docs/deezer-redirect.html`, published
   on GitHub Pages) and prefilled.
 - Last.fm: a free API key.
 - Apple Music: a MusicKit developer token, which requires the paid Apple Developer Program.
@@ -848,6 +882,8 @@ by Marin M. (GPL-3.0), whose author worked out Shazam's signature format. It tal
 unofficial endpoint, so it is only in the builds that use unofficial services (GitHub, F-Droid,
 Docker, Desktop outside the Microsoft Store, and the store builds through the plugin). MP3s are
 decoded on Docker and Desktop with [JLayer](https://github.com/umjammer/jlayer) (LGPL-2.1).
+How Deezer (web) moves to a Family plan's profile (#82) follows the idea of
+[Sonora](https://github.com/sonorahq/sonora) (GPL-3.0); the code was written from scratch.
 
 ## Known limits
 

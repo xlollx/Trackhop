@@ -38,16 +38,36 @@ import kotlin.system.exitProcess
  * set up; any other server with --url and --token (or TRACKHOP_URL and TRACKHOP_TOKEN), the token
  * made on its page, Tools › API. Plain text for people (ASCII arrows and signs: Windows consoles
  * often lack the others), --json for scripts. Exit codes: 0 done,
- * 1 failed (a sync that ended with an error, a call refused), 2 wrong use, 3 no Trackhop reached.
+ * 1 failed (a sync that ended with an error, a call refused), 2 wrong use, 3 no Trackhop reached,
+ * 4 partly done (run --wait: some syncs ended well and others failed, or removals were held back).
  */
 object Cli {
     class Failure(val code: Int, message: String) : Exception(message)
+
+    /** Some of what was asked was done, not all of it ([runExit]). 2 already says "wrong use", so scripts keep their meaning. */
+    const val PARTIAL = 4
+
+    /**
+     * The exit code of `run --wait` from the syncs' last results: 0 when every one ended well with
+     * nothing held back, 1 when none did, [PARTIAL] in between (some failed, or a run held back its
+     * removals for a look first). Tracks not found do not count: most playlists have a few.
+     */
+    fun runExit(results: List<JsonObject?>): Int {
+        val ok = results.count { it?.get("ok")?.let { v -> (v as? kotlinx.serialization.json.JsonPrimitive)?.content == "true" } == true }
+        val held = results.any { r -> (r?.get("heldRemovals") as? kotlinx.serialization.json.JsonPrimitive)?.content?.toIntOrNull()?.let { it > 0 } == true }
+        return when {
+            results.isEmpty() -> 0
+            ok == results.size && !held -> 0
+            ok == 0 -> 1
+            else -> PARTIAL
+        }
+    }
 
     /** One command, for `help`, `help <command>` and the shell completions: its words and what it does. */
     class Cmd(val name: String, val group: String, val usage: List<String>, val summary: String, val more: String = "", val subs: List<String> = emptyList())
 
     /** Every command: these, and the next release's (Features.v2, CliV2.kt). */
-    val COMMANDS: List<Cmd> get() = BASE_COMMANDS.filter { Features.v2 || it.name !in Features.V2_TOOLS } + CliV2.commands
+    val COMMANDS: List<Cmd> get() = BASE_COMMANDS.filter { Features.v2 || it.name !in Features.V2_TOOLS } + CliConn.commands + CliRadio.commands + CliV2.commands + CliParity.commands + CliNotifications.commands
 
     private val BASE_COMMANDS = listOf(
         Cmd("syncs", "Syncs", listOf("syncs [--tag KEY=VALUE] [--label NAME] [--favorite]", "list [...]"), "list the syncs, with their last result",
@@ -55,8 +75,8 @@ object Cli {
         Cmd("show", "Syncs", listOf("show <sync>"), "a sync's details and its last runs"),
         Cmd("run", "Syncs", listOf("run <sync>... | --all | --tag KEY=VALUE [--wait] [--anyway] [--confirm-removals]"), "start syncs (--wait: until they end, with the result)",
             "--tag genre=metal, --label NAME and --favorite start a group: the syncs with that tag, wearing that label, or starred (those turned on).\n--anyway runs a sync that stopped because its destination looked much smaller than it was: you say the smaller one is right.\n--confirm-removals (with syncs you name) makes the removals a run held back, this once: see them first with trackhop preview <sync>."),
-        Cmd("new", "Syncs", listOf("new <service> <playlist> <service> [<playlist>] [options]"), "make a sync: from a playlist (or a link) to a playlist, a new one when left out",
-            "Options: --name NAME, --schedule manual|hourly|every_6h|daily|weekly or --every MINUTES, --at HH:MM, --days mon,fri (or 1,5),\n--changes add|mirror|archive (mirror also removes what leaves the source; archive keeps every track ever seen), --follows, --color NAME|#RRGGBB,\n--label NAME (a label's name or id: the card takes its colour), --tag KEY=VALUE (or --tag KEY; as many as wanted), --favorite,\n--two-way (also makes the reverse sync, marked <->, between two existing playlists of yours), --two-way-removals (with it: a track removed on one side is removed on the other)."),
+        Cmd("new", "Syncs", listOf("new <service> <playlist> <service> [<playlist>] [options]", "new <radio or shazam> <service> [<playlist>] [--days mon,fri --from HH:MM --to HH:MM]"), "make a sync: from a playlist (or a link) to a playlist, a new one when left out",
+            "A radio station listens on --days from --from to --to (every day 08:00 to 10:00 when not given); Shazam brings every song you Shazam, every hour.\nOptions: --name NAME, --schedule manual|hourly|every_6h|daily|weekly or --every MINUTES, --at HH:MM, --days mon,fri (or 1,5),\n--changes add|mirror|archive (mirror also removes what leaves the source; archive keeps every track ever seen), --follows, --color NAME|#RRGGBB,\n--label NAME (a label's name or id: the card takes its colour), --tag KEY=VALUE (or --tag KEY; as many as wanted), --favorite,\n--two-way (also makes the reverse sync, marked <->, between two existing playlists of yours), --two-way-removals (with it: a track removed on one side is removed on the other).\nMatching: --strictness lenient|normal|strict, --explicit clean|either|explicit, --same-album (or --any-album), --studio-only (never a live,\nremix or acoustic version; --any-version undoes it), --keep-order (the destination keeps the source's order; --no-keep-order).\n--use-schedule NAME follows a saved schedule (trackhop schedules; none: the sync's own timing again)."),
         Cmd("edit", "Syncs", listOf("edit <sync> [options]"), "change a sync: the same options as new", "Only what you name changes. --color none takes the colour off, --label none the label; --tag KEY=VALUE adds or changes a tag,\n--untag KEY takes one off; --favorite stars the sync, --unfavorite takes the star off.\n--two-way makes the reverse sync, --one-way deletes it (the playlists stay); --two-way-removals and --no-two-way-removals say whether a pair's removals travel too."),
         Cmd("enable", "Syncs", listOf("enable <sync> | disable <sync>"), "turn a sync's schedule on or off"),
         Cmd("disable", "Syncs", listOf("disable <sync>"), "turn a sync's schedule off"),
@@ -70,6 +90,7 @@ object Cli {
             "A service can take many syncs at once for unusual traffic and turn some away. trackhop spread gives them new times."),
         Cmd("spread", "Syncs", listOf("spread [--apply]"), "new times for the crowded syncs: shown only, saved with --apply",
             "The first keeps its time, each next one starts a little later; days, frequency and everything else stay."),
+        CliMulti.command,
         Cmd("runs", "Runs and review", listOf("runs [<sync>] [--limit N] [--offset N]"), "the runs, newest first"),
         Cmd("report", "Runs and review", listOf("report <run>", "report [--since 24h] [--names] [--title T] [--description TEXT]"), "one run: what it added, removed, could not find, and its notes",
             "Without <run>: a GitHub issue made ready, with the diagnostics (as trackhop diagnostics) and a link that opens it\nprefilled. Nothing is sent: you read it and send it yourself. When the same error is already reported, it says\nwhere to comment instead, or that a newer version fixed it."),
@@ -85,8 +106,11 @@ object Cli {
                 "pick: the track to add for one not found; replace: the right one for a match to check; restore: put back what the run removed.\n" +
                 "A <track> is \"Artist - Title\", a link from any service, or its id on the sync's destination.",
             listOf("ignore", "keep", "discard", "pick", "replace", "restore")),
-        Cmd("services", "Services and playlists", listOf("services"), "the services and whether they are connected"),
+        Cmd("services", "Services and playlists", listOf("services [<words>] [--kind official|web|connected]", "services profile <service> [<profile>]", "services add radio <station> | --stream <url> --station <name> [--name NAME] [--color COLOR]", "services add shazam", "services remove <radio or shazam>"), "the services and whether they are connected; a Deezer Family account's profile (shown, or chosen by id or name); a radio station or Shazam added or taken away",
+            "<words> finds a service by its name or the account it is connected as; --kind keeps the official ones, the unofficial (web) ones or the connected ones.\nA radio is one station: add as many as you like (trackhop stations <words> finds them); a sync from one: trackhop new radio@2 <service>."),
+        Cmd("catalog", "Services and playlists", listOf("catalog [<words>] [--category streaming|server|radio|listening|regional|files]"), "every service that can be added, by category; words also match other names (Navidrome finds Subsonic)"),
         Cmd("playlists", "Services and playlists", listOf("playlists <service>"), "a service's playlists"),
+        Cmd("profiles", "Services and playlists", listOf("profiles <service> [<profile>]"), "YouTube Music (web): the profiles (own channel, brand accounts) with their music, or read and write as one from now on"),
         Cmd("tracks", "Services and playlists", listOf("tracks <service> <playlist>"), "a playlist's tracks"),
         Cmd("add", "Services and playlists", listOf("add <service> <playlist> <track>..."), "add tracks: \"Artist - Title\", a link from any service, or an id"),
         Cmd("remove", "Services and playlists", listOf("remove <service> <playlist> <track>..."), "remove tracks, named the same way"),
@@ -99,28 +123,28 @@ object Cli {
         Cmd("releases", "Services and playlists", listOf("releases <service> <playlist> [--days 7|30|90] [--upcoming]"), "the new albums, EPs and singles of a playlist's artists",
             "From Deezer and MusicBrainz, no account needed; each artist is asked once a day (a first search takes about a second per artist).\n" +
                 "--days: released in the last 7, 30 (default) or 90 days; --upcoming: also what is announced."),
-        Cmd("concerts", "Services and playlists", listOf("concerts <service> <playlist> [--country IT]"), "the upcoming concerts of a playlist's artists in a country (Ticketmaster, MusicBrainz)",
+        Cmd("concerts", "Services and playlists", listOf("concerts <service> <playlist> [--country IT] [--artists A,B]"), "the upcoming concerts of a playlist's artists in a country (Ticketmaster, MusicBrainz)",
             "Asked only now, never on a schedule; answers are kept a day. --country is a two-letter code (the last one used on the page, or the\n" +
                 "server's language's, without it). Ticketmaster needs a key: the server's own (Settings) or TICKETMASTER_API_KEY; without one, MusicBrainz's dates."),
-        Cmd("setlists", "Services and playlists", listOf("setlists <service> <playlist>"), "the latest setlist.fm setlists of a playlist's artists, with their songs",
+        Cmd("setlists", "Services and playlists", listOf("setlists <service> <playlist> [--artists A,B]"), "the latest setlist.fm setlists of a playlist's artists, with their songs",
             "Asked only now, never on a schedule; answers are kept a week. Needs a setlist.fm key: the server's own (Settings) or SETLISTFM_API_KEY.\n" +
                 "--json gives each setlist's tracks, ready for \"trackhop add\" or a File playlist (Tools › Setlists on the page saves one)."),
-        Cmd("records", "Services and playlists", listOf("records <service> <playlist> [--currency EUR] [--kind all|records|merch]"), "the records (CD, vinyl, cassette), merch and official shops of a playlist's artists (Discogs, MusicBrainz, their shops)",
+        Cmd("records", "Services and playlists", listOf("records <service> <playlist> [--currency EUR] [--kind all|records|merch] [--artists A,B]"), "the records (CD, vinyl, cassette), merch and official shops of a playlist's artists (Discogs, MusicBrainz, their shops)",
             "Asked only now; Discogs answers are kept six hours, MusicBrainz's links a week, the shops' merch a day. With the server's Discogs token (Settings)\n" +
                 "the first records of each artist also say how many copies are for sale and from what price. --kind records leaves the merch out, --kind merch\n" +
                 "skips Discogs. The artist's own Shopify shop and Bandcamp are read for both (their public product lists, robots.txt honoured): their records\n" +
                 "(vinyl, CD, cassette) go with the records, the rest is the merch. Plain links, no affiliate tags."),
         Cmd("wanted", "Services and playlists", listOf(
             "wanted [--format json|csv|m3u|text|lidarr] [--albums] [--all] [--sync S] [--service S] [--since 7d]",
-            "wanted --everywhere [--on SERVICE] [--format F] [--save-as NAME]",
+            "wanted --everywhere [--missing-on SERVICE] [--format F] [--save-as NAME]",
         ),
             "the tracks of your playlists missing on your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy), each once",
             "What your syncs to your own server could not find, without doubles. --format prints the list as a file (to save with > file);\n" +
                 "lidarr is Lidarr's Custom List (artists with a known MusicBrainz id). --albums groups by album, --all shows the ticked ones too,\n" +
                 "--sync and --service narrow it (a sync's name or id; a source or target service), --since 7d, 24h or 2026-11-01 only the newer ones.\n" +
-                "--everywhere lists the tracks not found by all your syncs, on any service; --on SERVICE only those missing there (spotify, tidal…).\n" +
+                "--everywhere lists the tracks not found by all your syncs, on any service; --missing-on SERVICE only those missing there (spotify, tidal…).\n" +
                 "--save-as NAME saves the list as a new File playlist instead of printing it, to sync it on to any other service."),
-        Cmd("export", "Services and playlists", listOf("export <service> <playlist> [<file>] [--format csv|m3u|xspf|jspf|wpl|zpl|txt|opml]"), "a playlist as a file (to stdout without <file>)"),
+        Cmd("export", "Services and playlists", listOf("export <service> <playlist> [<file>] [--format csv|m3u|xspf|jspf|wpl|zpl|txt|json|opml]"), "a playlist as a file (to stdout without <file>)"),
         Cmd("files", "Files and backups", listOf(
             "files",
             "files get <name> [<file>] [--format F]",
@@ -167,8 +191,8 @@ object Cli {
     )
 
     /** The switches with no value, and the options that take one (--name NAME or --name=NAME). */
-    private val FLAGS = setOf("json", "wait", "all", "albums", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals", "apply", "names", "upcoming", "encrypted", "replaces-device", "replace-sign-ins", "everywhere")
-    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency", "playlists", "on", "save-as") + CliV2.valued
+    private val FLAGS = setOf("artist-names-differ", "no-artist-names-differ", "no-same-album", "no-studio-only", "json", "wait", "all", "albums", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals", "apply", "names", "upcoming", "encrypted", "replaces-device", "replace-sign-ins", "same-album", "any-album", "studio-only", "any-version", "keep-order", "no-keep-order", "everywhere") + CliParity.flags
+    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency", "playlists", "way", "strictness", "explicit", "kind", "category", "missing-on", "save-as") + CliV2.valued + CliConn.valued + CliRadio.valued + CliParity.valued
     val OPTIONS: List<String> get() = (FLAGS + VALUED).sorted().map { "--$it" }
 
     /** The options a command was given: switches and values (a value given twice is a list: --set). */

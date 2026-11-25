@@ -1,0 +1,95 @@
+kicker: Trackhop · Strumenti
+choose: Scegli un file
+noscript: Questo strumento funziona nel tuo browser e ha bisogno di JavaScript. In ogni caso non viene inviato niente.
+get: Scarica Trackhop
+priv: "Letto solo in questa pagina: non viene caricato niente"
+formats: CSV, M3U, XSPF, JSPF, una playlist di Apple Music o iTunes, un elenco semplice e altri
+compare:
+  title: "Confrontare due playlist: cosa manca e dove"
+  description: "Trascina due file di playlist (CSV, M3U, XSPF, JSPF, iTunes XML) e vedi quali brani sono solo in una e quali in tutte e due. Nel tuo browser: non viene caricato niente. Gratis, senza account."
+  h1: Confronta due playlist
+  lead: Due file di playlist, e vedi cosa manca e dove. Utile dopo un trasferimento, o per vedere cosa hanno in comune due playlist.
+  a: Playlist A
+  b: Playlist B
+  drop: Trascina qui un file, o sceglilo
+  cta: Vuoi che i brani mancanti vengano aggiunti per te, e le due playlist restino allineate?
+  how_h: Come vengono abbinati i brani
+  how: "Con l'ISRC, il codice di una registrazione, quando ce l'hanno tutti e due i file; altrimenti con titolo e artisti, senza badare a maiuscole, accenti, \"feat.\" o \"Remastered\", e con una durata compatibile. Una versione live, acustica o remix è un altro brano, come nell'app Trackhop."
+  stays_h: Cosa succede ai tuoi file
+  stays: "Il tuo browser li legge in questa pagina. Non vengono inviati a Trackhop né a nessun altro; niente account, niente cookie e nessuna statistica su chi usa la pagina."
+  guide: 'Le tue playlist sono su un servizio e non in un file? <a href="/it/convert">Converti</a> legge le esportazioni della maggior parte dei servizi, e <a href="/guide/export-playlist-csv">l''app esporta qualsiasi playlist</a>.'
+duplicates:
+  title: "Trovare e togliere i brani doppi in un file di playlist"
+  description: "Trascina un file di playlist (CSV, M3U, XSPF, JSPF, iTunes XML): i brani presenti due volte vengono raggruppati, scegli quale copia tenere e riavrai il file pulito. Nel tuo browser, gratis, senza account."
+  h1: Trova e togli i doppioni
+  lead: Trascina un file di playlist. I brani che ci sono più di una volta vengono raggruppati, scegli quale copia tenere e riavrai il file pulito.
+  drop: Trascina qui un file di playlist, o sceglilo
+  cta: La tua playlist è su Spotify, YouTube Music, TIDAL o Deezer? L'app la pulisce direttamente lì.
+  what_h: Cosa conta come doppione
+  what:
+    - "<strong>La stessa registrazione</strong>: lo stesso ISRC, anche quando una copia viene dall'album e l'altra da un singolo o da una raccolta."
+    - "<strong>Lo stesso titolo e gli stessi artisti</strong>, senza badare a maiuscole, accenti, \"feat.\" o \"Remastered\", con una durata compatibile."
+    - "Mai <strong>un'altra versione</strong>: una versione live, acustica o remix resta un brano a sé."
+  stays_h: Cosa succede al tuo file
+  stays: "Il tuo browser lo legge in questa pagina e lì scrive il file pulito. In ogni gruppo resta la prima copia, a meno che tu non ne scelga un'altra, e l'ordine della playlist non cambia. Non viene inviato niente a Trackhop né a nessun altro."
+  guide: 'Passo per passo nell''app, direttamente sul servizio: <a href="/guide/rimuovere-duplicati-playlist">Rimuovere i brani doppi</a> · <a href="/guide/merge-playlists-remove-duplicates">Unire playlist e togliere i doppioni</a> (in inglese).'
+button:
+  title: "Un pulsante \"Ascolta su qualsiasi servizio\" per il tuo sito o blog"
+  description: "Incolla il link di un brano o di un album e ottieni un pulsante da mettere sul blog, nella newsletter o sul sito: chi legge apre il brano sul servizio che usa. HTML semplice, niente script, nessun tracciamento. Gratis."
+  h1: Un pulsante "Ascolta su qualsiasi servizio"
+  lead: Per il tuo blog, la newsletter o il sito. Chi legge apre il brano sul servizio che usa, qualunque sia.
+  label: Incolla il link di un brano o di un album (Spotify, Apple Music o Deezer)
+  go: Crea il pulsante
+  style: Stile
+  styles:
+    dark: Scuro
+    light: Chiaro
+    violet: Viola
+  text: Testo del pulsante
+  default_text: Ascolta su qualsiasi servizio
+  preview: Anteprima
+  code: Codice da incollare
+  copy: Copia il codice
+  copy_link: Copia solo il link
+  how_h: Cosa fa il pulsante
+  how: 'Un clic apre <a href="/it/link">Un link per ogni servizio</a> con il tuo brano: chi legge sceglie Spotify, Apple Music, YouTube Music, Deezer, TIDAL, Amazon Music o un altro servizio, e il brano si apre lì.'
+  stays_h: Nessun tracciamento
+  stays: "Il pulsante è HTML semplice: niente script, niente immagini né font da Trackhop, niente cookie. A Trackhop non arriva niente finché qualcuno non ci clicca, e allora solo il link del brano, per cercarlo. Trackhop non conta i clic."
+js:
+  lang: it
+  reading: "Lettura di {name}… {pct}%"
+  cancel: Annulla
+  choose: Scegli un file
+  err_incomplete: "{name} finisce prima del dovuto: il download o la copia si sono interrotti. Scarica di nuovo il file e trascinalo qui."
+  err_unreadable: "{name} non si può leggere: è danneggiato, o non è un tipo di file che questa pagina conosce."
+  err_empty: "Nessun brano trovato in {name}."
+  err_unsupported: "Questo browser non riesce ad aprire il file. Usa un browser aggiornato."
+  err_toobig: "Il file è troppo grande."
+  songs_n: ["{n} brano", "{n} brani"]
+  another: Scegli un altro file
+  download: Scarica
+  as: come
+  outputs:
+    csv: CSV
+    m3u8: M3U8
+    xspf: XSPF
+    jspf: JSPF
+    text: Testo
+  compare:
+    only_a: Solo in A
+    only_b: Solo in B
+    both: In tutte e due
+    nothing: Niente qui.
+    same: "Le due playlist hanno gli stessi brani."
+    both_note: "Mostrati come sono nella playlist A."
+  duplicates:
+    none: "Nessun doppione in {name}: ogni brano c'è una volta sola."
+    found: ["{n} brano c'è più di una volta.", "{n} brani ci sono più di una volta."]
+    keep: Tieni questa
+    why_isrc: stessa registrazione (ISRC)
+    why_same: stesso titolo e artisti
+    download: Scarica senza doppioni
+    position: "N. {n}"
+  button:
+    err_link: "Non è il link di un brano o di un album di Spotify, Apple Music o Deezer. Apri il brano nell'app o sul web, usa Condividi › Copia link e incollalo qui."
+    copied: Copiato

@@ -18,8 +18,8 @@ import org.junit.runner.RunWith
  * The poster drawn for the cases that strain its words (one, three and twelve artists, a name of
  * forty characters and more, short, long and Italian titles, with and without the QR code, with
  * the playlist's covers and with a cover drawn on the phone, a signed poster of a big playlist),
- * in the three layouts and both formats. Each picture is kept with the reports
- * (ui-out/failures/poster-renders) for review.
+ * in the three layouts and both formats; the compatibility card, printed the same way, too. Each
+ * picture is kept with the reports (ui-out/failures/poster-renders, compat-renders) for review.
  */
 @RunWith(AndroidJUnit4::class)
 class PosterRendersTest {
@@ -91,6 +91,44 @@ class PosterRendersTest {
         runCatching {
             shell("mkdir -p /sdcard/ui-test-failures/poster-renders")
             shell("cp -r ${dir.absolutePath}/. /sdcard/ui-test-failures/poster-renders/")
+        }
+    }
+
+    /**
+     * The compatibility card, printed as the poster: in the three layouts and both formats, with
+     * nothing in common, with a few tracks (some covers missing) and with many, with and without
+     * the people's names (one of them blank, long ones), and with long playlist names.
+     */
+    @Test
+    fun compatibilityCardsAreDrawnForEveryLayoutAndFormat() {
+        val dir = File(app.getExternalFilesDir(null), "compat-renders").apply { deleteRecursively(); mkdirs() }
+        val tracks = songs.mapIndexed { i, (t, a) -> com.xlollx.songport.model.Track("t$i", t, listOf(a)) }
+        val colours = listOf(0xFF7A1F3D, 0xFF1F4E7A, 0xFF2E7A1F, 0xFF7A5A1F, 0xFF5B3FD9)
+        fun result(common: Int, artists: List<String>, score: Int) = com.xlollx.songport.sync.Compatibility.Result(
+            40, 60, tracks.take(common).map { com.xlollx.songport.sync.Compatibility.Common(it, it) }, artists, emptyList(), emptyList(), score,
+        )
+        // A cover for every track but the second: a missing one is a tile, never an error.
+        val covers = tracks.take(5).mapIndexed { i, t -> t.id to if (i == 1) null else tile(colours[i].toInt()) }.toMap()
+        val cases = listOf(
+            "nothing_in_common" to Cards.CompatibilityCard("Brani preferiti", "Workout", result(0, emptyList(), 0), emptyMap()),
+            "few_in_common" to Cards.CompatibilityCard("Friday Night Rock", "Workout", result(3, twelve.take(2), 42), covers),
+            "many_in_common_named" to Cards.CompatibilityCard("Songs for a very long night drive", "Canzoni da ascoltare in macchina d'estate", result(9, twelve, 100), covers, "Giulia", "Marco"),
+            "one_name_long_names" to Cards.CompatibilityCard("Liked songs", "Dark Trap/Phonk/Aesthetic rap", result(5, twelve.take(5), 77), covers, "Maria Fernanda Albuquerque de Souza Lima", ""),
+        )
+        for ((name, base) in cases) for (l in PosterPalette.Layout.entries) for (f in Cards.Format.entries) {
+            val card = base.with(l, base.personA, base.personB)
+            val bmp = Cards.compatibility(app, card, f)
+            assertTrue(bmp.width == f.width && bmp.height == f.height)
+            File(dir, "${name}_${l.name.lowercase()}_${f.name.lowercase()}.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        }
+        // The same playlists and names in another layout make another picture.
+        val few = cases[1].second
+        assertTrue(!Cards.compatibility(app, few.with(PosterPalette.Layout.CLASSIC, "", ""), Cards.Format.SQUARE).sameAs(Cards.compatibility(app, few.with(PosterPalette.Layout.BOLD, "", ""), Cards.Format.SQUARE)))
+        // The people's names change the picture; without them it is the playlists' card.
+        assertTrue(!Cards.compatibility(app, few.with(PosterPalette.Layout.CLASSIC, "", ""), Cards.Format.SQUARE).sameAs(Cards.compatibility(app, few.with(PosterPalette.Layout.CLASSIC, "Anna", ""), Cards.Format.SQUARE)))
+        runCatching {
+            shell("mkdir -p /sdcard/ui-test-failures/compat-renders")
+            shell("cp -r ${dir.absolutePath}/. /sdcard/ui-test-failures/compat-renders/")
         }
     }
 

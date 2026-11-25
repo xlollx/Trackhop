@@ -94,7 +94,7 @@ fun ProviderLabel(providerId: String, detail: String? = null, modifier: Modifier
     val p = Providers.byId(providerId)
     val ctx = LocalContext.current
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-        ProviderBadge(p, 20.dp)
+        ProviderBadge(p, 20.dp, accountRing(p?.id))
         Spacer(Modifier.width(8.dp))
         Text(
             text = buildString {
@@ -115,9 +115,9 @@ fun ProviderLabel(providerId: String, detail: String? = null, modifier: Modifier
 @Composable
 fun ProviderDot(p: MusicProvider?, sizeDp: Int = 18) = ProviderBadge(p, sizeDp.dp)
 
-/** The service's mark ([ServiceLogo]): its glyph on its colour, read by TalkBack as its name. */
+/** The service's mark ([ServiceLogo]): its glyph on its colour, read by TalkBack as its name; [ring]: the account's colour round it. */
 @Composable
-fun ProviderBadge(p: MusicProvider?, size: Dp = 36.dp) = ServiceLogo(p, size)
+fun ProviderBadge(p: MusicProvider?, size: Dp = 36.dp, ring: androidx.compose.ui.graphics.Color? = null) = ServiceLogo(p, size, ring = ring)
 
 // ---------------------------------------------------------------------------------------------
 // Blocchi di interfaccia condivisi
@@ -279,7 +279,7 @@ fun SwitchRow(
             if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         // A "?" sits between the words and the switch: its own target, outside the toggle.
-        if (help != null) help() else Spacer(Modifier.width(16.dp))
+        if (help != null && LocalHelpButtons.current) help() else Spacer(Modifier.width(16.dp))
         // The row owns the toggle; the switch only shows the state.
         Switch(checked = checked, onCheckedChange = null, enabled = enabled)
     }
@@ -610,38 +610,6 @@ fun playlistDisplayName(playlistId: String?, name: String, provider: String? = n
     else -> name
 }
 
-/**
- * The top bar's arrow when a newer Trackhop exists (update/AppUpdates.kt, one per build): GitHub's
- * latest release for the GitHub build, Google Play's for the Play build. A tap gets it from where
- * this build came from: the APK from GitHub, or Trackhop's page in the Play Store. Checked when the
- * bar shows and each time the app comes back (the GitHub check itself goes out at most twice a day).
- *
- * A round button, never wider than its 48dp: it is always in the bar while there is an update, at any
- * width and font size, beside the cup; the search field is what gives way. The dot says "new" at a glance.
- */
-@Composable
-fun UpdateButton() {
-    val ctx = androidx.compose.ui.platform.LocalContext.current
-    val available by com.xlollx.songport.update.UpdateState.available.collectAsState()
-    val scope = androidx.compose.runtime.rememberCoroutineScope()
-    androidx.lifecycle.compose.LifecycleResumeEffect(Unit) {
-        val check = scope.launch { com.xlollx.songport.update.AppUpdates.check(ctx) }
-        onPauseOrDispose { check.cancel() }
-    }
-    if (available == null) return
-    val desc = androidx.compose.ui.res.stringResource(com.xlollx.songport.R.string.update_pill_desc)
-    BarRoundButton(
-        desc, MaterialTheme.colorScheme.primaryContainer, Modifier.testTag(BAR_UPDATE_TAG),
-        onClick = { com.xlollx.songport.update.AppUpdates.open(ctx) },
-    ) {
-        Icon(androidx.compose.material.icons.Icons.Filled.Upgrade, null, Modifier.size(22.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
-        // The dot, ringed in the bar's colour so it reads on the button's edge.
-        Box(
-            Modifier.align(Alignment.TopEnd).offset(x = 2.dp, y = (-2).dp).size(12.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface)
-                .padding(2.dp).clip(CircleShape).background(MaterialTheme.colorScheme.error),
-        )
-    }
-}
 
 /**
  * The warm cup in the Syncs bar: "Support Trackhop" (Ko-fi or GitHub Sponsors, in a sheet), as on the
@@ -667,7 +635,7 @@ const val BAR_SUPPORT_TAG = "bar-support"
 
 /** A round button of the Syncs bar: a 40dp disc of [container] in a 48dp target, named [label] for TalkBack. */
 @Composable
-private fun BarRoundButton(label: String, container: Color, modifier: Modifier = Modifier, onClick: () -> Unit, content: @Composable androidx.compose.foundation.layout.BoxScope.() -> Unit) {
+internal fun BarRoundButton(label: String, container: Color, modifier: Modifier = Modifier, onClick: () -> Unit, content: @Composable androidx.compose.foundation.layout.BoxScope.() -> Unit) {
     Box(
         modifier.size(48.dp).clip(CircleShape)
             .clickable(role = Role.Button, onClickLabel = label, onClick = onClick)

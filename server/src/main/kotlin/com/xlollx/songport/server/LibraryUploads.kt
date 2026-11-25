@@ -137,21 +137,24 @@ internal fun Web.libraryPage(r: Web.Req) {
     val lib = p.library
     val sb = StringBuilder()
     sb.append(notice(r)).append("""<h1>${h(p.fileName)}</h1>
-<p class="muted">${"%,d".format(lib.trackCount)} tracks · ${lib.choices.size} playlists. Tick the ones to add: each becomes a file of its own.</p>
+<p class="muted">${"%,d".format(lib.trackCount)} tracks · ${lib.choices.size} playlists. Tick the ones to add: each becomes a file of its own.
+${if (lib.choices.size > 1) """ <a href="/files/library?t=${q(token)}&amp;sel=all">Select all</a> · <a href="/files/library?t=${q(token)}&amp;sel=none">None</a>""" else ""}</p>
 <form method="post" action="/files/library" class="card"><input type="hidden" name="t" value="${h(token)}">""")
     fun row(i: Int, pl: ItunesLibrary.Playlist, on: Boolean) =
         """<label class="check"><input type="checkbox" name="p" value="$i"${if (on) " checked" else ""}> ${h(pl.name)} <span class="muted">${"%,d".format(pl.size)}${if (pl.kind == ItunesLibrary.Kind.SMART) " · smart" else ""}</span></label>"""
     val choices = lib.choices
+    // Select all / None (links): every playlist ticked, the smart ones too, or none; otherwise your own ones.
+    val sel = r.query["sel"]
     val own = choices.withIndex().filter { it.value.kind == ItunesLibrary.Kind.USER }
     val smart = choices.withIndex().filter { it.value.kind == ItunesLibrary.Kind.SMART }
     var folder: String? = null
     for ((i, pl) in own) {
         if (pl.folder != folder) { folder = pl.folder; if (folder != null) sb.append("<p class=\"muted\"><b>Folder · ${h(folder)}</b></p>") }
-        sb.append(row(i, pl, true))
+        sb.append(row(i, pl, sel != "none"))
     }
     if (smart.isNotEmpty()) {
         sb.append("<p class=\"muted\"><b>Smart</b></p>")
-        smart.forEach { (i, pl) -> sb.append(row(i, pl, false)) }
+        smart.forEach { (i, pl) -> sb.append(row(i, pl, sel == "all")) }
     }
     sb.append("""<p class="muted"><b>All at once</b></p>
 <label class="check"><input type="checkbox" name="whole" value="1"> The whole library as one file <span class="muted">${"%,d".format(lib.trackCount)}</span></label>

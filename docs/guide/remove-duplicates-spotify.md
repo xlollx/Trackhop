@@ -39,6 +39,12 @@ kept and the others are removed, so the playlist's order does not change.
 Nothing is removed before you tap that button, and only playlists you own are listed (a playlist
 someone else made cannot be edited by any app).
 
+## Only have a file?
+
+[Find and remove duplicates](/duplicates) does the same in your browser, from a CSV, M3U, XSPF
+or JSPF playlist or an iTunes playlist, without connecting any service: you choose which copy stays
+and get the clean file back. Nothing is uploaded.
+
 ## YouTube Music, TIDAL, Deezer, Amazon Music and your own server
 
 The same tool works on every service that lets apps remove tracks from a playlist: Spotify, YouTube

@@ -8,12 +8,15 @@ import com.xlollx.songport.model.PlaylistRef
 import com.xlollx.songport.model.Schedule
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.providers.CredentialsProvider
+import com.xlollx.songport.providers.DeezerProvider
 import com.xlollx.songport.providers.JellyfinProvider
 import com.xlollx.songport.providers.LastFmProvider
 import com.xlollx.songport.providers.LocalFilesProvider
 import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.OAuthProvider
 import com.xlollx.songport.providers.Providers
+import com.xlollx.songport.providers.YouTubeProvider
+import com.xlollx.songport.providers.RatingWriter
 import com.xlollx.songport.server.Html.h
 import com.xlollx.songport.sync.JobConflicts
 import com.xlollx.songport.sync.PlaylistLinks
@@ -173,6 +176,8 @@ class Web(
         val type = ex.requestHeaders.getFirst("Content-Type").orEmpty()
         // A playlist file goes to disk as it arrives, never whole into memory (#67): a library can be big.
         if (method == "POST" && path == listOf("files") && type.startsWith("multipart/form-data")) return uploadToDisk(ex, type)
+        // A listening history export: big too (Tools › All-time stats).
+        if (method == "POST" && path == listOf("tools", "lifetime") && type.startsWith("multipart/form-data")) return lifetimeUpload(ex, type)
         val bytes = if (method == "POST") ex.requestBody.readNBytes(MAX_BODY + 1) else ByteArray(0)
         if (bytes.size > MAX_BODY) return send(ex, 413, page("Too large", "<p>Files up to ${MAX_BODY / 1_000_000} MB.</p>"))
         val parts = if (type.startsWith("multipart/form-data")) Multipart.parse(type, bytes) else null
@@ -191,6 +196,7 @@ class Web(
             // Before files/<name>: the playlist files all end in .csv, so "try" is never one.
             path == listOf("files", "try") && method == "POST" -> tryPatterns(r)
             path == listOf("files", "bulk") && method == "POST" -> bulkFiles(r)
+            path == listOf("files", "text") && method == "POST" -> pasteText(r)
             path == listOf("files", "library") && method == "GET" -> libraryPage(r)
             path == listOf("files", "library") && method == "POST" -> libraryAdd(r)
             path.size == 2 && path[0] == "files" && method == "GET" -> download(r, path[1])
@@ -199,8 +205,13 @@ class Web(
             path[0] == "tools" -> tools(r, path.drop(1))
             path == listOf("settings") -> settingsPage(r)
             path == listOf("settings", "notifications") -> notificationsPage(r)
+            path == listOf("notifications") -> notificationHistoryPage(r)
+            path == listOf("settings", "schedules") -> schedulesPage(r)
+            path == listOf("tofix") -> toFixPage(r)
             path[0] == "playlists" -> playlists(r, path.drop(1))
             path[0] == "syncs" -> syncs(r, path.drop(1))
+            // Multi syncs: one source, several targets (MultiWeb.kt).
+            path[0] == "multi" -> multiPages(r, path.drop(1))
             else -> send(ex, 404, errorPage(404))
         }
     }
@@ -282,7 +293,8 @@ class Web(
     /** A service's mark, as the app shows it. */
     internal fun logo(id: String, size: Int = 32): String {
         val p = Providers.byId(id)
-        return Html.logo(p?.serviceId ?: id, p?.brandColor, p?.label(env) ?: id, size)
+        val ring = com.xlollx.songport.data.AccountColors.hex(env.store.data.settings.connectorColors[p?.id ?: id])
+        return Html.logo(p?.serviceId ?: id, p?.brandColor, p?.label(env) ?: id, size, ring)
     }
 
     private fun quit(r: Req, stop: () -> Unit) {
@@ -305,9 +317,11 @@ class Web(
         val connected = Providers.connectors().filter { it.isConnected(env) || !it.requiresAuth }
         val body = StringBuilder(notice(r))
         val lastRun = jobs.maxOfOrNull { it.lastRunEpoch } ?: 0
+        // As the app counts them: a multi sync is one.
+        val listedCount = com.xlollx.songport.shared.Nway.listedSyncs(env.store.data).size
         body.append(
-            """<div class="hero"><h2>Your playlists, everywhere</h2><p class="muted">${jobs.size} ${if (jobs.size == 1) "sync" else "syncs"} · ${connected.size} ${if (connected.size == 1) "service" else "services"}${if (lastRun > 0) " · last sync ${Html.date(lastRun)}" else ""}</p>
-<div class="actions">${if (jobs.any { it.enabled }) Html.postButton("/syncs/all", if (running.isNotEmpty()) "Syncing…" else "Sync all now") else ""} <a class="hero-link" href="/tools/stats">Your numbers ›</a></div></div>""",
+            """<div class="hero"><h2>Your playlists, everywhere</h2><p class="muted">${listedCount} ${if (listedCount == 1) "sync" else "syncs"} · ${connected.size} ${if (connected.size == 1) "service" else "services"}${if (lastRun > 0) " · last sync ${Html.date(lastRun)}" else ""}</p>
+<div class="actions">${if (jobs.any { it.enabled }) Html.postButton("/syncs/all", if (running.isNotEmpty()) "Syncing…" else "Sync all now") else ""} <a class="hero-link" href="/tools/stats">Your numbers ›</a>${com.xlollx.songport.sync.ToFix.count(env.store.data).takeIf { it > 0 }?.let { """ <a class="hero-link" href="/tofix">To fix ($it) ›</a>""" } ?: ""}</div></div>""",
         )
         if (connected.size < 1) {
             body.append("""<div class="card">Connect a service first: <a href="/connectors">Services</a>.</div>""")
@@ -323,9 +337,19 @@ class Web(
         // the favourites, the labels and the tags. The starred syncs come first.
         val filter = homeFilter(r.query).pruned(jobs)
         body.append(finder(jobs, filter))
-        val shown = Labels.favoritesFirst(filter.select(jobs, env.store.data.reports, running.keys, env.store.data.settings.labels) { label(it) })
+        // A multi sync is one card, standing on its source's sync; its other syncs are behind it (as the app's list).
+        val anchors = com.xlollx.songport.shared.Nway.anchors(env.store.data)
+        val listedIds = com.xlollx.songport.shared.Nway.listedSyncs(env.store.data).mapTo(HashSet()) { it.id }
+        val listed = jobs.filter { it.id in listedIds }
+        val shown = Labels.favoritesFirst(filter.select(listed, env.store.data.reports, running.keys, env.store.data.settings.labels) { label(it) })
+        // "Up to date", checked in the background: the next load (or the refresh while syncing) shows it.
+        FreshnessServer.refresh(env, shown)
         if (jobs.isNotEmpty() && shown.isEmpty()) body.append("""<p class="muted">No sync matches. <a href="/">Show them all</a></p>""")
-        for (job in shown) body.append(jobCard(job, running.containsKey(job.id)))
+        // Several syncs at once: "Select" ticks them (plain links and a form, no JavaScript needed).
+        val selecting = r.query["select"] == "1"
+        if (shown.isNotEmpty()) body.append(bulkSyncsBar(homeLink(filter), shown.size, selecting))
+        val tickAll = selecting && r.query["all"] == "1"
+        for (job in shown) body.append(anchors[job.id]?.let { multiCard(it) } ?: jobCard(job, running.containsKey(job.id), if (selecting) bulkSyncTick(job, tickAll) else ""))
         body.append("</div>").append(side).append("</div>")
         send(r.ex, 200, page("Syncs", body.toString(), refresh = if (running.isNotEmpty()) 5 else null, wide = side.isNotEmpty()))
     }
@@ -394,7 +418,7 @@ class Web(
         return if (used.isEmpty()) "" else " In use: ${h(used)}."
     }
 
-    private fun jobCard(job: SyncJob, isRunning: Boolean): String {
+    private fun jobCard(job: SyncJob, isRunning: Boolean, tick: String = ""): String {
         val last = job.lastReportId?.let { env.store.report(it) }
         val status = when {
             isRunning -> progressText(job.id)
@@ -402,7 +426,7 @@ class Web(
             // The connection's failure in plain words, calmly: it runs again by itself.
             last.error != null && last.netError != null -> """<span class="net">☁︎ ${h(last.error)}</span>"""
             last.error != null -> """<span class="err">${h(last.error)}</span>"""
-            else -> """<span class="ok">+${last.added} −${last.removed}</span>""" +
+            else -> """<span class="ok">+${last.added} −${last.removed}</span>""" + ratingsSet(last.ratingsSet) + FreshnessServer.badge(env, job) +
                 (if (last.unmatched.isNotEmpty()) """ <span class="muted">· ${last.unmatched.size} not found</span>""" else "") +
                 (if (last.sourceEmpty && job.radio == null) """ <span class="err">· the source is empty</span>""" else "") +
                 (if (last.hasReview()) """ · <a href="/syncs/${q(job.id)}/review/${q(last.id)}">Review</a>""" else "") +
@@ -424,8 +448,8 @@ class Web(
             .joinToString("") { """ <span class="badge">${h(it)}</span>""" }
         val moves = (if (at > 0) " " + Html.postButton("/syncs/${q(job.id)}/move", "↑", "secondary", mapOf("to" to "up")) else "") +
             (if (at in 0 until all.size - 1) " " + Html.postButton("/syncs/${q(job.id)}/move", "↓", "secondary", mapOf("to" to "down")) else "")
-        return """<div class="card" id="sync-${h(job.id)}"${Html.jobStyle(job.color)}><div class="row"><div class="who"><span class="pair">${logo(job.source.provider, 36)}${logo(job.target.provider, 36)}</span><div><a href="/syncs/${q(job.id)}">${if (radio != null) "$RADIO_ICON " else ""}${if (job.shazam) "$SHAZAM_ICON " else ""}${if (job.aiPrompt != null) "$AI_ICON " else ""}${if (job.favorite) """<span title="Favourite" aria-label="Favourite">★</span> """ else ""}<b>${h(job.name)}</b></a><br>
-<span class="muted">${if (radio != null) "Radio: ${h(radio.station)}" else "${h(label(job.source.provider))}: ${h(job.source.playlistName)}"} → ${h(label(job.target.provider))}: ${h(job.target.playlistName.ifBlank { "new playlist" })}</span></div></div></div>
+        return """<div class="card" id="sync-${h(job.id)}"${Html.jobStyle(job.color)}><div class="row"><div class="who">$tick<span class="pair">${logo(job.via ?: job.source.provider, 36)}${logo(job.target.provider, 36)}</span><div><a href="/syncs/${q(job.id)}">${if (radio != null) "$RADIO_ICON " else ""}${if (job.shazam) "$SHAZAM_ICON " else ""}${if (job.aiPrompt != null) "$AI_ICON " else ""}${if (job.favorite) """<span title="Favourite" aria-label="Favourite">★</span> """ else ""}<b>${h(job.name)}</b></a><br>
+<span class="muted">${if (radio != null) "${h(job.via?.let { label(it) }?.takeIf { it != radio.station } ?: "Radio")}: ${h(radio.station)}" else "${h(label(job.source.provider))}: ${h(job.source.playlistName)}"} → ${h(label(job.target.provider))}: ${h(job.target.playlistName.ifBlank { "new playlist" })}</span></div></div></div>
 <div>
 <span class="badge">${h(if (radio != null) com.xlollx.songport.sync.RadioTitles.describe(radio) else com.xlollx.songport.sync.Timing.describe(job))}</span>${if (job.archive) " <span class=\"badge\">keeps every track</span>" else if (job.mirrorRemovals) " <span class=\"badge\">mirror</span>" else ""}${if (job.linkedJobId?.let { env.store.job(it) } != null) " <span class=\"badge\">two-way${if (job.twoWayRemovals) ", removals too" else ""}</span>" else ""}${if (!job.enabled) " <span class=\"badge\">${job.scheduledOn?.let { "off, scheduled on ${h(it)}" } ?: "off"}</span>" else ""}$groups
 <span class="muted">Last run ${Html.date(job.lastRunEpoch)}$next</span>$onAir
@@ -502,6 +526,21 @@ $removals"""
 $removals"""
     }
 
+    /**
+     * "Copy star ratings" on a sync's form, where the sync offers it ([RatingWriter.offered]: a
+     * playlist file towards a server that takes ratings); nothing otherwise.
+     */
+    internal fun ratingsField(job: SyncJob?, src: MusicProvider?, dst: MusicProvider?): String =
+        if (!RatingWriter.offered(src, dst)) "" else """
+<input type="hidden" name="ratings" value="1"><label class="check"><input type="checkbox" name="copyRatings"${if (job?.copyRatings == true) " checked" else ""}> Copy star ratings <span class="muted">(songs and albums rated in iTunes)</span></label>"""
+
+    /** [job] with "Copy star ratings" as its form says, when the form offered it ([ratingsField]). */
+    internal fun withRatings(job: SyncJob, r: Req): SyncJob =
+        if (r.form["ratings"] == "1") job.copy(copyRatings = r.form["copyRatings"] == "on") else job
+
+    /** A run's ratings set, after its added and removed figures; nothing when none. */
+    internal fun ratingsSet(n: Int): String = if (n > 0) """ <span class="muted">· ★ $n ${if (n == 1) "rating" else "ratings"} set</span>""" else ""
+
     /** A sync with the choice of [changesFields] read from its form; the older "mirror" and "archive" checkboxes still count. */
     internal fun withChanges(job: SyncJob, r: Req): SyncJob {
         val mode = r.form["changes"] ?: when { r.form["archive"] == "on" -> "archive"; r.form["mirror"] == "on" -> "mirror"; else -> "add" }
@@ -531,11 +570,21 @@ $removals"""
     private fun connectors(r: Req, rest: List<String>) {
         val store = env.store
         if (rest.isEmpty()) return connectorList(r)
+        // "Which service?": the chooser, or one service's ways in.
+        if (rest == listOf("add") && r.method == "GET") return serviceChooser(r)
+        // A radio station (one service per station) is added with its station (RadioWeb.kt).
+        if (rest == listOf("station")) return radioConnectorAdd(r)
         if (rest == listOf("add") && r.method == "POST") {
             val service = r.form["service"].orEmpty()
             // "jellyfin@new" (or another=on): one more account of a service already on the list.
             val another = service.endsWith(Accounts.ANOTHER) || r.form["another"] == "on"
             val serviceId = service.removeSuffix(Accounts.ANOTHER)
+            // A radio: its station first. Shazam: one, added at once.
+            if (serviceId == com.xlollx.songport.sync.RadioConnectors.SERVICE) return redirect(r.ex, "/connectors/station")
+            if (serviceId == com.xlollx.songport.sync.RadioConnectors.SHAZAM) {
+                store.updateSettings { com.xlollx.songport.sync.RadioConnectors.addShazam(it).copy(connectorsInit = true) }
+                return redirect(r.ex, "/connectors/shazam")
+            }
             if (!another) {
                 // As it always was: the service's main connector, added once.
                 if (Providers.byId(service) != null && service !in store.data.settings.connectors) {
@@ -557,6 +606,8 @@ $removals"""
         if (rest.size == 3 && rest[1] == "quickconnect" && rest[2] == "poll") return quickConnectPoll(r, provider)
         when (rest.getOrNull(1)) {
             null -> connectorPage(r, provider)
+            // Test the connection (ConnectionTestWeb.kt): three calls, read only.
+            "test" -> if (!provider.requiresAuth || provider.isConnected(env)) connectionTestPage(r, provider) else redirect(r.ex, back)
             "settings" -> {
                 val id = provider.serviceId
                 store.updateSettings { s ->
@@ -573,14 +624,18 @@ $removals"""
                     val result = runCatching { runBlocking { provider.connect(env, r.form["cookies"].orEmpty(), r.form["userAgent"]) } }
                     result.exceptionOrNull()?.let { return redirect(r.ex, "$back?err=${q(it.message ?: it.javaClass.simpleName)}") }
                     env.log("auth", "${provider.id} connected (pasted session)")
-                    return redirect(r.ex, "$back?ok=${q("Connected.")}")
+                    // A Deezer Family account: the profile is chosen on the page it lands on (#82).
+                    val family = provider is DeezerWebServerProvider && provider.isFamily(env) && runCatching { runBlocking { provider.profiles(env) }.none { it.selected && !it.holder } }.getOrDefault(false)
+                    return redirect(r.ex, "$back?ok=${q(if (family) "Connected. This is a Deezer Family account: choose the profile below." else "Connected.")}")
                 }
                 if (provider is CredentialsProvider) {
                     // The API key form (OpenSubsonic) posts mode=apikey: the key, no user or password.
                     val byKey = r.form["mode"] == "apikey" && provider.loginForm.offersApiKey
                     val result = runCatching {
                         runBlocking {
-                            if (byKey) provider.loginWithApiKey(env, r.form["url"].orEmpty(), r.form["apiKey"].orEmpty())
+                            if (provider.loginForm.needsUrl && provider.offersSecondAddress)
+                                provider.loginWithAddresses(env, r.form["url"].orEmpty(), r.form["url2"], r.form["user"].orEmpty(), r.form["secret"].orEmpty(), apiKey = if (byKey) r.form["apiKey"].orEmpty() else null)
+                            else if (byKey) provider.loginWithApiKey(env, r.form["url"].orEmpty(), r.form["apiKey"].orEmpty())
                             else provider.login(env, r.form["url"].orEmpty(), r.form["user"].orEmpty(), r.form["secret"].orEmpty())
                         }
                     }
@@ -593,16 +648,42 @@ $removals"""
                 redirect(r.ex, url)
             }
             "disconnect" -> { provider.disconnect(env); redirect(r.ex, "$back?ok=${q("Disconnected.")}") }
+            // A personal server's second address, set or taken away on a connected account (2.2).
+            "address" -> {
+                val c = provider as? CredentialsProvider
+                if (c == null || !c.offersSecondAddress || !c.isConnected(env)) return redirect(r.ex, "$back?err=${q("Only a connected personal server has a second address.")}")
+                c.setAwayAddress(env, r.form["url2"])
+                redirect(r.ex, "$back?ok=${q("Saved.")}")
+            }
             // YouTube Music: the channel the account acts as (its own, or one of its brand accounts).
             "channel" -> {
                 val ytm = provider as? YtmServerProvider ?: return send(r.ex, 404, errorPage(404))
-                val result = runCatching { runBlocking { ytm.setChannel(env, r.form["channel"].orEmpty(), r.form["name"]) } }
+                val id = r.form["channel"].orEmpty().trim()
+                // The profile's name from Google's list, so the form needs no script to send it.
+                val name = r.form["name"]?.takeIf { it.isNotBlank() }
+                    ?: runCatching { runBlocking { ytm.channels(env) } }.getOrNull()?.firstOrNull { it.id == id }?.name
+                ytmProfiles.remove(ytm.id)
+                val result = runCatching { runBlocking { ytm.setChannel(env, id, name) } }
                 result.exceptionOrNull()?.let { return redirect(r.ex, "$back?err=${q(it.message ?: it.javaClass.simpleName)}") }
                 redirect(r.ex, "$back?ok=${q("Saved.")}")
             }
+            // Deezer (web): the Family profile the account acts as (#82).
+            "profile" -> {
+                val dz = provider as? DeezerWebServerProvider ?: return send(r.ex, 404, errorPage(404))
+                val result = runCatching { runBlocking { dz.setProfile(env, r.form["profile"].orEmpty()) } }
+                result.exceptionOrNull()?.let { return redirect(r.ex, "$back?err=${q(it.message ?: it.javaClass.simpleName)}") }
+                redirect(r.ex, "$back?ok=${q("Saved.")}")
+            }
+            // YouTube (Google API): the note on an empty channel, kept as it is.
+            "youtube-empty-keep" -> { youtubeEmpty[provider.id + "\n" + provider.accountName(env).orEmpty()] = false; redirect(r.ex, back) }
             "quickconnect" -> quickConnectStart(r, provider)
             "rename" -> {
                 Accounts.rename(store, provider, r.form["name"].orEmpty())
+                redirect(r.ex, "$back?ok=${q("Saved.")}")
+            }
+            // The ring round the account's logo (AccountsWeb.accountCard): one of the seven colours, or none.
+            "color" -> {
+                if (!Accounts.setColor(store, provider, r.form["color"])) return redirect(r.ex, "$back?err=${q("Unknown colour.")}")
                 redirect(r.ex, "$back?ok=${q("Saved.")}")
             }
             "remove" -> {
@@ -617,7 +698,13 @@ $removals"""
     private fun connectorList(r: Req) {
         val added = Providers.connectors()
         val body = StringBuilder(notice(r))
-        for (p in added) {
+        // Find and filter as the app's Accounts: a search and one chip at a time (ServicesFilter).
+        val chip = ServicesFilter.chip(r.query["kind"]) ?: ServicesFilter.Chip.ALL
+        val find = r.query["q"].orEmpty()
+        body.append(servicesFinder(find, chip, added.size))
+        val shown = ServicesFilter.shown(env, added, find, chip)
+        if (added.isNotEmpty() && shown.isEmpty()) body.append("""<p class="muted">No service matches. <a href="/connectors">Show them all</a></p>""")
+        for (p in shown) {
             val state = when {
                 !p.requiresAuth -> """<span class="ok">ready</span>"""
                 p.isConnected(env) -> """<span class="ok">connected</span>""" + (p.accountName(env)?.let { " · " + h(it) } ?: "")
@@ -626,24 +713,15 @@ $removals"""
             }
             body.append("""<div class="card"><div class="who">${logo(p.id, 40)}<div><a href="/connectors/${q(p.id)}"><b>${h(p.label(env))}</b></a>${unofficialBadges(p)}<br>$state</div></div></div>""")
         }
-        // A link-only source (SoundCloud) is not added: it is offered when a sync is created.
-        val available = Providers.services().filter { s -> !s.linkOnly && added.none { it.id == s.id } }
-        // A service already on the list that can hold one more account: Jellyfin at home and at a friend's.
-        val more = Providers.services().filter { s -> Accounts.allowsAnother(s) && added.any { it.serviceId == s.serviceId } && s !in available }
-        if (available.isNotEmpty() || more.isNotEmpty()) {
-            body.append("""<h2>Add a service</h2><form method="post" action="/connectors/add" class="card"><select name="service">""")
-            available.forEach { body.append("""<option value="${h(it.id)}">${h(it.displayName)}${if (it is CookieConnector) (if (it.alpha) " (unofficial, alpha)" else if (it.beta) " (unofficial, beta)" else " (unofficial)") else ""}</option>""") }
-            more.forEach { body.append("""<option value="${h(it.serviceId + Accounts.ANOTHER)}">${h(it.displayName)}: ${h(env.text("account_add"))}</option>""") }
-            body.append("""</select><label>${h(env.text("connector_name_label"))} (optional)</label><input type="text" name="name" maxlength="80" autocomplete="off">""")
-            body.append("""<p><button>Add</button></p></form>""")
-        }
+        // Adding one: "Which service?", with search and categories, as in the app (ServiceChooserWeb).
+        body.append("""<p><a class="button" href="/connectors/add">${h(env.text("connector_add"))}</a></p>""")
         send(r.ex, 200, page("Services", body.toString()))
     }
 
     /** The web connectors are not an official API: said next to their name wherever they are listed. */
     private fun unofficialBadges(p: MusicProvider): String = when {
         p is CookieConnector -> """ <span class="badge">unofficial</span>""" + if (p.alpha) """ <span class="alpha">alpha</span>""" else ""
-        p.linkOnly -> """ <span class="badge">unofficial</span>"""
+        p.linkOnly && p !is com.xlollx.songport.providers.PlaylistUrlProvider -> """ <span class="badge">unofficial</span>"""
         else -> ""
     }
 
@@ -657,18 +735,25 @@ $removals"""
             body.append("</div>")
         }
         when {
-            p is LocalFilesProvider -> body.append(fileList(r.query["sample"].orEmpty()))
+            p is LocalFilesProvider -> body.append(fileList(r.query["sample"].orEmpty(), all = r.query["all"] == "1"))
+            p is com.xlollx.songport.providers.RadioProvider -> body.append(radioConnectorCard(p))
+            p === com.xlollx.songport.providers.ShazamProvider -> body.append("""<div class="card"><p>$SHAZAM_ICON ${com.xlollx.songport.sync.RadioConnectors.syncsOf(env.store.data.jobs, p.id).size} sync(s) from Shazam.</p><p><a class="button" href="/syncs/shazam">$SHAZAM_ICON New sync from Shazam</a></p></div>""")
             !p.requiresAuth -> Unit
-            p.isConnected(env) -> body.append(
-                """<div class="card row"><div><span class="ok">Connected</span>${p.accountName(env)?.let { " as <b>" + h(it) + "</b>" } ?: ""}</div>""" +
-                    Html.postButton("/connectors/${q(p.id)}/disconnect", "Disconnect", "secondary") + "</div>",
-            )
+            p.isConnected(env) -> {
+                body.append(
+                    """<div class="card row"><div><span class="ok">Connected</span>${p.accountName(env)?.let { " as <b>" + h(it) + "</b>" } ?: ""}</div><div class="actions">""" +
+                        Html.postButton("/connectors/${q(p.id)}/test", "Test the connection", "secondary") + " " +
+                        Html.postButton("/connectors/${q(p.id)}/disconnect", "Disconnect", "secondary") + "</div></div>" + quotaCard(p),
+                )
+                if (p is CredentialsProvider && p.loginForm.needsUrl && p.offersSecondAddress) body.append(addressCard(p))
+            }
             p is CookieConnector -> body.append(cookieForm(p))
             p is CredentialsProvider -> {
                 val f = p.loginForm
                 body.append("""<form method="post" action="/connectors/${q(p.id)}/connect" class="card">""")
                 body.append("""<p class="muted">${h(env.text(f.hintName))}</p>""")
                 if (f.needsUrl) body.append("""<label>${h(env.text("login_url"))}</label><input type="url" name="url" required>""")
+                if (f.needsUrl && p.offersSecondAddress) body.append(awayField())
                 if (f.needsUser) body.append("""<label>${h(env.text("login_user"))}</label><input type="text" name="user" autocomplete="off"${if (f.userOptional) "" else " required"}>""")
                 if (f.needsSecret) body.append(
                     """<label>${h(env.text(f.secretLabelName))}</label><input type="password" name="secret" autocomplete="new-password"${if (f.secretOptional) "" else " required"}>""",
@@ -683,6 +768,8 @@ $removals"""
             else -> body.append("""<div class="card muted">This service can't sign in from the server.</div>""")
         }
         if (p is YtmServerProvider && p.isConnected(env)) body.append(ytmChannelCard(p))
+        if (p is DeezerWebServerProvider && p.isConnected(env)) body.append(deezerProfileCard(p))
+        if (p is YouTubeProvider && p.isConnected(env)) body.append(youtubeEmptyNote(p))
         // Last.fm read with the user name only: the password, once, makes Loved tracks a target (#51).
         if (p is LastFmProvider && p.isConnected(env) && !p.canLove(env)) body.append(
             """<form method="post" action="/connectors/${q(p.id)}/connect" class="card"><h3>${h(env.text("lastfm_love_title"))}</h3>
@@ -697,32 +784,91 @@ $removals"""
         send(r.ex, 200, page(p.label(env), body.toString()))
     }
 
+    /** Each YouTube Music account's profiles with their counts, read at most every ten minutes (two reads per profile). */
+    private val ytmProfiles = java.util.concurrent.ConcurrentHashMap<String, Pair<Long, List<com.xlollx.songport.ytmbridge.ChannelDto>>>()
+
+    /** YouTube (Google API), per account: whether its channel was found empty after sign-in (false once kept). */
+    private val youtubeEmpty = java.util.concurrent.ConcurrentHashMap<String, Boolean>()
+
     /**
-     * The channel the YouTube Music account acts as: its own, or a brand account where the playlists
-     * may live (issue #41). Read from Google when the page opens; a refusal is said, not fatal.
+     * The profile the YouTube Music account acts as: its own channel, or a brand account where the
+     * playlists and liked songs may live (issue #41, and the Reddit case of likes on the wrong one).
+     * Each with how much music it holds; when the one in use is empty and another is not, a warning.
+     * Read from Google when the page opens; a refusal is said, not fatal. No script: the server
+     * finds the chosen profile's name itself.
      */
     private fun ytmChannelCard(p: YtmServerProvider): String {
-        val sb = StringBuilder("""<form method="post" action="/connectors/${q(p.id)}/channel" class="card"><h3>Channel</h3>
-<p class="muted">Playlists are read from and written to this channel. A brand account is listed with its name; without a choice the account's own channel is used, as before.</p>""")
-        val channels = runCatching { runBlocking { p.channels(env) } }
+        val sb = StringBuilder("""<form method="post" action="/connectors/${q(p.id)}/channel" class="card"><h3>Profile</h3>
+<p class="muted">Playlists and liked songs are read from and written to this profile. Pick the one you use in the YouTube Music app.</p>""")
+        val cached = ytmProfiles[p.id]?.takeIf { System.currentTimeMillis() - it.first < 10 * 60_000L }?.second
+        val channels = if (cached != null) Result.success(cached)
+            else runCatching { runBlocking { p.channels(env, library = true) } }.onSuccess { ytmProfiles[p.id] = System.currentTimeMillis() to it }
         channels.exceptionOrNull()?.let { e ->
-            sb.append("""<p class="muted">The channels could not be read: ${h(e.message ?: e.javaClass.simpleName)}</p>""")
+            sb.append("""<p class="muted">The profiles could not be read: ${h(e.message ?: e.javaClass.simpleName)}</p>""")
             p.channelName(env)?.let { sb.append("""<p>Current: <b>${h(it)}</b></p>""") }
             return sb.append("</form>").toString()
         }
-        val list = channels.getOrThrow()
-        val own = p.channel(env) == null
+        val chosen = p.channel(env).orEmpty()
+        val list = channels.getOrThrow().map { it.copy(selected = it.id == chosen) }
+        val current = list.firstOrNull { it.selected } ?: list.firstOrNull { it.id.isEmpty() }
+        val better = p.betterChannel(env, list)
+        if (current != null && better != null) sb.append(
+            """<p class="warn">Trackhop is using <b>${h(current.name)}</b>, which has no playlists or liked songs. Your music seems to be on <b>${h(better.name)}</b>.</p>""",
+        )
+        fun counts(c: com.xlollx.songport.ytmbridge.ChannelDto): String? {
+            if (c.playlists < 0 && c.likedSongs < 0) return null
+            if (c.playlists == 0 && c.likedSongs == 0) return "no playlists, no liked songs"
+            return listOfNotNull(
+                when { c.playlists < 0 -> null; c.playlists == 0 -> "no playlists"; c.playlists == 1 -> "1 playlist"; else -> "${c.playlists} playlists" },
+                when { c.likedSongs < 0 -> null; c.likedSongs == 0 -> "no liked songs"; c.likedSongs == 1 -> "1 liked song"; else -> "${c.likedSongs} liked songs" },
+            ).joinToString(" · ")
+        }
         list.forEach { c ->
-            val checked = if (c.id.isEmpty()) own else c.selected
-            sb.append("""<label class="row"><input type="radio" name="channel" value="${h(c.id)}" data-name="${h(c.name)}"${if (checked) " checked" else ""}> ${h(c.name)}""")
-            c.byline?.let { sb.append(""" <span class="muted">${h(it)}</span>""") }
-            if (c.id.isEmpty()) sb.append(""" <span class="muted">(the account's own channel)</span>""")
+            val checked = if (c.id.isEmpty()) chosen.isEmpty() else c.selected
+            sb.append("""<label class="row"><input type="radio" name="channel" value="${h(c.id)}"${if (checked) " checked" else ""}> ${h(c.name)}""")
+            val sub = listOfNotNull(if (c.id.isEmpty()) "(the account's own channel)" else c.byline, counts(c)).joinToString(" · ")
+            if (sub.isNotEmpty()) sb.append(""" <span class="muted">${h(sub)}</span>""")
+            if (c.id == better?.id) sb.append(""" <span class="ok">Your music is here</span>""")
             sb.append("</label>")
         }
-        if (list.none { it.id.isEmpty() }) sb.append("""<label class="row"><input type="radio" name="channel" value="" data-name=""${if (own) " checked" else ""}> The account's own channel</label>""")
-        sb.append("""<input type="hidden" name="name" value=""><p><button class="secondary">Use this channel</button></p></form>
-<script>(function(){var s=document.currentScript,f=s.previousElementSibling;if(!f)return;f.addEventListener('submit',function(){var r=f.querySelector('input[name=channel]:checked');if(r)f.querySelector('input[name=name]').value=r.getAttribute('data-name')||'';});})();</script>""")
+        if (list.none { it.id.isEmpty() }) sb.append("""<label class="row"><input type="radio" name="channel" value=""${if (chosen.isEmpty()) " checked" else ""}> The account's own channel</label>""")
+        sb.append("""<p><button class="secondary">Use this profile</button></p></form>""")
         return sb.toString()
+    }
+
+    /**
+     * The profile of a Deezer Family account the calls are made as (#82): its profiles with their
+     * pictures, read from Deezer when the page opens; nothing for an account that is not a Family one.
+     */
+    private fun deezerProfileCard(p: DeezerWebServerProvider): String {
+        val list = runCatching { runBlocking { p.profiles(env) } }
+        list.exceptionOrNull()?.let { e ->
+            return if (!p.isFamily(env)) "" else """<div class="card"><h3>Profile</h3><p class="muted">The profiles could not be read: ${h(e.message ?: e.javaClass.simpleName)}</p></div>"""
+        }
+        val profiles = list.getOrThrow()
+        if (profiles.isEmpty()) return ""
+        val sb = StringBuilder("""<form method="post" action="/connectors/${q(p.id)}/profile" class="card"><h3>Profile</h3>
+<p class="muted">A Deezer Family account: playlists and favourites are read from and written to this profile. Without a choice the account holder's profile is used, as before.</p>""")
+        profiles.forEach { pr ->
+            val pic = pr.picture?.let { """<img src="${h(it)}" alt="" width="32" height="32" style="border-radius:50%;vertical-align:middle" loading="lazy" referrerpolicy="no-referrer">""" }
+                ?: """<span style="display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#a238ff;color:#fff;font-weight:600;vertical-align:middle">${h(pr.name.trim().take(1).uppercase())}</span>"""
+            sb.append("""<label class="row"><input type="radio" name="profile" value="${h(pr.id)}"${if (pr.selected) " checked" else ""}> $pic ${h(pr.name)}""")
+            if (pr.holder) sb.append(""" <span class="muted">(account holder)</span>""")
+            sb.append("</label>")
+        }
+        return sb.append("""<p><button class="secondary">Use this profile</button></p></form>""").toString()
+    }
+
+    /**
+     * YouTube (Google API): a channel with neither playlists nor liked videos, said once per account
+     * (two quota units). Only Google's chooser picks another profile, so the way out is a new sign-in.
+     */
+    private fun youtubeEmptyNote(p: YouTubeProvider): String {
+        val key = p.id + "\n" + p.accountName(env).orEmpty()
+        val empty = youtubeEmpty.getOrPut(key) { runBlocking { p.looksEmpty(env) } }
+        if (!empty) return ""
+        return """<div class="card"><p class="warn">This channel has no playlists or liked songs. If your music is on another profile (a brand account), sign in again and pick that profile in Google's list.</p>
+<div class="row">${Html.postButton("/connectors/${q(p.id)}/youtube-empty-keep", "Keep it", "secondary")} ${Html.postButton("/connectors/${q(p.id)}/connect", "Sign in again")}</div></div>"""
     }
 
     private fun ytmNote(): String = """<div class="card"><p><span class="badge">unofficial</span> <span class="alpha">alpha</span></p>
@@ -826,9 +972,11 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
             rest == listOf("shazam") -> if (r.method == "POST") shazamCreate(r) else shazamNew(r)
             rest == listOf("crowd") || rest == listOf("spread") -> crowdPages(r, rest[0])
             rest == listOf("all") && r.method == "POST" -> {
-                env.store.data.jobs.filter { it.enabled }.forEach { runner.start(it) }
+                startSyncs(env.store.data.jobs.filter { it.enabled })
                 redirect(r.ex, "/")
             }
+            // The home page's Select: several syncs run, turned on or off, or deleted at once (BulkSyncs.kt).
+            rest == listOf("bulk") -> if (r.method == "POST") bulkSyncs(r) else redirect(r.ex, "/?select=1")
             rest.isEmpty() && r.method == "POST" -> createSync(r)
             rest.isEmpty() -> redirect(r.ex, "/")
             else -> {
@@ -836,9 +984,12 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                 val back = "/syncs/${q(job.id)}"
                 if (rest.getOrNull(1) == "review") return review(r, job, rest.drop(2))
                 if (rest.getOrNull(1) == "removals") return heldRemovals(r, job)
+                // A sync of a multi sync is shown, run and changed with its group.
+                if (r.method != "POST") com.xlollx.songport.shared.SharedGroups.sharedSide(job)?.let { multiGroup(it) }?.let { return redirect(r.ex, "/multi/${q(it.id)}") }
                 if (r.method != "POST") return syncPage(r, job)
                 when (rest.getOrNull(1)) {
                     "run" -> { runner.start(job); redirect(r.ex, back) }
+                    "preview" -> startPreview(r, job)
                     // After a run stopped by the target's size check: the user says the smaller target is real.
                     "run-anyway" -> { env.store.confirmTargetShrink(job.id); runner.start(job); redirect(r.ex, back) }
                     "stop" -> { SyncState.stop(job.id); redirect(r.ex, back) }
@@ -859,9 +1010,9 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                         // The page's own form also carries the star, the tags and the colour's name.
                         val grouped = r.form["groups"] == "1"
                         val tags = if (grouped) Labels.cleanTags(r.form["tags"].orEmpty().split(',').mapNotNull { Labels.parseTag(it) }.associate { it.first to it.second.orEmpty() }) else job.tags
-                        val timed = withTiming(job.copy(name = name, schedule = s, favorite = if (grouped) r.form["favorite"] != null else job.favorite, tags = tags), r)
+                        val timed = withSavedSchedule(withTiming(job.copy(name = name, schedule = s, favorite = if (grouped) r.form["favorite"] != null else job.favorite, tags = tags), r), r.form)
                         // A radio sync's form has no choice about changes: its source only grows.
-                        val changed = if (job.radio != null) timed else withChanges(timed, r)
+                        val changed = if (job.radio != null) timed else withMatching(withRatings(withChanges(timed, r), r), r.form)
                         // Two-way and its removals, where the form offers them (see pairFields).
                         val paired = job.linkedJobId?.let { env.store.job(it) } != null
                         val offered = r.form["pair"] == "1"
@@ -919,6 +1070,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
         com.xlollx.songport.sync.QqMusicPublic.SERVICE -> "https://y.qq.com/n/ryqq/playlist/…"
         com.xlollx.songport.sync.JioSaavnPublic.SERVICE -> "https://www.jiosaavn.com/featured/…"
         com.xlollx.songport.sync.GaanaPublic.SERVICE -> "https://gaana.com/playlist/…"
+        com.xlollx.songport.providers.PlaylistUrlProvider.SERVICE -> "https://example.org/my-playlist.xspf"
         else -> "https://soundcloud.com/user/sets/…"
     }
 
@@ -933,11 +1085,14 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
     }
 
     private fun newSync(r: Req) {
-        val connected = Providers.connectors().filter(::usable)
+        val connected = Providers.connectors().filter(::usable).filter { !com.xlollx.songport.sync.RadioConnectors.isRadio(it.id) || env.may(Permissions.RADIO) }
         // Link-only sources need nothing added or connected: they are always offered as a source.
         val list = (connected + Providers.services().filter { it.linkOnly }).distinctBy { it.id }
         val src = r.query["src"]?.let { Providers.byId(it) }
         val dst = r.query["dst"]?.let { Providers.byId(it) }
+        // A radio station or Shazam as the source: their own page, with the station or Shazam's playlist chosen.
+        if (src != null && dst != null && com.xlollx.songport.sync.RadioConnectors.isRadio(src.id)) return redirect(r.ex, "/syncs/radio?connector=${q(src.id)}&dst=${q(dst.id)}")
+        if (src != null && dst != null && src.id == com.xlollx.songport.sync.RadioConnectors.SHAZAM) return redirect(r.ex, "/syncs/shazam?dst=${q(dst.id)}")
         // "Send to a service" from a File playlist: that file is the source, chosen beforehand.
         val srcPlaylist = r.query["srcPlaylist"].orEmpty()
         val body = StringBuilder(notice(r))
@@ -953,6 +1108,10 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
                 """<form method="get" action="/syncs/new" class="card"><label>From</label><select name="src">${options(false)}</select>
 ${if (srcPlaylist.isNotEmpty()) """<input type="hidden" name="srcPlaylist" value="${h(srcPlaylist)}">""" else ""}
 <label>To</label><select name="dst">${options(true)}</select><p><button>Next</button></p></form>""",
+            )
+            // The same source on several services at once (MultiWeb.kt), as the app's editor offers.
+            if (srcPlaylist.isEmpty()) body.append(
+                """<p class="actions"><b>One target</b> <a class="button secondary" href="/multi/new">Several targets</a> <span class="muted">One playlist kept on several services, each following its own way.</span></p>""",
             )
             return send(r.ex, 200, page("New sync", body.toString()))
         }
@@ -972,7 +1131,7 @@ ${if (src.linkOnly) """<label>Public link on ${h(src.label(env))}</label><input 
 <label>To ${h(dst.label(env))}</label><select name="dstPlaylist">${if (dst.canCreatePlaylists) "<option value=\"\">A new playlist with the same name</option>" else ""}${opts(dstLists.getOrDefault(emptyList()))}</select>
 <label>Name of the sync (optional)</label><input type="text" name="name">
 ${timingFields(null)}
-${changesFields(null)}${pairFields(null)}
+${changesFields(null)}${ratingsField(null, src, dst)}${pairFields(null)}${matchingFields(null)}
 <p><button>Create</button> <a class="button secondary" href="/syncs/new">Back</a></p></form>""",
         )
         send(r.ex, 200, page("New sync", body.toString()))
@@ -1011,7 +1170,7 @@ ${changesFields(null)}${pairFields(null)}
             source = PlaylistRef(src.id, srcId, srcName),
             target = PlaylistRef(dst.id, dstId, dstName),
             schedule = runCatching { Schedule.valueOf(r.form["schedule"].orEmpty()) }.getOrDefault(Schedule.MANUAL),
-        ).let { withChanges(withTiming(it, r), r) }
+        ).let { withMatching(withRatings(withChanges(withTiming(it, r), r), r), r.form) }
             .let { j -> runCatching { pairing(j, r.form["twoWay"] == "on", r.form["twoWay"] == "on" && r.form["twoWayRemovals"] == "on") }.getOrElse { return redirect(r.ex, "$back&err=${q(it.message ?: "Error")}") } }
         val warning = conflictWarning(job)
         env.store.upsertJob(job)
@@ -1036,6 +1195,8 @@ ${changesFields(null)}${pairFields(null)}
         if (running) {
             body.append(if (SyncState.isPaused(job.id)) Html.postButton("/syncs/$id/resume", "Resume") else Html.postButton("/syncs/$id/pause", "Pause", "secondary"))
         }
+        // What a run would do now, changing nothing (the app's Preview).
+        if (job.radio == null && !running) body.append(Html.postButton("/syncs/$id/preview", "Preview", "secondary"))
         body.append(Html.postButton("/syncs/$id/toggle", if (job.enabled) "Turn off" else "Turn on", "secondary"))
         body.append(Html.postButton("/syncs/$id/delete", "Delete", "danger", confirm = if (halves(job).size > 1) "Delete this two-way sync and its other half? The playlists stay as they are." else "Delete this sync? The playlists stay as they are."))
         body.append("</div>")
@@ -1048,8 +1209,8 @@ ${changesFields(null)}${pairFields(null)}
         val labels = env.store.data.settings.labels
         val schedules = Schedule.values().joinToString("") { """<option value="${it.name}"${if (it == job.schedule) " selected" else ""}>${h(scheduleName(it))}</option>""" }
         body.append(
-            """<form method="post" action="/syncs/$id/schedule" class="card"><label>Name</label><input type="text" name="name" value="${h(job.name)}">${if (job.radio != null) """<input type="hidden" name="schedule" value="MANUAL">""" else """${timingFields(job)}
-${changesFields(job)}${pairFields(job)}"""}
+            """<form method="post" action="/syncs/$id/schedule" class="card"><label>Name</label><input type="text" name="name" value="${h(job.name)}">${if (job.radio != null) """<input type="hidden" name="schedule" value="MANUAL">""" else """${savedScheduleField(job)}${timingFields(job)}
+${changesFields(job)}${ratingsField(job, Providers.byId(job.source.provider), Providers.byId(job.target.provider))}${pairFields(job)}${matchingFields(job)}"""}
 <label>Colour</label><div class="swatches"><label title="None"><input type="radio" name="color" value=""${if (job.color == null) " checked" else ""} aria-label="None"><span class="dot none"></span></label>${Html.JOB_COLORS.entries.joinToString("") { (k, v) -> val n = h(labels.firstOrNull { it.id == k }?.name?.takeIf { it.isNotEmpty() } ?: k); """<label title="$n"><input type="radio" name="color" value="$k"${if (job.label == k) " checked" else ""} aria-label="$n"><span class="dot" style="background:${v.first}"></span></label>""" }}${labels.filter { !Labels.isBase(it.id) }.joinToString("") { l -> """<label title="${h(l.name)}"><input type="radio" name="color" value="label:${h(l.id)}"${if (job.label == l.id) " checked" else ""} aria-label="${h(l.name)}"><span class="dot" style="background:${h(l.color)}"></span></label>""" }}<label title="Your own colour"><input type="radio" name="color" value="custom"${if (job.label == null && Html.customColor(job.color) != null) " checked" else ""} aria-label="Your own colour"><input type="color" name="customColor" value="${h((Html.customColor(job.color) ?: "#0B84E8").lowercase())}" aria-label="Pick your own colour" onchange="this.previousElementSibling.checked=true"></label></div>
 <input type="hidden" name="groups" value="1">
 <label for="labelName">Label name</label><input type="text" id="labelName" name="labelName" maxlength="${Labels.MAX_NAME}" value="${h(Labels.name(job, labels))}"><p class="muted">Optional. Every sync with this colour shares the name: you can then search and filter by it. Your own colour with a name is kept among the ready colours.</p>
@@ -1061,7 +1222,7 @@ ${changesFields(job)}${pairFields(job)}"""}
         if (reports.isNotEmpty()) body.append("<h2>Last runs</h2>")
         for (rep in reports) {
             body.append("""<div class="card"><div class="row"><b>${Html.date(rep.startedEpoch)}</b><span class="muted">${rep.durationMs / 1000} s · source ${rep.sourceCount} · destination ${rep.targetCount}</span></div>""")
-            body.append(if (rep.error != null) """<p class="${if (rep.netError != null) "net" else "err"}">${h(rep.error)}</p>""" else """<p class="ok">+${rep.added} added · −${rep.removed} removed</p>""")
+            body.append(if (rep.error != null) """<p class="${if (rep.netError != null) "net" else "err"}">${h(rep.error)}</p>""" else """<p class="ok">+${rep.added} added · −${rep.removed} removed${if (rep.ratingsSet > 0) " · ★ ${rep.ratingsSet} ${if (rep.ratingsSet == 1) "rating" else "ratings"} set" else ""}</p>""")
             rep.notes.forEach { body.append("""<p class="muted">${h(it)}</p>""") }
             if (rep.hasReview()) {
                 val what = listOfNotNull(

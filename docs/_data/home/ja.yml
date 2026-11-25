@@ -40,6 +40,8 @@ umbrel_alt: 'Umbrel で入手'
 umbrel_note: 'umbrelOS 向けの私たちのアプリストア'
 caprover_alt: 'CapRover で入手'
 caprover_note: 'One-Click Apps カタログにあります'
+dokploy_alt: 'Dokploy で入手'
+dokploy_note: 'テンプレートにあります'
 render_alt: 'Render にデプロイ（ベータ）'
 render_note: 'ベータ · あなたの Render アカウントに請求'
 railway_alt: 'Railway にデプロイ（ベータ）'
@@ -47,7 +49,6 @@ railway_note: 'ベータ · あなたの Railway アカウントに請求'
 cloud_more: '自宅にサーバーがなくても：あなた自身のアカウントで Trackhop をオンラインに。HTTPS アドレスとスケジュール同期つき'
 virustotal: すべてのダウンロードを VirusTotal でチェック済み
 downloads: "{n} ダウンロード"
-downloads_title: GitHub リリースのダウンロード数と Docker Hub のプル数。F-Droid やストアは数を公開していないため、実際はもっと多くなります。
 demo_alt: "Trackhop の紹介：同期一覧、新しい同期、アカウント、ツール、共有された曲、相性カードとポスターカード、再生できない曲、設定"
 what_title: できること
 what_intro: 同期元と同期先を選び、頻度を決めるだけ。Trackhop は相手側で曲を一つずつ見つけ、何が変わるかを見せてから、両方をそろえ続けます。
@@ -149,3 +150,9 @@ say_title: 'みんなの声'
 say_intro: 'Trackhop を紹介した動画や投稿へのコメントと、支援者からのメッセージ。名前と写真は隠しています。'
 say_alt: 'Trackhop を使う人のコメントと、自動同期と安全性をほめる支援者からの2つのメッセージ、そして X の投稿（"a game changer for music lovers who use multiple platforms"）'
 gallery_title: "のぞいてみる"
+itch_alt: "itch.io で入手"
+sourceforge_alt: "SourceForge で入手"
+itch_phone_note: "フル版 APK、リリースごとに更新"
+sourceforge_phone_note: "すべてのリリースをミラー"
+itch_desktop_note: "Windows、macOS、Linux"
+sourceforge_desktop_note: "すべてのリリースをミラー"

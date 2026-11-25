@@ -40,6 +40,8 @@ umbrel_alt: 'Umbrel에서 받기'
 umbrel_note: 'umbrelOS용 우리 앱 스토어'
 caprover_alt: 'CapRover에서 받기'
 caprover_note: 'One-Click Apps 카탈로그에 있음'
+dokploy_alt: 'Dokploy에서 받기'
+dokploy_note: '템플릿에 있음'
 render_alt: 'Render에 배포 (베타)'
 render_note: '베타 · 내 Render 계정으로 청구'
 railway_alt: 'Railway에 배포 (베타)'
@@ -47,7 +49,6 @@ railway_note: '베타 · 내 Railway 계정으로 청구'
 cloud_more: '집에 서버가 없어도: 내 계정에서 Trackhop을 온라인으로, HTTPS 주소와 예약 동기화와 함께'
 virustotal: 모든 다운로드는 VirusTotal 검사 완료
 downloads: "{n}회 다운로드"
-downloads_title: GitHub 릴리스 다운로드 수와 Docker Hub pull 수예요. F-Droid와 스토어는 수치를 공개하지 않으니 실제로는 더 많아요.
 demo_alt: "Trackhop 둘러보기: 동기화 목록, 새 동기화, 계정, 도구, 공유된 곡, 호환성·포스터 카드, 재생할 수 없는 곡, 설정"
 what_title: 무엇을 하나요
 what_intro: 원본과 대상을 고르고, 얼마나 자주 할지 정하세요. Trackhop이 상대편에서 곡을 하나하나 찾아내고, 무엇이 바뀔지 보여 준 뒤, 두 플레이리스트를 계속 맞춰 줘요.
@@ -149,3 +150,9 @@ say_title: '사용자들의 이야기'
 say_intro: 'Trackhop 소개 영상과 게시물의 댓글, 후원자들의 메시지. 이름과 사진은 가렸습니다.'
 say_alt: 'Trackhop 사용자들의 댓글과 자동 동기화와 안전성을 칭찬하는 후원자 메시지 두 개, 그리고 X 게시물("a game changer for music lovers who use multiple platforms")'
 gallery_title: "둘러보기"
+itch_alt: "itch.io에서 받기"
+sourceforge_alt: "SourceForge에서 받기"
+itch_phone_note: "전체 APK, 버전마다 업데이트"
+sourceforge_phone_note: "모든 버전을 미러링"
+itch_desktop_note: "Windows, macOS, Linux"
+sourceforge_desktop_note: "모든 버전을 미러링"

@@ -127,6 +127,28 @@ object BulkEdit {
         })
     }
 
+    /**
+     * The syncs that write to [playlistIds] of [provider], playlists just deleted there: what
+     * [offForDeleted] turns off. Only plain syncs: one of a shared playlist or of a multi sync (changed
+     * from its group's page), and one handed over to the server, are left as they are.
+     */
+    fun writingTo(d: StoreData, provider: String, playlistIds: Set<String>): List<SyncJob> = d.syncs.filter { j ->
+        j.target.provider == provider && j.target.playlistId?.let { it in playlistIds } == true &&
+            SharedGroups.sharedSide(j) == null && j.id !in d.handedOver
+    }
+
+    /**
+     * [writingTo] turned off, with the other half of a two-way pair (one switch for both, as on the
+     * card): a sync to a playlist that is gone would only fail. Nothing else is touched.
+     */
+    fun offForDeleted(d: StoreData, provider: String, playlistIds: Set<String>): StoreData {
+        val ids = writingTo(d, provider, playlistIds).mapTo(HashSet()) { it.id }
+        if (ids.isEmpty()) return d
+        val halves = d.jobs.mapNotNullTo(HashSet()) { j -> if (j.id in ids) j.linkedJobId else j.id.takeIf { j.linkedJobId in ids } }
+        val off = ids + halves
+        return with(d, d.jobs.map { j -> if (j.id in off && j.enabled) j.copy(enabled = false) else j })
+    }
+
     /** [d] with [jobs], or [d] itself when nothing changed. */
     private fun with(d: StoreData, jobs: List<SyncJob>): StoreData = if (jobs == d.jobs) d else d.copy(jobs = jobs)
 

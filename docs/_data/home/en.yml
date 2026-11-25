@@ -42,6 +42,8 @@ umbrel_alt: 'Get it on Umbrel'
 umbrel_note: 'Our app store for umbrelOS'
 caprover_alt: 'Get it on CapRover'
 caprover_note: 'In its One-Click Apps catalog'
+dokploy_alt: 'Get it on Dokploy'
+dokploy_note: 'In its templates'
 render_alt: 'Deploy on Render (beta)'
 render_note: 'Beta · billed to your Render account'
 railway_alt: 'Deploy on Railway (beta)'
@@ -49,7 +51,6 @@ railway_note: 'Beta · billed to your Railway account'
 cloud_more: 'No server at home: Trackhop online in your own account, with an HTTPS address and scheduled syncs'
 virustotal: Every download checked on VirusTotal
 downloads: "{n} downloads"
-downloads_title: GitHub release downloads and Docker Hub pulls. F-Droid and the stores publish no count, so the real number is higher.
 demo_alt: "A tour of Trackhop: syncs, a new sync, accounts, the Discover tab, a shared track, the compatibility and poster cards, unplayable tracks, settings"
 what_title: What it does
 what_intro: Pick a source and a target, choose how often. Trackhop finds every track on the other side, shows you what will change, and keeps both in step.
@@ -149,3 +150,9 @@ say_title: 'What people say'
 say_intro: 'Comments under videos and posts about Trackhop, and messages from supporters. Names and pictures hidden.'
 say_alt: 'Comments from people who use Trackhop: "Track Hop is absolute gem", "the greatest thing that''s ever happened to me", "one of the best discoveries", and two messages from supporters praising the automated sync, the Obtainium updates and how safe it is, and posts on X calling it "a game changer for music lovers who use multiple platforms"'
 gallery_title: "Take a look"
+itch_alt: "Get it on itch.io"
+sourceforge_alt: "Get it on SourceForge"
+itch_phone_note: "The full APK, updated with each release"
+sourceforge_phone_note: "Every release, mirrored"
+itch_desktop_note: "Windows, macOS and Linux"
+sourceforge_desktop_note: "Every release, mirrored"

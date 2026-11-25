@@ -72,9 +72,11 @@ jpackage --type app-image --name Trackhop --dest "$work/out" \
   --jlink-options "--strip-debug --no-man-pages --no-header-files --include-locales=$locales"
 
 if [ "$os" = windows ]; then
-  # PowerShell wants Windows paths, not Git Bash's /d/a/….
+  # Windows' own tar (bsdtar) writes the zip: its names use "/", as the zip format wants. PowerShell's
+  # Compress-Archive wrote "\", which unzip tools outside Windows read as files, not folders.
   zip=$(cygpath -w "$root/dist/$name-windows.zip")
-  (cd "$work/out" && powershell -NoProfile -Command "Compress-Archive -Path Trackhop -DestinationPath '$zip' -Force")
+  rm -f "dist/$name-windows.zip"
+  (cd "$work/out" && "$(cygpath -u "${SYSTEMROOT:-C:\\Windows}")/System32/tar.exe" -a -c -f "$zip" Trackhop)
   # The upgrade code stays the same forever: a newer MSI replaces the installed one.
   jpackage --type msi --app-image "$work/out/Trackhop" --name Trackhop --dest "$work" \
     --app-version "$version" --vendor xlollx --description "Trackhop Desktop (beta)" \
@@ -91,7 +93,18 @@ elif [ "$os" = macos ]; then
   mv "$work"/Trackhop-*.dmg "dist/$name-macos-$arch.dmg"
 else
   tar -C "$work/out" -czf "dist/$name-$suffix.tar.gz" Trackhop
+  # server/desktop/deb: jpackage's postinst and prerm with the menu steps allowed to fail, so the
+  # package installs on a system without a desktop (Raspberry Pi OS Lite, a server). They are JDK 21's
+  # templates (its words in capitals): an older jpackage would leave some unfilled, and the package
+  # would not install. There its own templates are used, as before they were added.
+  deb_res=(--resource-dir server/desktop/deb)
+  jdk=$(jpackage --version 2>/dev/null | head -1 | cut -d. -f1 || true)
+  if [ "${jdk:-0}" -lt 21 ] 2>/dev/null; then
+    echo "jpackage $jdk: the .deb uses jpackage's own install scripts (server/desktop/deb needs JDK 21)" >&2
+    deb_res=()
+  fi
   jpackage --type deb --app-image "$work/out/Trackhop" --name Trackhop --dest "$work" \
+    "${deb_res[@]}" \
     --app-version "$version" --vendor xlollx --description "Trackhop Desktop (beta)" \
     --linux-package-name trackhop --linux-shortcut --linux-menu-group "AudioVideo;Audio" \
     --linux-app-category sound \

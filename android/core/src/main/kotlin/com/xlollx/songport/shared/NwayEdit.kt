@@ -212,16 +212,27 @@ object NwayEdit {
 
     /**
      * A new group from [draft], as one change of the store: the group and every sync of it, or
-     * nothing. Nothing is written to any service until its first run.
+     * nothing. Nothing is written to any service until its first run. [id]: the group's id when the
+     * caller has one (a multi sync handed over from a phone to the server keeps its own).
      */
-    fun create(env: Env, draft: Draft, timed: (SyncJob) -> SyncJob = { it }, styled: (SyncJob) -> SyncJob = { it }): SharedGroup {
+    fun create(env: Env, draft: Draft, timed: (SyncJob) -> SyncJob = { it }, styled: (SyncJob) -> SyncJob = { it }, id: String? = null): SharedGroup =
+        // A caller's id: the check that no group has it, the key and state written, the commit and the
+        // cleanup are one step, so two requests with one id (a handover asked again) never both pass it.
+        if (id == null) createNow(env, draft, timed, styled, null) else synchronized(CREATE_WITH_ID) { createNow(env, draft, timed, styled, id) }
+
+    private val CREATE_WITH_ID = Any()
+
+    private fun createNow(env: Env, draft: Draft, timed: (SyncJob) -> SyncJob, styled: (SyncJob) -> SyncJob, id: String?): SharedGroup {
         // Offered from Trackhop 1.18; a group that exists keeps running without it.
         check(Features.v2) { "Not available in this version" }
         require(missing(draft) == null) { "Not ready to save: ${missing(draft)}" }
         require(draft.items.all { !it.playlistId.isNullOrBlank() }) { "A playlist of the draft was not made" }
         val source = draft.source!!
+        // An id the caller gives is a new group's: one already here keeps its key and its state.
+        require(id == null || env.store.data.groups.none { it.id == id }) { "A multi sync with that id already exists" }
         // The group's key and its empty list first; it is in the store only with all its syncs.
-        val group = SharedGroups.create(env, draft.name, "", "", "", "", null, Invite.LOCAL)
+        val group = if (id == null) SharedGroups.create(env, draft.name, "", "", "", "", null, Invite.LOCAL)
+            else SharedGroups.create(env, draft.name, "", "", "", "", null, Invite.LOCAL, id = id)
         val saved = runCatching {
             env.store.commit { d ->
                 var n = d.copy(groups = d.groups.filter { it.id != group.id } + group)

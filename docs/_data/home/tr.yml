@@ -40,6 +40,8 @@ umbrel_alt: 'Umbrel''den edinin'
 umbrel_note: 'umbrelOS için uygulama mağazamız'
 caprover_alt: 'CapRover''dan edinin'
 caprover_note: 'One-Click Apps kataloğunda'
+dokploy_alt: 'Dokploy''dan edinin'
+dokploy_note: 'Şablonlarında'
 render_alt: 'Render''a dağıt (beta)'
 render_note: 'Beta · Render hesabından ücretlendirilir'
 railway_alt: 'Railway''e dağıt (beta)'
@@ -47,7 +49,6 @@ railway_note: 'Beta · Railway hesabından ücretlendirilir'
 cloud_more: 'Evde sunucu yoksa: Trackhop kendi hesabında çevrimiçi, HTTPS adresi ve zamanlanmış senkronizasyonlarla'
 virustotal: Her indirme VirusTotal'da kontrol edildi
 downloads: "{n} indirme"
-downloads_title: GitHub sürüm indirmeleri ve Docker Hub çekmeleri. F-Droid ve mağazalar sayı yayımlamıyor, yani gerçek sayı daha yüksek.
 demo_alt: "Trackhop turu: senkronizasyonlar, yeni bir senkronizasyon, hesaplar, araçlar, paylaşılan bir parça, uyumluluk ve poster kartları, çalınamayan parçalar, ayarlar"
 what_title: Ne yapar
 what_intro: Bir kaynak ve bir hedef seç, ne sıklıkla olacağını belirle. Trackhop her parçayı diğer tarafta bulur, neyin değişeceğini gösterir ve ikisini uyum içinde tutar.
@@ -148,3 +149,9 @@ say_title: 'Ne diyorlar'
 say_intro: 'Trackhop hakkındaki video ve gönderilerin altındaki yorumlar ve destekçilerin mesajları. İsimler ve fotoğraflar gizlendi.'
 say_alt: 'Trackhop kullananların yorumları ve otomatik senkronizasyonu ve güvenliği öven iki destekçi mesajı, ve X''te onu "a game changer for music lovers who use multiple platforms" diye anlatan gönderiler'
 gallery_title: "Bir göz at"
+itch_alt: "itch.io'dan edinin"
+sourceforge_alt: "SourceForge'dan edinin"
+itch_phone_note: "Tam APK, her sürümle güncellenir"
+sourceforge_phone_note: "Her sürüm, yansı olarak"
+itch_desktop_note: "Windows, macOS ve Linux"
+sourceforge_desktop_note: "Her sürüm, yansı olarak"

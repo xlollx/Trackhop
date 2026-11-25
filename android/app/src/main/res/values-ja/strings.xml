@@ -131,7 +131,7 @@
     <string name="ytm_not_installed">Trackhop Bridge がインストールされていません。</string>
     <string name="ytm_install">Bridge を入手</string>
     <string name="report_issue">GitHub で報告</string>
-    <string name="provider_note_youtube">ご自身の Google Cloud プロジェクトを使う公式の YouTube Data API です。1日の割り当ては限られているため、大規模な同期には数日かかることがあります。</string>
+    <string name="provider_note_youtube">公式の YouTube Data API です。1日の割り当ては限られているため、大規模な同期には数日かかることがあります。</string>
     <string name="provider_note_tidal">TIDAL のプレイリスト。</string>
     <string name="provider_note_deezer">Deezer のプレイリストとお気に入り（ベータ）。すでにお持ちの Deezer 開発者アプリが必要です。Deezer は新しいアプリを受け付けていません。</string>
 
@@ -545,7 +545,7 @@
     <string name="provider_note_jellyfin">ご自身の Jellyfin サーバー。登録も割り当ても不要です。お気に入りはお気に入りの曲として扱われます。</string>
     <string name="provider_note_plex">ご自身の Plex Media Server に X-Plex-Token で接続します。音楽プレイリストをサーバー上で読み込み、作成、更新できます。</string>
     <string name="provider_note_lastfm">Last.fm プロフィールのラブしたトラックをソースとして使えます。パスワードでサインインすると保存先にもなり、Trackhop があなたの代わりにラブします。無料の Last.fm API キーが必要です。</string>
-    <string name="provider_note_listenbrainz">ListenBrainz ユーザーのプレイリストと Love した曲。ユーザートークンがあれば Love した曲の書き込みもできます（お気に入りを転送先に）。</string>
+    <string name="provider_note_listenbrainz">ListenBrainz ユーザーのプレイリストと Love した曲。ユーザートークンがあれば転送先にもなります：自分のプレイリスト（MusicBrainz の録音単位で作成・追加・削除）と Love した曲。</string>
     <string name="login_title">%1$s にログイン</string>
     <string name="login_url">サーバーのアドレス</string>
     <string name="login_user">ユーザー名</string>
@@ -563,8 +563,8 @@
     <string name="login_hint_jellyfin">Jellyfin サーバーのアドレス（例：https://jellyfin.example.com）、ユーザー名、パスワードを入力してください。</string>
     <string name="login_hint_plex">Plex Media Server のアドレス（例：http://192.168.1.10:32400）と X-Plex-Token を入力してください。トークンの確認方法は Plex のサポートページ（「Finding an authentication token」）で説明されています。</string>
     <string name="login_hint_lastfm">Last.fm のユーザー名を入力してください。ラブしたトラックを読むだけならパスワードは空のままで構いません（プロフィールは公開が必要）。パスワードがあれば Trackhop がトラックをラブできます。セッション取得のために一度だけ使われ、保存されません。</string>
-    <string name="login_hint_listenbrainz">プレイリストと Love した曲を読み取る ListenBrainz のユーザー名を入力してください。ユーザートークン（listenbrainz.org → Settings）を追加すると Love した曲の書き込みもできます。</string>
-    <string name="listenbrainz_token_needed">Love した曲を書き込むには ListenBrainz のユーザートークンが必要です。「アカウント」で追加してください（listenbrainz.org → Settings）。</string>
+    <string name="login_hint_listenbrainz">プレイリストと Love した曲を読み込む ListenBrainz のユーザー名を入力してください。自分のプレイリストと Love した曲にも書き込むには、ユーザートークン（listenbrainz.org → Settings）を追加してください。</string>
+    <string name="listenbrainz_token_needed">プレイリストと Love した曲を書き込むには ListenBrainz のユーザートークンが必要です。「アカウント」で追加してください（listenbrainz.org → Settings）。</string>
     <string name="login_token_optional">ユーザートークン（任意）</string>
     <string name="listenbrainz_token_invalid">ListenBrainz がこのトークンを受け付けませんでした。</string>
     <string name="setup_why_lastfm">Last.fm で公開プロフィールを読み込むには、無料の API キー（すぐに発行されます）が必要です。</string>
@@ -617,6 +617,13 @@
     <string name="route_note_server">あなた自身のサーバー：アドレス、ユーザー名、パスワード。</string>
     <string name="connector_name_label">コネクタ名</string>
     <string name="connector_rename">名前を変更</string>
+    <string name="accounts_search">アカウントを検索</string>
+    <string name="accounts_filter_all">すべて</string>
+    <string name="accounts_filter_official">公式</string>
+    <string name="accounts_filter_web">ウェブ</string>
+    <string name="accounts_filter_connected">接続済み</string>
+    <string name="account_color_none">なし</string>
+    <string name="accounts_no_match">一致するアカウントはありません</string>
     <string name="connect_switch_account">ブラウザがすでに別の %1$s アカウントでログインしている可能性があります。ログインページで「別のアカウント」を選ぶかアカウントを切り替えてから、このコネクタ用のアカウントで続行してください。</string>
     <string name="provider_note_amazon">Amazon にはオープンな API がありません。Trackhop はウェブプレーヤーのインターフェースを利用しているため、Amazon がそれを変更すると動作しなくなる可能性があります。プレイリスト、検索、作成、追加、削除に対応しています。</string>
     <string name="amazon_not_installed_hint">GitHub からコンパニオンアプリ「Trackhop Bridge」（1.3.1 以降）をインストールまたは更新し、ここに戻って「接続」をタップしてください。</string>
@@ -694,7 +701,7 @@
     <string name="onboarding_title">Trackhop へようこそ</string>
     <string name="onboarding_intro">音楽サービスから別の音楽サービスへプレイリストをコピーし、手動でもスケジュールでも最新の状態に保ちます。無料で、サブスクリプションもアカウント作成も不要です。</string>
     <string name="onboarding_step1_title">1. サービスを接続</string>
-    <string name="onboarding_step1_desc">Spotify、Apple Music、YouTube Music、TIDAL、Deezer、ご自身のサーバー、またはファイル。</string>
+    <string name="onboarding_step1_desc">Spotify、Apple Music、YouTube Music、TIDAL、ご自身のサーバー、またはファイル。</string>
     <string name="onboarding_step2_title">2. 同期を作成</string>
     <string name="onboarding_step2_desc">同期元プレイリストと同期先を選びます。プレビューで、実行前に何が変わるかを正確に確認できます。</string>
     <string name="onboarding_step3_title">3. あとはおまかせ</string>
@@ -976,6 +983,7 @@
     <string name="job_color_preview">カードの見た目</string>
     <string name="color_red">赤</string>
     <string name="color_orange">オレンジ</string>
+    <string name="color_amber">アンバー</string>
     <string name="color_yellow">黄</string>
     <string name="color_green">緑</string>
     <string name="color_teal">ティール</string>
@@ -1187,7 +1195,7 @@
     <string name="help_quota_body">YouTube では検索は別枠で1日100回まで、それ以外は1日に使えるユニット数が決まっていて、曲の追加は50ユニットです。どちらも太平洋時間の午前0時にリセットされます。大きな初回同期は数日かかることがありますが、自動で続きが実行されます。</string>
     <string name="help_review_title">曲の修正</string>
     <string name="help_change_body">Trackhop が選んだ曲を、あなたが選んだ曲に置き換えます。サービスが許す場合は間違った曲を同期先から削除し、選んだ内容は次回以降も記憶されます。</string>
-    <string name="help_proposal_body">見つかった中で最も近い曲ですが、自動で追加するほど近くはありません。正しければ「追加」をタップしてください。見つからなかった曲は1週間後に再検索されます。今すぐ探すには曲を開いてください。</string>
+    <string name="help_proposal_body">見つかった中で最も近い曲ですが、自動で追加するほど近くはありません。正しければ「追加」をタップしてください。見つからなかった曲は1か月後に再検索されます。今すぐ探すには曲を開いてください。</string>
     <string name="help_proposal_example">「Song」に対して「Song (Remastered 2011)」が候補になる場合。</string>
     <string name="help_ignore_body">このサービスへのすべての同期で、この曲の検索と報告をやめます。今のところ元に戻せないので、自宅で録音した曲のように、そのサービスに存在しない曲に使ってください。</string>
     <string name="help_results_title">検索結果</string>
@@ -1249,7 +1257,7 @@
     <string name="howto_preview_body">プレビューは、何も変更せずに、実行したら何が起きるかを表示します。同期を作成した後か、カードの ⋮ メニュー › プレビュー から開きます。\n# 表示される内容\n• 同期先にある曲、追加する曲、削除する曲（「削除も反映」のときのみ）、見つからなかった曲、無視した曲。\n• 確認したほうがよい一致：「これで正しい」か「変更」をタップします。決めたものは記憶され、残りは実行後の確認画面でもう一度確認を求められます。\n• YouTube の場合は、実行で消費するユニット数。\nこれを計算するために足りない曲をすべて同期先で検索するので、大きなプレイリストでは少し時間がかかります。見つかった結果は実行時に再利用されます。\n# 大量の削除\n1回の実行で10曲を超え、かつ同期先の4分の1を超える曲が削除される場合は、赤い注意が表示されます。まず同期元を確認してください。サービスがプレイリストの一部しか返さなかった場合も、まさにこう見えます。本当に削除してよければ「これらの曲を同期先から削除」にチェックを入れ、「今すぐ実行」をタップします。チェックは手動で始めたその1回の実行と、表示された曲にだけ有効で、スケジュール実行では引き続き保留されます。\n# 今すぐ実行\nプレビューで見つかった結果を使ってすぐに同期を実行するので、プレビューそのものよりずっと速く終わります。\n# 画面\n上部には曲の移動元と移動先、プレビューの計算中の進み具合が表示され、その下に追加・削除・既にある曲・見つからない曲の数が並びます。「今すぐ実行」は下部にあります。</string>
     <string name="howto_review_title">見つからなかった曲</string>
     <string name="howto_review_summary">足りなかった曲を探し、不確かな一致を確認します。</string>
-    <string name="howto_review_body"># どこで見つけるか\n• 同期カードの「見つからず」ラベル、または「要修正」ボタン。\n• カードの「見つからず」の数字。\n• 設定 › 詳細設定 › ログ › 確認。\n# 曲を修正する\n• 候補：見つかった中で最も近い曲ですが、自動で追加するほど近くはありません。正しければ「追加」をタップします。\n• 曲名や「アーティスト - 曲名」で検索するか、どのサービスの曲リンクでも貼り付けられます。「… で開く」でサービスのアプリが開きます。\n• 先頭は「有力候補」です。同期元のアルバム、その他の結果、YouTube Music の場合は動画が、その下に折りたたまれています。\n• 「AI に聞く」は、あなた自身の AI（設定 › 詳細設定 › あなたの AI）によりよい検索を頼みます。\n• 「無視」は、そのサービスへのすべての同期で、その曲の検索をやめます。今のところ元に戻せません。\n選んだ内容は次回以降の実行でも記憶されます。見つからなかった曲は1週間後に再検索されます。\n# 不確かな一致\nTrackhop が確信を持てなかった一致です。「これで正しい」でそのままにし、「変更」で置き換えます。サービスが許す場合は、間違った曲が同期先から削除されます。\n# マッチングのルール\nエディターの「マッチングのルール」で曲の選び方を決めます：厳しさ、露骨な表現のバージョン、同じアルバム、スタジオ版のみ。「Deezer で正確な録音を特定」（設定 › 同期）は録音を識別するコードを調べ、Spotify、Apple Music、TIDAL が正確なバージョンを返せるようにします。</string>
+    <string name="howto_review_body"># どこで見つけるか\n• 同期カードの「見つからず」ラベル、または「要修正」ボタン。\n• カードの「見つからず」の数字。\n• 設定 › 詳細設定 › ログ › 確認。\n# 曲を修正する\n• 候補：見つかった中で最も近い曲ですが、自動で追加するほど近くはありません。正しければ「追加」をタップします。\n• 曲名や「アーティスト - 曲名」で検索するか、どのサービスの曲リンクでも貼り付けられます。「… で開く」でサービスのアプリが開きます。\n• 先頭は「有力候補」です。同期元のアルバム、その他の結果、YouTube Music の場合は動画が、その下に折りたたまれています。\n• 「AI に聞く」は、あなた自身の AI（設定 › 詳細設定 › あなたの AI）によりよい検索を頼みます。\n• 「無視」は、そのサービスへのすべての同期で、その曲の検索をやめます。今のところ元に戻せません。\n選んだ内容は次回以降の実行でも記憶されます。見つからなかった曲は1か月後に再検索されます。\n# 不確かな一致\nTrackhop が確信を持てなかった一致です。「これで正しい」でそのままにし、「変更」で置き換えます。サービスが許す場合は、間違った曲が同期先から削除されます。\n# マッチングのルール\nエディターの「マッチングのルール」で曲の選び方を決めます：厳しさ、露骨な表現のバージョン、同じアルバム、スタジオ版のみ。「Deezer で正確な録音を特定」（設定 › 同期）は録音を識別するコードを調べ、Spotify、Apple Music、TIDAL が正確なバージョンを返せるようにします。</string>
     <string name="howto_backups_title">バックアップと復元</string>
     <string name="howto_backups_summary">プレイリストのコピーを残し、元に戻します。</string>
     <string name="howto_backups_body"># 完全バックアップ\n「ツール › 完全バックアップ」は、1つのサービスのすべてのプレイリストとお気に入りの曲を、日付付きのファイルとして「ファイルのプレイリスト」に保存します。各プレイリストの直近5バージョンが残り、変化のないプレイリストは書き直しません。サービス側は何も変わりません。\n# フォルダーにバックアップ\n「設定 › バックアップ」でフォルダー（SD カード、クラウドアプリなど、フォルダーを提供するアプリ）を選びます。実行のたびに接続中のすべてのサービスを読み込み、変更を保存して新しいファイルをそこへコピーするので、端末に何かあっても残ります。手動のみ、毎日、毎週から選ぶか、「今すぐコピー」をタップします。YouTube では読み込みで割り当てを消費します。\n# 復元する\n• プレイリスト：「ツール › ファイルのプレイリスト › ファイルをインポート」でフォルダーから選び、そのファイルから好きなサービスへの同期を作ります。\n• 「削除も反映」で削除された曲：「設定 › 詳細設定 › ログ › 復元」。\n• 再生できない曲の修正：「ツール › 再生できない曲 › 前回の修正を元に戻す」。\n# 1つのプレイリストをエクスポート\n「ツール › プレイリストをエクスポート」で、CSV、M3U、XSPF、JSPF、プレーンテキストとして保存できます。</string>
@@ -1957,6 +1965,25 @@
     <string name="support_kofi_desc">1 回のみ · カードまたは PayPal · アカウント不要</string>
     <string name="support_sponsors_desc">毎月または 1 回のみ · GitHub アカウントが必要</string>
     <string name="stat_in_playlist">プレイリスト内</string>
+    <string name="stat_in_source">同期元</string>
+    <plurals name="stat_list_removals">
+        <item quantity="other">%d 件の削除</item>
+    </plurals>
+    <plurals name="stat_list_additions">
+        <item quantity="other">%d 件の追加</item>
+    </plurals>
+    <plurals name="nway_removed_from">
+        <item quantity="other">%1$dか所から削除: %2$s</item>
+    </plurals>
+    <plurals name="nway_removed_from_all">
+        <item quantity="other">全%1$dか所から削除</item>
+    </plurals>
+    <plurals name="nway_added_to">
+        <item quantity="other">%1$dか所に追加: %2$s</item>
+    </plurals>
+    <plurals name="nway_added_to_all">
+        <item quantity="other">全%1$dか所に追加</item>
+    </plurals>
     <string name="settings_card_style">カードのスタイル</string>
     <string name="settings_card_style_summary">色、状態、実行履歴、サイズ、表示</string>
     <string name="settings_card_accent">色付きの同期カード</string>
@@ -2156,6 +2183,9 @@
     <string name="notify_help_slack">チャンネル用の incoming webhook を持つアプリを作成し(api.slack.com/messaging/webhooks)、その URL を貼り付けます。</string>
     <string name="notify_help_matrix">ルームにいる(ボット)アカウントのアクセストークン(Element: 設定 › ヘルプと概要)と、ルームの id(ルームの設定 › 詳細)。</string>
     <string name="notify_help_pushover">ユーザーキーは pushover.net のトップページにあります。そこでアプリケーションを作成して API トークンを取得します。</string>
+    <string name="notify_help_apprise">Apprise API のアドレスと、保存した設定のキー（…/notify/キー）。タグを入れると、そのタグが付いたサービスにだけ送ります。空ならすべてに送ります。</string>
+    <string name="notify_field_apprise_url">Apprise API の URL</string>
+    <string name="notify_field_apprise_tag">タグ（任意）</string>
     <string name="notify_field_telegram_token">ボットのトークン</string>
     <string name="notify_field_telegram_chat">Chat id</string>
     <string name="notify_field_ntfy_server">サーバー</string>
@@ -3237,6 +3267,15 @@
     <plurals name="sched_delete_used">
         <item quantity="other">%d 件の同期が使っています:</item>
     </plurals>
+    <string name="sched_used_by_name">%1$s が使用中</string>
+    <plurals name="sched_services">
+        <item quantity="other">%d 個のサービス</item>
+    </plurals>
+    <string name="sched_multi_pill">マルチ</string>
+    <string name="sched_edit_note_multi_one">保存すると、実行時刻が変わります。1 つのサービスだけ変えるには、マルチ同期を開きます。</string>
+    <string name="sched_edit_note_multi">保存すると、すべての同期の実行時刻が変わります。1 つだけ変えるには、その同期を開いて「リンクを解除」をタップします。マルチ同期のサービスを 1 つだけ変えるには、そのマルチ同期を開きます。</string>
+    <string name="settings_help_buttons">ヘルプボタン（?）</string>
+    <string name="settings_help_buttons_summary">オプションの横に「?」を表示します。ガイドは引き続き %1$s › %2$s にあります。</string>
     <string name="whats_new_21_collections_title">共有コレクション</string>
     <string name="whats_new_21_collections_body">複数のプレイリストをひとつの招待で共有。フォローする人は、新しく増えるものも含めてすべて受け取るか、いくつか選べます。それぞれ自分のサービスで。</string>
     <string name="whats_new_21_nway_title">1 つのプレイリストを複数のサービスで</string>
@@ -3267,6 +3306,34 @@
     <string name="whats_new_21_widgets_body">ウィジェットが同期をカードの色とスタイルで表示します。</string>
     <string name="whats_new_21_gaana_title">Gaana</string>
     <string name="whats_new_21_gaana_body">Gaana のプレイリストとお気に入りの曲（アルファ版）、リンクからの Gaana 公開プレイリスト。</string>
+    <string name="whats_new_22_chooser_title">どのサービス？</string>
+    <string name="whats_new_22_chooser_body">サービス選びは選択画面から始まります。名前で検索（別名でも探せます）、まずあなたのアカウント、続いてカテゴリ。</string>
+    <string name="whats_new_22_matching_title">より賢いマッチング</string>
+    <string name="whats_new_22_matching_body">ゲスト（feat.）、リミックス、Taylor\'s Version のようなバージョン、Deluxe や Remaster 盤、AC/DC のような名前がよく一致します。繁体字と簡体字も互いに一致します。</string>
+    <string name="whats_new_22_rerun_title">繰り返しを減らし、答えをわかりやすく</string>
+    <string name="whats_new_22_rerun_body">変わっていないソースはスキップし、見つからなかった曲は1か月後にもう一度探します。「なぜ一致しなかった？」で Trackhop が見た候補を確認できます。</string>
+    <string name="whats_new_22_ytm_title">どの YouTube Music プロフィール？</string>
+    <string name="whats_new_22_ytm_body">接続中のプロフィールまたはチャンネルを表示し、音楽が別の方にある場合は知らせます。</string>
+    <string name="whats_new_22_deezer_title">Deezer</string>
+    <string name="whats_new_22_deezer_body">ファミリープラン：プロフィールを選べます。Deezer の公式サインインは新規ユーザーには提供されなくなりました。「なぜ Deezer がないの？」で説明します。</string>
+    <string name="whats_new_22_listenbrainz_title">宛先としての ListenBrainz</string>
+    <string name="whats_new_22_listenbrainz_body">プレイリストを ListenBrainz に送れます。読み込むだけではありません。</string>
+    <string name="whats_new_22_plex_title">Plex をさらに便利に</string>
+    <string name="whats_new_22_plex_body">星5つは「いいね」した曲として扱います。「Sounds like」と「Sonic adventure」は曲の響きからプレイリストを作ります。プレイリストを Plex Home のユーザーにコピーできます。</string>
+    <string name="whats_new_22_twoaddr_title">自宅と外出先</string>
+    <string name="whats_new_22_twoaddr_body">個人サーバーに自宅用と外出先用の2つのアドレスを設定でき、Trackhop は使える方を使います。</string>
+    <string name="whats_new_22_applerem_title">Apple Music での削除</string>
+    <string name="whats_new_22_applerem_body">同期で Apple Music のプレイリストからも曲を削除できるようになりました。</string>
+    <string name="whats_new_22_files_title">ファイル、評価、選択</string>
+    <string name="whats_new_22_files_body">プレイリストファイルへのリンクをソースにできます。Soundiiz が読める JSON を書き出せます。星の評価をコピーできます。長いリストの上に「すべて選択」と「選択解除」。</string>
+    <string name="whats_new_22_apprise_title">Apprise 通知</string>
+    <string name="whats_new_22_apprise_body">同期の結果を Apprise に送り、そこからほぼあらゆるチャットやアプリへ。</string>
+    <string name="whats_new_22_quick_title">より素早いスタート</string>
+    <string name="whats_new_22_quick_body">1つの宛先と複数の宛先の切り替えが速くなりました。初回は3ページのウェルカム画面で、すぐ最初のサービスへ進めます。</string>
+    <string name="whats_new_22_spotifykey_title">Spotify と自分のキー</string>
+    <string name="whats_new_22_spotifykey_body">Spotify で自分のキーが必要な場合、Trackhop が最初に知らせます。</string>
+    <string name="whats_new_22_desktop_title">デスクトップと Docker</string>
+    <string name="whats_new_22_desktop_body">アプリのほぼすべてが使えます：確認、要修正、スケジュール、プレビュー、カバー、統計、コンサート日記、共有プレイリスト、roast、YouTube の割り当てなど。複数同期の同時実行とサービス選択も。</string>
     <string name="nway_run_place">%1$s · %2$d/%3$d</string>
     <string name="nway_run_services">同期中 · %2$d サービス中 %1$d 番目</string>
     <string name="nway_run_now_desc">%1$s を同期中</string>
@@ -3314,6 +3381,198 @@
     <string name="nway_change_source">同期元になります</string>
     <string name="nway_change_none">プレイリストと追従のしかたは変わりません。</string>
     <string name="nway_schedule_note">このマルチ同期のすべてのプレイリストがこのスケジュールで実行されます。</string>
+    <string name="card_compat_your_name">あなたの名前</string>
+    <string name="card_compat_their_name">相手の名前</string>
+    <string name="card_compat_names_note">任意です。名前はこの端末に保存され、画像にだけ表示されます。</string>
+    <string name="editor_copy_ratings">星の評価をコピー</string>
+    <string name="editor_copy_ratings_desc">iTunes で評価した曲とアルバムには、%1$s でも同じ星が付きます。評価のないものはそのままです。</string>
+    <plurals name="ratings_set">
+        <item quantity="other">★ %1$d 件の評価を設定</item>
+    </plurals>
+    <string name="note_ratings_failed">%2$s で設定できなかった星の評価：%1$d 件。同期自体は完了しています。次回の実行で再度試します。</string>
+    <string name="to_fix_accept_suggestions">候補を承認（%1$d）</string>
+    <plurals name="to_fix_bulk_accepted">
+        <item quantity="other">%1$d 件の候補を承認しました</item>
+    </plurals>
+    <plurals name="to_fix_bulk_no_suggestion">
+        <item quantity="other">残り %1$d 件：候補なし</item>
+    </plurals>
+    <plurals name="to_fix_bulk_later">
+        <item quantity="other">%1$d 曲を、その同期が次に実行されるまで後回しにしました</item>
+    </plurals>
+    <plurals name="to_fix_bulk_ignored">
+        <item quantity="other">%1$d 曲を無視しました</item>
+    </plurals>
+    <plurals name="unplayable_undecided">
+        <item quantity="other">未決定 %1$d 件</item>
+    </plurals>
+    <string name="unplayable_remove_all">すべて削除</string>
+    <string name="unplayable_skip_all">すべてスキップ</string>
+    <plurals name="manage_delete_n_title">
+        <item quantity="other">%2$s から %1$d 件のプレイリストを削除しますか？</item>
+    </plurals>
+    <string name="manage_delete_n_body">%1$s 自体から削除されます。これらに書き込む同期はオフになります。</string>
+    <plurals name="manage_delete_n">
+        <item quantity="other">%1$d 件のプレイリストを削除</item>
+    </plurals>
+    <plurals name="manage_deleted_n">
+        <item quantity="other">%1$d 件のプレイリストを削除しました</item>
+    </plurals>
+    <plurals name="manage_delete_failed_n">
+        <item quantity="other">%1$d 件を削除できませんでした</item>
+    </plurals>
+    <plurals name="manage_syncs_turned_off">
+        <item quantity="other">%1$d 件の同期をオフにしました</item>
+    </plurals>
+    <plurals name="manage_delete_turns_off">
+        <item quantity="other">%1$d 件の同期がこのプレイリストに書き込んでいます。オフになります。</item>
+    </plurals>
+    <string name="saved_matches_forget_short">忘れる</string>
+    <plurals name="saved_matches_forgotten_n">
+        <item quantity="other">%1$d 件を忘れました。次の同期でもう一度検索します。</item>
+    </plurals>
+    <string name="deezer_profile">Deezer のプロフィール</string>
+    <string name="deezer_profile_title">どのプロフィール？</string>
+    <string name="deezer_profile_hint">この Deezer アカウントは Family プランです。Trackhop は選んだプロフィールのプレイリストとお気に入りを読み書きします。あとでアカウントの ⋮ メニューから変更できます。</string>
+    <string name="deezer_profile_holder">アカウント所有者</string>
+    <string name="deezer_profile_later">あとで</string>
+    <string name="deezer_profile_use">このプロフィールを使う</string>
+    <string name="deezer_profile_failed">Deezer がこのプロフィールに切り替わりませんでした。前のプロフィールのままです。あとでもう一度お試しください。</string>
+    <string name="deezer_profile_as">%1$s · Family プロフィール</string>
+    <string name="deezer_why_title">Deezer がないのはなぜ？</string>
+    <string name="deezer_why_official_title">公式の Deezer がないのはなぜ？</string>
+    <string name="deezer_why_body">Deezer は API を使う新しいアプリを受け付けなくなりました。そのため、今はここで提供できません。</string>
+    <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
+    <string name="ytm_profile_title">どの YouTube Music プロフィールを使いますか？</string>
+    <string name="ytm_profile_body">この Google アカウントには %1$d 個のプロフィールがあります。Trackhop は選んだプロフィールでプレイリストと高く評価した曲を読み書きします。</string>
+    <string name="ytm_profile_body_one">Trackhop は選んだプロフィールでプレイリストと高く評価した曲を読み書きします。</string>
+    <string name="ytm_profile_wrong">Trackhop は %1$s を使っていますが、プレイリストも高く評価した曲もありません。音楽は %2$s にあるようです。</string>
+    <string name="ytm_profile_empty">空</string>
+    <string name="ytm_profile_here">音楽はここにあります</string>
+    <string name="ytm_profile_nothing">プレイリストなし、高く評価した曲なし</string>
+    <string name="ytm_profile_no_playlists">プレイリストなし</string>
+    <string name="ytm_profile_no_liked">高く評価した曲なし</string>
+    <string name="ytm_profile_pick_hint">YouTube Music アプリで使っているものを選んでください。あとでアカウントのカードから変更できます。</string>
+    <string name="ytm_profile_use">%1$s を使う</string>
+    <string name="ytm_profile_continue">%1$s で続ける</string>
+    <string name="ytm_profile_keep">%1$s のままにする</string>
+    <string name="ytm_profile_card_wrong">プロフィール %1$s は空です。音楽は %2$s にあるようです。</string>
+    <string name="ytm_profile_change">変更</string>
+    <string name="ytm_profile_row">プロフィール: %1$s</string>
+    <string name="ytm_profile_brand">ブランド アカウント</string>
+    <string name="youtube_empty_channel">このチャンネルにはプレイリストも高く評価した曲もありません。音楽が別のプロフィール（ブランド アカウント）にある場合は、もう一度ログインして Google のリストでそのプロフィールを選んでください。</string>
+    <string name="youtube_empty_keep">このままにする</string>
+    <string name="connect_spotify_shared_note">Spotify は、このバージョンの Trackhop で接続できるアカウントをごく少数に制限しています。あなたのアカウントには、ほぼ確実に無料の自分用キーが必要です。Spotify Premium アカウントで約2分、アプリが順を追って案内します。</string>
+    <string name="connect_try_anyway">それでも試す</string>
+    <string name="connect_use_own_key">自分のキーを使う</string>
+    <string name="onboarding_connect_first">最初のサービスを接続</string>
+    <plurals name="ytm_profile_playlists">
+        <item quantity="other">プレイリスト %d 件</item>
+    </plurals>
+    <plurals name="ytm_profile_liked">
+        <item quantity="other">高く評価した曲 %d 曲</item>
+    </plurals>
+    <string name="chooser_your_accounts">あなたのアカウント</string>
+    <string name="chooser_all">すべて</string>
+    <string name="chooser_cat_games">ゲーム</string>
+    <string name="chooser_cat_radio">ラジオとチャート</string>
+    <string name="chooser_cat_podcasts">ポッドキャスト</string>
+    <string name="chooser_cat_listening">再生履歴</string>
+    <string name="chooser_cat_regional">地域</string>
+    <string name="chooser_cat_files">ファイル</string>
+    <string name="chooser_area_east_asia">東アジア</string>
+    <string name="chooser_area_india_middle_east">インド・中東</string>
+    <string name="chooser_area_africa">アフリカ</string>
+    <string name="chooser_area_europe">ヨーロッパ</string>
+    <string name="chooser_area_americas">南北アメリカ</string>
+    <string name="chooser_show_all">すべて表示（%1$d）</string>
+    <string name="chooser_suggested_here">お住まいの地域のおすすめ</string>
+    <string name="chooser_cannot_target">同期先にはできません</string>
+    <string name="chooser_no_results">「%1$s」に一致するサービスはありません</string>
+    <string name="chooser_clear_search">検索をクリア</string>
+    <plurals name="chooser_search">
+        <item quantity="other">%1$d 件のサービスを検索</item>
+    </plurals>
+    <string name="format_soundiiz">JSON（Soundiiz）</string>
+    <string name="playlisturl_label">プレイリストファイル（リンク）</string>
+    <string name="provider_note_playlisturl">オンラインに置かれたプレイリストファイル：.xspf、.m3u、.m3u8、.jspf、.pls ファイルへのリンクを同期の元として貼り付けてください。Trackhop は実行のたびに読み直します。</string>
+    <string name="playlisturl_unreadable">このリンクのプレイリストファイルを読み込めませんでした（%1$s）</string>
+    <string name="apple_removal_check_name">Trackhop の確認用（削除して構いません）</string>
+    <string name="apple_removal_check_description">Apple Music のプレイリストから曲を削除できるか確認するため、Trackhop が一度だけ作成しました。削除して構いません。</string>
+    <string name="login_url_away">外出先のアドレス（任意）</string>
+    <string name="login_url_away_hint">最初のアドレスが応答しないとき（モバイルデータなど）に使います。Wi-Fi では最初のアドレスを先に試し、最後に使えた方を覚えます。</string>
+    <string name="account_via_home">現在の接続先：%1$s（自宅）</string>
+    <string name="account_via_away">現在の接続先：%1$s（外出先）</string>
+    <string name="why_not_matched_q">なぜ一致しなかった？</string>
+    <string name="why_not_matched">なぜ一致しなかった？</string>
+    <string name="why_needs">必要：%1$d%%</string>
+    <string name="why_axis_title">タイトル</string>
+    <string name="why_axis_artist">アーティスト</string>
+    <string name="why_axis_length">長さ</string>
+    <string name="why_axis_version">バージョン</string>
+    <string name="why_axis_album">アルバム</string>
+    <string name="why_reason_same_isrc">同じ ISRC</string>
+    <string name="why_reason_same_recording">同じ MusicBrainz の録音</string>
+    <string name="why_reason_other_title">別のタイトル</string>
+    <string name="why_reason_other_artist">別のアーティスト</string>
+    <string name="why_reason_length">長さ %1$s</string>
+    <string name="why_reason_version">別のバージョン（ライブ、リミックスなど）</string>
+    <string name="why_reason_album">別のアルバム</string>
+    <string name="why_use">これを使う</string>
+    <string name="why_none">比較できる結果が見つかりませんでした。</string>
+    <string name="why_footer">検索結果のうち近いものだけを表示します（最大 5 件）。「これを使う」で次回以降の同期用に一致を保存します。</string>
+    <string name="plex_home_owner_only">Plex：サーバーのユーザー一覧はサーバー所有者のトークンでのみ取得できます。</string>
+    <string name="plex_home_user_unknown">Plex：このユーザーはもうサーバーを共有していません。</string>
+    <string name="discover_sonic_title">似たサウンド（Plex）</string>
+    <string name="discover_sonic_desc">選んだ曲に似たサウンドの曲や、ある曲から別の曲への旅を、Plex サーバーのサウンド解析から作ります。</string>
+    <string name="sonic_like">似たサウンド</string>
+    <string name="sonic_adventure">ソニックアドベンチャー</string>
+    <string name="sonic_from">開始（曲名）</string>
+    <string name="sonic_to">終点（曲名）</string>
+    <string name="sonic_find">探す</string>
+    <string name="sonic_none_connected">まず Plex サーバーを接続してください（アカウント）。サウンド解析には Plex Pass が必要です。</string>
+    <string name="sonic_empty">Plex から結果がありません。サーバーがこの曲をまだ解析していない可能性があります（サウンド解析には Plex Pass が必要）。</string>
+    <string name="sonic_not_found">Plex に「%1$s」という曲はありません。</string>
+    <string name="sonic_save_plex">Plex に保存</string>
+    <string name="sonic_send">他のサービスへ同期</string>
+    <string name="sonic_saved">Plex に保存しました：%1$s</string>
+    <string name="sonic_name_like">%1$s に似たサウンド</string>
+    <string name="sonic_name_adventure">%1$s → %2$s</string>
+    <string name="plex_copy_menu">Plex Home のユーザーにコピー…</string>
+    <string name="plex_copy_title">「%1$s」のコピー先</string>
+    <string name="plex_copy_nobody">このサーバーはまだ誰とも共有されていません。</string>
+    <string name="plex_copy_note">コピーは同じ曲でこのサーバー上の相手のライブラリに入ります。</string>
+    <string name="plex_copy_button">コピー</string>
+    <string name="plex_copy_done">「%1$s」を %2$s にコピーしました</string>
+    <string name="provider_note_apple_full">ライブラリ内の Apple Music プレイリスト。サブスクリプションと MusicKit 開発者トークンが必要です。Apple の API は追加しかできないため、削除はプレイリストの一覧を書き直して行います（専用の小さなプレイリストで一度確認済み）。</string>
+    <string name="policy_artists_differ">アーティスト名が違っていてもよい</string>
+    <string name="policy_artists_differ_desc">サービスごとに表記が違うアーティスト（周杰倫とJay Chou）向け：曲名・長さ・アルバムが同じなら十分です。アルバムがない場合は確認に回ります。</string>
+    <string name="provider_note_radio">局が流した曲を、各同期が選んだ時間帯に2分ごとに記録します。局ごとに1つ追加してください。読み取るのは局が送る曲名だけで、音声は保存しません。</string>
+    <string name="provider_note_shazam">Shazam で認識したすべての曲。Shazam アプリが Spotify または Apple Music に作るプレイリスト（My Shazam Tracks）から。</string>
+    <string name="radio_add_title">ラジオを追加</string>
+    <string name="radio_add">追加</string>
+    <string name="whats_new_22_radio_title">アカウントにラジオと Shazam</string>
+    <string name="whats_new_22_radio_body">ラジオ局はそれぞれ名前と色を持つアカウントになりました。好きなだけ追加して、同期の元として使えます。Shazam も追加できます。既存のラジオと Shazam の同期は自動で移行されました。</string>
+    <string name="bell_title">通知</string>
+    <string name="bell_desc_update">通知、アップデートあり</string>
+    <string name="bell_mark_all_read">すべて既読にする</string>
+    <string name="bell_clear">消去</string>
+    <string name="bell_clear_confirm">通知の履歴を消去しますか？</string>
+    <string name="bell_empty">まだありません。Trackhopからのお知らせがここに表示されます。</string>
+    <string name="bell_notifications_off">Trackhopの通知はオフです。新しい通知もここには届きます。</string>
+    <string name="bell_turn_on">オンにする</string>
+    <string name="bell_kept">%1$d日間保存（最大%2$d件）。</string>
+    <string name="bell_today">今日</string>
+    <string name="bell_yesterday">昨日</string>
+    <string name="bell_update_ready">アップデートの準備ができました</string>
+    <string name="bell_update_have">現在のバージョン：%1$s</string>
+    <string name="bell_update_download">ダウンロード</string>
+    <string name="bell_update_update">アップデート</string>
+    <plurals name="bell_desc_unread">
+        <item quantity="other">通知、未読%d件</item>
+    </plurals>
+    <string name="whats_new_22_bell_title">通知のベル</string>
+    <string name="whats_new_22_bell_body">通知をタップすると、その内容の画面が開きます。上部のベルにすべて残り、新しいバージョンが出たことも表示します。</string>
     <!-- 2.2.1 (#73): Export the songs not found -->
     <string name="not_found_title">見つからなかった曲をエクスポート</string>
     <string name="not_found_desc">同期の直近の実行で見つからなかった曲。どのサービスでも、1曲につき1回。</string>

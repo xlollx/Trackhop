@@ -150,6 +150,8 @@ class MainActivity : ComponentActivity() {
     private val tabRequests = MutableStateFlow(-1)
     /** A tool a notification asks to open (TOOL_*), once the Tools tab is up. */
     private val toolRequests = MutableStateFlow<String?>(null)
+    /** Where a tapped notice leads (NotifTarget, encoded), until the main screen has opened it. */
+    private val targetRequests = MutableStateFlow<String?>(null)
     /** Testo arrivato con "Condividi con Trackhop": contiene (si spera) il link di una playlist. */
     private val sharedText = MutableStateFlow<String?>(null)
     /** Scorciatoia "Nuova sync" dall'icona: apre subito l'editor. */
@@ -175,11 +177,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         // Asked for on the first sync run or schedule, not here (see NotificationAsk).
         NotificationAsk.request = { askNotificationPermission() }
-        handleIntent(intent)
+        // Recreated (after Android closed the process, or reopened from the recent apps): the intent is the
+        // one the task began with, whose notice was opened already. Not opened again.
+        handleIntent(intent, restored = savedInstanceState != null)
         // A tab asked for but not shown yet when the activity was recreated (the text size or the
         // screen turned right after opening): the request left the intent with the first activity.
         savedInstanceState?.getInt(EXTRA_TAB, -1)?.let { if (it >= 0) tabRequests.value = it }
         savedInstanceState?.getString(EXTRA_TOOL)?.let { toolRequests.value = it }
+        savedInstanceState?.getString(EXTRA_TARGET)?.let { targetRequests.value = it }
         if (savedInstanceState == null) com.xlollx.songport.sync.SupportPrompt.opened(Store.get(this))
         if (Store.get(this).data.settings.appLock && !unlockedThisProcess) {
             locked.value = true
@@ -204,14 +209,14 @@ class MainActivity : ComponentActivity() {
                 // The window's shape (phone, phone on its side, tablet), worked out here once for every screen.
                 val config = androidx.compose.ui.platform.LocalConfiguration.current
                 val layout = remember(config.screenWidthDp, config.screenHeightDp) { WindowLayout.of(config.screenWidthDp, config.screenHeightDp) }
-                if (isLocked) LockScreen { requestUnlock() } else CompositionLocalProvider(LocalWindowLayout provides layout) {
+                if (isLocked) LockScreen { requestUnlock() } else CompositionLocalProvider(LocalWindowLayout provides layout, com.xlollx.songport.ui.LocalHelpButtons provides settings.settings.helpButtons, com.xlollx.songport.ui.LocalAccountColors provides settings.settings.connectorColors) {
                     // On its side the camera cutout and the three-button bar are at the left and right: the
                     // app stays between them, on its own background (nothing to keep clear of when upright).
                     Box(
                         Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
                             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
                     ) {
-                        MainScreen(messages, tabRequests, sharedText, newSyncRequests, toolRequests)
+                        MainScreen(messages, tabRequests, sharedText, newSyncRequests, toolRequests, targetRequests)
                         // The guided first sync, over every screen of the app; nothing unless started.
                         com.xlollx.songport.ui.TourOverlay()
                         // "Support Trackhop" from anywhere: Ko-fi or GitHub Sponsors.
@@ -226,12 +231,23 @@ class MainActivity : ComponentActivity() {
         super.onSaveInstanceState(outState)
         tabRequests.value.let { if (it >= 0) outState.putInt(EXTRA_TAB, it) }
         toolRequests.value?.let { outState.putString(EXTRA_TOOL, it) }
+        targetRequests.value?.let { outState.putString(EXTRA_TARGET, it) }
     }
 
     override fun onResume() {
         super.onResume()
         // A radio sync whose window is open listens from here if it could not start in the background.
         runCatching { com.xlollx.songport.sync.RadioPlan.refresh(this, start = true) }
+        // Which services are signed in, read once in the background for the editors (a sign-in may have just happened elsewhere).
+        com.xlollx.songport.ui.Connections.refreshAsync(com.xlollx.songport.platform.AndroidEnv.of(this)) { slow ->
+            android.util.Log.d("tkh.vornelle", "slow sign-in checks (ms): $slow")
+        }
+    }
+
+    override fun onPause() {
+        // Signing in or out happens in other screens and apps: asked again on the way back.
+        com.xlollx.songport.ui.Connections.invalidate()
+        super.onPause()
     }
 
     override fun onDestroy() {
@@ -244,7 +260,17 @@ class MainActivity : ComponentActivity() {
         handleIntent(intent)
     }
 
-    private fun handleIntent(i: Intent?) {
+    private fun handleIntent(i: Intent?, restored: Boolean = false) {
+        // A tapped notice (Notifications.open): where it leads, and its entry in the bell, now read.
+        i?.getStringExtra(EXTRA_HISTORY_ID)?.let { id ->
+            i.removeExtra(EXTRA_HISTORY_ID)
+            if (!restored) runCatching { com.xlollx.songport.notify.NotifyHistory.of(filesDir).markRead(id) }
+        }
+        i?.getStringExtra(EXTRA_TARGET)?.let { t ->
+            i.removeExtra(EXTRA_TARGET)
+            val fromRecents = i.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
+            if (!restored && !fromRecents) targetRequests.value = t
+        }
         when (i?.action) {
             ACTION_SYNC_ALL -> {
                 messages.value = getString(if (Scheduler.runNow(this, SyncWorker.ALL)) R.string.running else R.string.offline_queued_all)
@@ -289,17 +315,22 @@ class MainActivity : ComponentActivity() {
             }
         }
         i?.getStringExtra(EXTRA_MESSAGE)?.let { if (it.isNotBlank()) messages.value = it; i.removeExtra(EXTRA_MESSAGE) }
+        // A tool asked by name (older notifications, still in the shade after an update; the UI tests): opened
+        // as a notice's target, tab and page together. Its tab extra is not applied apart: that request used
+        // to close the tool it had just opened (the "N tracks can no longer be played" notice opened the home).
+        val legacyTool = i?.getStringExtra(EXTRA_TOOL)?.let { legacyTarget(it) }
+        if (legacyTool != null) { i?.removeExtra(EXTRA_TOOL); i?.removeExtra(EXTRA_TAB); if (!restored) targetRequests.value = legacyTool.encode() }
         if (i?.hasExtra(EXTRA_TAB) == true) { tabRequests.value = i.getIntExtra(EXTRA_TAB, 0); i.removeExtra(EXTRA_TAB) }
         i?.getStringExtra(EXTRA_TOOL)?.let { toolRequests.value = it; i.removeExtra(EXTRA_TOOL) }
         // The new-version notification: only Trackhop's own release pages are opened (anyone can start this screen).
         i?.getStringExtra(EXTRA_OPEN_RELEASE)?.let { u ->
             i.removeExtra(EXTRA_OPEN_RELEASE)
-            if (u.startsWith("$RELEASES_PREFIX/")) runCatching { startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(u))) }
+            if (!restored && u.startsWith("$RELEASES_PREFIX/")) runCatching { startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(u))) }
         }
         // A web page from a notification (a record for sale, a concert): only http(s), in the browser.
         i?.getStringExtra(EXTRA_OPEN_LINK)?.let { u ->
             i.removeExtra(EXTRA_OPEN_LINK)
-            if (u.startsWith("https://") || u.startsWith("http://")) runCatching {
+            if (!restored && (u.startsWith("https://") || u.startsWith("http://"))) runCatching {
                 startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(u)).addCategory(Intent.CATEGORY_BROWSABLE))
             }
         }
@@ -330,6 +361,17 @@ class MainActivity : ComponentActivity() {
         /** A report to review (a one-off transfer's notification). */
         const val EXTRA_REVIEW = "review"
         const val EXTRA_FOCUS_CONNECTOR = "focusConnector"
+        /** Where a tapped notice leads: a [com.xlollx.songport.notify.NotifTarget], encoded (NotifRoutes). */
+        const val EXTRA_TARGET = "notifTarget"
+        /** The notice's entry in the bell (NotifyHistory), marked read by the tap. */
+        const val EXTRA_HISTORY_ID = "notifEntry"
+
+        /** A tool asked for by name (TOOL_*), as a notice's target. */
+        fun legacyTarget(tool: String): com.xlollx.songport.notify.NotifTarget? = when (tool) {
+            TOOL_UNPLAYABLE -> com.xlollx.songport.notify.NotifTarget.Unplayable(null)
+            TOOL_FOLLOWED -> com.xlollx.songport.notify.NotifTarget.Followed
+            else -> null
+        }
         const val TOOL_UNPLAYABLE = "unplayable"
         /** Not a tool: the alerts' notification asks this way for Discover › Followed artists. */
         const val TOOL_FOLLOWED = "followed"
@@ -349,6 +391,21 @@ class MainActivity : ComponentActivity() {
         const val TAB_DISCOVER = 5
 
         @Volatile var unlockedThisProcess = false
+
+        /**
+         * A notice that leads out of the app: the update's flow (Trackhop's own release page on GitHub,
+         * else the build's own: Google Play's), or a web page (http(s) only), in the browser.
+         */
+        fun openOutside(ctx: android.content.Context, r: NotifRoute) {
+            val u = r.link
+            when {
+                r.update && u != null && u.startsWith("$RELEASES_PREFIX/") -> runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(u))) }
+                r.update -> com.xlollx.songport.update.AppUpdates.open(ctx)
+                u != null && (u.startsWith("https://") || u.startsWith("http://")) -> runCatching {
+                    ctx.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(u)).addCategory(Intent.CATEGORY_BROWSABLE))
+                }
+            }
+        }
     }
 }
 
@@ -360,6 +417,7 @@ private fun MainScreen(
     sharedText: MutableStateFlow<String?>,
     newSyncRequests: MutableStateFlow<Boolean>,
     toolRequests: MutableStateFlow<String?> = MutableStateFlow(null),
+    targetRequests: MutableStateFlow<String?> = MutableStateFlow(null),
 ) {
     val ctx = LocalContext.current
     val store = remember { Store.get(ctx) }
@@ -509,6 +567,8 @@ private fun MainScreen(
     var discoverSubpage by remember { mutableStateOf(false) }
     var discoverHome by remember { mutableIntStateOf(0) }
     var addConnector by rememberSaveable { mutableStateOf(false) }
+    // A service picked in the sync editor's "Which service?": Accounts names it and signs in.
+    var addService by rememberSaveable { mutableStateOf<String?>(null) }
     // A single track shared from a service's app: which of your playlists it goes to.
     var sharedTrack by remember { mutableStateOf<Pair<MusicProvider, com.xlollx.songport.model.Track>?>(null) }
     // A track link from any music app, headed for any connected service (ShareTrackSheet).
@@ -648,6 +708,31 @@ private fun MainScreen(
         }
     }
 
+    // A tapped notice (or its entry in the bell): its tab, and on it the page it is about, in one go
+    // (NotifRoutes). The pages left open over the tabs close first, as for a tab asked for above.
+    val targetAsked by targetRequests.collectAsState()
+    LaunchedEffect(targetAsked) {
+        val t = com.xlollx.songport.notify.NotifTarget.parse(targetAsked ?: return@LaunchedEffect)
+        targetRequests.value = null
+        if (t == null) return@LaunchedEffect
+        val r = com.xlollx.songport.NotifRoutes.resolve(t, store.data)
+        if (r.update || r.link != null) { MainActivity.openOutside(ctx, r); return@LaunchedEffect }
+        previewJob = null; targetJob = null; unmatchedReport = null; filesOpen = false; logOpen = false
+        howToOpen = false; manageProvider = null; scanProvider = null; unplayableProvider = null
+        transferOpen = false; statsOpen = false; backupOpen = false; tipsOpen = false; sharedOpen = false
+        if (nwayOpen != com.xlollx.songport.ui.NwayUi.NEW) nwayOpen = null
+        newSyncChooser = false
+        if (r.tab >= 0) tab = r.tab
+        r.focusJob?.let { com.xlollx.songport.ui.JobFocus.request.value = it }
+        r.review?.let { unmatchedReport = it }
+        r.group?.let { if (nwayOpen != com.xlollx.songport.ui.NwayUi.NEW) nwayOpen = it }
+        if (r.unplayable) unplayableProvider = r.unplayableProvider?.let { Providers.byId(it) }?.takeIf { it.detectsUnplayable && it.isConnected(ctx) }
+            ?: Providers.connectors().firstOrNull { it.detectsUnplayable && it.isConnected(ctx) }
+        if (r.followed) followedAsked = true
+        r.connector?.let { com.xlollx.songport.ui.ConnectorFocus.request.value = it }
+        if (r.log) logOpen = true
+    }
+
     // The guided first sync: each step brings its screen (the Syncs tab, then a new sync's editor).
     val tourStep by com.xlollx.songport.ui.Tour.step.collectAsState()
     LaunchedEffect(tourStep) {
@@ -664,6 +749,8 @@ private fun MainScreen(
         OnboardingScreen(
             onDone = { store.updateSettings { it.copy(onboardingDone = true, whatsNewSeen = newest) } },
             onTour = { store.updateSettings { it.copy(onboardingDone = true, whatsNewSeen = newest) }; com.xlollx.songport.ui.Tour.start() },
+            // The welcome ends on the choice of the first service, the sheet "New sync" opens with nothing connected.
+            onConnect = { store.updateSettings { it.copy(onboardingDone = true, whatsNewSeen = newest) }; tab = MainActivity.TAB_SYNCS; firstSheet = true },
         )
         return
     }
@@ -699,7 +786,7 @@ private fun MainScreen(
         onSeeAll = { firstSheet = false; tab = MainActivity.TAB_ACCOUNTS; addConnector = true },
     )
     connectNow?.let { p ->
-        com.xlollx.songport.ui.ConnectDialog(p, onDismiss = { connectNow = null }) {
+        com.xlollx.songport.ui.ConnectDialog(p, onDismiss = { connectNow = null }, onOwnKey = { connectNow = null; tab = MainActivity.TAB_ACCOUNTS; wizardFor = p }) {
             connectNow = null
             com.xlollx.songport.auth.AuthFlow.start(ctx, p)
         }
@@ -830,6 +917,7 @@ private fun MainScreen(
                     onCancel = { editing = null },
                     // To Accounts with its service grid open; the sync not saved yet is left.
                     onConnectService = { editing = null; tab = MainActivity.TAB_ACCOUNTS; addConnector = true },
+                    onAddService = { editing = null; tab = MainActivity.TAB_ACCOUNTS; addService = it.id },
                     twinName = editingTwinId?.let { store.job(it) }?.takeIf { it.linkedJobId == current.id }?.name,
                     onSeveral = if (com.xlollx.songport.Features.v2(data.settings)) ({ ref -> editing = null; nwayStart = ref; nwayEdit = com.xlollx.songport.ui.NwayUi.NEW }) else null,
                     onSave = { job, reverse ->
@@ -954,9 +1042,9 @@ private fun MainScreen(
                     // What the parts of a sync card and of an account card mean: one "?" for each list.
                     when (tab) {
                         MainActivity.TAB_SYNCS -> {
-                            // Round buttons, 48dp each at any width and font size: the update's arrow whenever there
-                            // is one, then the cup. The cards' "?" lives beside Sync all, in the list (owner, 12/11).
-                            com.xlollx.songport.ui.UpdateButton()
+                            // Round buttons, 48dp each at any width and font size: the bell (the notices, and the update's
+                            // arrow on it whenever there is one: 2.2), then the cup. The cards' "?" lives beside Sync all, in the list (owner, 12/11).
+                            com.xlollx.songport.ui.NotificationBell { targetRequests.value = it }
                             com.xlollx.songport.ui.SupportButton()
                         }
                         MainActivity.TAB_ACCOUNTS -> {
@@ -1083,7 +1171,8 @@ private fun MainScreen(
                     onMessage = { msg -> snackScope.launch { snackbar.currentSnackbarData?.dismiss(); snackbar.showSnackbar(msg) } },
                     onOpenGroup = { nwayOpen = it },
                 )
-                MainActivity.TAB_ACCOUNTS -> AccountsScreen(snackbar, addConnector, { addConnector = it }, { wizardFor = it }, onManageFiles = { filesOpen = true }, onSendTo = sendToService)
+                MainActivity.TAB_ACCOUNTS -> AccountsScreen(snackbar, addConnector, { addConnector = it }, { wizardFor = it }, onManageFiles = { filesOpen = true }, onSendTo = sendToService,
+                    pendingAdd = addService, onPendingAddTaken = { addService = null })
                 MainActivity.TAB_DISCOVER -> com.xlollx.songport.ui.DiscoverScreen(
                     snackbar, compareLinks = compareLinks, onCompareClosed = { compareLinks = null }, onSubpage = { discoverSubpage = it }, homeRequests = discoverHome,
                     onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onBackup = { backupOpen = true },

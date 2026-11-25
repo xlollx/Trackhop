@@ -75,6 +75,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.QueryStats
+import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.unit.sp
 import androidx.compose.animation.core.animateDpAsState
@@ -132,6 +133,8 @@ internal enum class DiscoverCard(val emoji: String, val tint: Long, val titleRes
     FOLLOWED("🔔", 0xFF00695C, R.string.alerts_followed_title, R.string.alerts_followed_desc, Icons.Filled.Notifications),
     MYRECORDS("📀", 0xFF37474F, R.string.discover_myrecords_title, R.string.discover_myrecords_desc, Icons.Filled.Album),
     LIFETIME("📊", 0xFF1565C0, R.string.discover_lifetime_title, R.string.discover_lifetime_desc, Icons.Filled.QueryStats, longArrayOf(0xFF0D47A1, 0xFF1565C0, 0xFF6A1B9A)),
+    /** Plex's sonic analysis (2.2): in the grid only while a Plex server is connected. */
+    SONIC("🎚️", 0xFFE5A00D, R.string.discover_sonic_title, R.string.discover_sonic_desc, Icons.Filled.GraphicEq, longArrayOf(0xFF3E2723, 0xFFB26A00, 0xFFE5A00D)),
     ;
 
     /** The tile's mark as a Material line icon instead of an emoji, drawn in the secondary text colour. */
@@ -271,6 +274,7 @@ fun DiscoverScreen(
                         DiscoverCard.FOLLOWED -> FollowedArtistsPage(local, followedSettings) { followedSettings = false }
                         DiscoverCard.LIFETIME -> LifetimePage(local, onNewSync)
                         DiscoverCard.MYRECORDS -> MyRecordsPage(local, onNewSync)
+                        DiscoverCard.SONIC -> SonicPage(local, onNewSyncFromFile)
                     }
                 }
             } }
@@ -280,12 +284,17 @@ fun DiscoverScreen(
 
     val store = Store.get(ctx)
     val savedOrder = store.state.collectAsState().value.settings.discoverOrder
-    val order = DiscoverCard.ordered(savedOrder)
+    // Sounds like (Plex) only while a Plex server is connected.
+    // Read off the main thread (a server's sign-in is in the encrypted store): the card shows once it is known.
+    val sonicOn by androidx.compose.runtime.produceState(false) {
+        value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { plexServers(ctx).isNotEmpty() }
+    }
+    val order = DiscoverCard.ordered(savedOrder).filter { it != DiscoverCard.SONIC || sonicOn }
     // The order while a card is dragged: saved when it is let go.
     var dragOrder by remember { mutableStateOf<List<DiscoverCard>?>(null) }
     val shown = dragOrder ?: order
     // The store's order as it is now: the drag and TalkBack callbacks can outlive the composition they were made in.
-    val orderNow = { DiscoverCard.ordered(store.data.settings.discoverOrder) }
+    val orderNow = { DiscoverCard.ordered(store.data.settings.discoverOrder).filter { it != DiscoverCard.SONIC || sonicOn } }
     fun save(cards: List<DiscoverCard>) {
         val ids = cards.map { it.id }
         store.updateSettings { it.copy(discoverOrder = DiscoverOrder.toSave(ids, DiscoverCard.ordered(emptyList()).map { c -> c.id })) }

@@ -24,8 +24,10 @@ object Matcher {
      * Raised whenever matching or searching changes so that a track missed before may be found now:
      * the misses remembered under another revision are searched again on the next run (#57).
      * 3 with the 1.18 switch, where names are compared across scripts too; 1.17 keeps its misses.
+     * 4 with 2.2: traditional and simplified Chinese as one, artists' other names from MusicBrainz,
+     * title and album when the artists are written in two scripts, version words in more languages.
      */
-    val REVISION: Int get() = if (Features.v2) 3 else 2
+    val REVISION: Int get() = if (Features.v2) 4 else 2
 
     private val BRACKET_NOISE = Regex(
         """\s*[(\[][^)\]]*\b(feat\.?|ft\.?|featuring|remaster\w*|rimasterizzat\w*|version|versione|edit|(?<!re)mix|live|mono|stereo|deluxe|bonus|explicit|clean|official|video|audio|lyrics?|hd|4k|visuali[sz]er|radio|single|album|original|from|soundtrack|ost|anniversary|edition|\d{4})\b[^)\]]*[)\]]""",
@@ -37,7 +39,7 @@ object Matcher {
      * merely contains the word ("(Dancing with Myself)") stays.
      */
     private val CREDIT_BRACKET = Regex(
-        """\s*[(\[]\s*(with|con|w/|prod\.?|produced\s+by)\s[^)\]]*[)\]]""",
+        """\s*[(\[]\s*(with|con|w/|avec|part\.|prod\.?|produced\s+by)\s[^)\]]*[)\]]""",
         RegexOption.IGNORE_CASE,
     )
     private val FEAT_TAIL = Regex("""\s+([-–—]\s+)?(feat\.?|ft\.?|featuring|w/|prod\.?\s+by|prod\.)\s+.*$""", RegexOption.IGNORE_CASE)
@@ -45,6 +47,7 @@ object Matcher {
         """\s*[-–—]\s*(((\d{4}|digital(ly)?|single|new(ly)?|\d+[- ]?bit|versi[oó]n)\s+)*remast[eé]r.*|radio edit.*|single version.*|album version.*|live.*|mono.*|stereo.*|deluxe.*|bonus track.*|extended.*|original mix.*|rimasterizzat.*|versione\s.*|[^-–—]*\bversion|(from|de|dal)\s.*|\d{4}\s.*)$""",
         RegexOption.IGNORE_CASE,
     )
+    private val THE_LAST = Regex(""",\s*the\s*$""")
     private val ARTIST_TAIL = Regex("""\s+(feat\.?|ft\.?|featuring|vs\.?)\s+.*$""", RegexOption.IGNORE_CASE)
     private val NON_ALNUM = Regex("""[^\p{L}\p{N}\s]""")
     /** Initials with dots, "U.S.A", "R.E.M.", "L.A.": one word, as most libraries write them ("USA"). */
@@ -60,10 +63,31 @@ object Matcher {
      * karaoke che YouTube propone per prima). Controllate sul titolo grezzo, prima che la
      * normalizzazione tolga le parentesi.
      */
-    private val VERSION_MARKERS = Regex(
-        """\b(live|karaoke|instrumental|cover|tribute|sped\s*up|slowed|nightcore|8d|acoustic|acustic[ao]?|unplugged|demo|remix|rmx|a\s*cappella|acapella|reverb|lofi|lo-fi|parody|reaction|remaster(ed)?|mono|stereo)\b""",
-        RegexOption.IGNORE_CASE,
-    )
+    private val VERSION_WORDS: List<Pair<String, Regex>> = listOf(
+        "live" to """\blive\b""",
+        "karaoke" to """\bkaraoke\b|カラオケ|노래방|卡拉\s*ok|\bin the style of\b|\bmade famous by\b|\boriginally performed by\b|\bbacking track\b""",
+        "instrumental" to """\binstrumental(e|es)?\b|\binstrumentaal\b|\benstrumantal\b|インスト|伴奏""",
+        "cover" to """\bcover\b""",
+        "tribute" to """\btribute\b""",
+        "spedup" to """\bspe+d\s*up\b""",
+        "slowed" to """\bslowed\b""",
+        "nightcore" to """\bnightcore\b""",
+        "8d" to """\b8d\b""",
+        "acoustic" to """\bacoustic\b|\bacustic[oa]s?\b|\bakusti(k|sch|sche|scher|cna|czna|czny)\b|\bacoustique\b|\bakoestisch\b|アコースティック|어쿠스틱""",
+        "unplugged" to """\bunplugged\b""",
+        "demo" to """\bdemo\b""",
+        "remix" to """\bremix(ed)?\b|\brmx\b|\bremezcla\b|\brework\b|\bbootleg\b|リミックス|리믹스""",
+        "acapella" to """\ba\s*cappella\b|\bacapella\b""",
+        "reverb" to """\breverb\b""",
+        "lofi" to """\blo-?fi\b""",
+        "parody" to """\bparody\b""",
+        "reaction" to """\breaction\b""",
+        "remaster" to """\bremaster(ed)?\b|\bremasteris[e]e?\b|\bremasterizad[oa]\b|\brimasterizzat[oa]\b|\bremasterisiert\b|リマスター""",
+        "mono" to """\bmono\b""",
+        "stereo" to """\bstereo\b""",
+        // Another recording of the same song by the same artist: "Love Story (Taylor's Version)".
+        "rerecord" to """\bre-?record(ed|ing)?\b|\b\w+['’]s version\b""",
+    ).map { (k, v) -> k to Regex(v, RegexOption.IGNORE_CASE) }
 
     /**
      * A concert said by where it was played, without the word "live": "SING (iTunes Festival '11)",
@@ -71,9 +95,11 @@ object Matcher {
      * song called "Festival" or "Concerto" is not taken for one.
      */
     private val CONCERT = Regex(
-        """\b(festival|concerts?|sessions?|lounge|mtv|on tour|tour edition|on stage|en vivo|ao vivo|dal vivo|en directo|en concierto|en concert|in concert|konzert|live at|live from|live in|live on)\b""",
+        """\b(festival|concerts?|sessions?|lounge|mtv|on tour|tour edition|on stage|en vivo|ao vivo|dal vivo|en directo|en concierto|en concert|in concert|konzert|live at|live from|live in|live on|na zywo)\b|\bcanl[iı](?!\p{L})""",
         RegexOption.IGNORE_CASE,
     )
+    /** The same in scripts whose marks the folding of accents would break (ライブ would lose its dakuten). */
+    private val CONCERT_RAW = Regex("""ライブ|라이브|现场|現場|演唱会|演唱會|концерт""", RegexOption.IGNORE_CASE)
 
     /**
      * An album recorded at a concert, by whole phrases only: "Live at Wembley", "MTV Unplugged in New
@@ -92,8 +118,7 @@ object Matcher {
      * album in place of a studio one. For matches made before these rules knew a concert.
      */
     fun liveInPlaceOf(src: Track, cand: Track): Boolean {
-        val neutral = setOf("remaster", "mono", "stereo")
-        val extra = (versionMarkers(cand.title) - neutral) - (versionMarkers(src.title) - neutral)
+        val extra = (versionMarkers(cand.title) - NEUTRAL_VERSIONS) - (versionMarkers(src.title) - NEUTRAL_VERSIONS)
         return "live" in extra || liveAlbumFactor(src.album, cand.album) < 1.0
     }
 
@@ -106,16 +131,22 @@ object Matcher {
      */
     fun liveAlbumFactor(srcAlbum: String, candAlbum: String, policy: MatchPolicy = MatchPolicy()): Double {
         if (srcAlbum.isBlank() || !albumIsLive(candAlbum) || albumIsLive(srcAlbum) || COLLECTION.containsMatchIn(srcAlbum)) return 1.0
-        if (normalizeTitle(srcAlbum) == normalizeTitle(candAlbum)) return 1.0
+        if (normalizeAlbum(srcAlbum) == normalizeAlbum(candAlbum)) return 1.0
         return if (policy.studioOnly) 0.3 else 0.75
     }
 
+    /**
+     * The versions [title] names, each by one word whatever the language: "live", "acoustic" ("Acústico",
+     * "Akustik"), "remix" ("RMX", "Remezcla"), "karaoke" ("In the Style of"), "rerecord" ("Taylor's
+     * Version")… A concert said by its place ("iTunes Festival", "En Vivo", "Canlı") counts as "live",
+     * in the subtitle only.
+     */
     fun versionMarkers(title: String): Set<String> {
-        val words = VERSION_MARKERS.findAll(stripDiacritics(title).lowercase()).map { m ->
-            m.groupValues[1].replace(Regex("""\s+"""), "").replace("-", "").removeSuffix("ed").removeSuffix("ao").removeSuffix("a")
-        }.toSet()
+        val folded = stripDiacritics(title).lowercase()
+        val raw = title.lowercase()
+        val words = VERSION_WORDS.filter { (_, re) -> re.containsMatchIn(folded) || re.containsMatchIn(raw) }.mapTo(HashSet()) { it.first }
         val subtitle = SUBTITLE.find(title)?.value.orEmpty()
-        return if (CONCERT.containsMatchIn(stripDiacritics(subtitle))) words + "live" else words
+        return if (CONCERT.containsMatchIn(stripDiacritics(subtitle)) || CONCERT_RAW.containsMatchIn(subtitle)) words + "live" else words
     }
 
     /**
@@ -124,10 +155,10 @@ object Matcher {
      * versione live sulla destinazione e' comunque un'approssimazione accettabile.
      * "remaster/mono/stereo" sono neutri: e' lo stesso brano.
      */
-    fun versionFactor(srcTitle: String, candTitle: String): Double {
-        val neutral = setOf("remaster", "mono", "stereo")
-        val a = versionMarkers(srcTitle) - neutral
-        val b = versionMarkers(candTitle) - neutral
+    fun versionFactor(srcTitle: String, candTitle: String): Double =
+        versionFactorN(versionMarkers(srcTitle) - NEUTRAL_VERSIONS, versionMarkers(candTitle) - NEUTRAL_VERSIONS)
+
+    private fun versionFactorN(a: Set<String>, b: Set<String>): Double {
         return when {
             a == b -> 1.0
             (b - a).isNotEmpty() -> 0.55
@@ -267,6 +298,8 @@ object Matcher {
     fun normalizeArtist(s: String): String {
         var a = stripDiacritics(s).lowercase()
         a = ARTIST_TAIL.replace(a, " ")
+        // "Beatles, The": a library's sort name, the same band.
+        a = THE_LAST.replace(a, "")
         a = a.replace("&", " and ").replace("$", "s")
         a = APOSTROPHES.replace(a, "")
         a = joinInitials(a)
@@ -280,8 +313,8 @@ object Matcher {
      * searched artist first, the rest after, each group in the server's order.
      */
     fun byArtist(track: Track, found: List<Track>): List<Track> {
-        val want = track.artists.map { normalizeArtist(it) }.filter { it.isNotEmpty() }.toSet()
-        return found.sortedByDescending { t -> t.artists.any { normalizeArtist(it) in want } }
+        val want = track.artists.map { Hanzi.simplified(normalizeArtist(it)) }.filter { it.isNotEmpty() }.toSet()
+        return found.sortedByDescending { t -> t.artists.any { Hanzi.simplified(normalizeArtist(it)) in want } }
     }
 
     /** Versioni compatte per costruire le query di ricerca. */
@@ -339,7 +372,7 @@ object Matcher {
     }
 
     fun artistScore(a: List<String>, b: List<String>): Double =
-        artistScoreN(a.map { normalizeArtist(it) }.filter { it.isNotEmpty() }, b.map { normalizeArtist(it) }.filter { it.isNotEmpty() })
+        artistScoreN(a.map { Hanzi.simplified(normalizeArtist(it)) }.filter { it.isNotEmpty() }, b.map { Hanzi.simplified(normalizeArtist(it)) }.filter { it.isNotEmpty() })
 
     private fun artistScoreN(na: List<String>, nb: List<String>): Double {
         if (na.isEmpty() || nb.isEmpty()) return 0.5 // sconosciuto: neutro
@@ -347,14 +380,35 @@ object Matcher {
         for (x in na) for (y in nb) best = max(best, similarity(x, y))
         val ja = na.joinToString(" "); val jb = nb.joinToString(" ")
         if (ja.contains(jb) || jb.contains(ja)) best = max(best, 0.9)
+        if (best < 1.0 && na.any { x -> nb.any { y -> sameName(x, y) } }) best = 1.0
+        // Another name of the same artist, from MusicBrainz (周杰倫 and Jay Chou, #81).
+        if (best < 0.95 && na.any { x -> nb.any { y -> ArtistAliases.same(x, y) } }) best = 0.95
         return best
     }
 
-    fun durationFactor(a: Long, b: Long): Double {
+    /** A YouTube channel's or a label's way of naming an artist: "Adele - Topic", "AdeleVEVO", "Adele Official", "Adele Music". */
+    private val CHANNEL_TAIL = Regex("""(\s+(official|music|official music|topic|band official))+$|vevo$""")
+
+    /**
+     * Two normalised artist names that are one written apart or joined ("AC/DC" and "ACDC", "Jay-Z" and
+     * "Jay Z"), or the same with a channel's tail ("Adele - Topic", "AdeleVEVO", "Daft Punk Music").
+     */
+    internal fun sameName(a: String, b: String): Boolean {
+        fun forms(n: String): Set<String> = setOf(n, CHANNEL_TAIL.replace(n, "")).map { it.replace(" ", "") }.filter { it.length >= 2 }.toSet()
+        if (a.isEmpty() || b.isEmpty()) return false
+        val fb = forms(b)
+        return forms(a).any { it in fb }
+    }
+
+    /**
+     * The lengths: the same within 2.5 s, or 5 s when [loose] (a remaster, a clean or explicit
+     * edition, where another fade or a muted word moves the end a little).
+     */
+    fun durationFactor(a: Long, b: Long, loose: Boolean = false): Double {
         if (a <= 0 || b <= 0) return 0.95
         val d = abs(a - b)
         return when {
-            d <= 3_000 -> 1.0
+            d <= (if (loose) 5_000 else 2_500) -> 1.0
             d <= 10_000 -> 0.93
             d <= 25_000 -> 0.8
             else -> 0.5
@@ -387,9 +441,130 @@ object Matcher {
     class Norm(val track: Track, val title: String, val artists: List<String>, val isrc: String?) {
         /** Something of it is written in another script than Latin: only then is it compared across scripts. */
         val foreign = Translit.foreign(track.title) || track.artists.any { Translit.foreign(it) }
+        /** What a candidate is compared by, read once however many it meets (an index's every track). */
+        internal val versions: Set<String> by lazy { versionMarkers(track.title) }
+        internal val markers: Set<String> by lazy { versions - NEUTRAL_VERSIONS }
+        internal val remixers: Set<String> by lazy { remixers(track.title) }
+        internal val people: List<String> by lazy { people(track) }
+        internal val imitator: Boolean by lazy { track.artists.any { IMITATOR.containsMatchIn(stripDiacritics(it).lowercase()) } }
     }
 
-    fun norm(t: Track) = Norm(t, normalizeTitle(t.title), t.artists.map { normalizeArtist(it) }.filter { it.isNotEmpty() }, t.isrcNorm)
+    /** A track's names folded for comparing: the normalised forms, traditional Chinese as simplified (#81). */
+    fun norm(t: Track) = Norm(
+        t, Hanzi.simplified(normalizeTitle(t.title)),
+        t.artists.map { Hanzi.simplified(normalizeArtist(it)) }.filter { it.isNotEmpty() }, t.isrcNorm,
+    )
+
+    /** Versions that are the same recording: "remaster", "mono", "stereo". */
+    private val NEUTRAL_VERSIONS = setOf("remaster", "mono", "stereo")
+
+    // ------------------------------------------------------------------ who else sings (feat.)
+
+    /** Where a title credits someone: "(feat. X)", "[ft. X]", "(with X)", "(con X)", "(part. X)", "(avec X)". */
+    private val TITLE_CREDIT = Regex(
+        """[(\[]\s*(?:feat\.?|ft\.?|featuring|with|con|w/|avec|mit|com|part\.|participa[cç][aã]o(?:\s+especial)?(?:\s+de)?)\s+([^)\]]+)[)\]]""",
+        RegexOption.IGNORE_CASE,
+    )
+    /** "Song feat. X", "Song - ft. X": up to a bracket or a spaced dash. */
+    private val TITLE_CREDIT_TAIL = Regex("""\s(?:[-–—]\s+)?(?:feat\.?|ft\.?|featuring)\s+([^(\[]+?)(?=\s+[-–—]\s|\s*[(\[]|$)""", RegexOption.IGNORE_CASE)
+    /** An artist field's guests, always: "A feat. B", "A ft. B", "A featuring B", "A with B", "A vs. B". */
+    private val FIELD_CREDIT = Regex("""\s+(?:feat\.?|ft\.?|featuring|with|vs\.?)\s+""", RegexOption.IGNORE_CASE)
+    /** Several names in one field: "A, B", "A; B" (Navidrome), "A & B", "A + B", "A / B", "A x B", "A and B", "A、B". */
+    private val FIELD_SPLIT = Regex("""\s*[,;、，]\s*|\s+(?:&|\+|/|x|and)\s+""", RegexOption.IGNORE_CASE)
+
+    /**
+     * Bands whose name reads as several people. Most are told by their "the" ("Bob Marley & The
+     * Wailers", "Tyler, The Creator": a name after the first one that starts with "the" keeps the
+     * field whole) or by a short tail (", Jr."); these by name.
+     */
+    private val BANDS = setOf(
+        "simon and garfunkel", "earth wind and fire", "hall and oates", "daryl hall and john oates", "crosby stills and nash",
+        "crosby stills nash and young", "emerson lake and palmer", "blood sweat and tears", "peter paul and mary",
+        "mumford and sons", "belle and sebastian", "iron and wine", "chase and status", "above and beyond", "years and years",
+        "angus and julia stone", "brooks and dunn", "big and rich", "dan and shay", "sam and dave", "ike and tina turner",
+        "ashford and simpson", "peaches and herb", "womack and womack", "of monsters and men", "coheed and cambria",
+        "seals and crofts", "loggins and messina", "captain and tennille", "she and him", "matt and kim", "love and rockets",
+        "jorge and mateus", "henrique and juliano", "chitaozinho and xororo", "ze neto and cristiano", "maiara and maraisa",
+        "simone and simaria", "matheus and kauan", "bruno and marrone", "zeze di camargo and luciano", "victor and leo",
+    )
+
+    /**
+     * The people a track names, normalised, the main artist first: every name of its artist fields
+     * (split where a field holds several) and those its title credits ("(feat. X)", "(with X)").
+     * A producer ("prod. X") is not one. The same for every service, wherever it writes them.
+     */
+    internal fun people(t: Track): List<String> {
+        val out = LinkedHashSet<String>()
+        fun add(name: String) {
+            val n = Hanzi.simplified(normalizeArtist(name))
+            // "Pt. 2" is not a guest: a credit that is only a number.
+            if (n.isNotEmpty() && !n.all { it.isDigit() || it == ' ' } && roman(n) == null) out += n
+        }
+        fun addField(field: String) {
+            for (piece in field.split(FIELD_CREDIT)) {
+                val parts = piece.split(FIELD_SPLIT).map { it.trim() }.filter { it.isNotEmpty() }
+                val whole = parts.size < 2 || normalizeArtist(piece) in BANDS ||
+                    parts.drop(1).any { it.lowercase().startsWith("the ") || it.trimEnd('.').length <= 2 }
+                if (whole) add(piece) else parts.forEach(::add)
+            }
+        }
+        t.artists.forEach(::addField)
+        (TITLE_CREDIT.findAll(t.title) + TITLE_CREDIT_TAIL.findAll(t.title)).forEach { addField(it.groupValues[1]) }
+        return out.toList()
+    }
+
+    /** Two normalised names of one person, as far as can be told; true when it cannot be told (scripts that do not compare). */
+    private fun samePerson(a: String, b: String): Boolean {
+        if (similarity(a, b) >= 0.85 || sameName(a, b) || ArtistAliases.same(a, b)) return true
+        if (Translit.foreign(a) == Translit.foreign(b)) return false
+        val x = Translit.latin(a)?.let(::normalizeArtist) ?: return true
+        val y = Translit.latin(b)?.let(::normalizeArtist) ?: return true
+        return similarity(x, y) >= 0.85
+    }
+
+    /**
+     * Both tracks credit guests, and not one of them is the same: "Old Town Road (feat. Billy Ray
+     * Cyrus)" against "Old Town Road (feat. RM)", most likely another version. The main artists of
+     * either side are no guests, nor is a name that is part of one ("Jorge & Mateus" written as one
+     * name on one side and as two on the other). One side naming no guest says nothing: services put
+     * them in different places, or leave them out.
+     */
+    private fun guestsDiffer(s: Norm, c: Norm): Boolean {
+        val ps = s.people; val pc = c.people
+        if (ps.size < 2 || pc.size < 2) return false
+        val mains = listOfNotNull(ps.first(), pc.first(), s.artists.firstOrNull(), c.artists.firstOrNull())
+        fun guest(p: String) = mains.none { m -> samePerson(p, m) || " $m ".contains(" $p ") }
+        val gs = ps.filter(::guest); val gc = pc.filter(::guest)
+        if (gs.isEmpty() || gc.isEmpty()) return false
+        return gs.none { a -> gc.any { b -> samePerson(a, b) } }
+    }
+
+    // ------------------------------------------------------------------ remixes, tributes, karaoke
+
+    /** A bracket's or a spaced dash's words: "(Tiësto Remix)", "[Kygo Edit]", " - David Guetta Remix". */
+    private val SEGMENT = Regex("""[(\[]([^)\]]*)[)\]]|\s[-–—]\s+([^-–—(\[]+)""")
+    private val REMIX_WORD = Regex("""\b(remix(ed)?|rmx|rework|bootleg|flip|edit|mix|dub|vip|remezcla)\b""", RegexOption.IGNORE_CASE)
+    /** The words of a remix's name that are not who made it. */
+    private val REMIX_GENERIC = setOf(
+        "remix", "remixed", "rmx", "rework", "bootleg", "flip", "edit", "mix", "dub", "vip", "remezcla", "radio", "extended",
+        "original", "club", "version", "official", "short", "long", "instrumental", "vocal", "main", "album", "single", "clean",
+        "explicit", "dirty", "edition", "intro", "outro", "by", "and", "x", "vs", "feat", "ft", "featuring", "with", "remastered",
+        "remaster", "mixed", "re", "new", "full", "video", "audio", "deluxe", "live", "acoustic", "mono", "stereo", "de", "del",
+        "la", "el", "di", "mashup", "special", "bonus", "track", "uk", "us", "inch", "the", "a", "an", "of", "slowed", "sped",
+        "up", "reverb", "nightcore", "8d", "remasterizado", "remasterizada",
+    )
+
+    /** Who made the remix or edit [title] names ("Song (Tiësto Remix)" → tiesto), empty for a plain one ("Radio Edit", "Extended Mix"). */
+    internal fun remixers(title: String): Set<String> = SEGMENT.findAll(title).flatMap { m ->
+        val seg = m.groupValues[1].ifEmpty { m.groupValues[2] }
+        if (!REMIX_WORD.containsMatchIn(seg)) emptySequence()
+        else Hanzi.simplified(normalizeArtist(seg)).split(' ').asSequence().filter { it.length > 1 && it !in REMIX_GENERIC && !it.all(Char::isDigit) }
+    }.toSet()
+
+    /** An artist that only plays others' songs: tribute and karaoke acts, "in the style of", lullaby and string covers. */
+    private val IMITATOR = Regex(
+        """\b(tribute|karaoke|cover band|covers band|in the style of|made famous by|originally performed|sing king|ameritz|party tyme|the hit crew|vitamin string quartet|rockabye baby|twinkle twinkle little rock star|8-bit arcade|kidz bop|piano dreamers|lullaby renditions)\b""",
+    )
 
     fun score(src: Track, cand: Track, policy: MatchPolicy = MatchPolicy()): Double = scoreN(norm(src), norm(cand), policy)
 
@@ -437,16 +612,64 @@ object Matcher {
         val partFactor = if (pa != null && pb != null && pa != pb) 0.3 else 1.0
         // The same part of the same title by the same artist: another edition of the piece, whose
         // length often differs (a remaster, another fade). Checked, not refused (#57).
-        val duration = durationFactor(s.track.durationMs, c.track.durationMs).let { d ->
+        val duration = durationFactor(s.track.durationMs, c.track.durationMs, looseLength(s, c)).let { d ->
             // Only within a third of the longer length: a 4-minute "Pt. 1" is not the 26-minute one.
             val near = s.track.durationMs > 0 && c.track.durationMs > 0 &&
                 abs(s.track.durationMs - c.track.durationMs) * 3 <= max(s.track.durationMs, c.track.durationMs)
             if (pa != null && pa == pb && st == ct && artist >= 0.9 && near) max(d, 0.8) else d
         }
-        val score = base * numberFactor * partFactor * duration * versionFactor(s.track.title, c.track.title) *
-            albumFactor(s.track.album, c.track.album, policy) * policyFactor(s.track, c.track, policy) *
-            liveAlbumFactor(s.track.album, c.track.album, policy)
+        // "Song (Tiësto Remix)" against "Song (David Guetta Remix)": both remixes, by different people.
+        val remix = if (s.remixers.isNotEmpty() && c.remixers.isNotEmpty() && s.remixers.none { it in c.remixers }) 0.6 else 1.0
+        // A tribute or karaoke act is never the artist it imitates, however much of the name it holds.
+        val imitation = if (s.imitator != c.imitator && artistKnown) 0.3 else 1.0
+        val version = versionFactorN(s.markers, c.markers)
+        val clean = numberFactor * partFactor * version * remix * imitation * liveAlbumFactor(s.track.album, c.track.album, policy)
+        var score = base * duration * clean * albumFactor(s.track.album, c.track.album, policy) * policyFactor(s.track, c.track, policy)
+        if (artistKnown && artist < 0.9 && clean >= 1.0) score = otherNames(s, c, title, score, policy)
+        // Both name guests, and none is the same: another version, most likely. Never refused for it: checked.
+        if (guestsDiffer(s, c)) score = minOf(score, policy.reviewThreshold - 0.01)
         return if (byConsonants) minOf(score, REVIEW_THRESHOLD - 0.01) else score
+    }
+
+    /** A remaster, a clean or explicit edition on either side: its length may differ by a few seconds more. */
+    private val EDITION_WORDS = Regex("""\b(remaster\w*|clean|explicit|censored|uncensored|radio edit)\b""", RegexOption.IGNORE_CASE)
+
+    private fun looseLength(s: Norm, c: Norm): Boolean =
+        "remaster" in s.versions || "remaster" in c.versions ||
+            EDITION_WORDS.containsMatchIn(s.track.title) || EDITION_WORDS.containsMatchIn(c.track.title) ||
+            EDITION_WORDS.containsMatchIn(s.track.album) || EDITION_WORDS.containsMatchIn(c.track.album) ||
+            (s.track.explicit != null && c.track.explicit != null && s.track.explicit != c.track.explicit)
+
+    /**
+     * The same song whose artists are written so differently that their names do not meet (#81):
+     * - in two scripts ("周杰倫" against "Jay Chou"): a title alike (0.8), an album alike (0.8) and the
+     *   lengths within 2 s make it the song, to check: accepted, in the review;
+     * - with the sync's "artist names can differ" on: the same title (0.95) and lengths within 3 s
+     *   make it the song with the same album, and a song to check where an album is unknown.
+     * Otherwise [score] as it is. Only for a candidate with nothing else against it.
+     */
+    private fun otherNames(s: Norm, c: Norm, title: Double, score: Double, policy: MatchPolicy): Double {
+        val a = s.track.durationMs; val b = c.track.durationMs
+        if (a <= 0 || b <= 0) return score
+        val d = abs(a - b)
+        val sa = s.track.album; val ca = c.track.album
+        val check = policy.reviewThreshold - 0.01
+        if (policy.artistsMayDiffer && title >= 0.95 && d <= 3_000) {
+            return when {
+                sa.isBlank() || ca.isBlank() -> max(score, check)
+                sameAlbum(sa, ca) -> max(score, policy.reviewThreshold)
+                else -> score
+            }
+        }
+        if (title >= 0.8 && d <= 2_000 && sa.isNotBlank() && ca.isNotBlank() && scriptsDiffer(s.track.artists, c.track.artists) &&
+            similarity(normalizeAlbum(sa), normalizeAlbum(ca)) >= 0.8) return max(score, check)
+        return score
+    }
+
+    /** One side's artists are written in another script than Latin, the other side's all in Latin letters. */
+    fun scriptsDiffer(a: List<String>, b: List<String>): Boolean {
+        val fa = a.any { Translit.foreign(it) }; val fb = b.any { Translit.foreign(it) }
+        return (fa && b.isNotEmpty() && b.none { Translit.foreign(it) }) || (fb && a.isNotEmpty() && a.none { Translit.foreign(it) })
     }
 
     /**
@@ -461,8 +684,7 @@ object Matcher {
             if (cand.explicit != wantExplicit) f *= 0.9
         }
         if (policy.studioOnly) {
-            val neutral = setOf("remaster", "mono", "stereo")
-            val extra = (versionMarkers(cand.title) - neutral) - (versionMarkers(src.title) - neutral)
+            val extra = (versionMarkers(cand.title) - NEUTRAL_VERSIONS) - (versionMarkers(src.title) - NEUTRAL_VERSIONS)
             if (extra.isNotEmpty()) f *= 0.3
         }
         return f
@@ -476,9 +698,30 @@ object Matcher {
      */
     fun albumFactor(srcAlbum: String, candAlbum: String, policy: MatchPolicy = MatchPolicy()): Double {
         if (srcAlbum.isBlank() || candAlbum.isBlank()) return 1.0
-        val a = normalizeTitle(srcAlbum)
-        val b = normalizeTitle(candAlbum)
-        if (a.isEmpty() || b.isEmpty()) return 1.0
+        if (normalizeAlbum(srcAlbum).isEmpty() || normalizeAlbum(candAlbum).isEmpty()) return 1.0
+        return if (sameAlbum(srcAlbum, candAlbum)) 1.0 else if (policy.sameAlbum) 0.8 else 0.97
+    }
+
+    /** An edition of an album, in brackets or after a dash: "(Deluxe)", "[Expanded Edition]", "- 2011 Remaster", "(Super Deluxe)". */
+    private val ALBUM_EDITION = Regex(
+        """\s*([(\[][^)\]]*\b(expanded|reissue|re-issue|special|collector'?s?|legacy|platinum|super|complete|japan(ese)?|international|tour|bonus|deluxe|remaster\w*|edition|anniversary|version|\d{4})\b[^)\]]*[)\]]|\s[-–—:]\s*[^-–—:]*\b(edition|deluxe|expanded|remaster\w*|reissue|version)\b.*$)""",
+        RegexOption.IGNORE_CASE,
+    )
+
+    /**
+     * An album's name for comparing: without its edition ("Abbey Road (Super Deluxe Edition)" is
+     * "abbey road", "Rumours - Expanded Edition" is "rumours"), traditional Chinese as simplified.
+     */
+    fun normalizeAlbum(album: String): String {
+        val bare = ALBUM_EDITION.replace(album, " ").trim()
+        return Hanzi.simplified(normalizeTitle(bare.ifEmpty { album }))
+    }
+
+    /** One album under either name, edition or of its names ("Les Chants Magnétiques / Magnetic Fields"). */
+    fun sameAlbum(srcAlbum: String, candAlbum: String): Boolean {
+        val a = normalizeAlbum(srcAlbum)
+        val b = normalizeAlbum(candAlbum)
+        if (a.isEmpty() || b.isEmpty()) return false
         // "Les Chants Magnétiques / Magnetic Fields": one album under either of its names.
         // The whole names as before (one containing the other). The halves of an "A / B" name: whole words
         // only and at least two of them, so "A / B" is not "Banana" and "Blue / Green" is not "Red / Green".
@@ -486,14 +729,13 @@ object Matcher {
             val (short, long) = if (x.length <= y.length) x to y else y to x
             return short.split(' ').size >= 2 && " $long ".contains(" $short ")
         }
-        val sameAlbum = a == b || a.contains(b) || b.contains(a) ||
+        return a == b || a.contains(b) || b.contains(a) ||
             albumNames(srcAlbum, a).any { x -> albumNames(candAlbum, b).any { y -> halves(x, y) } }
-        return if (sameAlbum) 1.0 else if (policy.sameAlbum) 0.8 else 0.97
     }
 
     /** An album's normalised name [n] and, for one written "A / B", each of its names. */
     private fun albumNames(album: String, n: String): List<String> =
-        listOf(n) + album.split(" / ").takeIf { it.size > 1 }.orEmpty().map { normalizeTitle(it) }.filter { it.isNotEmpty() }
+        listOf(n) + album.split(" / ").takeIf { it.size > 1 }.orEmpty().map { normalizeAlbum(it) }.filter { it.isNotEmpty() }
 
     fun best(src: Track, candidates: List<Track>, threshold: Double = DEFAULT_THRESHOLD, policy: MatchPolicy = MatchPolicy()): Track? =
         bestScored(src, candidates, threshold, policy)?.track

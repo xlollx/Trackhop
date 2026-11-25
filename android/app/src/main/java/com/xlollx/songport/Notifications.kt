@@ -13,6 +13,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.sync.SyncState
+import com.xlollx.songport.notify.NotifTarget
+import com.xlollx.songport.notify.NotifyHistory
 
 /**
  * Notifications are asked for when they are first needed, a sync run or scheduled, not on first
@@ -74,6 +76,27 @@ object Notifications {
         }
         return PendingIntent.getActivity(context, code, open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
     }
+
+    /**
+     * The tap of a notice: the app on [target] (NotifRoutes), the same place its entry in the bell
+     * opens. Its own request code per target, so two notices never share their extras. [historyId]:
+     * the bell's entry, marked read by the tap.
+     */
+    internal fun open(context: Context, base: Int, target: NotifTarget, historyId: String?): PendingIntent {
+        val i = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra(MainActivity.EXTRA_TARGET, target.encode())
+            historyId?.let { putExtra(MainActivity.EXTRA_HISTORY_ID, it) }
+        }
+        return PendingIntent.getActivity(context, NotifRoutes.requestCode(base, target), i, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+    }
+
+    /**
+     * Keeps a notice in the bell (NotifyHistory), also when Android's notifications are off for
+     * Trackhop or for its channel: the bell is where they are found then. Its entry's id, or null.
+     */
+    private fun remember(context: Context, kind: String, title: String, text: String, target: NotifTarget?): String? =
+        runCatching { NotifyHistory.of(context.filesDir).add(kind, title, text, target) }.getOrNull()
 
     /**
      * While radio syncs listen: "Listening to <station>" and the last song heard (or that it waits
@@ -245,12 +268,9 @@ object Notifications {
 
     /** A one-line notice that opens the app on its Settings (the backup folder gone, and the like). */
     fun notice(context: Context, id: Int, title: String, text: String) {
+        val entry = remember(context, "notice", title, text, NotifTarget.Settings)
         if (!canPost(context)) return
-        val open = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_SETTINGS)
-        }
-        val pi = PendingIntent.getActivity(context, id, open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        val pi = open(context, id, NotifTarget.Settings, entry)
         val n = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
@@ -274,10 +294,8 @@ object Notifications {
                 .apply { description = context.getString(R.string.notif_update_channel_desc) }
         )
         // An explicit intent to our own screen, which opens the download page (CodeQL: no implicit
-        // intent inside a PendingIntent).
-        val get = Intent(context, MainActivity::class.java).putExtra(MainActivity.EXTRA_OPEN_RELEASE, url ?: MainActivity.RELEASES_URL)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        val pi = PendingIntent.getActivity(context, UPDATE_ID, get, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        // intent inside a PendingIntent). Not an entry of the bell: the bell shows the update itself, on top.
+        val pi = open(context, UPDATE_ID, NotifTarget.Update(url ?: MainActivity.RELEASES_URL), null)
         val n = NotificationCompat.Builder(context, UPDATE_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(context.getString(R.string.notif_update_title, version))
@@ -297,20 +315,18 @@ object Notifications {
      * BMTH": one notification per look, on its own channel; a tap opens Discover › Followed artists.
      */
     fun artistAlerts(context: Context, news: List<com.xlollx.songport.sync.ArtistAlerts.News>) {
-        if (news.isEmpty() || !canPost(context)) return
+        if (news.isEmpty()) return
+        val lines = com.xlollx.songport.sync.ArtistAlerts.group(news).size
+        val title = context.resources.getQuantityString(R.plurals.alerts_notif_title, lines, lines)
+        val text = com.xlollx.songport.sync.ArtistAlerts.summary(com.xlollx.songport.platform.AndroidEnv.of(context), news).replaceFirstChar { it.titlecase() }
+        val entry = remember(context, "alerts", title, text, NotifTarget.Followed)
+        if (!canPost(context)) return
         val mgr = context.getSystemService(NotificationManager::class.java)
         mgr.createNotificationChannel(
             NotificationChannel(ALERTS_CHANNEL_ID, context.getString(R.string.alerts_channel), NotificationManager.IMPORTANCE_DEFAULT)
                 .apply { description = context.getString(R.string.alerts_channel_desc) }
         )
-        val open = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            putExtra(MainActivity.EXTRA_TOOL, MainActivity.TOOL_FOLLOWED)
-        }
-        val pi = PendingIntent.getActivity(context, ALERTS_ID, open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        val lines = com.xlollx.songport.sync.ArtistAlerts.group(news).size
-        val title = context.resources.getQuantityString(R.plurals.alerts_notif_title, lines, lines)
-        val text = com.xlollx.songport.sync.ArtistAlerts.summary(com.xlollx.songport.platform.AndroidEnv.of(context), news).replaceFirstChar { it.titlecase() }
+        val pi = open(context, ALERTS_ID, NotifTarget.Followed, entry)
         val n = NotificationCompat.Builder(context, ALERTS_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
@@ -328,21 +344,21 @@ object Notifications {
      * the browser. Nothing is bought here.
      */
     fun discogsWant(context: Context, hit: com.xlollx.songport.sync.Discogs.Hit) {
-        if (!canPost(context)) return
-        val mgr = context.getSystemService(NotificationManager::class.java)
-        mgr.createNotificationChannel(
-            NotificationChannel(ALERTS_CHANNEL_ID, context.getString(R.string.alerts_channel), NotificationManager.IMPORTANCE_DEFAULT)
-                .apply { description = context.getString(R.string.alerts_channel_desc) }
-        )
         val price = hit.price?.let { com.xlollx.songport.ui.price(it, hit.currency) }.orEmpty()
         val below = hit.kind == com.xlollx.songport.sync.Discogs.Kind.BELOW
         val title = if (below) context.getString(R.string.myrecords_notif_below, hit.item.title, com.xlollx.songport.ui.price(hit.below ?: 0.0, hit.currency))
             else context.getString(R.string.myrecords_notif_new, hit.item.title)
         val text = context.getString(if (below) R.string.myrecords_notif_below_text else R.string.myrecords_notif_new_text, price)
         // Through our own screen, which opens the page (CodeQL: no implicit intent inside a PendingIntent).
-        val open = Intent(context, MainActivity::class.java).putExtra(MainActivity.EXTRA_OPEN_LINK, hit.item.sellUrl)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        val pi = PendingIntent.getActivity(context, ALERTS_ID xor hit.item.id.hashCode(), open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        val target = hit.item.sellUrl.takeIf { it.startsWith("https://") || it.startsWith("http://") }?.let { NotifTarget.Link(it) } ?: NotifTarget.Followed
+        val entry = remember(context, "record", title, text, target)
+        if (!canPost(context)) return
+        val mgr = context.getSystemService(NotificationManager::class.java)
+        mgr.createNotificationChannel(
+            NotificationChannel(ALERTS_CHANNEL_ID, context.getString(R.string.alerts_channel), NotificationManager.IMPORTANCE_DEFAULT)
+                .apply { description = context.getString(R.string.alerts_channel_desc) }
+        )
+        val pi = open(context, ALERTS_ID xor hit.item.id.hashCode(), target, entry)
         val n = NotificationCompat.Builder(context, ALERTS_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title).setContentText(text)
@@ -357,26 +373,23 @@ object Notifications {
      * when it has none.
      */
     fun concertAlert(context: Context, alert: com.xlollx.songport.sync.ConcertAlerts.Alert) {
+        val env = com.xlollx.songport.platform.AndroidEnv.of(context)
+        val url = alert.event.url.takeIf { it.startsWith("https://") || it.startsWith("http://") }
+        val target = url?.let { NotifTarget.Link(it) } ?: NotifTarget.Followed
+        val tag = "concert-${alert.kind}-${alert.event.id}"
+        val text = com.xlollx.songport.sync.ConcertAlerts.text(env, alert)
+        val title = com.xlollx.songport.sync.ConcertAlerts.title(env, alert)
+        val entry = remember(context, "concert", title, text, target)
         if (!canPost(context)) return
         val mgr = context.getSystemService(NotificationManager::class.java)
         mgr.createNotificationChannel(
             NotificationChannel(ALERTS_CHANNEL_ID, context.getString(R.string.alerts_channel), NotificationManager.IMPORTANCE_DEFAULT)
                 .apply { description = context.getString(R.string.alerts_channel_desc) }
         )
-        val env = com.xlollx.songport.platform.AndroidEnv.of(context)
-        val url = alert.event.url.takeIf { it.startsWith("https://") || it.startsWith("http://") }
-        val open = if (url != null) Intent(context, MainActivity::class.java).putExtra(MainActivity.EXTRA_OPEN_LINK, url)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            else Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                putExtra(MainActivity.EXTRA_TOOL, MainActivity.TOOL_FOLLOWED)
-            }
-        val tag = "concert-${alert.kind}-${alert.event.id}"
-        val pi = PendingIntent.getActivity(context, ALERTS_ID xor tag.hashCode(), open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        val text = com.xlollx.songport.sync.ConcertAlerts.text(env, alert)
+        val pi = open(context, ALERTS_ID xor tag.hashCode(), target, entry)
         val n = NotificationCompat.Builder(context, ALERTS_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(com.xlollx.songport.sync.ConcertAlerts.title(env, alert)).setContentText(text)
+            .setContentTitle(title).setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setContentIntent(pi).setAutoCancel(true)
             .build()
@@ -391,18 +404,18 @@ object Notifications {
      * are two notifications. False when it could not be posted.
      */
     fun signInAgain(context: Context, service: String, connectorId: String): Boolean {
+        val target = NotifTarget.Account(connectorId)
+        val text = context.getString(R.string.notif_signin_again_text)
+        val title = context.getString(R.string.notif_signin_again_title, service)
+        // Once in the bell while unread: with notifications off, every call of a gone session would add it again.
+        val entry = runCatching { NotifyHistory.of(context.filesDir).addOnce("signin", title, text, target) }.getOrNull()
         if (!canPost(context)) return false
         ensureChannel(context)
-        val open = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            putExtra(MainActivity.EXTRA_FOCUS_CONNECTOR, connectorId)
-        }
         // Its own request code per connector: another connector's notification keeps its own target.
-        val pi = PendingIntent.getActivity(context, SIGN_IN_ID xor connectorId.hashCode(), open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        val text = context.getString(R.string.notif_signin_again_text)
+        val pi = open(context, SIGN_IN_ID xor connectorId.hashCode(), target, entry)
         val n = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(context.getString(R.string.notif_signin_again_title, service))
+            .setContentTitle(title)
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setContentIntent(pi)
@@ -417,19 +430,20 @@ object Notifications {
         ContextCompat.getSystemService(context, NotificationManager::class.java)?.cancel(connectorId, SIGN_IN_ID)
     }
 
-    /** "N tracks can no longer be played": opens the Unplayable tracks tool. */
-    fun unplayable(context: Context, id: Int, count: Int) {
-        if (!canPost(context)) return
-        val open = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_TOOLS)
-            putExtra(MainActivity.EXTRA_TOOL, MainActivity.TOOL_UNPLAYABLE)
-        }
-        val pi = PendingIntent.getActivity(context, id, open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+    /**
+     * "N tracks can no longer be played": opens the Unplayable tracks tool, on [providerId] (the
+     * service with the most of them) when known.
+     */
+    fun unplayable(context: Context, id: Int, count: Int, providerId: String? = null) {
+        val target = NotifTarget.Unplayable(providerId)
         val text = context.resources.getQuantityString(R.plurals.notif_unplayable_text, count, count)
+        val title = context.getString(R.string.notif_unplayable_title)
+        val entry = remember(context, "unplayable", title, text, target)
+        if (!canPost(context)) return
+        val pi = open(context, id, target, entry)
         val n = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(context.getString(R.string.notif_unplayable_title))
+            .setContentTitle(title)
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setContentIntent(pi)
@@ -439,20 +453,11 @@ object Notifications {
     }
 
     fun syncResult(context: Context, report: SyncReport) {
-        if (!canPost(context)) return
-        // A one-off transfer: its songs to review, else Tools (Recent transfers); a sync: the log.
-        val job = com.xlollx.songport.data.Store.get(context).job(report.jobId)
-        val oneOff = job?.oneOff == true
-        val open = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            when {
-                oneOff && com.xlollx.songport.sync.OneOffs.toReview(report) > 0 -> putExtra(MainActivity.EXTRA_REVIEW, report.id)
-                oneOff -> putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_TOOLS)
-                else -> putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_LOG)
-            }
-        }
-        val pi = PendingIntent.getActivity(context, report.jobId.hashCode(), open,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        // A one-off transfer: its songs to review, else Tools (Recent transfers); a sync: its review,
+        // its multi sync's page, or its card with this run (NotifRoutes.forResult).
+        val store = com.xlollx.songport.data.Store.get(context)
+        val job = store.job(report.jobId)
+        val target = NotifRoutes.forResult(store.data, job, report)
         // 1.18: the same message as the other channels (result, route, figures, what to do); a run with
         // nothing to tell, or before 1.18, the summary as ever.
         val rich = if (Features.v2 && job != null) runCatching {
@@ -460,9 +465,13 @@ object Notifications {
             com.xlollx.songport.notify.Notify.richMessage(com.xlollx.songport.platform.AndroidEnv.of(context), job, report, com.xlollx.songport.notify.Notify.Event.entries.toSet(), releases)?.rich
         }.getOrNull() else null
         val text = rich?.let { listOfNotNull(it.countsLine.ifEmpty { null }, it.detail).joinToString(" · ").ifEmpty { it.route } } ?: summary(context, report)
+        val title = rich?.let { "${it.icon} ${it.title}" } ?: context.getString(R.string.notif_sync_title, report.jobName)
+        val entry = remember(context, com.xlollx.songport.notify.Notify.runKind(report), title, text, target)
+        if (!canPost(context)) return
+        val pi = open(context, report.jobId.hashCode(), target, entry)
         val n = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(rich?.let { "${it.icon} ${it.title}" } ?: context.getString(R.string.notif_sync_title, report.jobName))
+            .setContentTitle(title)
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(rich?.lines?.joinToString("\n") ?: text))
             .setContentIntent(pi)
@@ -482,11 +491,7 @@ object Notifications {
         val children = runCatching { mgr.activeNotifications.toList() }.getOrDefault(emptyList())
             .filter { it.notification.group == RESULTS_GROUP && it.id != RESULTS_SUMMARY_ID }
         if (children.size < 2) return
-        val open = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_LOG)
-        }
-        val pi = PendingIntent.getActivity(context, RESULTS_SUMMARY_ID, open, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        val pi = open(context, RESULTS_SUMMARY_ID, NotifTarget.Log, null)
         val title = context.getString(R.string.notif_channel_name)
         val inbox = NotificationCompat.InboxStyle().setBigContentTitle(title)
         children.mapNotNull { it.notification.extras.getCharSequence(android.app.Notification.EXTRA_TITLE) }.forEach { inbox.addLine(it) }

@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicLong
  * Notifications: a short message to the person's phone or chat when a sync run ends with something
  * worth knowing (changes, an error, tracks to review, removals held back, new releases of their
  * artists). Any number of channels, each with the events it wants: Telegram, ntfy, Gotify, Discord,
- * Slack, Matrix and Pushover. The same on the server (Docker, Desktop) and in the Android app; the
+ * Slack, Matrix, Pushover and Apprise (which reaches many more). The same on the server (Docker, Desktop) and in the Android app; the
  * server's webhook (Api.kt) stays as it was, for tools that want the whole run as JSON.
  *
  * Channels live in the "notify" key-values of the [Env]. On the server that is `kv/notify.json`,
@@ -120,6 +120,14 @@ object Notify {
             "pushover", "Pushover", "Your user key is on pushover.net's front page; create an application there for its API token.",
             listOf(Field("token", "Application API token", secret = true), Field("user", "User key", secret = true)),
         ),
+        APPRISE(
+            "apprise", "Apprise", "Your Apprise API's address with the key of a saved configuration (…/notify/<key>); a tag sends only to the services it marks.",
+            listOf(
+                // Secret: whoever has the address can send through every service the configuration holds.
+                Field("url", "Apprise API URL", secret = true, url = true, placeholder = "https://apprise.example.org/notify/trackhop"),
+                Field("tag", "Tag", optional = true, placeholder = "music"),
+            ),
+        ),
         ;
 
         companion object {
@@ -144,7 +152,17 @@ object Notify {
         fun addresses(): List<String> = kind.fields.filter { it.url }.map { value(it.key) }.filter { it.isNotBlank() }
 
         /** Its secrets' values, to keep them out of anything shown (an error message). */
-        fun secrets(): List<String> = kind.fields.filter { it.secret }.map { value(it.key) }.filter { it.length >= 4 }
+        fun secrets(): List<String> = (kind.fields.filter { it.secret }.map { value(it.key) } + appriseKey()).filter { it.length >= 4 }
+
+        /**
+         * Apprise's configuration key (…/notify/<key>) on its own: a refusal can name the path without
+         * the whole address ({"error": "failed request /notify/<key>"}), and the key alone sends.
+         */
+        private fun appriseKey(): List<String> = if (kind != Kind.APPRISE) emptyList() else
+            value("url").trim().toHttpUrlOrNull()?.pathSegments?.let { seg ->
+                val at = seg.lastIndexOf("notify")
+                if (at >= 0) seg.drop(at + 1).filter { it.isNotBlank() } else emptyList()
+            }.orEmpty()
     }
 
     data class Message(val title: String, val text: String, val rich: Rich? = null)
@@ -307,7 +325,8 @@ object Notify {
         val merged = incoming.map { c ->
             val old = here[c.id]?.takeIf { it.kind == c.kind }
             // The secrets this Trackhop has for it, while the file sends them to the same addresses.
-            val keep = old != null && sameAddresses(c.kind, old) { f -> c.value(f.key) }
+            // An address that is itself the secret (Apprise's) is not in the file: the one here, as when editing.
+            val keep = old != null && sameAddresses(c.kind, old) { f -> c.value(f.key).ifEmpty { if (f.secret) old.value(f.key) else "" } }
             val values = c.kind.fields.associate { f -> f.key to (if (f.secret) (if (keep) old!!.value(f.key) else "") else c.value(f.key)) }
             val next = c.copy(values = values)
             // On only for a channel already here: one that came with a file (shared, perhaps) waits to be turned on.
@@ -461,6 +480,7 @@ object Notify {
                 .put(json(buildJsonObject { put("msgtype", "m.text"); put("body", "${m.title}\n${m.text}") }))
             Kind.PUSHOVER -> b.url(base(pushoverApi).newBuilder().addPathSegments("1/messages.json").build())
                 .post(FormBody.Builder().add("token", c.value("token")).add("user", c.value("user")).add("title", m.title).add("message", m.text).build())
+            Kind.APPRISE -> apprise(c, b, m.title, m.text, "info")
         }.build()
     }
 
@@ -532,8 +552,16 @@ object Notify {
                 .post(FormBody.Builder().add("token", c.value("token")).add("user", c.value("user")).add("title", title.take(250))
                     .add("message", htmlBody().drop(1).joinToString("\n").take(1024)).add("html", "1")
                     .add("priority", if (r.tone == Tone.FAIL) "1" else "0").build())
+            Kind.APPRISE -> apprise(c, b, title, plain, when (r.tone) { Tone.OK -> "success"; Tone.FAIL -> "failure"; Tone.WARN -> "warning" })
         }
     }
+
+    /** Apprise API's /notify/<key>: one message, sent on to every service of that configuration (or those its [tag] marks). */
+    private fun apprise(c: Channel, b: Request.Builder, title: String, body: String, type: String): Request.Builder =
+        b.url(base(c.value("url"))).post(json(buildJsonObject {
+            put("title", title); put("body", body); put("type", type); put("format", "text")
+            c.value("tag").trim().takeIf { it.isNotEmpty() }?.let { put("tag", it) }
+        }))
 
     /** Sends [m] through [c] now (this thread). Null when it arrived, else why not, with no secret in it. */
     fun send(c: Channel, m: Message): String? {
@@ -576,12 +604,50 @@ object Notify {
             }
     }
 
-    /** After a run: [deliveries] sent in the background. Never throws. */
+    /**
+     * After a run: [deliveries] sent in the background. Never throws. On the server the notice is
+     * kept in the history (the Notifications page) once every channel has answered, with each one's result.
+     */
     fun afterRun(env: Env, job: SyncJob, report: SyncReport) {
-        for ((c, m) in deliveries(env, job, report)) {
-            runCatching { pool.execute { send(c, m)?.let { env.log("notify", "${c.name} (${c.kind.label}): $it") } } }
-                .onFailure { env.log("notify", "${c.name}: ${it.message}") }
+        val all = deliveries(env, job, report)
+        if (all.isEmpty()) return
+        val left = java.util.concurrent.atomic.AtomicInteger(all.size)
+        val sent = java.util.Collections.synchronizedList(ArrayList<NotifyHistory.Sent>())
+        val first = all.first().second
+        val target = runCatching { NotifTarget.forRun(env.store.data, job, report) }.getOrNull()
+        fun done(c: Channel, err: String?) {
+            sent += NotifyHistory.Sent(c.name, err)
+            if (left.decrementAndGet() == 0 && env.onServer) remember(env, runKind(report), first, target, sent.toList())
         }
+        for ((c, m) in all) {
+            runCatching { pool.execute { val err = runCatching { send(c, m) }.getOrElse { it.message ?: it.javaClass.simpleName }; err?.let { env.log("notify", "${c.name} (${c.kind.label}): $it") }; done(c, err) } }
+                .onFailure { env.log("notify", "${c.name}: ${it.message}"); done(c, it.message ?: "not sent") }
+        }
+    }
+
+    /** The history's kind of a run's notice. */
+    fun runKind(r: SyncReport): String = when {
+        !r.ok -> "failed"
+        r.unmatchedTracks.isNotEmpty() || r.reviewTracks.isNotEmpty() -> "review"
+        else -> "sync"
+    }
+
+    /**
+     * Sends [m] to each of [channels] now (this thread), and on the server keeps it in the history
+     * with each channel's result, which it returns (in [channels]' order).
+     */
+    fun sendAll(env: Env, channels: List<Channel>, m: Message, kind: String, target: NotifTarget?): List<NotifyHistory.Sent> {
+        if (channels.isEmpty()) return emptyList()
+        val sent = channels.map { c -> NotifyHistory.Sent(c.name, send(c, m)?.also { env.log("notify", "${c.name} (${c.kind.label}): $it") }) }
+        if (env.onServer) remember(env, kind, m, target, sent)
+        return sent
+    }
+
+    /** [m] as a history entry: its rich title and lines when it has them. */
+    fun remember(env: Env, kind: String, m: Message, target: NotifTarget?, sent: List<NotifyHistory.Sent>) {
+        val title = m.rich?.let { "${it.icon} ${it.title}" } ?: m.title
+        val text = m.rich?.lines?.dropLast(1)?.joinToString("\n") ?: m.text
+        runCatching { NotifyHistory.of(env).add(kind, title, text, target, sent) }
     }
 
     /** "Send test": the result, said for a person (with what to do, for Telegram's usual refusals). */

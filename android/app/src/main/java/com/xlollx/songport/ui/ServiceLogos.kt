@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.NewReleases
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Radio
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -91,8 +92,22 @@ fun shazamTint(): Color = if (LocalAppDark.current) Color(0xFF4DA8FF) else Color
  * personal servers without a mark; the initial otherwise. TalkBack reads the service's name.
  */
 @Composable
-fun ServiceLogo(p: MusicProvider?, size: Dp = 36.dp, modifier: Modifier = Modifier) =
-    ServiceLogo(p?.serviceId, p?.brandColor, p?.displayName.orEmpty(), size, modifier)
+fun ServiceLogo(p: MusicProvider?, size: Dp = 36.dp, modifier: Modifier = Modifier, ring: Color? = null) =
+    ServiceLogo(p?.serviceId, p?.brandColor, p?.displayName.orEmpty(), size, modifier, ring)
+
+/**
+ * The colours the user gave the accounts (Settings.connectorColors, by provider id), provided at the
+ * app's root so a logo redraws as soon as one changes.
+ */
+val LocalAccountColors = androidx.compose.runtime.compositionLocalOf<Map<String, String>> { emptyMap() }
+
+/** The ring the account [id] wears round its logo (Accounts › ⋮ › Colour), or null for none. */
+@Composable
+fun accountRing(id: String?): Color? =
+    id?.let { com.xlollx.songport.data.AccountColors.argb(LocalAccountColors.current[it]) }?.let { Color(it) }
+
+/** How thick an account's ring is, and the gap inside it: 3dp round a large logo, thinner round a small one. */
+internal fun accountRingWidth(size: Dp): Dp = (size * 0.0625f).coerceIn(1.5.dp, 3.dp)
 
 /** The same mark from a service's id, colour and name: for a service this build does not carry. */
 /**
@@ -103,21 +118,32 @@ object LogoMode {
     @Volatile var neutral = false
 }
 
+/**
+ * With a [ring], the account's colour is drawn round the logo, a gap away, outside its bounds (the
+ * layout does not move); the logo itself keeps the brand's colours.
+ */
 @Composable
-fun ServiceLogo(serviceId: String?, brandColor: Long?, name: String, size: Dp = 36.dp, modifier: Modifier = Modifier) {
+fun ServiceLogo(serviceId: String?, brandColor: Long?, name: String, size: Dp = 36.dp, modifier: Modifier = Modifier, ring: Color? = null) {
     val neutral = LogoMode.neutral
     val bg = if (brandColor != null && !neutral) Color(brandColor) else MaterialTheme.colorScheme.surfaceVariant
     val fg = if (neutral) MaterialTheme.colorScheme.onSurfaceVariant else if (bg.luminance() > 0.45f) Color(0xFF1C1B22) else Color.White
     // A near-black mark (TIDAL) on a dark surface needs an edge to be seen.
     val edge = bg.luminance() < 0.03f
+    val ringWidth = accountRingWidth(size)
     Box(
-        modifier.size(size).clip(CircleShape).background(bg)
+        modifier.size(size)
+            .then(if (ring != null) Modifier.drawBehind {
+                val w = ringWidth.toPx()
+                drawCircle(ring, radius = this.size.minDimension / 2 + w * 1.5f, style = androidx.compose.ui.graphics.drawscope.Stroke(w))
+            } else Modifier)
+            .clip(CircleShape).background(bg)
             .then(if (edge) Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape) else Modifier)
             .semantics { if (name.isNotEmpty()) contentDescription = name },
         contentAlignment = Alignment.Center,
     ) {
-        val glyph = if (neutral) null else ServiceLogos.glyph(serviceId)
-        val generic = when (serviceId) { "csv" -> Icons.Filled.Folder; "subsonic", "koel" -> Icons.Filled.Dns; "charts" -> Icons.Filled.BarChart; "releases" -> Icons.Filled.NewReleases; com.xlollx.songport.shared.SharedProvider.ID -> Icons.Filled.Groups; else -> null }
+        // Shazam's connector wears Shazam's own round mark; a radio station a radio.
+        val glyph = if (neutral) null else ServiceLogos.glyph(serviceId) ?: ShazamGlyph.takeIf { serviceId == com.xlollx.songport.sync.RadioConnectors.SHAZAM }
+        val generic = when (serviceId) { "csv" -> Icons.Filled.Folder; com.xlollx.songport.sync.RadioConnectors.SERVICE -> Icons.Filled.Radio; "subsonic", "koel" -> Icons.Filled.Dns; "charts" -> Icons.Filled.BarChart; "releases" -> Icons.Filled.NewReleases; com.xlollx.songport.shared.SharedProvider.ID -> Icons.Filled.Groups; else -> null }
         when {
             glyph != null -> Image(glyph, null, Modifier.size(size * 0.56f), colorFilter = ColorFilter.tint(fg))
             generic != null -> Icon(generic, null, tint = fg, modifier = Modifier.size(size * 0.56f))
@@ -282,6 +308,8 @@ private fun Tile(t: ServiceTile, on: Boolean, width: Dp, height: Dp, onSelect: (
     val (name, detail) = tileWords(t.label, t.provider, t.detail)
     // A further account of a service wears its number on the mark.
     val account = t.provider?.slot?.takeIf { it.isNotEmpty() && it.length <= 2 }
+    // The account's own colour round its mark; the selection's ring then gives way to it (the check and the bolder name still say it).
+    val ring = t.provider?.let { accountRing(it.id) }
     androidx.compose.foundation.layout.Column(
         Modifier.semantics { this.selected = on }.size(width = width, height = height)
             .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
@@ -290,7 +318,7 @@ private fun Tile(t: ServiceTile, on: Boolean, width: Dp, height: Dp, onSelect: (
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(Modifier.size(MARK_BOX), contentAlignment = Alignment.Center) {
-            if (on) Box(Modifier.size(MARK_BOX - 2.dp).border(2.dp, scheme.primary, CircleShape))
+            if (on && ring == null) Box(Modifier.size(MARK_BOX - 2.dp).border(2.dp, scheme.primary, CircleShape))
             when {
                 t.action -> {
                     val dash = scheme.outline
@@ -303,7 +331,7 @@ private fun Tile(t: ServiceTile, on: Boolean, width: Dp, height: Dp, onSelect: (
                         contentAlignment = Alignment.Center,
                     ) { t.icon?.let { Icon(it, null, tint = scheme.primary, modifier = Modifier.size(22.dp)) } }
                 }
-                t.provider != null -> ServiceLogo(t.provider, MARK, Modifier.clearAndSetSemantics {})
+                t.provider != null -> ServiceLogo(t.provider, MARK, Modifier.clearAndSetSemantics {}, ring = ring)
                 t.icon != null && t.brandColor != null -> Icon(t.icon, null, tint = Color(t.brandColor), modifier = Modifier.size(MARK))
                 else -> Box(Modifier.size(MARK).clip(CircleShape).background(scheme.surfaceContainerHighest), contentAlignment = Alignment.Center) {
                     t.icon?.let { Icon(it, null, tint = scheme.onSurfaceVariant, modifier = Modifier.size(24.dp)) }

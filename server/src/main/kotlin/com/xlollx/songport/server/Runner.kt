@@ -4,7 +4,10 @@ import com.xlollx.songport.notify.Notify
 import com.xlollx.songport.model.Progress
 import com.xlollx.songport.model.Schedule
 import com.xlollx.songport.model.SyncJob
+import com.xlollx.songport.shared.Nway
+import com.xlollx.songport.shared.SharedGroup
 import com.xlollx.songport.sync.SyncEngine
+import com.xlollx.songport.sync.SyncLog
 import com.xlollx.songport.sync.SyncState
 import com.xlollx.songport.sync.isTransientNetwork
 import kotlinx.coroutines.CoroutineScope
@@ -68,7 +71,8 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
      * back are meant. What the preview shows now is confirmed as the app's tick does, for this run
      * only; a scheduled run never comes here with it.
      */
-    private suspend fun run(job: SyncJob, scheduled: Boolean, confirmRemovals: Boolean = false) {
+    private suspend fun run(job: SyncJob, scheduled: Boolean, confirmRemovals: Boolean = false): com.xlollx.songport.model.SyncReport? {
+        var ended: com.xlollx.songport.model.SyncReport? = null
         try {
             env.log("sync", "start ${job.name} (${if (scheduled) "scheduled" else "manual"})")
             Api.notifyStarted(env, job, scheduled)
@@ -84,6 +88,7 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
                 SyncState.progress(job.id, p)
                 if (p.step == Progress.Step.WAITING) SyncState.stopCheck(env, job.id) else SyncState.checkpoint(env, job.id)
             }
+            ended = report
             env.log(
                 "sync",
                 "end ${job.name}: +${report.added} -${report.removed} nf=${report.unmatched.size} src=${report.sourceCount} dst=${report.targetCount}" +
@@ -110,6 +115,91 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
             SyncState.finish(job.id)
             env.store.flush()
         }
+        return ended
+    }
+
+    // ------------------------------------------------------------------ multi syncs
+
+    /** The batch under way of the multi sync [groupId] (SyncState.Batch), or null when it does not run. */
+    fun groupBatch(groupId: String): SyncState.Batch? = SyncState.batchOf(groupId)
+
+    /** True while the multi sync [groupId] runs: as a batch, or one of its syncs alone. */
+    fun isGroupRunning(groupId: String): Boolean =
+        groupBatch(groupId) != null || Nway.jobsOf(env.store.data, groupId).any { isRunning(it.id) }
+
+    /**
+     * Runs the multi sync [group] as one batch, as the app's "Sync now" does (its worker's batch): its
+     * syncs one after the other in the group's order ([Nway.order]: every main member's changes into
+     * the group's list first, then the list into every playlist), each read again before it runs. By
+     * hand ([scheduled] false) a paused group runs whole; by its schedule only its syncs that are on.
+     * Answers false when it already runs or has nothing to run.
+     */
+    @Synchronized
+    fun startGroup(group: SharedGroup, scheduled: Boolean = false): Boolean {
+        if (isGroupRunning(group.id)) return false
+        val order = Nway.order(env, group, manual = !scheduled)
+        if (order.isEmpty()) return false
+        val batchId = "batch-" + java.util.UUID.randomUUID()
+        SyncState.batchStart(batchId, group.id, order.map { it.id })
+        env.log("sync", SyncLog.batchStart(group.id, group.name, order, scheduled))
+        scope.launch {
+            var stopped = true
+            try {
+                // One slot for the whole run: the group's syncs never run side by side, nor two groups' too many at once.
+                slots.withPermit {
+                    for (j in order) {
+                        // Read again: an earlier sync of this run may have written to it (its pair's other half); one deleted meanwhile is skipped.
+                        val job = env.store.job(j.id)
+                        // Checked and marked under the lock [start] holds: a sync started on its own meanwhile is not run twice at once.
+                        val skipped = synchronized(this@Runner) {
+                            when {
+                                job == null -> "no longer in the list"
+                                isRunning(job.id) -> "already running"
+                                else -> { SyncState.finish(job.id); SyncState.start(job.id); null }
+                            }
+                        }
+                        if (skipped != null || job == null) {
+                            SyncState.batchDone(batchId, j.id, SyncState.JobResult(skipped = skipped))
+                            continue
+                        }
+                        if (!scheduled) env.marks.begin(RunMarks.SYNC, job.id, job.name, "/multi/${group.id}")
+                        val report = run(job, scheduled)
+                        SyncState.batchDone(batchId, job.id, report?.let { SyncLog.result(it) } ?: SyncState.JobResult(ok = false, error = "not run"))
+                    }
+                    stopped = false
+                }
+            } finally {
+                SyncState.batchEnd(batchId)?.let { env.log("sync", SyncLog.batchEnd(it, group.name, stopped)) }
+                runCatching { Nway.log(env, group.id, "${order.size} syncs run (${if (scheduled) "scheduled" else "manual"})") }
+            }
+        }
+        return true
+    }
+
+    /**
+     * Starts [jobs] by hand ("Sync all", a tag): the classic syncs each on its own, and each multi sync
+     * one of them belongs to as one batch of its own ([startGroup]), as the app's Sync all does.
+     * Answers how many syncs and multi syncs were started.
+     */
+    fun startAll(jobs: List<SyncJob>): Int {
+        val d = env.store.data
+        val groups = Nway.groups(env).associateBy { it.id }
+        var n = 0
+        val seen = HashSet<String>()
+        for (j in jobs) {
+            val g = com.xlollx.songport.shared.SharedGroups.sharedSide(j)?.let { groups[it] }
+            if (g == null) { start(j); n++ }
+            else if (seen.add(g.id) && Nway.jobsOf(d, g.id).isNotEmpty()) { if (startGroup(g)) n++ }
+        }
+        return n
+    }
+
+    /**
+     * The multi syncs due by their schedule at [now]: a group whose syncs are on runs when one of them
+     * is due ([isDue]), as one batch ([startGroup]), never its syncs each alone at their own time.
+     */
+    fun dueGroups(now: Long): List<SharedGroup> = Nway.groups(env).filter { g ->
+        Nway.jobsOf(env.store.data, g.id).any { it.enabled && isDue(it, now) } && !isGroupRunning(g.id)
     }
 
     /** True when [job] is due by its schedule at [now]. */
@@ -144,13 +234,21 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
     }
 
     /** One turn of the minute at [now]. Each sync and each other entry by itself: one that throws does not keep the others from starting. */
-    internal suspend fun tick(now: Long, begin: (SyncJob) -> Unit = { start(it, scheduled = true) }) {
+    internal suspend fun tick(now: Long, beginGroup: (SharedGroup) -> Unit = { startGroup(it, scheduled = true) }, begin: (SyncJob) -> Unit = { start(it, scheduled = true) }) {
         guarded("syncs") {
-            env.store.data.jobs.forEach { job -> guarded(job.name) { if (isDue(job, now) && !isRunning(job.id)) begin(job) } }
+            // The syncs of a multi sync run with their group, below.
+            val grouped = Nway.memberJobIds(env.store.data)
+            env.store.data.jobs.forEach { job -> guarded(job.name) { if (job.id !in grouped && isDue(job, now) && !isRunning(job.id)) begin(job) } }
         }
+        // Each multi sync due: as one batch, its syncs one after the other (the app's group run).
+        guarded("multi syncs") { dueGroups(now).forEach { g -> guarded(g.name) { beginGroup(g) } } }
         // The backup schedule (Tools › Full backup), as the app's BackupWorker.
         guarded("backup") {
             if (Backups.isDue(env, now)) Tasks.start(Backups.TITLE, "/tools/backup", { env.log("backup", it) }, env.owner) { t -> Backups.run(env) { t.progress = it } }
+        }
+        // The weekly look for unplayable tracks (Tools › Unplayable tracks), as the app's UnplayableWorker.
+        guarded("unplayable") {
+            if (UnplayableWeekly.isDue(env, now)) Tasks.start(UnplayableWeekly.TITLE, "/tools/unplayable", { env.log("unplayable", it) }, env.owner) { t -> """<div class="card">${Html.h(UnplayableWeekly.run(env) { t.progress = it })}</div>""" }
         }
         // Lyrics for the files added to the library this week (Tools › Lyrics, Docker only).
         guarded("lyrics") {

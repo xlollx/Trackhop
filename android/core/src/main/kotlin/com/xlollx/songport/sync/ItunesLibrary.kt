@@ -16,7 +16,8 @@ class ItunesLibrary private constructor(
     /** Every playlist of the file, in its order, folders and the library's own lists included. */
     val playlists: List<Playlist>,
 ) {
-    class Info(val title: String, val artist: String, val album: String, val durationMs: Long)
+    /** A song of the file; [rating] and [albumRating] in stars (0 = none, 1..5), set by hand in iTunes. */
+    class Info(val title: String, val artist: String, val album: String, val durationMs: Long, val rating: Int = 0, val albumRating: Int = 0)
 
     enum class Kind {
         /** A playlist made by the person. */
@@ -66,7 +67,7 @@ class ItunesLibrary private constructor(
         choices.singleOrNull()?.takeIf { !isLibrary && it.size > 0 }?.let(::tracksOf) ?: tracks.values.map(::track)
 
     private fun track(i: Info) = CsvCodec.withStableId(
-        Track(id = "", title = i.title, artists = CsvCodec.splitArtists(i.artist), album = i.album, durationMs = i.durationMs),
+        Track(id = "", title = i.title, artists = CsvCodec.splitArtists(i.artist), album = i.album, durationMs = i.durationMs, rating = i.rating, albumRating = i.albumRating),
     )
 
     companion object {
@@ -94,6 +95,16 @@ class ItunesLibrary private constructor(
             else Builder().also { PlistEvents(source, it).run() }.build()
 
         fun read(text: String): ItunesLibrary = read(text.reader())
+
+        /**
+         * iTunes' rating (0..100, 20 a star) in stars, 0..5: half a star rounds up, any rating at all
+         * is at least one star. [computed] (iTunes worked it out from the songs, nobody set it): 0.
+         */
+        internal fun stars(value: String?, computed: Boolean = false): Int {
+            val v = value?.trim()?.toIntOrNull() ?: return 0
+            if (computed || v <= 0) return 0
+            return ((v + 10) / 20).coerceIn(1, 5)
+        }
     }
 
     // ---------------------------------------------------------------- building
@@ -160,6 +171,8 @@ class ItunesLibrary private constructor(
                 artist = (f["Artist"] ?: f["Album Artist"]).orEmpty().trim(),
                 album = f["Album"].orEmpty().trim(),
                 durationMs = f["Total Time"]?.trim()?.toLongOrNull() ?: 0,
+                rating = stars(f["Rating"], f["Rating Computed"] == "true"),
+                albumRating = stars(f["Album Rating"], f["Album Rating Computed"] == "true"),
             )
         }
 

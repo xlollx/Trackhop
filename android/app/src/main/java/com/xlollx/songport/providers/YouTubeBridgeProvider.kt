@@ -98,7 +98,11 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider, Web
     override fun disconnect(ctx: Env) { runCatching { call(ctx, "disconnect") } }
 
     /** A channel the account can act as: its own ([id] "") or a brand account (its page id). */
-    class Channel(val id: String, val name: String, val byline: String?, val selected: Boolean)
+    class Channel(
+        val id: String, val name: String, val byline: String?, val selected: Boolean,
+        /** Library playlists and liked songs on the channel; -1 when not read (an older connector, or [channels] without library). */
+        val playlists: Int = -1, val likedSongs: Int = -1,
+    )
 
     /**
      * True when the connectors offer the choice of the channel: the built-in ones do, a plugin says
@@ -110,9 +114,17 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider, Web
     /** The chosen channel's name, for the card; null for the account's own channel (the default). */
     fun channelName(ctx: Env): String? = runCatching { call(ctx, "status").getString("channelName") }.getOrNull()
 
-    /** The channels the signed-in account can act as, the chosen one marked. Blocking: off the main thread. */
-    fun channels(ctx: Env): List<Channel> = parseJson(call(ctx, "channels").getString("json") ?: "[]").arr.mapNotNull { j ->
-        Channel(j["id"].str ?: return@mapNotNull null, j["name"].str ?: return@mapNotNull null, j["byline"].str, j["selected"].bool == true)
+    /**
+     * The channels the signed-in account can act as, the chosen one marked; with [library], how much
+     * music each holds (a few reads per channel: after sign-in and in the choice only). Blocking: off the main thread.
+     */
+    fun channels(ctx: Env, library: Boolean = false): List<Channel> =
+        parseChannels(call(ctx, "channels", null, if (library) Bundle().apply { putBoolean("library", true) } else null).getString("json"))
+
+    /** The channel the music seems to be on when the chosen one looks empty ([ChannelAdvice]); null when there is nothing to say. */
+    fun betterChannel(channels: List<Channel>): Channel? {
+        val id = ChannelAdvice.better(channels.map { ChannelAdvice.Library(it.id, it.playlists, it.likedSongs) }, channels.firstOrNull { it.selected }?.id ?: "")
+        return channels.firstOrNull { it.id == id }
     }
 
     /** Makes the account's calls as [channel] ("" for its own channel). Blocking: off the main thread. */
@@ -306,6 +318,14 @@ class YouTubeBridgeProvider(override val slot: String = "") : MusicProvider, Web
     private fun quote(s: String) = "\"" + s.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
     companion object {
+        /** The channels in a connector's answer; counts the connector does not give stay unknown (-1). */
+        internal fun parseChannels(json: String?): List<Channel> = parseJson(json ?: "[]").arr.mapNotNull { j ->
+            Channel(
+                j["id"].str ?: return@mapNotNull null, j["name"].str ?: return@mapNotNull null, j["byline"].str, j["selected"].bool == true,
+                j["playlists"].int ?: -1, j["likedSongs"].int ?: -1,
+            )
+        }
+
         const val SERVICE = "ytm"
         const val PACKAGE = "com.xlollx.songport.ytmbridge"
         const val LOGIN_ACTION = "com.xlollx.songport.ytmbridge.LOGIN"

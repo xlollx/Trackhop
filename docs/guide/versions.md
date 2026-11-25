@@ -6,7 +6,8 @@ is which services they can reach, and how.
 | | GitHub and F-Droid | Stores: Google Play, Huawei AppGallery |
 |---|---|---|
 | Spotify, YouTube Music, Apple Music, Amazon Music, Deezer, SoundCloud through their web players | **built in**: sign in and go | through the optional Trackhop Bridge plugin |
-| Spotify, YouTube Music, Apple Music, TIDAL, Deezer through their official APIs | yes | yes |
+| Spotify, YouTube Music, Apple Music, TIDAL through their official APIs | yes | yes |
+| Deezer through its official API (only with an app id you already have: Deezer no longer creates new ones) | yes | yes |
 | Navidrome/Subsonic, Koel, Jellyfin, Emby, Plex, Last.fm, ListenBrainz, files | yes | yes |
 | SoundCloud public links | yes | through the plugin |
 | LiveOne, Anghami, Qobuz (web player), NetEase Cloud Music, QQ Music and JioSaavn links, TikTok | yes | through the plugin |

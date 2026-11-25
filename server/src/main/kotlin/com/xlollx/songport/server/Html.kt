@@ -7,11 +7,18 @@ import java.util.Date
 object Html {
     fun h(s: String?): String = (s ?: "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;")
 
+    /**
+     * [s] inside a JavaScript string in quotes ('…'), for an inline handler: then [h] for the
+     * attribute. The browser turns &#39; back into ' before the script runs, so [h] alone would let
+     * a name with an apostrophe end the string.
+     */
+    fun js(s: String): String = s.replace("\\", "\\\\").replace("'", "\\'").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "").replace("<", "\\x3c")
+
     fun date(epoch: Long): String = if (epoch <= 0) "never" else SimpleDateFormat("yyyy-MM-dd HH:mm").format(Date(epoch))
 
     /** A button that posts to [action]: every change goes through POST, never a link. */
     fun postButton(action: String, label: String, style: String = "", fields: Map<String, String> = emptyMap(), confirm: String? = null): String =
-        """<form method="post" action="${h(action)}" class="inline"${confirm?.let { " onsubmit=\"return confirm('${h(it)}')\"" } ?: ""}>""" +
+        """<form method="post" action="${h(action)}" class="inline"${confirm?.let { " onsubmit=\"return confirm('${h(js(it))}')\"" } ?: ""}>""" +
             fields.entries.joinToString("") { (k, v) -> """<input type="hidden" name="${h(k)}" value="${h(v)}">""" } +
             """<button class="${h(style)}">${h(label)}</button></form>"""
 
@@ -34,21 +41,30 @@ object Html {
      */
     private const val DESKTOP_LINKS = """<script>document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a||a.host===location.host)return;e.preventDefault();location.href='trackhop-external:'+a.href})</script>"""
 
-    private val NAV = listOf("/" to "Syncs", "/playlists" to "Playlists", "/connectors" to "Services", "/tools" to "Tools", "/log" to "Log", "/settings" to "Settings")
+    private val NAV = listOf("/" to "Syncs", "/playlists" to "Playlists", "/connectors" to "Services", "/tools" to "Tools", "/log" to "Log", "/notifications" to "Notifications", "/settings" to "Settings")
 
     /**
      * A service's mark as the app draws it: its glyph (ServiceMarks) white on a circle in its brand
-     * colour; a folder or a server icon for File and Subsonic; the initial otherwise.
+     * colour; a folder or a server icon for File and Subsonic; the initial otherwise. With [ring]
+     * ("#RRGGBB", an account's colour, AccountColors) a ring a gap away round it, as the app draws
+     * it: the mark itself keeps the brand's colours, and the layout does not move.
      */
-    fun logo(serviceId: String?, brandColor: Long?, name: String, size: Int = 32): String {
+    fun logo(serviceId: String?, brandColor: Long?, name: String, size: Int = 32, ring: String? = null): String {
         val color = brandColor?.let { "#%06X".format(it and 0xFFFFFF) } ?: "#6E6878"
         val glyph = com.xlollx.songport.providers.ServiceMarks.pathData(serviceId)?.let { """<svg viewBox="0 0 24 24"><path fill="#fff" d="$it"/></svg>""" }
             ?: when (serviceId) {
                 "csv" -> """<svg viewBox="0 0 24 24"><path fill="#fff" d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>"""
                 "subsonic", "koel" -> """<svg viewBox="0 0 24 24"><path fill="#fff" d="M20 13H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zM7 19c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM20 3H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1zM7 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>"""
+                // A radio station's service (one per station) and Shazam's (2.2).
+                "radio" -> """<svg viewBox="0 0 24 24"><path fill="#fff" d="M3.24 6.15C2.51 6.43 2 7.17 2 8v12c0 1.1.89 2 2 2h16c1.11 0 2-.9 2-2V8c0-1.11-.89-2-2-2H8.3l8.26-3.34L15.88 1 3.24 6.15zM7 20c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm13-8h-2v-2h-2v2H4V8h16v4z"/></svg>"""
+                "shazam" -> """<svg viewBox="0 0 24 24"><path fill="#fff" d="${com.xlollx.songport.providers.ServiceMarks.SHAZAM}"/></svg>"""
                 else -> """<b>${h(name.take(1).uppercase())}</b>"""
             }
-        return """<span class="logo" style="--s:${size}px;background:$color" role="img" aria-label="${h(name)}">$glyph</span>"""
+        val ringStyle = ring?.takeIf { Regex("#[0-9A-Fa-f]{6}").matches(it) }?.let {
+            val w = (size * 0.0625).coerceIn(1.5, 3.0)
+            ";box-shadow:0 0 0 ${w}px var(--surface),0 0 0 ${w * 2}px $it"
+        }.orEmpty()
+        return """<span class="logo${if (ringStyle.isEmpty()) "" else " ringed"}" style="--s:${size}px;background:$color$ringStyle" role="img" aria-label="${h(name)}">$glyph</span>"""
     }
 
     /** The colours a sync can wear, as the app's JobColor: key to light and dark shade. */
@@ -222,6 +238,9 @@ h3{margin:0 0 4px;font-size:16px}
 .ok{color:var(--ok)}.err{color:var(--err)}
 .card.ok,.card.err{color:var(--ink)}
 .card.ok{box-shadow:inset 4px 0 0 var(--ok)}.card.err{box-shadow:inset 4px 0 0 var(--err)}
+p.warn{margin:8px 0;padding:10px 12px;border-radius:12px;background:#fff4d6;color:#6b4e00;border:1px solid #e8c55a}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) p.warn{background:#3b3015;color:#f3d78a;border-color:#7a6420}}
+:root[data-theme=dark] p.warn{background:#3b3015;color:#f3d78a;border-color:#7a6420}
 .alpha{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 8px;border-radius:999px;background:#ffb4ab;color:#690005;vertical-align:middle}
 .beta{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 8px;border-radius:999px;background:#c8e6ff;color:#003258;vertical-align:middle}
 .net{color:var(--ink-2)}

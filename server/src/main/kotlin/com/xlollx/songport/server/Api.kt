@@ -109,6 +109,10 @@ object Api {
 
     // ------------------------------------------------------------------ JSON
 
+    /** The matching rules' values as the API names them. */
+    val STRICTNESS = mapOf(-1 to "loose", 0 to "normal", 1 to "strict")
+    val EXPLICIT = mapOf(0 to "either", 1 to "explicit", -1 to "clean")
+
     fun job(env: ServerEnv, j: SyncJob, running: Boolean): JsonObject = buildJsonObject {
         put("id", j.id)
         put("name", j.name)
@@ -120,6 +124,8 @@ object Api {
         put("every", com.xlollx.songport.sync.Timing.interval(j))
         put("at", j.at?.let { JsonPrimitive(it) } ?: JsonNull)
         put("days", buildJsonArray { j.days.forEach { add(it) } })
+        // The saved schedule it follows (GET /schedules), if any.
+        put("savedSchedule", j.scheduleId?.let { JsonPrimitive(it) } ?: JsonNull)
         put("color", j.color?.let { JsonPrimitive(it) } ?: JsonNull)
         // The one label it wears (its colour, with a name when the user gave one), its star and its tags.
         put("label", j.label?.let { JsonPrimitive(it) } ?: JsonNull)
@@ -132,22 +138,39 @@ object Api {
         put("followsChanges", j.followsChanges)
         // Keeps every track ever seen: nothing is removed from the target, new tracks are added at the end.
         put("archive", j.archive)
+        // Copies the source's star ratings (an iTunes library's, kept in a playlist file) to the target.
+        put("copyRatings", j.copyRatings)
+        // How close a match must be, and the rest of the editor's matching choices (MatchPolicy); the source's order kept.
+        put("policy", policyJson(j.policy))
+        put("keepOrder", j.keepOrder)
         // Half of a two-way pair: the other half's id, whether this is the "↔" half, and whether removals travel too.
         val other = j.linkedJobId?.let { env.store.job(it) }
         put("twoWay", other != null)
         put("linkedSyncId", other?.let { JsonPrimitive(it.id) } ?: JsonNull)
         put("twin", other != null && !other.twin && (j.twin || j.name == other.name + " ↔"))
         put("twoWayRemovals", j.twoWayRemovals)
+        // How a track is chosen among the candidates (the editor's Matching rules).
+        put("matching", buildJsonObject {
+            put("strictness", STRICTNESS[j.policy.strictness.coerceIn(-1, 1)])
+            put("explicit", EXPLICIT[j.policy.explicit.coerceIn(-1, 1)])
+            put("sameAlbum", j.policy.sameAlbum)
+            put("studioOnly", j.policy.studioOnly)
+            put("artistNamesCanDiffer", j.policy.artistsMayDiffer)
+        })
         put("enabled", j.enabled)
         // Came turned off with a configuration from another device: where its schedule runs (null once turned on here).
         put("scheduledOn", j.scheduledOn?.takeIf { !j.enabled }?.let { JsonPrimitive(it) } ?: JsonNull)
         // Its source is the playlist the Shazam app fills on Spotify or Apple Music.
         put("shazam", j.shazam)
+        // The connector its source comes through: a radio station's ("radio@2") or Shazam's; null for any other sync.
+        put("via", j.via?.let { JsonPrimitive(it) } ?: JsonNull)
         put("running", running)
         // Its last run by hand was cut short by a restart of Trackhop and has not been run again since.
         put("interrupted", env.marks.interrupted(RunMarks.SYNC, j.id) != null)
         put("lastRun", if (j.lastRunEpoch > 0) JsonPrimitive(j.lastRunEpoch) else JsonNull)
         put("nextRun", Runner.nextRun(j)?.let { JsonPrimitive(it) } ?: JsonNull)
+        // Whether its source is as it was at the last run (checked in the background, kept ten minutes): current, changed, unknown, or null when not checked yet.
+        put("fresh", FreshnessServer.word(FreshnessServer.stateOf(env, j))?.let { JsonPrimitive(it) } ?: JsonNull)
         put("lastResult", j.lastReportId?.let { env.store.report(it) }?.let { run(it, tracks = false) } ?: JsonNull)
         j.radio?.let { r ->
             put("radio", buildJsonObject {
@@ -160,6 +183,14 @@ object Api {
         }
     }
 
+    /** A sync's matching choices as the API gives them: strictness and explicit as words, the two ticks. */
+    fun policyJson(p: com.xlollx.songport.model.MatchPolicy) = buildJsonObject {
+        put("strictness", when { p.strictness < 0 -> "lenient"; p.strictness > 0 -> "strict"; else -> "normal" })
+        put("explicit", when { p.explicit < 0 -> "clean"; p.explicit > 0 -> "explicit"; else -> "either" })
+        put("sameAlbum", p.sameAlbum)
+        put("studioOnly", p.studioOnly)
+    }
+
     /**
      * The syncs a call asks for with "tag" (key:value, key=value or a key alone; several split by
      * commas, all wanted), "label" (id, colour or name) and "favorite" (true or false); every sync
@@ -168,7 +199,8 @@ object Api {
     fun selected(env: ServerEnv, query: Map<String, String>): List<SyncJob> {
         val d = env.store.data
         val favorite = query["favorite"]?.let { it.toBooleanStrictOrNull() ?: throw IllegalArgumentException("\"favorite\" is true or false.") }
-        return Labels.select(d.jobs, d.settings.labels, query["tag"].orEmpty().split(',').filter { it.isNotBlank() }, query["label"], favorite)
+        // The one-off transfers (Recent transfers) are not syncs.
+        return Labels.select(d.syncs, d.settings.labels, query["tag"].orEmpty().split(',').filter { it.isNotBlank() }, query["label"], favorite)
     }
 
     fun grouped(query: Map<String, String>) = listOf("tag", "label", "favorite").any { !query[it].isNullOrBlank() }
@@ -209,6 +241,8 @@ object Api {
         put("partial", r.partial)
         // Removals the run held back (a quarter or more of the target, or of what a two-way pair shared): they wait for a confirmation.
         put("heldRemovals", r.heldBack)
+        // Star ratings set on the target's songs and albums (copyRatings).
+        put("ratingsSet", r.ratingsSet)
         if (tracks) {
             put("notFoundTracks", buildJsonArray { r.unmatchedTracks.forEach { add(trackRef(it)) } })
             put("addedTracks", buildJsonArray { r.addedTracks.forEach { add(trackRef(it)) } })
@@ -336,9 +370,18 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
     val rest = path.drop(2)
     // The release switch: 1.18's calls are unknown until it is on (Features).
     if (Features.hidesCall(method, rest)) return error(404, "Unknown call. See https://trackhop.org/guide/docker#api")
+    // Before the channels' calls: "history" is not a channel's id.
+    if (apiNotifyHistory(method, rest, { apiJson(ex) }, ::json, ::error)) return
     if (apiDiag(ex, method, rest, query, ::json, ::error)) return
+    // Multi syncs: one source kept on several targets (ApiMulti.kt).
+    if (apiMulti(ex, method, rest, ::json, ::error)) return
+    // Radio stations and Shazam as connectors (ApiRadio.kt), before the services' and the syncs' own calls.
+    if (apiRadio(ex, method, rest, query, ::json, ::error)) return
     if (apiSyncs(ex, method, rest, query, ::json, ::error)) return
+    // The app's features brought here in 2.2 (ApiParity.kt).
+    if (apiParity(ex, method, rest, query, ::json, ::error)) return
     if (apiMore(ex, method, rest, query, ::json, ::error)) return
+    if (apiPlex(ex, method, rest, query, ::json, ::error)) return
     if (apiWanted(ex, method, rest, query, ::json, ::error)) return
     if (apiConcerts(method, rest, query, ::json, ::error)) return
     if (apiSetlists(method, rest, query, ::json, ::error)) return
@@ -390,7 +433,7 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
         rest == listOf("syncs", "run") && method == "POST" -> {
             if (!Api.grouped(query)) return error(400, "Say which syncs: ?tag=key:value, ?label=… or ?favorite=true (POST /api/v1/syncs/run-all starts them all).")
             val started = runCatching { Api.selected(env, query) }.getOrElse { return error(400, it.message ?: "Wrong request.") }.filter { it.enabled }
-            started.forEach { runner.start(it) }
+            runner.startAll(started)
             json(202, buildJsonObject {
                 put("started", started.size)
                 put("syncs", buildJsonArray { started.forEach { add(buildJsonObject { put("id", it.id); put("name", it.name) }) } })
@@ -429,13 +472,16 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
         }
         rest == listOf("syncs", "run-all") && method == "POST" -> {
             val started = jobs.filter { it.enabled }
-            started.forEach { runner.start(it) }
+            // A multi sync's syncs run as one batch of their own (Runner.startAll).
+            runner.startAll(started)
             json(202, buildJsonObject { put("started", started.size) })
         }
         rest.size >= 2 && rest[0] == "syncs" -> {
             val job = env.store.job(rest[1]) ?: return error(404, "No sync with that id.")
             when {
                 rest.size == 2 && method == "GET" -> json(200, buildJsonObject {
+                    // ?fresh=check looks the source up now; otherwise a check starts in the background.
+                    if (query["fresh"] == "check" && FreshnessServer.worthChecking(job)) kotlinx.coroutines.runBlocking { FreshnessServer.checkNow(env, job) } else FreshnessServer.refresh(env, listOf(job))
                     Api.job(env, job, job.id in running).forEach { (k, v) -> put(k, v) }
                     put("runs", JsonArray(env.store.data.reports.filter { it.jobId == job.id }.take(20).map { Api.run(it, tracks = false) }))
                 })
@@ -474,15 +520,24 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
             json(200, Api.run(report))
         }
         rest.size >= 3 && rest[0] == "services" -> ApiPlaylists.handle(this, ex, method, rest, ::json, ::error)
-        rest == listOf("services") && method == "GET" -> json(200, JsonArray(Providers.connectors().map { p ->
+        // "Which service?": every service this server offers, with its category and other names; ?q= searches, ?category= narrows.
+        rest == listOf("catalog") && method == "GET" -> json(200, catalogJson(env, query["q"], query["category"]))
+        rest == listOf("services") && method == "GET" -> {
+            // The Services page's search and chips: q= words, kind= all, official, web or connected.
+            val chip = ServicesFilter.chip(query["kind"]) ?: return error(400, "\"kind\" is all, official, web or connected.")
+            json(200, JsonArray(ServicesFilter.shown(env, Providers.connectors(), query["q"].orEmpty(), chip).map { p ->
             buildJsonObject {
+                put("web", ServicesFilter.web(p))
                 put("id", p.id); put("name", p.label(env))
                 // Which service, and which of its accounts ("" the main one, "2", "3"… the others): id is "jellyfin@2".
                 put("serviceId", p.serviceId); put("slot", p.slot)
                 put("connected", !p.requiresAuth || p.isConnected(env))
                 put("account", p.accountName(env)?.let { JsonPrimitive(it) } ?: JsonNull)
+                // A radio connector's station and stream, how many syncs come through it or Shazam.
+                connectorExtras(p)?.forEach { (k, v) -> put(k, v) }
             }
         }))
+        }
         rest == listOf("files") && method == "GET" -> json(200, JsonArray(csvFiles().map { JsonPrimitive(it.name) }))
         rest.size == 2 && rest[0] == "files" && (method == "POST" || method == "PUT") -> {
             // A playlist file in the body (CSV, M3U, XSPF, JSPF, WPL/ZPL, iTunes XML, rekordbox XML, JSON, plain text), named by the path.
@@ -603,7 +658,7 @@ internal fun Web.apiPage(r: Web.Req) {
 }
 
 /** Copies at most [max] + 1 bytes of [inp] to [out]: the count says whether it went over. */
-private fun copyAtMost(inp: java.io.InputStream, out: java.io.OutputStream, max: Long): Long {
+internal fun copyAtMost(inp: java.io.InputStream, out: java.io.OutputStream, max: Long): Long {
     val buf = ByteArray(64 * 1024)
     var total = 0L
     while (true) {

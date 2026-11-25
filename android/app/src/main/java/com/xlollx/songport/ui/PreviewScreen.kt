@@ -314,7 +314,7 @@ private fun RouteCard(job: SyncJob, newTarget: Boolean) {
             listOf(job.source, job.target).forEachIndexed { i, ref ->
                 val provider = Providers.byId(ref.provider)
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    ProviderBadge(provider, 40.dp)
+                    ProviderBadge(provider, 40.dp, accountRing(provider?.id))
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(ref.playlistName.ifBlank { job.name }, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)

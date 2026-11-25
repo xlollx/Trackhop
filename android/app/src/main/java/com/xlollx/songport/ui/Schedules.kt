@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import com.xlollx.songport.shared.NwayRun
 import android.content.Context
 import com.xlollx.songport.platform.env
 import android.text.format.DateUtils
@@ -129,6 +130,38 @@ fun scheduleTitle(s: SavedSchedule): String = s.name.ifBlank { scheduleSummary(s
 @Composable
 fun scheduleUsedBy(n: Int): String = if (n == 0) stringResource(R.string.sched_not_used) else pluralStringResource(R.plurals.sched_used_by, n, n)
 
+/** "Used by Rap" when one card uses it (a multi sync is one: [Schedules.cards]), else as [scheduleUsedBy] counts the cards. */
+@Composable
+fun scheduleUsedBy(cards: List<Schedules.Card>): String =
+    cards.singleOrNull()?.let { stringResource(R.string.sched_used_by_name, it.name) } ?: scheduleUsedBy(cards.size)
+
+/** For the UI tests: a card that uses the schedule, in its editor and in its delete confirmation. */
+const val SCHEDULE_USER_TAG = "schedule-user"
+
+/**
+ * A card that uses a schedule, by its name; a multi sync with its services' logos as its card shows
+ * them, how many services, and a "multi" pill. Saving reaches every one of its services.
+ */
+@Composable
+fun ScheduleUser(card: Schedules.Card, style: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyMedium) {
+    if (card.group == null) {
+        Text(card.name, style = style, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.testTag(SCHEDULE_USER_TAG))
+        return
+    }
+    val members = remember(card) { NwayRun.sourceFirst(card.members, card.job.id) }
+    Row(
+        Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}.testTag(SCHEDULE_USER_TAG),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        GroupLogos(members, null, 22.dp)
+        Column(Modifier.weight(1f)) {
+            Text(card.name, style = style, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(pluralStringResource(R.plurals.sched_services, members.size, members.size), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        StatusPill(stringResource(R.string.sched_multi_pill), Tone.Neutral)
+    }
+}
+
 /**
  * "Next run: Tomorrow, 07:30" for a schedule at a time of day; "Next run: Within 6 hours" for one by
  * interval, where each sync counts from its own last run.
@@ -154,7 +187,7 @@ const val SCHEDULE_ROW_TAG = "schedule-row"
  * picker, with its radio button.
  */
 @Composable
-fun ScheduleRow(s: SavedSchedule, usedBy: Int, selected: Boolean? = null, next: Boolean = false, onClick: () -> Unit) {
+fun ScheduleRow(s: SavedSchedule, usedBy: List<Schedules.Card>, selected: Boolean? = null, next: Boolean = false, onClick: () -> Unit) {
     Surface(
         onClick = onClick,
         shape = MaterialTheme.shapes.medium,
@@ -173,7 +206,7 @@ fun ScheduleRow(s: SavedSchedule, usedBy: Int, selected: Boolean? = null, next: 
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 if (next) Text(scheduleNextRun(s), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(scheduleUsedBy(usedBy), style = MaterialTheme.typography.labelMedium, color = if (usedBy == 0) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary)
+                Text(scheduleUsedBy(usedBy), style = MaterialTheme.typography.labelMedium, color = if (usedBy.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
     }
@@ -208,7 +241,7 @@ fun SchedulesDialog(onClose: () -> Unit) {
                 ) {
                     Text(stringResource(R.string.sched_intro), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (data.settings.savedSchedules.isEmpty()) Text(stringResource(R.string.sched_empty), style = MaterialTheme.typography.bodyMedium)
-                    data.settings.savedSchedules.forEach { s -> ScheduleRow(s, Schedules.usedBy(data, s.id).size, next = true) { editing = s.id } }
+                    data.settings.savedSchedules.forEach { s -> ScheduleRow(s, Schedules.cards(data, s.id), next = true) { editing = s.id } }
                     OutlinedButton(onClick = { editing = NEW }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                         Icon(Icons.Filled.Add, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.sched_new))
                     }
@@ -246,7 +279,8 @@ fun ScheduleEditorDialog(
     var daysCsv by rememberSaveable { mutableStateOf(from.days.joinToString(",")) }
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
     val days = daysCsv.split(",").mapNotNull { it.trim().toIntOrNull() }
-    val users = remember(data, schedule?.id) { schedule?.let { Schedules.usedBy(data, it.id) }.orEmpty() }
+    // Counted and listed by card, as the Syncs list shows them: a multi sync is one. Saving still reaches each of its syncs.
+    val users = remember(data, schedule?.id) { schedule?.let { Schedules.cards(data, it.id) }.orEmpty() }
     val changed = name != schedule?.name.orEmpty() || Schedules.spec(every, at, days) != from || schedule == null
     val leave = rememberDiscardGuard(schedule != null && changed || schedule == null && name.isNotBlank(), onClose = onClose)
     fun save() {
@@ -273,7 +307,14 @@ fun ScheduleEditorDialog(
                         Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlinedButton(onClick = leave, modifier = Modifier.weight(1f).height(52.dp)) { Text(stringResource(R.string.cancel)) }
                             Button(onClick = { save() }, modifier = Modifier.weight(1f).height(52.dp).testTag("schedule_save")) {
-                                Text(if (users.isEmpty()) stringResource(R.string.sched_save) else pluralStringResource(R.plurals.sched_save_for, users.size, users.size), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Text(
+                                    when (users.size) {
+                                        0 -> stringResource(R.string.sched_save)
+                                        1 -> stringResource(R.string.save)
+                                        else -> pluralStringResource(R.plurals.sched_save_for, users.size, users.size)
+                                    },
+                                    maxLines = 1, overflow = TextOverflow.Ellipsis,
+                                )
                             }
                         }
                     }
@@ -289,8 +330,8 @@ fun ScheduleEditorDialog(
                     TimingPicker(every, at, daysCsv, onEvery = { every = it }, onAt = { at = it }, onDays = { daysCsv = it }, manual = false)
                     if (schedule != null) {
                         Text(scheduleUsedBy(users.size), style = MaterialTheme.typography.titleSmall)
-                        users.forEach { j -> Text(j.name.ifBlank { j.source.playlistName }, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis) }
-                        if (users.isNotEmpty()) Text(stringResource(R.string.sched_edit_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        users.forEach { c -> ScheduleUser(c) }
+                        if (users.isNotEmpty()) Text(scheduleEditNote(users), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -304,7 +345,7 @@ fun ScheduleEditorDialog(
                 // Named, so it is clear which syncs it is about; they always keep the timing they have.
                 if (users.isNotEmpty()) {
                     Text(pluralStringResource(R.plurals.sched_delete_used, users.size, users.size), style = MaterialTheme.typography.bodyMedium)
-                    users.forEach { j -> Text(j.name.ifBlank { j.source.playlistName }, style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                    users.forEach { c -> ScheduleUser(c, MaterialTheme.typography.bodyLarge) }
                     Text(stringResource(R.string.sched_delete_keep), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else Text(stringResource(R.string.sched_not_used), style = MaterialTheme.typography.bodyMedium)
             }
@@ -317,6 +358,17 @@ fun ScheduleEditorDialog(
         },
         dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text(stringResource(R.string.cancel)) } },
     )
+}
+
+/**
+ * The editor's note under the syncs that use the schedule: saving changes them all at their next
+ * run; one is changed alone by Detach in its own editor, a service of a multi sync from the multi sync.
+ */
+@Composable
+private fun scheduleEditNote(users: List<Schedules.Card>): String = when {
+    users.none { it.group != null } -> stringResource(R.string.sched_edit_note)
+    users.size == 1 -> stringResource(R.string.sched_edit_note_multi_one)
+    else -> stringResource(R.string.sched_edit_note_multi)
 }
 
 /** The two ways to give a sync its timing (for the UI tests: the tabs' tags end in these). */
@@ -365,7 +417,8 @@ fun SchedulePicker(
         if (saved) {
             if (picked != null && !picking) {
                 // This sync's schedule: what it is, when it runs next, who else uses it.
-                val others = Schedules.usedBy(data, picked.id).count { it.id != jobId }
+                // By card, as the library counts: this sync's own card (its multi sync's, for one of its services) is not another.
+                val others = Schedules.cards(data, picked.id).count { !it.has(jobId) }
                 Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}.testTag("schedule_linked")) {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text(scheduleTitle(picked), style = MaterialTheme.typography.titleMedium)
@@ -386,7 +439,7 @@ fun SchedulePicker(
                 )
             } else {
                 if (schedules.isEmpty()) Text(stringResource(R.string.sched_empty), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                schedules.forEach { s -> ScheduleRow(s, Schedules.usedBy(data, s.id).size, selected = s.id == scheduleId) { onPick(s.id) } }
+                schedules.forEach { s -> ScheduleRow(s, Schedules.cards(data, s.id), selected = s.id == scheduleId) { onPick(s.id) } }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     OutlinedButton(onClick = { editing = NEW }) { Icon(Icons.Filled.Add, null); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.sched_new)) }
                     if (schedules.isNotEmpty()) TextButton(onClick = { manage = true }) { Text(stringResource(R.string.sched_manage)) }

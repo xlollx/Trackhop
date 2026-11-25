@@ -130,7 +130,7 @@ object Mcp {
     }
 
     /** Every tool: these, and the next release's (Features.v2, McpV2.kt). */
-    private val TOOLS: List<Tool> get() = BASE_TOOLS.filter { Features.v2 || it.name !in Features.V2_MCP_TOOLS } + McpV2.tools
+    private val TOOLS: List<Tool> get() = BASE_TOOLS.filter { Features.v2 || it.name !in Features.V2_MCP_TOOLS } + McpV2.tools + McpParity.tools
 
     private val BASE_TOOLS = listOf(
         Tool("status", "Trackhop status", "Trackhop's version, how many syncs it has, which are running now and when the last one ran.",
@@ -246,7 +246,7 @@ object Mcp {
                 Param("albums", "boolean", "Grouped by album.", required = false),
                 Param("everywhere", "boolean", "The tracks not found by every sync, on any service, not only the user's own server.", required = false),
                 Param("on", "string", "Only the tracks missing on this target service (its id, e.g. spotify or tidal).", required = false),
-            ), readOnly = true) { a -> Call("wanted", values = a.values("sync", "service", "since", "format", "on"), flags = setOfNotNull("albums".takeIf { a.flag("albums") }, "everywhere".takeIf { a.flag("everywhere") })) },
+            ), readOnly = true) { a -> Call("wanted", values = a.values("sync", "service", "since", "format") + listOfNotNull(a.opt("on")?.let { "missing-on" to it }), flags = setOfNotNull("albums".takeIf { a.flag("albums") }, "everywhere".takeIf { a.flag("everywhere") })) },
         Tool("find_concerts", "Concerts of a playlist's artists", "The upcoming concerts of the artists of a playlist in one country: date, city, venue and a link, from Ticketmaster and MusicBrainz, plus search links for the artists with no date found. Looked up only now (cached a day); can take a minute. Show the attribution line with the dates.",
             listOf(SERVICE, PLAYLIST, Param("country", "string", "Two-letter country code, e.g. IT or US (default: the server's).", required = false)), readOnly = true) { a ->
             Call("concerts", listOf(a.text("service"), a.text("playlist")), values = a.values("country"))
@@ -264,7 +264,7 @@ object Mcp {
             listOf(SERVICE, PLAYLIST, WAIT), readOnly = false, destructive = true) { a ->
             Call("duplicates", listOf(a.text("service"), a.text("playlist")), wait = a.flag("wait"), flags = setOf("remove"))
         },
-        Tool("export_playlist", "Export a playlist", "A playlist as a file's text: csv, m3u, xspf, jspf, wpl, zpl or txt (opml for followed podcasts).",
+        Tool("export_playlist", "Export a playlist", "A playlist as a file's text: csv, m3u, xspf, jspf, wpl, zpl, txt or json for Soundiiz (opml for followed podcasts).",
             listOf(SERVICE, PLAYLIST, Param("format", "string", "csv (default), m3u, xspf, jspf, txt, or opml for followed podcasts.", required = false)), readOnly = true) { a ->
             Call("export", listOf(a.text("service"), a.text("playlist")), values = a.values("format"))
         },

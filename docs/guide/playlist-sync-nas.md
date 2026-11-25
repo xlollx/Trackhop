@@ -60,6 +60,7 @@ password and has their own services and syncs ([how](docker#several-people-on-on
 - **Umbrel**: add the community app store `https://github.com/xlollx/umbrel-apps` (*App Store › ⋯ ›
   Community App Stores*) and install *Trackhop* ([more](docker#one-click-installs)).
 - **CapRover**: *One-Click Apps*, search **Trackhop** ([more](docker#one-click-installs)).
+- **Dokploy**: *Create Service › Template*, search **Trackhop** ([more](docker#one-click-installs)).
 - **TrueNAS SCALE**: *Apps › Discover Apps › Custom App*, the same image, port, storage and variables.
 - **Raspberry Pi**: 64-bit Raspberry Pi OS, install Docker, then the `docker run` command of the
   [Docker guide](docker#start-it). With a desktop on the Pi, [Trackhop Desktop](desktop#install) also

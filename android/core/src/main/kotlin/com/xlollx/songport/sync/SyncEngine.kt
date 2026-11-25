@@ -83,6 +83,8 @@ fun isTransientNetwork(msg: String?): Boolean {
 
 /** Below the match threshold but close enough to be worth proposing in the review. */
 private const val HINT_THRESHOLD = 0.45
+/** A scheduled run skips an unchanged source for a day at most: then it reads it whole once (see SyncEngine.skippable). */
+private const val FULL_RUN_MS = 24L * 3_600_000
 /** A run stopped by the target's size check ([SyncReport.targetShrunkFrom]): [expected] is what the last run left. */
 class TargetShrunkException(message: String, val expected: Int) : Exception(message)
 
@@ -130,10 +132,11 @@ class SyncEngine(
         // The source's version before anything is read: a change during the run is seen next time.
         val (src0, dst0) = runCatching { providers(job) }.getOrNull() ?: (null to null)
         val sourceVersion = job.source.playlistId?.let { id -> src0?.let { runCatching { it.playlistVersion(env, id) }.getOrNull() } }
-        if (unattended && sourceVersion != null && sourceVersion == job.sourceVersion && job.targetVersion != null) {
-            val targetVersion = job.target.playlistId?.let { id -> dst0?.let { runCatching { it.playlistVersion(env, id) }.getOrNull() } }
-            if (targetVersion == job.targetVersion) {
-                env.log("engine", "${job.name}: unchanged on both sides, skipped")
+        if (unattended && sourceVersion != null && sourceVersion == job.sourceVersion && skippable(job, started)) {
+            // A target without a version: an add-only sync one way has nothing to do while its source is as it was.
+            val targetVersion = if (job.targetVersion == null) null else job.target.playlistId?.let { id -> dst0?.let { runCatching { it.playlistVersion(env, id) }.getOrNull() } }
+            if (if (job.targetVersion != null) targetVersion == job.targetVersion else addsOnly(job)) {
+                env.log("engine", "${job.name}: unchanged ${if (job.targetVersion != null) "on both sides" else "source"}, skipped")
                 val report = SyncReport(reportId, job.id, job.name, started, System.currentTimeMillis() - started, notes = listOf(str("note_unchanged")))
                 store.addReport(report)
                 return report
@@ -148,6 +151,31 @@ class SyncEngine(
         if (pairLock?.isLocked == true) env.log("engine", "${job.name}: waiting for the other half of its two-way pair")
         return if (pairLock != null) pairLock.withLock { runLocked(job, partner, unattended, onProgress, started, reportId, sourceVersion, dst0) }
         else runLocked(job, partner, unattended, onProgress, started, reportId, sourceVersion, dst0)
+    }
+
+    /**
+     * A scheduled run may skip an unchanged source: the last whole run was under this matching and
+     * these rules (a new one searches the songs not found again) and less than [FULL_RUN_MS] ago (the songs not found
+     * whose month is over are searched again, a deleted target is noticed).
+     */
+    private fun skippable(job: SyncJob, now: Long): Boolean =
+        job.versionsKey == runKey(job) && now - job.fullRunEpoch in 0 until FULL_RUN_MS
+
+    /** The matching's revision and what of [job] changes a run's outcome: another one, and an unchanged source is read anyway. */
+    internal fun runKey(job: SyncJob): Int = listOf(
+        Matcher.REVISION, job.policy, job.source.provider, job.source.playlistId, job.target.provider, job.target.playlistId,
+        job.mirrorRemovals, job.archive, job.followsChanges, job.copyRatings, job.keepOrder, job.ignoredSourceIds.toSet(), job.linkedJobId,
+    ).hashCode().let { if (it == 0) 1 else it }
+
+    /**
+     * Only adds, one way: no removals, not a half of a two-way pair, not a radio, and its last run
+     * went through whole. Unchanged, its source has nothing to add, whatever the target holds now.
+     */
+    private fun addsOnly(job: SyncJob): Boolean {
+        if (job.mirrorRemovals && !job.archive) return false
+        if (job.linkedJobId != null || job.radio != null || job.copyRatings || job.keepOrder) return false
+        val last = job.lastReportId?.let { store.report(it) } ?: return false
+        return last.error == null && !last.partial
     }
 
     /** A run that did not write because another device ([holder]) was writing there: a note, no error; the next run tries again. */
@@ -186,7 +214,16 @@ class SyncEngine(
             val targetVersion = latest.target.playlistId?.let { id -> runCatching { dst0.playlistVersion(env, id) }.getOrNull() }
             // What the review checks the entries this run read against: anything written since, by anyone, changes it.
             latest.target.playlistId?.let { TargetEntries.setVersion(entriesKey(dst0, it), targetVersion) }
-            if (sourceVersion != latest.sourceVersion || targetVersion != latest.targetVersion) store.upsertJob(latest.copy(sourceVersion = sourceVersion, targetVersion = targetVersion))
+            // A run that read the source whole: what the next scheduled ones compare against.
+            val whole = report.ok && !report.partial
+            if (sourceVersion != latest.sourceVersion || targetVersion != latest.targetVersion || (whole && sourceVersion != null))
+                store.upsertJob(latest.copy(
+                    sourceVersion = sourceVersion, targetVersion = targetVersion,
+                    // Only the settings this run went by (with the target it made, when it had none): changed
+                    // meanwhile (the matching rules, another target), nothing is certified and the next run goes whole.
+                    versionsKey = if (whole) runKey(latest).takeIf { it == runKey(if (job.target.playlistId != null) job else job.copy(target = job.target.copy(playlistId = latest.target.playlistId))) } ?: 0 else latest.versionsKey,
+                    fullRunEpoch = if (whole) report.startedEpoch else latest.fullRunEpoch,
+                ))
         }
         return report
     }
@@ -565,6 +602,8 @@ class SyncEngine(
         // Festival '11)"): asked about in the review, where Change swaps it and OK keeps it for good.
         // Nothing leaves the target by itself.
         val liveSuspects = ArrayList<MatchReview>()
+        // Matches the engine found under an older matching that the current one still finds good: noted under it.
+        val checked = LinkedHashMap<String, String>()
         // 1) brani gia' presenti nella destinazione
         for (s in srcTracks) {
             val key = FileStore.cacheKey(src.id, s.id, dstKey)
@@ -587,8 +626,14 @@ class SyncEngine(
                 matchedDstIds += found.id
                 newCache[key] = found.id
                 presentLinks[s.id] = found.id
-                if (cachedId == found.id && Matcher.liveInPlaceOf(s, found) && !store.hasDecision(src.id, s.id, dstKey))
-                    liveSuspects += MatchReview(s, found, Matcher.score(s, found, job.policy))
+                if (cachedId == found.id && !store.hasDecision(src.id, s.id, dstKey)) {
+                    // Found by an older matching: the current one checks it. One it no longer finds sure is
+                    // asked about in the review, never removed by itself; the user's own choices are never asked.
+                    val stale = store.autoRevision(key)?.let { it < Matcher.REVISION } == true
+                    val score = if (stale || Matcher.liveInPlaceOf(s, found)) Matcher.score(s, found, job.policy) else null
+                    if (score != null && (Matcher.liveInPlaceOf(s, found) || score < job.policy.reviewThreshold)) liveSuspects += MatchReview(s, found, score)
+                    else if (stale) checked[key] = found.id
+                }
             } else if (linked != null) {
                 matchedDstIds += linked
                 presentLinks[s.id] = linked
@@ -599,6 +644,7 @@ class SyncEngine(
         if (awaitingRemoval.isNotEmpty()) {
             env.log("engine", "${job.name}: ${awaitingRemoval.size} ${tracksWord(awaitingRemoval.size)} removed on ${dst.displayName} since the last run, not added again: ${named(awaitingRemoval)}")
         }
+        store.markChecked(checked)
 
         // The target's version as it was read, where the service has one, asked only when a search
         // (the slow part) follows: adding much later, one light call says whether anyone wrote to
@@ -649,7 +695,7 @@ class SyncEngine(
                     if (interactive) unsure += FileStore.cacheKey(src.id, s.id, dstKey)
                 }
                 // Salvataggio progressivo: un errore a meta' strada non butta via le ricerche fatte.
-                if (newCache.size % 100 == 0) store.putMatches(newCache - unsure)
+                if (newCache.size % 100 == 0) store.putMatches(newCache - unsure, auto = true)
             } else unmatched += s
         }
         // Il servizio ha smesso di rispondere (limiti, sessione): si applica quanto trovato finora e
@@ -786,7 +832,7 @@ class SyncEngine(
 
         // Gli abbinamenti sono fatti, non intenzioni: salvarli ora evita di ripetere le ricerche
         // (e la quota YouTube) se l'utente esegue dopo l'anteprima.
-        store.putMatches(newCache - unsure)
+        store.putMatches(newCache - unsure, auto = true)
         // A service that saves one track at a time to keep the order (Spotify's liked songs): a big
         // first sync takes a while, and the person should know it's expected.
         val spacing = if (job.keepOrder) dst.addSpacingMs(targetId) else 0
@@ -808,7 +854,14 @@ class SyncEngine(
             first = pair == null,
         )
         if (twoWay != null && twoWay.first && twoWay.complete) notes += str("note_two_way_started")
+        // Copying ratings: each rated source song with the target track it matches, listed or about to be added.
+        val rated = if (!job.copyRatings || RatingWriter.of(dst) == null) emptyList() else srcTracks.mapNotNull { s ->
+            if (s.kind.isNotEmpty() || (s.rating <= 0 && s.albumRating <= 0)) return@mapNotNull null
+            val id = presentLinks[s.id] ?: addingLinks[s.id] ?: return@mapNotNull null
+            (dstById[id] ?: toAdd[id])?.let { s to it }
+        }
         return SyncPlan(
+            rated = rated,
             twoWay = twoWay, targetReadAt = targetReadAt, targetVersion = targetVersion, duplicates = duplicates, reviewAsked = reviewAsked,
             targetPlaylistId = targetId,
             sourceCount = srcTracks.size,
@@ -906,12 +959,12 @@ class SyncEngine(
                     if (score != null && score < job.policy.reviewThreshold) uncertain += MatchReview(s, found, score)
                     else {
                         newCache[FileStore.cacheKey(src.id, s.id, dst.id)] = found.id
-                        if (newCache.size % 25 == 0) store.putMatches(HashMap(newCache))
+                        if (newCache.size % 25 == 0) store.putMatches(HashMap(newCache), auto = true)
                     }
                 } else unmatched += s
             }
         } finally {
-            store.putMatches(newCache)
+            store.putMatches(newCache, auto = true)
         }
         return SyncPlan(
             targetPlaylistId = "", sourceCount = srcTracks.size, alreadyPresent = 0,
@@ -1199,7 +1252,11 @@ class SyncEngine(
             // catalogue oracle once, and the first search asks for the exact recording.
             val withIsrc = if (s.isrc == null && s.kind.isEmpty() && dst.searchesByIsrc && dst.serviceId != "deezer" && store.data.settings.isrcLookup)
                 IsrcOracle.find(env, s)?.let { s.copy(isrc = it) } ?: s else s
-            consider(dst.searchFor(env, withIsrc, targetId))?.let { return it }
+            // An artist written in another script than Latin, or met so in what comes back: their other
+            // names from MusicBrainz, so 周杰倫 and Jay Chou are one artist (#81). Once per artist.
+            suspend fun learned(found: List<Track>): List<Track> { if (Features.v2) ArtistAliases.learnFor(env, s, found); return found }
+            if (Features.v2) ArtistAliases.learnFor(env, s)
+            consider(learned(dst.searchFor(env, withIsrc, targetId)))?.let { return it }
             // A server that searches by title alone asked every form of the title already: another
             // artist would only repeat those requests.
             fun key(t: Track) = if (dst.searchesTitleOnly) t.kind + "|" + Matcher.searchTitle(t.title) else query(t)
@@ -1208,10 +1265,16 @@ class SyncEngine(
             val first = s.artists.firstOrNull()?.let { Matcher.searchArtist(it) }?.takeIf { it.isNotBlank() }
             // "Calvin Harris, Dua Lipa" in one artist field: the first name alone, before the title alone.
             val primary = s.artists.firstOrNull()?.let { Matcher.primaryArtist(it) }?.let { Matcher.searchArtist(it) }?.takeIf { it.isNotBlank() }
+            // The artist's name in Latin letters, from MusicBrainz, for a catalogue that lists it so (Jay Chou for 周杰倫).
+            val alias = s.artists.firstOrNull()?.takeIf { Translit.foreign(it) }?.let { a -> ArtistAliases.namesOf(a).firstOrNull { !Translit.foreign(it) } }
+            // Title and album, without the artist, when names in another script may be written otherwise there (#81).
+            val album = Matcher.normalizeAlbum(s.album).takeIf { it.isNotBlank() && s.kind.isEmpty() && Features.v2 && !dst.searchesTitleOnly && (Translit.foreign(s.title) || s.artists.any { Translit.foreign(it) }) }
             val variants = listOfNotNull(
                 s.copy(title = title, artists = listOfNotNull(first), isrc = null),
                 primary?.let { s.copy(title = title, artists = listOf(it), isrc = null) },
+                alias?.let { s.copy(title = title, artists = listOf(Matcher.searchArtist(it)), isrc = null) },
                 s.copy(title = title, artists = emptyList(), isrc = null),
+                album?.let { s.copy(title = "$title $it", artists = emptyList(), isrc = null) },
                 // A title in another script, in Latin letters: for a catalogue that lists it so and does
                 // not find it by the original. What comes back is scored against the source as ever.
                 Translit.latin(s.title)?.takeIf { Features.v2 && Translit.foreign(s.title) && !Translit.abjad(s.title) }?.let { t ->
@@ -1221,7 +1284,7 @@ class SyncEngine(
             ).map { it.copy(mbids = emptyList()) }
             for (v in variants) {
                 if (!tried.add(key(v))) continue
-                consider(dst.searchFor(env, v, targetId))?.let { return it }
+                consider(learned(dst.searchFor(env, v, targetId)))?.let { return it }
             }
             // The piece under another of its names, on a personal server: the source lists it in another
             // language than the library ("Chants Magnetiques, Pt. 4 - Live" for "Magnetic Fields, Part 4",
@@ -1642,12 +1705,20 @@ class SyncEngine(
             env.log("engine", "${job.name}: two-way state ${if (tw.first) "noted" else "updated"}, ${links.size} ${tracksWord(links.size)} on both sides")
         }
 
-        store.putMatches(plan.newMatches)
+        store.putMatches(plan.newMatches, auto = true)
         // Quanto l'utente ha gia' sistemato dal report provvisorio non deve ricomparire.
         val provisional = store.report(reportId)?.takeIf { it.partial }
         if (provisional != null) {
             val stillOpen = provisional.unmatchedTracks.map { it.id }.toHashSet()
             unmatched.retainAll { it.id in stillOpen }
+        }
+        // The source's star ratings, on the tracks now on the target: never a reason to fail the run.
+        val writer = RatingWriter.of(dst)
+        var ratingsSet = 0
+        if (job.copyRatings && writer != null && !offline && plan.rated.isNotEmpty()) {
+            val adding = plan.toAdd.mapTo(HashSet()) { it.id }
+            val onTarget = addedList.mapTo(HashSet()) { it.id } + alreadyThere.map { it.id }
+            ratingsSet = copyRatings(job, writer, dst, plan.rated.filter { (_, d) -> d.id !in adding || d.id in onTarget }, notes, onProgress)
         }
         if (!offline && job.keepOrder && !job.archive && com.xlollx.songport.Features.reorderOn(dst) && !MusicProvider.isLibrary(targetId) && plan.sourceOrder.isNotEmpty()) {
             alignOrder(src, dst, targetId, plan.sourceOrder, notes, onProgress)
@@ -1676,7 +1747,66 @@ class SyncEngine(
             searchInterrupted = plan.searchInterrupted,
             sourceEmpty = plan.sourceCount == 0 && plan.ignored == 0,
             notAdded = notAdded.map { it.toString() },
+            ratingsSet = ratingsSet,
         )
+    }
+
+    /**
+     * [SyncJob.copyRatings]: the source's stars on the target tracks they match ([SyncPlan.rated]). A
+     * song's rating is set where it differs from the one the target listed; an album's (the first
+     * album rating among the source's songs on it) where it differs from the one the service gives,
+     * read once per album. Unrated songs and albums are never touched. A rating the service refuses
+     * is noted, never the run's failure; refused from the start several times, the rest is left.
+     * Returns how many ratings were set.
+     */
+    private suspend fun copyRatings(
+        job: SyncJob, writer: RatingWriter, dst: MusicProvider, rated: List<Pair<Track, Track>>,
+        notes: MutableList<String>, onProgress: (Progress) -> Unit,
+    ): Int {
+        var set = 0
+        var failures = 0
+        var why: String? = null
+        suspend fun attempt(block: suspend () -> Unit): Boolean {
+            if (failures >= SYSTEMIC_ADD_FAILURES && set == 0) { failures++; return false }
+            return try {
+                patient(onProgress) { block() }
+                true
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                failures++
+                if (why == null) why = e.message ?: e.javaClass.simpleName
+                false
+            }
+        }
+        // A target track known only by id (a saved match, not listed or searched this run) has no album
+        // id nor rating: asked once, so its album's stars are set now rather than on the next run.
+        val asked = HashMap<String, Track?>()
+        val rated = rated.map { (s, d) ->
+            if (d.albumId != null || (s.rating <= 0 && s.albumRating <= 0)) return@map s to d
+            val now = asked.getOrPut(d.id) {
+                try { patient(onProgress) { writer.song(env, d.id) } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Exception) { null }
+            }
+            s to (now?.let { d.copy(albumId = it.albumId, rating = it.rating) } ?: d)
+        }
+        val songs = HashSet<String>()
+        for ((s, d) in rated) {
+            if (s.rating <= 0 || !songs.add(d.id) || s.rating == d.rating) continue
+            if (attempt { writer.setSongRating(env, d.id, s.rating) }) set++
+        }
+        val albums = LinkedHashMap<String, Int>()
+        for ((s, d) in rated) if (s.albumRating > 0) d.albumId?.let { albums.putIfAbsent(it, s.albumRating) }
+        for ((albumId, stars) in albums) {
+            var current = 0
+            if (!attempt { current = writer.albumRating(env, albumId) } || current == stars) continue
+            if (attempt { writer.setAlbumRating(env, albumId, stars) }) set++
+        }
+        if (set > 0) env.log("engine", "${job.name}: $set star ${if (set == 1) "rating" else "ratings"} set on ${dst.displayName}")
+        if (failures > 0) {
+            notes += str("note_ratings_failed", failures, dst.displayName)
+            env.log("engine", "${job.name}: $failures star ${if (failures == 1) "rating" else "ratings"} not set on ${dst.displayName}: ${why?.take(200)}")
+        }
+        return set
     }
 
     // ------------------------------------------------------------------ revisione abbinamenti
