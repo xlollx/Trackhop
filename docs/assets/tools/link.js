@@ -866,6 +866,7 @@ export async function lookup(link, net = browserNet, { artist, signal } = {}) {
     }
     match = match || await judged(item, fits, net);
     if (match) services.deezer = match;
+    if (!codes.isrc && !codes.upc) codes = await exactDeezerCodes(item.kind, match, null, net);
   } else {
     item = await deezerGet(link, net);
     codes = { isrc: item.isrc, upc: item.upc };
@@ -1091,7 +1092,9 @@ export async function spotifyResult(base, artist, net = browserNet, { signal } =
     if (a) services.apple = a;
     const item = { ...known, title, art: base.art || known.art };
     // Deezer's sure page has the ISRC or the barcode where MusicBrainz had none.
-    const said = mbKnown(base), dz = (deezer && deezer.item) || {};
+    // MusicBrainz did not know the link: the ISRC (or barcode) of Deezer's page, when that page is exact, never from a guess.
+    const said = mbKnown(base);
+    const dz = said.isrc || said.upc ? {} : await exactDeezerCodes(link.kind, d, deezer && deezer.item, net);
     await addKnown(link.kind, services, { rels: said.rels, isrc: said.isrc || dz.isrc, upc: said.upc || dz.upc }, net);
     // Found by the cover, the visitor can still say it is someone else; a barcode leaves no one else.
     return result(link, item, services, { guess: false, fix: by === 'cover', alts: by === 'cover' ? others(item.artist) : [] });
@@ -1122,6 +1125,20 @@ export async function spotifyResult(base, artist, net = browserNet, { signal } =
   // What MusicBrainz keeps for the pasted link is sure, whoever the artist turns out to be.
   await addKnown(link.kind, services, mbKnown(base), net);
   return result(link, item, services, { guess: true, fix: true, alts: others(item.artist) });
+}
+
+/**
+ * The ISRC (of a song) or the barcode (of an album) of Deezer's button [row], only when it is exact:
+ * from [item] when it has it, else Deezer's page asked whole (search results carry neither). {} otherwise.
+ */
+async function exactDeezerCodes(kind, row, item, net) {
+  if (!row || row.mark !== 'exact') return {};
+  let at = item;
+  if (!at || !(kind === 'song' ? at.isrc : at.upc)) {
+    const m = /\/(track|album)\/(\d{1,20})$/.exec(row.url || '');
+    at = m ? await maybe(deezerGet({ kind, id: m[2] }, net)) : null;
+  }
+  return at ? { isrc: at.isrc || null, upc: at.upc || null } : {};
 }
 
 /** What MusicBrainz said of the pasted Spotify link: its links (when it knew the link), and the code Wikidata can be asked by. */

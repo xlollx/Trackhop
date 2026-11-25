@@ -1040,3 +1040,41 @@ test('from Deezer: MusicBrainz is asked by the song’s ISRC, Wikidata for the r
   });
   assert.equal(r.services.find((x) => x.id === 'youtube').url, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
 });
+
+test('from Spotify unknown to MusicBrainz: the ISRC of an exact Deezer match leads to MusicBrainz’s links; a best guess never does', async () => {
+  const own = { id: 10683608, title: 'Saint Asonia', cover: 'own' };
+  const covers = {
+    'https://i.scdn.co/image/better': picture(1, 300),
+    'https://cdn-images.dzcdn.net/own/56.jpg': picture(1, 56, noise(20)),
+    'https://cdn-images.dzcdn.net/poppy/56.jpg': picture(2, 56),
+    'https://cdn-images.dzcdn.net/rachel/56.jpg': picture(3, 56),
+    'https://is1-ssl.mzstatic.com/a/100x100bb.jpg': picture(4, 100),
+  };
+  const routes = [
+    ['musicbrainz.org/ws/2/url', new ToolError('not-found', 'MusicBrainz')],
+    ['musicbrainz.org/ws/2/isrc/USAT21500999?inc=url-rels&fmt=json', { recordings: [{ relations: [
+      { url: { resource: 'https://tidal.com/browse/track/42' } }, { url: { resource: 'https://music.youtube.com/watch?v=Om61naQC8is' } }] }] }],
+    ['query.wikidata.org', wdAnswer([{ amazon: 'B0BJ2WRV1Q' }])],
+    ['open.spotify.com/oembed', { title: 'Better Place', thumbnail_url: 'https://i.scdn.co/image/better' }],
+    ['api.deezer.com/search?q=Better%20Place&', { data: [dz(1, 'Better Place', 'Poppy Fusée', 200, { id: 2, title: 'P', cover: 'poppy' }), dz(3, 'Better Place', 'Rachel Platten', 210, { id: 4, title: 'R', cover: 'rachel' }), dz(102829828, 'Better Place', 'Saint Asonia', 215, own)] }],
+    ['term=Better+Place&', { results: [itunesSong(31, 'Better Place', 'Poppy Fusée', 200000, 'P')] }],
+    ['term=', { results: [] }],
+    ['api.deezer.com/search/album', { data: [] }],
+    ['api.deezer.com/search', { data: [] }],
+    ['api.deezer.com/track/102829828', { ...dz(102829828, 'Better Place', 'Saint Asonia', 215, own), track_position: 1, disk_number: 1, isrc: 'USAT21500999' }],
+    ['api.deezer.com/album/10683608', { id: 10683608, title: 'Saint Asonia', upc: '886445313543' }],
+    ['lookup?upc=', { results: [] }],
+  ];
+  const net = fakeNet(routes, covers);
+  const r = await lookup(parseLink(SPOTIFY_SONG), net);
+  assert.equal(note(r, 'deezer'), 'exact cover');
+  assert.deepEqual([note(r, 'tidal'), note(r, 'ytmusic'), note(r, 'amazon'), note(r, 'youtube')], ['exact mb', 'exact mb', 'exact wd', 'search']);
+  assert.equal(net.asked.filter((x) => x.includes('/ws/2/isrc/')).length, 1);
+
+  // No cover to go by: Deezer's button is a best guess, and its ISRC is never asked about.
+  const blind = fakeNet(routes, {});
+  const g = await lookup(parseLink(SPOTIFY_SONG), blind);
+  assert.equal(note(g, 'deezer'), 'guess guessed');
+  assert.ok(!blind.asked.concat(blind.extra).some((x) => x.includes('/ws/2/isrc/') || x.includes('wikidata')));
+  assert.deepEqual([note(g, 'tidal'), note(g, 'ytmusic')], ['search', 'search']);
+});
