@@ -501,21 +501,21 @@ rows:
 - name: ListenBrainz
   group: listening
   read: 'yes'
-  write: 'no'
+  write: 'yes'
   remove: 'no'
   how:
-    en: Your username (playlists, loved tracks)
-    it: Il tuo nome utente (playlist, brani amati)
-    es: Tu nombre de usuario (playlists, temas favoritos)
-    pt: Seu nome de usuário (playlists, faixas favoritas)
-    fr: Votre nom d’utilisateur (playlists, titres aimés)
-    de: Dein Benutzername (Playlists, Lieblingstitel)
-    pl: Nazwa użytkownika (playlisty, ulubione utwory)
-    ru: Ваше имя пользователя (плейлисты, любимые треки)
-    tr: Kullanıcı adınız (çalma listeleri, sevilen parçalar)
-    ja: ユーザー名（プレイリスト、Loved トラック）
-    ko: 사용자 이름 (플레이리스트, 좋아요한 곡)
-    zh: 你的用户名（歌单、喜欢的歌曲）
+    en: Your username (playlists, loved tracks); with your user token, it writes them too
+    it: Il tuo nome utente (playlist, brani amati); con il tuo token utente li scrive anche
+    es: Tu nombre de usuario (playlists, temas favoritos); con tu token de usuario también los escribe
+    pt: Seu nome de usuário (playlists, faixas favoritas); com seu token de usuário também os grava
+    fr: Votre nom d’utilisateur (playlists, titres aimés) ; avec votre jeton utilisateur, il les écrit aussi
+    de: Dein Benutzername (Playlists, Lieblingstitel); mit deinem Benutzer-Token werden sie auch geschrieben
+    pl: Nazwa użytkownika (playlisty, ulubione utwory); z tokenem użytkownika także je zapisuje
+    ru: Ваше имя пользователя (плейлисты, любимые треки); с токеном пользователя они и записываются
+    tr: Kullanıcı adınız (çalma listeleri, sevilen parçalar); kullanıcı jetonunuzla bunlar yazılır da
+    ja: ユーザー名（プレイリスト、Loved トラック）。ユーザートークンがあれば書き込みも
+    ko: 사용자 이름 (플레이리스트, 좋아요한 곡). 사용자 토큰이 있으면 쓰기도 가능
+    zh: 你的用户名（歌单、喜欢的歌曲）；加上用户令牌也可写入
   where: all
 - name: SoundCloud
   group: streaming
