@@ -196,7 +196,7 @@ object ServerLink {
         val group = groupOf(store.data, job) ?: return Outcome(false, ctx.getString(R.string.server_handover_pair_broken))
         val members = com.xlollx.songport.shared.Nway.members(store.data.jobs, group.id)
         val made = api.createMulti(HandOver.groupBody(group, members, plan))
-        val ids = HandOver.groupIds(members, made)
+        val ids = HandOver.groupIds(members, made, plan.connectors)
         val all = members.flatMap { listOfNotNull(it.down, it.up) }
         // Every sync of it must have its counterpart there: a multi sync is never half here, half there.
         if (all.any { it.id !in ids }) throw ServerSyncs.Failure(ServerSyncs.Failure.Kind.ODD, "multi sync not made whole")

@@ -300,6 +300,11 @@ class ServerSyncsTest {
         // Unless one of them is this very account's.
         val exact = made.map { if (it.service == "tidal@2") it.copy(service = "tidal") else it } + ServerSyncs.MadeMember("tidal@3", "t1", "T3-d", null)
         assertEquals("T-d", HandOver.groupIds(members, exact)["d-ti"])
+        // The server's account the body named for it: tidal here went as tidal@2, so tidal@2's.
+        assertEquals("T-d", HandOver.groupIds(members, twice, plan.connectors)["d-ti"])
+        // A server answer for an account the body did not name is still refused.
+        val other = made.filter { it.service != "tidal@2" } + ServerSyncs.MadeMember("tidal@3", "t1", "T3-d", null) + ServerSyncs.MadeMember("tidal@4", "t1", "T4-d", null)
+        assertEquals(null, HandOver.groupIds(members, other, plan.connectors)["d-ti"])
     }
 
     @Test fun aMultiSyncAlreadyRunningCountsAsStarted() = runBlocking {

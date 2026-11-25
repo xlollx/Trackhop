@@ -365,14 +365,18 @@ object HandOver {
     /**
      * Which sync there is which sync here: each of [members]' syncs (this device's) by the id of the
      * server's sync for the same playlist ([made]), the same service and playlist. A playlist the
-     * server did not name is left out.
+     * server did not name is left out. [connectors]: the server's account the body named for each
+     * service here ([Plan.Group.connectors]).
      */
-    fun groupIds(members: List<Nway.Member>, made: List<ServerSyncs.MadeMember>): Map<String, String> = buildMap {
+    fun groupIds(members: List<Nway.Member>, made: List<ServerSyncs.MadeMember>, connectors: Map<String, String> = emptyMap()): Map<String, String> = buildMap {
         for (m in members) {
             val same = made.filter { FileStore.family(it.service) == FileStore.family(m.playlist.provider) && it.playlistId == m.playlist.playlistId }
-            // Two accounts of one service can each have a playlist of that id: then only the one of this
-            // very account, else none (the handover is refused as not made whole, never crossed).
-            val there = same.singleOrNull() ?: same.singleOrNull { it.service == m.playlist.provider } ?: continue
+            // Two accounts of one service can each have a playlist of that id: then only the one the body
+            // named for it there, or the one of this very account, else none (the handover is refused as
+            // not made whole, never crossed).
+            val there = same.singleOrNull()
+                ?: connectors[m.playlist.provider]?.let { c -> same.singleOrNull { it.service == c } }
+                ?: same.singleOrNull { it.service == m.playlist.provider } ?: continue
             put(m.down.id, there.down)
             val up = m.up
             if (up != null && there.up != null) put(up.id, there.up)
