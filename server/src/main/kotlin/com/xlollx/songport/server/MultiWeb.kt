@@ -282,10 +282,12 @@ internal fun Web.multiPages(r: Web.Req, rest: List<String>) {
             val timed = withTiming(anchor, r)
             val on = r.form["paused"] == null
             val name = r.form["name"]?.trim().orEmpty()
-            env.store.commit { d ->
+            val saved = env.store.commit { d ->
                 val n = NwayEdit.scheduled(if (name.isNotEmpty()) NwayEdit.renamed(d, group.id, name) else d, group.id, null, Schedules.specOf(timed))
                 n.copy(jobs = n.jobs.map { if (com.xlollx.songport.shared.SharedGroups.sharedSide(it) == group.id) it.copy(enabled = on, scheduledOn = if (on) null else it.scheduledOn) else it })
             }
+            // Not written (a full disk): the store kept what was there, and the page says so.
+            if (!saved) return redirect(r.ex, "$back?err=${q("The change could not be saved.")}")
             redirect(r.ex, "$back?ok=${q("Saved.")}")
         }
         "run" -> {
