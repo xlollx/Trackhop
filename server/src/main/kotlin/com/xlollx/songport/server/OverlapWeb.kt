@@ -25,7 +25,11 @@ import java.util.concurrent.ConcurrentHashMap
  */
 internal object Overlap {
     private const val MAX_PLAYLISTS = 60
-    val last = ConcurrentHashMap<String, Pair<String, LibraryOverlap.Result>>()
+    /** A comparison kept for its page's Save buttons: [id] tells it from a later one. */
+    data class Kept(val names: String, val result: LibraryOverlap.Result) {
+        val id: String = java.util.UUID.randomUUID().toString()
+    }
+    val last = ConcurrentHashMap<String, Kept>()
 
     /** The connected music services (not the scrobblers, not files). */
     fun services(env: Env) = Providers.connectors().filter { it.requiresAuth && it.isConnected(env) && it.serviceId != "lastfm" && it.serviceId != "listenbrainz" && it !is LocalFilesProvider }
@@ -65,7 +69,7 @@ internal fun Web.overlapPage(r: Web.Req) {
     if (r.method == "POST") {
         val key = env.owner
         if (r.form["action"] == "save") {
-            val (names, res) = Overlap.last[key] ?: return redirect(r.ex, "/tools/overlap?err=${q("That comparison is no longer kept: compare again.")}")
+            val (names, res) = Overlap.last[key]?.takeIf { it.id == r.form["cmp"] } ?: return redirect(r.ex, "/tools/overlap?err=${q("That comparison is no longer kept: compare again.")}")
             val a = r.form["side"] == "a"
             val (na, nb) = names.split('\u0000').let { it[0] to it.getOrElse(1) { "" } }
             val tracks = if (a) res.onlyA else res.onlyB
@@ -79,8 +83,9 @@ internal fun Web.overlapPage(r: Web.Req) {
         val pb = r.form["priceB"]?.let { LibraryOverlap.parsePrice(it) }?.let { LibraryOverlap.monthly(it, r.form["yearlyB"] == "on") }
         val task = Tasks.startOnce(title, "/tools/overlap", { env.log("overlap", it) }, env.owner, env.marks) { t ->
             val res = Overlap.compare(env, a, b) { t.progress = "Reading $it" }
-            Overlap.last[key] = (a.label(env) + "\u0000" + b.label(env)) to res
-            overlapHtml(a.label(env), b.label(env), res, pa, pb)
+            val kept = Overlap.Kept(a.label(env) + "\u0000" + b.label(env), res)
+            Overlap.last[key] = kept
+            overlapHtml(a.label(env), b.label(env), res, pa, pb, kept.id)
         } ?: return redirect(r.ex, "/tools/overlap?err=${q("A comparison is already running.")}")
         return redirect(r.ex, "/tools/task/${q(task.id)}")
     }
@@ -98,15 +103,15 @@ internal fun Web.overlapPage(r: Web.Req) {
     send(r.ex, 200, page(title, body.toString()))
 }
 
-private fun overlapHtml(a: String, b: String, r: LibraryOverlap.Result, pa: Double?, pb: Double?): String = buildString {
+private fun overlapHtml(a: String, b: String, r: LibraryOverlap.Result, pa: Double?, pb: Double?, cmp: String): String = buildString {
     val (sa, both, sb) = r.shares
     append("""<div class="card"><div class="stats"><p class="stat"><b>${r.sizeA}</b><span class="muted">songs on ${h(a)}</span></p><p class="stat"><b>${r.sizeB}</b><span class="muted">songs on ${h(b)}</span></p><p class="stat"><b>${r.percent}%</b><span class="muted">on both (${r.common.size})</span></p></div>""")
     append("""<p>${h(Overlap.verdict(r, a, b))}</p>""")
     append("""<p class="muted">Only on ${h(a)}: $sa% · on both: $both% · only on ${h(b)}: $sb%. ${r.coveredA}% of ${h(a)} is on ${h(b)}; ${r.coveredB}% of ${h(b)} is on ${h(a)}.</p>""")
     if (pa != null || pb != null) append("""<p class="muted">A month: ${listOfNotNull(pa?.let { "${h(a)} ${money(it)}" }, pb?.let { "${h(b)} ${money(it)}" }).joinToString(" + ")}${if (pa != null && pb != null) " = ${money(pa + pb)}" else ""}.</p>""")
     append("<div class=\"actions\">")
-    if (r.onlyA.isNotEmpty()) append(Html.postButton("/tools/overlap", "Save the ${r.onlyA.size} only on $a as a File playlist", "secondary", mapOf("action" to "save", "side" to "a")))
-    if (r.onlyB.isNotEmpty()) append(" " + Html.postButton("/tools/overlap", "Save the ${r.onlyB.size} only on $b as a File playlist", "secondary", mapOf("action" to "save", "side" to "b")))
+    if (r.onlyA.isNotEmpty()) append(Html.postButton("/tools/overlap", "Save the ${r.onlyA.size} only on $a as a File playlist", "secondary", mapOf("action" to "save", "side" to "a", "cmp" to cmp)))
+    if (r.onlyB.isNotEmpty()) append(" " + Html.postButton("/tools/overlap", "Save the ${r.onlyB.size} only on $b as a File playlist", "secondary", mapOf("action" to "save", "side" to "b", "cmp" to cmp)))
     append("</div></div>")
 }
 
@@ -119,7 +124,7 @@ internal fun Web.apiOverlap(method: String, rest: List<String>, body: () -> Json
     val pb = services.firstOrNull { it.id == b.text("b") }
     if (pa == null || pb == null || pa.id == pb.id) return true.also { error(400, "\"a\" and \"b\" are two different connected music services.") }
     val res = runCatching { runBlocking { Overlap.compare(env, pa, pb) } }.getOrElse { return true.also { _ -> error(502, it.message ?: "Error") } }
-    Overlap.last[env.owner] = (pa.label(env) + "\u0000" + pb.label(env)) to res
+    Overlap.last[env.owner] = Overlap.Kept(pa.label(env) + "\u0000" + pb.label(env), res)
     json(200, buildJsonObject {
         put("a", pa.id); put("b", pb.id); put("songsA", res.sizeA); put("songsB", res.sizeB); put("both", res.common.size); put("percent", res.percent)
         put("coveredA", res.coveredA); put("coveredB", res.coveredB)
