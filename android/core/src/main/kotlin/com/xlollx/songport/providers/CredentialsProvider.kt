@@ -103,8 +103,16 @@ abstract class CredentialsProvider : MusicProvider {
      */
     suspend fun loginWithAddresses(ctx: Env, url: String, away: String?, user: String, secret: String, apiKey: String? = null) {
         val a = away?.trim()?.takeIf { it.isNotEmpty() }?.let { normalizeUrl(it) }
-        if (a != null && url.isNotBlank()) ServerAddresses.register(normalizeUrl(url), a)
-        if (apiKey != null) loginWithApiKey(ctx, url, apiKey) else login(ctx, url, user, secret)
+        val h = url.takeIf { it.isNotBlank() }?.let { normalizeUrl(it) }
+        val before = h?.let { ServerAddresses.awayOf(it) }
+        if (a != null && h != null) ServerAddresses.register(h, a)
+        try {
+            if (apiKey != null) loginWithApiKey(ctx, url, apiKey) else login(ctx, url, user, secret)
+        } catch (e: Throwable) {
+            // A sign-in that failed leaves the addresses as they were: a retry without the away one goes home.
+            if (a != null && h != null && a != before) { if (before != null) ServerAddresses.register(h, before) else ServerAddresses.unregister(h) }
+            throw e
+        }
         if (offersSecondAddress) setAwayAddress(ctx, a)
     }
 

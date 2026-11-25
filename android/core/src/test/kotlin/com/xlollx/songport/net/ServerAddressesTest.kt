@@ -73,6 +73,20 @@ class ServerAddressesTest {
         assertEquals(home, ServerAddresses.current(home))
     }
 
+    @Test fun aSignInThatFailsLeavesNoAwayAddressBehind() = runBlocking {
+        val p = com.xlollx.songport.providers.SubsonicProvider()
+        val env = com.xlollx.songport.contract.ContractEnv()
+        // Nothing answers at either address: the sign-in fails.
+        val failed = runCatching { p.loginWithAddresses(env, home, "http://127.0.0.1:2", "me", "secret") }
+        assertEquals(true, failed.isFailure)
+        assertNull(ServerAddresses.awayOf(home))
+        assertEquals("$home/rest/ping", ServerAddresses.route("$home/rest/ping"))
+        // One registered before stays as it was.
+        ServerAddresses.register(home, away)
+        runCatching { p.loginWithAddresses(env, home, "http://127.0.0.1:2", "me", "secret") }
+        assertEquals(away, ServerAddresses.awayOf(home))
+    }
+
     @Test fun unregisterForgetsThePair() {
         ServerAddresses.register(home, away)
         ServerAddresses.unregister(home)
