@@ -594,12 +594,50 @@ object Notify {
             }
     }
 
-    /** After a run: [deliveries] sent in the background. Never throws. */
+    /**
+     * After a run: [deliveries] sent in the background. Never throws. On the server the notice is
+     * kept in the history (the Notifications page) once every channel has answered, with each one's result.
+     */
     fun afterRun(env: Env, job: SyncJob, report: SyncReport) {
-        for ((c, m) in deliveries(env, job, report)) {
-            runCatching { pool.execute { send(c, m)?.let { env.log("notify", "${c.name} (${c.kind.label}): $it") } } }
-                .onFailure { env.log("notify", "${c.name}: ${it.message}") }
+        val all = deliveries(env, job, report)
+        if (all.isEmpty()) return
+        val left = java.util.concurrent.atomic.AtomicInteger(all.size)
+        val sent = java.util.Collections.synchronizedList(ArrayList<NotifyHistory.Sent>())
+        val first = all.first().second
+        val target = runCatching { NotifTarget.forRun(env.store.data, job, report) }.getOrNull()
+        fun done(c: Channel, err: String?) {
+            sent += NotifyHistory.Sent(c.name, err)
+            if (left.decrementAndGet() == 0 && env.onServer) remember(env, runKind(report), first, target, sent.toList())
         }
+        for ((c, m) in all) {
+            runCatching { pool.execute { val err = runCatching { send(c, m) }.getOrElse { it.message ?: it.javaClass.simpleName }; err?.let { env.log("notify", "${c.name} (${c.kind.label}): $it") }; done(c, err) } }
+                .onFailure { env.log("notify", "${c.name}: ${it.message}"); done(c, it.message ?: "not sent") }
+        }
+    }
+
+    /** The history's kind of a run's notice. */
+    fun runKind(r: SyncReport): String = when {
+        !r.ok -> "failed"
+        r.unmatchedTracks.isNotEmpty() || r.reviewTracks.isNotEmpty() -> "review"
+        else -> "sync"
+    }
+
+    /**
+     * Sends [m] to each of [channels] now (this thread), and on the server keeps it in the history
+     * with each channel's result, which it returns (in [channels]' order).
+     */
+    fun sendAll(env: Env, channels: List<Channel>, m: Message, kind: String, target: NotifTarget?): List<NotifyHistory.Sent> {
+        if (channels.isEmpty()) return emptyList()
+        val sent = channels.map { c -> NotifyHistory.Sent(c.name, send(c, m)?.also { env.log("notify", "${c.name} (${c.kind.label}): $it") }) }
+        if (env.onServer) remember(env, kind, m, target, sent)
+        return sent
+    }
+
+    /** [m] as a history entry: its rich title and lines when it has them. */
+    fun remember(env: Env, kind: String, m: Message, target: NotifTarget?, sent: List<NotifyHistory.Sent>) {
+        val title = m.rich?.let { "${it.icon} ${it.title}" } ?: m.title
+        val text = m.rich?.lines?.dropLast(1)?.joinToString("\n") ?: m.text
+        runCatching { NotifyHistory.of(env).add(kind, title, text, target, sent) }
     }
 
     /** "Send test": the result, said for a person (with what to do, for Telegram's usual refusals). */

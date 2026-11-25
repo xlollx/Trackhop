@@ -3681,4 +3681,25 @@
     <string name="radio_add">Adicionar</string>
     <string name="whats_new_22_radio_title">Rádio e Shazam em Contas</string>
     <string name="whats_new_22_radio_body">Cada rádio é uma conta própria, com nome e cor: adicione quantas quiser e use como origem. O Shazam também está lá. Suas syncs de rádio e Shazam foram movidas sozinhas.</string>
+    <string name="bell_title">Notificações</string>
+    <string name="bell_desc_update">Notificações, atualização disponível</string>
+    <string name="bell_mark_all_read">Marcar todas como lidas</string>
+    <string name="bell_clear">Limpar</string>
+    <string name="bell_clear_confirm">Limpar o histórico de notificações?</string>
+    <string name="bell_empty">Nada ainda. O que o Trackhop te avisa aparece aqui.</string>
+    <string name="bell_notifications_off">As notificações do Trackhop estão desativadas: as novas chegam aqui mesmo assim.</string>
+    <string name="bell_turn_on">Ativar</string>
+    <string name="bell_kept">Guardadas por %1$d dias (até %2$d).</string>
+    <string name="bell_today">Hoje</string>
+    <string name="bell_yesterday">Ontem</string>
+    <string name="bell_update_ready">Há uma atualização pronta</string>
+    <string name="bell_update_have">Você tem a %1$s</string>
+    <string name="bell_update_download">Baixar</string>
+    <string name="bell_update_update">Atualizar</string>
+    <plurals name="bell_desc_unread">
+        <item quantity="one">Notificações, %d não lida</item>
+        <item quantity="other">Notificações, %d não lidas</item>
+    </plurals>
+    <string name="whats_new_22_bell_title">Sino de notificações</string>
+    <string name="whats_new_22_bell_body">Tocar numa notificação abre aquilo de que ela trata. O sino no topo guarda todas e avisa quando sai uma nova versão.</string>
 </resources>

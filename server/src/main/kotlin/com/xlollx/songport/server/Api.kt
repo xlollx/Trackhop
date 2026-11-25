@@ -368,6 +368,8 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
     val rest = path.drop(2)
     // The release switch: 1.18's calls are unknown until it is on (Features).
     if (Features.hidesCall(method, rest)) return error(404, "Unknown call. See https://trackhop.org/guide/docker#api")
+    // Before the channels' calls: "history" is not a channel's id.
+    if (apiNotifyHistory(method, rest, { apiJson(ex) }, ::json, ::error)) return
     if (apiDiag(ex, method, rest, query, ::json, ::error)) return
     // Multi syncs: one source kept on several targets (ApiMulti.kt).
     if (apiMulti(ex, method, rest, ::json, ::error)) return

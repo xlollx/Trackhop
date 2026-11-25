@@ -3673,4 +3673,25 @@
     <string name="radio_add">Hinzufügen</string>
     <string name="whats_new_22_radio_title">Radio und Shazam bei den Konten</string>
     <string name="whats_new_22_radio_body">Jeder Radiosender ist ein eigenes Konto mit Namen und Farbe: füge so viele hinzu, wie du willst, und nutze sie als Quelle. Shazam ist auch dabei. Deine Radio- und Shazam-Syncs wurden von selbst umgestellt.</string>
+    <string name="bell_title">Benachrichtigungen</string>
+    <string name="bell_desc_update">Benachrichtigungen, Update verfügbar</string>
+    <string name="bell_mark_all_read">Alle als gelesen markieren</string>
+    <string name="bell_clear">Leeren</string>
+    <string name="bell_clear_confirm">Den Verlauf der Benachrichtigungen leeren?</string>
+    <string name="bell_empty">Noch nichts. Was Trackhop dir mitteilt, erscheint hier.</string>
+    <string name="bell_notifications_off">Benachrichtigungen sind für Trackhop aus: neue landen trotzdem hier.</string>
+    <string name="bell_turn_on">Einschalten</string>
+    <string name="bell_kept">%1$d Tage aufbewahrt (höchstens %2$d).</string>
+    <string name="bell_today">Heute</string>
+    <string name="bell_yesterday">Gestern</string>
+    <string name="bell_update_ready">Ein Update ist bereit</string>
+    <string name="bell_update_have">Du hast %1$s</string>
+    <string name="bell_update_download">Herunterladen</string>
+    <string name="bell_update_update">Aktualisieren</string>
+    <plurals name="bell_desc_unread">
+        <item quantity="one">Benachrichtigungen, %d ungelesen</item>
+        <item quantity="other">Benachrichtigungen, %d ungelesen</item>
+    </plurals>
+    <string name="whats_new_22_bell_title">Glocke mit Benachrichtigungen</string>
+    <string name="whats_new_22_bell_body">Ein Tipp auf eine Benachrichtigung öffnet, worum es geht. Die Glocke oben sammelt alle und zeigt, wenn eine neue Version da ist.</string>
 </resources>

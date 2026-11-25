@@ -3671,4 +3671,25 @@
     <string name="radio_add">Ekle</string>
     <string name="whats_new_22_radio_title">Hesaplarda radyo ve Shazam</string>
     <string name="whats_new_22_radio_body">Her radyo istasyonu adı ve rengiyle ayrı bir hesap: istediğin kadar ekle ve kaynak olarak kullan. Shazam da orada. Radyo ve Shazam senkronların kendiliğinden taşındı.</string>
+    <string name="bell_title">Bildirimler</string>
+    <string name="bell_desc_update">Bildirimler, güncelleme var</string>
+    <string name="bell_mark_all_read">Tümünü okundu say</string>
+    <string name="bell_clear">Temizle</string>
+    <string name="bell_clear_confirm">Bildirim geçmişi temizlensin mi?</string>
+    <string name="bell_empty">Henüz bir şey yok. Trackhop\'un sana bildirdikleri burada görünür.</string>
+    <string name="bell_notifications_off">Trackhop bildirimleri kapalı: yenileri yine de buraya gelir.</string>
+    <string name="bell_turn_on">Aç</string>
+    <string name="bell_kept">%1$d gün saklanır (en fazla %2$d).</string>
+    <string name="bell_today">Bugün</string>
+    <string name="bell_yesterday">Dün</string>
+    <string name="bell_update_ready">Bir güncelleme hazır</string>
+    <string name="bell_update_have">Sende %1$s var</string>
+    <string name="bell_update_download">İndir</string>
+    <string name="bell_update_update">Güncelle</string>
+    <plurals name="bell_desc_unread">
+        <item quantity="one">Bildirimler, %d okunmamış</item>
+        <item quantity="other">Bildirimler, %d okunmamış</item>
+    </plurals>
+    <string name="whats_new_22_bell_title">Bildirim zili</string>
+    <string name="whats_new_22_bell_body">Bir bildirime dokunmak, ilgili yeri açar. Üstteki zil hepsini saklar ve yeni sürüm çıktığında gösterir.</string>
 </resources>

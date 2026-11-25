@@ -3553,4 +3553,24 @@
     <string name="radio_add">追加</string>
     <string name="whats_new_22_radio_title">アカウントにラジオと Shazam</string>
     <string name="whats_new_22_radio_body">ラジオ局はそれぞれ名前と色を持つアカウントになりました。好きなだけ追加して、同期の元として使えます。Shazam も追加できます。既存のラジオと Shazam の同期は自動で移行されました。</string>
+    <string name="bell_title">通知</string>
+    <string name="bell_desc_update">通知、アップデートあり</string>
+    <string name="bell_mark_all_read">すべて既読にする</string>
+    <string name="bell_clear">消去</string>
+    <string name="bell_clear_confirm">通知の履歴を消去しますか？</string>
+    <string name="bell_empty">まだありません。Trackhopからのお知らせがここに表示されます。</string>
+    <string name="bell_notifications_off">Trackhopの通知はオフです。新しい通知もここには届きます。</string>
+    <string name="bell_turn_on">オンにする</string>
+    <string name="bell_kept">%1$d日間保存（最大%2$d件）。</string>
+    <string name="bell_today">今日</string>
+    <string name="bell_yesterday">昨日</string>
+    <string name="bell_update_ready">アップデートの準備ができました</string>
+    <string name="bell_update_have">現在のバージョン：%1$s</string>
+    <string name="bell_update_download">ダウンロード</string>
+    <string name="bell_update_update">アップデート</string>
+    <plurals name="bell_desc_unread">
+        <item quantity="other">通知、未読%d件</item>
+    </plurals>
+    <string name="whats_new_22_bell_title">通知のベル</string>
+    <string name="whats_new_22_bell_body">通知をタップすると、その内容の画面が開きます。上部のベルにすべて残り、新しいバージョンが出たことも表示します。</string>
 </resources>

@@ -3552,4 +3552,24 @@
     <string name="radio_add">추가</string>
     <string name="whats_new_22_radio_title">계정에 라디오와 Shazam</string>
     <string name="whats_new_22_radio_body">라디오 방송국마다 이름과 색이 있는 계정이 돼요. 원하는 만큼 추가하고 소스로 쓰세요. Shazam도 있어요. 기존 라디오와 Shazam 동기화는 자동으로 옮겨졌어요.</string>
+    <string name="bell_title">알림</string>
+    <string name="bell_desc_update">알림, 업데이트 있음</string>
+    <string name="bell_mark_all_read">모두 읽음으로 표시</string>
+    <string name="bell_clear">지우기</string>
+    <string name="bell_clear_confirm">알림 기록을 지울까요?</string>
+    <string name="bell_empty">아직 없습니다. Trackhop이 알려 주는 내용이 여기에 표시됩니다.</string>
+    <string name="bell_notifications_off">Trackhop 알림이 꺼져 있습니다: 새 알림은 그래도 여기에 쌓입니다.</string>
+    <string name="bell_turn_on">켜기</string>
+    <string name="bell_kept">%1$d일 동안 보관(최대 %2$d개).</string>
+    <string name="bell_today">오늘</string>
+    <string name="bell_yesterday">어제</string>
+    <string name="bell_update_ready">업데이트가 준비되었습니다</string>
+    <string name="bell_update_have">현재 버전: %1$s</string>
+    <string name="bell_update_download">다운로드</string>
+    <string name="bell_update_update">업데이트</string>
+    <plurals name="bell_desc_unread">
+        <item quantity="other">알림, 읽지 않음 %d개</item>
+    </plurals>
+    <string name="whats_new_22_bell_title">알림 벨</string>
+    <string name="whats_new_22_bell_body">알림을 누르면 해당 화면이 열려요. 위쪽 벨에 모든 알림이 남고, 새 버전이 나오면 알려 줘요.</string>
 </resources>

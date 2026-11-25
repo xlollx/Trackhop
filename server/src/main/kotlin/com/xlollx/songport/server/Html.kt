@@ -41,7 +41,7 @@ object Html {
      */
     private const val DESKTOP_LINKS = """<script>document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a||a.host===location.host)return;e.preventDefault();location.href='trackhop-external:'+a.href})</script>"""
 
-    private val NAV = listOf("/" to "Syncs", "/playlists" to "Playlists", "/connectors" to "Services", "/tools" to "Tools", "/log" to "Log", "/settings" to "Settings")
+    private val NAV = listOf("/" to "Syncs", "/playlists" to "Playlists", "/connectors" to "Services", "/tools" to "Tools", "/log" to "Log", "/notifications" to "Notifications", "/settings" to "Settings")
 
     /**
      * A service's mark as the app draws it: its glyph (ServiceMarks) white on a circle in its brand

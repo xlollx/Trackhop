@@ -3913,4 +3913,27 @@
     <string name="radio_add">Добавить</string>
     <string name="whats_new_22_radio_title">Радио и Shazam в аккаунтах</string>
     <string name="whats_new_22_radio_body">Каждая радиостанция — отдельный аккаунт со своим именем и цветом: добавляйте сколько угодно и используйте как источник. Shazam тоже здесь. Ваши синхронизации радио и Shazam перенесены сами.</string>
+    <string name="bell_title">Уведомления</string>
+    <string name="bell_desc_update">Уведомления, доступно обновление</string>
+    <string name="bell_mark_all_read">Отметить все как прочитанные</string>
+    <string name="bell_clear">Очистить</string>
+    <string name="bell_clear_confirm">Очистить историю уведомлений?</string>
+    <string name="bell_empty">Пока ничего. Здесь появляется то, о чём сообщает Trackhop.</string>
+    <string name="bell_notifications_off">Уведомления Trackhop выключены: новые всё равно появляются здесь.</string>
+    <string name="bell_turn_on">Включить</string>
+    <string name="bell_kept">Хранятся %1$d дней (не больше %2$d).</string>
+    <string name="bell_today">Сегодня</string>
+    <string name="bell_yesterday">Вчера</string>
+    <string name="bell_update_ready">Обновление готово</string>
+    <string name="bell_update_have">У вас %1$s</string>
+    <string name="bell_update_download">Скачать</string>
+    <string name="bell_update_update">Обновить</string>
+    <plurals name="bell_desc_unread">
+        <item quantity="one">Уведомления, %d непрочитанное</item>
+        <item quantity="few">Уведомления, %d непрочитанных</item>
+        <item quantity="many">Уведомления, %d непрочитанных</item>
+        <item quantity="other">Уведомления, %d непрочитанных</item>
+    </plurals>
+    <string name="whats_new_22_bell_title">Колокольчик уведомлений</string>
+    <string name="whats_new_22_bell_body">Нажатие на уведомление открывает то, о чём оно. Колокольчик наверху хранит их все и показывает, когда вышла новая версия.</string>
 </resources>

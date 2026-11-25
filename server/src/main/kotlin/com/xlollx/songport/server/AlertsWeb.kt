@@ -120,7 +120,7 @@ internal object ServerAlerts {
     /** Sends the news through [channels] now; how many took it. */
     fun notify(env: ServerEnv, news: List<ArtistAlerts.News>): Int {
         val m = message(env, news)
-        return channels(env).count { c -> Notify.send(c, m).also { err -> err?.let { env.log("notify", "${c.name} (${c.kind.label}): $it") } } == null }
+        return Notify.sendAll(env, channels(env), m, "alerts", com.xlollx.songport.notify.NotifTarget.Followed).count { it.error == null }
     }
 
     // ------------------------------------------------------------------ JSON
