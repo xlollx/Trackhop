@@ -82,6 +82,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -131,6 +132,17 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
 
     // "+": pick a service, then name the connector.
     var naming by rememberSaveable(stateSaver = ProviderSaver) { mutableStateOf<MusicProvider?>(null) }
+    // A radio is added with its station (one connector per station); Shazam once, with nothing to ask.
+    var radioAdding by rememberSaveable { mutableStateOf(false) }
+    fun addSpecial(service: MusicProvider): Boolean = when (service.serviceId) {
+        com.xlollx.songport.sync.RadioConnectors.SERVICE -> { radioAdding = true; true }
+        com.xlollx.songport.sync.RadioConnectors.SHAZAM -> { store.updateSettings { com.xlollx.songport.sync.RadioConnectors.addShazam(it) }; true }
+        else -> false
+    }
+    if (radioAdding) RadioAddDialog(onDismiss = { radioAdding = false }) { station, name, color ->
+        radioAdding = false
+        store.updateSettings { com.xlollx.songport.sync.RadioConnectors.add(it, station, name, color).first }
+    }
     if (showAdd) ServiceChooserDialog(
         role = com.xlollx.songport.providers.ServiceCatalog.Role.ADD,
         connectors = data.settings.connectors,
@@ -139,6 +151,7 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
         onDismiss = { onShowAdd(false) },
         onPick = { service ->
             onShowAdd(false)
+            if (addSpecial(service)) return@ServiceChooserDialog
             // The first account of a service needs no name of its own (the service's, renamable from
             // ⋮): straight to its sign-in, as the first-sync sheet does. A second one is named first.
             if (data.settings.connectors.none { Providers.byId(it)?.serviceId == service.serviceId }) {
@@ -155,7 +168,7 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
     )
     // A service picked in the sync editor's chooser: straight to its name.
     LaunchedEffect(pendingAdd) {
-        Providers.services().firstOrNull { it.id == pendingAdd }?.let { naming = it }
+        Providers.services().firstOrNull { it.id == pendingAdd }?.let { if (!addSpecial(it)) naming = it }
         if (pendingAdd != null) onPendingAddTaken()
     }
     naming?.let { service ->
@@ -187,12 +200,14 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
     }
 
     fun remove(p: MusicProvider) {
-        val inUse = data.syncs.any { it.source.provider == p.id || it.target.provider == p.id }
+        val inUse = data.syncs.any { it.source.provider == p.id || it.target.provider == p.id || it.via == p.id }
         if (inUse) {
             scope.launch { snackbar.showSnackbar(ctx.getString(R.string.account_remove_blocked)) }
             return
         }
         if (p.requiresAuth) runCatching { p.disconnect(ctx) }
+        // A radio station's connector goes with its station.
+        if (com.xlollx.songport.sync.RadioConnectors.isRadio(p.id)) return store.updateSettings { com.xlollx.songport.sync.RadioConnectors.remove(it, p.id) }
         store.updateSettings { s ->
             s.copy(
                 connectors = s.connectors.filter { it != p.id },
@@ -271,7 +286,13 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
             key(refresh) {
                 if (p.serviceId == LocalFilesProvider.serviceId) FilesCard(snackbar, onRemove = { remove(p) }, onManage = onManageFiles, onSendTo = onSendTo)
                 // A source with nothing to sign in to (the charts): its name, what it is, remove.
-                else if (!p.requiresAuth) PlainSourceCard(p, onRemove = { remove(p) })
+                else if (!p.requiresAuth) PlainSourceCard(
+                    p, label = p.label(ctx), onRemove = { remove(p) },
+                    // A radio station: named and coloured like any account, with its station and its syncs.
+                    onRename = { renaming = p }.takeIf { com.xlollx.songport.sync.RadioConnectors.isRadio(p.id) },
+                    onColor = { colouring = p }.takeIf { com.xlollx.songport.sync.RadioConnectors.isRadio(p.id) },
+                    syncs = com.xlollx.songport.sync.RadioConnectors.syncsOf(data.syncs, p.id).size,
+                )
                 else ProviderCard(
                     p = p,
                     // Read here, where the connector names are observed: the card itself is skipped
@@ -864,15 +885,28 @@ internal fun FilesCard(
 
 /** A connector with no account (the charts): nothing to connect, only what it is. */
 @Composable
-private fun PlainSourceCard(p: MusicProvider, onRemove: () -> Unit) {
+private fun PlainSourceCard(p: MusicProvider, label: String, onRemove: () -> Unit, onRename: (() -> Unit)? = null, onColor: (() -> Unit)? = null, syncs: Int = 0) {
     val ctx = LocalContext.current
+    val station = (p as? com.xlollx.songport.providers.RadioProvider)?.station(ctx.env)
     PageCard(shape = MaterialTheme.shapes.large, edge = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                ProviderBadge(p, 48.dp)
+                ProviderBadge(p, 48.dp, ring = accountRing(p.id))
                 Spacer(Modifier.width(12.dp))
-                Text(p.label(ctx), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-                OverflowMenu(listOf(MenuAction(stringResource(R.string.account_remove), onRemove, destructive = true)))
+                Column(Modifier.weight(1f)) {
+                    Text(label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    // A radio: its station (and where from), and how many syncs listen to it; Shazam: its syncs.
+                    val line = listOfNotNull(
+                        station?.let { listOf(p.displayName, it.station, it.country).filter { s -> s.isNotBlank() }.joinToString(" · ") },
+                        syncs.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.stats_n_syncs, it, it) },
+                    ).joinToString(" · ")
+                    if (line.isNotEmpty()) Text(line, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                OverflowMenu(listOfNotNull(
+                    onRename?.let { MenuAction(stringResource(R.string.connector_rename), it) },
+                    onColor?.let { MenuAction(stringResource(R.string.job_color), it) },
+                    MenuAction(stringResource(R.string.account_remove), onRemove, destructive = true),
+                ))
             }
             Spacer(Modifier.height(6.dp))
             Text(stringResource(p.noteRes), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

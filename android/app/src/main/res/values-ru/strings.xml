@@ -3907,4 +3907,10 @@
     <string name="provider_note_apple_full">Плейлисты Apple Music из вашей медиатеки. Нужны подписка и токен разработчика MusicKit. API Apple умеет только добавлять: удаление делается перезаписью списка плейлиста, один раз проверенной на отдельном маленьком плейлисте.</string>
     <string name="policy_artists_differ">Имена исполнителей могут отличаться</string>
     <string name="policy_artists_differ_desc">Для исполнителей, которых каждый сервис пишет по-своему (周杰倫 и Jay Chou): достаточно того же названия, длительности и альбома. Без альбома трек отправляется на проверку.</string>
+    <string name="provider_note_radio">Песни, которые играет станция, отмечаются каждые две минуты в часы, выбранные каждой синхронизацией. Добавьте по одной на станцию. Читаются только названия, которые присылает станция; звук никогда не сохраняется.</string>
+    <string name="provider_note_shazam">Каждая песня, которую вы распознали в Shazam, из плейлиста, который приложение Shazam заполняет в вашем Spotify или Apple Music (My Shazam Tracks).</string>
+    <string name="radio_add_title">Добавить радио</string>
+    <string name="radio_add">Добавить</string>
+    <string name="whats_new_22_radio_title">Радио и Shazam в аккаунтах</string>
+    <string name="whats_new_22_radio_body">Каждая радиостанция — отдельный аккаунт со своим именем и цветом: добавляйте сколько угодно и используйте как источник. Shazam тоже здесь. Ваши синхронизации радио и Shazam перенесены сами.</string>
 </resources>

@@ -16,6 +16,7 @@ Released with the app's 2.2.
 - **YouTube Music**: shows which profile or channel is connected, and warns if your music is on another one.
 - **Deezer**: Family plans, choose the profile. The official Deezer sign-in is no longer offered to new users ("Why no Deezer?" explains).
 - **ListenBrainz as a target**, **Plex** (five stars as liked songs, "Sounds like" and "Sonic adventure", copy a playlist to a Plex Home user), personal servers with a home and an away address, **Apple Music removals**, a link to a playlist file as a source, a **Soundiiz-compatible JSON** export, **Apprise** notifications, star ratings copied to Subsonic and Navidrome, and Select all / None above long lists.
+- **Radio stations and Shazam as services**: each station is a service of its own on the Services page (as many as you like), Shazam one more; a sync uses them as its source, from the page, the REST API (`POST /api/v1/services/radio`, `"source": {"service": "radio@2"}`) or `trackhop services add radio` and `trackhop new radio@2 …`. Radio and Shazam syncs already here move over by themselves.
 - **Linux**: the `.deb` also installs on systems without a desktop.
 - **Windows**: the `.zip` runs again.
 

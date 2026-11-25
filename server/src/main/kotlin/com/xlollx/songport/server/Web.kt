@@ -447,8 +447,8 @@ class Web(
             .joinToString("") { """ <span class="badge">${h(it)}</span>""" }
         val moves = (if (at > 0) " " + Html.postButton("/syncs/${q(job.id)}/move", "↑", "secondary", mapOf("to" to "up")) else "") +
             (if (at in 0 until all.size - 1) " " + Html.postButton("/syncs/${q(job.id)}/move", "↓", "secondary", mapOf("to" to "down")) else "")
-        return """<div class="card" id="sync-${h(job.id)}"${Html.jobStyle(job.color)}><div class="row"><div class="who">$tick<span class="pair">${logo(job.source.provider, 36)}${logo(job.target.provider, 36)}</span><div><a href="/syncs/${q(job.id)}">${if (radio != null) "$RADIO_ICON " else ""}${if (job.shazam) "$SHAZAM_ICON " else ""}${if (job.aiPrompt != null) "$AI_ICON " else ""}${if (job.favorite) """<span title="Favourite" aria-label="Favourite">★</span> """ else ""}<b>${h(job.name)}</b></a><br>
-<span class="muted">${if (radio != null) "Radio: ${h(radio.station)}" else "${h(label(job.source.provider))}: ${h(job.source.playlistName)}"} → ${h(label(job.target.provider))}: ${h(job.target.playlistName.ifBlank { "new playlist" })}</span></div></div></div>
+        return """<div class="card" id="sync-${h(job.id)}"${Html.jobStyle(job.color)}><div class="row"><div class="who">$tick<span class="pair">${logo(job.via ?: job.source.provider, 36)}${logo(job.target.provider, 36)}</span><div><a href="/syncs/${q(job.id)}">${if (radio != null) "$RADIO_ICON " else ""}${if (job.shazam) "$SHAZAM_ICON " else ""}${if (job.aiPrompt != null) "$AI_ICON " else ""}${if (job.favorite) """<span title="Favourite" aria-label="Favourite">★</span> """ else ""}<b>${h(job.name)}</b></a><br>
+<span class="muted">${if (radio != null) "${h(job.via?.let { label(it) }?.takeIf { it != radio.station } ?: "Radio")}: ${h(radio.station)}" else "${h(label(job.source.provider))}: ${h(job.source.playlistName)}"} → ${h(label(job.target.provider))}: ${h(job.target.playlistName.ifBlank { "new playlist" })}</span></div></div></div>
 <div>
 <span class="badge">${h(if (radio != null) com.xlollx.songport.sync.RadioTitles.describe(radio) else com.xlollx.songport.sync.Timing.describe(job))}</span>${if (job.archive) " <span class=\"badge\">keeps every track</span>" else if (job.mirrorRemovals) " <span class=\"badge\">mirror</span>" else ""}${if (job.linkedJobId?.let { env.store.job(it) } != null) " <span class=\"badge\">two-way${if (job.twoWayRemovals) ", removals too" else ""}</span>" else ""}${if (!job.enabled) " <span class=\"badge\">${job.scheduledOn?.let { "off, scheduled on ${h(it)}" } ?: "off"}</span>" else ""}$groups
 <span class="muted">Last run ${Html.date(job.lastRunEpoch)}$next</span>$onAir
@@ -571,11 +571,19 @@ $removals"""
         if (rest.isEmpty()) return connectorList(r)
         // "Which service?": the chooser, or one service's ways in.
         if (rest == listOf("add") && r.method == "GET") return serviceChooser(r)
+        // A radio station (one service per station) is added with its station (RadioWeb.kt).
+        if (rest == listOf("station")) return radioConnectorAdd(r)
         if (rest == listOf("add") && r.method == "POST") {
             val service = r.form["service"].orEmpty()
             // "jellyfin@new" (or another=on): one more account of a service already on the list.
             val another = service.endsWith(Accounts.ANOTHER) || r.form["another"] == "on"
             val serviceId = service.removeSuffix(Accounts.ANOTHER)
+            // A radio: its station first. Shazam: one, added at once.
+            if (serviceId == com.xlollx.songport.sync.RadioConnectors.SERVICE) return redirect(r.ex, "/connectors/station")
+            if (serviceId == com.xlollx.songport.sync.RadioConnectors.SHAZAM) {
+                store.updateSettings { com.xlollx.songport.sync.RadioConnectors.addShazam(it).copy(connectorsInit = true) }
+                return redirect(r.ex, "/connectors/shazam")
+            }
             if (!another) {
                 // As it always was: the service's main connector, added once.
                 if (Providers.byId(service) != null && service !in store.data.settings.connectors) {
@@ -727,6 +735,8 @@ $removals"""
         }
         when {
             p is LocalFilesProvider -> body.append(fileList(r.query["sample"].orEmpty(), all = r.query["all"] == "1"))
+            p is com.xlollx.songport.providers.RadioProvider -> body.append(radioConnectorCard(p))
+            p === com.xlollx.songport.providers.ShazamProvider -> body.append("""<div class="card"><p>$SHAZAM_ICON ${com.xlollx.songport.sync.RadioConnectors.syncsOf(env.store.data.jobs, p.id).size} sync(s) from Shazam.</p><p><a class="button" href="/syncs/shazam">$SHAZAM_ICON New sync from Shazam</a></p></div>""")
             !p.requiresAuth -> Unit
             p.isConnected(env) -> {
                 body.append(
@@ -1074,11 +1084,14 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
     }
 
     private fun newSync(r: Req) {
-        val connected = Providers.connectors().filter(::usable)
+        val connected = Providers.connectors().filter(::usable).filter { !com.xlollx.songport.sync.RadioConnectors.isRadio(it.id) || env.may(Permissions.RADIO) }
         // Link-only sources need nothing added or connected: they are always offered as a source.
         val list = (connected + Providers.services().filter { it.linkOnly }).distinctBy { it.id }
         val src = r.query["src"]?.let { Providers.byId(it) }
         val dst = r.query["dst"]?.let { Providers.byId(it) }
+        // A radio station or Shazam as the source: their own page, with the station or Shazam's playlist chosen.
+        if (src != null && dst != null && com.xlollx.songport.sync.RadioConnectors.isRadio(src.id)) return redirect(r.ex, "/syncs/radio?connector=${q(src.id)}&dst=${q(dst.id)}")
+        if (src != null && dst != null && src.id == com.xlollx.songport.sync.RadioConnectors.SHAZAM) return redirect(r.ex, "/syncs/shazam?dst=${q(dst.id)}")
         // "Send to a service" from a File playlist: that file is the source, chosen beforehand.
         val srcPlaylist = r.query["srcPlaylist"].orEmpty()
         val body = StringBuilder(notice(r))

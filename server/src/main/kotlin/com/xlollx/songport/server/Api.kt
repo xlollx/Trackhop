@@ -162,6 +162,8 @@ object Api {
         put("scheduledOn", j.scheduledOn?.takeIf { !j.enabled }?.let { JsonPrimitive(it) } ?: JsonNull)
         // Its source is the playlist the Shazam app fills on Spotify or Apple Music.
         put("shazam", j.shazam)
+        // The connector its source comes through: a radio station's ("radio@2") or Shazam's; null for any other sync.
+        put("via", j.via?.let { JsonPrimitive(it) } ?: JsonNull)
         put("running", running)
         // Its last run by hand was cut short by a restart of Trackhop and has not been run again since.
         put("interrupted", env.marks.interrupted(RunMarks.SYNC, j.id) != null)
@@ -369,6 +371,8 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
     if (apiDiag(ex, method, rest, query, ::json, ::error)) return
     // Multi syncs: one source kept on several targets (ApiMulti.kt).
     if (apiMulti(ex, method, rest, ::json, ::error)) return
+    // Radio stations and Shazam as connectors (ApiRadio.kt), before the services' and the syncs' own calls.
+    if (apiRadio(ex, method, rest, query, ::json, ::error)) return
     if (apiSyncs(ex, method, rest, query, ::json, ::error)) return
     // The app's features brought here in 2.2 (ApiParity.kt).
     if (apiParity(ex, method, rest, query, ::json, ::error)) return
@@ -525,6 +529,8 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
                 put("serviceId", p.serviceId); put("slot", p.slot)
                 put("connected", !p.requiresAuth || p.isConnected(env))
                 put("account", p.accountName(env)?.let { JsonPrimitive(it) } ?: JsonNull)
+                // A radio connector's station and stream, how many syncs come through it or Shazam.
+                connectorExtras(p)?.forEach { (k, v) -> put(k, v) }
             }
         }))
         }

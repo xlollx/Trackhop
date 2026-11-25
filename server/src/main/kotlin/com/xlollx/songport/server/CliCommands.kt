@@ -50,7 +50,7 @@ internal class CliCommands(
         "runs" -> runs(p.takeIf { it.isNotEmpty() }?.joinToString(" "), o)
         "report" -> if (p.isEmpty()) issue(o) else report(p.joinToString(" "))
         "review" -> review(p, o)
-        "services" -> if (p.firstOrNull() == "profile") { need(p, 2, "services profile <service> [<profile>]"); profile(p[1], p.drop(2).joinToString(" ").takeIf { it.isNotEmpty() }) } else services(p.joinToString(" "), o.value("kind"))
+        "services" -> if (p.firstOrNull() == "add" || p.firstOrNull() == "remove") CliRadio(this).services(p, o) else if (p.firstOrNull() == "profile") { need(p, 2, "services profile <service> [<profile>]"); profile(p[1], p.drop(2).joinToString(" ").takeIf { it.isNotEmpty() }) } else services(p.joinToString(" "), o.value("kind"))
         "catalog" -> catalog(p.joinToString(" "), o)
         "playlists" -> playlists(one(p, "playlists <service>"))
         "profiles" -> { need(p, 1, "profiles <service> [<profile>]"); profiles(p[0], p.drop(1).joinToString(" ").takeIf { it.isNotEmpty() }) }
@@ -88,7 +88,7 @@ internal class CliCommands(
         "crowded" -> crowded()
         "spread" -> spread(o.has("apply"))
         "multi" -> CliMulti(this).run(p, o)
-        else -> CliConn(this).run(command, p, o) ?: CliV2(this).run(command, p, o) ?: CliParity(this).run(command, p, o) ?: throw Cli.Failure(2, "unknown command \"$command\". See: trackhop help")
+        else -> CliConn(this).run(command, p, o) ?: CliRadio(this).run(command, p, o) ?: CliV2(this).run(command, p, o) ?: CliParity(this).run(command, p, o) ?: throw Cli.Failure(2, "unknown command \"$command\". See: trackhop help")
     }
 
     private fun need(p: List<String>, n: Int, form: String) { if (p.size < n) throw Cli.Failure(2, "usage: trackhop $form") }
@@ -263,7 +263,12 @@ internal class CliCommands(
             else api.get("services?q=${enc(find)}${kind?.let { "&kind=${enc(it)}" } ?: ""}").jsonArray.map { it.jsonObject }
         if (asJson) return print(JsonArray(list)).let { 0 }
         if (list.isEmpty()) out.println(if (find.isEmpty() && kind == null) "No services added yet: add them on Trackhop's page, Services." else "No service matches.")
-        for (o in list) out.println("${o.s("name")}  (${o.s("id")})  ${if (o.b("connected")) "connected" + (o["account"].str()?.let { " as $it" } ?: "") else "not connected"}${if (o.b("web")) ", unofficial" else ""}")
+        for (o in list) out.println("${o.s("name")}  (${o.s("id")})  ${when {
+            o.s("serviceId") == "radio" -> "radio: ${o.s("station")}, ${o.s("stream")}"
+            o.s("serviceId") == "shazam" -> "Shazam: My Shazam Tracks on Spotify or Apple Music"
+            o.b("connected") -> "connected" + (o["account"].str()?.let { " as $it" } ?: "")
+            else -> "not connected"
+        }}${if (o.b("web")) ", unofficial" else ""}")
         return 0
     }
 
@@ -569,6 +574,10 @@ internal class CliCommands(
     private fun isLink(s: String) = s.startsWith("http://") || s.startsWith("https://")
 
     private fun newSync(p: List<String>, o: Cli.Opts): Int {
+        // From a radio station or Shazam: no playlist to name (CliRadio).
+        p.firstOrNull()?.let { runCatching { service(it) }.getOrNull() }?.takeIf { CliRadio.isRadioOrShazam(it.s("serviceId")) }?.let { src ->
+            return CliRadio(this).newSync(src, p, o) { syncFields(o); tagsField(o, null)?.let { put("tags", it) } }
+        }
         need(p, 3, "new <service> <playlist> <service> [<playlist>] [options]")
         val src = service(p[0])
         val dst = service(p[2])

@@ -3665,4 +3665,10 @@
     <string name="provider_note_apple_full">Kitaplığınızdaki Apple Music çalma listeleri. Abonelik ve MusicKit geliştirici jetonu gerekir. Apple\'ın API\'si yalnızca ekler: kaldırmalar, çalma listesinin listesi yeniden yazılarak yapılır; önce küçük ayrı bir listede bir kez denetlenir.</string>
     <string name="policy_artists_differ">Sanatçı adları farklı olabilir</string>
     <string name="policy_artists_differ_desc">Her hizmetin farklı yazdığı sanatçılar için (周杰倫 ve Jay Chou): aynı ad, süre ve albüm yeterlidir. Albüm yoksa parça incelemeye gider.</string>
+    <string name="provider_note_radio">Bir istasyonun çaldığı şarkılar, her senkronun seçtiği saatlerde iki dakikada bir not edilir. Her istasyon için bir tane ekle. Yalnızca istasyonun gönderdiği şarkı adları okunur; ses asla saklanmaz.</string>
+    <string name="provider_note_shazam">Shazam ile tanıdığın her şarkı, Shazam uygulamasının Spotify veya Apple Music hesabında doldurduğu çalma listesinden (My Shazam Tracks).</string>
+    <string name="radio_add_title">Radyo ekle</string>
+    <string name="radio_add">Ekle</string>
+    <string name="whats_new_22_radio_title">Hesaplarda radyo ve Shazam</string>
+    <string name="whats_new_22_radio_body">Her radyo istasyonu adı ve rengiyle ayrı bir hesap: istediğin kadar ekle ve kaynak olarak kullan. Shazam da orada. Radyo ve Shazam senkronların kendiliğinden taşındı.</string>
 </resources>

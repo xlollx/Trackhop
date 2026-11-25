@@ -1130,7 +1130,7 @@ private fun JobMenuHost(
     if (colorOpen) JobStyleDialog(
         group?.group?.name ?: job.name.ifBlank { job.source.playlistName }, job.label ?: job.color, job.accentStyle, data.settings.cardAccent, data.settings.labels, onDismiss = { colorOpen = false },
         routeGlow = job.routeGlow, settingsGlow = data.settings.routeGlowMode,
-        sourceBrand = Providers.byId(group?.sourceProvider ?: job.source.provider)?.brandColor, targetBrand = Providers.byId(group?.targetProvider ?: job.target.provider)?.brandColor,
+        sourceBrand = Providers.byId(group?.sourceProvider ?: job.via ?: job.source.provider)?.brandColor, targetBrand = Providers.byId(group?.targetProvider ?: job.target.provider)?.brandColor,
     ) { pick, st, labelName, recolor, glow ->
         Store.get(ctx).update { d ->
             val ids = halves(d)
@@ -1319,7 +1319,7 @@ private fun JobCard(
     val handed = data.handedOver[job.id]
     // Handed over: what the server did, not what this phone did before. A multi sync: its services' runs are on its page.
     val report = if (handed != null || group != null) null else data.reports.firstOrNull { it.id == job.lastReportId }
-    val src = Providers.byId(group?.sourceProvider ?: job.source.provider)
+    val src = Providers.byId(group?.sourceProvider ?: job.via ?: job.source.provider)
     val dst = Providers.byId(group?.targetProvider ?: job.target.provider)
     val title = group?.group?.name ?: job.name.ifBlank { job.source.playlistName }
     // The sync at work: the card's own, or the one of the group's service being synced now.
@@ -1399,7 +1399,8 @@ private fun JobCard(
                         // A multi sync: its source, then every service it reaches.
                         if (group != null) (group.members.firstOrNull()?.let { nwayMember(it) } ?: "") + "  →  " + group.members.drop(1).map { nwayMember(it) }.joinToString(", ") else
                         // A radio sync's source is its station, not the File playlist that keeps what it heard.
-                        (job.radio?.let { stringResource(R.string.editor_source_radio) + " · " + it.station }
+                        // Through its station's connector (2.2): the connector's name, then the station when it differs.
+                        (job.radio?.let { r -> (src?.takeIf { job.via != null }?.label(ctx)?.takeIf { it != r.station } ?: stringResource(R.string.editor_source_radio)) + " · " + r.station }
                             ?: ((sharedLabel(job.source.provider) ?: src?.label(ctx) ?: job.source.provider).let { if (job.source.link != null) stringResource(R.string.source_link_label, it) else it } + " · " + srcName)) +
                             (if (job.linkedJobId != null) "  ↔  " else "  →  ") +
                             (sharedLabel(job.target.provider) ?: dst?.label(ctx) ?: job.target.provider) + " · " + dstName,
@@ -1677,7 +1678,7 @@ private fun JobTile(
             colors = CardDefaults.cardColors(containerColor = jobContainer(job.color)),
         ) {
             // A multi sync's glow: its source's colour and its first target's.
-            val src = Providers.byId(group?.sourceProvider ?: job.source.provider)
+            val src = Providers.byId(group?.sourceProvider ?: job.via ?: job.source.provider)
             val dst = Providers.byId(group?.targetProvider ?: job.target.provider)
             val accent = jobAccent(job.color)
             val accentStyle = CardAccent.resolve(job.accentStyle, data.settings.cardAccent)
@@ -2205,6 +2206,8 @@ fun SyncEditorScreen(
     var radioStart by rememberSaveable { mutableIntStateOf(job.radio?.startMinute ?: RADIO_DEFAULT_START) }
     var radioEnd by rememberSaveable { mutableIntStateOf(job.radio?.endMinute ?: RADIO_DEFAULT_END) }
     var radioSaving by remember { mutableStateOf(false) }
+    // The radio connector (one per station, Accounts) the sync listens through.
+    var radioVia by rememberSaveable { mutableStateOf(job.via?.takeIf { com.xlollx.songport.sync.RadioConnectors.isRadio(it) }) }
     val radioName = radioStation.trim().takeIf { radioMode && it.isNotEmpty() }?.let { stringResource(R.string.radio_sync_name, it) }
     val editorScope = rememberCoroutineScope()
     // With a single service there is nowhere else to write to: a file on the phone always is, so a
@@ -2299,23 +2302,6 @@ fun SyncEditorScreen(
     var srcSheet by rememberSaveable { mutableStateOf(false) }
     var dstSheet by rememberSaveable { mutableStateOf(false) }
     // "Which service?" from the Connect tile, for the source or the target (Role's name), the same chooser as Accounts › Add.
-    var chooserFor by rememberSaveable { mutableStateOf<String?>(null) }
-    chooserFor?.let { which ->
-        val role = ServiceCatalog.Role.valueOf(which)
-        ServiceChooserDialog(
-            role = role,
-            connectors = Store.get(ctx).data.settings.connectors,
-            // "Your accounts": what this sync can use now; one that cannot be a target stays, greyed, saying so.
-            accounts = (available + listOfNotNull(Providers.byId(LocalFilesProvider.id))).distinctBy { it.id },
-            onDismiss = { chooserFor = null },
-            onPick = { chooserFor = null; onAddService(it) },
-            onAccount = { p ->
-                chooserFor = null
-                if (role == ServiceCatalog.Role.TARGET) { dstProvider = p.id; dstPlaylist = null; dstSheet = true }
-                else { srcProvider = p.id; srcPlaylist = null; linkMode = false; shazamMode = false; radioMode = false; srcSheet = true }
-            },
-        )
-    }
     // Liked songs to a service that can like: propose "liked songs" as the target instead of a new playlist.
     // Not on the same account: liked songs into the same liked songs would be one list synced onto itself.
     LaunchedEffect(srcPlaylist?.id, dstProvider) {
@@ -2357,6 +2343,40 @@ fun SyncEditorScreen(
         linkMode = false
         shazamMode = false
         srcPlaylist = null
+    }
+    // A radio connector as the source: its station, then the days and hours.
+    fun useRadioConnector(id: String) {
+        val st = Store.get(ctx).data.settings.radioStations[id] ?: return
+        radioVia = id
+        radioStation = st.station
+        radioStream = st.stream
+        radioHome = st.homepage.orEmpty()
+        useRadio()
+    }
+    // A source tile or account picked: a radio station and Shazam are syncs of their own kind.
+    fun pickSource(id: String, sheet: Boolean = false) {
+        when {
+            com.xlollx.songport.sync.RadioConnectors.isRadio(id) -> { useRadioConnector(id); srcSheet = false }
+            id == com.xlollx.songport.sync.RadioConnectors.SHAZAM -> { if (!shazamMode) useShazam(); srcSheet = false }
+            else -> { srcProvider = id; srcPlaylist = null; linkMode = false; shazamMode = false; radioMode = false; if (sheet) srcSheet = true }
+        }
+    }
+    var chooserFor by rememberSaveable { mutableStateOf<String?>(null) }
+    chooserFor?.let { which ->
+        val role = ServiceCatalog.Role.valueOf(which)
+        ServiceChooserDialog(
+            role = role,
+            connectors = Store.get(ctx).data.settings.connectors,
+            // "Your accounts": what this sync can use now; one that cannot be a target stays, greyed, saying so.
+            accounts = (available + listOfNotNull(Providers.byId(LocalFilesProvider.id))).distinctBy { it.id },
+            onDismiss = { chooserFor = null },
+            onPick = { chooserFor = null; onAddService(it) },
+            onAccount = { p ->
+                chooserFor = null
+                if (role == ServiceCatalog.Role.TARGET) { dstProvider = p.id; dstPlaylist = null; dstSheet = true }
+                else pickSource(p.id, sheet = true)
+            },
+        )
     }
     // Looks for Shazam's playlist on every connected Spotify and Apple Music account, the source's own first.
     LaunchedEffect(shazamMode, shazamTry) {
@@ -2407,6 +2427,7 @@ fun SyncEditorScreen(
                         name = name.ifBlank { defaultName }, source = source, target = target,
                         schedule = Schedule.MANUAL, mirrorRemovals = false, wifiOnly = wifiOnly, enabled = enabled, policy = policy,
                         keepOrder = false, color = pickedColor(color, storeNow.settings.labels), label = pickedLabel(color), tags = tagDraft.all, accentStyle = accentStyle, radio = radio, shazam = false, linkedJobId = null, archive = false,
+                        via = radioVia,
                     ),
                     null,
                 )
@@ -2558,7 +2579,7 @@ fun SyncEditorScreen(
                     // One field: what the sync reads. Its sheet has the services, the link, Shazam and the radio.
                     when {
                         radioMode -> PlaylistField(
-                            stringResource(R.string.editor_source_radio), radioStation.takeIf { radioStream.isNotEmpty() }?.ifBlank { radioStream },
+                            stringResource(R.string.editor_source_radio), (radioVia?.let { Providers.byId(it)?.label(ctx) } ?: radioStation).takeIf { radioStream.isNotEmpty() }?.ifBlank { radioStream },
                             stringResource(R.string.radio_search), onClick = { srcSheet = true },
                             subtitle = radioStream.takeIf { it.isNotEmpty() },
                             thumb = { PlaylistThumb(radioStation.takeIf { radioStream.isNotEmpty() }, null, 48.dp, icon = Icons.Filled.Radio) },
@@ -2581,7 +2602,9 @@ fun SyncEditorScreen(
                         val other: (@Composable () -> Unit)? = when {
                             radioMode -> ({
                                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                    if (radioStream.isEmpty()) RadioStationPicker { st ->
+                                    // A station's connector: the station is the connector's; another station is another tile above.
+                                    if (radioVia != null) RadioStationCard(radioStation, radioStream, onChange = null)
+                                    else if (radioStream.isEmpty()) RadioStationPicker { st ->
                                         radioStation = st.name
                                         radioStream = st.stream
                                         radioHome = st.homepage
@@ -2607,13 +2630,16 @@ fun SyncEditorScreen(
                             onRetry = { srcReload++ }, onSignIn = { srcSheet = false; onConnectService() },
                             networkError = (srcLists as? Loaded.Failed)?.network == true,
                             header = {
-                                ProviderPicker(srcProviders, if (linkMode || shazamMode || radioMode) "" else srcProvider, link = true, linkSelected = linkMode,
+                                // The radio stations and Shazam are accounts like the others (2.2): picked, they make a radio or Shazam sync.
+                                ProviderPicker(srcProviders, when { linkMode -> ""; shazamMode -> com.xlollx.songport.sync.RadioConnectors.SHAZAM; radioMode -> radioVia.orEmpty(); else -> srcProvider }, link = true, linkSelected = linkMode,
                                     onLink = { if (!linkMode) { linkMode = true; shazamMode = false; radioMode = false; srcPlaylist = null } },
-                                    // Shazam needs nothing more chosen: the page shows what it found.
-                                    shazam = true, shazamSelected = shazamMode, onShazam = { if (!shazamMode) useShazam(); srcSheet = false },
-                                    radio = true, radioSelected = radioMode, onRadio = { useRadio() },
+                                    // Until there is a station or Shazam in Accounts, their tiles: a station picked here becomes one (the store adds it).
+                                    shazam = srcProviders.none { it.id == com.xlollx.songport.sync.RadioConnectors.SHAZAM }, shazamSelected = shazamMode && srcProviders.none { it.id == com.xlollx.songport.sync.RadioConnectors.SHAZAM },
+                                    onShazam = { if (!shazamMode) useShazam(); srcSheet = false },
+                                    radio = srcProviders.none { com.xlollx.songport.sync.RadioConnectors.isRadio(it.id) }, radioSelected = radioMode && radioVia == null,
+                                    onRadio = { radioVia = null; radioStream = ""; radioStation = ""; radioHome = ""; useRadio() },
                                     onConnect = { srcSheet = false; chooserFor = ServiceCatalog.Role.SOURCE.name },
-                                ) { srcProvider = it; srcPlaylist = null; linkMode = false; shazamMode = false; radioMode = false }
+                                ) { pickSource(it) }
                             },
                             other = other,
                         )

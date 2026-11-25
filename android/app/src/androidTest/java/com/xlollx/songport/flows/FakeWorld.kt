@@ -129,8 +129,10 @@ object FakeWorld {
     fun install() {
         val f = listOf(spotify, ytm, youtube, deezer, jellyfin)
         Providers.install(
-            f.map { p -> Providers.Factory(p.serviceId) { slot -> if (slot.isEmpty()) p else p.copyFor(slot) } },
-            singletons = listOfNotNull(LocalFilesProvider, soundcloud.takeIf { com.xlollx.songport.providers.BuiltIn.available }),
+            f.map { p -> Providers.Factory(p.serviceId) { slot -> if (slot.isEmpty()) p else p.copyFor(slot) } } +
+                // Radio stations and Shazam as accounts (2.2), the real ones: they read what the fakes and the File playlists hold.
+                Providers.Factory(com.xlollx.songport.sync.RadioConnectors.SERVICE) { com.xlollx.songport.providers.RadioProvider(it) },
+            singletons = listOfNotNull(LocalFilesProvider, com.xlollx.songport.providers.ShazamProvider, soundcloud.takeIf { com.xlollx.songport.providers.BuiltIn.available }),
         )
     }
 }
