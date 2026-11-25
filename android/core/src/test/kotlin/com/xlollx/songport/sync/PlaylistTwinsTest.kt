@@ -67,4 +67,18 @@ class PlaylistTwinsTest {
         assertEquals(1, saved.size)
         assertEquals(10, saved.single().trackCount)
     }
+    @Test fun aSongAddedToACopyAfterTheReadingIsSavedAndAddedNotLost() = runBlocking {
+        val env = ContractEnv()
+        val p = Deleting("msvc")
+        p.lists["a"] = songs(0 until 10).toMutableList()
+        p.lists["b"] = songs(0 until 10).toMutableList()
+        p.names["a"] = "Mix"; p.names["b"] = "Mix"
+        val group = PlaylistTwins.find(env, p).single()
+        // Added in the service after the page read the copies.
+        p.lists["b"]!!.add(song(77))
+        val kept = group.copies.single { it.playlist.id == "a" }
+        assertEquals(listOf("b"), PlaylistTwins.delete(env, p, kept, group.copies - kept, addMissing = true) { "$it (deleted copy)" })
+        assertTrue(p.lists["a"]!!.any { it.title == "Song 77" })
+        assertEquals(11, LocalFilesProvider.entries(env).single { it.base.contains("Mix (deleted copy)") }.trackCount)
+    }
 }
