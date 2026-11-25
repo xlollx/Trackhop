@@ -67,7 +67,7 @@ import java.util.Locale
  *
  * Run from the Play build (flavor "play") it takes the Play listing's pictures: only the services
  * that build reaches on its own (TIDAL where the full build shows Amazon Music, the official YouTube
- * connector, no web or plugin connector), and no service picker (it lists what Play cannot reach).
+ * connector, no web or plugin connector); its service chooser lists only what that build offers.
  */
 @RunWith(AndroidJUnit4::class)
 class StoreScreenshots {
@@ -98,6 +98,8 @@ class StoreScreenshots {
     /** The fourth service: Amazon Music in the full build; TIDAL in the Play build, which reaches Amazon only through a plugin. */
     private val fourth = if (play) "tidal" else "amazon"
     private val fourthName = if (play) "TIDAL" else "Amazon Music"
+    /** The first song not found of "Metal & More"'s last run, opened on "Why wasn't it matched?". */
+    private val MISSING_FIRST = "Master of Puppets (Remastered)"
 
     @Test
     fun takeAll() {
@@ -124,6 +126,7 @@ class StoreScreenshots {
             return
         }
         val only = InstrumentationRegistry.getArguments().getString("locales")?.split(',')?.map { it.trim() }?.toSet()
+        demo22()
         for ((tag, folder) in locales) {
             if (only != null && tag !in only) continue
             setLanguage(tag)
@@ -146,7 +149,7 @@ class StoreScreenshots {
                 Factory(PlexProvider.SERVICE) { PlexProvider(it) },
                 Factory(LastFmProvider.SERVICE) { LastFmProvider(it) },
                 Factory(ListenBrainzProvider.SERVICE) { ListenBrainzProvider(it) },
-            ) else listOf(
+            ) + more22() else listOf(
                 Factory("spotify") { spotify },
                 Factory(SpotifyBridgeProvider.SERVICE) { SpotifyBridgeProvider(it) },
                 Factory(AppleMusicProvider.SERVICE) { AppleMusicProvider(it) },
@@ -164,7 +167,10 @@ class StoreScreenshots {
                 Factory(PlexProvider.SERVICE) { PlexProvider(it) },
                 Factory(LastFmProvider.SERVICE) { LastFmProvider(it) },
                 Factory(ListenBrainzProvider.SERVICE) { ListenBrainzProvider(it) },
-            ),
+            ) + more22(),
+            // 2.2: Shazam is an account; the charts and a playlist file online are in the chooser too.
+            singletons = listOf(com.xlollx.songport.providers.LocalFilesProvider, com.xlollx.songport.providers.ChartsProvider,
+                com.xlollx.songport.providers.ShazamProvider, com.xlollx.songport.providers.PlaylistUrlProvider),
         )
         val store = Store.get(app)
         val now = System.currentTimeMillis()
@@ -289,96 +295,179 @@ class StoreScreenshots {
         }
         fun waitText(text: String, ms: Long = 15_000) = compose.waitUntil(ms) { compose.onAllNodesWithText(text, substring = true).fetchSemanticsNodes().isNotEmpty() }
 
-        // 1 Syncs, the cards in numbers.
-        open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_SYNCS)) { waitText(Demo.PLAYLISTS[0].second); snap() }
-        // 2 A new sync: Spotify to YouTube Music.
-        open(main().setAction(MainActivity.ACTION_NEW_SYNC)) {
-            step("shot $n") { fillEditor(Demo.PLAYLISTS[0].second) }
-            snap()
+        fun click(text: String) {
+            val m = androidx.compose.ui.test.hasClickAction() and (hasText(text) or androidx.compose.ui.test.hasContentDescription(text))
+            compose.waitUntil(15_000) { compose.onAllNodes(m).fetchSemanticsNodes().isNotEmpty() }
+            compose.onAllNodes(m).onFirst().performSemanticsAction(SemanticsActions.OnClick)
+            compose.waitForIdle()
         }
-        // 3 Accounts, 4 the add-a-service grid.
+        // Brings [text] into view: straight, or through the lazy list holding it.
+        fun bringIn(text: String) {
+            val direct = runCatching { compose.onAllNodesWithText(text).onFirst().performScrollTo() }
+            if (direct.isFailure) compose.onAllNodes(hasScrollToNodeAction()).fetchSemanticsNodes().indices.forEach { i ->
+                runCatching { compose.onAllNodes(hasScrollToNodeAction())[i].performScrollToNode(hasText(text)) }
+            }
+            compose.waitForIdle()
+        }
+        val firstJob = Demo.PLAYLISTS[0].second
+        val multi = Demo.PLAYLISTS[3].second
+
+        // 1 Syncs: the cards, a multi sync among them, the bell with its count.
+        open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_SYNCS)) { waitText(firstJob); snap() }
+        // 2 "Which service?": Accounts › Add connector.
         open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_ACCOUNTS)) {
-            waitText(fourthName); snap()
-            // The Play build's picker lists, greyed out, the services it cannot reach (Amazon Music
-            // among them): not a picture for its listing.
-            if (play) return@open
-            // The "Add connector" button, then the grid of services. The test sees neither the button's
-            // merged node nor the dialog, and the injected click fails, so: a real tap on the label, and
-            // the picture kept only if it differs from the one before (the grid did open).
-            step("add") {
-                val before = instr.uiAutomation.takeScreenshot()
-                val r = compose.onAllNodesWithText(s(R.string.connector_add), useUnmergedTree = true).onFirst().fetchSemanticsNode().boundsInWindow
-                instr.uiAutomation.executeShellCommand("input tap ${r.center.x.toInt()} ${r.center.y.toInt()}").close()
-                Thread.sleep(2500)
-                val after = instr.uiAutomation.takeScreenshot()
-                val opened = after != null && (before == null || !after.sameAs(before))
-                android.util.Log.i("StoreScreenshots", "add dialog opened: $opened")
-                if (opened) { n++; File(dir, "$n.png").outputStream().use { after!!.compress(Bitmap.CompressFormat.PNG, 100, it) } }
-            }
+            step("shot $n") { waitText(fourthName); click(s(R.string.connector_add)); waitText(s(R.string.connector_pick_title)); Thread.sleep(800) }
+            snap()
         }
-        // 5 Discover.
+        // 3 A new sync: Spotify to YouTube Music.
+        open(main().setAction(MainActivity.ACTION_NEW_SYNC)) {
+            step("shot $n") { fillEditor(firstJob) }
+            snap()
+        }
+        // 4 The multi sync's page: one playlist kept the same on four services.
+        open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_SYNCS)) {
+            step("shot $n") { waitText(firstJob); bringIn(multi); click(multi); waitText(s(R.string.nway_delete)) }
+            snap(1500)
+        }
+        // 5 A song not found, open on its search, and "Why wasn't it matched?": the candidates and their scores.
+        open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_SYNCS)) {
+            step("shot $n") {
+                waitText(firstJob)
+                click(s(R.string.pill_not_found, 3))
+                waitText(s(R.string.review_section_unmatched, 3))
+                click(MISSING_FIRST)
+                waitText(s(R.string.why_not_matched_q), 20_000)
+                Thread.sleep(1500)
+                click(s(R.string.why_not_matched_q))
+                waitText(s(R.string.why_footer), 20_000)
+                compose.onAllNodesWithText(s(R.string.why_footer)).onFirst().performScrollTo()
+            }
+            snap(1500)
+        }
+        // 6 Export the songs not found (2.2.1): Tools, for every sync at once.
+        open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_TOOLS)) {
+            step("shot $n") {
+                waitText(s(R.string.tools_transfer_title))
+                bringIn(s(R.string.not_found_title))
+                click(s(R.string.not_found_title))
+                waitText(s(R.string.not_found_save_playlist))
+                Thread.sleep(1000)
+            }
+            snap()
+        }
+        // 7 The bell: the notices Trackhop gave, in this language.
+        bellDemo()
+        open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_SYNCS)) {
+            step("shot $n") {
+                waitText(firstJob)
+                compose.onNode(androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.BAR_BELL_TAG)).performSemanticsAction(SemanticsActions.OnClick)
+                compose.waitUntil(10_000) { compose.onAllNodes(androidx.compose.ui.test.hasTestTag(com.xlollx.songport.ui.BELL_SHEET_TAG)).fetchSemanticsNodes().isNotEmpty() }
+                Thread.sleep(1200)
+            }
+            snap()
+        }
+        // 8 Accounts: radio stations and Shazam as accounts, next to the services.
+        open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_ACCOUNTS)) {
+            step("shot $n") { waitText(fourthName); bringIn("Shazam") }
+            snap()
+        }
+        // 9 Discover.
         open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_DISCOVER)) { waitText(s(R.string.discover_wrapped_title)); snap() }
-        // 6 A friend's Spotify track, into a YouTube Music playlist.
-        open(main().setAction(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, "https://open.spotify.com/track/${spotify.id(0)}")) {
-            step("shot $n") { waitText("Master of Puppets", 20_000); Thread.sleep(4000) }
-            snap()
-        }
-        // 7 How compatible are we: two playlist links shared together.
-        val linkA = "https://music.youtube.com/playlist?list=${Demo.LINK_ID}"
-        val linkB = "https://open.spotify.com/playlist/${Demo.OTHER_LINK_ID}"
-        open(main().setAction(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, "$linkA\n$linkB")) {
-            step("shot $n") {
-                waitText(s(R.string.card_share), 30_000)
-                // 2.0's tool shows Share (greyed) before the card is drawn: wait for it to be offered.
-                val drawn = androidx.compose.ui.test.hasText(s(R.string.card_share), substring = true) and androidx.compose.ui.test.isEnabled()
-                val until = System.currentTimeMillis() + 30_000
-                while (compose.onAllNodes(drawn).fetchSemanticsNodes().isEmpty() && System.currentTimeMillis() < until) Thread.sleep(250)
-                compose.onAllNodes(drawn).onFirst().performScrollTo()
-            }
-            snap(2000)
-        }
-        // 8 The playlist poster.
-        open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_DISCOVER)) {
-            step("shot $n") {
-                waitText(s(R.string.discover_wrapped_title))
-                // The cards are a lazy grid: the poster may be further down.
-                compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText(s(R.string.tools_poster_title)))
-                compose.onNodeWithText(s(R.string.tools_poster_title)).performClick()
-                waitText(s(R.string.card_source_link_hint))
-                compose.onNode(hasSetTextAction()).performTextInput(linkA)
-                compose.onNodeWithText(s(R.string.link_use)).performClick()
-                waitText("1152")
-                hideKeyboard()
-                compose.onNodeWithText(s(R.string.card_poster_run)).performScrollTo().performClick()
-                waitText(s(R.string.card_share), 30_000)
-                compose.onAllNodesWithText(s(R.string.card_share), substring = true).onFirst().performScrollTo()
-            }
-            snap(2000)
-        }
-        // 9 Unplayable tracks, found and with their replacements.
-        open(main().putExtra(MainActivity.EXTRA_TOOL, MainActivity.TOOL_UNPLAYABLE)) {
-            step("shot $n") {
-                waitText(s(R.string.unplayable_scan))
-                compose.onNodeWithText(s(R.string.unplayable_scan)).performClick()
-                waitText(Demo.SONGS[3].title, 20_000)
-                Thread.sleep(3000)
-            }
-            snap()
-        }
-        // 10 Settings, the look.
-        open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_SETTINGS)) {
-            // The section after it, so the bottom bar sits on that one and the look shows whole.
-            step("settings") { compose.onAllNodesWithText(s(R.string.backup_title)).onFirst().performScrollTo() }
-            snap()
-        }
-        // 11 The welcome, first page.
+        // 10 The welcome, first page.
         Store.get(app).updateSettings { it.copy(onboardingDone = false) }
         open(main()) { snap(2000) }
         Store.get(app).updateSettings { it.copy(onboardingDone = true) }
         resumed()?.let { a -> instr.runOnMainSync { a.finish() } }
     }
 
-    /** Settings and Tools from top to bottom, for review: review/<name>.png, never a store picture. */
+    // ------------------------------------------------------------------ 2.2 in the store pictures
+
+    /** The official connectors 2.2's chooser lists besides the demo's (nothing signed in, nothing fetched), and the radio. */
+    private fun more22() = listOf(
+        Factory(com.xlollx.songport.providers.KoelProvider.SERVICE) { com.xlollx.songport.providers.KoelProvider(it) },
+        Factory(com.xlollx.songport.providers.EmbyProvider.SERVICE) { com.xlollx.songport.providers.EmbyProvider(it) },
+        Factory(com.xlollx.songport.providers.LyrionProvider.SERVICE) { com.xlollx.songport.providers.LyrionProvider(it) },
+        Factory(com.xlollx.songport.providers.MopidyProvider.SERVICE) { com.xlollx.songport.providers.MopidyProvider(it) },
+        Factory(com.xlollx.songport.sync.RadioConnectors.SERVICE) { com.xlollx.songport.providers.RadioProvider(it) },
+    )
+
+    /**
+     * What the store pictures show of 2.2, added to the demo once before the languages: the songs not
+     * found of the last runs (for "Why wasn't it matched?" and the export), "Workout" as a multi sync on
+     * four services, two radio stations and Shazam as accounts.
+     */
+    private fun demo22() {
+        val store = Store.get(app)
+        fun t(id: String, title: String, artist: String, album: String, sec: Int) =
+            com.xlollx.songport.model.Track(id = id, title = title, artists = listOf(artist), album = album, durationMs = sec * 1000L)
+        val missing = listOf(
+            t(spotify.id(700), MISSING_FIRST, "Metallica", "Master of Puppets (Deluxe Box Set)", 516),
+            t(spotify.id(701), "Chop Suey! - Live at Big Day Out", "System of a Down", "Live Sessions", 214),
+            t(spotify.id(702), "Numb / Encore", "Linkin Park", "Collision Course", 205),
+        )
+        val road = listOf(t(spotify.id(705), "Highway Star (Live in Japan)", "Deep Purple", "Made in Japan", 401))
+        step("22 reports") {
+            store.update { d ->
+                d.copy(reports = d.reports.map { r ->
+                    when (r.id) {
+                        "job-metal-9" -> r.copy(unmatched = missing.map { it.toString() }, unmatchedTracks = missing)
+                        "job-road-9" -> r.copy(unmatched = road.map { it.toString() }, unmatchedTracks = road)
+                        else -> r
+                    }
+                })
+            }
+        }
+        step("22 multi") {
+            val workout = Demo.PLAYLISTS[3]
+            store.update { d -> d.copy(jobs = d.jobs.filter { it.id != "job-workout" }) }
+            val group = com.xlollx.songport.shared.Nway.create(app.env, workout.second, listOf(
+                PlaylistRef("spotify", workout.first, workout.second) to true,
+                PlaylistRef(yt, workout.first, workout.second) to true,
+                PlaylistRef("deezer", workout.first, workout.second) to false,
+                PlaylistRef(fourth, workout.first, workout.second) to false,
+            ))
+            store.update { d ->
+                val anchor = com.xlollx.songport.shared.Nway.anchor(d, group)?.id
+                d.copy(jobs = d.jobs.map { if (it.id == anchor) it.copy(label = "purple", color = "purple") else it })
+            }
+        }
+        step("22 radio") {
+            store.updateSettings { s0 ->
+                val (s1, _) = com.xlollx.songport.sync.RadioConnectors.add(s0, com.xlollx.songport.model.RadioStation("Coastline FM", "https://stream.example.com/coastline"), color = "teal")
+                val (s2, _) = com.xlollx.songport.sync.RadioConnectors.add(s1, com.xlollx.songport.model.RadioStation("Night Owl Radio", "https://stream.example.com/nightowl"), color = "orange")
+                s2.copy(connectors = (s2.connectors + com.xlollx.songport.sync.RadioConnectors.SHAZAM).distinct())
+            }
+        }
+        store.flush()
+    }
+
+    /** The bell's notices, written in the language being shot: a few runs, the unplayable check, the artists' news. */
+    private fun bellDemo() = step("bell") {
+        val history = com.xlollx.songport.notify.NotifyHistory.of(app.filesDir)
+        history.settle()
+        val d = Store.get(app).data
+        val now = System.currentTimeMillis()
+        fun report(job: String) = d.reports.filter { it.jobId == job }.maxByOrNull { it.startedEpoch }
+        fun sync(id: String, job: String, minutes: Long, read: Boolean): com.xlollx.songport.notify.NotifyHistory.Entry? {
+            val r = report(job) ?: return null
+            return com.xlollx.songport.notify.NotifyHistory.Entry(id, now - minutes * 60_000L, "sync", r.jobName,
+                com.xlollx.songport.Notifications.summary(loc, r), com.xlollx.songport.notify.NotifTarget.Sync(job).encode(), read)
+        }
+        val res = loc.resources
+        val entries = listOfNotNull(
+            sync("bell-1", "job-metal", 4, false),
+            sync("bell-2", "job-road", 52, false),
+            com.xlollx.songport.notify.NotifyHistory.Entry("bell-3", now - 3 * 3_600_000L, "unplayable", s(R.string.notif_unplayable_title),
+                res.getQuantityString(R.plurals.notif_unplayable_text, 3, 3), com.xlollx.songport.notify.NotifTarget.Unplayable("spotify").encode(), false),
+            com.xlollx.songport.notify.NotifyHistory.Entry("bell-4", now - 7 * 3_600_000L, "alerts", res.getQuantityString(R.plurals.alerts_notif_title, 2, 2),
+                "Architects, Metallica", com.xlollx.songport.notify.NotifTarget.Followed.encode(), true),
+            sync("bell-5", "job-chill", 26 * 60, true),
+        )
+        val field = com.xlollx.songport.notify.NotifyHistory::class.java.getDeclaredField("_entries").apply { isAccessible = true }
+        @Suppress("UNCHECKED_CAST")
+        (field.get(history) as kotlinx.coroutines.flow.MutableStateFlow<List<com.xlollx.songport.notify.NotifyHistory.Entry>>).value = entries
+    }
+
     private fun shootReview() {
         val dir = File(app.getExternalFilesDir(null), "review").apply { mkdirs() }
         val store = Store.get(app)

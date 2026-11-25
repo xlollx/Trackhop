@@ -34,12 +34,17 @@ on:
         type: choice
         options: [full, play]
         default: full
+      locales:
+        description: Languages to take, comma-separated app tags (empty = all twelve)
+        type: string
+        default: ''
 
 permissions:
   contents: write
 
 concurrency:
-  group: screenshots-${{ github.ref }}
+  # Per build: the full and the Play pictures can be taken at the same time.
+  group: screenshots-${{ github.ref }}-${{ inputs.flavor }}
   cancel-in-progress: true
 
 jobs:
@@ -48,7 +53,7 @@ jobs:
     timeout-minutes: 75
     env:
       # Languages to take (app tags); all of the store listing's.
-      LOCALES: en,it,fr,de,es,pt-BR,pl,ru,tr,zh,ja,ko
+      LOCALES: ${{ inputs.locales != '' && inputs.locales || 'en,it,fr,de,es,pt-BR,pl,ru,tr,zh,ja,ko' }}
       REVIEW: ${{ inputs.review && 'true' || 'false' }}
       CAROUSEL: ${{ inputs.carousel && 'true' || 'false' }}
       DISCOVER: ${{ inputs.discover && 'true' || 'false' }}
@@ -171,4 +176,5 @@ jobs:
             msg="Screenshots regenerated (CI emulator)"
           fi
           git commit -m "$msg" || { echo "nothing new"; exit 0; }
-          git push origin HEAD:${{ github.ref_name }}
+          # The other build's run may have pushed its pictures meanwhile.
+          git pull --rebase origin ${{ github.ref_name }} && git push origin HEAD:${{ github.ref_name }}
