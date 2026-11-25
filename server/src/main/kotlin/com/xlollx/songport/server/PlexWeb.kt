@@ -30,7 +30,10 @@ private fun line(t: Track) = "${h(t.artistLine)} — ${h(t.title)}"
 internal fun Web.plexPage(r: Web.Req, rest: List<String>) {
     val accounts = plexAccounts()
     if (accounts.isEmpty()) return send(r.ex, 200, page("Sounds like (Plex)", """<div class="card muted">Connect a Plex server first (Services).</div>"""))
-    val plex = accounts.firstOrNull { it.id == (r.form["account"] ?: r.query["account"]) } ?: accounts.first()
+    val asked = r.form["account"] ?: r.query["account"]
+    // A save or copy names its server: never another one in its place (the same song ids are other songs there).
+    val plex = accounts.firstOrNull { it.id == asked }
+        ?: if (rest.firstOrNull() != null && asked != null) return redirect(r.ex, "/tools/plex?err=${q("That Plex server is no longer connected.")}") else accounts.first()
     when (rest.firstOrNull()) {
         "save" -> {
             val ids = r.form["ids"].orEmpty().split(',').filter { it.isNotBlank() }
