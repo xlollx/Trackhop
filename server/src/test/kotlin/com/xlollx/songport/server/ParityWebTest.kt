@@ -192,6 +192,18 @@ class ParityWebTest {
         assertTrue(File(data, "csv/Mixed.csv").isFile)
     }
 
+    @Test fun aScanPageSavesItsOwnScanNotALaterOne() {
+        env.store.updateSettings { it.copy(connectors = listOf("csv")) }
+        File(data, "csv/B.csv").writeText("title,artist\nSong,Band\n")
+        val first = taskPage(location(post("/tools/scan", "service" to "csv")))
+        val scan = Regex("name=\"scan\" value=\"([^\"]+)\"").find(first)!!.groupValues[1]
+        taskPage(location(post("/tools/scan", "service" to "csv")))
+        assertTrue(location(post("/tools/scan", "service" to "csv", "action" to "save", "list" to "repeats", "scan" to scan)).contains("err="))
+        val latest = taskPage(location(post("/tools/scan", "service" to "csv")))
+        val now = Regex("name=\"scan\" value=\"([^\"]+)\"").find(latest)!!.groupValues[1]
+        assertTrue(location(post("/tools/scan", "service" to "csv", "action" to "save", "list" to "repeats", "scan" to now)).contains("ok="))
+    }
+
     @Test fun aPlaylistPastedOnTheFilePage() {
         assertTrue(get("/connectors/csv").body().contains("Paste a playlist"))
         val r = post("/files/text", "name" to "Pasted", "text" to "Moderat - A New Error\nBonobo - Kerala")

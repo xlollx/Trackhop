@@ -26,7 +26,10 @@ import java.util.concurrent.ConcurrentHashMap
 internal object LibraryScanServer {
     data class Repeat(val track: Track, val playlists: List<String>)
     /** [playlistsUnread]: a playlist was not read, so a liked song shown in none may be in it (not a list to save). */
-    data class Result(val service: String, val playlists: Int, val repeats: List<Repeat>, val orphanLiked: List<Track>, val failed: List<String>, val playlistsUnread: Boolean = false)
+    data class Result(val service: String, val playlists: Int, val repeats: List<Repeat>, val orphanLiked: List<Track>, val failed: List<String>, val playlistsUnread: Boolean = false) {
+        /** This scan, for the Save buttons of its page: a later scan does not answer them. */
+        val scanId: String = java.util.UUID.randomUUID().toString()
+    }
 
     const val LIKED = "Liked songs"
     /** Who owns the liked songs in a scan: no playlist id is this. */
@@ -76,7 +79,7 @@ internal fun Web.scanPage(r: Web.Req) {
         val p = services.firstOrNull { it.id == r.form["service"] } ?: return redirect(r.ex, "/tools/scan?err=${q("Pick a connected service.")}")
         when (r.form["action"]) {
             "save" -> {
-                val res = LibraryScanServer.last[env.owner + p.id] ?: return redirect(r.ex, "/tools/scan?err=${q("That scan is no longer kept: scan again.")}")
+                val res = LibraryScanServer.last[env.owner + p.id]?.takeIf { it.scanId == r.form["scan"] } ?: return redirect(r.ex, "/tools/scan?err=${q("That scan is no longer kept: scan again.")}")
                 if (r.form["list"] != "repeats" && res.playlistsUnread) return redirect(r.ex, "/tools/scan?err=${q("A playlist was not read, so those liked songs may be in it: scan again.")}")
                 val (name, tracks) = if (r.form["list"] == "repeats") "${p.label(env)} in several playlists" to res.repeats.map { it.track } else "${p.label(env)} liked, in no playlist" to res.orphanLiked
                 val id = LocalFilesProvider.importTracks(env, name, tracks)
@@ -103,7 +106,7 @@ internal fun Web.scanPage(r: Web.Req) {
 }
 
 private fun Web.scanHtml(p: MusicProvider, res: LibraryScanServer.Result): String = buildString {
-    fun save(list: String) = Html.postButton("/tools/scan", "Save as a File playlist", "secondary", mapOf("action" to "save", "service" to p.id, "list" to list))
+    fun save(list: String) = Html.postButton("/tools/scan", "Save as a File playlist", "secondary", mapOf("action" to "save", "service" to p.id, "list" to list, "scan" to res.scanId))
     append("""<p class="muted">${h(p.label(env))}: ${res.playlists} playlists read.</p>""")
     if (res.failed.isNotEmpty()) append("""<div class="card err">Not read: ${h(res.failed.joinToString(", "))}</div>""")
     append("""<div class="card"><h3>In several playlists (${res.repeats.size})</h3>""")
