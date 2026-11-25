@@ -18,9 +18,8 @@ import org.junit.runner.RunWith
 /**
  * What differs between the two builds, on the real connector list of this build (nothing signed
  * in, nothing fetched): the GitHub/F-Droid build ("full") carries the web connectors (Deezer's web
- * route next to its official one, SoundCloud's account) and SoundCloud links; the Google Play build
- * ("play") hides plugin-only services unless a plugin is installed (never naming Amazon Music or
- * SoundCloud, Deezer with its official route only),
+ * route, its official one being kept from new users, SoundCloud's account) and SoundCloud links; the Google Play build
+ * ("play") hides plugin-only services unless a plugin is installed (never naming Amazon Music, SoundCloud or Deezer: a line says why there is no Deezer),
  * explains plugins only in Settings (no name, no link anywhere), and says it shows a banner.
  */
 @RunWith(AndroidJUnit4::class)
@@ -41,16 +40,18 @@ class FlavorFlowTest : FlowTest() {
         openServicePicker()
         // Everywhere: the services with an official API, each under its category's chip.
         waitText("Spotify")
-        click(s(R.string.services_group_streaming))
-        listOf("Spotify", "Deezer", "TIDAL").forEach { waitText(it) }
-        click(s(R.string.services_group_servers))
+        clickInDialog(s(R.string.services_group_streaming))
+        listOf("Spotify", "TIDAL").forEach { waitText(it) }
+        clickInDialog(s(R.string.services_group_servers))
         listOf("Jellyfin", "Plex").forEach { waitText(it) }
-        click(s(R.string.chooser_all))
+        clickInDialog(s(R.string.chooser_all))
         // Never a greyed-out list of what this build cannot reach: only what it offers.
         assertFalse(exists(s(R.string.services_group_unavailable)))
-        click(s(R.string.services_group_streaming))
-        waitText("Deezer")
+        clickInDialog(s(R.string.services_group_streaming))
+        waitText("Spotify")
         if (full) {
+            // Deezer is offered by its web route; the official one is not offered to new users.
+            assertTrue("Deezer (web connector) is offered", exists("Deezer"))
             assertTrue("Amazon Music (web connector) is offered", exists("Amazon Music"))
             // Spotify can be reached two ways here: the family page lists both routes.
             click("Spotify")
@@ -61,33 +62,44 @@ class FlavorFlowTest : FlowTest() {
             // The services with no official API are not named at all.
             assertFalse(exists("Amazon Music"))
             assertFalse(exists("SoundCloud"))
-            // Only the official Spotify route: straight to the name.
+            // Deezer is not offered to new users: no row, and under All a plain line says why.
+            assertFalse(exists("Deezer"))
+            clickInDialog(s(R.string.chooser_all))
+            waitText(s(R.string.deezer_why_title))
+            assertFalse(exists("Deezer"))
+            // Only the official Spotify route: the first account goes straight to its sign-in, no name asked.
             click("Spotify")
-            waitText(s(R.string.connector_name_label))
+            waitFor("Spotify added") { "spotify" in store.data.settings.connectors }
+            assertFalse("no name asked for a first account", exists(s(R.string.connector_name_label)))
         }
     }
 
     @Test
     fun deezerAndSoundCloudMatchTheBuild() {
         openServicePicker()
-        click(s(R.string.services_group_streaming))
-        waitText("Deezer")
+        clickInDialog(s(R.string.services_group_streaming))
+        waitText("Spotify")
+        // The official Deezer is not offered to new users on this build (no app id of its own).
+        assertTrue("the test build has no Deezer app id", com.xlollx.songport.ui.deezerOfficialWithheld(app))
         if (full) {
+            waitText("Deezer")
             assertTrue("SoundCloud's account connector is offered", exists("SoundCloud"))
-            // Deezer can be reached two ways here: its web player (easy) and its official API.
+            // Deezer has its web route only: its page says why the official one is missing.
             click("Deezer")
-            waitText(s(R.string.connector_pick_hint))
-            assertTrue(exists(s(R.string.route_easy)))
-            assertTrue(exists(s(R.string.route_official)))
-            // The web route is alpha, the official one stays beta.
+            waitText(s(R.string.deezer_why_official_title))
+            assertTrue(exists(s(R.string.deezer_why_body)))
+            assertFalse("no choice of routes for one route", exists(s(R.string.connector_pick_hint)))
+            // The web route is alpha.
             assertTrue("the web route says alpha", exists(s(R.string.alpha)))
-            assertTrue("the official route says beta", exists(s(R.string.beta)))
+            assertFalse("no official route to call beta", exists(s(R.string.beta)))
         } else {
-            // No plugin on the test device: SoundCloud is not named, and Deezer has one route.
+            // No plugin on the test device: SoundCloud and Deezer are not named, and the line under All says why.
             assertFalse(exists("SoundCloud"))
             assertFalse(exists(s(R.string.services_group_unavailable)))
-            click("Deezer")
-            waitText(s(R.string.connector_name_label))
+            assertFalse(exists("Deezer"))
+            clickInDialog(s(R.string.chooser_all))
+            waitText(s(R.string.deezer_why_title))
+            assertTrue(exists(s(R.string.deezer_why_body)))
         }
     }
 

@@ -44,10 +44,10 @@ class ServiceChooserFlowTest : FlowTest() {
         assertFalse(exists(s(R.string.chooser_cat_games)))
         assertFalse(exists(s(R.string.chooser_cat_podcasts)))
         // A chip shows that category alone.
-        click(s(R.string.services_group_servers))
+        clickInDialog(s(R.string.services_group_servers))
         waitText("Jellyfin")
         assertFalse(exists("Deezer"))
-        click(s(R.string.chooser_all))
+        clickInDialog(s(R.string.chooser_all))
         waitText("Deezer")
     }
 
@@ -70,24 +70,24 @@ class ServiceChooserFlowTest : FlowTest() {
     @Test
     fun whatIsTypedAndTheChipSurviveTheActivityBeingRemade() {
         openChooser()
-        click(s(R.string.services_group_servers))
+        clickInDialog(s(R.string.services_group_servers))
         waitText("Jellyfin")
         remade()
         waitText(s(R.string.connector_pick_title))
         waitText("Jellyfin")
         assertFalse("still on the chip", exists("Deezer"))
 
-        click(s(R.string.chooser_all))
+        clickInDialog(s(R.string.chooser_all))
         searchField.performTextInput("dee")
         waitText("Deezer")
         remade()
         waitText(s(R.string.connector_pick_title))
         waitText("Deezer")
         assertFalse("the search is still typed", exists("Jellyfin"))
-        // And the pick goes on as before: the name, then the connector.
+        // And the pick goes on: the first account of a service needs no name, straight to its sign-in.
         click("Deezer")
-        waitText(s(R.string.connector_name_label))
-        click(s(R.string.ok))
+        waitText(s(R.string.connect_title, "Deezer"))
+        assertFalse("no name asked for a first account", exists(s(R.string.connector_name_label)))
         waitFor("Deezer added") { "deezer" in store.data.settings.connectors }
     }
 

@@ -336,6 +336,10 @@ abstract class FlowTest {
     protected fun click(text: String, substring: Boolean = false) =
         tap(compose.onAllNodes(hasClickAction() and (hasText(text, substring = substring) or hasContentDescription(text, substring = substring))).onFirst(), text)
 
+    /** Like [click], but only inside an open dialog: a screen behind it can have a chip or button of the same name (Accounts' "All"). */
+    protected fun clickInDialog(text: String) =
+        tap(compose.onAllNodes(hasClickAction() and hasText(text) and androidx.compose.ui.test.hasAnyAncestor(androidx.compose.ui.test.isDialog())).onFirst(), text)
+
     protected fun clickDesc(desc: String, index: Int = 0) =
         tap(compose.onAllNodes(hasClickAction() and hasContentDescription(desc))[index], desc)
 
