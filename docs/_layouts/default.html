@@ -288,7 +288,8 @@
         });
         // The tools that exist in every language open in the menu's language.
         d.querySelectorAll('.tools-strip[data-tools="en"] a[data-l10n]').forEach(function (a) {
-          a.setAttribute('href', (l === 'en' || l === 'it' ? '' : '/' + l) + '/' + a.getAttribute('data-l10n'));
+          var tool = (a.getAttribute('data-l10n') || '').replace(/[^a-z-]/g, '');
+          a.setAttribute('href', (l === 'en' || l === 'it' ? '' : '/' + l) + '/' + tool);
         });
       }
       sel.addEventListener('change', function () { try { localStorage.setItem('menuLang', sel.value); } catch (e) {} lang_(sel.value); });
