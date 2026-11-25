@@ -234,6 +234,14 @@ object ServerLink {
         // A multi sync comes back whole: deleted there as one (its playlists stay), every sync of it on again here.
         groupOf(Store.get(ctx).data, job)?.let { g ->
             return@withContext try {
+                // The choices made on the server since the last look come along first, as for one sync.
+                for ((half, h) in halves) {
+                    try {
+                        ReviewDecisions.apply(Store.get(ctx), half.id, api.exchange(h.serverId, ReviewDecisions.ofSync(Store.get(ctx).data, half)))
+                    } catch (e: ServerSyncs.Failure) {
+                        if (e.kind != ServerSyncs.Failure.Kind.GONE && e.kind != ServerSyncs.Failure.Kind.OLD) throw e
+                    }
+                }
                 api.deleteMulti(g.id)
                 for ((half, _) in halves) takeBack(ctx, half.id)
                 _known.value = _known.value - halves.map { it.second.serverId }.toSet()
