@@ -526,7 +526,9 @@ private fun UnmatchedRow(
             initialQuery = query,
             targetName = dstName,
             pickLabel = stringResource(R.string.unmatched_add),
-            search = search, onPick = onPick, onError = onError, autoSearch = true, webSearchUrl = webSearchUrl, openTrack = openTrack, askAi = askAi,
+            // One pick at a time for this song, from either list: two would add two songs to the playlist.
+            search = search, onPick = { t -> accepting = true; try { onPick(t) } finally { accepting = false } }, onError = onError, autoSearch = true, webSearchUrl = webSearchUrl, openTrack = openTrack, askAi = askAi,
+            pickBusy = accepting,
             extraActions = { busy ->
                 TextButton(enabled = !busy && !whyBusy, onClick = {
                     if (why != null) { why = null; return@TextButton }

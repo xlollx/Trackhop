@@ -94,6 +94,8 @@ fun MatchSearch(
     extraActions: @Composable (busy: Boolean) -> Unit = {},
     /** The user's AI, when configured: looks at the candidates and says which one it is, or how else to search. */
     askAi: (suspend (List<Track>) -> AiClient.Suggestion)? = null,
+    /** A pick for the same song is being made elsewhere (the caller's other list): no second one meanwhile. */
+    pickBusy: Boolean = false,
 ) {
     val scope = rememberCoroutineScope()
     val ctx = LocalContext.current
@@ -218,8 +220,8 @@ fun MatchSearch(
                         runCatching { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
                     }) { Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = stringResource(R.string.search_listen)) }
                 }
-                if (primary) FilledTonalButton(enabled = !busy, onClick = act) { Text(pickLabel) }
-                else TextButton(enabled = !busy, onClick = act) { Text(pickLabel) }
+                if (primary) FilledTonalButton(enabled = !busy && !pickBusy, onClick = act) { Text(pickLabel) }
+                else TextButton(enabled = !busy && !pickBusy, onClick = act) { Text(pickLabel) }
             }
         }
         if (result.hits.isEmpty()) {
