@@ -644,11 +644,15 @@ open class FileStore(dir: File) {
         return rev.toIntOrNull()?.takeIf { d.matchCache[key] == id }
     }
 
-    /** Matches found under an older revision that the current matching finds as good: noted under it. */
-    fun markChecked(keys: Collection<String>) {
-        if (keys.isEmpty()) return
+    /**
+     * Matches found under an older revision that the current matching finds as good ([checked]: each
+     * key with the target the engine checked): noted under it, only while the cache still holds that
+     * target (one picked by hand meanwhile gets no engine's mark).
+     */
+    fun markChecked(checked: Map<String, String>) {
+        if (checked.isEmpty()) return
         update { d ->
-            d.copy(autoMatches = d.autoMatches + keys.mapNotNull { k -> d.matchCache[k]?.let { k to "${Matcher.REVISION}|$it" } })
+            d.copy(autoMatches = d.autoMatches + checked.mapNotNull { (k, id) -> if (d.matchCache[k] == id) k to "${Matcher.REVISION}|$id" else null })
         }
     }
 

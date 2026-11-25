@@ -58,10 +58,13 @@ class MissCacheTest {
         // An older revision, then checked by the current matching.
         store.update { it.copy(autoMatches = it.autoMatches + (auto to "${Matcher.REVISION - 1}|A")) }
         assertEquals(Matcher.REVISION - 1, store.autoRevision(auto))
-        store.markChecked(listOf(auto))
+        store.markChecked(mapOf(auto to "A"))
         assertEquals(Matcher.REVISION, store.autoRevision(auto))
         // Changed by hand, even where the review's code writes the cache directly: the user's from then on.
         store.update { it.copy(matchCache = it.matchCache + (auto to "B")) }
+        assertNull(store.autoRevision(auto))
+        // A check of the old target that ends after the hand-picked one: no engine's mark on the user's choice.
+        store.markChecked(mapOf(auto to "A"))
         assertNull(store.autoRevision(auto))
         // Chosen by the user through putMatches: the same.
         store.putMatches(mapOf(auto to "A"), auto = true)

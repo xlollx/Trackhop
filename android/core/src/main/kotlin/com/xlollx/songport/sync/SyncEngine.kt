@@ -603,7 +603,7 @@ class SyncEngine(
         // Nothing leaves the target by itself.
         val liveSuspects = ArrayList<MatchReview>()
         // Matches the engine found under an older matching that the current one still finds good: noted under it.
-        val checked = ArrayList<String>()
+        val checked = LinkedHashMap<String, String>()
         // 1) brani gia' presenti nella destinazione
         for (s in srcTracks) {
             val key = FileStore.cacheKey(src.id, s.id, dstKey)
@@ -632,7 +632,7 @@ class SyncEngine(
                     val stale = store.autoRevision(key)?.let { it < Matcher.REVISION } == true
                     val score = if (stale || Matcher.liveInPlaceOf(s, found)) Matcher.score(s, found, job.policy) else null
                     if (score != null && (Matcher.liveInPlaceOf(s, found) || score < job.policy.reviewThreshold)) liveSuspects += MatchReview(s, found, score)
-                    else if (stale) checked += key
+                    else if (stale) checked[key] = found.id
                 }
             } else if (linked != null) {
                 matchedDstIds += linked
