@@ -45,6 +45,10 @@ button:
     dark: Scuro
     light: Chiaro
     violet: Viola
+  brand: "Aspetto"
+  brands:
+    name: "Logo e nome"
+    logo: "Solo logo (compatto)"
   text: Testo del pulsante
   default_text: Ascolta su qualsiasi servizio
   preview: Anteprima

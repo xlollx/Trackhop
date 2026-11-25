@@ -42,6 +42,8 @@ button:
   go: Criar o botão
   style: Estilo
   styles: {dark: Escuro, light: Claro, violet: Violeta}
+  brand: "Aparência"
+  brands: {name: "Logo e nome", logo: "Só o logo (compacto)"}
   text: Texto do botão
   default_text: Ouça em qualquer serviço
   preview: Prévia

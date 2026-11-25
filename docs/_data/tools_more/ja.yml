@@ -42,6 +42,8 @@ button:
   go: ボタンを作る
   style: スタイル
   styles: {dark: ダーク, light: ライト, violet: バイオレット}
+  brand: "表示"
+  brands: {name: "ロゴと名前", logo: "ロゴのみ（コンパクト）"}
   text: ボタンの文字
   default_text: どのサービスでも聴く
   preview: プレビュー

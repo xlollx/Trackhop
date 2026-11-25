@@ -56,8 +56,15 @@ test('button: a plain link with its style inline, the song link encoded', () => 
   assert.equal(href, 'https://trackhop.org/link?u=https%3A%2F%2Fopen.spotify.com%2Ftrack%2F0ofHAoxe9vBkTCp2UQIavz');
   assert.equal(target('https://www.deezer.com/track/63480987', 'it'), 'https://trackhop.org/it/link?u=https%3A%2F%2Fwww.deezer.com%2Ftrack%2F63480987');
   const code = buttonCode(href, { style: 'light', text: 'Ascolta <ovunque>' });
-  assert.match(code, /^<a href="https:\/\/trackhop\.org\/link\?u=[^"]+" target="_blank" rel="noopener" style="[^"]+"><svg/);
-  assert.ok(code.includes('Ascolta &lt;ovunque&gt;</a>'));
+  assert.match(code, /^<a href="https:\/\/trackhop\.org\/link\?u=[^"]+" target="_blank" rel="noopener" title="Trackhop" style="[^"]+"><svg/);
+  // Logo and name (the default): the Trackhop name after the text.
+  assert.ok(code.includes('Ascolta &lt;ovunque&gt;<span style="'));
+  assert.ok(code.endsWith('>Trackhop</span></a>'));
+  // Logo only (compact): the mark, the text, nothing after it.
+  const compact = buttonCode(href, { style: 'light', text: 'Ascolta <ovunque>', brand: 'logo' });
+  assert.ok(compact.endsWith('Ascolta &lt;ovunque&gt;</a>'));
+  assert.ok(compact.includes('viewBox="0 0 66 66"'));
+  assert.ok(!/<script|<img|src=/.test(compact));
   assert.ok(!/<script|<img|src=/.test(code));
   assert.throws(() => target('not a link'));
 });

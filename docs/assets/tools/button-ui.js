@@ -13,22 +13,24 @@ let href = null;
 function draw() {
   if (!href) return;
   const style = (root.querySelector('input[name="btn-style"]:checked') || {}).value || 'dark';
-  const options = { style, text: textInput.value || root.dataset.text };
+  const brand = (root.querySelector('input[name="btn-brand"]:checked') || {}).value || 'name';
+  const options = { style, brand, text: textInput.value || root.dataset.text };
   code.value = buttonCode(href, options);
   // The same button, built piece by piece: the visitor's text only ever goes in as text.
   const p = buttonParts(href, options);
   const a = document.createElement('a');
   a.href = p.href; a.target = '_blank'; a.rel = 'noopener';
   a.setAttribute('style', p.css);
-  const NS = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(NS, 'svg');
-  for (const [k, v] of Object.entries({ width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' })) svg.setAttribute(k, v);
-  for (const [tag, attrs] of [['path', { d: 'M9 18V6l10-2v12' }], ['circle', { cx: 6.5, cy: 18, r: 2.5 }], ['circle', { cx: 16.5, cy: 16, r: 2.5 }]]) {
-    const n = document.createElementNS(NS, tag);
-    for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
-    svg.append(n);
+  a.title = 'Trackhop';
+  // The mark is our own constant (button.js), never the visitor's text.
+  const svg = new DOMParser().parseFromString(p.icon, 'image/svg+xml').documentElement;
+  a.append(document.importNode(svg, true), p.label);
+  if (p.brand) {
+    const name = document.createElement('span');
+    name.setAttribute('style', p.brandCss);
+    name.textContent = p.brand;
+    a.append(name);
   }
-  a.append(svg, p.label);
   preview.replaceChildren(a);
   done.textContent = '';
 }
