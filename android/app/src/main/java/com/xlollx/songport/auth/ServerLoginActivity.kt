@@ -208,6 +208,8 @@ private fun LoginForm(provider: CredentialsProvider, onDone: (String) -> Unit) {
                                     if (jellyfin.quickConnectPoll(com.xlollx.songport.platform.AndroidEnv.of(ctx), qc)) { ok = true; break }
                                 }
                                 qcCode = null
+                                // The away address on the form is kept with the sign-in, as the password's way keeps it.
+                                if (ok && form.needsUrl && provider.offersSecondAddress) runCatching { provider.setAwayAddress(com.xlollx.songport.platform.AndroidEnv.of(ctx), away) }
                                 if (ok) onDone(ctx.getString(R.string.auth_done, provider.displayName))
                                 else { error = ctx.getString(R.string.jellyfin_qc_expired); busy = false }
                             } catch (e: kotlinx.coroutines.CancellationException) {
