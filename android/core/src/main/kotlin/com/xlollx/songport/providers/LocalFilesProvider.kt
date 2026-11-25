@@ -33,16 +33,25 @@ object LocalFilesProvider : MusicProvider {
      * to its source while a run reads it) sees the old content or the new, never an empty file.
      */
     private fun write(f: File, text: String) {
-        val tmp = File(f.parentFile, ".${f.name}.tmp")
-        tmp.writeText(text)
-        busyRetry(f) {
-            try {
-                java.nio.file.Files.move(tmp.toPath(), f.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE)
-            } catch (e: java.nio.file.AtomicMoveNotSupportedException) {
-                java.nio.file.Files.move(tmp.toPath(), f.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+        synchronized(lockOf(f)) {
+            val tmp = File(f.parentFile, ".${f.name}.tmp")
+            tmp.writeText(text)
+            busyRetry(f) {
+                try {
+                    java.nio.file.Files.move(tmp.toPath(), f.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE)
+                } catch (e: java.nio.file.AtomicMoveNotSupportedException) {
+                    java.nio.file.Files.move(tmp.toPath(), f.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+                }
             }
         }
     }
+
+    /**
+     * One lock per file: two writers of one playlist (two AI extensions, a radio adding songs while
+     * a sync writes) take turns, so neither drops the other's songs nor moves the other's temp file.
+     */
+    private val locks = java.util.concurrent.ConcurrentHashMap<String, Any>()
+    private fun lockOf(f: File): Any = locks.computeIfAbsent(f.absolutePath) { Any() }
 
     /** [f]'s text. On Windows a file being swapped in by [write] cannot be opened for an instant: tried again. */
     private fun read(f: File): String = busyRetry(f) { f.readText() }
@@ -104,10 +113,12 @@ object LocalFilesProvider : MusicProvider {
 
     override suspend fun addTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         val f = file(ctx, playlistId)
-        val current = if (f.exists()) CsvCodec.parse(read(f)) else emptyList()
-        val ids = current.map { it.id }.toHashSet()
-        val merged = current + tracks.map { CsvCodec.withStableId(it) }.filter { ids.add(it.id) }
-        write(f, CsvCodec.encode(merged))
+        synchronized(lockOf(f)) {
+            val current = if (f.exists()) CsvCodec.parse(read(f)) else emptyList()
+            val ids = current.map { it.id }.toHashSet()
+            val merged = current + tracks.map { CsvCodec.withStableId(it) }.filter { ids.add(it.id) }
+            write(f, CsvCodec.encode(merged))
+        }
     }
 
     override suspend fun renamePlaylist(ctx: Env, playlistId: String, name: String) {
@@ -136,7 +147,7 @@ object LocalFilesProvider : MusicProvider {
         val f = file(ctx, playlistId)
         if (!f.exists()) return
         val remove = tracks.map { it.id }.toHashSet()
-        write(f, CsvCodec.encode(CsvCodec.parse(read(f)).filter { it.id !in remove }))
+        synchronized(lockOf(f)) { write(f, CsvCodec.encode(CsvCodec.parse(read(f)).filter { it.id !in remove })) }
     }
 
     // --- import/export per la UI (Storage Access Framework) ---
