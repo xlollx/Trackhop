@@ -1,5 +1,25 @@
 [
  {
+  "id": "v2.2.1",
+  "kind": "app",
+  "version": "2.2.1",
+  "date": "2026-11-25",
+  "notes": {
+   "en": "Trackhop 2.2.1. Export the songs your syncs couldn't find, for every service: CSV, M3U, text, JSON or a Lidarr list, or save them as a File playlist to sync anywhere. In Saved matches › To fix and in Tools. Small fixes.",
+   "it": "Trackhop 2.2.1. Esporta i brani che le sync non hanno trovato, per ogni servizio: CSV, M3U, testo, JSON o lista Lidarr, oppure salvali come playlist File da sincronizzare ovunque. In Abbinamenti salvati › Da sistemare e in Strumenti. Piccole correzioni.",
+   "es": "Trackhop 2.2.1. Exporta las canciones que tus sincronizaciones no encontraron, para cualquier servicio: CSV, M3U, texto, JSON o una lista de Lidarr, o guárdalas como lista de archivo para sincronizarla donde quieras. En Coincidencias guardadas › Por arreglar y en Herramientas. Pequeñas correcciones.",
+   "pt": "Trackhop 2.2.1. Exporte as músicas que suas sincronizações não encontraram, para qualquer serviço: CSV, M3U, texto, JSON ou lista do Lidarr, ou salve-as como playlist de arquivo para sincronizar em qualquer lugar. Em Correspondências salvas › A corrigir e em Ferramentas. Pequenas correções.",
+   "fr": "Trackhop 2.2.1. Exportez les titres que vos synchros n'ont pas trouvés, pour tous les services : CSV, M3U, texte, JSON ou liste Lidarr, ou enregistrez-les comme playlist Fichier à synchroniser partout. Dans Correspondances enregistrées › À corriger et dans Outils. Petites corrections.",
+   "de": "Trackhop 2.2.1. Exportiere die Songs, die deine Syncs nicht gefunden haben, für jeden Dienst: CSV, M3U, Text, JSON oder eine Lidarr-Liste, oder speichere sie als Datei-Playlist zum Synchronisieren überallhin. Unter Gespeicherte Zuordnungen › Zu klären und in Werkzeuge. Kleine Korrekturen.",
+   "pl": "Trackhop 2.2.1. Eksportuj utwory, których synchronizacje nie znalazły, dla każdego serwisu: CSV, M3U, tekst, JSON lub lista Lidarr, albo zapisz je jako playlistę z pliku do synchronizacji gdziekolwiek. W Zapisanych dopasowaniach › Do poprawy i w Narzędziach. Drobne poprawki.",
+   "ru": "Trackhop 2.2.1. Экспортируйте треки, которые синхронизации не нашли, для любого сервиса: CSV, M3U, текст, JSON или список для Lidarr, или сохраните их как плейлист-файл, чтобы синхронизировать куда угодно. В разделе «Сохранённые совпадения › Исправить» и в «Инструментах». Мелкие исправления.",
+   "tr": "Trackhop 2.2.1. Eşitlemelerin bulamadığı şarkıları her servis için dışa aktar: CSV, M3U, metin, JSON veya Lidarr listesi; ya da her yere eşitlemek için Dosya çalma listesi olarak kaydet. Kayıtlı eşleşmeler › Düzeltilecekler ve Araçlar'da. Küçük düzeltmeler.",
+   "ja": "Trackhop 2.2.1。同期で見つからなかった曲を、どのサービスでも書き出せます（CSV、M3U、テキスト、JSON、Lidarrリスト）。ファイルのプレイリストとして保存して、どこへでも同期することもできます。保存された一致 › 要修正 と ツール から。細かな修正。",
+   "ko": "Trackhop 2.2.1. 동기화에서 찾지 못한 곡을 모든 서비스에 대해 내보낼 수 있습니다: CSV, M3U, 텍스트, JSON 또는 Lidarr 목록. 파일 재생목록으로 저장해 어디로든 동기화할 수도 있습니다. 저장된 매칭 › 수정 필요 및 도구에서. 작은 수정.",
+   "zh": "Trackhop 2.2.1。可为任何服务导出同步时未找到的歌曲：CSV、M3U、文本、JSON 或 Lidarr 列表，也可以另存为文件歌单，同步到任何地方。在“已保存的匹配 › 待修正”和“工具”中。一些小修复。"
+  }
+ },
+ {
   "id": "v2.2.0",
   "kind": "app",
   "version": "2.2.0",
@@ -17,6 +37,15 @@
    "ja": "Trackhop 2.2。新しい「どのサービス？」選択画面。マッチングが向上：feat. のゲスト、リミックス、Taylor's Version、Deluxe・Remaster 盤。「なぜ一致しなかった？」で候補を表示。YouTube Music は接続中のプロフィールを表示。Deezer はファミリープロフィール対応。ListenBrainz を宛先に。Plex：星5つ＝いいね、Sounds like、Plex Home ユーザーへコピー。自宅と外出先のアドレス。Apple Music での削除。Soundiiz 用 JSON、Apprise、星評価。初回起動がシンプルに。通知をタップすると該当の画面が開き、ベルで通知履歴を残せます。ラジオ局と Shazam をアカウントに。デスクトップと Docker でアプリのほぼ全機能。",
    "ko": "Trackhop 2.2. 새 \"어떤 서비스?\" 선택 화면. 더 나은 매칭: feat. 게스트, 리믹스, Taylor's Version, Deluxe·Remaster 에디션, 번체 중국어. \"왜 매칭되지 않았나요?\"는 후보를 보여줘요. YouTube Music은 연결된 프로필을 보여줘요. Deezer 패밀리 프로필. ListenBrainz를 대상으로. Plex: 별 5개=좋아요, Sounds like, Plex Home 사용자에게 복사. 집과 밖의 주소. Apple Music 삭제. Soundiiz JSON, Apprise, 별점. 더 간단한 첫 실행. 알림을 누르면 해당 화면이 열리고, 벨에 알림 기록이 남아요. 라디오 방송국과 Shazam을 계정으로. 데스크톱과 Docker가 앱의 거의 모든 기능을 해요.",
    "zh": "Trackhop 2.2。新的“选哪个服务？”选择器。匹配更好：feat. 嘉宾、混音、Taylor's Version、Deluxe 和 Remaster 版本；“为什么没匹配上？”显示候选。YouTube Music 显示连接的是哪个资料。Deezer 家庭资料。ListenBrainz 可作目标。Plex：五星算喜欢、Sounds like、复制给 Plex Home 用户。在家和外出两个地址。Apple Music 移除。Soundiiz JSON、Apprise、星级评分。首次运行更简单。点按通知会打开相关内容，铃铛保留全部通知。电台和 Shazam 可作为账户。桌面版和 Docker 几乎能做应用能做的一切。"
+  }
+ },
+ {
+  "id": "server-v2.2.1",
+  "kind": "server",
+  "version": "2.2.1",
+  "date": "2026-11-25",
+  "notes": {
+   "en": "Released with the app's 2.2.1.\n\n- **Songs not found, for every service**: Tools › Songs not found lists what your syncs could not find on any service, not only on your own server; export it (CSV, M3U, text, JSON, Lidarr list) or save it as a File playlist to sync anywhere. Also `GET /api/v1/wanted?scope=all&on=<service>`, `POST /api/v1/wanted/file-playlist` and `trackhop wanted --everywhere [--missing-on <service>] [--save-as <name>]`. Missing on my server and the Lidarr link are unchanged."
   }
  },
  {
