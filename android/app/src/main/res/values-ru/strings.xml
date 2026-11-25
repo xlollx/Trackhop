@@ -3907,4 +3907,28 @@
     <string name="provider_note_apple_full">Плейлисты Apple Music из вашей медиатеки. Нужны подписка и токен разработчика MusicKit. API Apple умеет только добавлять: удаление делается перезаписью списка плейлиста, один раз проверенной на отдельном маленьком плейлисте.</string>
     <string name="policy_artists_differ">Имена исполнителей могут отличаться</string>
     <string name="policy_artists_differ_desc">Для исполнителей, которых каждый сервис пишет по-своему (周杰倫 и Jay Chou): достаточно того же названия, длительности и альбома. Без альбома трек отправляется на проверку.</string>
+    <string name="bell_title">Уведомления</string>
+    <string name="bell_desc_update">Уведомления, доступно обновление</string>
+    <string name="bell_mark_all_read">Отметить все как прочитанные</string>
+    <string name="bell_clear">Очистить</string>
+    <string name="bell_clear_confirm">Очистить историю уведомлений?</string>
+    <string name="bell_empty">Пока ничего. Здесь появляется то, о чём сообщает Trackhop.</string>
+    <string name="bell_notifications_off">Уведомления Trackhop выключены: новые всё равно появляются здесь.</string>
+    <string name="bell_turn_on">Включить</string>
+    <string name="bell_kept">Хранятся %1$d дней (не больше %2$d).</string>
+    <string name="bell_today">Сегодня</string>
+    <string name="bell_yesterday">Вчера</string>
+    <string name="bell_update_ready">Обновление готово</string>
+    <string name="bell_update_have">У вас %1$s</string>
+    <string name="bell_update_fdroid">Магазин приложений скоро его доставит.</string>
+    <string name="bell_update_download">Скачать</string>
+    <string name="bell_update_update">Обновить</string>
+    <plurals name="bell_desc_unread">
+        <item quantity="one">Уведомления, %d непрочитанное</item>
+        <item quantity="few">Уведомления, %d непрочитанных</item>
+        <item quantity="many">Уведомления, %d непрочитанных</item>
+        <item quantity="other">Уведомления, %d непрочитанных</item>
+    </plurals>
+    <string name="whats_new_22_bell_title">Колокольчик уведомлений</string>
+    <string name="whats_new_22_bell_body">Нажатие на уведомление открывает то, о чём оно. Колокольчик наверху хранит их все и показывает, когда вышла новая версия.</string>
 </resources>

@@ -3547,4 +3547,25 @@
     <string name="provider_note_apple_full">你资料库中的 Apple Music 歌单。需要订阅和 MusicKit 开发者令牌。Apple 的 API 只能添加：移除通过重写歌单列表完成，并先在一个专用的小歌单上检查一次。</string>
     <string name="policy_artists_differ">艺人名称可以不同</string>
     <string name="policy_artists_differ_desc">适用于各服务写法不同的艺人（周杰倫 与 Jay Chou）：标题、时长和专辑相同即可。没有专辑时，歌曲会进入复核。</string>
+    <string name="bell_title">通知</string>
+    <string name="bell_desc_update">通知，有可用更新</string>
+    <string name="bell_mark_all_read">全部标为已读</string>
+    <string name="bell_clear">清空</string>
+    <string name="bell_clear_confirm">清空通知记录？</string>
+    <string name="bell_empty">暂时没有。Trackhop 告诉你的内容会显示在这里。</string>
+    <string name="bell_notifications_off">Trackhop 的通知已关闭：新通知仍会出现在这里。</string>
+    <string name="bell_turn_on">开启</string>
+    <string name="bell_kept">保留 %1$d 天（最多 %2$d 条）。</string>
+    <string name="bell_today">今天</string>
+    <string name="bell_yesterday">昨天</string>
+    <string name="bell_update_ready">有更新可用</string>
+    <string name="bell_update_have">你的版本：%1$s</string>
+    <string name="bell_update_fdroid">你的应用商店很快会提供。</string>
+    <string name="bell_update_download">下载</string>
+    <string name="bell_update_update">更新</string>
+    <plurals name="bell_desc_unread">
+        <item quantity="other">通知，%d 条未读</item>
+    </plurals>
+    <string name="whats_new_22_bell_title">通知铃铛</string>
+    <string name="whats_new_22_bell_body">点按通知会打开它所说的内容。顶部的铃铛保存所有通知，并在有新版本时显示。</string>
 </resources>

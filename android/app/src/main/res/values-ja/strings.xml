@@ -3547,4 +3547,25 @@
     <string name="provider_note_apple_full">ライブラリ内の Apple Music プレイリスト。サブスクリプションと MusicKit 開発者トークンが必要です。Apple の API は追加しかできないため、削除はプレイリストの一覧を書き直して行います（専用の小さなプレイリストで一度確認済み）。</string>
     <string name="policy_artists_differ">アーティスト名が違っていてもよい</string>
     <string name="policy_artists_differ_desc">サービスごとに表記が違うアーティスト（周杰倫とJay Chou）向け：曲名・長さ・アルバムが同じなら十分です。アルバムがない場合は確認に回ります。</string>
+    <string name="bell_title">通知</string>
+    <string name="bell_desc_update">通知、アップデートあり</string>
+    <string name="bell_mark_all_read">すべて既読にする</string>
+    <string name="bell_clear">消去</string>
+    <string name="bell_clear_confirm">通知の履歴を消去しますか？</string>
+    <string name="bell_empty">まだありません。Trackhopからのお知らせがここに表示されます。</string>
+    <string name="bell_notifications_off">Trackhopの通知はオフです。新しい通知もここには届きます。</string>
+    <string name="bell_turn_on">オンにする</string>
+    <string name="bell_kept">%1$d日間保存（最大%2$d件）。</string>
+    <string name="bell_today">今日</string>
+    <string name="bell_yesterday">昨日</string>
+    <string name="bell_update_ready">アップデートの準備ができました</string>
+    <string name="bell_update_have">現在のバージョン：%1$s</string>
+    <string name="bell_update_fdroid">アプリストアからまもなく届きます。</string>
+    <string name="bell_update_download">ダウンロード</string>
+    <string name="bell_update_update">アップデート</string>
+    <plurals name="bell_desc_unread">
+        <item quantity="other">通知、未読%d件</item>
+    </plurals>
+    <string name="whats_new_22_bell_title">通知のベル</string>
+    <string name="whats_new_22_bell_body">通知をタップすると、その内容の画面が開きます。上部のベルにすべて残り、新しいバージョンが出たことも表示します。</string>
 </resources>

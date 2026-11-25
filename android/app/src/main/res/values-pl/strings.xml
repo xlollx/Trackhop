@@ -3909,4 +3909,28 @@
     <string name="provider_note_apple_full">Playlisty Apple Music z twojej biblioteki. Wymaga subskrypcji i tokena dewelopera MusicKit. API Apple tylko dodaje: usuwanie odbywa się przez ponowne zapisanie listy playlisty, sprawdzone raz na małej, osobnej playliście.</string>
     <string name="policy_artists_differ">Nazwy wykonawców mogą się różnić</string>
     <string name="policy_artists_differ_desc">Dla wykonawców, których każdy serwis zapisuje inaczej (周杰倫 i Jay Chou): wystarczy ten sam tytuł, długość i album. Bez albumu utwór trafia do przeglądu.</string>
+    <string name="bell_title">Powiadomienia</string>
+    <string name="bell_desc_update">Powiadomienia, dostępna aktualizacja</string>
+    <string name="bell_mark_all_read">Oznacz wszystkie jako przeczytane</string>
+    <string name="bell_clear">Wyczyść</string>
+    <string name="bell_clear_confirm">Wyczyścić historię powiadomień?</string>
+    <string name="bell_empty">Jeszcze nic. Tu pojawia się to, o czym informuje Trackhop.</string>
+    <string name="bell_notifications_off">Powiadomienia Trackhop są wyłączone: nowe i tak trafiają tutaj.</string>
+    <string name="bell_turn_on">Włącz</string>
+    <string name="bell_kept">Przechowywane przez %1$d dni (maksymalnie %2$d).</string>
+    <string name="bell_today">Dzisiaj</string>
+    <string name="bell_yesterday">Wczoraj</string>
+    <string name="bell_update_ready">Aktualizacja jest gotowa</string>
+    <string name="bell_update_have">Masz %1$s</string>
+    <string name="bell_update_fdroid">Twój sklep z aplikacjami wkrótce ją dostarczy.</string>
+    <string name="bell_update_download">Pobierz</string>
+    <string name="bell_update_update">Aktualizuj</string>
+    <plurals name="bell_desc_unread">
+        <item quantity="one">Powiadomienia, %d nieprzeczytane</item>
+        <item quantity="few">Powiadomienia, %d nieprzeczytane</item>
+        <item quantity="many">Powiadomienia, %d nieprzeczytanych</item>
+        <item quantity="other">Powiadomienia, %d nieprzeczytanych</item>
+    </plurals>
+    <string name="whats_new_22_bell_title">Dzwonek z powiadomieniami</string>
+    <string name="whats_new_22_bell_body">Dotknięcie powiadomienia otwiera to, czego dotyczy. Dzwonek u góry przechowuje wszystkie i pokazuje nową wersję.</string>
 </resources>

@@ -3675,4 +3675,26 @@
     <string name="provider_note_apple_full">Les playlists Apple Music de ta bibliothèque. Nécessite un abonnement et un jeton développeur MusicKit. L\'API d\'Apple ne fait qu\'ajouter : les retraits se font en réécrivant la liste de la playlist, vérifié une fois sur une petite playlist dédiée.</string>
     <string name="policy_artists_differ">Les noms d\'artistes peuvent différer</string>
     <string name="policy_artists_differ_desc">Pour les artistes que chaque service écrit autrement (周杰倫 et Jay Chou) : le même titre, la même durée et le même album suffisent. Sans album, le titre part en vérification.</string>
+    <string name="bell_title">Notifications</string>
+    <string name="bell_desc_update">Notifications, mise à jour disponible</string>
+    <string name="bell_mark_all_read">Tout marquer comme lu</string>
+    <string name="bell_clear">Vider</string>
+    <string name="bell_clear_confirm">Vider l\'historique des notifications ?</string>
+    <string name="bell_empty">Rien pour l\'instant. Ce que Trackhop te signale apparaît ici.</string>
+    <string name="bell_notifications_off">Les notifications de Trackhop sont désactivées : les nouvelles arrivent quand même ici.</string>
+    <string name="bell_turn_on">Activer</string>
+    <string name="bell_kept">Conservées %1$d jours (%2$d au maximum).</string>
+    <string name="bell_today">Aujourd\'hui</string>
+    <string name="bell_yesterday">Hier</string>
+    <string name="bell_update_ready">Une mise à jour est prête</string>
+    <string name="bell_update_have">Tu as la %1$s</string>
+    <string name="bell_update_fdroid">Ton magasin d\'applications l\'apportera bientôt.</string>
+    <string name="bell_update_download">Télécharger</string>
+    <string name="bell_update_update">Mettre à jour</string>
+    <plurals name="bell_desc_unread">
+        <item quantity="one">Notifications, %d non lue</item>
+        <item quantity="other">Notifications, %d non lues</item>
+    </plurals>
+    <string name="whats_new_22_bell_title">Cloche des notifications</string>
+    <string name="whats_new_22_bell_body">Toucher une notification ouvre ce dont elle parle. La cloche en haut les garde toutes et signale une nouvelle version.</string>
 </resources>

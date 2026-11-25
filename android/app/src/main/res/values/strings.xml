@@ -3671,4 +3671,26 @@
     <string name="provider_note_apple_full">Apple Music playlists in your library. Needs a subscription and a MusicKit developer token. Apple\'s API only adds tracks: removals are made by writing the playlist\'s list again, checked once on a small playlist of its own.</string>
     <string name="policy_artists_differ">Artist names can differ</string>
     <string name="policy_artists_differ_desc">For artists each service writes another way (周杰倫 and Jay Chou): the same title, length and album is enough. Without an album the track goes to the review.</string>
+    <string name="bell_title">Notifications</string>
+    <string name="bell_desc_update">Notifications, update available</string>
+    <string name="bell_mark_all_read">Mark all read</string>
+    <string name="bell_clear">Clear</string>
+    <string name="bell_clear_confirm">Clear the notifications\' history?</string>
+    <string name="bell_empty">Nothing yet. What Trackhop tells you shows up here.</string>
+    <string name="bell_notifications_off">Notifications are off for Trackhop: new ones still land here.</string>
+    <string name="bell_turn_on">Turn on</string>
+    <string name="bell_kept">Kept for %1$d days (up to %2$d).</string>
+    <string name="bell_today">Today</string>
+    <string name="bell_yesterday">Yesterday</string>
+    <string name="bell_update_ready">An update is ready</string>
+    <string name="bell_update_have">You have %1$s</string>
+    <string name="bell_update_fdroid">Your app store will bring it soon.</string>
+    <string name="bell_update_download">Download</string>
+    <string name="bell_update_update">Update</string>
+    <plurals name="bell_desc_unread">
+        <item quantity="one">Notifications, %d unread</item>
+        <item quantity="other">Notifications, %d unread</item>
+    </plurals>
+    <string name="whats_new_22_bell_title">Notification bell</string>
+    <string name="whats_new_22_bell_body">A tap on a notification opens what it is about. The bell at the top keeps them all, and shows when a new version is out.</string>
 </resources>

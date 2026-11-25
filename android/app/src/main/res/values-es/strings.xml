@@ -3675,4 +3675,26 @@
     <string name="provider_note_apple_full">Las playlists de Apple Music de tu biblioteca. Necesita una suscripción y un token de desarrollador de MusicKit. La API de Apple solo añade: las eliminaciones se hacen reescribiendo la lista de la playlist, comprobado una vez en una pequeña playlist propia.</string>
     <string name="policy_artists_differ">Los nombres de artista pueden ser distintos</string>
     <string name="policy_artists_differ_desc">Para artistas que cada servicio escribe a su manera (周杰倫 y Jay Chou): basta con el mismo título, la misma duración y el mismo álbum. Sin álbum, la canción va a revisión.</string>
+    <string name="bell_title">Notificaciones</string>
+    <string name="bell_desc_update">Notificaciones, actualización disponible</string>
+    <string name="bell_mark_all_read">Marcar todas como leídas</string>
+    <string name="bell_clear">Vaciar</string>
+    <string name="bell_clear_confirm">¿Vaciar el historial de notificaciones?</string>
+    <string name="bell_empty">Nada todavía. Aquí aparece lo que Trackhop te avisa.</string>
+    <string name="bell_notifications_off">Las notificaciones de Trackhop están desactivadas: las nuevas llegan igualmente aquí.</string>
+    <string name="bell_turn_on">Activar</string>
+    <string name="bell_kept">Se guardan %1$d días (hasta %2$d).</string>
+    <string name="bell_today">Hoy</string>
+    <string name="bell_yesterday">Ayer</string>
+    <string name="bell_update_ready">Hay una actualización lista</string>
+    <string name="bell_update_have">Tienes la %1$s</string>
+    <string name="bell_update_fdroid">Tu tienda de apps la traerá pronto.</string>
+    <string name="bell_update_download">Descargar</string>
+    <string name="bell_update_update">Actualizar</string>
+    <plurals name="bell_desc_unread">
+        <item quantity="one">Notificaciones, %d sin leer</item>
+        <item quantity="other">Notificaciones, %d sin leer</item>
+    </plurals>
+    <string name="whats_new_22_bell_title">Campana de notificaciones</string>
+    <string name="whats_new_22_bell_body">Tocar una notificación abre aquello de lo que trata. La campana de arriba las guarda todas y avisa cuando sale una nueva versión.</string>
 </resources>

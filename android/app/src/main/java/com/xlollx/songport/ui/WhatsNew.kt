@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.Favorite
@@ -152,6 +153,7 @@ object WhatsNew {
                         shown = { com.xlollx.songport.providers.BridgePlugin.builtIn }),
                     Item(Icons.Filled.FolderOpen, JobColor.TEAL, R.string.whats_new_22_files_title, R.string.whats_new_22_files_body),
                     Item(Icons.Filled.NotificationsActive, JobColor.YELLOW, R.string.whats_new_22_apprise_title, R.string.whats_new_22_apprise_body),
+                    Item(Icons.Filled.Notifications, JobColor.ORANGE, R.string.whats_new_22_bell_title, R.string.whats_new_22_bell_body),
                     Item(Icons.Filled.Bolt, JobColor.GREEN, R.string.whats_new_22_quick_title, R.string.whats_new_22_quick_body),
                     Item(Icons.Filled.Lock, JobColor.BLUE, R.string.whats_new_22_spotifykey_title, R.string.whats_new_22_spotifykey_body,
                         shown = { !com.xlollx.songport.providers.BridgePlugin.builtIn }),

@@ -8,8 +8,11 @@ import kotlinx.coroutines.flow.StateFlow
  * release for the GitHub build, Google Play for the Play build): what the top bar's arrow shows.
  */
 object UpdateState {
-    /** [versionName] when the source says it (GitHub), [url] where to get it (the APK), both null on Play. */
-    data class Available(val versionName: String?, val url: String?)
+    /**
+     * [versionName] when the source says it (GitHub), [url] where to get it (the APK), both null on Play.
+     * [noticeOnly]: F-Droid installed this Trackhop and brings the new version itself; the bell only says it is out.
+     */
+    data class Available(val versionName: String?, val url: String?, val noticeOnly: Boolean = false)
 
     private val state = MutableStateFlow<Available?>(null)
     val available: StateFlow<Available?> = state
