@@ -153,7 +153,7 @@ private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVecto
  */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onSendTo: (id: String, name: String) -> Unit = { _, _ -> }, onTransfer: () -> Unit = {}, onSyncStarted: () -> Unit = {}, onManage: (MusicProvider) -> Unit = {}, onScan: (MusicProvider) -> Unit = {}, onUnplayable: (MusicProvider) -> Unit = {}, onSubpage: (Boolean) -> Unit = {}, onGoToAccounts: () -> Unit = {}, onStats: () -> Unit = {}, onBackup: () -> Unit = {}, openDedupe: String? = null, onDedupeOpened: () -> Unit = {}, openAiSetup: Boolean = false, onAiSetupOpened: () -> Unit = {}, onReview: (reportId: String) -> Unit = {}, openMatches: Boolean = false, onMatchesOpened: () -> Unit = {}) {
+fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onSendTo: (id: String, name: String) -> Unit = { _, _ -> }, onTransfer: () -> Unit = {}, onSyncStarted: () -> Unit = {}, onManage: (MusicProvider) -> Unit = {}, onScan: (MusicProvider) -> Unit = {}, onUnplayable: (MusicProvider) -> Unit = {}, onSubpage: (Boolean) -> Unit = {}, onGoToAccounts: () -> Unit = {}, onStats: () -> Unit = {}, onBackup: () -> Unit = {}, openDedupe: String? = null, onDedupeOpened: () -> Unit = {}, openAiSetup: Boolean = false, onAiSetupOpened: () -> Unit = {}, onReview: (reportId: String) -> Unit = {}, openMatches: Boolean = false, onMatchesOpened: () -> Unit = {}, openFiles: FilesStart? = null, onFilesOpened: () -> Unit = {}) {
     val ctx = LocalContext.current
     val connected = Providers.connectors().filter { it.requiresAuth && it.isConnected(ctx) }
     var selectedId by rememberSaveable { mutableStateOf(connected.firstOrNull()?.id) }
@@ -172,6 +172,8 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
         AiDraft.setupAsked = true; open = Tool.AI
         onAiSetupOpened()
     }
+    // Import file / Paste a list from the Accounts File card: File playlists, which begins it (#85).
+    LaunchedEffect(openFiles) { if (openFiles != null) open = Tool.FILES }
     // "All tracks to fix" from a sync's review: Saved matches, on its To fix tab.
     LaunchedEffect(openMatches) {
         if (!openMatches) return@LaunchedEffect
@@ -238,7 +240,7 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
                         ServicePicker(connected, provider.id, { selectedId = it })
                     }
                     when (current) {
-                        Tool.FILES -> FilesCard(local, onManage = onManageFiles, onSendTo = onSendTo)
+                        Tool.FILES -> FilesCard(local, onManage = onManageFiles, onSendTo = onSendTo, start = openFiles, onStarted = onFilesOpened)
                         Tool.AI -> AiPlaylistCard(local, onSyncStarted)
                         Tool.EXPORT -> provider?.let { ExportCard(it, local) }
                         Tool.MAKE -> provider?.let { MakePlaylistCard(it, local) }

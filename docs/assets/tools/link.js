@@ -606,7 +606,7 @@ async function underBarcode(dz, kind, country, net) {
   if (kind === 'song' && !at.whole && at.id) at = (await maybe(deezerGet({ kind, id: at.id }, net))) || at;
   let upc = at.upc;
   if (!upc && at.albumId) upc = ((await maybe(net.jsonp(DEEZER + 'album/' + at.albumId, { name: 'Deezer' }))) || {}).upc;
-  return { at, items: upcOk(upc) ? await itunesByUpc(upc, kind, country, net) : [] };
+  return { at, upc, items: upcOk(upc) ? await itunesByUpc(upc, kind, country, net) : [] };
 }
 
 /** Apple's page of what Deezer has as [dz]: the album with its barcode, or the song in its place on it. null when a link of the chain is missing. */
@@ -620,22 +620,293 @@ async function appleByBarcode(dz, kind, country, net) {
  * (few songs have their Spotify link there, most albums do). [] when it does not know, is busy
  * or does not answer in its short time.
  */
-async function mbCodes(link, net) {
+async function mbCodes(link, net, out = {}) {
   const ask = (what) => net.json(MB + what + '&fmt=json', { name: 'MusicBrainz', timeout: MB_TIMEOUT });
   const few = (codes, ok) => [...new Set(codes.filter(ok))].slice(0, 3);
   try {
     const album = link.kind === 'album';
     const data = await ask('url?resource=' + encodeURIComponent(link.url) + '&inc=' + (album ? 'release-rels' : 'recording-rels'));
-    // A link MusicBrainz marks as ended comes after the ones that still stand.
-    const rels = ((data && data.relations) || []).slice().sort((a, b) => (a.ended ? 1 : 0) - (b.ended ? 1 : 0));
-    if (album) return few(rels.map((r) => r.release && r.release.barcode), upcOk);
+    const rels = standing((data && data.relations) || []);
+    if (album) {
+      const codes = few(rels.map((r) => r.release && r.release.barcode), upcOk);
+      // The release's own links to the other services: one request more, which may come too late or not at all.
+      const id = rels.map((r) => r.release && r.release.id).find(Boolean);
+      if (id) out.rels = ask('release/' + encodeURIComponent(id) + '?inc=url-rels').then((r) => (r && r.relations) || [], () => []);
+      return codes;
+    }
     const id = rels.map((r) => r.recording && r.recording.id).find(Boolean);
     if (!id) return [];
-    const recording = await ask('recording/' + id + '?inc=isrcs');
+    out.mbid = id;
+    const recording = await ask('recording/' + encodeURIComponent(id) + '?inc=isrcs+url-rels');
+    out.rels = (recording && recording.relations) || [];
     return few((recording && recording.isrcs) || [], isrcOk);
   } catch (e) {
     return [];
   }
+}
+
+/** A link MusicBrainz marks as ended comes after the ones that still stand. */
+const standing = (rels) => rels.filter(Boolean).sort((a, b) => (a.ended ? 1 : 0) - (b.ended ? 1 : 0));
+
+// ---------------------------------------------------------------------------------------------
+// More exact buttons: the links MusicBrainz and Wikidata keep for a recording or a release
+// ---------------------------------------------------------------------------------------------
+
+const YT_ID = /^[A-Za-z0-9_-]{11}$/;
+const ASIN = /^B[0-9A-Z]{9}$/;
+const SLUG = /^[A-Za-z0-9_-]{1,100}$/;
+const TIDAL_HOSTS = new Set(['tidal.com', 'www.tidal.com', 'listen.tidal.com']);
+const YOUTUBE_HOSTS = new Set(['youtube.com', 'www.youtube.com', 'm.youtube.com']);
+const AMAZON_HOSTS = new Set(['music.amazon.com', 'music.amazon.co.uk', 'music.amazon.de', 'music.amazon.fr', 'music.amazon.it', 'music.amazon.es',
+  'music.amazon.ca', 'music.amazon.com.au', 'music.amazon.co.jp', 'music.amazon.com.br', 'music.amazon.com.mx', 'music.amazon.in']);
+const SOUNDCLOUD_HOSTS = new Set(['soundcloud.com', 'www.soundcloud.com', 'm.soundcloud.com']);
+const SOUNDCLOUD_PAGES = new Set(['search', 'discover', 'stream', 'you', 'upload', 'charts', 'pages', 'settings', 'messages', 'notifications', 'tags',
+  'popular', 'mobile', 'people', 'terms-of-use', 'jobs', 'imprint', 'connect', 'signin', 'logout', 'feed', 'sets']);
+
+/**
+ * The service and the page of a link to [kind] (song or album), rebuilt from its parts: { id, url },
+ * or null for anything else. Only the hosts named here, only http(s), no user or port, and only a
+ * page of a song (or of an album) whose id has the form the service gives it.
+ */
+export function serviceLink(raw, kind) {
+  let u;
+  try { u = new URL(String(raw)); } catch (e) { return null; }
+  if ((u.protocol !== 'https:' && u.protocol !== 'http:') || u.username || u.password || u.port) return null;
+  const host = u.hostname.toLowerCase();
+  const parts = u.pathname.split('/').filter(Boolean);
+  const song = kind === 'song';
+  const q = (k) => u.searchParams.get(k) || '';
+  const same = (link) => (link && link.kind === kind ? { id: link.service, url: link.url } : null);
+  const quietly = (read) => { try { return same(read()); } catch (e) { return null; } };
+  if (TIDAL_HOSTS.has(host)) {
+    const p = parts[0] === 'browse' ? parts.slice(1) : parts;
+    const type = song ? 'track' : 'album';
+    return p.length === 2 && p[0] === type && digits(p[1]) ? { id: 'tidal', url: 'https://tidal.com/browse/' + type + '/' + p[1] } : null;
+  }
+  if (host === 'music.youtube.com') {
+    if (song) return parts.length === 1 && parts[0] === 'watch' && YT_ID.test(q('v')) ? { id: 'ytmusic', url: 'https://music.youtube.com/watch?v=' + q('v') } : null;
+    if (parts.length === 1 && parts[0] === 'playlist' && /^OLAK5uy_[A-Za-z0-9_-]{10,60}$/.test(q('list'))) return { id: 'ytmusic', url: 'https://music.youtube.com/playlist?list=' + q('list') };
+    if (parts.length === 2 && parts[0] === 'browse' && /^MPREb_[A-Za-z0-9_-]{5,60}$/.test(parts[1])) return { id: 'ytmusic', url: 'https://music.youtube.com/browse/' + parts[1] };
+    return null;
+  }
+  if (YOUTUBE_HOSTS.has(host) || host === 'youtu.be') {
+    const v = host === 'youtu.be' ? (parts.length === 1 ? parts[0] : '') : parts.length === 1 && parts[0] === 'watch' ? q('v') : '';
+    return song && YT_ID.test(v) ? { id: 'youtube', url: 'https://www.youtube.com/watch?v=' + v } : null;
+  }
+  if (AMAZON_HOSTS.has(host)) {
+    const type = song ? 'tracks' : 'albums';
+    // An album page with ?trackAsin= points at one of its songs: it is neither the song's page nor quite the album's.
+    return parts.length === 2 && parts[0] === type && ASIN.test(parts[1]) && !q('trackAsin') ? { id: 'amazon', url: 'https://' + host + '/' + type + '/' + parts[1] } : null;
+  }
+  if (SOUNDCLOUD_HOSTS.has(host)) {
+    if (!parts.every((p) => SLUG.test(p)) || SOUNDCLOUD_PAGES.has(parts[0].toLowerCase())) return null;
+    const ok = song ? parts.length === 2 && parts[1] !== 'sets' : parts.length === 3 && parts[1] === 'sets';
+    return ok ? { id: 'soundcloud', url: 'https://soundcloud.com/' + parts.join('/') } : null;
+  }
+  if (host === 'music.apple.com' || host === 'geo.music.apple.com') return quietly(() => appleLink(u, parts));
+  if (host === 'deezer.com' || host === 'www.deezer.com') return quietly(() => deezerLink(parts));
+  if (host === 'open.spotify.com') return quietly(() => spotifyLink(parts));
+  return null;
+}
+
+/** MusicBrainz's url-rels of a recording or a release, as { service: page }: the first link that still stands for each. */
+export function relLinks(relations, kind) {
+  const out = {};
+  for (const r of standing(relations || [])) {
+    const found = r && r.url && serviceLink(r.url.resource, kind);
+    if (found && !out[found.id]) out[found.id] = found.url;
+  }
+  return out;
+}
+
+const WD = 'https://query.wikidata.org/sparql';
+/** Wikidata gets this long, and is asked only when the others left buttons a search. */
+export const WD_TIMEOUT = 3000;
+/**
+ * What Wikidata keeps of a recording or an album: [key] the code it is found by (ISRC P1243, barcode
+ * P3962), [by] the pasted page's own ID it is found by, [props] what is read back and how each becomes a page.
+ */
+const WD_PROPS = {
+  song: {
+    key: 'P1243',
+    by: { spotify: 'P2207', deezer: 'P2724', apple: 'P10110' },
+    props: { tidal: 'P4578', amazon: 'P13398', apple: 'P10110', youtube: 'P1651', deezer: 'P2724', spotify: 'P2207' },
+    page: {
+      tidal: (v) => 'https://tidal.com/browse/track/' + v,
+      amazon: (v) => 'https://music.amazon.com/tracks/' + v,
+      // Apple's track ID is written "album?i=track".
+      apple: (v) => { const m = /^(\d{1,20})\?i=(\d{1,20})$/.exec(v); return m ? 'https://music.apple.com/us/album/' + m[1] + '?i=' + m[2] : ''; },
+      youtube: (v) => 'https://www.youtube.com/watch?v=' + v,
+      deezer: (v) => 'https://www.deezer.com/track/' + v,
+      spotify: (v) => 'https://open.spotify.com/track/' + v,
+    },
+  },
+  album: {
+    key: 'P3962',
+    by: { spotify: 'P2205', deezer: 'P2723', apple: 'P2281' },
+    props: { tidal: 'P4577', apple: 'P2281', deezer: 'P2723', spotify: 'P2205', ytmusic: 'P4300' },
+    page: {
+      tidal: (v) => 'https://tidal.com/browse/album/' + v,
+      apple: (v) => 'https://music.apple.com/us/album/' + v,
+      deezer: (v) => 'https://www.deezer.com/album/' + v,
+      spotify: (v) => 'https://open.spotify.com/album/' + v,
+      // A YouTube playlist is an album on YouTube Music only when it is the album's own (OLAK5uy_…).
+      ytmusic: (v) => 'https://music.youtube.com/playlist?list=' + v,
+    },
+  },
+};
+
+/** The forms a barcode may be kept in: with or without the zeros in front, as a UPC or as a GTIN of 13 or 14 digits. */
+const barcodeForms = (code) => {
+  const bare = code.replace(/^0+/, '');
+  return [...new Set([code, bare, ...[12, 13, 14].map((n) => bare.padStart(n, '0'))])].filter((c) => c.length >= 8);
+};
+
+/**
+ * The ID Wikidata keeps for the pasted page, or null: a Spotify or Deezer ID as it is, an Apple
+ * album's number, and an Apple song only from an album link ("album?i=track" is how Wikidata writes it).
+ */
+export function wikidataId(link) {
+  if (!link) return null;
+  if (link.service === 'spotify') return /^[A-Za-z0-9]{22}$/.test(link.id) ? link.id : null;
+  if (link.service === 'deezer') return digits(link.id) ? link.id : null;
+  if (link.service !== 'apple') return null;
+  if (link.kind === 'album') return digits(link.id) ? link.id : null;
+  const m = /\/album\/(?:[^/?#]+\/)?(\d{1,20})\?i=(\d{1,20})$/.exec(link.url || '');
+  return m ? m[1] + '?i=' + m[2] : null;
+}
+
+/** The one SPARQL query for [codes] (ISRCs of a song, or a barcode of an album) and the pasted [link]'s own ID. */
+export function wikidataQuery(kind, codes, link) {
+  const { key, by, props } = WD_PROPS[kind];
+  const forms = kind === 'album' ? codes.flatMap(barcodeForms) : codes.map((c) => c.toUpperCase());
+  const values = [...new Set(forms)].filter((c) => /^[A-Z0-9]{8,14}$/.test(c)).map((c) => '"' + c + '"').join(' ');
+  const ways = [];
+  if (values) ways.push('{VALUES ?c{' + values + '} ?i wdt:' + key + ' ?c.}');
+  const own = link && link.kind === kind && by[link.service] && wikidataId(link);
+  if (own) ways.push('{?i wdt:' + by[link.service] + ' "' + own + '".}');
+  if (!ways.length) return null;
+  const opt = Object.entries(props).map(([id, p]) => 'OPTIONAL{?i wdt:' + p + ' ?' + id + '}').join(' ');
+  return 'SELECT ' + Object.keys(props).map((id) => '?' + id).join(' ') + ' WHERE{' + ways.join(' UNION ') + ' ' + opt + '} LIMIT 20';
+}
+
+/** Wikidata's answer as { service: page }: the first value of each that makes a page of the right kind. */
+export function wikidataLinks(data, kind) {
+  const out = {};
+  const { page } = WD_PROPS[kind];
+  for (const row of (data && data.results && data.results.bindings) || []) {
+    for (const id of Object.keys(page)) {
+      const v = row && row[id] && row[id].value;
+      if (out[id] || typeof v !== 'string') continue;
+      const found = serviceLink(page[id](v), kind);
+      if (found && found.id === id) out[id] = found.url;
+    }
+  }
+  return out;
+}
+
+const LB = 'https://labs.api.listenbrainz.org/';
+/** ListenBrainz's "labs" mappers come with no promise: they get this long, and nothing waits on them. */
+export const LB_TIMEOUT = 3000;
+const MBID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const lbAsk = (what, params, net) => net.json(LB + what + '/json?' + new URLSearchParams(params).toString(), { name: 'ListenBrainz', timeout: LB_TIMEOUT });
+
+/** The MusicBrainz recording ListenBrainz finds for [known]'s artist and title, when its title and artist are the same; else null. */
+async function lbRecording(known, net) {
+  const rows = await lbAsk('recording-search', { query: known.artist + ' ' + plainTitle(known.title) }, net);
+  const hit = (Array.isArray(rows) ? rows : []).find((r) => r && MBID.test(r.recording_mbid || '')
+    && titleKey(r.recording_name) === titleKey(known.title) && sameArtist(r.artist_credit_name, known.artist));
+  return hit ? hit.recording_mbid : null;
+}
+
+const LB_SERVICE = {
+  spotify: { path: 'spotify', field: 'spotify_track_ids', ok: (id) => /^[A-Za-z0-9]{22}$/.test(id), page: (id) => 'https://open.spotify.com/track/' + id },
+  apple: { path: 'apple-music', field: 'apple_music_track_ids', ok: digits, page: (id) => 'https://music.apple.com/us/song/' + id },
+};
+
+/** The IDs ListenBrainz's mapper has for the song: by its recording when that is known, and by artist, album and title when that gives none or several. */
+export async function lbIds(service, known, net) {
+  const { path, field, ok } = LB_SERVICE[service];
+  const read = (rows) => [...new Set(((Array.isArray(rows) && rows[0] && rows[0][field]) || []).filter((id) => typeof id === 'string' && ok(id)))];
+  let ids = [];
+  if (MBID.test(known.mbid || '')) ids = read(await maybe(lbAsk(path + '-id-from-mbid', { recording_mbid: known.mbid }, net)));
+  if (ids.length !== 1 && known.artist && known.title && known.album) {
+    const named = read(await maybe(lbAsk(path + '-id-from-metadata', { artist_name: known.artist, release_name: known.album, track_name: known.title }, net)));
+    // The ones on the same album first.
+    ids = ids.length ? [...named.filter((id) => ids.includes(id)), ...ids.filter((id) => !named.includes(id))] : named;
+  }
+  return ids;
+}
+
+/** Of several Apple songs, the one on [known]'s album, else the one of its length, asked of iTunes in one request; else the first. */
+async function appleOf(ids, known, country, net) {
+  if (ids.length < 2) return ids.length ? serviceLink(LB_SERVICE.apple.page(ids[0]), 'song') : null;
+  const items = itunesItems(await maybe(net.json(ITUNES + 'lookup?id=' + ids.slice(0, 10).join(',') + '&country=' + (country || 'us'), { name: 'Apple Music', timeout: LB_TIMEOUT })), 'song');
+  const album = known.album ? items.filter((i) => titleKey(i.album) === titleKey(known.album)) : [];
+  const pick = matches({ ...known, kind: 'song' }, album.length ? album : items)[0] || album[0];
+  return (pick && serviceLink(pick.url, 'song')) || serviceLink(LB_SERVICE.apple.page(ids[0]), 'song');
+}
+
+/**
+ * [found] with what MusicBrainz, ListenBrainz and Wikidata know turned into exact buttons. [known]:
+ * rels (url-rels already in hand, or a promise of them), mbid, isrc, upc, artist, title, album,
+ * durationMs (only what is sure: never a guessed artist), and the pasted link.
+ *   MusicBrainz: for a song by its ISRC, else by its recording (found by ListenBrainz from artist and
+ *   title when not known); for an album by its barcode, then the release's links. Its pages replace
+ *   any button not yet exact.
+ *   ListenBrainz: Spotify's and Apple's pages of a song, where those are not exact yet.
+ *   Wikidata: one query by the ISRC or barcode and by the pasted page's ID, for what is still a search.
+ * None of them answering changes nothing; MusicBrainz is asked once a second at most (browserNet).
+ */
+export async function addKnown(kind, found, known = {}, net) {
+  const k = { ...known };
+  const open = (id) => !found[id] || found[id].mark !== 'exact';
+  const put = (links, note, may) => { for (const [id, url] of Object.entries(links)) if (may(id)) found[id] = { url, mark: 'exact', note }; };
+  const mb = (what) => net.json(MB + what + (what.includes('?') ? '&' : '?') + 'fmt=json', { name: 'MusicBrainz', timeout: MB_TIMEOUT });
+  const sure = k.artist && k.title;
+  try {
+    let list = await k.rels;
+    if (!list && SERVICES.some((s) => open(s.id))) {
+      if (kind === 'song' && isrcOk(k.isrc)) {
+        const data = await mb('isrc/' + k.isrc.toUpperCase() + '?inc=url-rels');
+        const recs = ((data && data.recordings) || []).filter(Boolean);
+        list = recs.flatMap((r) => r.relations || []);
+        if (!k.mbid) k.mbid = (recs.find((r) => MBID.test(r.id || '')) || {}).id || null;
+      } else if (kind === 'song') {
+        if (!MBID.test(k.mbid || '') && sure) k.mbid = await maybe(lbRecording(k, net));
+        if (MBID.test(k.mbid || '')) {
+          const rec = await mb('recording/' + k.mbid + '?inc=isrcs+url-rels');
+          list = (rec && rec.relations) || [];
+          k.isrc = ((rec && rec.isrcs) || []).find(isrcOk) || null;
+        }
+      } else if (upcOk(k.upc)) {
+        const forms = barcodeForms(k.upc), bare = k.upc.replace(/^0+/, '');
+        const data = await mb('release/?query=' + encodeURIComponent(forms.map((c) => 'barcode:' + c).join(' OR ')) + '&limit=5');
+        const rel = ((data && data.releases) || []).find((r) => r && MBID.test(r.id || '') && String(r.barcode || '').replace(/^0+/, '') === bare);
+        if (rel) list = ((await mb('release/' + rel.id + '?inc=url-rels')) || {}).relations || [];
+      }
+    }
+    put(relLinks(list, kind), 'mb', open);
+  } catch (e) { /* MusicBrainz busy, late or silent: the buttons stay as they were */ }
+
+  const code = kind === 'song' ? (isrcOk(k.isrc) ? k.isrc : null) : (upcOk(k.upc) ? k.upc : null);
+  const left = Object.keys(WD_PROPS[kind].props).filter((id) => !found[id]);
+  const query = left.length ? wikidataQuery(kind, code ? [code] : [], k.link) : null;
+  const lbFor = kind === 'song' && (MBID.test(k.mbid || '') || (sure && k.album)) ? ['spotify', 'apple'].filter(open) : [];
+  // ListenBrainz and Wikidata are asked side by side; ListenBrainz's pages go in first.
+  const [lb, wd] = await Promise.all([
+    Promise.all(lbFor.map(async (service) => {
+      try {
+        const ids = await lbIds(service, k, net);
+        const page = service === 'apple' ? await appleOf(ids, k, 'us', net) : ids.length ? serviceLink(LB_SERVICE.spotify.page(ids[0]), 'song') : null;
+        return page && page.id === service ? [service, page.url] : null;
+      } catch (e) { return null; }
+    })),
+    query ? net.json(WD + '?format=json&query=' + encodeURIComponent(query), { name: 'Wikidata', timeout: WD_TIMEOUT }).catch(() => null) : null,
+  ]);
+  put(Object.fromEntries(lb.filter(Boolean)), 'lb', open);
+  if (wd) put(wikidataLinks(wd, kind), 'wd', (id) => left.includes(id) && !found[id]);
+  return found;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -684,7 +955,7 @@ export async function lookup(link, net = browserNet, { artist, signal } = {}) {
   net = bounded(net, { signal });
   if (link.service === 'spotify') return spotifyResult(await spotifyBase(link, net), artist, net);
   const services = {};
-  let item;
+  let item, codes = {};
   if (link.service === 'apple') {
     item = await appleGet(link, net);
     services.apple = pasted(link);
@@ -693,19 +964,22 @@ export async function lookup(link, net = browserNet, { artist, signal } = {}) {
     // page that was pasted is there (for a song, in Deezer's place on the album), nothing is left to doubt.
     let match = null;
     for (const c of fits.slice(0, 2)) {
-      const { at, items } = await underBarcode(c, item.kind, link.country, net);
+      const { at, upc, items } = await underBarcode(c, item.kind, link.country, net);
       const back = items.filter((i) => i.id === item.id);
-      if (item.kind === 'album' ? back.length : albumSong(at, back)) { match = exact(c, 'barcode'); break; }
+      if (item.kind === 'album' ? back.length : albumSong(at, back)) { match = exact(c, 'barcode'); codes = { isrc: at.isrc, upc }; break; }
     }
     match = match || await judged(item, fits, net);
     if (match) services.deezer = match;
+    if (!codes.isrc && !codes.upc) codes = await exactDeezerCodes(item.kind, match, null, net);
   } else {
     item = await deezerGet(link, net);
+    codes = { isrc: item.isrc, upc: item.upc };
     services.deezer = pasted(link);
     const twin = await appleByBarcode(item, item.kind, 'us', net);
     const match = twin ? exact(twin, 'barcode') : await judged(item, matches(item, await quiet(itunesSearch(queryOf(item), item.kind, 'us', net))), net);
     if (match) services.apple = match;
   }
+  await addKnown(item.kind, services, { ...codes, artist: item.artist, title: item.title, album: item.album, durationMs: item.durationMs, link }, net);
   return result(link, item, services, { guess: false, fix: false, alts: [] });
 }
 
@@ -852,7 +1126,8 @@ async function byCover(base, target, sigOf, net) {
  */
 export async function spotifyBase(link, net = browserNet, { signal } = {}) {
   net = bounded(net, { signal });
-  const codes = mbCodes(link, net).then((list) => (list.length ? byCodes(link, list, net) : null));
+  const mb = {};
+  const codes = mbCodes(link, net, mb).then((list) => { mb.codes = list; return list.length ? byCodes(link, list, net) : null; });
   const data = await net.json('https://open.spotify.com/oembed?url=' + encodeURIComponent(link.url), { name: 'Spotify' });
   if (!data || !data.title) throw new ToolError('not-found', 'Spotify');
   const key = titleKey(data.title), term = plainTitle(data.title);
@@ -872,7 +1147,7 @@ export async function spotifyBase(link, net = browserNet, { signal } = {}) {
     ask(() => deezerSearch(term, link.kind, net, 50)),
     codes,
   ]);
-  const base = { link, title: data.title, art: data.thumbnail_url || null, apple, deezer, loose, sure: coded };
+  const base = { link, title: data.title, art: data.thumbnail_url || null, apple, deezer, loose, sure: coded, mb };
   if (!base.sure) base.sure = await byCover(base, target, sigOf, net);
   if (!apple && !deezer && !base.sure) throw new ToolError('no-answer', 'Apple Music');
   return base;
@@ -920,6 +1195,12 @@ export async function spotifyResult(base, artist, net = browserNet, { signal } =
     if (d) services.deezer = d;
     if (a) services.apple = a;
     const item = { ...known, title, art: base.art || known.art };
+    // Deezer's sure page has the ISRC or the barcode where MusicBrainz had none.
+    // MusicBrainz did not know the link: the ISRC (or barcode) of Deezer's page, when that page is exact, never from a guess.
+    const said = mbKnown(base);
+    const dz = said.isrc || said.upc ? {} : await exactDeezerCodes(link.kind, d, deezer && deezer.item, net);
+    await addKnown(link.kind, services, { ...said, isrc: said.isrc || dz.isrc, upc: said.upc || dz.upc,
+      artist: item.artist, title: known.title || title, album: item.album, durationMs: item.durationMs }, net);
     // Found by the cover, the visitor can still say it is someone else; a barcode leaves no one else.
     return result(link, item, services, { guess: false, fix: by === 'cover', alts: by === 'cover' ? others(item.artist) : [] });
   }
@@ -946,5 +1227,27 @@ export async function spotifyResult(base, artist, net = browserNet, { signal } =
     title, artist: known.artist || name,
     album: known.album, durationMs: known.durationMs, count: known.count, year: known.year, art: base.art || known.art,
   };
+  // What MusicBrainz keeps for the pasted link is sure, whoever the artist turns out to be.
+  await addKnown(link.kind, services, mbKnown(base), net);
   return result(link, item, services, { guess: true, fix: true, alts: others(item.artist) });
+}
+
+/**
+ * The ISRC (of a song) or the barcode (of an album) of Deezer's button [row], only when it is exact:
+ * from [item] when it has it, else Deezer's page asked whole (search results carry neither). {} otherwise.
+ */
+async function exactDeezerCodes(kind, row, item, net) {
+  if (!row || row.mark !== 'exact') return {};
+  let at = item;
+  if (!at || !(kind === 'song' ? at.isrc : at.upc)) {
+    const m = /\/(track|album)\/(\d{1,20})$/.exec(row.url || '');
+    at = m ? await maybe(deezerGet({ kind, id: m[2] }, net)) : null;
+  }
+  return at ? { isrc: at.isrc || null, upc: at.upc || null } : {};
+}
+
+/** What MusicBrainz said of the pasted Spotify link: its links (when it knew the link), and the code Wikidata can be asked by. */
+function mbKnown(base) {
+  const mb = base.mb || {}, code = (mb.codes || [])[0];
+  return { rels: mb.rels || null, mbid: mb.mbid || null, link: base.link, isrc: base.link.kind === 'song' ? code : null, upc: base.link.kind === 'album' ? code : null };
 }

@@ -740,8 +740,10 @@
         <item quantity="one">%d sincronización configurada</item>
         <item quantity="other">%d sincronizaciones configuradas</item>
     </plurals>
+    <string name="setup_spotify_no_key_route">Sin Premium, inicia sesión con «%1$s»: no necesita ninguna clave.</string>
+    <string name="setup_use_route">Usar %1$s</string>
     <string-array name="setup_steps_spotify">
-        <item>Inicia sesión en developer.spotify.com con la cuenta de Spotify que usas a diario. Spotify exige que esa cuenta tenga Premium; si te pide aceptar los términos para desarrolladores, acéptalos. Si en esa página «Web API» está en gris, la cuenta no tiene Premium: Spotify no concede la clave, usa la otra vía.</item>
+        <item>Inicia sesión en developer.spotify.com con la cuenta de Spotify que usas a diario. Spotify exige que esa cuenta tenga Premium; si te pide aceptar los términos para desarrolladores, acéptalos. Si en esa página «Web API» está en gris, la cuenta no tiene Premium y Spotify no le concede la clave.</item>
         <item>Pulsa \"Create app\". El nombre y la descripción son a tu elección (por ejemplo \"Trackhop\"). Deja vacío \"Website\".</item>
         <item>En \"Redirect URIs\" pega exactamente la dirección que aparece abajo y pulsa \"Add\". Sin ella, el inicio de sesión no puede volver a la app.</item>
         <item>En \"Which API/SDKs are you planning to use?\" marca \"Web API\", acepta los términos y pulsa \"Save\".</item>

@@ -762,8 +762,10 @@
         <item quantity="many">%d skonfigurowanych synchronizacji</item>
         <item quantity="other">%d skonfigurowanej synchronizacji</item>
     </plurals>
+    <string name="setup_spotify_no_key_route">Bez Premium zaloguj się zamiast tego przez „%1$s”: nie potrzeba klucza.</string>
+    <string name="setup_use_route">Użyj %1$s</string>
     <string-array name="setup_steps_spotify">
-        <item>Zaloguj się na developer.spotify.com kontem Spotify, którego używasz na co dzień. Spotify wymaga, aby to konto miało Premium; jeśli pojawi się prośba o akceptację warunków dla deweloperów, zaakceptuj je. Jeśli „Web API” jest tam wyszarzone, konto nie ma Premium: Spotify nie pozwala na klucz, użyj drugiej ścieżki.</item>
+        <item>Zaloguj się na developer.spotify.com kontem Spotify, którego używasz na co dzień. Spotify wymaga, aby to konto miało Premium; jeśli pojawi się prośba o akceptację warunków dla deweloperów, zaakceptuj je. Jeśli „Web API” jest tam wyszarzone, konto nie ma Premium i Spotify nie wyda mu klucza.</item>
         <item>Naciśnij „Create app”. Nazwa i opis są dowolne (na przykład „Trackhop”). Pole „Website” zostaw puste.</item>
         <item>W „Redirect URIs” wklej dokładnie adres pokazany poniżej i naciśnij „Add”. Bez niego logowanie nie wróci do aplikacji.</item>
         <item>W „Which API/SDKs are you planning to use?” zaznacz „Web API”, zaakceptuj warunki i naciśnij „Save”.</item>

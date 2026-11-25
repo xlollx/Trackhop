@@ -1,0 +1,1 @@
+Trackhop 2.2.2. Hesaplar'daki Dosya kartında Dosya içe aktar ve Liste yapıştır yeniden çalışıyor: ikisi de Araçlar'da Dosya çalma listelerini açar ve orada, Araçlar'dan olduğu gibi içe aktarır.

@@ -48,6 +48,10 @@ button:
     dark: Dark
     light: Light
     violet: Violet
+  brand: "Look"
+  brands:
+    name: "Logo and name"
+    logo: "Logo only (compact)"
   text: Text on the button
   default_text: Listen on any service
   preview: Preview

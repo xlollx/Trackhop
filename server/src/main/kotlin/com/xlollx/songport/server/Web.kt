@@ -912,15 +912,23 @@ $help</div>"""
 <p class="muted">Stored only in this server's data folder, readable by its owner only, and never written to the log.</p>
 <p><button>Connect</button></p></form>"""
 
+    /** The way in that needs no key for [p] (Spotify without Premium: Spotify (web)), where this server offers it. */
+    internal fun keylessRoute(p: MusicProvider): MusicProvider? =
+        if (p.serviceId != com.xlollx.songport.providers.SpotifyProvider.SERVICE) null
+        else Providers.services().firstOrNull { it.serviceId == SpotifyWebServerProvider.SERVICE }
+
     /** Your own key for an OAuth service: the setup steps of the app, with this server's redirect address. */
     private fun oauthSetup(p: OAuthProvider): String {
         val guide = p.setupGuide
         val sb = StringBuilder("""<form method="post" action="/connectors/${q(p.id)}/settings" class="card">""")
+        // Spotify without Premium gets no key: its first step names Spotify (web), where this server has it.
+        val route = keylessRoute(p)
         if (guide != null) {
             sb.append("""<p>${h(env.text(guide.whyName))}</p><ol>""")
             env.textArray(guide.stepsArrayName).forEachIndexed { i, step ->
                 val link = guide.stepUrls.getOrNull(i)?.let { """ <a href="${h(it)}" target="_blank" rel="noopener">open</a>""" } ?: ""
-                sb.append("<li>${h(step)}$link</li>")
+                val text = if (i == 0 && route != null) step + " " + env.text("setup_spotify_no_key_route", route.displayName) else step
+                sb.append("<li>${h(text)}$link</li>")
             }
             sb.append("</ol>")
         }
@@ -935,6 +943,7 @@ $help</div>"""
             sb.append("""<label>Redirect URL (https)</label><input type="url" name="redirect" value="${h(env.store.data.settings.deezerRedirectUrl)}" placeholder="${h(env.redirectUri)}">""")
         }
         sb.append("""<p><button class="secondary">Save</button></p></form>""")
+        if (route != null) sb.append("""<div class="card">${Html.postButton("/connectors/add", env.text("setup_use_route", route.displayName), "secondary", mapOf("service" to route.serviceId))}</div>""")
         sb.append(
             if (p.isConfigured(env)) """<div class="card">${Html.postButton("/connectors/${q(p.id)}/connect", "Connect")} <span class="muted">You'll sign in on ${h(p.authDomain ?: p.displayName)} and come back here.</span></div>"""
             else """<div class="card muted">Save your key first, then connect.</div>""",

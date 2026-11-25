@@ -515,6 +515,31 @@ class WebConnectorsTest {
         }
     }
 
+    /** Spotify's key page: without Premium there is no key, so its first step names Spotify (web) and leads there, where this server has it. */
+    @Test fun spotifysKeyPageLeadsToSpotifyOnTheWebOnlyWhereItIsOffered() {
+        for (officialOnly in listOf(false, true)) {
+            val data = tmp.newFolder("keyless$officialOnly")
+            installServerConnectors(officialOnly)
+            val env = ServerEnv(data, Strings.load(null), "https://songport.example.org")
+            val server = Web(env, Runner(env), Auth(env), "sekret", "test").start(0)
+            try {
+                val base = "http://127.0.0.1:${server.address.port}"
+                val auth = "Basic " + Base64.getEncoder().encodeToString("any:sekret".toByteArray())
+                val client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build()
+                val page = client.send(HttpRequest.newBuilder(URI("$base/connectors/spotify")).header("Authorization", auth).GET().build(), HttpResponse.BodyHandlers.ofString()).body()
+                assertTrue(page.contains("the account has no Premium and Spotify gives it no key."))
+                assertFalse(page.contains("the other route"))
+                val named = page.contains("Without Premium, sign in with &quot;Spotify (web)&quot; instead: it needs no key.")
+                val button = page.contains("""name="service" value="spotify_bridge"><button class="secondary">Use Spotify (web) instead</button>""")
+                assertEquals("named, officialOnly=$officialOnly", !officialOnly, named)
+                assertEquals("button, officialOnly=$officialOnly", !officialOnly, button)
+            } finally {
+                server.stop(0)
+            }
+        }
+        installServerConnectors()
+    }
+
     companion object {
         const val ORIGINAL_HOST = "X-Test-Original-Host"
     }

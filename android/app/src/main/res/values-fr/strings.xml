@@ -740,8 +740,10 @@
         <item quantity="one">%d sync configurée</item>
         <item quantity="other">%d syncs configurées</item>
     </plurals>
+    <string name="setup_spotify_no_key_route">Sans Premium, connecte-toi plutôt avec « %1$s » : aucune clé n\'est nécessaire.</string>
+    <string name="setup_use_route">Utiliser %1$s</string>
     <string-array name="setup_steps_spotify">
-        <item>Connecte-toi sur developer.spotify.com avec le compte Spotify que tu utilises au quotidien. Spotify exige que ce compte soit Premium ; si l\'on te demande d\'accepter les conditions développeur, accepte-les. Si « Web API » est grisé sur cette page, le compte n\'a pas Premium : Spotify n\'accorde pas la clé, utilise l\'autre voie.</item>
+        <item>Connecte-toi sur developer.spotify.com avec le compte Spotify que tu utilises au quotidien. Spotify exige que ce compte soit Premium ; si l\'on te demande d\'accepter les conditions développeur, accepte-les. Si « Web API » est grisé sur cette page, le compte n\'a pas Premium et Spotify ne lui accorde pas de clé.</item>
         <item>Appuie sur \"Create app\". Le nom et la description sont libres (par exemple \"Trackhop\"). Laisse \"Website\" vide.</item>
         <item>Dans \"Redirect URIs\", colle exactement l\'adresse indiquée ci-dessous et appuie sur \"Add\". Sans cela, la connexion ne peut pas revenir vers l\'application.</item>
         <item>Sous \"Which API/SDKs are you planning to use?\", coche \"Web API\", accepte les conditions et appuie sur \"Save\".</item>

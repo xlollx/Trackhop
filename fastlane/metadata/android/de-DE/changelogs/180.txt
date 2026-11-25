@@ -1,0 +1,1 @@
+Trackhop 2.2.2. Datei importieren und Liste einfügen auf der Datei-Karte in Konten funktionieren wieder: Beide öffnen Datei-Playlists in Werkzeuge und importieren dort, wie aus Werkzeuge.

@@ -14,7 +14,7 @@ plainly which tracks Spotify does not have, instead of filling the gaps with the
 - [Trackhop](https://github.com/xlollx/Trackhop/releases/latest) from GitHub or
   [F-Droid](https://f-droid.org/packages/com.xlollx.songport/), [Trackhop Desktop](desktop) or the
   [Docker server](docker) for public links. The Google Play and AppGallery apps read SoundCloud
-  through the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) plugin.
+  through the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge/releases/latest) plugin.
 - A **public link** to your likes or a set, or your SoundCloud account (beta, in the app).
 - A Spotify account.
 

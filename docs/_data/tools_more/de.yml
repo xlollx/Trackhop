@@ -42,6 +42,8 @@ button:
   go: Button erstellen
   style: Stil
   styles: {dark: Dunkel, light: Hell, violet: Violett}
+  brand: "Aussehen"
+  brands: {name: "Logo und Name", logo: "Nur Logo (kompakt)"}
   text: Text auf dem Button
   default_text: Auf jedem Dienst anhören
   preview: Vorschau

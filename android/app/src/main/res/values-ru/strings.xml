@@ -762,8 +762,10 @@
         <item quantity="many">%d синхронизаций настроено</item>
         <item quantity="other">%d синхронизации настроено</item>
     </plurals>
+    <string name="setup_spotify_no_key_route">Без Premium войдите через «%1$s»: ключ не нужен.</string>
+    <string name="setup_use_route">Использовать %1$s</string>
     <string-array name="setup_steps_spotify">
-        <item>Войдите на developer.spotify.com с аккаунтом Spotify, которым пользуетесь каждый день. Spotify требует, чтобы у этого аккаунта был Premium; если попросят принять условия для разработчиков, примите их. Если на этой странице «Web API» неактивен, у аккаунта нет Premium: Spotify не выдаёт ключ, используйте другой путь.</item>
+        <item>Войдите на developer.spotify.com с аккаунтом Spotify, которым пользуетесь каждый день. Spotify требует, чтобы у этого аккаунта был Premium; если попросят принять условия для разработчиков, примите их. Если на этой странице «Web API» неактивен, у аккаунта нет Premium, и Spotify не выдаст ему ключ.</item>
         <item>Нажмите «Create app». Название и описание на ваше усмотрение (например, «Trackhop»). «Website» оставьте пустым.</item>
         <item>В «Redirect URIs» вставьте в точности адрес, показанный ниже, и нажмите «Add». Без него вход не сможет вернуться в приложение.</item>
         <item>В «Which API/SDKs are you planning to use?» отметьте «Web API», примите условия и нажмите «Save».</item>

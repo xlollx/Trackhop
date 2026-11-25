@@ -42,6 +42,8 @@ button:
   go: 버튼 만들기
   style: 스타일
   styles: {dark: 어둡게, light: 밝게, violet: 보라}
+  brand: "모양"
+  brands: {name: "로고와 이름", logo: "로고만 (간결)"}
   text: 버튼 글자
   default_text: 어떤 서비스에서든 듣기
   preview: 미리 보기

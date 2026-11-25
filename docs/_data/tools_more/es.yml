@@ -45,6 +45,8 @@ button:
     dark: Oscuro
     light: Claro
     violet: Violeta
+  brand: "Aspecto"
+  brands: {name: "Logo y nombre", logo: "Solo logo (compacto)"}
   text: Texto del botón
   default_text: Escúchalo en cualquier servicio
   preview: Vista previa

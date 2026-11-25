@@ -598,6 +598,8 @@ private fun MainScreen(
     // "All tracks to fix" in a sync's review: Tools opens on Saved matches.
     var matchesAsked by rememberSaveable { mutableStateOf(false) }
     var aiSetupAsked by rememberSaveable { mutableStateOf(false) }
+    // Import file / Paste a list asked from the Accounts File card: done in Tools › File playlists (#85).
+    var filesAsked by rememberSaveable { mutableStateOf<com.xlollx.songport.ui.FilesStart?>(null) }
     var wrappedAsked by rememberSaveable { mutableStateOf(false) }
     fun openIdea(idea: com.xlollx.songport.ui.Idea) {
         when (idea.kind) {
@@ -876,7 +878,17 @@ private fun MainScreen(
                     targetProvider, com.xlollx.songport.model.Playlist(targetId, targetOf.target.playlistName),
                     onClose = { targetJob = null }, onChanged = {},
                 )
-                wizard != null -> SetupWizardScreen(wizard) { wizardFor = null }
+                wizard != null -> SetupWizardScreen(wizard, onUseRoute = { service ->
+                    // The key page's other route ("Spotify (web)"): its sign-in, as Accounts › + starts it,
+                    // on an account of it not signed in yet, or a new one; nothing where one is signed in already.
+                    wizardFor = null
+                    tab = MainActivity.TAB_ACCOUNTS
+                    val mine = Providers.connectors().filter { it.serviceId == service.serviceId }
+                    if (mine.none { it.isConnected(ctx) }) {
+                        connectNow = mine.firstOrNull { it.requiresAuth }
+                            ?: Providers.byId(com.xlollx.songport.ui.addConnector(store, service, service.displayName).also { Scheduler.applyKeepAlive(ctx) }) ?: service
+                    }
+                }) { wizardFor = null }
                 unmatched != null -> UnmatchedScreen(unmatched, onAllToFix = { unmatchedReport = null; matchesAsked = true; tab = MainActivity.TAB_TOOLS }) { unmatchedReport = null }
                 filesOpen -> FilesScreen(onClose = { filesOpen = false }, onSendTo = { id, name ->
                     filesOpen = false
@@ -1172,6 +1184,7 @@ private fun MainScreen(
                     onOpenGroup = { nwayOpen = it },
                 )
                 MainActivity.TAB_ACCOUNTS -> AccountsScreen(snackbar, addConnector, { addConnector = it }, { wizardFor = it }, onManageFiles = { filesOpen = true }, onSendTo = sendToService,
+                    onFilesInTools = { filesAsked = it; tab = MainActivity.TAB_TOOLS },
                     pendingAdd = addService, onPendingAddTaken = { addService = null })
                 MainActivity.TAB_DISCOVER -> com.xlollx.songport.ui.DiscoverScreen(
                     snackbar, compareLinks = compareLinks, onCompareClosed = { compareLinks = null }, onSubpage = { discoverSubpage = it }, homeRequests = discoverHome,
@@ -1191,7 +1204,7 @@ private fun MainScreen(
                     },
                     onReview = { unmatchedReport = it },
                 )
-                MainActivity.TAB_TOOLS -> ToolsScreen(snackbar, onManageFiles = { filesOpen = true }, onSendTo = sendToService, onTransfer = { transferOpen = true }, onSyncStarted = { tab = MainActivity.TAB_SYNCS }, onManage = { manageProvider = it }, onScan = { scanProvider = it }, onUnplayable = { unplayableProvider = it }, onSubpage = { toolSubpage = it }, onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onStats = { statsOpen = true }, onBackup = { backupOpen = true }, openDedupe = dedupeFor, onDedupeOpened = { dedupeFor = null }, openAiSetup = aiSetupAsked, onAiSetupOpened = { aiSetupAsked = false }, onReview = { unmatchedReport = it }, openMatches = matchesAsked, onMatchesOpened = { matchesAsked = false })
+                MainActivity.TAB_TOOLS -> ToolsScreen(snackbar, onManageFiles = { filesOpen = true }, onSendTo = sendToService, onTransfer = { transferOpen = true }, onSyncStarted = { tab = MainActivity.TAB_SYNCS }, onManage = { manageProvider = it }, onScan = { scanProvider = it }, onUnplayable = { unplayableProvider = it }, onSubpage = { toolSubpage = it }, onGoToAccounts = { tab = MainActivity.TAB_ACCOUNTS }, onStats = { statsOpen = true }, onBackup = { backupOpen = true }, openDedupe = dedupeFor, onDedupeOpened = { dedupeFor = null }, openAiSetup = aiSetupAsked, onAiSetupOpened = { aiSetupAsked = false }, onReview = { unmatchedReport = it }, openMatches = matchesAsked, onMatchesOpened = { matchesAsked = false }, openFiles = filesAsked, onFilesOpened = { filesAsked = null })
                 else -> SettingsScreen(data, store, snackbar, onSetup = { wizardFor = it }, onOpenLog = { logOpen = true }, onHowTo = { howToOpen = true }, onBackup = { backupOpen = true }, onWhatsNew = { whatsNewAsked = true },
                     onTips = { tipsOpen = true }, focusAutomation = focusAutomation, onAutomationFocused = { focusAutomation = false })
             } } } }

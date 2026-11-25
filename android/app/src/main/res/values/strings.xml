@@ -742,8 +742,10 @@
         <item quantity="one">%d sync configured</item>
         <item quantity="other">%d syncs configured</item>
     </plurals>
+    <string name="setup_spotify_no_key_route">Without Premium, sign in with \"%1$s\" instead: it needs no key.</string>
+    <string name="setup_use_route">Use %1$s instead</string>
     <string-array name="setup_steps_spotify">
-        <item>Sign in at developer.spotify.com with the Spotify account you use every day. Spotify requires that account to have Premium; if you are asked to accept the developer terms, accept them. If "Web API" is greyed out on that page, the account has no Premium: Spotify does not allow the key, use the other route instead.</item>
+        <item>Sign in at developer.spotify.com with the Spotify account you use every day. Spotify requires that account to have Premium; if you are asked to accept the developer terms, accept them. If "Web API" is greyed out on that page, the account has no Premium and Spotify gives it no key.</item>
         <item>Press "Create app". Name and description are up to you (for example "Trackhop"). Leave "Website" empty.</item>
         <item>In "Redirect URIs" paste exactly the address shown below and press "Add". Without it the login cannot come back to the app.</item>
         <item>Under "Which API/SDKs are you planning to use?" tick "Web API", accept the terms and press "Save".</item>

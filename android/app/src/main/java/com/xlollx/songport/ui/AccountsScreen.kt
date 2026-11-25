@@ -107,7 +107,7 @@ import kotlinx.coroutines.withContext
  */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Boolean) -> Unit, onSetup: (MusicProvider) -> Unit, onManageFiles: () -> Unit = {}, onSendTo: (id: String, name: String) -> Unit = { _, _ -> }, pendingAdd: String? = null, onPendingAddTaken: () -> Unit = {}) {
+fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Boolean) -> Unit, onSetup: (MusicProvider) -> Unit, onManageFiles: () -> Unit = {}, onSendTo: (id: String, name: String) -> Unit = { _, _ -> }, onFilesInTools: (FilesStart) -> Unit = {}, pendingAdd: String? = null, onPendingAddTaken: () -> Unit = {}) {
     val ctx = LocalContext.current
     val store = remember { Store.get(ctx) }
     val data by store.state.collectAsState()
@@ -284,7 +284,7 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
         }
         items(shown, key = { it.id }) { p ->
             key(refresh) {
-                if (p.serviceId == LocalFilesProvider.serviceId) FilesCard(snackbar, onRemove = { remove(p) }, onManage = onManageFiles, onSendTo = onSendTo)
+                if (p.serviceId == LocalFilesProvider.serviceId) FilesCard(snackbar, onRemove = { remove(p) }, onManage = onManageFiles, onSendTo = onSendTo, onOpenInTools = onFilesInTools)
                 // A source with nothing to sign in to (the charts): its name, what it is, remove.
                 else if (!p.requiresAuth) PlainSourceCard(
                     p, label = p.label(ctx), onRemove = { remove(p) },
@@ -418,7 +418,26 @@ internal fun addConnector(store: Store, service: MusicProvider, name: String): S
 
 /** The services offered to add, in display order: plugin-based ones only where this build may name them or a plugin is installed. */
 internal fun addableServices(ctx: android.content.Context): List<MusicProvider> =
-    Providers.services().filter { !it.linkOnly && (!it.pluginBased || BuildConfig.PLUGIN_LINKS || it.isConfigured(ctx)) && !(it is DeezerProvider && !it.offered(ctx.env)) }
+    Providers.services().filter { offeredToAdd(it, BuildConfig.PLUGIN_LINKS) { it.isConfigured(ctx) } && !(it is DeezerProvider && !it.offered(ctx.env)) }
+
+/** [p] can be added here: not a link-only source, and a web sign-in only where this build may name it ([pluginLinks]) or its connector answers ([configured]). */
+internal fun offeredToAdd(p: MusicProvider, pluginLinks: Boolean, configured: () -> Boolean): Boolean =
+    !p.linkOnly && (!p.pluginBased || pluginLinks || configured())
+
+/**
+ * A key setup page's other way in, for an account the service gives no key to: Spotify without
+ * Premium signs in by "Spotify (web)". Named and offered only where that route is among the
+ * services this install can add ([addableServices]).
+ */
+internal object KeylessRoute {
+    private val ROUTES = mapOf(com.xlollx.songport.providers.SpotifyProvider.SERVICE to com.xlollx.songport.providers.SpotifyBridgeProvider.SERVICE)
+
+    fun of(provider: MusicProvider, addable: List<MusicProvider>): MusicProvider? =
+        ROUTES[provider.serviceId]?.let { id -> addable.firstOrNull { it.serviceId == id } }
+
+    fun of(ctx: android.content.Context, provider: MusicProvider): MusicProvider? =
+        if (provider.serviceId !in ROUTES) null else of(provider, addableServices(ctx))
+}
 
 /** The official Deezer is kept from new users (Deezer accepts no new apps): true when this build is in that case. */
 internal fun deezerOfficialWithheld(ctx: android.content.Context): Boolean =
@@ -700,13 +719,24 @@ private fun ProviderCard(
     }
 }
 
-/** File playlists: import, paste, export, delete. Shown in Tools always and in Accounts when the File connector is added. */
+/** What the File card in Accounts asks of Tools › File playlists, where importing and pasting live (#85). */
+enum class FilesStart { IMPORT, PASTE }
+
+/**
+ * File playlists: import, paste, export, delete. Shown in Tools always and in Accounts when the File
+ * connector is added. Importing and pasting happen only in Tools: the Accounts card ([onOpenInTools]
+ * set) has no picker of its own and sends the person there, where [start] begins the asked action.
+ * (#85: the Accounts card's own picker lost the picked file, its card re-keyed when the app resumed.)
+ */
 @Composable
 internal fun FilesCard(
     snackbar: SnackbarHostState,
     onRemove: (() -> Unit)? = null,
     onManage: () -> Unit = {},
     onSendTo: (id: String, name: String) -> Unit = { _, _ -> },
+    onOpenInTools: ((FilesStart) -> Unit)? = null,
+    start: FilesStart? = null,
+    onStarted: () -> Unit = {},
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -728,7 +758,15 @@ internal fun FilesCard(
     }
 
     var pendingImport by remember { mutableStateOf<Uri?>(null) }
-    val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> pendingImport = uri }
+    val importLauncher = if (onOpenInTools != null) null
+    else rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> pendingImport = uri }
+    fun launchImport() = importLauncher?.launch(
+        arrayOf(
+            "text/*", "text/csv", "text/comma-separated-values", "text/plain",
+            "application/json", "application/xml", "text/xml",
+            "audio/x-mpegurl", "application/vnd.apple.mpegurl", "application/octet-stream",
+        )
+    )
     LaunchedEffect(pendingImport) {
         val uri = pendingImport ?: return@LaunchedEffect
         pendingImport = null
@@ -805,6 +843,14 @@ internal fun FilesCard(
     }
 
     var pasteOpen by rememberSaveable { mutableStateOf(false) }
+    // Asked from the Accounts card: the import or the paste, begun here once.
+    LaunchedEffect(start) {
+        when (start ?: return@LaunchedEffect) {
+            FilesStart.IMPORT -> launchImport()
+            FilesStart.PASTE -> pasteOpen = true
+        }
+        onStarted()
+    }
     if (pasteOpen) PasteListDialog(
         onDismiss = { pasteOpen = false },
         onImport = { name, text ->
@@ -866,16 +912,8 @@ internal fun FilesCard(
             Spacer(Modifier.height(8.dp))
             // Wraps where the two do not fit side by side (a narrow phone, a large font).
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End), modifier = Modifier.fillMaxWidth()) {
-                TextButton(onClick = { pasteOpen = true }) { Text(stringResource(R.string.paste_list)) }
-                Button(onClick = {
-                    importLauncher.launch(
-                        arrayOf(
-                            "text/*", "text/csv", "text/comma-separated-values", "text/plain",
-                            "application/json", "application/xml", "text/xml",
-                            "audio/x-mpegurl", "application/vnd.apple.mpegurl", "application/octet-stream",
-                        )
-                    )
-                }) {
+                TextButton(onClick = { onOpenInTools?.invoke(FilesStart.PASTE) ?: run { pasteOpen = true } }) { Text(stringResource(R.string.paste_list)) }
+                Button(onClick = { onOpenInTools?.invoke(FilesStart.IMPORT) ?: launchImport() }) {
                     Text(stringResource(R.string.csv_import))
                 }
             }

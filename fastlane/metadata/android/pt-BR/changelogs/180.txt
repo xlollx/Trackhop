@@ -1,0 +1,1 @@
+Trackhop 2.2.2. Importar arquivo e Colar uma lista no cartão Arquivo de Contas voltaram a funcionar: os dois abrem Playlists de arquivo em Ferramentas e importam lá, como em Ferramentas.

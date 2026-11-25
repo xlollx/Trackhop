@@ -10,7 +10,7 @@ services:
     legend: "<b>Read</b> = use it as a source · <b>Write</b> = create playlists and add songs · <b>Remove</b> = mirror removals"
     jump: "Jump to:"
     cols: [Service, Read, Write, Remove, How you connect, Where]
-    quick: '"Quick sign-in" goes through the service''s own web player: it is not an official interface, so it lives in the GitHub and F-Droid apps, Desktop and Docker, and for the Google Play and AppGallery apps in the <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a> plugin. "All versions" means the Google Play, GitHub and F-Droid apps, Trackhop Desktop and Docker.'
+    quick: '"Quick sign-in" goes through the service''s own web player: it is not an official interface, so it lives in the GitHub and F-Droid apps, Desktop and Docker, and for the Google Play and AppGallery apps in the <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">Trackhop Bridge</a> plugin. "All versions" means the Google Play, GitHub and F-Droid apps, Trackhop Desktop and Docker.'
     more: '<a href="/guide/versions">Which version do I need?</a> · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">Keys and limits of each service</a>'
   it:
     title: "I servizi musicali con cui funziona Trackhop: cosa fa su ognuno"
@@ -21,7 +21,7 @@ services:
     legend: "<b>Legge</b> = lo usa come sorgente · <b>Scrive</b> = crea playlist e aggiunge brani · <b>Toglie</b> = riporta le rimozioni"
     jump: "Vai a:"
     cols: [Servizio, Legge, Scrive, Toglie, Come lo colleghi, Dove]
-    quick: 'L''"accesso rapido" passa dal web player del servizio: non è un''interfaccia ufficiale, quindi c''è nelle app GitHub e F-Droid, in Desktop e Docker, e per le app di Google Play e AppGallery nel plugin <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a>. "Tutte le versioni" sono le app di Google Play, GitHub e F-Droid, Trackhop Desktop e Docker.'
+    quick: 'L''"accesso rapido" passa dal web player del servizio: non è un''interfaccia ufficiale, quindi c''è nelle app GitHub e F-Droid, in Desktop e Docker, e per le app di Google Play e AppGallery nel plugin <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">Trackhop Bridge</a>. "Tutte le versioni" sono le app di Google Play, GitHub e F-Droid, Trackhop Desktop e Docker.'
     more: '<a href="/guide/versions">Quale versione mi serve?</a> · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">Chiavi e limiti di ogni servizio</a> (in inglese)'
   es:
     title: "Los servicios de música con los que funciona Trackhop: qué hace en cada uno"
@@ -32,7 +32,7 @@ services:
     legend: "<b>Lee</b> = lo usa como origen · <b>Escribe</b> = crea playlists y añade canciones · <b>Quita</b> = refleja lo que quitas"
     jump: "Ir a:"
     cols: [Servicio, Lee, Escribe, Quita, Cómo lo conectas, Dónde]
-    quick: 'El "acceso rápido" pasa por el reproductor web del propio servicio: no es una interfaz oficial, así que está en las apps de GitHub y F-Droid, en Desktop y Docker, y para las apps de Google Play y AppGallery en el plugin <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a>. "Todas las versiones" son las apps de Google Play, GitHub y F-Droid, Trackhop Desktop y Docker.'
+    quick: 'El "acceso rápido" pasa por el reproductor web del propio servicio: no es una interfaz oficial, así que está en las apps de GitHub y F-Droid, en Desktop y Docker, y para las apps de Google Play y AppGallery en el plugin <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">Trackhop Bridge</a>. "Todas las versiones" son las apps de Google Play, GitHub y F-Droid, Trackhop Desktop y Docker.'
     more: '<a href="/guide/versions">¿Qué versión necesito?</a> (en inglés) · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">Claves y límites de cada servicio</a> (en inglés)'
   pt:
     title: "Os serviços de música com que o Trackhop funciona: o que ele faz em cada um"
@@ -43,7 +43,7 @@ services:
     legend: "<b>Lê</b> = usa como origem · <b>Escreve</b> = cria playlists e adiciona músicas · <b>Remove</b> = repete as remoções"
     jump: "Ir para:"
     cols: [Serviço, Lê, Escreve, Remove, Como conectar, Onde]
-    quick: 'O "login rápido" passa pelo player web do próprio serviço: não é uma interface oficial, então está nos apps do GitHub e F-Droid, no Desktop e no Docker, e para os apps do Google Play e AppGallery no plugin <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a>. "Todas as versões" são os apps do Google Play, GitHub e F-Droid, o Trackhop Desktop e o Docker.'
+    quick: 'O "login rápido" passa pelo player web do próprio serviço: não é uma interface oficial, então está nos apps do GitHub e F-Droid, no Desktop e no Docker, e para os apps do Google Play e AppGallery no plugin <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">Trackhop Bridge</a>. "Todas as versões" são os apps do Google Play, GitHub e F-Droid, o Trackhop Desktop e o Docker.'
     more: '<a href="/guide/versions">Qual versão eu preciso?</a> (em inglês) · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">Chaves e limites de cada serviço</a> (em inglês)'
   fr:
     title: "Les services de musique avec lesquels Trackhop fonctionne : ce qu’il fait sur chacun"
@@ -54,7 +54,7 @@ services:
     legend: "<b>Lit</b> = s’en sert comme source · <b>Écrit</b> = crée des playlists et ajoute des titres · <b>Retire</b> = répercute les suppressions"
     jump: "Aller à :"
     cols: [Service, Lit, Écrit, Retire, Comment le connecter, Où]
-    quick: 'La « connexion rapide » passe par le lecteur web du service : ce n’est pas une interface officielle, elle se trouve donc dans les applis GitHub et F-Droid, Desktop et Docker, et pour les applis Google Play et AppGallery dans le plugin <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a>. « Toutes les versions » : les applis Google Play, GitHub et F-Droid, Trackhop Desktop et Docker.'
+    quick: 'La « connexion rapide » passe par le lecteur web du service : ce n’est pas une interface officielle, elle se trouve donc dans les applis GitHub et F-Droid, Desktop et Docker, et pour les applis Google Play et AppGallery dans le plugin <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">Trackhop Bridge</a>. « Toutes les versions » : les applis Google Play, GitHub et F-Droid, Trackhop Desktop et Docker.'
     more: '<a href="/guide/versions">Quelle version me faut-il ?</a> (en anglais) · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">Clés et limites de chaque service</a> (en anglais)'
   de:
     title: "Die Musikdienste, mit denen Trackhop arbeitet: was es bei jedem kann"
@@ -65,7 +65,7 @@ services:
     legend: "<b>Lesen</b> = als Quelle nutzen · <b>Schreiben</b> = Playlists anlegen und Songs hinzufügen · <b>Entfernen</b> = Entfernungen übernehmen"
     jump: "Springe zu:"
     cols: [Dienst, Lesen, Schreiben, Entfernen, So verbindest du ihn, Wo]
-    quick: 'Die „Schnellanmeldung“ läuft über den Webplayer des Dienstes: Sie ist keine offizielle Schnittstelle und steckt deshalb in den Apps von GitHub und F-Droid, in Desktop und Docker und für die Apps aus Google Play und AppGallery im Plugin <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a>. „Alle Versionen“ heißt: die Apps aus Google Play, GitHub und F-Droid, Trackhop Desktop und Docker.'
+    quick: 'Die „Schnellanmeldung“ läuft über den Webplayer des Dienstes: Sie ist keine offizielle Schnittstelle und steckt deshalb in den Apps von GitHub und F-Droid, in Desktop und Docker und für die Apps aus Google Play und AppGallery im Plugin <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">Trackhop Bridge</a>. „Alle Versionen“ heißt: die Apps aus Google Play, GitHub und F-Droid, Trackhop Desktop und Docker.'
     more: '<a href="/guide/versions">Welche Version brauche ich?</a> (auf Englisch) · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">Schlüssel und Grenzen jedes Dienstes</a> (auf Englisch)'
   pl:
     title: "Serwisy muzyczne, z którymi działa Trackhop: co potrafi w każdym"
@@ -76,7 +76,7 @@ services:
     legend: "<b>Czyta</b> = używa jako źródła · <b>Zapisuje</b> = tworzy playlisty i dodaje utwory · <b>Usuwa</b> = powtarza usunięcia"
     jump: "Przejdź do:"
     cols: [Serwis, Czyta, Zapisuje, Usuwa, Jak połączyć, Gdzie]
-    quick: '„Szybkie logowanie” przechodzi przez webowy odtwarzacz serwisu: to nie jest oficjalny interfejs, więc jest w aplikacjach z GitHuba i F-Droid, w Desktop i Docker, a dla aplikacji z Google Play i AppGallery we wtyczce <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a>. „Wszystkie wersje” to aplikacje z Google Play, GitHuba i F-Droid, Trackhop Desktop i Docker.'
+    quick: '„Szybkie logowanie” przechodzi przez webowy odtwarzacz serwisu: to nie jest oficjalny interfejs, więc jest w aplikacjach z GitHuba i F-Droid, w Desktop i Docker, a dla aplikacji z Google Play i AppGallery we wtyczce <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">Trackhop Bridge</a>. „Wszystkie wersje” to aplikacje z Google Play, GitHuba i F-Droid, Trackhop Desktop i Docker.'
     more: '<a href="/guide/versions">Której wersji potrzebuję?</a> (po angielsku) · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">Klucze i limity każdego serwisu</a> (po angielsku)'
   ru:
     title: "Музыкальные сервисы, с которыми работает Trackhop: что он умеет в каждом"
@@ -87,7 +87,7 @@ services:
     legend: "<b>Чтение</b> = как источник · <b>Запись</b> = создаёт плейлисты и добавляет песни · <b>Удаление</b> = повторяет удаления"
     jump: "Перейти к:"
     cols: [Сервис, Чтение, Запись, Удаление, Как подключить, Где]
-    quick: '«Быстрый вход» работает через веб-плеер самого сервиса: это не официальный интерфейс, поэтому он есть в приложениях из GitHub и F-Droid, в Desktop и Docker, а для приложений из Google Play и AppGallery — в плагине <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a>. «Все версии» — это приложения из Google Play, GitHub и F-Droid, Trackhop Desktop и Docker.'
+    quick: '«Быстрый вход» работает через веб-плеер самого сервиса: это не официальный интерфейс, поэтому он есть в приложениях из GitHub и F-Droid, в Desktop и Docker, а для приложений из Google Play и AppGallery — в плагине <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">Trackhop Bridge</a>. «Все версии» — это приложения из Google Play, GitHub и F-Droid, Trackhop Desktop и Docker.'
     more: '<a href="/guide/versions">Какая версия мне нужна?</a> (на английском) · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">Ключи и ограничения каждого сервиса</a> (на английском)'
   tr:
     title: "Trackhop'un çalıştığı müzik servisleri: her birinde neler yapar"
@@ -98,7 +98,7 @@ services:
     legend: "<b>Okuma</b> = kaynak olarak kullanır · <b>Yazma</b> = çalma listesi oluşturur ve şarkı ekler · <b>Silme</b> = silinenleri yansıtır"
     jump: "Şuraya git:"
     cols: [Servis, Okuma, Yazma, Silme, Nasıl bağlanır, Nerede]
-    quick: '"Hızlı giriş" servisin kendi web oynatıcısından geçer: resmi bir arayüz değildir; bu yüzden GitHub ve F-Droid uygulamalarında, Desktop ve Docker''da, Google Play ve AppGallery uygulamaları için de <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a> eklentisinde bulunur. "Tüm sürümler": Google Play, GitHub ve F-Droid uygulamaları, Trackhop Desktop ve Docker.'
+    quick: '"Hızlı giriş" servisin kendi web oynatıcısından geçer: resmi bir arayüz değildir; bu yüzden GitHub ve F-Droid uygulamalarında, Desktop ve Docker''da, Google Play ve AppGallery uygulamaları için de <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">Trackhop Bridge</a> eklentisinde bulunur. "Tüm sürümler": Google Play, GitHub ve F-Droid uygulamaları, Trackhop Desktop ve Docker.'
     more: '<a href="/guide/versions">Hangi sürüm bana uygun?</a> (İngilizce) · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">Her servisin anahtarları ve sınırları</a> (İngilizce)'
   ja:
     title: "Trackhop が対応する音楽サービス: それぞれで何ができるか"
@@ -109,7 +109,7 @@ services:
     legend: "<b>読み取り</b> = 元として使う · <b>書き込み</b> = プレイリストを作って曲を追加 · <b>削除</b> = 削除も反映"
     jump: "移動:"
     cols: [サービス, 読み取り, 書き込み, 削除, 接続方法, 対応版]
-    quick: '「クイックサインイン」はサービス自身のウェブプレーヤーを通ります。公式のインターフェースではないため、GitHub 版と F-Droid 版のアプリ、Desktop と Docker にあり、Google Play 版と AppGallery 版のアプリでは <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a> プラグインで使えます。「すべての版」は Google Play・GitHub・F-Droid のアプリ、Trackhop Desktop、Docker です。'
+    quick: '「クイックサインイン」はサービス自身のウェブプレーヤーを通ります。公式のインターフェースではないため、GitHub 版と F-Droid 版のアプリ、Desktop と Docker にあり、Google Play 版と AppGallery 版のアプリでは <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">Trackhop Bridge</a> プラグインで使えます。「すべての版」は Google Play・GitHub・F-Droid のアプリ、Trackhop Desktop、Docker です。'
     more: '<a href="/guide/versions">どの版を選べばいい?</a>（英語） · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">各サービスのキーと制限</a>（英語）'
   ko:
     title: "Trackhop이 지원하는 음악 서비스: 서비스마다 할 수 있는 일"
@@ -120,7 +120,7 @@ services:
     legend: "<b>읽기</b> = 원본으로 사용 · <b>쓰기</b> = 플레이리스트를 만들고 곡 추가 · <b>삭제</b> = 삭제도 반영"
     jump: "바로 가기:"
     cols: [서비스, 읽기, 쓰기, 삭제, 연결 방법, 버전]
-    quick: '"빠른 로그인"은 서비스 자체의 웹 플레이어를 거쳐요. 공식 인터페이스가 아니라서 GitHub, F-Droid 앱과 Desktop, Docker에 있고, Google Play와 AppGallery 앱에서는 <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a> 플러그인으로 쓸 수 있어요. "모든 버전"은 Google Play, GitHub, F-Droid 앱과 Trackhop Desktop, Docker예요.'
+    quick: '"빠른 로그인"은 서비스 자체의 웹 플레이어를 거쳐요. 공식 인터페이스가 아니라서 GitHub, F-Droid 앱과 Desktop, Docker에 있고, Google Play와 AppGallery 앱에서는 <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">Trackhop Bridge</a> 플러그인으로 쓸 수 있어요. "모든 버전"은 Google Play, GitHub, F-Droid 앱과 Trackhop Desktop, Docker예요.'
     more: '<a href="/guide/versions">어떤 버전이 필요한가요?</a> (영어) · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">서비스별 키와 제한</a> (영어)'
   zh:
     title: "Trackhop 支持的音乐服务：在每个服务上能做什么"
@@ -131,7 +131,7 @@ services:
     legend: "<b>读取</b> = 作为来源 · <b>写入</b> = 创建歌单并添加歌曲 · <b>删除</b> = 同步删除"
     jump: "跳转到："
     cols: [服务, 读取, 写入, 删除, 如何连接, 版本]
-    quick: '“快速登录”通过服务自己的网页播放器完成：它不是官方接口，所以在 GitHub 和 F-Droid 版应用、Desktop 和 Docker 中提供；Google Play 和 AppGallery 版应用则通过 <a href="https://github.com/xlollx/Trackhop-Bridge">Trackhop Bridge</a> 插件使用。“所有版本”指 Google Play、GitHub 和 F-Droid 版应用、Trackhop Desktop 和 Docker。'
+    quick: '“快速登录”通过服务自己的网页播放器完成：它不是官方接口，所以在 GitHub 和 F-Droid 版应用、Desktop 和 Docker 中提供；Google Play 和 AppGallery 版应用则通过 <a href="https://github.com/xlollx/Trackhop-Bridge/releases/latest">Trackhop Bridge</a> 插件使用。“所有版本”指 Google Play、GitHub 和 F-Droid 版应用、Trackhop Desktop 和 Docker。'
     more: '<a href="/guide/versions">我需要哪个版本？</a>（英文） · <a href="https://github.com/xlollx/Trackhop#supported-services-and-their-limits">各服务的密钥和限制</a>（英文）'
 whatsnew:
   en: {title: "What's new in Trackhop", description: "Every version of the Trackhop app and of Trackhop Desktop and Docker, with what changed. Follow it by RSS.", kicker: "Trackhop · What's new", h1: "What's new in Trackhop", lead: "Every version of the app and of Trackhop Desktop and Docker.", rss: Follow by RSS, app: Android app, server: Desktop and Docker, english: "", github: All releases on GitHub, download: Download}

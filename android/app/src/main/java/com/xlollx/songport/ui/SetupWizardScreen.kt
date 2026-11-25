@@ -63,11 +63,13 @@ import com.xlollx.songport.providers.MusicProvider
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SetupWizardScreen(provider: MusicProvider, onClose: () -> Unit) {
+fun SetupWizardScreen(provider: MusicProvider, onUseRoute: (MusicProvider) -> Unit = {}, onClose: () -> Unit) {
     val guide = provider.setupGuide ?: return
     val ctx = LocalContext.current
     val store = remember { Store.get(ctx) }
     val clipboard = LocalClipboardManager.current
+    // The route that needs no key (Spotify without Premium), where this install offers it.
+    val route = remember(provider.serviceId) { KeylessRoute.of(ctx, provider) }
 
     val settings = store.data.settings
     // Keys pasted and not saved yet survive a rotation; the secret in memory only, never in the saved state.
@@ -136,13 +138,21 @@ fun SetupWizardScreen(provider: MusicProvider, onClose: () -> Unit) {
             stringArrayResource(guide.stepsArrayRes).forEachIndexed { i, step ->
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
                     Text("${i + 1}.", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.width(24.dp))
-                    Text(step, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                    Text(
+                        if (i == 0 && route != null) step + " " + stringResource(R.string.setup_spotify_no_key_route, route.displayName) else step,
+                        style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f),
+                    )
                     val link = guide.stepUrls.getOrNull(i)
                     if (link != null) {
                         TextButton(
                             onClick = { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link))) },
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
                         ) { Text(stringResource(R.string.setup_open_step)) }
+                    }
+                }
+                if (i == 0 && route != null) {
+                    OutlinedButton(onClick = { onUseRoute(route) }, modifier = Modifier.fillMaxWidth().padding(start = 24.dp)) {
+                        Text(stringResource(R.string.setup_use_route, route.displayName))
                     }
                 }
             }

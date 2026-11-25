@@ -42,6 +42,8 @@ button:
   go: Utwórz przycisk
   style: Styl
   styles: {dark: Ciemny, light: Jasny, violet: Fioletowy}
+  brand: "Wygląd"
+  brands: {name: "Logo i nazwa", logo: "Tylko logo (kompaktowy)"}
   text: Tekst na przycisku
   default_text: Posłuchaj w dowolnym serwisie
   preview: Podgląd

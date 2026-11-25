@@ -1,0 +1,1 @@
+Trackhop 2.2.2. Importa file e Incolla un elenco nella scheda File di Account funzionano di nuovo: aprono Playlist File in Strumenti e importano lì, come da Strumenti.
