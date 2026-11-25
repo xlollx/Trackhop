@@ -97,7 +97,7 @@ private fun line(t: Track) = listOfNotNull(t.title, t.artistLine.ifBlank { null 
  * everything Trackhop remembers.
  */
 @Composable
-fun SavedMatchesPage(snackbar: SnackbarHostState) {
+fun SavedMatchesPage(snackbar: SnackbarHostState, onOpenFiles: (() -> Unit)? = null) {
     val ctx = LocalContext.current
     val store = remember { Store.get(ctx) }
     val data by store.state.collectAsState()
@@ -112,7 +112,7 @@ fun SavedMatchesPage(snackbar: SnackbarHostState) {
         })
         Tab(selected = tab == 1, onClick = { tab = 1 }, modifier = Modifier.heightIn(min = 48.dp), text = { Text(stringResource(R.string.to_fix_tab_saved), maxLines = 1, overflow = TextOverflow.Ellipsis) })
     }
-    if (tab == 0) ToFixTab(toFix, snackbar) { tab = 1 } else SavedTab(snackbar)
+    if (tab == 0) ToFixTab(toFix, snackbar, onOpenFiles) { tab = 1 } else SavedTab(snackbar)
 }
 
 /**

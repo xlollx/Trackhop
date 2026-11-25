@@ -3692,4 +3692,31 @@
     </plurals>
     <string name="whats_new_22_bell_title">Bildirim zili</string>
     <string name="whats_new_22_bell_body">Bir bildirime dokunmak, ilgili yeri açar. Üstteki zil hepsini saklar ve yeni sürüm çıktığında gösterir.</string>
+    <!-- 2.2.1 (#73): Export the songs not found -->
+    <string name="not_found_title">Bulunamayan şarkıları dışa aktar</string>
+    <string name="not_found_desc">Senkronlarının son çalışmalarının bulamadığı şarkılar, herhangi bir serviste, her biri bir kez.</string>
+    <string name="tools_row_not_found">Senkronlarının bulamadığı şarkılar, tüm servislerde: dosya olarak ya da her yere senkronlanacak bir Dosya çalma listesi olarak.</string>
+    <string name="not_found_export_button">Bulunamayan şarkıları dışa aktar (%1$d)</string>
+    <string name="not_found_missing_on">Eksik olduğu yer</string>
+    <string name="not_found_all_services">Tüm servisler</string>
+    <string name="not_found_as_file">Dosya olarak</string>
+    <string name="not_found_as_playlist">Çalma listesi olarak</string>
+    <string name="not_found_playlist_name">Çalma listesi adı</string>
+    <string name="not_found_default_name">Bulunamayanlar</string>
+    <string name="not_found_default_name_on">%1$s üzerinde bulunamayanlar</string>
+    <string name="not_found_save_playlist">Dosya çalma listesi olarak kaydet</string>
+    <string name="not_found_open">Aç</string>
+    <string name="not_found_format_csv">tablolar, Trackhop</string>
+    <string name="not_found_format_m3u">oynatıcılar</string>
+    <string name="not_found_format_text">Sanatçı - Başlık</string>
+    <string name="not_found_format_json">her şey</string>
+    <string name="not_found_format_lidarr">MusicBrainz kimliği olan sanatçılar</string>
+    <plurals name="not_found_saved">
+        <item quantity="one">%1$d şarkı “%2$s” Dosya çalma listesine kaydedildi.</item>
+        <item quantity="other">%1$d şarkı “%2$s” Dosya çalma listesine kaydedildi.</item>
+    </plurals>
+    <plurals name="not_found_playlist_hint">
+        <item quantity="one">Bu şarkıyla bir Dosya çalma listesi. Sonra onu başka herhangi bir servise senkronlayabilirsin.</item>
+        <item quantity="other">Bu %1$d şarkıyla bir Dosya çalma listesi. Sonra onu başka herhangi bir servise senkronlayabilirsin.</item>
+    </plurals>
 </resources>

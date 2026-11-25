@@ -3573,4 +3573,29 @@
     </plurals>
     <string name="whats_new_22_bell_title">通知铃铛</string>
     <string name="whats_new_22_bell_body">点按通知会打开它所说的内容。顶部的铃铛保存所有通知，并在有新版本时显示。</string>
+    <!-- 2.2.1 (#73): Export the songs not found -->
+    <string name="not_found_title">导出未找到的歌曲</string>
+    <string name="not_found_desc">你的同步最近一次运行没找到的歌曲,任何服务,每首一次。</string>
+    <string name="tools_row_not_found">你的同步没找到的歌曲(所有服务):导出为文件,或存为可同步到任何地方的“文件”歌单。</string>
+    <string name="not_found_export_button">导出未找到的歌曲 (%1$d)</string>
+    <string name="not_found_missing_on">缺失于</string>
+    <string name="not_found_all_services">所有服务</string>
+    <string name="not_found_as_file">作为文件</string>
+    <string name="not_found_as_playlist">作为歌单</string>
+    <string name="not_found_playlist_name">歌单名称</string>
+    <string name="not_found_default_name">未找到</string>
+    <string name="not_found_default_name_on">%1$s 上未找到</string>
+    <string name="not_found_save_playlist">存为“文件”歌单</string>
+    <string name="not_found_open">打开</string>
+    <string name="not_found_format_csv">电子表格、Trackhop</string>
+    <string name="not_found_format_m3u">播放器</string>
+    <string name="not_found_format_text">艺人 - 标题</string>
+    <string name="not_found_format_json">全部</string>
+    <string name="not_found_format_lidarr">有 MusicBrainz ID 的艺人</string>
+    <plurals name="not_found_saved">
+        <item quantity="other">已将 %1$d 首歌曲存入“文件”歌单“%2$s”。</item>
+    </plurals>
+    <plurals name="not_found_playlist_hint">
+        <item quantity="other">包含这 %1$d 首歌曲的“文件”歌单。之后可以同步到任何其他服务。</item>
+    </plurals>
 </resources>

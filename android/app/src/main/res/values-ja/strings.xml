@@ -3573,4 +3573,29 @@
     </plurals>
     <string name="whats_new_22_bell_title">通知のベル</string>
     <string name="whats_new_22_bell_body">通知をタップすると、その内容の画面が開きます。上部のベルにすべて残り、新しいバージョンが出たことも表示します。</string>
+    <!-- 2.2.1 (#73): Export the songs not found -->
+    <string name="not_found_title">見つからなかった曲をエクスポート</string>
+    <string name="not_found_desc">同期の直近の実行で見つからなかった曲。どのサービスでも、1曲につき1回。</string>
+    <string name="tools_row_not_found">同期で見つからなかった曲(全サービス):ファイルとして、またはどこへでも同期できる「ファイル」プレイリストとして。</string>
+    <string name="not_found_export_button">見つからなかった曲をエクスポート (%1$d)</string>
+    <string name="not_found_missing_on">足りない場所</string>
+    <string name="not_found_all_services">すべてのサービス</string>
+    <string name="not_found_as_file">ファイルとして</string>
+    <string name="not_found_as_playlist">プレイリストとして</string>
+    <string name="not_found_playlist_name">プレイリスト名</string>
+    <string name="not_found_default_name">見つからなかった曲</string>
+    <string name="not_found_default_name_on">%1$s で見つからなかった曲</string>
+    <string name="not_found_save_playlist">「ファイル」プレイリストとして保存</string>
+    <string name="not_found_open">開く</string>
+    <string name="not_found_format_csv">表計算、Trackhop</string>
+    <string name="not_found_format_m3u">プレーヤー</string>
+    <string name="not_found_format_text">アーティスト - タイトル</string>
+    <string name="not_found_format_json">すべて</string>
+    <string name="not_found_format_lidarr">MusicBrainz ID のあるアーティスト</string>
+    <plurals name="not_found_saved">
+        <item quantity="other">%1$d 曲を「ファイル」プレイリスト「%2$s」に保存しました。</item>
+    </plurals>
+    <plurals name="not_found_playlist_hint">
+        <item quantity="other">この %1$d 曲の「ファイル」プレイリスト。あとで他のどのサービスにも同期できます。</item>
+    </plurals>
 </resources>

@@ -679,6 +679,35 @@ class WebTest {
         assertTrue(get("/tools/wanted?all=true").body().contains("Not got after all"))
     }
 
+    /** Issue #73: Tools › Songs not found, on every service: listed, narrowed to one, downloaded and saved as a File playlist. */
+    @Test fun theSongsNotFoundEverywhereAreDownloadedAndSavedAsAFilePlaylist() {
+        assertTrue(get("/tools").body().contains("/tools/notfound"))
+        assertTrue(get("/tools/notfound").body().contains("Nothing missing"))
+        val t = { id: String, title: String -> com.xlollx.songport.model.Track(id, title, listOf("Black Sabbath"), album = "Paranoid") }
+        env.store.update { d ->
+            d.copy(
+                jobs = d.jobs + com.xlollx.songport.model.SyncJob("w", "To TIDAL", com.xlollx.songport.model.PlaylistRef("spotify", "p", "P"), com.xlollx.songport.model.PlaylistRef("tidal", "t", "T")) +
+                    com.xlollx.songport.model.SyncJob("v", "To Deezer", com.xlollx.songport.model.PlaylistRef("spotify", "p2", "P2"), com.xlollx.songport.model.PlaylistRef("deezer", "t2", "T2")),
+                reports = listOf(
+                    com.xlollx.songport.model.SyncReport("rw", "w", "To TIDAL", 1_780_000_000_000, 10, sourceCount = 3, unmatchedTracks = listOf(t("1", "Paranoid <live>"), t("2", "Iron Man"))),
+                    com.xlollx.songport.model.SyncReport("rv", "v", "To Deezer", 1_780_000_000_000, 10, sourceCount = 3, unmatchedTracks = listOf(t("3", "War Pigs"))),
+                ) + d.reports,
+            )
+        }
+        val page = get("/tools/notfound").body()
+        assertTrue(page, page.contains("All services (3)") && page.contains("Paranoid &lt;live&gt;") && page.contains("War Pigs"))
+        val one = get("/tools/notfound?on=tidal").body()
+        assertTrue(one, one.contains("<b>2</b> tracks") && !one.contains("War Pigs") && one.contains("value=\"Not found on TIDAL\""))
+        val csv = get("/tools/notfound?on=tidal&format=csv")
+        assertTrue(csv.headers().firstValue("Content-Disposition").get().contains("songs-not-found-on-tidal.csv"))
+        assertTrue(csv.body().contains("Iron Man,Black Sabbath,Paranoid"))
+        assertEquals(303, post("/tools/notfound", "on=tidal&name=Not+found+on+TIDAL", *origin).statusCode())
+        val file = File(File(env.dataDir, "csv"), "Not found on TIDAL.csv")
+        assertTrue(file.readText().contains("Iron Man") && !file.readText().contains("War Pigs"))
+        // The servers' list is untouched: a streaming target is not the user's server.
+        assertTrue(get("/tools/wanted").body().contains("None of your syncs goes to your own server yet"))
+    }
+
     @Test fun toolsListTheSongsOfAServerWithoutMusicBrainzTags() {
         // A stand-in Navidrome: two songs, one tagged.
         val navidrome = HttpServer.create(java.net.InetSocketAddress("127.0.0.1", 0), 0).apply {

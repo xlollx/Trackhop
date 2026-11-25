@@ -453,6 +453,39 @@ class ApiCallsTest {
         assertTrue(call("GET", "openapi.json", auth = false).text.contains("/wanted"))
     }
 
+    /** Issue #73: the songs not found on every service (scope=all, on=), and saved as a File playlist; the servers' list and its key stay as they were. */
+    @Test fun theSongsNotFoundEverywhere() {
+        fun job(id: String, src: String, dst: String) = SyncJob(id, "To $id", PlaylistRef(src, "p", "P"), PlaylistRef(dst, "t", "T"))
+        fun run(job: String, vararg t: Track) = SyncReport("r$job", job, "To $job", 1_780_000_000_000, 10, sourceCount = 5, unmatched = t.map { it.toString() }, unmatchedTracks = t.toList())
+        val jude = Track("s1", "Hey Jude", listOf("The Beatles"), isrc = "GBAYE0601690")
+        val paranoid = Track("s2", "Paranoid", listOf("Black Sabbath"))
+        val elsewhere = Track("x", "Elsewhere", listOf("Nobody"))
+        env.store.update { d ->
+            d.copy(jobs = listOf(job("a", "spotify", "jellyfin"), job("c", "spotify", "tidal"), job("d", "deezer", "spotify")),
+                reports = listOf(run("a", jude), run("c", elsewhere, jude), run("d", paranoid)))
+        }
+        assertEquals("1", call("GET", "wanted").obj.s("count"))
+        assertEquals("3", call("GET", "wanted?scope=all").obj.s("count"))
+        assertEquals(listOf("The Beatles", "Nobody"), call("GET", "wanted?scope=all&on=tidal").obj["tracks"]!!.jsonArray.map { it.jsonObject.s("artist") })
+        assertEquals("Black Sabbath - Paranoid\n", call("GET", "wanted?scope=everywhere&on=spotify&format=text").text)
+        assertEquals(400, call("GET", "wanted?scope=nowhere").code)
+        // Lidarr's key opens the servers' list only.
+        val key = Api.listKey(env)!!
+        assertEquals(200, call("GET", "wanted?key=$key", auth = false).code)
+        assertEquals(401, call("GET", "wanted?scope=all&key=$key", auth = false).code)
+
+        val saved = call("POST", "wanted/file-playlist", """{"name":"Not found on TIDAL","scope":"all","on":"tidal"}""")
+        assertEquals(saved.text, 200, saved.code)
+        assertEquals("2", saved.obj.s("count"))
+        assertEquals("Not found on TIDAL", saved.obj["playlist"]!!.jsonObject.s("name"))
+        assertEquals("csv", saved.obj["playlist"]!!.jsonObject.s("service"))
+        assertTrue(File(data, "csv/Not found on TIDAL.csv").readText().contains("Elsewhere"))
+        assertEquals("Not found on TIDAL (2)", call("POST", "wanted/file-playlist", """{"name":"Not found on TIDAL","scope":"all","on":"tidal"}""").obj["playlist"]!!.jsonObject.s("name"))
+        assertEquals(400, call("POST", "wanted/file-playlist", """{"scope":"all"}""").code)
+        assertEquals(400, call("POST", "wanted/file-playlist", """{"name":"X","scope":"all","on":"qobuz"}""").code)
+        assertEquals(401, call("POST", "wanted/file-playlist?key=$key", """{"name":"X"}""", auth = false).code)
+    }
+
     /** The songs of a personal server without MusicBrainz tags, as the page's tool lists them. */
     @Test fun theSongsWithoutMusicBrainzTags() {
         assertEquals(400, call("GET", "tools/mbtags").code)

@@ -44,6 +44,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -118,7 +119,7 @@ private val toFixWrites = CoroutineScope(SupervisorJob() + Dispatchers.IO)
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun ToFixTab(items: List<ToFix.Item>, snackbar: SnackbarHostState, onSeeSaved: () -> Unit) {
+internal fun ToFixTab(items: List<ToFix.Item>, snackbar: SnackbarHostState, onOpenFiles: (() -> Unit)? = null, onSeeSaved: () -> Unit) {
     val ctx = LocalContext.current
     val store = remember { Store.get(ctx) }
     val data by store.state.collectAsState()
@@ -128,6 +129,9 @@ internal fun ToFixTab(items: List<ToFix.Item>, snackbar: SnackbarHostState, onSe
     var shown by rememberSaveable { mutableIntStateOf(TO_FIX_PAGE) }
     var searching by rememberSaveable { mutableStateOf<String?>(null) }
     var removing by rememberSaveable { mutableStateOf<String?>(null) }
+    // "Export the songs not found" (#73): composed even when closed, for the file pickers' answers.
+    var exporting by rememberSaveable { mutableStateOf(false) }
+    NotFoundExport(exporting, { exporting = false }, snackbar, onOpenFiles)
     // Rows ticked to act on together (a long press starts it); those fixed meanwhile drop out.
     var picked by remember { mutableStateOf(setOf<String>()) }
     var removingPicked by remember { mutableStateOf<List<ToFix.Item>?>(null) }
@@ -289,6 +293,13 @@ internal fun ToFixTab(items: List<ToFix.Item>, snackbar: SnackbarHostState, onSe
                 Text(stringResource(R.string.to_fix_by_service), maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
+    }
+
+    val notFound = remember(data.jobs, data.reports) { notFoundCount(data) }
+    if (notFound > 0) OutlinedButton(onClick = { exporting = true }, modifier = Modifier.heightIn(min = 48.dp)) {
+        Icon(Icons.Filled.Download, null, Modifier.size(18.dp))
+        Spacer(Modifier.width(8.dp))
+        Text(stringResource(R.string.not_found_export_button, notFound))
     }
 
     /** Where a track comes from: through a multi sync, the group's source service (its hub is no service); null when not known. */

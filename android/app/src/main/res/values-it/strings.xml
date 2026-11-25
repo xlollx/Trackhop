@@ -3694,4 +3694,31 @@
     </plurals>
     <string name="whats_new_22_bell_title">Campanella delle notifiche</string>
     <string name="whats_new_22_bell_body">Toccare una notifica apre ciò di cui parla. La campanella in alto le tiene tutte e mostra quando esce una nuova versione.</string>
+    <!-- 2.2.1 (#73): Export the songs not found -->
+    <string name="not_found_title">Esporta i brani non trovati</string>
+    <string name="not_found_desc">I brani che le ultime esecuzioni delle tue sync non hanno trovato, su qualsiasi servizio, ognuno una volta.</string>
+    <string name="tools_row_not_found">I brani che le tue sync non hanno trovato, su tutti i servizi: come file, o come playlist File da sincronizzare ovunque.</string>
+    <string name="not_found_export_button">Esporta i brani non trovati (%1$d)</string>
+    <string name="not_found_missing_on">Mancanti su</string>
+    <string name="not_found_all_services">Tutti i servizi</string>
+    <string name="not_found_as_file">Come file</string>
+    <string name="not_found_as_playlist">Come playlist</string>
+    <string name="not_found_playlist_name">Nome della playlist</string>
+    <string name="not_found_default_name">Non trovati</string>
+    <string name="not_found_default_name_on">Non trovati su %1$s</string>
+    <string name="not_found_save_playlist">Salva come playlist File</string>
+    <string name="not_found_open">Apri</string>
+    <string name="not_found_format_csv">fogli di calcolo, Trackhop</string>
+    <string name="not_found_format_m3u">lettori</string>
+    <string name="not_found_format_text">Artista - Titolo</string>
+    <string name="not_found_format_json">tutto</string>
+    <string name="not_found_format_lidarr">artisti con un id MusicBrainz</string>
+    <plurals name="not_found_saved">
+        <item quantity="one">Salvato %1$d brano nella playlist File “%2$s”.</item>
+        <item quantity="other">Salvati %1$d brani nella playlist File “%2$s”.</item>
+    </plurals>
+    <plurals name="not_found_playlist_hint">
+        <item quantity="one">Una playlist File con questo brano. Poi puoi sincronizzarla con qualsiasi altro servizio.</item>
+        <item quantity="other">Una playlist File con questi %1$d brani. Poi puoi sincronizzarla con qualsiasi altro servizio.</item>
+    </plurals>
 </resources>
