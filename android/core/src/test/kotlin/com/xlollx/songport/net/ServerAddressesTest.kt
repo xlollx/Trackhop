@@ -56,6 +56,23 @@ class ServerAddressesTest {
         assertEquals("$away/x", ServerAddresses.failover("$home/x", java.net.SocketTimeoutException("connect timed out")))
     }
 
+    @Test fun aNewAwayAddressReplacesTheOneBeforeAndWhatWasRememberedOfIt() {
+        ServerAddresses.register(home, "https://old.example.org")
+        ServerAddresses.answered("https://old.example.org/rest/ping")
+        assertEquals("https://old.example.org", ServerAddresses.current(home))
+        // The same pair again keeps the one that worked.
+        ServerAddresses.register(home, "https://old.example.org")
+        assertEquals("https://old.example.org", ServerAddresses.current(home))
+        ServerAddresses.register(home, "https://new.example.org")
+        assertEquals(home, ServerAddresses.current(home))
+        assertEquals("https://new.example.org", ServerAddresses.awayOf(home))
+        assertEquals("https://new.example.org/x", ServerAddresses.failover("$home/x", java.net.ConnectException()))
+        // The old one is no address of this server any more.
+        assertEquals("https://old.example.org/x", ServerAddresses.route("https://old.example.org/x"))
+        ServerAddresses.answered("https://old.example.org/x")
+        assertEquals(home, ServerAddresses.current(home))
+    }
+
     @Test fun unregisterForgetsThePair() {
         ServerAddresses.register(home, away)
         ServerAddresses.unregister(home)

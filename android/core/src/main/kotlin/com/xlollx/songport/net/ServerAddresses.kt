@@ -24,13 +24,20 @@ object ServerAddresses {
     /** True on Wi-Fi (or Ethernet), false on mobile data, null where it is not known (servers). The app sets it. */
     @Volatile var onWifi: () -> Boolean? = { null }
 
-    /** [homeBase] and [awayBase] (no final slash) are the two addresses of one server. */
+    /**
+     * [homeBase] and [awayBase] (no final slash) are the two addresses of one server. A new away
+     * address replaces the one before, with what was remembered of it; the same pair again keeps it.
+     */
     fun register(homeBase: String, awayBase: String) {
         val h = homeBase.trimEnd('/'); val a = awayBase.trimEnd('/')
         if (h.isEmpty() || a.isEmpty() || h == a) return
+        if (home[h] == h && other[h] != a) unregister(h)
         other[h] = a; other[a] = h
         home[h] = h; home[a] = h
     }
+
+    /** The away address registered for [homeBase], or null. */
+    fun awayOf(homeBase: String): String? = homeBase.trimEnd('/').let { h -> other[h]?.takeIf { home[h] == h } }
 
     /** Forgets a server's pair (its second address taken away). */
     fun unregister(homeBase: String) {
