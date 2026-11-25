@@ -244,7 +244,9 @@ object Mcp {
                 Param("since", "string", "Only entries first seen since: 24h, 7d, 2w or a date like 2026-11-01.", required = false),
                 Param("format", "string", "json (default), csv, m3u, text or lidarr (Lidarr's Custom List: artists with a MusicBrainz id).", required = false),
                 Param("albums", "boolean", "Grouped by album.", required = false),
-            ), readOnly = true) { a -> Call("wanted", values = a.values("sync", "service", "since", "format"), flags = setOfNotNull("albums".takeIf { a.flag("albums") })) },
+                Param("everywhere", "boolean", "The tracks not found by every sync, on any service, not only the user's own server.", required = false),
+                Param("on", "string", "Only the tracks missing on this target service (its id, e.g. spotify or tidal).", required = false),
+            ), readOnly = true) { a -> Call("wanted", values = a.values("sync", "service", "since", "format", "on"), flags = setOfNotNull("albums".takeIf { a.flag("albums") }, "everywhere".takeIf { a.flag("everywhere") })) },
         Tool("find_concerts", "Concerts of a playlist's artists", "The upcoming concerts of the artists of a playlist in one country: date, city, venue and a link, from Ticketmaster and MusicBrainz, plus search links for the artists with no date found. Looked up only now (cached a day); can take a minute. Show the attribution line with the dates.",
             listOf(SERVICE, PLAYLIST, Param("country", "string", "Two-letter country code, e.g. IT or US (default: the server's).", required = false)), readOnly = true) { a ->
             Call("concerts", listOf(a.text("service"), a.text("playlist")), values = a.values("country"))

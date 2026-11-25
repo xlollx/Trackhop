@@ -238,6 +238,28 @@ class CliCommandsTest {
         assertTrue(tool.second, tool.first && tool.second.startsWith("title,artist,album"))
     }
 
+    @Test fun theTracksNotFoundEverywhereFromTheCommandLine() {
+        val t = { id: String, title: String, artist: String -> com.xlollx.songport.model.Track(id, title, listOf(artist)) }
+        env.store.update { d ->
+            d.copy(
+                jobs = listOf(com.xlollx.songport.model.SyncJob("w", "To TIDAL", com.xlollx.songport.model.PlaylistRef("spotify", "p", "P"), com.xlollx.songport.model.PlaylistRef("tidal", "t", "T"))),
+                reports = listOf(com.xlollx.songport.model.SyncReport("rw", "w", "To TIDAL", 1_780_000_000_000, 10, sourceCount = 3,
+                    unmatchedTracks = listOf(t("1", "Paranoid", "Black Sabbath"), t("2", "Iron Man", "Black Sabbath")))) + d.reports,
+            )
+        }
+        // A streaming target is not the user's server: the servers' list stays empty.
+        assertEquals("Nothing missing on your server.", cli("wanted").out.trim())
+        val listed = cli("wanted", "--everywhere", "--on", "tidal")
+        assertTrue(listed.out, listed.out.contains("2 tracks missing on tidal") && listed.out.contains("Black Sabbath - Iron Man"))
+        assertEquals("Black Sabbath - Iron Man\nBlack Sabbath - Paranoid\n", cli("wanted", "--everywhere", "--format", "text").out)
+        val saved = cli("wanted", "--everywhere", "--on", "tidal", "--save-as", "Not found on TIDAL")
+        assertEquals(saved.toString(), 0, saved.code)
+        assertTrue(saved.out, saved.out.contains("Saved 2 tracks in the File playlist \"Not found on TIDAL\""))
+        assertTrue(java.io.File(data, "csv/Not found on TIDAL.csv").readText().contains("Iron Man"))
+        val tool = Mcp.run(Cli.connect(null, null) { data }, Mcp.callFor("list_missing_on_server", Json.parseToJsonElement("""{"everywhere":true,"on":"tidal","format":"text"}""").jsonObject))
+        assertTrue(tool.second, tool.first && tool.second.contains("Black Sabbath - Paranoid"))
+    }
+
     @Test fun runsReportsAndTheReview() {
         assertEquals(0, cli("run", "j1", "--wait").code)
         val runs = cli("runs", "Road trip")

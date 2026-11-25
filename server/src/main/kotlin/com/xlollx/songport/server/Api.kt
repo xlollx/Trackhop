@@ -326,7 +326,9 @@ internal fun Web.api(ex: HttpExchange, method: String, path: List<String>, query
     if (!LocalKey.matches(auth, ex.remoteAddress?.address)) {
         if (!Api.enabled(env)) return error(403, "The API is off: make a token on the page, Tools › API.")
         // The list's own key (Lidarr's Custom List cannot send a token) opens GET /wanted only: authOf gives it for that call alone.
-        val listOnly = method == "GET" && path.drop(2) == listOf("wanted") && Api.listKeyMatches(env, auth)
+        // The servers' list only: the songs not found everywhere (scope=all) need the token.
+        val listOnly = method == "GET" && path.drop(2) == listOf("wanted") && com.xlollx.songport.sync.Wanted.Scope.of(query["scope"]) == com.xlollx.songport.sync.Wanted.Scope.SERVERS &&
+            Api.listKeyMatches(env, auth)
         if (!Api.authorized(env, auth) && !listOnly) return error(401, "Send the API token as: Authorization: Bearer <token>")
     }
     val running = SyncState.running.value

@@ -810,9 +810,25 @@ internal class CliCommands(
     }
 
     private fun wanted(o: Cli.Opts): Int {
+        val everywhere = o.has("everywhere")
+        // --save-as: the same list as a new File playlist (issue #73).
+        o.value("save-as")?.let { name ->
+            val r = api.post("wanted/file-playlist", buildJsonObject {
+                put("name", name)
+                if (everywhere) put("scope", "all")
+                o.value("on")?.let { put("on", it) }
+                o.value("sync")?.let { put("sync", sync(it).s("id")) }
+                o.value("service")?.let { put("service", it) }
+                o.value("since")?.let { put("since", it) }
+            }).jsonObject
+            if (asJson) return print(r).let { 0 }
+            out.println("Saved ${r.n("count")} tracks in the File playlist \"${r["playlist"]?.jsonObject?.s("name")}\".")
+            return 0
+        }
         val query = listOfNotNull(
             o.value("format")?.let { "format=${enc(it)}" }, "group=album".takeIf { o.has("albums") }, "all=true".takeIf { o.has("all") },
             o.value("sync")?.let { "sync=${enc(sync(it).s("id"))}" }, o.value("service")?.let { "service=${enc(it)}" }, o.value("since")?.let { "since=${enc(it)}" },
+            "scope=all".takeIf { everywhere }, o.value("on")?.let { "on=${enc(it)}" },
         )
         val path = "wanted" + if (query.isEmpty()) "" else "?" + query.joinToString("&")
         // A file's format: printed as the API gives it, to save with "> file".
@@ -821,8 +837,9 @@ internal class CliCommands(
         if (asJson) return print(r).let { 0 }
         fun line(t: JsonObject, album: Boolean) = "  ${t.s("artist")} - ${t.s("title")}" + (t.s("album").takeIf { album && it.isNotEmpty() }?.let { "  [$it]" } ?: "") +
             (if (t.b("got")) "  (got)" else "") + "  <- " + t["syncs"]?.jsonArray.orEmpty().joinToString(", ") { it.jsonObject.s("name") }
-        if (r.n("count") == 0) return out.println("Nothing missing on your server.").let { 0 }
-        out.println("${r.n("count")} tracks missing on your server:")
+        val where = if (everywhere) o.value("on")?.let { "on $it" } ?: "by your syncs" else "on your server"
+        if (r.n("count") == 0) return out.println(if (everywhere) "No track missing $where." else "Nothing missing on your server.").let { 0 }
+        out.println(if (everywhere && o.value("on") == null) "${r.n("count")} tracks not found by your syncs:" else "${r.n("count")} tracks missing $where:")
         r["albums"]?.jsonArray?.forEach { a ->
             val al = a.jsonObject
             out.println("${al.s("artist")} - ${al.s("album").ifEmpty { "(no album)" }}")

@@ -21,7 +21,19 @@ import java.time.ZoneId
  */
 internal fun Web.wantedList(query: Map<String, String>, withGot: Boolean): List<Wanted.Want> {
     val since = query["since"]?.takeIf { it.isNotBlank() }?.let { Wanted.parseSince(it) ?: throw IllegalArgumentException("\"since\" is a date (2026-11-01), a span back (24h, 7d, 2w) or epoch milliseconds.") } ?: 0
-    return Wanted.list(env.store.data, { MusicBrainz.known(env, it) }, Wanted.Filter(query["sync"], query["service"], since, withGot))
+    val scope = Wanted.Scope.of(query["scope"]) ?: throw IllegalArgumentException("\"scope\" is servers (the default: Missing on my server) or all (the songs not found on every service).")
+    return Wanted.list(env.store.data, { MusicBrainz.known(env, it) }, Wanted.Filter(query["sync"], query["service"], since, withGot, scope, query["on"]))
+}
+
+/**
+ * "Save as File playlist" (issue #73): the list [query] asks for (as GET /wanted reads it) as a new
+ * File playlist named [name]. Only ever File: never a playlist on the service the songs are missing on.
+ */
+internal fun Web.wantedToFilePlaylist(query: Map<String, String>, name: String?): Pair<com.xlollx.songport.model.Playlist, Int> {
+    val list = wantedList(query, withGot = false)
+    if (list.isEmpty()) throw IllegalArgumentException("Nothing to save: no song is missing there.")
+    val pl = kotlinx.coroutines.runBlocking { Wanted.saveAsFilePlaylist(env, name ?: "", list) }
+    return pl to list.size
 }
 
 /** GET /api/v1/wanted (the list, in a format) and POST /api/v1/wanted/got (tick or untick entries). */
@@ -37,6 +49,15 @@ internal fun Web.apiWanted(ex: HttpExchange, method: String, rest: List<String>,
                     buildJsonObject { put("artist", a.artist); put("album", a.album); put("tracks", Wanted.json(a.wants)) }
                 }))
                 else put("tracks", Wanted.json(list))
+            })
+        }
+        rest == listOf("wanted", "file-playlist") && method == "POST" -> {
+            val b = apiJson(ex) ?: return true.also { error(400, "Send JSON: {\"name\": \"Not found on Spotify\", \"scope\": \"all\", \"on\": \"spotify\"}.") }
+            val asked = listOf("scope", "on", "sync", "service", "since").mapNotNull { k -> b.text(k)?.let { k to it } }.toMap()
+            val (pl, n) = runCatching { wantedToFilePlaylist(asked, b.text("name")) }.getOrElse { return true.also { _ -> error(400, it.message ?: "Wrong request.") } }
+            json(200, buildJsonObject {
+                put("playlist", buildJsonObject { put("service", com.xlollx.songport.providers.LocalFilesProvider.id); put("id", pl.id); put("name", pl.name) })
+                put("count", n)
             })
         }
         rest == listOf("wanted", "got") && method == "POST" -> {

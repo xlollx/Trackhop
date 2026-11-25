@@ -110,11 +110,16 @@ object Cli {
                 "the first records of each artist also say how many copies are for sale and from what price. --kind records leaves the merch out, --kind merch\n" +
                 "skips Discogs. The artist's own Shopify shop and Bandcamp are read for both (their public product lists, robots.txt honoured): their records\n" +
                 "(vinyl, CD, cassette) go with the records, the rest is the merch. Plain links, no affiliate tags."),
-        Cmd("wanted", "Services and playlists", listOf("wanted [--format json|csv|m3u|text|lidarr] [--albums] [--all] [--sync S] [--service S] [--since 7d]"),
+        Cmd("wanted", "Services and playlists", listOf(
+            "wanted [--format json|csv|m3u|text|lidarr] [--albums] [--all] [--sync S] [--service S] [--since 7d]",
+            "wanted --everywhere [--on SERVICE] [--format F] [--save-as NAME]",
+        ),
             "the tracks of your playlists missing on your own server (Navidrome, Jellyfin, Emby, Plex, Lyrion, Mopidy), each once",
             "What your syncs to your own server could not find, without doubles. --format prints the list as a file (to save with > file);\n" +
                 "lidarr is Lidarr's Custom List (artists with a known MusicBrainz id). --albums groups by album, --all shows the ticked ones too,\n" +
-                "--sync and --service narrow it (a sync's name or id; a source or target service), --since 7d, 24h or 2026-11-01 only the newer ones."),
+                "--sync and --service narrow it (a sync's name or id; a source or target service), --since 7d, 24h or 2026-11-01 only the newer ones.\n" +
+                "--everywhere lists the tracks not found by all your syncs, on any service; --on SERVICE only those missing there (spotify, tidal…).\n" +
+                "--save-as NAME saves the list as a new File playlist instead of printing it, to sync it on to any other service."),
         Cmd("export", "Services and playlists", listOf("export <service> <playlist> [<file>] [--format csv|m3u|xspf|jspf|wpl|zpl|txt|opml]"), "a playlist as a file (to stdout without <file>)"),
         Cmd("files", "Files and backups", listOf(
             "files",
@@ -162,8 +167,8 @@ object Cli {
     )
 
     /** The switches with no value, and the options that take one (--name NAME or --name=NAME). */
-    private val FLAGS = setOf("json", "wait", "all", "albums", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals", "apply", "names", "upcoming", "encrypted", "replaces-device", "replace-sign-ins")
-    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency", "playlists") + CliV2.valued
+    private val FLAGS = setOf("json", "wait", "all", "albums", "anyway", "dry-run", "remove", "follows", "favorite", "unfavorite", "confirm-removals", "two-way", "one-way", "two-way-removals", "no-two-way-removals", "apply", "names", "upcoming", "encrypted", "replaces-device", "replace-sign-ins", "everywhere")
+    private val VALUED = setOf("url", "token", "user", "name", "schedule", "every", "at", "days", "changes", "color", "format", "limit", "offset", "run", "secret", "events", "set", "lines", "pattern", "tag", "untag", "label", "sync", "service", "since", "out", "title", "description", "country", "currency", "playlists", "on", "save-as") + CliV2.valued
     val OPTIONS: List<String> get() = (FLAGS + VALUED).sorted().map { "--$it" }
 
     /** The options a command was given: switches and values (a value given twice is a list: --set). */
