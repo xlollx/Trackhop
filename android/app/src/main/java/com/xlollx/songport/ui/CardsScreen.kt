@@ -313,11 +313,14 @@ fun CompatibilityCard(snackbar: SnackbarHostState, initialLinks: Pair<String, St
         val shown = card.with(layout, personA, personB)
         return withContext(Dispatchers.Default) { Cards.Format.entries.associateWith { Cards.compatibility(ctx, shown, it) } }
     }
-    // Another layout, another name: the same card printed again, nothing fetched.
+    // Another layout, another name: the same card printed again, nothing fetched. Only the latest
+    // redraw is shown: an earlier one that ends last does not put the layout before back.
+    val redraws = remember { java.util.concurrent.atomic.AtomicInteger() }
     fun redraw() {
         val card = printed ?: return
         if (busy) return
-        scope.launch { val again = draw(card); if (printed === card) bitmaps = again }
+        val n = redraws.incrementAndGet()
+        scope.launch { val again = draw(card); if (printed === card && redraws.get() == n) bitmaps = again }
     }
 
     fun run() {
