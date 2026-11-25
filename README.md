@@ -119,7 +119,7 @@ F-Droid builds, Desktop and Docker (and, for the store apps on Google Play and A
 | **Lyrion Music Server** (Logitech Media Server, beta) | ✓ | ✓ | ✓ | Your server's address (user and password if protected) | All builds |
 | **Mopidy** (beta) | ✓ | ✓ | ✓ | Your server's address | All builds |
 | **Last.fm** | ✓ | ✓ (loved tracks) | ✓ (loved tracks) | Your username (loved tracks, scrobbles, top tracks); your password too to love tracks | All builds |
-| **ListenBrainz** | ✓ | — | — | Your username (playlists, loved tracks) | All builds |
+| **ListenBrainz** | ✓ | ✓ | — | Your username (playlists, loved tracks); with your user token, it writes them too | All builds |
 | **SoundCloud** | ✓ | ✓ | ✓ | Quick sign-in with your SoundCloud account: your sets and likes (beta) | GitHub, F-Droid · plugin |
 | | ✓ | — | — | Paste a public set or likes link, no account | GitHub, F-Droid, Desktop, Docker |
 | **NetEase Cloud Music, QQ Music** | ✓ | — | — | Paste a public playlist link | GitHub, F-Droid, Desktop, Docker · plugin |
