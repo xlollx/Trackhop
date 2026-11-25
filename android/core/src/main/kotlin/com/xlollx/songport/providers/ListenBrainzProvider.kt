@@ -270,7 +270,13 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
 
     override suspend fun renamePlaylist(ctx: Env, playlistId: String, name: String) {
         if (playlistId.startsWith(CREATED_FOR)) unsupported(ctx)
-        api(ctx, "/1/playlist/edit/$playlistId", "POST", jsonObj("playlist" to mapOf("title" to name)), needToken(ctx))
+        val token = needToken(ctx)
+        // An edit saves the collaborators it is sent ([] when none): a rename sends those the playlist has.
+        val collaborators = api(ctx, "/1/playlist/$playlistId?fetch_metadata=false", token = token)["playlist"]["extension"][JSPF_PLAYLIST]["collaborators"]
+            .arr.mapNotNull { it.str }
+        val edit = if (collaborators.isEmpty()) mapOf("title" to name)
+        else mapOf("title" to name, "extension" to mapOf(JSPF_PLAYLIST to mapOf("collaborators" to collaborators)))
+        api(ctx, "/1/playlist/edit/$playlistId", "POST", jsonObj("playlist" to edit), token)
     }
 
     override suspend fun deletePlaylist(ctx: Env, playlistId: String) {

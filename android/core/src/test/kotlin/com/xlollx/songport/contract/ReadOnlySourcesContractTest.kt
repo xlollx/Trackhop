@@ -3,6 +3,7 @@ package com.xlollx.songport.contract
 import com.xlollx.songport.data.Tokens
 import com.xlollx.songport.model.ProviderException
 import com.xlollx.songport.model.Track
+import com.xlollx.songport.net.arr
 import com.xlollx.songport.net.get
 import com.xlollx.songport.net.int
 import com.xlollx.songport.net.long
@@ -548,14 +549,31 @@ class ListenBrainzContractTest : ContractTest() {
 
     @Test fun renameAndDeleteOwnPlaylistsButNotTheOnesMadeForTheUser() = runBlocking {
         signIn()
+        json(plEntry(5))
         repeat(2) { json("""{"status":"ok"}""") }
         lb.renamePlaylist(env, mbid(5), "New name")
         lb.deletePlaylist(env, mbid(5))
+        val read = next()
+        assertCall(read, "GET", host, "/1/playlist/${mbid(5)}")
+        assertEquals("false", read.query("fetch_metadata"))
         val r = next()
         assertCall(r, "POST", host, "/1/playlist/edit/${mbid(5)}")
         assertEquals("New name", r.jsonBody()["playlist"]["title"].str)
+        assertEquals(null, r.jsonBody()["playlist"]["extension"])
         assertCall(next(), "POST", host, "/1/playlist/${mbid(5)}/delete")
         try { lb.addTracks(env, "createdfor:weekly-jams", listOf(Track(mbid(1), "a"))); fail() } catch (e: ProviderException) { }
+        noMoreRequests()
+    }
+
+    @Test fun aRenameKeepsThePlaylistsCollaborators() = runBlocking {
+        signIn()
+        json(plEntry(6).replace("\"public\":true", "\"public\":true,\"collaborators\":[\"ann\",\"bob\"]"))
+        json("""{"status":"ok"}""")
+        lb.renamePlaylist(env, mbid(6), "Shared name")
+        assertCall(next(), "GET", host, "/1/playlist/${mbid(6)}")
+        val edit = next().jsonBody()["playlist"]
+        assertEquals("Shared name", edit["title"].str)
+        assertEquals(listOf("ann", "bob"), edit["extension"]["https://musicbrainz.org/doc/jspf#playlist"]["collaborators"].arr.map { it.str })
         noMoreRequests()
     }
 
