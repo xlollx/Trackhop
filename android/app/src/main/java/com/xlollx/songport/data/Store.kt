@@ -17,7 +17,7 @@ class Store private constructor(context: Context) : FileStore(context.filesDir) 
         if (d.settings.connectorsInit) return
         val ids = Providers.all().filter { p ->
             p.slot.isNotEmpty() ||
-                d.jobs.any { it.source.provider == p.id || it.target.provider == p.id } ||
+                d.jobs.any { it.source.provider == p.id || it.target.provider == p.id || it.via == p.id } ||
                 (p.requiresAuth && runCatching { p.isConnected(ctx) }.getOrDefault(false))
         }.map { it.id }
         update { s -> s.copy(settings = s.settings.copy(connectors = ids, connectorsInit = true)) }

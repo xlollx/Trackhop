@@ -60,3 +60,68 @@ help-add:
 iphone:
   en: /guide/iphone
   it: /guide/trackhop-su-iphone
+tool-compare:
+  en: /compare
+  it: /it/compare
+  es: /es/compare
+  pt-BR: /pt/compare
+  fr: /fr/compare
+  de: /de/compare
+  pl: /pl/compare
+  ru: /ru/compare
+  tr: /tr/compare
+  ja: /ja/compare
+  ko: /ko/compare
+  zh: /zh/compare
+tool-duplicates:
+  en: /duplicates
+  it: /it/duplicates
+  es: /es/duplicates
+  pt-BR: /pt/duplicates
+  fr: /fr/duplicates
+  de: /de/duplicates
+  pl: /pl/duplicates
+  ru: /ru/duplicates
+  tr: /tr/duplicates
+  ja: /ja/duplicates
+  ko: /ko/duplicates
+  zh: /zh/duplicates
+tool-button:
+  en: /button
+  it: /it/button
+  es: /es/button
+  pt-BR: /pt/button
+  fr: /fr/button
+  de: /de/button
+  pl: /pl/button
+  ru: /ru/button
+  tr: /tr/button
+  ja: /ja/button
+  ko: /ko/button
+  zh: /zh/button
+services:
+  en: /services
+  it: /it/services
+  es: /es/services
+  pt-BR: /pt/services
+  fr: /fr/services
+  de: /de/services
+  pl: /pl/services
+  ru: /ru/services
+  tr: /tr/services
+  ja: /ja/services
+  ko: /ko/services
+  zh: /zh/services
+whats-new:
+  en: /whats-new
+  it: /it/whats-new
+  es: /es/whats-new
+  pt-BR: /pt/whats-new
+  fr: /fr/whats-new
+  de: /de/whats-new
+  pl: /pl/whats-new
+  ru: /ru/whats-new
+  tr: /tr/whats-new
+  ja: /ja/whats-new
+  ko: /ko/whats-new
+  zh: /zh/whats-new

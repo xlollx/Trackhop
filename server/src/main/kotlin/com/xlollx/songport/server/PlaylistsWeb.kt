@@ -32,10 +32,14 @@ internal fun Web.playlists(r: Web.Req, rest: List<String>) {
     if (playlist == null) {
         val targets = services.filter { it.canWrite && it.id != service.id }
         val body = StringBuilder(notice(r))
-        body.append("""<form method="post" action="$base/transfer"><div class="card"><div class="who">${logo(service.id, 40)}<div><b>${h(service.label(env))}</b><br><span class="muted">${lists.size} playlists. Open one to see and change it, or tick several to copy them to another service.</span></div></div></div>""")
+        body.append("""<form method="post" action="$base/transfer"><div class="card"><div class="who">${logo(service.id, 40)}<div><b>${h(service.label(env))}</b><br><span class="muted">${lists.size} playlists. Open one to see and change it, or tick several to copy them to another service.</span></div></div>""")
+        // Select all / None: plain links (the page works without JavaScript), the list drawn again ticked or not.
+        val all = r.query["all"] == "1"
+        if (lists.size > 1) body.append("""<p class="muted"><a href="$base?all=1">Select all</a> · <a href="$base">None</a></p>""")
+        body.append("</div>")
         for (p in lists) {
             body.append(
-                """<div class="card row"><label class="check" style="margin:0"><input type="checkbox" name="p" value="${h(p.id)}"> <a href="$base/${q(p.id)}"><b>${h(p.name)}</b></a></label>""" +
+                """<div class="card row"><label class="check" style="margin:0"><input type="checkbox" name="p" value="${h(p.id)}"${if (all) " checked" else ""}> <a href="$base/${q(p.id)}"><b>${h(p.name)}</b></a></label>""" +
                     """<span class="muted">${if (p.trackCount >= 0) "${p.trackCount} tracks" else ""}${if (!p.ownedByMe) " · followed" else ""}</span></div>""",
             )
         }
@@ -48,6 +52,14 @@ internal fun Web.playlists(r: Web.Req, rest: List<String>) {
         return send(r.ex, 200, page("Playlists on ${service.label(env)}", body.toString()))
     }
     val back = "$base/${q(playlist.id)}"
+    if (r.method == "POST" && r.form["action"] == "make") return makePost(r, service, playlist, back)
+    // The cover (CoversWeb.kt): drawn ones to pick from, their pictures, and putting one on the playlist.
+    if (rest.getOrNull(2) == "cover.png" && r.method == "GET") return coverPng(r, service, playlist)
+    if (rest.getOrNull(2) == "cover" && r.method == "GET") return coverChoices(r, service, playlist, back)
+    if (r.method == "POST" && (r.form["action"] == "cover" || r.form["action"] == "coverimage")) {
+        val res = runCatching { setCover(service, playlist, r.form["variant"]?.toIntOrNull(), r.files["image"]?.bytes) }
+        return redirect(r.ex, "$back?" + res.fold({ "ok=${q(it)}" }, { "err=${q(it.message ?: "Error")}" }))
+    }
     if (r.method == "POST") {
         val result = runCatching {
             runBlocking {
@@ -73,20 +85,27 @@ internal fun Web.playlists(r: Web.Req, rest: List<String>) {
     val tracks = runCatching { runBlocking { service.tracks(env, playlist.id) } }
         .getOrElse { return send(r.ex, 200, page(playlist.name, """<div class="card err">${h(it.message)}</div>""")) }
     val body = StringBuilder(notice(r))
-    body.append("""<p class="muted"><a href="$base">${h(service.label(env))}</a> · ${tracks.size} tracks · <a href="/tools/export?service=${q(service.id)}&playlist=${q(playlist.id)}">Export</a> · <a href="/syncs/new?src=${q(service.id)}&amp;srcPlaylist=${q(playlist.id)}">Sync it to another service</a></p>""")
+    body.append("""<p class="muted"><a href="$base">${h(service.label(env))}</a> · ${tracks.size} tracks · <a href="/tools/export?service=${q(service.id)}&playlist=${q(playlist.id)}">Export</a> · <a href="/syncs/new?src=${q(service.id)}&amp;srcPlaylist=${q(playlist.id)}">Sync it to another service</a>${if (service is com.xlollx.songport.providers.PlexProvider && !com.xlollx.songport.providers.MusicProvider.isLibrary(playlist.id)) """ · <a href="/tools/plex?account=${q(service.id)}&amp;copy=${q(playlist.id)}#copy">Copy to a Plex Home user</a>""" else ""}</p>""")
     val owned = playlist.ownedByMe && !MusicProvider.isLibrary(playlist.id)
+    body.append(makeCard(service, playlist, back))
+    body.append(shareLinkCard(service, playlist, tracks))
+    body.append(coverCard(service, playlist, back))
     if (owned && service.canRenamePlaylists) {
         body.append("""<form method="post" action="$back" class="card"><input type="hidden" name="action" value="rename"><label>Name</label><input type="text" name="name" value="${h(playlist.name)}"><p><button class="secondary">Rename</button></p></form>""")
     }
     val removable = playlist.ownedByMe && service.canWrite && service.canRemoveTracks
-    body.append("""<form method="post" action="$back" class="card"><input type="hidden" name="action" value="remove"><ol>""")
+    body.append("""<form method="post" action="$back" class="card"><input type="hidden" name="action" value="remove">""")
+    // Select all / None: plain links (the page works without JavaScript), the tracks drawn again ticked or not.
+    val all = removable && r.query["all"] == "1"
+    if (removable && tracks.size > 1) body.append("""<p class="muted"><a href="$back?all=1">Select all</a> · <a href="$back">None</a></p>""")
+    body.append("<ol>")
     tracks.take(1000).forEach { t ->
         val key = t.itemId ?: t.id
-        body.append("<li>${if (removable) """<label class="check" style="margin:0;display:inline-flex"><input type="checkbox" name="t_${h(key)}"> """ else ""}${h(t.artistLine)} — <b>${h(t.title)}</b>${if (t.available == false) " <span class=\"badge\">unplayable</span>" else ""}${if (removable) "</label>" else ""}</li>")
+        body.append("<li>${if (removable) """<label class="check" style="margin:0;display:inline-flex"><input type="checkbox" name="t_${h(key)}"${if (all) " checked" else ""}> """ else ""}${h(t.artistLine)} — <b>${h(t.title)}</b>${if (t.available == false) " <span class=\"badge\">unplayable</span>" else ""}${if (removable) "</label>" else ""}</li>")
     }
     if (tracks.size > 1000) body.append("<li class=\"muted\">… ${tracks.size - 1000} more</li>")
     body.append("</ol>")
-    if (removable && tracks.isNotEmpty()) body.append("""<p><button class="danger" onclick="return confirm('Take the ticked tracks out of ${h(playlist.name)}?')">Take out the ticked tracks</button></p>""")
+    if (removable && tracks.isNotEmpty()) body.append("""<p><button class="danger" onclick="return confirm('Take the ticked tracks out of ${h(Html.js(playlist.name))}?')">Take out the ticked tracks</button></p>""")
     body.append("</form>")
     if (owned && service.canDeletePlaylists) {
         body.append("<p>" + Html.postButton(back, "Delete this playlist", "danger", fields = mapOf("action" to "delete"), confirm = "Delete ${playlist.name} on ${service.label(env)}? This cannot be undone here.") + "</p>")

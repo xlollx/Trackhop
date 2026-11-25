@@ -35,6 +35,23 @@ class ServerProvidersTest {
         assertNull(SubsonicProvider().toTrack(parseJson("""{"id":"s1","title":"Battery","isrc":[]}"""))!!.isrc)
     }
 
+    @Test fun subsonicReadsTheUsersRatingAndTheAlbum() {
+        val rated = SubsonicProvider().toTrack(parseJson("""{"id":"s1","title":"Battery","albumId":"al-7","userRating":4}"""))!!
+        assertEquals(4, rated.rating)
+        assertEquals("al-7", rated.albumId)
+        val plain = SubsonicProvider().toTrack(parseJson("""{"id":"s1","title":"Battery"}"""))!!
+        assertEquals(0, plain.rating)
+        assertNull(plain.albumId)
+    }
+
+    @Test fun koelTakesNoRatings() {
+        assertNotNull(RatingWriter.of(SubsonicProvider()))
+        assertNull(RatingWriter.of(KoelProvider()))
+        assertTrue(RatingWriter.offered(LocalFilesProvider, SubsonicProvider()))
+        assertFalse(RatingWriter.offered(SubsonicProvider(), SubsonicProvider()))
+        assertFalse(RatingWriter.offered(LocalFilesProvider, KoelProvider()))
+    }
+
     @Test fun jellyfinPutsTheSearchedArtistFirst() {
         val found = listOf(t("Home", "Måneskin"), t("Home", "Beyoncé"), t("Home (Live)", "Beyonce"), t("Home", "Other"))
         assertEquals(
@@ -164,6 +181,23 @@ class FakeServerProvidersTest {
         val update = requests.single { it.path.endsWith("updatePlaylist") }
         // Ampache ignores songIndexToRemove=0; 00 is the same index for every server.
         assertEquals(listOf("00", "4"), update.query["songIndexToRemove"])
+    }
+
+    @Test fun subsonicSetsRatingsOfSongsAndAlbums() = runBlocking {
+        answer = { r ->
+            if (r.path.endsWith("getAlbum")) 200 to subsonic("1.16.1", ""","album":{"id":"al-7","name":"Ride the Lightning","userRating":2}""")
+            else 200 to subsonic("1.16.1")
+        }
+        val p = SubsonicProvider()
+        p.login(ctx, url, "admin", "pw")
+        p.setSongRating(ctx, "s1", 4)
+        p.setAlbumRating(ctx, "al-7", 5)
+        assertEquals(2, p.albumRating(ctx, "al-7"))
+        val sets = requests.filter { it.path == "/rest/setRating" }
+        assertEquals(listOf("s1", "al-7"), sets.map { it.query["id"]?.single() })
+        assertEquals(listOf("4", "5"), sets.map { it.query["rating"]?.single() })
+        assertEquals(listOf("GET", "GET"), sets.map { it.method })
+        assertEquals("al-7", requests.single { it.path == "/rest/getAlbum" }.query["id"]?.single())
     }
 
     @Test fun subsonicStillFailsOnOtherErrors() = runBlocking {
@@ -361,6 +395,38 @@ class FakeServerProvidersTest {
         val found = p.search(ctx, Track(id = "q", title = "Oxygene, Pt. 4", artists = listOf("Jean-Michel Jarre"), durationMs = 254_000))
         assertEquals("o4", found.first().id)
         assertEquals(listOf("oxygene part 4", "Oxygene, Pt. 4", "oxygene"), requests.filter { it.path == "/hubs/search" }.map { it.query["query"]?.single() })
+    }
+
+    @Test fun plexVersionsAPlaylistByItsLastChangeButNeverASmartOne() = runBlocking {
+        var updated = 1_700_000_000L
+        answer = { r ->
+            when (r.path) {
+                "/identity" -> 200 to """{"MediaContainer":{"machineIdentifier":"abc"}}"""
+                "/playlists/10" -> 200 to """{"MediaContainer":{"Metadata":[{"ratingKey":"10","smart":false,"updatedAt":$updated,"leafCount":12,"duration":2400000}]}}"""
+                "/playlists/11" -> 200 to """{"MediaContainer":{"Metadata":[{"ratingKey":"11","smart":"1","updatedAt":$updated,"leafCount":40}]}}"""
+                else -> 404 to ""
+            }
+        }
+        val p = PlexProvider()
+        p.login(ctx, url, "", "token")
+        val v = p.playlistVersion(ctx, "10")
+        assertEquals("1700000000|12|2400000", v)
+        updated++
+        assertTrue(p.playlistVersion(ctx, "10") != v)
+        // A smart playlist changes with the library: no version, read on every run.
+        assertNull(p.playlistVersion(ctx, "11"))
+        assertNull(p.playlistVersion(ctx, MusicProvider.LIKED_ID))
+    }
+
+    @Test fun aFileIsVersionedByItsContent() = runBlocking {
+        val files = LocalFilesProvider
+        val list = files.createPlaylist(ctx, "Versioned", "")
+        val empty = files.playlistVersion(ctx, list.id)
+        files.addTracks(ctx, list.id, listOf(Track(id = "a", title = "Alpha", artists = listOf("A"))))
+        val one = files.playlistVersion(ctx, list.id)
+        assertTrue(empty != null && one != null && empty != one)
+        assertEquals(one, files.playlistVersion(ctx, list.id))
+        assertNull(files.playlistVersion(ctx, "missing"))
     }
 
     @Test fun plexCreatesAnEmptyPlaylistOnTheLibrary() = runBlocking {

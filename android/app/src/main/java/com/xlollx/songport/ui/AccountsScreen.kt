@@ -3,6 +3,7 @@ package com.xlollx.songport.ui
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -48,6 +49,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.FilterChip
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Card
@@ -76,6 +82,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -100,7 +107,7 @@ import kotlinx.coroutines.withContext
  */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Boolean) -> Unit, onSetup: (MusicProvider) -> Unit, onManageFiles: () -> Unit = {}, onSendTo: (id: String, name: String) -> Unit = { _, _ -> }) {
+fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Boolean) -> Unit, onSetup: (MusicProvider) -> Unit, onManageFiles: () -> Unit = {}, onSendTo: (id: String, name: String) -> Unit = { _, _ -> }, pendingAdd: String? = null, onPendingAddTaken: () -> Unit = {}) {
     val ctx = LocalContext.current
     val store = remember { Store.get(ctx) }
     val data by store.state.collectAsState()
@@ -117,19 +124,53 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
 
     var connectFor by remember { mutableStateOf<MusicProvider?>(null) }
     connectFor?.let { p ->
-        ConnectDialog(p, onDismiss = { connectFor = null }) {
+        ConnectDialog(p, onDismiss = { connectFor = null }, onOwnKey = { connectFor = null; onSetup(p) }) {
             connectFor = null
             AuthFlow.start(ctx, p)
         }
     }
 
     // "+": pick a service, then name the connector.
-    var naming by remember { mutableStateOf<MusicProvider?>(null) }
-    if (showAdd) PickServiceDialog(
+    var naming by rememberSaveable(stateSaver = ProviderSaver) { mutableStateOf<MusicProvider?>(null) }
+    // A radio is added with its station (one connector per station); Shazam once, with nothing to ask.
+    var radioAdding by rememberSaveable { mutableStateOf(false) }
+    fun addSpecial(service: MusicProvider): Boolean = when (service.serviceId) {
+        com.xlollx.songport.sync.RadioConnectors.SERVICE -> { radioAdding = true; true }
+        com.xlollx.songport.sync.RadioConnectors.SHAZAM -> { store.updateSettings { com.xlollx.songport.sync.RadioConnectors.addShazam(it) }; true }
+        else -> false
+    }
+    if (radioAdding) RadioAddDialog(onDismiss = { radioAdding = false }) { station, name, color ->
+        radioAdding = false
+        store.updateSettings { com.xlollx.songport.sync.RadioConnectors.add(it, station, name, color).first }
+    }
+    if (showAdd) ServiceChooserDialog(
+        role = com.xlollx.songport.providers.ServiceCatalog.Role.ADD,
         connectors = data.settings.connectors,
+        // The accounts at hand, with their colour: signed in, or needing no sign-in (File).
+        accounts = remember(data.settings.connectors, refresh) { Providers.connectors().filter { !it.requiresAuth || it.isConnected(ctx) } },
         onDismiss = { onShowAdd(false) },
-        onPick = { service -> onShowAdd(false); naming = service },
+        onPick = { service ->
+            onShowAdd(false)
+            if (addSpecial(service)) return@ServiceChooserDialog
+            // The first account of a service needs no name of its own (the service's, renamable from
+            // ⋮): straight to its sign-in, as the first-sync sheet does. A second one is named first.
+            if (data.settings.connectors.none { Providers.byId(it)?.serviceId == service.serviceId }) {
+                val p = Providers.byId(addConnector(store, service, service.displayName)) ?: service
+                com.xlollx.songport.sync.Scheduler.applyKeepAlive(ctx)
+                when {
+                    p.isConnected(ctx) || !p.requiresAuth -> {}
+                    !p.isConfigured(ctx) && p.installUrl != null -> runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(p.installUrl))) }
+                    !p.isConfigured(ctx) && p.setupGuide != null -> onSetup(p)
+                    else -> connectFor = p
+                }
+            } else naming = service
+        },
     )
+    // A service picked in the sync editor's chooser: straight to its name.
+    LaunchedEffect(pendingAdd) {
+        Providers.services().firstOrNull { it.id == pendingAdd }?.let { if (!addSpecial(it)) naming = it }
+        if (pendingAdd != null) onPendingAddTaken()
+    }
     naming?.let { service ->
         val n = data.settings.connectors.count { Providers.byId(it)?.serviceId == service.serviceId } + 1
         NameDialog(
@@ -149,18 +190,29 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
             store.updateSettings { s -> s.copy(connectorNames = s.connectorNames + (p.id to name)) }
         }
     }
+    // ⋮ › Colour: a ring round the account's logo, wherever the account shows.
+    var colouring by rememberSaveable(stateSaver = ProviderSaver) { mutableStateOf<MusicProvider?>(null) }
+    colouring?.let { p ->
+        AccountColorDialog(data.settings.connectorColors[p.id], onDismiss = { colouring = null }) { key ->
+            colouring = null
+            store.updateSettings { s -> com.xlollx.songport.data.AccountColors.set(s, p.id, key) }
+        }
+    }
 
     fun remove(p: MusicProvider) {
-        val inUse = data.syncs.any { it.source.provider == p.id || it.target.provider == p.id }
+        val inUse = data.syncs.any { it.source.provider == p.id || it.target.provider == p.id || it.via == p.id }
         if (inUse) {
             scope.launch { snackbar.showSnackbar(ctx.getString(R.string.account_remove_blocked)) }
             return
         }
         if (p.requiresAuth) runCatching { p.disconnect(ctx) }
+        // A radio station's connector goes with its station.
+        if (com.xlollx.songport.sync.RadioConnectors.isRadio(p.id)) return store.updateSettings { com.xlollx.songport.sync.RadioConnectors.remove(it, p.id) }
         store.updateSettings { s ->
             s.copy(
                 connectors = s.connectors.filter { it != p.id },
                 connectorNames = s.connectorNames - p.id,
+                connectorColors = s.connectorColors - p.id,
                 extraAccounts = if (p.slot.isEmpty()) s.extraAccounts
                 else s.extraAccounts + (p.serviceId to s.extraAccounts[p.serviceId].orEmpty().filter { it != p.slot }),
             )
@@ -176,25 +228,71 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
         EmptyState(Icons.Filled.AccountCircle, stringResource(R.string.connectors_empty_title), stringResource(R.string.connectors_empty_body))
         return
     }
-    // A connector asked by a notification (ConnectorFocus): scrolled to; the intro is the first item.
+    // The search and the chips over the list. Official and Web are told apart on a store build only
+    // where Trackhop Bridge is installed (AccountsFilter.chips).
+    var query by rememberSaveable { mutableStateOf("") }
+    var chipName by rememberSaveable { mutableStateOf(AccountChip.ALL.name) }
+    val storeBuild = BuildConfig.STORE_BUILD
+    val bridgeInstalled = remember(refresh) { BridgePlugin.installed(ctx) }
+    val chip = AccountsFilter.effective(AccountChip.valueOf(chipName), storeBuild, bridgeInstalled)
+    val filtering = query.isNotBlank() || chip != AccountChip.ALL
+    // Read from the sign-ins only while a filter is on: the cards read them for themselves otherwise.
+    val entries = if (!filtering) null else remember(providers, refresh) {
+        providers.map { p ->
+            val connected = p.requiresAuth && runCatching { p.isConnected(ctx) }.getOrDefault(false)
+            AccountEntry(
+                p.id, p.displayName, com.xlollx.songport.providers.Providers.customName(p.id),
+                if (connected) runCatching { p.accountName(ctx) }.getOrNull() else null, p.pluginBased, connected,
+            )
+        }
+    }
+    val shown = if (entries == null) providers else {
+        val ids = AccountsFilter.shown(entries, query, chip, storeBuild, bridgeInstalled).mapTo(HashSet()) { it.id }
+        providers.filter { it.id in ids }
+    }
+    // Discogs' token (1.18) is an official API's: shown with All and Official, and found by its name.
+    val discogs = com.xlollx.songport.Features.v2(data.settings) && (chip == AccountChip.ALL || chip == AccountChip.OFFICIAL) &&
+        (query.isBlank() || "Discogs".contains(query.trim(), ignoreCase = true))
+
+    // A connector asked by a notification (ConnectorFocus): scrolled to (the filter let go if it hides it).
     val listState = androidx.compose.foundation.lazy.rememberLazyListState()
     val focusAsked by ConnectorFocus.request.collectAsState()
+    val keystoreTrouble = remember { com.xlollx.songport.data.TokenStore.unavailable(ctx) != null }
     LaunchedEffect(focusAsked, providers) {
         val id = focusAsked ?: return@LaunchedEffect
+        if (shown.none { it.id == id }) { query = ""; chipName = AccountChip.ALL.name }
         val index = providers.indexOfFirst { it.id == id }
-        if (index >= 0) runCatching { listState.animateScrollToItem(index + 1) }
+        // Before the cards: the intro, the keystore's banner when shown, the search.
+        if (index >= 0) runCatching { listState.animateScrollToItem(index + 2 + if (keystoreTrouble) 1 else 0) }
         ConnectorFocus.request.value = null
     }
-    val keystoreTrouble = remember { com.xlollx.songport.data.TokenStore.unavailable(ctx) != null }
     LazyColumn(Modifier.fillMaxSize(), state = listState, contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp + LocalBottomBarInset.current), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item(key = "intro") { TrustBanner() }
         // The saved sign-ins could not be opened: said here, where every service would just look disconnected.
         if (keystoreTrouble) item(key = "keystore") { KeystoreBanner() }
-        items(providers, key = { it.id }) { p ->
+        item(key = "search") {
+            AccountsSearch(
+                query = query, onQuery = { query = it },
+                chips = AccountsFilter.chips(storeBuild, bridgeInstalled), chip = chip, onChip = { chipName = it.name },
+            )
+        }
+        if (shown.isEmpty() && !discogs) item(key = "no-match") {
+            Text(
+                stringResource(R.string.accounts_no_match), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+            )
+        }
+        items(shown, key = { it.id }) { p ->
             key(refresh) {
                 if (p.serviceId == LocalFilesProvider.serviceId) FilesCard(snackbar, onRemove = { remove(p) }, onManage = onManageFiles, onSendTo = onSendTo)
                 // A source with nothing to sign in to (the charts): its name, what it is, remove.
-                else if (!p.requiresAuth) PlainSourceCard(p, onRemove = { remove(p) })
+                else if (!p.requiresAuth) PlainSourceCard(
+                    p, label = p.label(ctx), onRemove = { remove(p) },
+                    // A radio station: named and coloured like any account, with its station and its syncs.
+                    onRename = { renaming = p }.takeIf { com.xlollx.songport.sync.RadioConnectors.isRadio(p.id) },
+                    onColor = { colouring = p }.takeIf { com.xlollx.songport.sync.RadioConnectors.isRadio(p.id) },
+                    syncs = com.xlollx.songport.sync.RadioConnectors.syncsOf(data.syncs, p.id).size,
+                )
                 else ProviderCard(
                     p = p,
                     // Read here, where the connector names are observed: the card itself is skipped
@@ -206,6 +304,7 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
                     onSetup = onSetup,
                     onConnect = { connectFor = p },
                     onRename = { renaming = p },
+                    onColor = { colouring = p },
                     onRemove = { remove(p) },
                     onChanged = { refresh++ },
                     onMessage = { m -> scope.launch { snackbar.showSnackbar(m) } },
@@ -213,8 +312,69 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
             }
         }
         // 1.18: Discogs is not a place playlists go to, but its token is an account: set here too.
-        if (com.xlollx.songport.Features.v2(data.settings)) item(key = "discogs-account") { DiscogsAccountCard() }
+        if (discogs) item(key = "discogs-account") { DiscogsAccountCard() }
     }
+}
+
+/** The search over the accounts and the chips under it (All, Official, Web, Connected: those [chips] offers), one chosen. */
+@Composable
+private fun AccountsSearch(query: String, onQuery: (String) -> Unit, chips: List<AccountChip>, chip: AccountChip, onChip: (AccountChip) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedTextField(
+            value = query, onValueChange = onQuery, singleLine = true,
+            leadingIcon = { Icon(Icons.Filled.Search, null) },
+            trailingIcon = if (query.isEmpty()) null else { { IconButton(onClick = { onQuery("") }) { Icon(Icons.Filled.Close, stringResource(R.string.syncs_find_clear)) } } },
+            label = { Text(stringResource(R.string.accounts_search)) },
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            chips.forEach { c ->
+                FilterChip(
+                    selected = c == chip, onClick = { onChip(c) },
+                    label = {
+                        Text(stringResource(when (c) {
+                            AccountChip.ALL -> R.string.accounts_filter_all
+                            AccountChip.OFFICIAL -> R.string.accounts_filter_official
+                            AccountChip.WEB -> R.string.accounts_filter_web
+                            AccountChip.CONNECTED -> R.string.accounts_filter_connected
+                        }))
+                    },
+                )
+            }
+        }
+    }
+}
+
+/** Accounts › ⋮ › Colour: the seven colours an account can wear round its logo, and None (the default). */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+private fun AccountColorDialog(selected: String?, onDismiss: () -> Unit, onSelect: (String?) -> Unit) {
+    val current = selected?.takeIf { com.xlollx.songport.data.AccountColors.hex(it) != null }
+    FitDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.job_color)) },
+        text = {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Swatch(MaterialTheme.colorScheme.surfaceContainerHighest, stringResource(R.string.account_color_none), current == null) { onSelect(null) }
+                com.xlollx.songport.data.AccountColors.ALL.forEach { (key, _) ->
+                    val argb = com.xlollx.songport.data.AccountColors.argb(key) ?: return@forEach
+                    Swatch(androidx.compose.ui.graphics.Color(argb), stringResource(accountColorName(key)), current == key) { onSelect(key) }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+    )
+}
+
+/** An account colour's name, for TalkBack. */
+private fun accountColorName(key: String): Int = when (key) {
+    "red" -> R.string.color_red
+    "amber" -> R.string.color_amber
+    "green" -> R.string.color_green
+    "blue" -> R.string.color_blue
+    "purple" -> R.string.color_purple
+    "pink" -> R.string.color_pink
+    else -> R.string.color_teal
 }
 
 /** Accounts › Discogs: the personal token that reads the collection, the wantlist and the prices (Discover › My records). */
@@ -258,104 +418,23 @@ internal fun addConnector(store: Store, service: MusicProvider, name: String): S
 
 /** The services offered to add, in display order: plugin-based ones only where this build may name them or a plugin is installed. */
 internal fun addableServices(ctx: android.content.Context): List<MusicProvider> =
-    Providers.services().filter { !it.linkOnly && (!it.pluginBased || BuildConfig.PLUGIN_LINKS || it.isConfigured(ctx)) }
+    Providers.services().filter { !it.linkOnly && (!it.pluginBased || BuildConfig.PLUGIN_LINKS || it.isConfigured(ctx)) && !(it is DeezerProvider && !it.offered(ctx.env)) }
 
-/** Service picker for a new connector. Services that allow one connector only are greyed out once added. */
+/** The official Deezer is kept from new users (Deezer accepts no new apps): true when this build is in that case. */
+internal fun deezerOfficialWithheld(ctx: android.content.Context): Boolean =
+    Providers.services().any { it is DeezerProvider && !it.offered(ctx.env) }
+
+/** Why Deezer, or its official route, is not offered: a plain fact, nothing to tap, no other way named. */
 @Composable
-private fun PickServiceDialog(connectors: List<String>, onDismiss: () -> Unit, onPick: (MusicProvider) -> Unit) {
-    val ctx = LocalContext.current
-    FitDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.connector_pick_title)) },
-        text = {
-            // Plugin-based services are offered only when a plugin is installed, unless this build
-            // may point to where to get one.
-            val services = addableServices(ctx)
-            // A service reachable two ways (its official API with a key of yours, or its web player with a
-            // plain sign-in) is one entry with two routes, each saying what it asks and what it is.
-            val families = services.groupBy { it.familyName }
-            // First a grid of the services, grouped; a service reachable two ways then shows its
-            // routes, each saying what it asks and what it is.
-            var family by remember { mutableStateOf<String?>(null) }
-            val chosen = family?.let { families[it] }
-            Column {
-                if (chosen == null) {
-                    serviceGroups(families.keys.toList(), families).forEach { (groupRes, names) ->
-                        if (names.isEmpty()) return@forEach
-                        Text(stringResource(groupRes), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 12.dp, bottom = 8.dp).semantics { heading() })
-                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                            names.forEach { name ->
-                                val members = families.getValue(name)
-                                val allTaken = members.all { m -> !m.supportsMultipleAccounts && connectors.any { Providers.byId(it)?.serviceId == m.serviceId } }
-                                // A web connector that would take another account but cannot here opens
-                                // its route, where the line under it says why (see WebAccounts).
-                                val explained = allTaken && members.any { WebAccounts.reason(ctx, it) != null }
-                                ServiceGridTile(members.first(), name, enabled = !allTaken || explained) {
-                                    if (members.size == 1 && !explained) onPick(members.first()) else family = name
-                                }
-                            }
-                        }
-                    }
-                    // Play build: the services this version cannot reach on its own, greyed out under
-                    // a plain fact. Nothing to tap, no name of anything else, no link.
-                    // A service a plugin brings (an account, or the reading of its public links) is not one of them.
-                    val offered = services.map { it.serviceId }.flatMap { listOf(it, it.removeSuffix("_web")) }.toSet()
-                    val unavailable = if (BridgePlugin.builtIn) emptyList() else UNAVAILABLE_ON_PLAY.filter { (id, _, _) ->
-                        id !in offered && Providers.byId(id)?.let { it.linkOnly && it.isConfigured(ctx) } != true
-                    }
-                    if (unavailable.isNotEmpty()) {
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
-                            Text(stringResource(R.string.services_group_unavailable), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f).semantics { heading() })
-                            HelpButton(Helps.unavailable)
-                        }
-                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                            unavailable.forEach { (id, color, name) -> UnavailableServiceTile(id, color, name) }
-                        }
-                    }
-                } else {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(onClick = { family = null }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.nav_back)) }
-                        ServiceLogo(chosen.first(), 32.dp)
-                        Spacer(Modifier.width(12.dp))
-                        Text(family!!, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(R.string.connector_pick_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f).padding(vertical = 6.dp))
-                        HelpButton(Helps.routes)
-                    }
-                    // The easiest route first, so a first-timer's eye lands on it.
-                    chosen.sortedBy { if (it.route == MusicProvider.Route.EASY) 0 else 1 }.forEach { s ->
-                        val taken = !s.supportsMultipleAccounts && connectors.any { Providers.byId(it)?.serviceId == s.serviceId }
-                        // Each way in on its own card, a full target: what it asks and what it is.
-                        Row(
-                            Modifier.padding(top = 8.dp).fillMaxWidth().heightIn(min = 56.dp).clip(ToolCardShape).background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                                .clickable(enabled = !taken) { onPick(s) }.padding(start = 14.dp, end = 8.dp, top = 12.dp, bottom = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Column(Modifier.weight(1f)) {
-                                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                                    s.route?.let { r ->
-                                        // Both routes wear the lock: the quick one signs in on the service's own page too.
-                                        StatusPill(stringResource(if (r == MusicProvider.Route.EASY) R.string.route_easy else R.string.route_official), if (r == MusicProvider.Route.EASY) Tone.Ok else Tone.Accent, Icons.Filled.Lock)
-                                    } ?: Text(s.displayName, style = MaterialTheme.typography.bodyLarge)
-                                    if (!s.canWrite) Text(stringResource(R.string.read_only), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    if (s.alpha || s.beta) Text(stringResource(if (s.alpha) R.string.alpha else R.string.beta), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    if (taken) Text(stringResource(R.string.connected), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                }
-                                s.routeNoteRes?.let { Text(stringResource(it), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                                // A web connector that would take another account, but cannot here: why, in a line.
-                                if (taken) WebAccounts.reason(ctx, s)?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.tertiary) }
-                            }
-                            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-                }
-            }
-        },
-        // No link out: what plugins are is explained, neutrally, in Settings › Plugins (Play build).
-        confirmButton = {},
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
-    )
+internal fun DeezerWhyRow(official: Boolean) {
+    Row(Modifier.fillMaxWidth().padding(top = 12.dp), verticalAlignment = Alignment.Top) {
+        Icon(Icons.Filled.Info, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+        Spacer(Modifier.width(10.dp))
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(if (official) R.string.deezer_why_official_title else R.string.deezer_why_title), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.deezer_why_body), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
 }
 
 @Composable
@@ -413,6 +492,7 @@ private fun ProviderCard(
     onRename: () -> Unit,
     onRemove: () -> Unit,
     onChanged: () -> Unit,
+    onColor: () -> Unit = {},
     onMessage: (String) -> Unit = {},
     /** The newest run through this connector failed because of it (its name in the error), lately. */
     trouble: Boolean = false,
@@ -453,7 +533,7 @@ private fun ProviderCard(
         }
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                ServiceLogo(p, 48.dp)
+                ServiceLogo(p, 48.dp, ring = accountRing(p.id))
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
@@ -475,6 +555,60 @@ private fun ProviderCard(
                 }
                 if (!tight) { Spacer(Modifier.width(8.dp)); state() }
             }
+            // YouTube Music: the profile the account acts as (its own channel, or a brand account), where the connectors offer it.
+            // Right after sign-in the choice is offered once, when the account has more than one profile.
+            var choosingChannel by remember { mutableStateOf(false) }
+            val channels = p is YouTubeBridgeProvider && connected && remember(p.id) { p.channelsSupported(ctx.env) }
+            var autoChannel by remember(p.id, account) { mutableStateOf(channels && !YtmProfiles.asked(ctx, p.id, account)) }
+            if (p is YouTubeBridgeProvider && (choosingChannel || autoChannel)) YtmChannelDialog(
+                p, account, auto = autoChannel && !choosingChannel,
+                onDismiss = { choosingChannel = false; autoChannel = false; onChanged() },
+            ) { choosingChannel = false; autoChannel = false; onChanged() }
+            if (channels && p is YouTubeBridgeProvider) {
+                val profile = remember(p.id) { p.channelName(ctx.env) } ?: account
+                val warning = remember(p.id) { YtmProfiles.warning(ctx, p.id) }
+                Spacer(Modifier.height(8.dp))
+                if (warning != null) PageNote(
+                    stringResource(R.string.ytm_profile_card_wrong, warning.first, warning.second), tone = Tone.Warning,
+                    trailing = { TextButton(onClick = { choosingChannel = true }) { Text(stringResource(R.string.ytm_profile_change)) } },
+                ) else if (profile != null) Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        stringResource(R.string.ytm_profile_row, profile) + (if (remember(p.id) { p.channelName(ctx.env) } != null) " · " + stringResource(R.string.ytm_profile_brand) else ""),
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f),
+                    )
+                    FilledTonalButton(onClick = { choosingChannel = true }) { Text(stringResource(R.string.ytm_profile_change)) }
+                }
+            }
+            // YouTube Music (Google API): a channel with nothing on it, said once after sign-in; only Google's chooser picks another profile.
+            if (p is YouTubeProvider && connected) {
+                var officialEmpty by remember(p.id, account) { mutableStateOf(YtmProfiles.officialEmpty(ctx, p.id, account)) }
+                LaunchedEffect(p.id, account) {
+                    if (officialEmpty == null) {
+                        val empty = withContext(Dispatchers.IO) { p.looksEmpty(ctx.env) }
+                        YtmProfiles.setOfficialEmpty(ctx, p.id, account, empty)
+                        officialEmpty = empty
+                    }
+                }
+                if (officialEmpty == true) {
+                    Spacer(Modifier.height(8.dp))
+                    PageNote(stringResource(R.string.youtube_empty_channel), tone = Tone.Warning)
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                        TextButton(onClick = { YtmProfiles.setOfficialEmpty(ctx, p.id, account, false); officialEmpty = false }) { Text(stringResource(R.string.youtube_empty_keep)) }
+                        Spacer(Modifier.width(8.dp))
+                        // Google's chooser comes every time: a fresh check follows the new sign-in.
+                        Button(onClick = { YtmProfiles.setOfficialEmpty(ctx, p.id, account, null); onConnect() }) { Text(stringResource(R.string.sign_in_again)) }
+                    }
+                }
+            }
+            // A server with two addresses (2.2): which one the requests go to now.
+            val via = remember(p.id) { (p as? com.xlollx.songport.providers.CredentialsProvider)?.takeIf { connected }?.let { c -> runCatching { c.awayAddress(ctx.env)?.let { away -> c.addressInUse(ctx.env)?.let { it to (it == away) } } }.getOrNull() } }
+            via?.let { (address, isAway) ->
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    stringResource(if (isAway) R.string.account_via_away else R.string.account_via_home, address.removePrefix("https://").removePrefix("http://")),
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             if (connected && quotaUsed != null) QuotaCard(used = quotaUsed, sharedCredentials = !p.usesOwnCredentials(ctx), searches = searchesUsed)
             // Detto una volta, dove si sceglie di usarlo: meglio qui che come sorpresa a sync finita.
             if (p.alpha || p.beta) {
@@ -494,10 +628,22 @@ private fun ProviderCard(
                 if (connected && !tight) encrypted(Modifier.weight(1f)) else Spacer(Modifier.weight(1f))
                 var testing by remember { mutableStateOf(false) }
                 if (testing) ConnectionTestDialog(p) { testing = false }
-                // YouTube Music: the channel the account acts as (its own, or a brand account), where the connectors offer it.
-                var choosingChannel by remember { mutableStateOf(false) }
-                val channels = p is YouTubeBridgeProvider && connected && remember(p.id) { p.channelsSupported(ctx.env) }
-                if (choosingChannel && p is YouTubeBridgeProvider) YtmChannelDialog(p, onDismiss = { choosingChannel = false }) { choosingChannel = false; onChanged() }
+                // Deezer Family (#82): the profile the account acts as. Asked once right after the sign-in
+                // (the connectors then hold a choice), changeable later from the menu.
+                var choosingProfile by remember { mutableStateOf(false) }
+                var askProfiles by remember { mutableStateOf<List<DeezerBridgeProvider.Profile>?>(null) }
+                var family by remember(p.id) { mutableStateOf(false) }
+                if (p is DeezerBridgeProvider && connected) LaunchedEffect(p.id) {
+                    val state = kotlinx.coroutines.withContext(Dispatchers.IO) { p.familyState(ctx.env) }
+                    family = state.supported && state.family == true
+                    if (!state.supported || state.chosen || state.family == false) return@LaunchedEffect
+                    val list = kotlinx.coroutines.withContext(Dispatchers.IO) { runCatching { p.profiles(ctx.env) }.getOrNull() }.orEmpty()
+                    if (list.size >= 2) { family = true; askProfiles = list }
+                }
+                if (p is DeezerBridgeProvider) {
+                    if (askProfiles != null) DeezerProfileDialog(p, firstTime = true, preloaded = askProfiles, onDismiss = { askProfiles = null }) { askProfiles = null; onChanged() }
+                    if (choosingProfile) DeezerProfileDialog(p, firstTime = false, onDismiss = { choosingProfile = false }) { choosingProfile = false; onChanged() }
+                }
                 var startingOver by remember { mutableStateOf(false) }
                 val cardScope = rememberCoroutineScope()
                 if (startingOver && p is com.xlollx.songport.providers.StartsOver) FitDialog(
@@ -519,6 +665,7 @@ private fun ProviderCard(
                 val actions = listOfNotNull(
                     if (connected) MenuAction(stringResource(R.string.account_test), { testing = true }) else null,
                     if (channels) MenuAction(stringResource(R.string.ytm_channel), { choosingChannel = true }) else null,
+                    if (family) MenuAction(stringResource(R.string.deezer_profile), { choosingProfile = true }) else null,
                     if (p.setupGuide != null && p.slot.isEmpty() && configured) MenuAction(stringResource(R.string.setup_cta), { onSetup(p) }) else null,
                     if (connected && p.revokeUrl != null) MenuAction(stringResource(R.string.account_revoke, p.displayName), {
                         ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(p.revokeUrl)))
@@ -527,6 +674,7 @@ private fun ProviderCard(
                     // a site can remember a sign-in the connector never got, #53).
                     if (p is com.xlollx.songport.providers.StartsOver) MenuAction(stringResource(R.string.start_over), { startingOver = true }) else null,
                     MenuAction(stringResource(R.string.connector_rename), onRename),
+                    MenuAction(stringResource(R.string.job_color), onColor),
                     MenuAction(stringResource(R.string.account_remove), onRemove, destructive = true),
                 ).let { base ->
                     // Built-in web connectors: Google's block page, the Amazon traffic capture.
@@ -737,15 +885,28 @@ internal fun FilesCard(
 
 /** A connector with no account (the charts): nothing to connect, only what it is. */
 @Composable
-private fun PlainSourceCard(p: MusicProvider, onRemove: () -> Unit) {
+private fun PlainSourceCard(p: MusicProvider, label: String, onRemove: () -> Unit, onRename: (() -> Unit)? = null, onColor: (() -> Unit)? = null, syncs: Int = 0) {
     val ctx = LocalContext.current
+    val station = (p as? com.xlollx.songport.providers.RadioProvider)?.station(ctx.env)
     PageCard(shape = MaterialTheme.shapes.large, edge = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                ProviderBadge(p, 48.dp)
+                ProviderBadge(p, 48.dp, ring = accountRing(p.id))
                 Spacer(Modifier.width(12.dp))
-                Text(p.label(ctx), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-                OverflowMenu(listOf(MenuAction(stringResource(R.string.account_remove), onRemove, destructive = true)))
+                Column(Modifier.weight(1f)) {
+                    Text(label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    // A radio: its station (and where from), and how many syncs listen to it; Shazam: its syncs.
+                    val line = listOfNotNull(
+                        station?.let { listOf(p.displayName, it.station, it.country).filter { s -> s.isNotBlank() }.joinToString(" · ") },
+                        syncs.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.stats_n_syncs, it, it) },
+                    ).joinToString(" · ")
+                    if (line.isNotEmpty()) Text(line, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                OverflowMenu(listOfNotNull(
+                    onRename?.let { MenuAction(stringResource(R.string.connector_rename), it) },
+                    onColor?.let { MenuAction(stringResource(R.string.job_color), it) },
+                    MenuAction(stringResource(R.string.account_remove), onRemove, destructive = true),
+                ))
             }
             Spacer(Modifier.height(6.dp))
             Text(stringResource(p.noteRes), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -780,46 +941,6 @@ private fun PasteListDialog(onDismiss: () -> Unit, onImport: (String, String) ->
         confirmButton = { TextButton(enabled = text.isNotBlank(), onClick = { onImport(name.ifBlank { "playlist" }, text) }) { Text(stringResource(R.string.import_action)) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
-}
-
-/** Streaming services, personal servers, then the rest (stats services, files), each in its own group. */
-private fun serviceGroups(names: List<String>, families: Map<String, List<MusicProvider>>): List<Pair<Int, List<String>>> {
-    val servers = setOf("subsonic", "koel", "jellyfin", "emby", "plex", "lyrion", "mopidy")
-    val other = setOf("lastfm", "listenbrainz", "csv")
-    fun kind(n: String) = families.getValue(n).first().serviceId.let { if (it in servers) 1 else if (it in other) 2 else 0 }
-    return listOf(
-        R.string.services_group_streaming to names.filter { kind(it) == 0 },
-        R.string.services_group_servers to names.filter { kind(it) == 1 },
-        R.string.services_group_other to names.filter { kind(it) == 2 },
-    )
-}
-
-/** Services with no official API this version can use: id, brand colour, name. */
-private val UNAVAILABLE_ON_PLAY = listOf(
-    Triple("amazon", 0xFF1AB0D6, "Amazon Music"),
-    Triple("soundcloud", 0xFFFF5500, "SoundCloud"),
-    Triple("netease", 0xFFC20C0C, "NetEase Cloud Music"),
-    Triple("anghami", 0xFF8D3DEB, "Anghami"),
-    Triple("qobuz", QobuzBridgeProvider.BRAND, "Qobuz"),
-    Triple("qqmusic", 0xFF31C27C, "QQ Music"),
-    Triple("jiosaavn", 0xFF2BC5B4, "JioSaavn"),
-    Triple("gaana", GaanaBridgeProvider.BRAND, "Gaana"),
-)
-
-/** A greyed-out tile for a service this version cannot reach: the mark and the name, nothing to tap. */
-@Composable
-private fun UnavailableServiceTile(serviceId: String, brandColor: Long, name: String) {
-    Surface(
-        shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        modifier = Modifier.width(serviceTileWidth()).heightIn(min = 96.dp).alpha(0.45f),
-    ) {
-        Column(Modifier.padding(horizontal = 6.dp, vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Top) {
-            ServiceLogo(serviceId, brandColor, name, 40.dp)
-            Spacer(Modifier.height(6.dp))
-            Text(name, style = MaterialTheme.typography.labelMedium, minLines = 2, maxLines = 2, textAlign = TextAlign.Center, overflow = TextOverflow.Ellipsis)
-        }
-    }
 }
 
 /** How wide a tile of the grid is: wider with a larger font, so a name of one word is not broken in two. */

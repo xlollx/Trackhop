@@ -415,10 +415,11 @@ private fun GroupCard(g: SharedGroup, onOpen: () -> Unit) {
 
 /** The service (account) a member listens on, among those connected that can hold a playlist of the group. */
 internal fun writableServices(ctx: android.content.Context, needsCreate: Boolean): List<MusicProvider> =
-    Providers.connectors().filter {
-        it.isConnected(ctx.env) && it.canWrite && it.canRemoveTracks && it.serviceId != com.xlollx.songport.providers.LocalFilesProvider.serviceId &&
+    // The cheap conditions first; whether it is signed in from the answers kept (Connections).
+    Connections.connected(ctx.env, Providers.connectors().filter {
+        it.canWrite && it.canRemoveTracks && it.serviceId != com.xlollx.songport.providers.LocalFilesProvider.serviceId &&
             (!needsCreate || it.canCreatePlaylists)
-    }
+    })
 
 /** The service a member listens on, as a dropdown with each service's mark. */
 @OptIn(ExperimentalMaterial3Api::class)

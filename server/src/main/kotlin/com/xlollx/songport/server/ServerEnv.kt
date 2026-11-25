@@ -62,6 +62,10 @@ class ServerEnv(
     override fun text(name: String, vararg args: Any): String = SERVER_TEXTS[name]?.let { if (args.isEmpty()) it else String.format(it, *args) } ?: strings.text(name, *args)
     fun textArray(name: String): List<String> = strings.array(name)
     fun hasText(name: String) = strings.has(name)
+    /** The plural form of [name] for [count] ([Strings.plural]). */
+    fun plural(name: String, count: Int, vararg args: Any): String = strings.plural(name, count, *args)
+    /** The language the pages speak. */
+    val locale: java.util.Locale get() = strings.locale
 
     override fun log(tag: String, message: String) = Log.add(tag, message)
 
@@ -96,6 +100,16 @@ class ServerEnv(
         kv.getOrPut(name) { JsonKeyValues(File(File(dataDir, "kv"), "${name.replace(Regex("[^A-Za-z0-9_.-]"), "_")}.json")) }
 
     override fun squareJpeg(raw: ByteArray, minSide: Int, maxSide: Int, maxBytes: Int): ByteArray? {
+        // Its size first, from the header: an image too big to hold in memory is not decoded at all.
+        val pixels = runCatching {
+            val iis = ImageIO.createImageInputStream(ByteArrayInputStream(raw))
+            try {
+                ImageIO.getImageReaders(iis).asSequence().firstOrNull()?.let { r ->
+                    try { r.input = iis; r.getWidth(0).toLong() * r.getHeight(0) } finally { r.dispose() }
+                }
+            } finally { iis?.close() }
+        }.getOrNull()
+        if (pixels != null && pixels > MAX_COVER_PIXELS) return null
         val src = runCatching { ImageIO.read(ByteArrayInputStream(raw)) }.getOrNull() ?: return null
         val sq = com.xlollx.songport.sync.Covers.square(src.width, src.height, minSide, maxSide)
         val img = BufferedImage(sq.side, sq.side, BufferedImage.TYPE_INT_RGB)
@@ -137,3 +151,6 @@ private val SERVER_TEXTS = mapOf(
     "error_target_shrunk" to "%1\$s lists only %2\$d tracks, but the last run left %3\$d there: probably an incomplete answer. Nothing was changed. " +
         "Try again later; if the playlist really is that small now, choose Sync anyway.",
 )
+
+/** The most pixels a cover sent to Trackhop may have (a 6000 × 6000 one fits): beyond, it is not decoded. */
+internal const val MAX_COVER_PIXELS = 40_000_000L

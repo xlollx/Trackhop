@@ -49,6 +49,12 @@ A **two-way pair** goes over as one: both halves are made on the server and both
 are marked **On server**. Handing over either half does it, and **Bring back to this phone** on either
 half deletes the pair there and turns both halves on again here.
 
+A **multi sync** (one source, several targets) goes over whole: the server makes the same multi
+sync, with the same targets and ways and its own accounts for each service, and runs it as one, as
+the phone does; its card on the phone is marked **On server**. The server rebuilds the multi sync's
+own list of songs from the source and the two-way targets at its first run. **Bring back to this
+phone** deletes it on the server and turns it on again here.
+
 Radio syncs (they listen on the phone), Shazam syncs and syncs of File playlists stay on the phone.
 
 ## Tools › My server

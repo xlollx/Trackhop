@@ -218,6 +218,7 @@ class GroupPageFlowTest : FlowTest() {
         waitText("$toCheck · ${deezer()}")
         click("Trip mix")
         waitText(s(R.string.nway_delete))
-        waitText(s(R.string.shared_mode_keep) + " · " + toCheck)
+        // And the songs Workout holds after its last run (it read 8, changed none).
+        waitText(s(R.string.shared_mode_keep) + " · " + toCheck + " · " + plural(R.plurals.setlists_songs, 8, 8))
     }
 }

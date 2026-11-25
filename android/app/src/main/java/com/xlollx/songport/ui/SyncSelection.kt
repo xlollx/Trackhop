@@ -342,7 +342,7 @@ fun BulkScheduleSheet(data: StoreData, jobs: List<SyncJob>, onDismiss: () -> Uni
             }
             if (data.settings.savedSchedules.isEmpty()) Note(stringResource(R.string.sched_empty))
             data.settings.savedSchedules.forEach { s ->
-                ScheduleRow(s, Schedules.usedBy(data, s.id).size, selected = s.id == draft.scheduleId) { draft = draft.pick(s.id) }
+                ScheduleRow(s, Schedules.cards(data, s.id), selected = s.id == draft.scheduleId) { draft = draft.pick(s.id) }
             }
             Text(stringResource(R.string.bulk_or_by_hand), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
 

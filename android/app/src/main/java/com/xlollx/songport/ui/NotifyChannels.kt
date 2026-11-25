@@ -66,7 +66,7 @@ private val EVENT_RES = mapOf(
 private val HELP_RES = mapOf(
     Notify.Kind.TELEGRAM to R.string.notify_help_telegram, Notify.Kind.NTFY to R.string.notify_help_ntfy, Notify.Kind.GOTIFY to R.string.notify_help_gotify,
     Notify.Kind.DISCORD to R.string.notify_help_discord, Notify.Kind.SLACK to R.string.notify_help_slack, Notify.Kind.MATRIX to R.string.notify_help_matrix,
-    Notify.Kind.PUSHOVER to R.string.notify_help_pushover,
+    Notify.Kind.PUSHOVER to R.string.notify_help_pushover, Notify.Kind.APPRISE to R.string.notify_help_apprise,
 )
 private val FIELD_RES = mapOf(
     "telegram_token" to R.string.notify_field_telegram_token,
@@ -83,6 +83,8 @@ private val FIELD_RES = mapOf(
     "matrix_room" to R.string.notify_field_matrix_room,
     "pushover_token" to R.string.notify_field_pushover_token,
     "pushover_user" to R.string.notify_field_pushover_user,
+    "apprise_url" to R.string.notify_field_apprise_url,
+    "apprise_tag" to R.string.notify_field_apprise_tag,
 )
 
 internal fun eventName(ctx: Context, e: Notify.Event) = EVENT_RES[e]?.let { ctx.getString(it) } ?: e.label

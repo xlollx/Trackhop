@@ -14,10 +14,10 @@
 - 按你喜欢的颜色和样式设置同步卡片，主屏幕小部件和快捷方式
 - 每个账号都可测试连接，每次同步都有结果摘要
 
-支持 Spotify、Apple Music、YouTube Music、TIDAL、Deezer，个人 Navidrome/Subsonic、Jellyfin 和 Plex 服务器，Last.fm 和 ListenBrainz，以及文件。部分连接器在应用中标为测试版：可以正常使用，只是使用得比其他连接器少。
+支持 Spotify、Apple Music、YouTube Music、TIDAL，个人 Navidrome/Subsonic、Jellyfin 和 Plex 服务器，Last.fm 和 ListenBrainz，以及文件。部分连接器在应用中标为测试版：可以正常使用，只是使用得比其他连接器少。
 
 免费，无订阅、无应用内购买、无广告。
-无需注册账号，也没有我们的服务器：一切都留在你的手机上，访问令牌使用 Android Keystore 加密，不经过任何第三方。你在各服务的官方页面登录；对于 Spotify、YouTube Music、TIDAL 和 Deezer，你只需约两分钟即可以自己的名义创建免费密钥，应用会一步步引导你。
+无需注册账号，也没有我们的服务器：一切都留在你的手机上，访问令牌使用 Android Keystore 加密，不经过任何第三方。你在各服务的官方页面登录；对于 Spotify、YouTube Music 和 TIDAL，你只需约两分钟即可以自己的名义创建免费密钥，应用会一步步引导你。
 
 计划同步在手机上运行，无需服务器：如果手机关机或省电模式阻止了应用，会在下一次机会继续。
 

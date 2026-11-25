@@ -126,8 +126,11 @@ object ServerLink {
     suspend fun handOver(ctx: Context, job: SyncJob): Outcome = withContext(NonCancellable) {
         val api = api(ctx) ?: return@withContext Outcome(false, ctx.getString(R.string.server_err_off, ctx.getString(R.string.server_locks_title)))
         try {
-            val jobs = Store.get(ctx).data.jobs
-            when (val plan = HandOver.plan(job, api.services(), jobs)) {
+            val data = Store.get(ctx).data
+            val jobs = data.jobs
+            when (val plan = HandOver.plan(job, api.services(), jobs, data.groups)) {
+                // A multi sync: the whole of it, as one.
+                is HandOver.Plan.Group -> handOverGroup(ctx, api, job, plan)
                 is HandOver.Plan.NotHere -> Outcome(false, ctx.getString(when (plan.why) {
                     HandOver.Why.RADIO -> R.string.server_handover_no_radio
                     HandOver.Why.TWO_WAY -> R.string.server_handover_pair_broken
@@ -178,9 +181,43 @@ object ServerLink {
         }
     }
 
-    /** [job] and, when it is half of a pair that was handed over too, its other half, each with its hand-over. */
+    /** The multi sync (a group of the user's own playlists) [job] belongs to, or null. */
+    private fun groupOf(d: com.xlollx.songport.data.StoreData, job: SyncJob): com.xlollx.songport.shared.SharedGroup? =
+        com.xlollx.songport.shared.SharedGroups.sharedSide(job)?.let { id -> d.groups.firstOrNull { it.id == id && com.xlollx.songport.shared.Nway.isGroup(it) } }
+
+    /**
+     * The multi sync [job] belongs to made on the server, whole: the same source, targets and ways,
+     * with the server's accounts ([plan]); then every sync of it here turned off and marked as handed
+     * over, each to the server's sync for the same playlist. Nothing changes here unless the server
+     * made it all. Asked again, the server gives back the multi sync it made (the same id).
+     */
+    private suspend fun handOverGroup(ctx: Context, api: ServerSyncs, job: SyncJob, plan: HandOver.Plan.Group): Outcome {
+        val store = Store.get(ctx)
+        val group = groupOf(store.data, job) ?: return Outcome(false, ctx.getString(R.string.server_handover_pair_broken))
+        val members = com.xlollx.songport.shared.Nway.members(store.data.jobs, group.id)
+        val made = api.createMulti(HandOver.groupBody(group, members, plan))
+        val ids = HandOver.groupIds(members, made, plan.connectors)
+        val all = members.flatMap { listOfNotNull(it.down, it.up) }
+        // Every sync of it must have its counterpart there: a multi sync is never half here, half there.
+        if (all.any { it.id !in ids }) throw ServerSyncs.Failure(ServerSyncs.Failure.Kind.ODD, "multi sync not made whole")
+        val now = System.currentTimeMillis()
+        store.update { d ->
+            d.copy(
+                handedOver = d.handedOver + all.associate { it.id to HandedOver(ids.getValue(it.id), now, it.enabled) },
+                jobs = d.jobs.map { j -> if (all.any { it.id == j.id }) j.copy(enabled = false) else j },
+            )
+        }
+        store.flush()
+        for (j in all) store.job(j.id)?.let { Scheduler.apply(ctx, it) }
+        log(ctx, "multi sync group=${group.id}: handed over to ${api.base}, ${members.size} playlists")
+        runCatching { refresh(ctx) }
+        return Outcome(true, ctx.getString(R.string.server_handover_done))
+    }
+
+    /** [job] and, when it is half of a pair that was handed over too, its other half, each with its hand-over; for a multi sync, every sync of it. */
     private fun handedHalves(ctx: Context, job: SyncJob): List<Pair<SyncJob, HandedOver>> {
         val d = Store.get(ctx).data
+        groupOf(d, job)?.let { g -> return com.xlollx.songport.shared.Nway.jobsOf(d, g.id).mapNotNull { j -> d.handedOver[j.id]?.let { j to it } } }
         val other = HandOver.pair(job, d.jobs)?.let { (a, b) -> if (a.id == job.id) b else a }
         return listOfNotNull(job, other).mapNotNull { j -> d.handedOver[j.id]?.let { j to it } }
     }
@@ -194,6 +231,28 @@ object ServerLink {
         val api = api(ctx) ?: return@withContext Outcome(false, ctx.getString(R.string.server_err_off, ctx.getString(R.string.server_locks_title)), canBringBackHere = true)
         val halves = handedHalves(ctx, job)
         if (halves.isEmpty()) return@withContext Outcome(true, ctx.getString(R.string.server_bring_back_done))
+        // A multi sync comes back whole: deleted there as one (its playlists stay), every sync of it on again here.
+        groupOf(Store.get(ctx).data, job)?.let { g ->
+            return@withContext try {
+                // The choices made on the server since the last look come along first, as for one sync.
+                for ((half, h) in halves) {
+                    try {
+                        ReviewDecisions.apply(Store.get(ctx), half.id, api.exchange(h.serverId, ReviewDecisions.ofSync(Store.get(ctx).data, half)))
+                    } catch (e: ServerSyncs.Failure) {
+                        if (e.kind != ServerSyncs.Failure.Kind.GONE && e.kind != ServerSyncs.Failure.Kind.OLD) throw e
+                    }
+                }
+                api.deleteMulti(g.id)
+                for ((half, _) in halves) takeBack(ctx, half.id)
+                _known.value = _known.value - halves.map { it.second.serverId }.toSet()
+                log(ctx, "multi sync group=${g.id}: back from ${api.base}")
+                Outcome(true, ctx.getString(R.string.server_bring_back_done))
+            } catch (e: ServerSyncs.Failure) {
+                log(ctx, "multi sync group=${g.id}: not brought back (${e.kind})")
+                val stuck = e.kind == ServerSyncs.Failure.Kind.UNREACHABLE || e.kind == ServerSyncs.Failure.Kind.TOKEN || e.kind == ServerSyncs.Failure.Kind.OLD
+                Outcome(false, say(ctx, e), canBringBackHere = stuck)
+            }
+        }
         try {
             for ((half, h) in halves) {
                 try {
@@ -238,11 +297,11 @@ object ServerLink {
     }
 
     /** Starts the server's sync [serverId]; the answer in words. */
-    suspend fun run(ctx: Context, serverId: String): Outcome {
+    suspend fun run(ctx: Context, serverId: String, multi: Boolean = false): Outcome {
         val api = api(ctx) ?: return Outcome(false, ctx.getString(R.string.server_err_off, ctx.getString(R.string.server_locks_title)))
         return try {
-            api.run(serverId)
-            log(ctx, "started $serverId on ${api.base}")
+            if (multi) api.runMulti(serverId) else api.run(serverId)
+            log(ctx, "started ${if (multi) "multi sync " else ""}$serverId on ${api.base}")
             Outcome(true, ctx.getString(R.string.server_run_started))
         } catch (e: ServerSyncs.Failure) {
             Outcome(false, say(ctx, e))
@@ -253,8 +312,10 @@ object ServerLink {
     fun runHandedOver(ctx: Context, jobId: String) {
         val app = ctx.applicationContext
         val h = handedOver(app, jobId) ?: return
+        // A sync of a multi sync starts the whole multi sync there (the same id), as its own run does here.
+        val group = Store.get(app).let { s -> s.job(jobId)?.let { groupOf(s.data, it) } }
         scope.launch {
-            val o = run(app, h.serverId)
+            val o = if (group != null) run(app, group.id, multi = true) else run(app, h.serverId)
             Toast.makeText(app, o.message, Toast.LENGTH_LONG).show()
             runCatching { refresh(app) }
         }

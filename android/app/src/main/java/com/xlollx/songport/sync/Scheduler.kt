@@ -185,10 +185,13 @@ class UnplayableWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker
         var count = 0
         var services = 0
         val failed = ArrayList<String>()
+        // The service with the most: the notification opens the tool on it.
+        var most: Pair<String, Int>? = null
         for (p in Providers.connectors().filter { it.detectsUnplayable && it.isConnected(ctx) }) {
             try {
                 val scan = Tools.scanUnplayable(ctx, p, Tools.unplayableTargets(ctx, p))
                 count += scan.count
+                if (scan.count > (most?.second ?: 0)) most = p.id to scan.count
                 services++
                 failed += scan.failed.map { it.reason }
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
@@ -196,7 +199,7 @@ class UnplayableWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker
             }
         }
         Diagnostics.log(ctx, "unplayable", "weekly check: $count unplayable in $services services" + (if (failed.isEmpty()) "" else "; ${failed.size} playlists not read"))
-        if (count > 0) Notifications.unplayable(ctx, UNPLAYABLE_NOTICE_ID, count)
+        if (count > 0) Notifications.unplayable(ctx, UNPLAYABLE_NOTICE_ID, count, most?.first)
         return if (services == 0 && failed.isNotEmpty() && failed.all { isTransientNetwork(it) }) Result.retry() else Result.success()
     }
 }

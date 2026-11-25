@@ -412,7 +412,7 @@ fun NewSyncChooser(onDismiss: () -> Unit, onClassic: () -> Unit, onMulti: () -> 
 @Composable
 private fun PlaylistRow(item: NwayEdit.Item, summary: String, modifier: Modifier = Modifier, more: Boolean = false, onClick: () -> Unit) {
     PrefRow(
-        null, itemTitle(item), summary, modifier, chevron = !more, leading = { ServiceLogo(Providers.byId(item.provider), 36.dp) },
+        null, itemTitle(item), summary, modifier, chevron = !more, leading = { ServiceLogo(Providers.byId(item.provider), 36.dp, ring = accountRing(item.provider)) },
         trailing = if (more) ({ Icon(Icons.Filled.MoreVert, null, Modifier.size(24.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant) }) else null, onClick = onClick,
     )
 }
@@ -447,7 +447,7 @@ private fun NwayChangesSheet(changes: List<NwayEdit.Change>, newName: String?, o
                     NwayEdit.Change.Kind.SOURCE -> stringResource(R.string.nway_change_source)
                     NwayEdit.Change.Kind.MODE -> (c.was?.let { modeLabel(it) + "  →  " } ?: "") + modeLabel(c.item.mode)
                 },
-                chevron = false, leading = { ServiceLogo(Providers.byId(c.item.provider), 36.dp) },
+                chevron = false, leading = { ServiceLogo(Providers.byId(c.item.provider), 36.dp, ring = accountRing(c.item.provider)) },
             )
             // A playlist that becomes an exact copy loses what the user added there at the next run: said before saving.
             for (c in changes.filter { exactWarning(it) }) Text(

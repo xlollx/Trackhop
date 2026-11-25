@@ -10,6 +10,7 @@ import com.xlollx.songport.providers.MusicProvider
 import com.xlollx.songport.providers.NewReleasesProvider
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.sync.Labels
+import com.xlollx.songport.sync.RadioConnectors
 import com.xlollx.songport.sync.ReviewDecisions
 import com.xlollx.songport.sync.SyncEngine
 import com.xlollx.songport.sync.SyncState
@@ -67,7 +68,7 @@ private val SCHEDULES = mapOf("manual" to 0, "hourly" to 60, "every_6h" to 360, 
 private val AT = Regex("""([01]?\d|2[0-3]):[0-5]\d""")
 
 /** [job] with what [b] says of its timing: "schedule" or "every" (minutes), "at" (HH:MM), "days" (1 = Monday). */
-private fun timed(job: SyncJob, b: JsonObject): SyncJob {
+internal fun timed(job: SyncJob, b: JsonObject): SyncJob {
     val named = b.text("schedule")?.let { s -> SCHEDULES[s.lowercase()] ?: throw IllegalArgumentException("\"schedule\" is one of manual, hourly, every_6h, daily, weekly (or give \"every\" in minutes).") }
     val every = b.number("every") ?: named
     // "7:30" is 07:30: the hour is padded, or the time would not be read and 09:00 kept in its place.
@@ -82,7 +83,7 @@ private fun timed(job: SyncJob, b: JsonObject): SyncJob {
 }
 
 /** [job] with what [b] says of the changes: "changes" (add, mirror, archive) and "follows", or the GET's own booleans. */
-private fun changed(job: SyncJob, b: JsonObject): SyncJob {
+internal fun changed(job: SyncJob, b: JsonObject): SyncJob {
     val mode = b.text("changes")?.lowercase() ?: when {
         b.flag("archive") == true -> "archive"
         b.flag("mirrorRemovals") == true -> "mirror"
@@ -96,8 +97,43 @@ private fun changed(job: SyncJob, b: JsonObject): SyncJob {
     return job.copy(mirrorRemovals = mode == "mirror", followsChanges = mode == "mirror" && (follows ?: job.followsChanges), archive = mode == "archive")
 }
 
+/**
+ * [job] with the matching choices in [b] (the editor's "Matching"): "policy" {strictness: lenient,
+ * normal or strict (or -1, 0, 1); explicit: clean, either or explicit (or -1, 0, 1); sameAlbum;
+ * studioOnly}, each only when given, and "keepOrder" (the source's order kept in the destination).
+ */
+internal fun matching(job: SyncJob, b: JsonObject): SyncJob {
+    var j = job
+    b.flag("keepOrder")?.let { j = j.copy(keepOrder = it) }
+    val p = b["policy"] ?: return j
+    if (p !is JsonObject) throw IllegalArgumentException("\"policy\" is an object: {\"strictness\": \"strict\", \"explicit\": \"clean\", \"sameAlbum\": true, \"studioOnly\": true}.")
+    fun level(k: String, words: List<String>): Int? {
+        val t = p.text(k)?.lowercase() ?: return null
+        return t.toIntOrNull()?.takeIf { it in -1..1 } ?: words.indexOf(t).takeIf { it >= 0 }?.minus(1)
+            ?: throw IllegalArgumentException("\"policy.$k\" is ${words.joinToString(", ")} (or -1, 0, 1).")
+    }
+    var policy = j.policy
+    level("strictness", listOf("lenient", "normal", "strict"))?.let { policy = policy.copy(strictness = it) }
+    level("explicit", listOf("clean", "either", "explicit"))?.let { policy = policy.copy(explicit = it) }
+    p.flag("sameAlbum")?.let { policy = policy.copy(sameAlbum = it) }
+    p.flag("studioOnly")?.let { policy = policy.copy(studioOnly = it) }
+    p.flag("artistNamesCanDiffer")?.let { policy = policy.copy(artistsMayDiffer = it) }
+    return j.copy(policy = policy)
+}
+
+/** [job] linked to the saved schedule "savedSchedule" names (its id or name), or set free of it with null. */
+internal fun Web.linked(job: SyncJob, b: JsonObject): SyncJob {
+    if (!b.containsKey("savedSchedule")) return job
+    val ask = b.text("savedSchedule") ?: return com.xlollx.songport.sync.Schedules.detach(job)
+    val s = findSchedule(ask) ?: throw IllegalArgumentException("No saved schedule called \"$ask\": see GET /api/v1/schedules.")
+    return com.xlollx.songport.sync.Schedules.link(job, s)
+}
+
+/** [job] with "copyRatings" (true/false) from [b], when it says it. */
+private fun ratings(job: SyncJob, b: JsonObject): SyncJob = b.flag("copyRatings")?.let { job.copy(copyRatings = it) } ?: job
+
 /** [job] with the colour in [b]: a name of the palette, "#RRGGBB", or null/"" for none. */
-private fun coloured(job: SyncJob, b: JsonObject): SyncJob {
+internal fun coloured(job: SyncJob, b: JsonObject): SyncJob {
     if (!b.containsKey("color")) return job
     // A colour given as such takes the label's place (a ready colour is its own label again when saved).
     val c = b.text("color") ?: return job.copy(color = null, label = null)
@@ -111,7 +147,7 @@ private fun coloured(job: SyncJob, b: JsonObject): SyncJob {
  * id or name, a ready colour, or null/"" for none: the card takes the label's colour); "tags" (an
  * object of key to value, a value may be "" or null: it replaces the sync's tags).
  */
-private fun grouped(job: SyncJob, b: JsonObject, labels: List<com.xlollx.songport.model.Label>): SyncJob {
+internal fun grouped(job: SyncJob, b: JsonObject, labels: List<com.xlollx.songport.model.Label>): SyncJob {
     var j = job
     b.flag("favorite")?.let { j = j.copy(favorite = it) }
     if (b.containsKey("label")) {
@@ -191,8 +227,9 @@ internal fun Web.apiSyncs(ex: HttpExchange, method: String, rest: List<String>, 
                 var j = job
                 b.text("name")?.let { j = j.copy(name = it) }
                 b.flag("enabled")?.let { j = j.copy(enabled = it) }
-                // A radio sync's source only grows and is timed by its window: its schedule and changes stay.
-                if (j.radio == null) j = changed(timed(j, b), b)
+                // A radio sync's source only grows and is timed by its window: its schedule and changes stay; its window may change.
+                if (j.radio == null) j = matched(matching(ratings(changed(linked(timed(j, b), b), b), b), b), b)
+                else (b["radio"] as? JsonObject)?.let { w -> j = j.copy(radio = radioWindowOf(j.radio!!, w)) }
                 // Two-way made or unmade, and whether removals travel too (Pairs.kt); the other half follows below.
                 pairing(grouped(coloured(j, b), b, env.store.data.settings.labels), b.flag("twoWay"), b.flag("twoWayRemovals"))
             }.getOrElse { e -> return true.also { bad(e) } }
@@ -240,6 +277,27 @@ internal fun Web.apiSyncs(ex: HttpExchange, method: String, rest: List<String>, 
                     val now = env.store.job(job.id) ?: job
                     json(200, buildJsonObject { put("syncId", job.id); put("decisions", ReviewDecisions.toJson(ReviewDecisions.ofSync(env.store.data, now))) })
                 }
+                // "Why wasn't it matched?" (2.2): ?track=<id of a track not found in the last run> or ?q=Artist - Title.
+                rest[2] == "why" && method == "GET" -> {
+                    val source = query["track"]?.let { id ->
+                        env.store.data.reports.filter { it.jobId == job.id }.maxByOrNull { it.startedEpoch }?.unmatchedTracks?.firstOrNull { it.id == id }
+                            ?: return true.also { error(404, "No track with that id among the last run's not found.") }
+                    } ?: query["q"]?.trim()?.takeIf { it.isNotEmpty() }?.let { q ->
+                        val (artists, title) = com.xlollx.songport.sync.PlaylistFiles.splitArtistTitle(q)
+                        Track(id = "", title = title, artists = artists)
+                    } ?: return true.also { error(400, "Say which track: ?track=<id from the last run's not found> or ?q=Artist - Title.") }
+                    val rows = runCatching { runBlocking { whyRows(job, source) } }.getOrElse { e -> return true.also { error(502, e.message ?: e.javaClass.simpleName) } }
+                    json(200, buildJsonObject {
+                        put("source", trackRef(source))
+                        put("threshold", job.policy.acceptThreshold)
+                        put("candidates", JsonArray(rows.map { e -> buildJsonObject {
+                            put("track", trackRef(e.track)); put("score", e.score); put("matched", e.matched)
+                            put("title", e.title); put("artist", e.artist?.let { JsonPrimitive(it) } ?: JsonNull)
+                            put("length", e.length); put("lengthDiffMs", e.lengthDiffMs); put("version", e.version); put("album", e.album)
+                            put("reasons", JsonArray(e.reasons.map { JsonPrimitive(it.name.lowercase()) }))
+                        } }))
+                    })
+                }
                 rest[2] == "preview" && method == "GET" -> preview(job, json, error)
                 rest[2] == "runs" && method == "GET" -> runsPage(job.id, query, json, error)
                 else -> return false
@@ -276,6 +334,9 @@ private fun Web.createSyncFromApi(b: JsonObject, json: (Int, JsonElement) -> Uni
     val s = b["source"] as? JsonObject ?: return error(400, "\"source\" is needed: {\"service\": \"spotify\", \"playlist\": \"<id>\"} (or \"link\" for a public playlist).")
     val t = b["target"] as? JsonObject ?: return error(400, "\"target\" is needed: {\"service\": \"…\", \"playlist\": \"<id>\"}, or without playlist for a new one.")
     val src = s.text("service")?.let { Providers.byId(it) } ?: return error(404, "No source service with that id: see GET /api/v1/services.")
+    // A radio connector or Shazam: the station's or Shazam's own sync (ApiRadio.kt).
+    if (RadioConnectors.isRadio(src.id)) return createRadioSyncFromApi(b, src, t, givenId, json, error)
+    if (src.id == RadioConnectors.SHAZAM) return createShazamSyncFromApi(b, t, givenId, json, error)
     val dst = t.text("service")?.let { Providers.byId(it) } ?: return error(404, "No target service with that id: see GET /api/v1/services.")
     if (!src.linkOnly && !usable(src)) return error(409, "${src.label(env)} is not connected.")
     if (!usable(dst)) return error(409, "${dst.label(env)} is not connected.")
@@ -305,7 +366,7 @@ private fun Web.createSyncFromApi(b: JsonObject, json: (Int, JsonElement) -> Uni
     }.getOrElse { return if (it is IllegalArgumentException) error(400, it.message ?: "Wrong request.") else error(502, it.message ?: it.javaClass.simpleName) }
     val job = runCatching {
         val base = SyncJob(id = givenId ?: UUID.randomUUID().toString(), name = b.text("name") ?: chosen.third, source = chosen.first, target = chosen.second)
-        grouped(coloured(changed(timed(base, b), b), b), b, env.store.data.settings.labels).let { j -> b.flag("enabled")?.let { j.copy(enabled = it) } ?: j }
+        grouped(coloured(matched(matching(ratings(changed(linked(timed(base, b), b), b), b), b), b), b), b, env.store.data.settings.labels).let { j -> b.flag("enabled")?.let { j.copy(enabled = it) } ?: j }
             .let { j -> pairing(j, b.flag("twoWay"), b.flag("twoWayRemovals")) }
     }.getOrElse { return error(400, it.message ?: "Wrong request.") }
     val warning = conflictWarning(job)
@@ -418,4 +479,21 @@ private fun Web.reviewAction(job: SyncJob, report: SyncReport, b: JsonObject, js
         },
         onFailure = { if (it is IllegalArgumentException) error(400, it.message ?: "Wrong request.") else error(502, it.message ?: it.javaClass.simpleName) },
     )
+}
+
+/**
+ * [job] with the matching rules in [b]'s "matching" object, the ones it names: "strictness" (loose,
+ * normal, strict), "explicit" (either, explicit, clean), "sameAlbum", "studioOnly" and
+ * "artistNamesCanDiffer" (#81: the same title, length and album is enough when the artists' names differ).
+ */
+internal fun matched(job: SyncJob, b: JsonObject): SyncJob {
+    val m = b["matching"] ?: return job
+    if (m !is JsonObject) throw IllegalArgumentException("\"matching\" is an object: {\"strictness\": \"normal\", \"artistNamesCanDiffer\": true}.")
+    var p = job.policy
+    m.text("strictness")?.let { v -> p = p.copy(strictness = Api.STRICTNESS.entries.firstOrNull { it.value == v.lowercase() }?.key ?: throw IllegalArgumentException("\"strictness\" is loose, normal or strict.")) }
+    m.text("explicit")?.let { v -> p = p.copy(explicit = Api.EXPLICIT.entries.firstOrNull { it.value == v.lowercase() }?.key ?: throw IllegalArgumentException("\"explicit\" is either, explicit or clean.")) }
+    m.flag("sameAlbum")?.let { p = p.copy(sameAlbum = it) }
+    m.flag("studioOnly")?.let { p = p.copy(studioOnly = it) }
+    m.flag("artistNamesCanDiffer")?.let { p = p.copy(artistsMayDiffer = it) }
+    return job.copy(policy = p)
 }

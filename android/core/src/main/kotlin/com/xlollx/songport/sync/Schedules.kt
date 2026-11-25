@@ -4,6 +4,9 @@ import com.xlollx.songport.data.StoreData
 import com.xlollx.songport.model.PlaylistRef
 import com.xlollx.songport.model.SavedSchedule
 import com.xlollx.songport.model.SyncJob
+import com.xlollx.songport.shared.Nway
+import com.xlollx.songport.shared.SharedGroup
+import com.xlollx.songport.shared.SharedGroups
 import java.time.ZoneId
 import java.util.UUID
 
@@ -70,6 +73,36 @@ object Schedules {
         val linked = d.syncs.filter { it.scheduleId == id }
         val ids = linked.mapTo(HashSet()) { it.id }
         return linked.filterNot { it.twin && it.linkedJobId in ids }
+    }
+
+    /**
+     * One card of the Syncs list that uses a schedule: a classic sync ([group] null), or a multi sync,
+     * by the sync that stands for it ([job]), with its group and its services ([members]).
+     */
+    data class Card(val job: SyncJob, val group: SharedGroup? = null, val members: List<Nway.Member> = emptyList(), val jobIds: Set<String> = setOf(job.id)) {
+        /** As the card is named: the multi sync's name, else the sync's (its source playlist's when it has none). */
+        val name: String get() = group?.name?.takeIf { it.isNotBlank() } ?: job.name.ifBlank { job.source.playlistName }
+
+        /** [id] is this card's sync or one of the syncs behind it. */
+        fun has(id: String): Boolean = id in jobIds
+    }
+
+    /**
+     * What uses [id], counted as the Syncs list shows cards: a multi sync is one, however many syncs
+     * of its group are linked; each classic sync is one ([usedBy]). In [usedBy]'s order. Saving the
+     * schedule still reaches every linked sync ([save]).
+     */
+    fun cards(d: StoreData, id: String): List<Card> {
+        val users = usedBy(d, id)
+        if (users.isEmpty()) return emptyList()
+        val groups = d.groups.filter { Nway.isGroup(it) }.associateBy { it.id }
+        if (groups.isEmpty()) return users.map { Card(it) }
+        val seen = HashSet<String>()
+        return users.mapNotNull { j ->
+            val g = SharedGroups.sharedSide(j)?.let { groups[it] } ?: return@mapNotNull Card(j)
+            if (!seen.add(g.id)) null
+            else Card(Nway.anchor(d, g) ?: j, g, Nway.members(d.jobs, g.id), Nway.jobsOf(d, g.id).mapTo(HashSet()) { it.id })
+        }
     }
 
     /**

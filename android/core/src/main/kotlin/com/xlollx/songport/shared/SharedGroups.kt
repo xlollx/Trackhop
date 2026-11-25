@@ -545,6 +545,8 @@ object SharedGroups {
 
     // ---------------------------------------------------------------- groups
 
+    private val GROUP_ID = Regex("[0-9a-f]{16}")
+
     private fun newGroupId(): String = ByteArray(8).also { SecureRandom().nextBytes(it) }.joinToString("") { "%02x".format(it) }
 
     /** The two halves of a member's sync: the group into [local], and [local] into the group. */
@@ -566,9 +568,11 @@ object SharedGroups {
     fun create(
         env: Env, name: String, folder: String, folderName: String, myName: String, myService: String, local: PlaylistRef?,
         transport: String = Invite.FOLDER, ntfyAuth: String? = null, collectionId: String = "",
+        /** The group's id when the caller has one (a multi sync handed over from a phone keeps its own); a new one otherwise. */
+        id: String = newGroupId(),
     ): SharedGroup {
+        require(GROUP_ID.matches(id)) { "Not a group id" }
         val me = Identity.create()
-        val id = newGroupId()
         val group = SharedGroup(id, name.trim().take(Invite.MAX_NAME), me.id, me.id, folder.trim(), folderName, myName.trim(), myService,
             jobId = UUID.randomUUID().toString(), twinId = UUID.randomUUID().toString(), joinedAt = clock(), transport = transport, collectionId = collectionId)
         val roster = Roster(id, 1, clock(), listOf(Grant(me.id))).signed(me)

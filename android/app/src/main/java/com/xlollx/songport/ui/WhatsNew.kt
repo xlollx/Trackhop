@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.Favorite
@@ -68,6 +69,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -130,6 +132,36 @@ object WhatsNew {
      */
     val releases: List<Release> by lazy {
         listOf(
+            // 2.2: the service chooser, better matching (guests, versions, editions, Chinese scripts), reruns that skip
+            // what did not change, a profile check for YouTube Music, Deezer family profiles (the web sign-in, so
+            // not on Google Play), ListenBrainz as a target, Plex ratings and sonic playlists, home/away addresses,
+            // Apple Music removals (not on Play), files and ratings, Apprise, and Desktop/Docker catching up.
+            Release(
+                "2.2",
+                listOf(
+                    Item(Icons.Filled.Search, JobColor.BLUE, R.string.whats_new_22_chooser_title, R.string.whats_new_22_chooser_body),
+                    Item(Icons.Filled.AutoAwesome, JobColor.PURPLE, R.string.whats_new_22_matching_title, R.string.whats_new_22_matching_body),
+                    Item(Icons.Filled.Autorenew, JobColor.GREEN, R.string.whats_new_22_rerun_title, R.string.whats_new_22_rerun_body),
+                    Item(Icons.Filled.AccountCircle, JobColor.RED, R.string.whats_new_22_ytm_title, R.string.whats_new_22_ytm_body,
+                        shown = { com.xlollx.songport.providers.BridgePlugin.builtIn }),
+                    Item(Icons.Filled.Group, JobColor.PINK, R.string.whats_new_22_deezer_title, R.string.whats_new_22_deezer_body,
+                        shown = { com.xlollx.songport.providers.BridgePlugin.builtIn }),
+                    Item(Icons.Filled.Headphones, JobColor.YELLOW, R.string.whats_new_22_listenbrainz_title, R.string.whats_new_22_listenbrainz_body),
+                    // A radio station per account, Shazam as one: in every build, as the radio and Shazam syncs were.
+                    Item(Icons.Filled.Radio, JobColor.ORANGE, R.string.whats_new_22_radio_title, R.string.whats_new_22_radio_body),
+                    Item(Icons.Filled.Star, JobColor.ORANGE, R.string.whats_new_22_plex_title, R.string.whats_new_22_plex_body),
+                    Item(Icons.Filled.Wifi, JobColor.TEAL, R.string.whats_new_22_twoaddr_title, R.string.whats_new_22_twoaddr_body),
+                    Item(Icons.Filled.LibraryMusic, JobColor.RED, R.string.whats_new_22_applerem_title, R.string.whats_new_22_applerem_body,
+                        shown = { com.xlollx.songport.providers.BridgePlugin.builtIn }),
+                    Item(Icons.Filled.FolderOpen, JobColor.TEAL, R.string.whats_new_22_files_title, R.string.whats_new_22_files_body),
+                    Item(Icons.Filled.NotificationsActive, JobColor.YELLOW, R.string.whats_new_22_apprise_title, R.string.whats_new_22_apprise_body),
+                    Item(Icons.Filled.Notifications, JobColor.ORANGE, R.string.whats_new_22_bell_title, R.string.whats_new_22_bell_body),
+                    Item(Icons.Filled.Bolt, JobColor.GREEN, R.string.whats_new_22_quick_title, R.string.whats_new_22_quick_body),
+                    Item(Icons.Filled.Lock, JobColor.BLUE, R.string.whats_new_22_spotifykey_title, R.string.whats_new_22_spotifykey_body,
+                        shown = { !com.xlollx.songport.providers.BridgePlugin.builtIn }),
+                    Item(Icons.Filled.Dns, JobColor.PURPLE, R.string.whats_new_22_desktop_title, R.string.whats_new_22_desktop_body),
+                ),
+            ),
             // 2.1: shared collections, several syncs at once and saved schedules, one To fix list, big libraries
             // and files, interruptions handled everywhere, and the 1.18 branches merged after 2.0 (one playlist on
             // several services, the new Discover pages and tools, matching across alphabets). Gaana only where it

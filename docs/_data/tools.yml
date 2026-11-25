@@ -97,6 +97,7 @@ en:
     why: Most services only let a page look up a song after you sign in, and this page never asks you to. For those it opens their own search with the artist and title filled in, and it says so on the button.
     stays_h: What stays with you
     stays: There is no Trackhop server behind this page. The link goes from your browser to the services it is looked up on, and nothing is kept once you close the tab.
+    button: 'Want a button like this on your blog or site? <a href="/button">Make a "Listen on any service" button</a>.'
   js:
     lang: en
     reading: "Reading {name}… {pct}%"
@@ -455,6 +456,7 @@ it:
     why: Quasi tutti i servizi lasciano cercare un brano a una pagina solo dopo un accesso, e questa pagina non te lo chiede mai. Per quelli apre la loro ricerca con artista e titolo già scritti, e lo dice sul pulsante.
     stays_h: Cosa resta a te
     stays: Dietro questa pagina non c'è nessun server di Trackhop. Il link va dal tuo browser ai servizi su cui viene cercato, e quando chiudi la scheda non resta niente.
+    button: 'Vuoi un pulsante così sul tuo blog o sito? <a href="/it/button">Crea un pulsante "Ascolta su qualsiasi servizio"</a>.'
   js:
     lang: it
     reading: "Lettura di {name}… {pct}%"

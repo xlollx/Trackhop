@@ -62,11 +62,24 @@ class DeezerWebServerProvider(override val slot: String = "") : CookieConnector 
         )
         val probe = Tokens(accessToken = cookies, extra = pastedUserAgent(userAgent)?.let { mapOf(ServerWebHost.UA to it) } ?: emptyMap())
         val kv = cache(ctx)
+        // Fresh cookies of the same Family account keep the profile chosen before (#82).
+        val holderBefore = kv[DeezerWebClient.HOLDER]?.takeIf { it.isNotEmpty() }
+        val profileBefore = kv[DeezerWebClient.PROFILE]?.takeIf { it.isNotEmpty() }
+        val before = ctx.tokens.get(id)
+        var profileRefused = false
         val user = withContext(Dispatchers.IO) {
             // A new session: the last one's gateway sid and user token go.
             forget(ctx, kv)
             try {
-                DeezerWebClient(ServerWebHost(ctx, id, kv, probe)).user(refresh = true)
+                val c = DeezerWebClient(ServerWebHost(ctx, id, kv, probe))
+                val me = c.user(refresh = true)
+                if (profileBefore != null && me.id == holderBefore && me.family) runCatching { c.setProfile(profileBefore) }.getOrElse {
+                    // Deezer refuses the profile now: it stays the one required (calls fail until it is
+                    // chosen again on the page), never the holder's library in its place.
+                    kv[DeezerWebClient.PROFILE] = profileBefore
+                    profileRefused = true
+                    me
+                } else me
             } catch (e: Exception) {
                 forget(ctx, kv)
                 throw when {
@@ -78,7 +91,29 @@ class DeezerWebServerProvider(override val slot: String = "") : CookieConnector 
                 }
             }
         }
-        ctx.tokens.set(id, probe.copy(userId = user.id, userName = user.name.orEmpty()))
+        if (profileRefused) ctx.tokens.set(id, probe.copy(userId = profileBefore!!, userName = before?.takeIf { it.userId == profileBefore }?.userName.orEmpty()))
+        else ctx.tokens.set(id, probe.copy(userId = user.id, userName = user.name.orEmpty()))
+    }
+
+    /** A Deezer Family account (known once it was read): its profiles can be chosen. */
+    fun isFamily(ctx: Env): Boolean = cache(ctx)[DeezerWebClient.FAMILY] == "1"
+
+    /** The profiles the account can act as, the chosen one marked; empty when it is not a Family account. */
+    suspend fun profiles(ctx: Env): List<com.xlollx.songport.ytmbridge.ProfileDto> = io(ctx) { c -> c.profiles() }
+
+    /**
+     * Makes this account's calls as Family profile [profileId] and names the account as it; Deezer
+     * refusing it keeps the profile before and says so. [profileId] may be the profile's name too.
+     */
+    suspend fun setProfile(ctx: Env, profileId: String): com.xlollx.songport.ytmbridge.ProfileDto {
+        val t = session(ctx) ?: throw ProviderException(ctx.text("error_not_connected", displayName))
+        val list = profiles(ctx)
+        val wanted = profileId.trim()
+        val p = list.firstOrNull { it.id == wanted } ?: list.firstOrNull { it.name.equals(wanted, ignoreCase = true) }
+            ?: throw ProviderException(if (list.isEmpty()) "$displayName: this is not a Deezer Family account" else "$displayName: no profile \"$wanted\" (${list.joinToString { it.name }})")
+        val user = io(ctx) { c -> c.setProfile(p.id) }
+        ctx.tokens.set(id, t.copy(userId = user.id, userName = user.name ?: p.name))
+        return p.copy(selected = true)
     }
 
     override fun disconnect(ctx: Env) {

@@ -116,9 +116,13 @@ internal fun Web.settingsPage(r: Web.Req) {
         body.append("""<label class="check"><input type="checkbox" name="card" value="$key"${if (key in cards) " checked" else ""}> ${h(label)}</label>""")
     }
     body.append("""<p><button>Save</button></p></form>""")
+    // Saved schedules (SchedulesWeb.kt): a timing kept once for many syncs.
+    env.store.data.settings.savedSchedules.size.let { n ->
+        body.append("""<div class="card"><h3><a href="/settings/schedules">Schedules</a></h3><p class="muted">A timing kept once, with a name, for many syncs: change it and they all follow. ${if (n == 0) "None saved." else "$n saved."}</p></div>""")
+    }
     if (env.may(Permissions.API)) {
         val n = Notify.channels(env).count { it.enabled }
-        body.append("""<div class="card"><h3><a href="/settings/notifications">Notifications</a></h3><p class="muted">Telegram, ntfy, Gotify, Discord, Slack, Matrix or Pushover, when a sync changes something, fails or waits for you. ${if (n == 0) "None set up." else "$n ${if (n == 1) "channel" else "channels"} on."}</p></div>""")
+        body.append("""<div class="card"><h3><a href="/settings/notifications">Notifications</a></h3><p class="muted">Telegram, ntfy, Gotify, Discord, Slack, Matrix, Pushover or Apprise, when a sync changes something, fails or waits for you. ${if (n == 0) "None set up." else "$n ${if (n == 1) "channel" else "channels"} on."}</p></div>""")
     }
     // The keys of Concerts, Setlists and Records and merch, which are 1.18's (Features).
     if (Features.v2) {

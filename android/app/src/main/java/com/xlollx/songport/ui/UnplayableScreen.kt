@@ -5,6 +5,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -82,7 +84,7 @@ private sealed class Decision {
  * version proposed by the sync's own matching: accept it, search another, remove the entry or
  * skip it, then apply everything in one go. The originals are kept, so the change can be undone.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun UnplayableScreen(provider: MusicProvider, onClose: () -> Unit) {
     val ctx = LocalContext.current
@@ -326,6 +328,22 @@ fun UnplayableScreen(provider: MusicProvider, onClose: () -> Unit) {
                                 },
                             )
                         }
+                    }
+                }
+                // What is still undecided, all at once: the entries already decided stay as they are.
+                val undecided = r.found.flatMap { u -> u.entries.map { keyOf(u.playlist, it) } }.filter { it !in decisions }
+                if (undecided.isNotEmpty()) item(key = "undecided") {
+                    FlowRow(
+                        Modifier.fillMaxWidth().padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp), itemVerticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(pluralStringResource(R.plurals.unplayable_undecided, undecided.size, undecided.size), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        if (provider.canRemoveTracks) {
+                            Text("·", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            TextButton(enabled = applying == null, onClick = { undecided.forEach { decisions[it] = Decision.Remove }; openKey = null }) { Text(stringResource(R.string.unplayable_remove_all)) }
+                        }
+                        Text("·", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        TextButton(enabled = applying == null, onClick = { undecided.forEach { decisions[it] = Decision.Skip }; openKey = null }) { Text(stringResource(R.string.unplayable_skip_all)) }
                     }
                 }
             }

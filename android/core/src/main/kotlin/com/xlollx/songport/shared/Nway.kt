@@ -89,6 +89,23 @@ object Nway {
         return g.takeIf { anchor(d, it)?.id == job.id }
     }
 
+    /** Every sync of a group of the user's own playlists (a multi sync): all behind the group's one card. */
+    fun memberJobIds(d: StoreData): Set<String> {
+        val ids = d.groups.filter { isGroup(it) }.mapTo(HashSet()) { it.id }
+        if (ids.isEmpty()) return emptySet()
+        return d.jobs.filter { SharedGroups.sharedSide(it) in ids }.mapTo(HashSet()) { it.id }
+    }
+
+    /**
+     * The syncs a list shows as syncs: the classic ones and one per multi sync (its [anchor], which
+     * stands for the group), without the syncs behind a card. [behindCards]: the syncs a platform puts
+     * behind a card of its own besides ([memberJobIds] by default; the app adds its collections').
+     */
+    fun listedSyncs(d: StoreData, behindCards: Set<String> = memberJobIds(d)): List<SyncJob> {
+        val hidden = if (behindCards.isEmpty()) behindCards else behindCards - anchors(d).keys
+        return if (hidden.isEmpty()) d.syncs else d.syncs.filter { it.id !in hidden }
+    }
+
     /** The syncs of [groupId], the one that stands for it included. */
     fun jobsOf(d: StoreData, groupId: String): List<SyncJob> = d.jobs.filter { SharedGroups.sharedSide(it) == groupId }
 

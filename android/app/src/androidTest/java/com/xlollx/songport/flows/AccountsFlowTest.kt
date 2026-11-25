@@ -1,7 +1,9 @@
 package com.xlollx.songport.flows
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextReplacement
@@ -28,19 +30,14 @@ class AccountsFlowTest : FlowTest() {
         launch(tabIntent(MainActivity.TAB_ACCOUNTS))
         waitText(s(R.string.connected_as, "alex"))
 
-        // "+" -> the service grid -> Deezer -> its name.
+        // "+" -> the service grid -> Deezer: the first account of a service takes the service's name
+        // and goes straight to the explanation of its sign-in, then the (fake) sign-in reports back.
         click(s(R.string.connector_add))
         waitText(s(R.string.connector_pick_title))
         click("Deezer")
-        waitText(s(R.string.connector_name_label))
-        click(s(R.string.ok))
-        waitFor("Deezer among the connectors") { "deezer" in store.data.settings.connectors }
-        assertEquals(listOf("spotify", "deezer"), store.data.settings.connectors)
-
-        // Not signed in yet: Connect, the explanation, then the (fake) sign-in reports back.
-        waitText(s(R.string.connect))
-        click(s(R.string.connect))
         waitText(s(R.string.connect_title, "Deezer"))
+        assertFalse("no name asked for a first account", exists(s(R.string.connector_name_label)))
+        assertEquals(listOf("spotify", "deezer"), store.data.settings.connectors)
         click(s(R.string.connect_continue_browser))
         waitFor("both cards connected") {
             compose.onAllNodesWithText(s(R.string.connected_as, "alex"), useUnmergedTree = true).fetchSemanticsNodes().size == 2
@@ -49,7 +46,8 @@ class AccountsFlowTest : FlowTest() {
         // Rename it from its menu (the second card's "More").
         clickDesc(s(R.string.more_actions), index = 1)
         click(s(R.string.connector_rename))
-        compose.onNode(hasSetTextAction()).performTextReplacement("My Deezer")
+        // The rename dialog's field: the screen has its own search field too.
+        compose.onNode(hasSetTextAction() and hasAnyAncestor(isDialog())).performTextReplacement("My Deezer")
         click(s(R.string.ok))
         waitFor("the new name stored") { store.data.settings.connectorNames["deezer"] == "My Deezer" }
         waitText("My Deezer")
@@ -74,9 +72,23 @@ class AccountsFlowTest : FlowTest() {
         assertTrue(exists(s(R.string.route_easy)))
         assertTrue(exists(s(R.string.route_official)))
         click(s(R.string.route_easy))
+        // The first YouTube Music account: no name asked, straight to its sign-in.
+        waitText(s(R.string.connect_title, "YouTube Music"))
+        assertFalse("no name asked for a first account", exists(s(R.string.connector_name_label)))
+        waitFor("the quick route (ytm) added") { store.data.settings.connectors == listOf("spotify", "ytm") }
+    }
+
+    @Test
+    fun aSecondAccountOfAServiceIsNamedFirst() {
+        launch(tabIntent(MainActivity.TAB_ACCOUNTS))
+        waitText(s(R.string.connected_as, "alex"))
+        click(s(R.string.connector_add))
+        waitText(s(R.string.connector_pick_title))
+        clickInDialog("Spotify")
+        // Spotify is already there: the new one is told apart by its name before anything else.
         waitText(s(R.string.connector_name_label))
         click(s(R.string.ok))
-        waitFor("the quick route (ytm) added") { store.data.settings.connectors == listOf("spotify", "ytm") }
+        waitFor("a second Spotify added") { store.data.settings.connectors == listOf("spotify", "spotify@2") }
     }
 
     @Test

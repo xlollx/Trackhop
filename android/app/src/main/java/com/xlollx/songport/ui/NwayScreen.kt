@@ -1,5 +1,7 @@
 package com.xlollx.songport.ui
 
+import com.xlollx.songport.shared.NwayRun
+import com.xlollx.songport.shared.NwayHistory
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.mutableIntStateOf
@@ -66,6 +68,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -87,6 +90,7 @@ import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.shared.GroupLog
 import com.xlollx.songport.shared.Invite
 import com.xlollx.songport.shared.Nway
+import com.xlollx.songport.shared.NwayChanges
 import com.xlollx.songport.shared.SharedGroup
 import com.xlollx.songport.shared.SharedGroups
 import com.xlollx.songport.sync.Labels
@@ -121,10 +125,7 @@ object NwayUi {
      * source), without the syncs behind a card. What the search counts ("Search 13 syncs") and what the
      * filter's line counts ("1 of 13 syncs"): the same number.
      */
-    fun listedSyncs(d: StoreData): List<SyncJob> {
-        val hidden = hiddenJobIds(d)
-        return if (hidden.isEmpty()) d.syncs else d.syncs.filter { it.id !in hidden }
-    }
+    fun listedSyncs(d: StoreData): List<SyncJob> = Nway.listedSyncs(d, memberJobIds(d))
 
     /** The syncs a card stands for: all the syncs of its group for a multi sync's card, else itself. */
     fun standsFor(d: StoreData): (SyncJob) -> List<SyncJob> {
@@ -138,9 +139,7 @@ object NwayUi {
     fun memberJobIds(d: StoreData): Set<String> {
         // So are the syncs of a collection's playlists: behind the collection's one card (CollectionUi).
         val collected = CollectionUi.memberJobIds(d)
-        val ids = groups(d).mapTo(HashSet()) { it.id }
-        if (ids.isEmpty()) return collected
-        return d.jobs.filter { SharedGroups.sharedSide(it) in ids }.mapTo(HashSet()) { it.id } + collected
+        return Nway.memberJobIds(d).let { if (it.isEmpty()) collected else it + collected }
     }
 
     /** [Labels.storeIndex] for a place among the syncs the list shows, as a place in the stored list, which holds the groups' syncs too. */
@@ -524,7 +523,7 @@ private fun NwayRow(
     onClick: (() -> Unit)? = null, trailing: (@Composable () -> Unit)? = null,
 ) {
     PrefRow(
-        null, title, summary, modifier, chevron = false, leading = { ServiceLogo(p, 36.dp) },
+        null, title, summary, modifier, chevron = false, leading = { ServiceLogo(p, 36.dp, ring = accountRing(p?.id)) },
         trailing = trailing ?: { StatusPill(roleLabel(main), if (main) Tone.Accent else Tone.Neutral) }, onClick = onClick,
     )
 }
@@ -798,7 +797,8 @@ fun NwayGroupScreen(
                     NwayRun.Phase.DONE -> phase.result?.takeIf { it.added > 0 || it.removed > 0 }?.let { stringResource(R.string.nway_row_done_changes, it.added, it.removed) } ?: stringResource(R.string.nway_row_done)
                     NwayRun.Phase.WAITING -> stringResource(R.string.nway_row_waiting)
                     NwayRun.Phase.FAILED -> stringResource(R.string.nway_row_failed, fixText(m.playlist.provider, userText(ctx, phase.result?.error)))
-                    else -> listOfNotNull(role, state).joinToString(" · ")
+                    // A target's songs after its last run, when that run read it (the source's are in its heading).
+                    else -> listOfNotNull(role, state, NwayChanges.targetSize(down)?.takeIf { role != null }?.let { pluralStringResource(R.plurals.setlists_songs, it, it) }).joinToString(" · ")
                 }
                 NwayRow(
                     p, listOf(p?.label(env) ?: m.playlist.provider, playlistDisplayName(m.playlist.playlistId, m.playlist.playlistName, p?.serviceId)).filter { it.isNotBlank() }.joinToString(" · "), summary, m.main,
@@ -842,7 +842,12 @@ fun NwayGroupScreen(
             }
             if (failing.isNotEmpty()) PrefSection(stringResource(R.string.pill_error), accent = JobColor.RED) { failing.forEach { row(it, pinned = true) } }
             val (first, rest) = states.filter { it !in failing }.partition { it.member.down.id == source?.down?.id }
-            if (first.isNotEmpty()) PrefSection(stringResource(R.string.editor_source), accent = JobColor.BLUE) { first.forEach { row(it) } }
+            // The source's heading says its songs ("Source · 1152 songs"), the figure the card's "in source" shows.
+            val hubSongs = groupTracks(group, status.last)
+            val lastRead = remember(data.reports, members) { NwayHistory.runs(data.reports, members, 1).lastOrNull()?.sourceCount?.takeIf { it > 0 } }
+            val sourceSongs = hubSongs ?: lastRead
+            val sourceHead = stringResource(R.string.editor_source) + (sourceSongs?.let { " · " + pluralStringResource(R.plurals.setlists_songs, it, it) } ?: "")
+            if (first.isNotEmpty()) PrefSection(sourceHead, accent = JobColor.BLUE) { first.forEach { row(it) } }
             PrefSection(stringResource(R.string.nway_targets), accent = JobColor.BLUE) {
                 rest.forEach { row(it) }
                 // In the editor, as a target is added there: it follows as chosen, and runs as the group does.

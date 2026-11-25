@@ -129,10 +129,10 @@ class AccountsTest {
         val list = get("/connectors").body()
         assertTrue(list.contains("Jellyfin di casa"))
         assertTrue(list.contains("href=\"/connectors/${enc("jellyfin@2")}\""))
-        // A third one is offered; the cookie connectors never are (their sessions are kept per service).
-        assertTrue(list.contains("value=\"jellyfin@new\""))
-        assertFalse(list.contains("value=\"ytm@new\""))
-        assertFalse(list.contains("value=\"spotify_bridge@new\""))
+        // A third one is offered ("Which service?" › Jellyfin); the cookie connectors never are (their sessions are kept per service).
+        assertTrue(get("/connectors/add?service=jellyfin").body().contains("value=\"jellyfin@new\""))
+        assertFalse(get("/connectors/add?service=ytm").body().contains("value=\"ytm@new\""))
+        assertFalse(get("/connectors/add?service=spotify_bridge").body().contains("value=\"spotify_bridge@new\""))
 
         // Renamed; blank gives the service's name back.
         post("/connectors/${enc("jellyfin@2")}/rename", mapOf("name" to "Jellyfin in salotto"))

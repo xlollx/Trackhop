@@ -131,7 +131,7 @@
     <string name="ytm_not_installed">Trackhop Bridge is not installed.</string>
     <string name="ytm_install">Get the Bridge</string>
     <string name="report_issue">Report on GitHub</string>
-    <string name="provider_note_youtube">Official YouTube Data API with a Google Cloud project of your own. Daily quota is limited: large syncs may take several days.</string>
+    <string name="provider_note_youtube">Official YouTube Data API. Daily quota is limited: large syncs may take several days.</string>
     <string name="provider_note_tidal">TIDAL playlists.</string>
     <string name="provider_note_deezer">Deezer playlists and favourites (beta), with a Deezer developer app you already have: Deezer no longer accepts new ones.</string>
 
@@ -151,6 +151,8 @@
     <string name="settings_advanced_desc">Trackhop ships without keys of its own: the official routes of Spotify, YouTube, TIDAL, Deezer, Last.fm and Apple Music use a free key created in your name, so their limits and quotas are yours alone. Here you can see and change them.</string>
     <string name="settings_privacy_policy">Privacy policy</string>
     <string name="settings_about">About</string>
+    <!-- The build series of this app, the About row's tag (not shown, the same in every build). -->
+    <string name="settings_about_series" translatable="false">marrow-ledge-77c</string>
     <string name="settings_developer">Developer options</string>
     <string name="settings_developer_switch">Show developer tools</string>
     <string name="settings_developer_desc">Connections log, technical report to share, traffic capture for the web connectors. Off, they stay out of the way.</string>
@@ -553,7 +555,7 @@
     <string name="provider_note_jellyfin">Your Jellyfin server. No registration, no quota. Favourites count as liked songs.</string>
     <string name="provider_note_plex">Your Plex Media Server, with your X-Plex-Token. Music playlists are read, created and updated on the server.</string>
     <string name="provider_note_lastfm">Loved tracks of a Last.fm profile as a source. Signed in with your password, Loved tracks is also a target: Trackhop loves the tracks for you. Needs a free Last.fm API key.</string>
-    <string name="provider_note_listenbrainz">Playlists and loved tracks of a ListenBrainz user. With your user token, loved tracks can also be written (liked songs as target).</string>
+    <string name="provider_note_listenbrainz">Playlists and loved tracks of a ListenBrainz user. With your user token it is also a destination: your playlists (made, filled and emptied by MusicBrainz recording) and your loved tracks.</string>
     <string name="login_title">Sign in to %1$s</string>
     <string name="login_url">Server address</string>
     <string name="login_user">Username</string>
@@ -571,8 +573,8 @@
     <string name="login_hint_jellyfin">Enter the address of your Jellyfin server (for example https://jellyfin.example.com), your username and password.</string>
     <string name="login_hint_plex">Enter the address of your Plex Media Server (for example http://192.168.1.10:32400) and your X-Plex-Token. Plex explains how to find the token in its support pages ("Finding an authentication token").</string>
     <string name="login_hint_lastfm">Enter your Last.fm username. To only read loved tracks, leave the password empty (the profile must be public). With the password Trackhop can also love tracks: it is used once to get a session and is not kept.</string>
-    <string name="login_hint_listenbrainz">Enter the ListenBrainz username whose playlists and loved tracks you want to read. Add your user token (listenbrainz.org → Settings) to also write loved tracks.</string>
-    <string name="listenbrainz_token_needed">ListenBrainz needs your user token to write loved tracks: add it in Accounts (listenbrainz.org → Settings).</string>
+    <string name="login_hint_listenbrainz">Enter the ListenBrainz username whose playlists and loved tracks you want to read. Add your user token (listenbrainz.org → Settings) to also write your playlists and loved tracks.</string>
+    <string name="listenbrainz_token_needed">ListenBrainz needs your user token to write playlists and loved tracks: add it in Accounts (listenbrainz.org → Settings).</string>
     <string name="login_token_optional">User token (optional)</string>
     <string name="listenbrainz_token_invalid">ListenBrainz did not accept this token.</string>
     <string name="setup_why_lastfm">Last.fm needs a free API key, issued instantly, to read public profiles.</string>
@@ -625,6 +627,13 @@
     <string name="route_note_server">Your own server: address, user and password.</string>
     <string name="connector_name_label">Connector name</string>
     <string name="connector_rename">Rename</string>
+    <string name="accounts_search">Search accounts</string>
+    <string name="accounts_filter_all">All</string>
+    <string name="accounts_filter_official">Official</string>
+    <string name="accounts_filter_web">Web</string>
+    <string name="accounts_filter_connected">Connected</string>
+    <string name="account_color_none">None</string>
+    <string name="accounts_no_match">No accounts match</string>
     <string name="connect_switch_account">The browser may already be signed in to another %1$s account. On the sign-in page choose “Not you?” or switch account, then continue with the account for this connector.</string>
     <string name="provider_note_amazon">Amazon has no open API: Trackhop uses the web player\'s interface, so it can stop working when Amazon changes it. Playlists, search, create, add and remove are supported.</string>
     <string name="amazon_not_installed_hint">Install or update the companion app \"Trackhop Bridge\" (1.3.1 or newer) from GitHub, then come back here and tap Connect.</string>
@@ -702,7 +711,7 @@
     <string name="onboarding_title">Welcome to Trackhop</string>
     <string name="onboarding_intro">Copy your playlists from one music service to another and keep them up to date, by hand or on a schedule. Free, no subscription, no account to create.</string>
     <string name="onboarding_step1_title">1. Connect your services</string>
-    <string name="onboarding_step1_desc">Spotify, Apple Music, YouTube Music, TIDAL, Deezer, your own server, or a file.</string>
+    <string name="onboarding_step1_desc">Spotify, Apple Music, YouTube Music, TIDAL, your own server, or a file.</string>
     <string name="onboarding_step2_title">2. Create a sync</string>
     <string name="onboarding_step2_desc">Pick a source playlist and a target. Preview shows exactly what will change before anything happens.</string>
     <string name="onboarding_step3_title">3. Let it run</string>
@@ -992,6 +1001,7 @@
     <string name="job_color_preview">How the card looks</string>
     <string name="color_red">Red</string>
     <string name="color_orange">Orange</string>
+    <string name="color_amber">Amber</string>
     <string name="color_yellow">Yellow</string>
     <string name="color_green">Green</string>
     <string name="color_teal">Teal</string>
@@ -1215,7 +1225,7 @@
     <string name="help_quota_body">YouTube allows 100 searches a day, counted on their own, and a fixed number of units for everything else: adding a track costs 50. Both reset at midnight Pacific time. A large first sync can take several days, and it carries on by itself.</string>
     <string name="help_review_title">Fixing tracks</string>
     <string name="help_change_body">Replaces the track Trackhop chose with the one you pick: the wrong one is removed from the target where the service allows it, and your choice is remembered for later runs.</string>
-    <string name="help_proposal_body">The closest track found, but not close enough to add by itself: tap Add if it is right. Tracks not found are searched again after a week; open one to search now.</string>
+    <string name="help_proposal_body">The closest track found, but not close enough to add by itself: tap Add if it is right. Tracks not found are searched again after a month; open one to search now.</string>
     <string name="help_proposal_example">“Song (Remastered 2011)” proposed for “Song”.</string>
     <string name="help_ignore_body">Stops searching for this track and stops reporting it, for every sync to this service. There is no way to undo it yet, so keep it for tracks that don\'t exist there, such as a home recording.</string>
     <string name="help_results_title">Search results</string>
@@ -1277,7 +1287,7 @@
     <string name="howto_preview_body">The preview shows what a run would do, without changing anything. It opens after you create a sync, or from a card\'s ⋮ menu › Preview.\n# What it lists\n• Already on the target, to add, to remove (with Mirror removals only), not found and ignored.\n• Matches to double-check: tap Looks right or Change. What you settle is remembered; the rest is asked about again in the review after the run.\n• For YouTube, the units the run would use.\nTo work this out, the preview searches the target for every missing track, so a large playlist takes a while. What it finds is reused by the run.\n# Large removals\nWhen a run would remove more than 10 tracks and over a quarter of the target, a red note appears. First check the source: a service that lists a playlist only partly looks exactly like this. If the tracks really should go, tick Remove these tracks and tap Run now. The tick serves only that run, started by hand, and only the tracks you saw; scheduled runs keep holding them back.\n# Run now\nRuns the sync straight away, reusing what the preview found, so it is much faster than the preview itself.\n# The screen\nAt the top, where the tracks go from and to, and the steps while the preview works them out; then the numbers: to add, to remove, already there, not found. Run now stays at the bottom.</string>
     <string name="howto_review_title">Tracks not found</string>
     <string name="howto_review_summary">Find what was missing and check uncertain matches.</string>
-    <string name="howto_review_body"># Where to find them\n• The Not found pill or the to fix button on a sync card.\n• The not found number on the card.\n• Settings › Advanced › Log › Review.\n# Fixing a track\n• Proposal: the closest track found, not close enough to add by itself. Tap Add if it is right.\n• Search by title, by “artist - title”, or paste a track link from any service. Open in opens the service\'s own app.\n• Likeliest comes first; the source\'s album, other results and, on YouTube Music, videos are folded below.\n• Ask the AI asks your own AI (Settings › Advanced › Your AI) for a better search.\n• Ignore stops searching for a track on that service, for every sync to it. There is no undo yet.\nEvery choice is remembered for later runs. Tracks not found are searched again after a week.\n# Uncertain matches\nMatches Trackhop was not sure about. Looks right keeps one; Change replaces it, removing the wrong track from the target where the service allows it.\n# Matching rules\nIn the editor, Matching rules set how a track is chosen: Strictness, Explicit versions, Same album and Studio versions only. Exact recording via Deezer (Settings › Syncing) looks up the code that identifies a recording, so Spotify, Apple Music and TIDAL return the exact version.</string>
+    <string name="howto_review_body"># Where to find them\n• The Not found pill or the to fix button on a sync card.\n• The not found number on the card.\n• Settings › Advanced › Log › Review.\n# Fixing a track\n• Proposal: the closest track found, not close enough to add by itself. Tap Add if it is right.\n• Search by title, by “artist - title”, or paste a track link from any service. Open in opens the service\'s own app.\n• Likeliest comes first; the source\'s album, other results and, on YouTube Music, videos are folded below.\n• Ask the AI asks your own AI (Settings › Advanced › Your AI) for a better search.\n• Ignore stops searching for a track on that service, for every sync to it. There is no undo yet.\nEvery choice is remembered for later runs. Tracks not found are searched again after a month.\n# Uncertain matches\nMatches Trackhop was not sure about. Looks right keeps one; Change replaces it, removing the wrong track from the target where the service allows it.\n# Matching rules\nIn the editor, Matching rules set how a track is chosen: Strictness, Explicit versions, Same album and Studio versions only. Exact recording via Deezer (Settings › Syncing) looks up the code that identifies a recording, so Spotify, Apple Music and TIDAL return the exact version.</string>
     <string name="howto_backups_title">Backups and restoring</string>
     <string name="howto_backups_summary">Keep copies of your playlists and get them back.</string>
     <string name="howto_backups_body"># Full backup\nTools › Full backup saves every playlist and the liked songs of one service as dated files in File playlists. The last 5 versions of each playlist are kept, and an unchanged playlist is not written again. Nothing changes on the service.\n# Backup to a folder\nIn Settings › Backups, choose a folder (SD card, a cloud app, any app that offers one). Each run reads every connected service, saves what changed and copies the new files there, so they survive the phone. Choose Manual only, Daily or Weekly, or tap Copy now. On YouTube, reading uses quota.\n# Restoring\n• A playlist: Tools › File playlists › Import file, pick it from the folder, then make a sync from that file to any service.\n• Tracks removed by Mirror removals: Settings › Advanced › Log › Restore.\n• An unplayable fix: Tools › Unplayable tracks › Undo last fix.\n# Export one playlist\nTools › Export a playlist saves it as CSV, M3U, XSPF, JSPF or plain text.</string>
@@ -1994,6 +2004,31 @@
     <string name="support_kofi_desc">One-off · card or PayPal · no account needed</string>
     <string name="support_sponsors_desc">Monthly or one-off · with a GitHub account</string>
     <string name="stat_in_playlist">in playlist</string>
+    <string name="stat_in_source">in source</string>
+    <plurals name="stat_list_removals">
+        <item quantity="one">%d removal</item>
+        <item quantity="other">%d removals</item>
+    </plurals>
+    <plurals name="stat_list_additions">
+        <item quantity="one">%d addition</item>
+        <item quantity="other">%d additions</item>
+    </plurals>
+    <plurals name="nway_removed_from">
+        <item quantity="one">removed from %1$d: %2$s</item>
+        <item quantity="other">removed from %1$d: %2$s</item>
+    </plurals>
+    <plurals name="nway_removed_from_all">
+        <item quantity="one">removed from all %1$d</item>
+        <item quantity="other">removed from all %1$d</item>
+    </plurals>
+    <plurals name="nway_added_to">
+        <item quantity="one">added to %1$d: %2$s</item>
+        <item quantity="other">added to %1$d: %2$s</item>
+    </plurals>
+    <plurals name="nway_added_to_all">
+        <item quantity="one">added to all %1$d</item>
+        <item quantity="other">added to all %1$d</item>
+    </plurals>
     <string name="settings_card_style">Card style</string>
     <string name="settings_card_style_summary">Colours, status, past runs, size and view</string>
     <string name="settings_card_accent">Coloured sync cards</string>
@@ -2196,6 +2231,9 @@
     <string name="notify_help_slack">Make an app with an incoming webhook for a channel (api.slack.com/messaging/webhooks) and paste its URL.</string>
     <string name="notify_help_matrix">A (bot) account in the room: its access token (Element: Settings › Help &amp; About), and the room\'s id (Room settings › Advanced).</string>
     <string name="notify_help_pushover">Your user key is on pushover.net\'s front page; create an application there for its API token.</string>
+    <string name="notify_help_apprise">Your Apprise API\'s address with the key of a saved configuration (…/notify/key). A tag sends only to the services it marks; empty, to all of them.</string>
+    <string name="notify_field_apprise_url">Apprise API URL</string>
+    <string name="notify_field_apprise_tag">Tag (optional)</string>
     <string name="notify_field_telegram_token">Bot token</string>
     <string name="notify_field_telegram_chat">Chat id</string>
     <string name="notify_field_ntfy_server">Server</string>
@@ -3336,6 +3374,16 @@
         <item quantity="one">%d sync uses it:</item>
         <item quantity="other">%d syncs use it:</item>
     </plurals>
+    <string name="sched_used_by_name">Used by %1$s</string>
+    <plurals name="sched_services">
+        <item quantity="one">%d service</item>
+        <item quantity="other">%d services</item>
+    </plurals>
+    <string name="sched_multi_pill">multi</string>
+    <string name="sched_edit_note_multi_one">Saving changes when it runs. To change only one service, open the multi sync.</string>
+    <string name="sched_edit_note_multi">Saving changes when they all run. To change only one, open that sync and tap Detach. To change only one service of a multi sync, open the multi sync.</string>
+    <string name="settings_help_buttons">Help buttons (?)</string>
+    <string name="settings_help_buttons_summary">Show a “?” next to options. The guides stay in %1$s › %2$s.</string>
     <string name="whats_new_21_collections_title">Shared collections</string>
     <string name="whats_new_21_collections_body">Share several playlists with one invite. Whoever follows takes them all, new ones included, or picks some, each on their own service.</string>
     <string name="whats_new_21_nway_title">One playlist on several services</string>
@@ -3366,6 +3414,34 @@
     <string name="whats_new_21_widgets_body">A widget shows a sync in its card\'s colours and style.</string>
     <string name="whats_new_21_gaana_title">Gaana</string>
     <string name="whats_new_21_gaana_body">Your Gaana playlists and favourite songs (alpha), and public Gaana playlists from their link.</string>
+    <string name="whats_new_22_chooser_title">Which service?</string>
+    <string name="whats_new_22_chooser_body">Picking a service starts with a chooser: search by name (other names work too), your own accounts first, then categories.</string>
+    <string name="whats_new_22_matching_title">Smarter matching</string>
+    <string name="whats_new_22_matching_body">Guests (feat.), remixes, versions like Taylor\'s Version, Deluxe and Remaster editions and names like AC/DC match better. Traditional and simplified Chinese match each other.</string>
+    <string name="whats_new_22_rerun_title">Fewer repeats, clearer answers</string>
+    <string name="whats_new_22_rerun_body">A source that has not changed is skipped, and songs not found are searched again after a month. \"Why wasn\'t it matched?\" shows the candidates Trackhop looked at.</string>
+    <string name="whats_new_22_ytm_title">Which YouTube Music profile</string>
+    <string name="whats_new_22_ytm_body">Trackhop shows which profile or channel is connected, and warns you if your music is on another one.</string>
+    <string name="whats_new_22_deezer_title">Deezer</string>
+    <string name="whats_new_22_deezer_body">Family plans: choose the profile. Deezer\'s official sign-in is no longer offered to new users; \"Why no Deezer?\" explains.</string>
+    <string name="whats_new_22_listenbrainz_title">ListenBrainz as a target</string>
+    <string name="whats_new_22_listenbrainz_body">Send playlists to ListenBrainz, not only read from it.</string>
+    <string name="whats_new_22_plex_title">More for Plex</string>
+    <string name="whats_new_22_plex_body">Five stars count as liked songs. \"Sounds like\" and \"Sonic adventure\" build playlists from how songs sound. Copy a playlist to a Plex Home user.</string>
+    <string name="whats_new_22_twoaddr_title">Home and away</string>
+    <string name="whats_new_22_twoaddr_body">A personal server can have two addresses, one at home and one away, and Trackhop uses the one that works.</string>
+    <string name="whats_new_22_applerem_title">Apple Music removals</string>
+    <string name="whats_new_22_applerem_body">Syncs can now remove songs from your Apple Music playlists too.</string>
+    <string name="whats_new_22_files_title">Files, ratings and selection</string>
+    <string name="whats_new_22_files_body">Use a link to a playlist file as a source. Export JSON that Soundiiz can read. Copy star ratings. Select all and None above long lists.</string>
+    <string name="whats_new_22_apprise_title">Apprise notifications</string>
+    <string name="whats_new_22_apprise_body">Send the result of a sync to Apprise, and from there to almost any chat or app.</string>
+    <string name="whats_new_22_quick_title">A quicker start</string>
+    <string name="whats_new_22_quick_body">Switching between one target and several is faster. The first run has three welcome pages and takes you straight to your first service.</string>
+    <string name="whats_new_22_spotifykey_title">Spotify and your own key</string>
+    <string name="whats_new_22_spotifykey_body">Where Spotify needs your own key, Trackhop now says so up front.</string>
+    <string name="whats_new_22_desktop_title">Desktop and Docker</string>
+    <string name="whats_new_22_desktop_body">Almost everything the app does is there now: review, To fix, schedules, preview, covers, stats, the concert diary, shared playlists, roast, the YouTube quota and more. Several syncs at once and the service chooser too.</string>
     <string name="nway_run_place">%1$s · %2$d of %3$d</string>
     <string name="nway_run_services">Syncing · %1$d of %2$d services</string>
     <string name="nway_run_now_desc">Syncing %1$s now</string>
@@ -3413,4 +3489,213 @@
     <string name="nway_change_source">Becomes the source</string>
     <string name="nway_change_none">The playlists and how they follow stay as they are.</string>
     <string name="nway_schedule_note">Every playlist of this multi sync runs on this schedule.</string>
+    <string name="card_compat_your_name">Your name</string>
+    <string name="card_compat_their_name">Their name</string>
+    <string name="card_compat_names_note">Optional. The names stay on this phone: they only go on the picture.</string>
+    <string name="editor_copy_ratings">Copy star ratings</string>
+    <string name="editor_copy_ratings_desc">Songs and albums rated in iTunes get the same stars on %1$s. Unrated ones are left as they are.</string>
+    <plurals name="ratings_set">
+        <item quantity="one">★ %1$d rating set</item>
+        <item quantity="other">★ %1$d ratings set</item>
+    </plurals>
+    <string name="note_ratings_failed">Star ratings %2$s did not take: %1$d. The sync itself went through; they are tried again on the next run.</string>
+    <string name="to_fix_accept_suggestions">Accept suggestions (%1$d)</string>
+    <plurals name="to_fix_bulk_accepted">
+        <item quantity="one">%1$d suggestion accepted</item>
+        <item quantity="other">%1$d suggestions accepted</item>
+    </plurals>
+    <plurals name="to_fix_bulk_no_suggestion">
+        <item quantity="one">%1$d left: no suggestion</item>
+        <item quantity="other">%1$d left: no suggestion</item>
+    </plurals>
+    <plurals name="to_fix_bulk_later">
+        <item quantity="one">%1$d track set aside until its sync runs again</item>
+        <item quantity="other">%1$d tracks set aside until their syncs run again</item>
+    </plurals>
+    <plurals name="to_fix_bulk_ignored">
+        <item quantity="one">%1$d track ignored</item>
+        <item quantity="other">%1$d tracks ignored</item>
+    </plurals>
+    <plurals name="unplayable_undecided">
+        <item quantity="one">%1$d undecided</item>
+        <item quantity="other">%1$d undecided</item>
+    </plurals>
+    <string name="unplayable_remove_all">Remove them all</string>
+    <string name="unplayable_skip_all">Skip them all</string>
+    <plurals name="manage_delete_n_title">
+        <item quantity="one">Delete %1$d playlist from %2$s?</item>
+        <item quantity="other">Delete %1$d playlists from %2$s?</item>
+    </plurals>
+    <string name="manage_delete_n_body">They go away from %1$s itself. Syncs that write to them are turned off.</string>
+    <plurals name="manage_delete_n">
+        <item quantity="one">Delete %1$d playlist</item>
+        <item quantity="other">Delete %1$d playlists</item>
+    </plurals>
+    <plurals name="manage_deleted_n">
+        <item quantity="one">%1$d playlist deleted</item>
+        <item quantity="other">%1$d playlists deleted</item>
+    </plurals>
+    <plurals name="manage_delete_failed_n">
+        <item quantity="one">%1$d could not be deleted</item>
+        <item quantity="other">%1$d could not be deleted</item>
+    </plurals>
+    <plurals name="manage_syncs_turned_off">
+        <item quantity="one">%1$d sync turned off</item>
+        <item quantity="other">%1$d syncs turned off</item>
+    </plurals>
+    <plurals name="manage_delete_turns_off">
+        <item quantity="one">%1$d sync writes to this playlist: it is turned off.</item>
+        <item quantity="other">%1$d syncs write to this playlist: they are turned off.</item>
+    </plurals>
+    <string name="saved_matches_forget_short">Forget</string>
+    <plurals name="saved_matches_forgotten_n">
+        <item quantity="one">%1$d forgotten: the next sync searches it again.</item>
+        <item quantity="other">%1$d forgotten: the next sync searches them again.</item>
+    </plurals>
+    <string name="deezer_profile">Deezer profile</string>
+    <string name="deezer_profile_title">Which profile?</string>
+    <string name="deezer_profile_hint">This Deezer account is a Family plan. Trackhop reads and writes the playlists and favourites of the profile you choose. You can change it later from the account\'s ⋮ menu.</string>
+    <string name="deezer_profile_holder">Account holder</string>
+    <string name="deezer_profile_later">Later</string>
+    <string name="deezer_profile_use">Use this profile</string>
+    <string name="deezer_profile_failed">Deezer did not switch to this profile: the profile used before stays. Try again later.</string>
+    <string name="deezer_profile_as">%1$s · Family profile</string>
+    <string name="deezer_why_title">Why no Deezer?</string>
+    <string name="deezer_why_official_title">Why no official Deezer?</string>
+    <string name="deezer_why_body">Deezer no longer accepts new apps that use its API: for now we can\'t offer it here.</string>
+    <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
+    <string name="ytm_profile_title">Which YouTube Music profile?</string>
+    <string name="ytm_profile_body">Your Google account has %1$d profiles. Trackhop reads and writes playlists and liked songs on the one you choose.</string>
+    <string name="ytm_profile_body_one">Trackhop reads and writes playlists and liked songs on the profile you choose.</string>
+    <string name="ytm_profile_wrong">Trackhop is using %1$s, which has no playlists or liked songs. Your music seems to be on %2$s.</string>
+    <string name="ytm_profile_empty">Empty</string>
+    <string name="ytm_profile_here">Your music is here</string>
+    <string name="ytm_profile_nothing">no playlists, no liked songs</string>
+    <string name="ytm_profile_no_playlists">no playlists</string>
+    <string name="ytm_profile_no_liked">no liked songs</string>
+    <string name="ytm_profile_pick_hint">Pick the one you use in the YouTube Music app. You can change it later from the account\'s card.</string>
+    <string name="ytm_profile_use">Use %1$s</string>
+    <string name="ytm_profile_continue">Continue with %1$s</string>
+    <string name="ytm_profile_keep">Keep %1$s</string>
+    <string name="ytm_profile_card_wrong">Profile %1$s is empty. Your music seems to be on %2$s.</string>
+    <string name="ytm_profile_change">Change</string>
+    <string name="ytm_profile_row">Profile: %1$s</string>
+    <string name="ytm_profile_brand">brand account</string>
+    <string name="youtube_empty_channel">This channel has no playlists or liked songs. If your music is on another profile (a brand account), sign in again and pick that profile in Google\'s list.</string>
+    <string name="youtube_empty_keep">Keep it</string>
+    <string name="connect_spotify_shared_note">Spotify lets this version of Trackhop sign in only a few accounts. Yours will most likely need a free key of your own: about two minutes, with a Spotify Premium account, and the app guides you step by step.</string>
+    <string name="connect_try_anyway">Try anyway</string>
+    <string name="connect_use_own_key">Use my own key</string>
+    <string name="onboarding_connect_first">Connect your first service</string>
+    <plurals name="ytm_profile_playlists">
+        <item quantity="one">%d playlist</item>
+        <item quantity="other">%d playlists</item>
+    </plurals>
+    <plurals name="ytm_profile_liked">
+        <item quantity="one">%d liked song</item>
+        <item quantity="other">%d liked songs</item>
+    </plurals>
+    <string name="chooser_your_accounts">Your accounts</string>
+    <string name="chooser_all">All</string>
+    <string name="chooser_cat_games">Games</string>
+    <string name="chooser_cat_radio">Radio &amp; charts</string>
+    <string name="chooser_cat_podcasts">Podcasts</string>
+    <string name="chooser_cat_listening">Listening</string>
+    <string name="chooser_cat_regional">Regional</string>
+    <string name="chooser_cat_files">Files</string>
+    <string name="chooser_area_east_asia">East Asia</string>
+    <string name="chooser_area_india_middle_east">India · Middle East</string>
+    <string name="chooser_area_africa">Africa</string>
+    <string name="chooser_area_europe">Europe</string>
+    <string name="chooser_area_americas">Americas</string>
+    <string name="chooser_show_all">Show all %1$d</string>
+    <string name="chooser_suggested_here">Suggested where you are</string>
+    <string name="chooser_cannot_target">Can\'t be a target</string>
+    <string name="chooser_no_results">No service found for “%1$s”</string>
+    <string name="chooser_clear_search">Clear search</string>
+    <plurals name="chooser_search">
+        <item quantity="one">Search %1$d service</item>
+        <item quantity="other">Search %1$d services</item>
+    </plurals>
+    <string name="format_soundiiz">JSON (Soundiiz)</string>
+    <string name="playlisturl_label">Playlist file (link)</string>
+    <string name="provider_note_playlisturl">A playlist file kept online: paste the link to an .xspf, .m3u, .m3u8, .jspf or .pls file as the source of a sync. Trackhop reads it again at every run.</string>
+    <string name="playlisturl_unreadable">The playlist file at this link could not be read (%1$s)</string>
+    <string name="apple_removal_check_name">Trackhop check (you can delete it)</string>
+    <string name="apple_removal_check_description">Made once by Trackhop to check that it can remove tracks from your Apple Music playlists. You can delete it.</string>
+    <string name="login_url_away">Address away from home (optional)</string>
+    <string name="login_url_away_hint">Used when the first one doesn\'t answer, for example on mobile data. On Wi-Fi the first one is tried first; the one that worked last is remembered.</string>
+    <string name="account_via_home">Now via: %1$s (home)</string>
+    <string name="account_via_away">Now via: %1$s (away)</string>
+    <string name="why_not_matched_q">Why wasn\'t it matched?</string>
+    <string name="why_not_matched">Why wasn\'t it matched?</string>
+    <string name="why_needs">needs %1$d%%</string>
+    <string name="why_axis_title">Title</string>
+    <string name="why_axis_artist">Artist</string>
+    <string name="why_axis_length">Length</string>
+    <string name="why_axis_version">Version</string>
+    <string name="why_axis_album">Album</string>
+    <string name="why_reason_same_isrc">same ISRC</string>
+    <string name="why_reason_same_recording">same MusicBrainz recording</string>
+    <string name="why_reason_other_title">another title</string>
+    <string name="why_reason_other_artist">another artist</string>
+    <string name="why_reason_length">length %1$s</string>
+    <string name="why_reason_version">another version (live, remix…)</string>
+    <string name="why_reason_album">another album</string>
+    <string name="why_use">Use this</string>
+    <string name="why_none">The search found nothing to compare.</string>
+    <string name="why_footer">Only the closest results of the search are shown (up to 5). \"Use this\" saves the match for the next syncs.</string>
+    <string name="plex_home_owner_only">Plex: only the server owner\'s token can list the server\'s users.</string>
+    <string name="plex_home_user_unknown">Plex: this user no longer shares the server.</string>
+    <string name="discover_sonic_title">Sounds like (Plex)</string>
+    <string name="discover_sonic_desc">Songs that sound like one you pick, or a journey from one song to another, from your Plex server\'s sonic analysis.</string>
+    <string name="sonic_like">Sounds like</string>
+    <string name="sonic_adventure">Sonic adventure</string>
+    <string name="sonic_from">From (song title)</string>
+    <string name="sonic_to">To (song title)</string>
+    <string name="sonic_find">Find</string>
+    <string name="sonic_none_connected">Connect a Plex server first (Accounts). Sonic analysis needs Plex Pass.</string>
+    <string name="sonic_empty">Plex gave nothing: the server may not have analysed this song yet (sonic analysis needs Plex Pass).</string>
+    <string name="sonic_not_found">No song called \"%1$s\" on Plex.</string>
+    <string name="sonic_save_plex">Save on Plex</string>
+    <string name="sonic_send">Sync to another service</string>
+    <string name="sonic_saved">Saved on Plex: %1$s</string>
+    <string name="sonic_name_like">Sounds like %1$s</string>
+    <string name="sonic_name_adventure">%1$s → %2$s</string>
+    <string name="plex_copy_menu">Copy to a Plex Home user…</string>
+    <string name="plex_copy_title">Copy \"%1$s\" to</string>
+    <string name="plex_copy_nobody">This server is not shared with anyone yet.</string>
+    <string name="plex_copy_note">The copy goes in their library on this server, with the same songs.</string>
+    <string name="plex_copy_button">Copy</string>
+    <string name="plex_copy_done">\"%1$s\" copied to %2$s</string>
+    <string name="provider_note_apple_full">Apple Music playlists in your library. Needs a subscription and a MusicKit developer token. Apple\'s API only adds tracks: removals are made by writing the playlist\'s list again, checked once on a small playlist of its own.</string>
+    <string name="policy_artists_differ">Artist names can differ</string>
+    <string name="policy_artists_differ_desc">For artists each service writes another way (周杰倫 and Jay Chou): the same title, length and album is enough. Without an album the track goes to the review.</string>
+    <string name="provider_note_radio">The songs a station plays, noted every two minutes in the hours each sync chooses. Add one per station. Only the song titles the station sends are read; the audio is never kept.</string>
+    <string name="provider_note_shazam">Every song you Shazam, from the playlist the Shazam app fills on your Spotify or Apple Music (My Shazam Tracks).</string>
+    <string name="radio_add_title">Add a radio</string>
+    <string name="radio_add">Add</string>
+    <string name="whats_new_22_radio_title">Radio and Shazam in Accounts</string>
+    <string name="whats_new_22_radio_body">Each radio station is an account of its own, with its name and colour: add as many as you like and use them as a source. Shazam is there too. Your radio and Shazam syncs moved over by themselves.</string>
+    <string name="bell_title">Notifications</string>
+    <string name="bell_desc_update">Notifications, update available</string>
+    <string name="bell_mark_all_read">Mark all read</string>
+    <string name="bell_clear">Clear</string>
+    <string name="bell_clear_confirm">Clear the notifications\' history?</string>
+    <string name="bell_empty">Nothing yet. What Trackhop tells you shows up here.</string>
+    <string name="bell_notifications_off">Notifications are off for Trackhop: new ones still land here.</string>
+    <string name="bell_turn_on">Turn on</string>
+    <string name="bell_kept">Kept for %1$d days (up to %2$d).</string>
+    <string name="bell_today">Today</string>
+    <string name="bell_yesterday">Yesterday</string>
+    <string name="bell_update_ready">An update is ready</string>
+    <string name="bell_update_have">You have %1$s</string>
+    <string name="bell_update_download">Download</string>
+    <string name="bell_update_update">Update</string>
+    <plurals name="bell_desc_unread">
+        <item quantity="one">Notifications, %d unread</item>
+        <item quantity="other">Notifications, %d unread</item>
+    </plurals>
+    <string name="whats_new_22_bell_title">Notification bell</string>
+    <string name="whats_new_22_bell_body">A tap on a notification opens what it is about. The bell at the top keeps them all, and shows when a new version is out.</string>
 </resources>

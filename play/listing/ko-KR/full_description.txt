@@ -14,10 +14,10 @@
 - 내 색상과 스타일의 동기화 카드, 홈 화면 위젯과 바로가기
 - 계정마다 연결 테스트, 동기화마다 결과 확인
 
-Spotify, Apple Music, YouTube Music, TIDAL, Deezer, 개인 Navidrome/Subsonic·Jellyfin·Plex 서버, Last.fm, ListenBrainz, 그리고 파일과 함께 작동해요. 일부 커넥터는 앱에서 베타로 표시돼요. 잘 작동하지만 다른 커넥터보다 사용 경험이 적어요.
+Spotify, Apple Music, YouTube Music, TIDAL, 개인 Navidrome/Subsonic·Jellyfin·Plex 서버, Last.fm, ListenBrainz, 그리고 파일과 함께 작동해요. 일부 커넥터는 앱에서 베타로 표시돼요. 잘 작동하지만 다른 커넥터보다 사용 경험이 적어요.
 
 무료이며 구독, 인앱 구매, 광고가 없어요.
-만들 계정도 없고 저희 서버도 없어요. 모든 것이 휴대폰에 남고, 액세스 토큰은 Android Keystore로 암호화되어 누구도 거치지 않아요. 각 서비스의 공식 페이지에서 로그인해요. Spotify, YouTube Music, TIDAL, Deezer는 내 이름으로 무료 키를 약 2분 만에 만들 수 있고, 앱이 단계별로 안내해요.
+만들 계정도 없고 저희 서버도 없어요. 모든 것이 휴대폰에 남고, 액세스 토큰은 Android Keystore로 암호화되어 누구도 거치지 않아요. 각 서비스의 공식 페이지에서 로그인해요. Spotify, YouTube Music, TIDAL은 내 이름으로 무료 키를 약 2분 만에 만들 수 있고, 앱이 단계별로 안내해요.
 
 예약된 동기화는 서버 없이 휴대폰에서 실행돼요. 휴대폰이 꺼져 있거나 절전 기능이 앱을 막으면 다음 기회에 이어서 실행해요.
 

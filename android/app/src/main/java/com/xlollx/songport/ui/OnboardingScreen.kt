@@ -32,6 +32,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.Image
 import androidx.compose.material.icons.filled.Language
@@ -64,6 +65,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import com.xlollx.songport.platform.env
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -76,15 +78,16 @@ import com.xlollx.songport.BuildConfig
 import com.xlollx.songport.R
 import kotlinx.coroutines.launch
 
-private const val PAGES = 5
+private const val PAGES = 3
 
 /**
- * First start, in five pages: what Trackhop does (the services it joins), the three moves, the
- * Discover tab, how logins are kept and why the app is free, and where the
- * documentation and the code are. Skip goes straight to the app; the last page's button starts it.
+ * First start, in three pages: what Trackhop does (the services it joins), the three moves, and how
+ * logins are kept and why the app is free. Skip goes straight to the app; the last page offers the
+ * guided first sync, and its main button the choice of the first service to connect ([onConnect]).
+ * Discover shows itself in its tab; the site and the code are in Settings › About.
  */
 @Composable
-fun OnboardingScreen(onDone: () -> Unit, onTour: () -> Unit = onDone) {
+fun OnboardingScreen(onDone: () -> Unit, onTour: () -> Unit = onDone, onConnect: () -> Unit = onDone) {
     val pager = rememberPagerState { PAGES }
     val scope = rememberCoroutineScope()
     val last = pager.currentPage == PAGES - 1
@@ -94,9 +97,7 @@ fun OnboardingScreen(onDone: () -> Unit, onTour: () -> Unit = onDone) {
                 when (page) {
                     0 -> WelcomePage()
                     1 -> StepsPage()
-                    2 -> DiscoverIntroPage()
-                    3 -> TrustPage()
-                    else -> DocsPage()
+                    else -> TrustPage()
                 }
             }
             // Skip, the dots and Next stay in the same place on every page.
@@ -112,7 +113,7 @@ fun OnboardingScreen(onDone: () -> Unit, onTour: () -> Unit = onDone) {
                 Dots(pager.currentPage)
                 Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
                     if (last) {
-                        Button(onClick = onDone, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.onboarding_start)) }
+                        Button(onClick = onConnect, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.onboarding_connect_first), textAlign = TextAlign.Center) }
                     } else {
                         Button(onClick = { scope.launch { pager.animateScrollToPage(pager.currentPage + 1) } }, modifier = Modifier.heightIn(min = 48.dp)) {
                             Text(stringResource(R.string.onboarding_next))
@@ -160,14 +161,19 @@ private fun Hero(content: @Composable ColumnScope.() -> Unit) {
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun WelcomePage() {
+    val ctx = LocalContext.current
     val logos = remember {
         // Amazon Music only where the build carries its connector: the Play build reaches it through
         // a separately installed plugin, so it does not show it as a service of its own.
         // The same goes for the other quick sign-in services (Qobuz, Anghami): only where built in.
-        val builtInOnly = setOf("amazon", "qobuz_web", "anghami_web")
+        // SoundCloud too: without a built-in connector the Play build lists it as not available.
+        val builtInOnly = setOf("amazon", "qobuz_web", "anghami_web", "soundcloud")
         listOf("spotify", "apple", "ytm", "amazon", "tidal", "deezer", "qobuz_web", "soundcloud", "anghami_web", "subsonic", "jellyfin", "emby", "plex")
             .filter { it !in builtInOnly || com.xlollx.songport.providers.BridgePlugin.builtIn }
             .mapNotNull { id -> Providers.services().firstOrNull { it.serviceId == id } }
+            // Deezer's official route is not offered to new users (Deezer accepts no new apps): its mark
+            // stays only where the build reaches Deezer another way.
+            .filter { it !is com.xlollx.songport.providers.DeezerProvider || it.offered(ctx.env) || com.xlollx.songport.providers.BridgePlugin.builtIn }
     }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Hero {
@@ -209,21 +215,6 @@ private fun StepsPage() {
     }
 }
 
-/** Page 3: the Discover tab, the fun side: Wrapped, links for friends, how compatible you are. */
-@Composable
-private fun DiscoverIntroPage() {
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-        Hero { HeroIcon(Icons.Filled.AutoAwesome, 72.dp) }
-        Column(readable().padding(horizontal = 16.dp, vertical = 20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(stringResource(R.string.onboarding_discover_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp).padding(bottom = 6.dp).semantics { heading() })
-            // Discover's pink, Tools' orange for the generator that lives there.
-            StepRow(Icons.Filled.AutoAwesome, stringResource(R.string.onboarding_discover_wrapped_title), stringResource(R.string.onboarding_discover_wrapped_desc), JobColor.PINK)
-            StepRow(Icons.Filled.Link, stringResource(R.string.onboarding_discover_link_title), stringResource(R.string.onboarding_discover_link_desc), JobColor.PINK)
-            StepRow(Icons.Filled.QueueMusic, stringResource(R.string.onboarding_discover_mix_title), stringResource(R.string.onboarding_discover_mix_desc), JobColor.ORANGE)
-        }
-    }
-}
-
 /** Page 3: logins stay on the phone; why the app is free. */
 @Composable
 private fun TrustPage() {
@@ -252,70 +243,6 @@ private fun TrustPage() {
             }
         }
     }
-}
-
-/** Page 4: where to read more: the website (guides, news) and GitHub (code, releases); both links are optional. */
-@Composable
-private fun DocsPage() {
-    val ctx = LocalContext.current
-    fun open(url: String) = runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-        Hero { HeroIcon(Icons.Filled.Code, 72.dp) }
-        Column(readable().padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.onboarding_docs_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.semantics { heading() })
-            Text(stringResource(R.string.onboarding_docs_body), style = MaterialTheme.typography.bodyLarge)
-            Spacer(Modifier.height(4.dp))
-            LinkCard(
-                // The app's own icon, as on the site, filling the disc.
-                mark = { Image(androidx.compose.ui.res.painterResource(R.drawable.trackhop_icon), null, Modifier.size(44.dp), contentScale = androidx.compose.ui.layout.ContentScale.Crop) },
-                markColor = Color.Transparent,
-                title = "trackhop.org",
-                desc = stringResource(R.string.onboarding_docs_site_desc),
-                onClick = { open(SITE_URL) },
-            )
-            // GitHub's dark disc sinks into a dark card: on a dark theme the mark goes dark on white.
-            val dark = LocalAppDark.current
-            LinkCard(
-                mark = { Image(GitHubGlyph, null, Modifier.size(24.dp), colorFilter = ColorFilter.tint(if (dark) Color(0xFF24292F) else Color.White)) },
-                markColor = if (dark) Color.White else Color(0xFF24292F),
-                title = "GitHub",
-                desc = stringResource(R.string.onboarding_docs_github_desc),
-                onClick = { open(SOURCE_URL) },
-            )
-        }
-    }
-}
-
-/** A link as a whole tappable card: the mark on its disc, a name and a line on what is there, and the "opens outside" arrow. */
-@Composable
-private fun LinkCard(mark: @Composable () -> Unit, markColor: Color, title: String, desc: String, onClick: () -> Unit) {
-    Surface(
-        onClick = onClick,
-        shape = ToolCardShape,
-        color = pageCardColor(),
-        shadowElevation = if (LocalAppDark.current) 0.dp else 1.dp,
-        modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp),
-    ) {
-        Row(Modifier.padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(44.dp).clip(CircleShape).background(markColor), contentAlignment = Alignment.Center) { mark() }
-            Spacer(Modifier.width(16.dp))
-            Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                Text(desc, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            Spacer(Modifier.width(8.dp))
-            Icon(Icons.AutoMirrored.Filled.OpenInNew, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
-        }
-    }
-}
-
-private const val SITE_URL = "https://trackhop.org"
-
-/** GitHub's mark (Simple Icons, CC0), only to show where the link goes. */
-private val GitHubGlyph: ImageVector by lazy {
-    ImageVector.Builder("github", 24.dp, 24.dp, 24f, 24f)
-        .addPath(pathData = addPathNodes("M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"), fill = SolidColor(Color.White))
-        .build()
 }
 
 @Composable

@@ -1,5 +1,6 @@
 package com.xlollx.songport.ui
 
+import androidx.compose.ui.platform.testTag
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Upgrade
 import androidx.compose.material.icons.filled.GridView
@@ -37,6 +38,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.BatteryAlert
@@ -247,6 +249,10 @@ fun SettingsScreen(
             PrefSwitch(Icons.Filled.Dashboard, stringResource(R.string.settings_new_look), stringResource(R.string.settings_new_look_summary), settings.newLook, help = { HelpButton(Helps.newLook) }) { v ->
                 store.updateSettings { it.copy(newLook = v) }
             }
+            }
+            // The "?" beside options, everywhere (ui/Help.kt): on unless turned off here; the guides stay in Help › How to, below.
+            PrefSwitch(Icons.AutoMirrored.Outlined.HelpOutline, stringResource(R.string.settings_help_buttons), stringResource(R.string.settings_help_buttons_summary, stringResource(R.string.settings_section_help), stringResource(R.string.howto_title)), settings.helpButtons) { v ->
+                store.updateSettings { it.copy(helpButtons = v) }
             }
             // Chosen in-app and applied at once (the activity is recreated), also while a sync runs.
             var langOpen by rememberSaveable { mutableStateOf(false) }
@@ -599,7 +605,7 @@ fun SettingsScreen(
             PrefRow(
                 null, stringResource(R.string.app_name), stringResource(R.string.settings_version, BuildConfig.VERSION_NAME),
                 leading = {
-                    Box(Modifier.combinedClickable(onClick = { versionTap() }, onLongClick = { oliOpen = true })) { BrandMark(40.dp) }
+                    Box(Modifier.testTag(stringResource(R.string.settings_about_series)).combinedClickable(onClick = { versionTap() }, onLongClick = { oliOpen = true })) { BrandMark(40.dp) }
                 },
                 chevron = false,
                 onClick = { versionTap() },

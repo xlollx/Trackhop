@@ -63,7 +63,8 @@ object AppUpdates {
 
     /** Shows what the last check found, then asks GitHub again when the last answer is old (or [force]). */
     suspend fun check(ctx: Context, force: Boolean = false) = withContext(Dispatchers.IO) {
-        if (!enabled(ctx) || handledElsewhere(ctx)) { UpdateState.set(null); return@withContext }
+        // An app store or updater installed Trackhop (F-Droid lags GitHub a lot): no check, no notice (UpdateState.checksHere).
+        if (!enabled(ctx) || !UpdateState.checksHere(updatedBy(ctx))) { UpdateState.set(null); return@withContext }
         val p = prefs(ctx)
         fun publish() {
             val name = p.getString("name", null)

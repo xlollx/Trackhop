@@ -15,36 +15,41 @@ import java.util.IdentityHashMap
 object LibraryScan {
 
     data class Repeat(val track: Track, val playlists: List<String>)
-    data class Result(val playlists: Int, val repeats: List<Repeat>, val orphanLiked: List<Track>, val failed: List<String>)
+    /** [playlistsUnread]: a playlist was not read, so a liked track shown in none may be in it. */
+    data class Result(val playlists: Int, val repeats: List<Repeat>, val orphanLiked: List<Track>, val failed: List<String>, val playlistsUnread: Boolean = false)
 
     suspend fun run(ctx: Context, provider: MusicProvider, onProgress: (String) -> Unit = {}): Result {
         val lists = provider.playlists(ctx).filter { it.ownedByMe }
+        // Each track's playlist by id: two playlists of one name are two, and one named like the liked songs is a playlist.
         val owner = IdentityHashMap<Track, String>()
+        val names = HashMap<String, String>()
+        val likedKey = "\u0000liked"
         val all = ArrayList<Track>()
         val failed = ArrayList<String>()
+        var playlistsUnread = false
         val likedName = ctx.getString(com.xlollx.songport.R.string.liked_songs)
         var liked: List<Track> = emptyList()
         if (provider.supportsLikedSongs) {
             onProgress(likedName)
             liked = try { provider.tracks(ctx, MusicProvider.LIKED_ID) } catch (e: Exception) { failed += "$likedName (${e.message})"; emptyList() }
-            liked.forEach { owner[it] = likedName; all += it }
+            liked.forEach { owner[it] = likedKey; all += it }
         }
         for (pl in lists) {
             onProgress(pl.name)
-            val tracks = try { provider.tracks(ctx, pl.id) } catch (e: Exception) { failed += "${pl.name} (${e.message})"; continue }
-            tracks.forEach { owner[it] = pl.name; all += it }
+            val tracks = try { provider.tracks(ctx, pl.id) } catch (e: Exception) { failed += "${pl.name} (${e.message})"; playlistsUnread = true; continue }
+            names[pl.id] = pl.name
+            tracks.forEach { owner[it] = pl.id; all += it }
         }
         val groups = Duplicates.groups(all)
         val repeats = ArrayList<Repeat>()
         val likedCovered = java.util.Collections.newSetFromMap(IdentityHashMap<Track, Boolean>())
         for (g in groups) {
-            val names = g.mapNotNull { owner[it] }
-            val inPlaylists = names.filter { it != likedName }.distinct()
+            val inPlaylists = g.mapNotNull { owner[it] }.filter { it != likedKey }.distinct()
             // The same track twice in one playlist is a duplicate, not a repeat across playlists.
-            if (inPlaylists.size >= 2) repeats += Repeat(g.first { owner[it] != likedName }, inPlaylists)
-            if (inPlaylists.isNotEmpty()) g.filter { owner[it] == likedName }.forEach { likedCovered.add(it) }
+            if (inPlaylists.size >= 2) repeats += Repeat(g.first { owner[it] != likedKey }, inPlaylists.map { names.getValue(it) })
+            if (inPlaylists.isNotEmpty()) g.filter { owner[it] == likedKey }.forEach { likedCovered.add(it) }
         }
         val orphan = liked.filter { it !in likedCovered }
-        return Result(lists.size, repeats.sortedByDescending { it.playlists.size }, orphan, failed)
+        return Result(lists.size, repeats.sortedByDescending { it.playlists.size }, orphan, failed, playlistsUnread)
     }
 }

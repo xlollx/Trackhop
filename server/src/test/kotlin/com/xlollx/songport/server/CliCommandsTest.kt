@@ -100,6 +100,21 @@ class CliCommandsTest {
         assertEquals(2, cli("run").code)
     }
 
+    @Test fun theMatchingRulesFromTheCommandLine() {
+        val edited = cli("edit", "Road trip", "--strictness", "strict", "--artist-names-differ", "--studio-only")
+        assertEquals(edited.toString(), 0, edited.code)
+        assertEquals(com.xlollx.songport.model.MatchPolicy(strictness = 1, studioOnly = true, artistsMayDiffer = true), env.store.job("j1")!!.policy)
+        val shown = cli("show", "Road trip")
+        assertTrue(shown.out, shown.out.contains("matching: strict, studio versions only, artist names can differ"))
+        cli("edit", "Road trip", "--no-artist-names-differ", "--explicit", "clean")
+        assertEquals(com.xlollx.songport.model.MatchPolicy(strictness = 1, explicit = -1, studioOnly = true), env.store.job("j1")!!.policy)
+        assertEquals(2, cli("edit", "Road trip", "--same-album", "--no-same-album").code)
+        assertTrue(cli("edit", "Road trip", "--strictness", "very").code != 0)
+        // The defaults say nothing.
+        cli("edit", "Road trip", "--strictness", "normal", "--explicit", "either", "--no-studio-only")
+        assertFalse(cli("show", "Road trip").out.contains("matching:"))
+    }
+
     @Test fun aSyncIsMadeChangedMovedPreviewedAndDeleted() {
         val made = cli("new", "csv", "Road trip", "csv", "--name", "Copy", "--schedule", "daily", "--at", "08:00", "--changes", "mirror", "--color", "blue")
         assertEquals(made.toString(), 0, made.code)
@@ -172,7 +187,8 @@ class CliCommandsTest {
         File(data, "csv/Mirror.csv").writeText("title,artist\nSong One,Band A\n" + (1..12).joinToString("") { "Gone $it,Old Band $it\n" })
         env.store.upsertJob(SyncJob("m", "Mirrored", PlaylistRef(LocalFilesProvider.id, "Road trip", "Road trip"), PlaylistRef(LocalFilesProvider.id, "Mirror", "Mirror"), mirrorRemovals = true))
         val held = cli("run", "Mirrored", "--wait")
-        assertEquals(held.toString(), 0, held.code)
+        // 2.2: a run that held its removals back is partly done (4), not done (0).
+        assertEquals(held.toString(), Cli.PARTIAL, held.code)
         assertTrue(held.out, held.out.contains("12 removals held back") && held.out.contains("--confirm-removals"))
         cli("preview", "Mirrored").let { assertTrue(it.toString(), it.out.contains("--confirm-removals")) }
         // Only for syncs named, never a whole group.

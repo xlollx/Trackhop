@@ -4,6 +4,7 @@ import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.providers.Providers
 import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.model.TargetSearch
+import com.xlollx.songport.sync.MatchExplain
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.server.Html.h
 import com.xlollx.songport.sync.SyncEngine
@@ -29,6 +30,7 @@ internal fun Web.review(r: Web.Req, job: SyncJob, rest: List<String>) {
         return when (action) {
             null -> reviewPage(r, job, report)
             "search" -> searchPage(r, job, report, base)
+            "why" -> whyPage(r, job, report, base)
             else -> send(r.ex, 404, errorPage(404))
         }
     }
@@ -121,6 +123,7 @@ private fun Web.reviewPage(r: Web.Req, job: SyncJob, report: SyncReport) {
             body.append("</div><div class=\"actions\">")
             if (canWrite && sug != null) body.append(Html.postButton("$base/resolve", "Use it", fields = mapOf("track" to t.id, "chosen" to encode(sug))))
             if (canWrite) body.append(""" <a class="button secondary" href="$base/search?track=${q(t.id)}&mode=resolve">Search</a> """)
+            body.append(""" <a class="button secondary" href="$base/why?track=${q(t.id)}">${h(env.text("why_not_matched_q"))}</a> """)
             body.append(Html.postButton("$base/ignore", "Ignore", "secondary", fields = mapOf("track" to t.id)))
             body.append("</div></div></div>")
         }
@@ -163,6 +166,47 @@ private fun Web.reviewPage(r: Web.Req, job: SyncJob, report: SyncReport) {
     }
     send(r.ex, 200, page("Review: ${job.name}", body.toString()))
 }
+
+/**
+ * "Why wasn't it matched?" (2.2): the closest candidates the target's search gives for a track not
+ * found, each with its score against the sync's threshold and the parts that make it up.
+ */
+private fun Web.whyPage(r: Web.Req, job: SyncJob, report: SyncReport, base: String) {
+    val srcId = r.query["track"].orEmpty()
+    val source = report.unmatchedTracks.firstOrNull { it.id == srcId }
+        ?: return redirect(r.ex, "$base?err=${q("That track is no longer in the list.")}")
+    val canWrite = Providers.byId(job.target.provider)?.canWrite == true
+    val body = StringBuilder()
+    body.append("""<p><b>${h(source.title)}</b> — ${h(source.artistLine)}${duration(source.durationMs)} · <a href="$base">Back to the review</a></p>""")
+    val result = runCatching { runBlocking { whyRows(job, source) } }
+    result.exceptionOrNull()?.let { body.append("""<div class="card err">${h(it.message ?: it.javaClass.simpleName)}</div>""") }
+    result.getOrNull()?.let { rows ->
+        if (rows.isEmpty()) body.append("""<div class="card muted">${h(env.text("why_none"))}</div>""")
+        else {
+            body.append("""<div class="card" style="overflow-x:auto"><table><tr><th>Candidate</th><th>Score</th><th>Title</th><th>Artist</th><th>Length</th><th>Version</th><th>Album</th><th></th></tr>""")
+            for (e in rows) {
+                val t = e.track
+                body.append("""<tr><td>${h(t.title)} — ${h(t.artistLine)}${duration(t.durationMs)}<br><span class="muted">${h(MatchExplain.reasonsLine(e))}</span></td>""")
+                body.append("""<td><b>${pct(e.score)}%</b></td><td>${pct(e.title)}%</td><td>${e.artist?.let { "${pct(it)}%" } ?: "–"}</td>""")
+                body.append("""<td>×${"%.2f".format(e.length)}</td><td>×${"%.2f".format(e.version)}</td><td>×${"%.2f".format(e.album)}</td><td>""")
+                if (canWrite) body.append(Html.postButton("$base/resolve", "Use this", "secondary", fields = mapOf("track" to srcId, "chosen" to encode(t))))
+                body.append("</td></tr>")
+            }
+            body.append("</table></div>")
+        }
+    }
+    body.append("""<p class="muted">A match needs ${pct(job.policy.acceptThreshold)}% (this sync's strictness). Only the closest results are shown. API: GET /api/v1/syncs/{sync}/why?track=… · CLI: trackhop why &lt;sync&gt; "Artist - Title"</p>""")
+    send(r.ex, 200, page(env.text("why_not_matched"), body.toString()))
+}
+
+/** The closest candidates for [source] on [job]'s target, explained (the pages, the API and the CLI). */
+internal suspend fun Web.whyRows(job: SyncJob, source: Track): List<MatchExplain.Explained> {
+    val query = listOf(source.artistLine, source.title).filter { it.isNotBlank() }.joinToString(" - ")
+    val found = SyncEngine(env).searchOnTarget(job, query, source)
+    return MatchExplain.explainAll(source, found.hits.map { it.track }, job.policy)
+}
+
+private fun pct(v: Double) = Math.round(v.coerceIn(0.0, 1.0) * 100)
 
 private fun Web.searchPage(r: Web.Req, job: SyncJob, report: SyncReport, base: String) {
     val srcId = r.query["track"].orEmpty()

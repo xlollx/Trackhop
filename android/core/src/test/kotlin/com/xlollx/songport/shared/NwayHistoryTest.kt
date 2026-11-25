@@ -1,4 +1,4 @@
-package com.xlollx.songport.ui
+package com.xlollx.songport.shared
 
 import com.xlollx.songport.data.StoreData
 import com.xlollx.songport.model.PlaylistRef
@@ -45,7 +45,8 @@ class NwayHistoryTest {
         assertFalse("a run fails when one of its services fails", runs[0].ok)
         val last = runs.last()
         assertTrue(last.ok)
-        assertEquals(6, last.added)
+        // The services' playlists only (TIDAL 2 + Deezer 2): Spotify's 2 went into the group's own list, which the added list does not show either.
+        assertEquals(4, last.added)
         assertEquals(1, last.removed)
         assertEquals(4, last.unmatched.size)
         assertEquals(42, last.sourceCount)
@@ -66,8 +67,8 @@ class NwayHistoryTest {
     @Test fun theListCountsAMultiSyncOnce() {
         val group = com.xlollx.songport.shared.SharedGroup("g1", "Mix", "k", "k", "", transport = com.xlollx.songport.shared.Invite.LOCAL, jobId = "d-spotify", twinId = "u-spotify")
         val d = StoreData(jobs = jobs, groups = listOf(group))
-        assertEquals(listOf("d-spotify", "other"), NwayUi.listedSyncs(d).map { it.id })
-        assertEquals(jobs.size, NwayUi.listedSyncs(d.copy(groups = emptyList())).size)
+        assertEquals(listOf("d-spotify", "other"), Nway.listedSyncs(d).map { it.id })
+        assertEquals(jobs.size, Nway.listedSyncs(d.copy(groups = emptyList())).size)
     }
 
     /** 2.1.4: a run's songs left for the next run (a service's limit) stay in the group's run. */

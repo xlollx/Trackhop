@@ -154,7 +154,7 @@ class NewFeaturesFlowTest : FlowTest() {
         val bar = compose.onAllNodes(hasContentDescription("Trackhop")).onFirst().fetchSemanticsNode().boundsInRoot
         val box = field().fetchSemanticsNode().boundsInRoot
         assertTrue("the field beside the mark, in the bar", box.left >= bar.right && box.center.y in bar.top..bar.bottom)
-        // The pill and the chips are still there, in their one row under the status line.
+        // The pill and the chips are still there, in their rows under the status line.
         assertTrue(exists(s(R.string.sync_all)))
         field().performTextReplacement("Road")
         waitText(plural(R.plurals.filter_shown, 6, 1, 6))

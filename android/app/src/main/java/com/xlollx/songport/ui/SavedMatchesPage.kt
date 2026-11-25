@@ -2,7 +2,8 @@ package com.xlollx.songport.ui
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -133,6 +135,8 @@ private fun SavedTab(snackbar: SnackbarHostState) {
     var reading by remember { mutableStateOf(false) }
     val entries = remember(data) { SavedMatches.entries(data) }
     val names = remember(data, kept) { SavedMatches.names(data) + kept }
+    // Rows ticked to forget together (a long press starts it); rows gone meanwhile drop out.
+    var picked by remember { mutableStateOf(setOf<String>()) }
 
     // The caches keep ids only: the syncs' own playlists name most of the songs, read once a while.
     LaunchedEffect(Unit) {
@@ -158,6 +162,24 @@ private fun SavedTab(snackbar: SnackbarHostState) {
     val found = byTarget.filter { SavedMatches.matches(it, names, query) }
     val list = found.filter { kind == null || it.kind == kind }
     val num = remember { NumberFormat.getIntegerInstance() }
+    val selection = entries.mapNotNullTo(LinkedHashSet()) { e -> e.key.takeIf { it in picked } }
+    val scope = rememberCoroutineScope()
+    OfferToolSelection(
+        if (selection.isEmpty()) null else ToolSelection(
+            count = selection.size, onClear = { picked = emptySet() },
+            onSelectAll = { picked = selection + list.map { it.key } }.takeIf { !list.all { it.key in selection } },
+            actions = {
+                // The sheet's Forget, for each ticked row.
+                TextButton(onClick = {
+                    val gone = entries.filter { it.key in selection }
+                    picked = emptySet()
+                    gone.forEach { SavedMatches.forget(store, it) }
+                    val text = ctx.resources.getQuantityString(R.plurals.saved_matches_forgotten_n, gone.size, gone.size)
+                    scope.launch { snackbar.showSnackbar(text) }
+                }) { Text(stringResource(R.string.saved_matches_forget_short), color = MaterialTheme.colorScheme.error) }
+            },
+        ),
+    )
 
     OutlinedTextField(
         value = query, onValueChange = { query = it; shown = PAGE }, singleLine = true,
@@ -200,7 +222,10 @@ private fun SavedTab(snackbar: SnackbarHostState) {
         Column(Modifier.padding(vertical = 4.dp)) {
             list.take(shown).forEachIndexed { i, e ->
                 if (i > 0) HorizontalDivider(Modifier.padding(horizontal = 16.dp))
-                MatchRow(e, names) { openKey = e.key }
+                MatchRow(
+                    e, names, selected = (e.key in selection).takeIf { selection.isNotEmpty() },
+                    onLongPress = { picked = if (e.key in selection) selection - e.key else selection + e.key },
+                ) { if (selection.isNotEmpty()) picked = if (e.key in selection) selection - e.key else selection + e.key else openKey = e.key }
             }
         }
     }
@@ -210,16 +235,22 @@ private fun SavedTab(snackbar: SnackbarHostState) {
     entries.firstOrNull { it.key == openKey }?.let { e -> MatchSheet(e, names, snackbar, onName = { k, t -> kept = kept + (k to t); SavedMatchesKept.names = SavedMatchesKept.names + (k to t) }) { openKey = null } }
 }
 
-/** One song: where it comes from, what it goes to, and how that was settled. */
+/** One song: where it comes from, what it goes to, and how that was settled; while rows are being selected ([selected] not null), a box before it. */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun MatchRow(e: SavedMatches.Entry, names: Map<String, Track>, onClick: () -> Unit) {
+private fun MatchRow(e: SavedMatches.Entry, names: Map<String, Track>, selected: Boolean? = null, onLongPress: () -> Unit = {}, onClick: () -> Unit) {
     val ctx = LocalContext.current
     val src = names[SavedMatches.nameKey(e.source, e.sourceId)]
     val chosen = e.chosenId?.let { names[SavedMatches.nameKey(e.target, it)] }
     val srcP = providerOf(e.source, ctx = ctx)
     val dstP = providerOf(e.target, ctx = ctx)
-    Row(Modifier.fillMaxWidth().clickable(onClick = onClick).heightIn(min = 56.dp).padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        ServiceLogo(srcP, 28.dp)
+    Row(
+        Modifier.fillMaxWidth().combinedClickable(onClick = onClick, onLongClick = onLongPress, onLongClickLabel = stringResource(R.string.files_select))
+            .heightIn(min = 56.dp).padding(start = if (selected != null) 4.dp else 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (selected != null) Checkbox(checked = selected, onCheckedChange = null, modifier = Modifier.padding(horizontal = 6.dp))
+        else ServiceLogo(srcP, 28.dp)
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
             Text(src?.let(::line) ?: stringResource(R.string.saved_matches_song_on, srcP?.displayName ?: e.source), style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)

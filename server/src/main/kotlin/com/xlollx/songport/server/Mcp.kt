@@ -130,7 +130,7 @@ object Mcp {
     }
 
     /** Every tool: these, and the next release's (Features.v2, McpV2.kt). */
-    private val TOOLS: List<Tool> get() = BASE_TOOLS.filter { Features.v2 || it.name !in Features.V2_MCP_TOOLS } + McpV2.tools
+    private val TOOLS: List<Tool> get() = BASE_TOOLS.filter { Features.v2 || it.name !in Features.V2_MCP_TOOLS } + McpV2.tools + McpParity.tools
 
     private val BASE_TOOLS = listOf(
         Tool("status", "Trackhop status", "Trackhop's version, how many syncs it has, which are running now and when the last one ran.",
@@ -262,7 +262,7 @@ object Mcp {
             listOf(SERVICE, PLAYLIST, WAIT), readOnly = false, destructive = true) { a ->
             Call("duplicates", listOf(a.text("service"), a.text("playlist")), wait = a.flag("wait"), flags = setOf("remove"))
         },
-        Tool("export_playlist", "Export a playlist", "A playlist as a file's text: csv, m3u, xspf, jspf, wpl, zpl or txt (opml for followed podcasts).",
+        Tool("export_playlist", "Export a playlist", "A playlist as a file's text: csv, m3u, xspf, jspf, wpl, zpl, txt or json for Soundiiz (opml for followed podcasts).",
             listOf(SERVICE, PLAYLIST, Param("format", "string", "csv (default), m3u, xspf, jspf, txt, or opml for followed podcasts.", required = false)), readOnly = true) { a ->
             Call("export", listOf(a.text("service"), a.text("playlist")), values = a.values("format"))
         },

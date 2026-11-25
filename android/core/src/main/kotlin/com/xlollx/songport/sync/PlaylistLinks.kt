@@ -43,6 +43,8 @@ object PlaylistLinks {
         Regex("""(?<![\w-])(?:(?:www|m)\.)?(?:jio)?saavn\.com/((?:featured|album|song|[sp]/playlist/[^/\s?#]+)/[^/\s?#]+/[A-Za-z0-9_,-]+)""") to "jiosaavn",
         // Gaana: https://gaana.com/playlist/<seokey>, the seokey is the id.
         Regex("""(?<![\w.-])(?:(?:www|m)\.)?gaana\.com/playlist/([A-Za-z0-9_-]+)""") to "gaana",
+        // A playlist file kept online (2.2): the whole address is the id, read again at each run.
+        Regex("""(https?://[^\s<>"']+?\.(?:xspf|m3u8?|jspf|pls)(?:\?[^\s<>"'#]*)?)(?![\w.])""", RegexOption.IGNORE_CASE) to "playlisturl",
     )
 
     /** Every playlist link in [text], in order and without repeats: two links shared together are a comparison. */
@@ -80,6 +82,7 @@ object PlaylistLinks {
             "qqmusic" -> "https://y.qq.com/n/ryqq/playlist/$playlistId"
             "jiosaavn" -> "https://www.jiosaavn.com/$playlistId"
             "gaana" -> "https://gaana.com/playlist/$playlistId"
+            "playlisturl" -> playlistId
             "amazon" -> "https://music.amazon.${region?.lowercase()?.takeIf { it.isNotBlank() } ?: "com"}/user-playlists/$playlistId"
             "jellyfin" -> b?.let { "$it/web/#/details?id=$playlistId" }
             "emby" -> b?.let { it.trimEnd('/').removeSuffix("/emby") + "/web/index.html#!/item?id=$playlistId" }

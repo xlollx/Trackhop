@@ -178,6 +178,64 @@ internal fun Web.apiMore(ex: HttpExchange, method: String, rest: List<String>, q
             val p = Providers.byId(rest[1]) ?: return true.also { error(404, "No service with that id: see GET /api/v1/services.") }
             json(200, serviceJson(p))
         }
+        // YouTube Music (web): the profiles (own channel, brand accounts) the account can act as, with how
+        // much music each holds and which one the music seems to be on; POST picks one.
+        rest.size == 3 && rest[0] == "services" && rest[2] == "channels" && method == "GET" -> {
+            val p = connected(rest[1], error) ?: return true
+            if (p !is YtmServerProvider) return true.also { error(400, "Only YouTube Music (web) has profiles to choose from.") }
+            val list = runCatching { runBlocking { p.channels(env, library = query["library"] != "false") } }
+                .getOrElse { return true.also { _ -> error(502, "${p.label(env)}: ${it.message ?: it.javaClass.simpleName}") } }
+            val better = p.betterChannel(env, list)
+            json(200, buildJsonObject {
+                put("current", p.channel(env).orEmpty())
+                put("suggested", better?.id)
+                put("channels", JsonArray(list.map { c ->
+                    buildJsonObject {
+                        put("id", c.id); put("name", c.name); put("byline", c.byline); put("own", c.id.isEmpty()); put("selected", c.selected)
+                        put("playlists", c.playlists.takeIf { it >= 0 }); put("likedSongs", c.likedSongs.takeIf { it >= 0 })
+                    }
+                }))
+            })
+        }
+        rest.size == 3 && rest[0] == "services" && rest[2] == "channels" && method == "POST" -> {
+            val p = connected(rest[1], error) ?: return true
+            if (p !is YtmServerProvider) return true.also { error(400, "Only YouTube Music (web) has profiles to choose from.") }
+            val b = body() ?: return true.also { badJson() }
+            val id = b.text("id")?.trim() ?: return true.also { error(400, "\"id\" is needed: a profile's id from GET, \"\" for the account's own channel.") }
+            val list = runCatching { runBlocking { p.channels(env) } }.getOrElse { emptyList() }
+            val c = list.firstOrNull { it.id == id }
+            if (c == null && id.isNotEmpty()) return true.also { error(404, "No profile with that id on this account: see GET.") }
+            runCatching { runBlocking { p.setChannel(env, id, c?.name) } }
+                .getOrElse { return true.also { _ -> error(502, "${p.label(env)}: ${it.message ?: it.javaClass.simpleName}") } }
+            json(200, buildJsonObject { put("current", id); put("name", c?.name) })
+        }
+        // Deezer (web) on a Family account: the profiles, and the one the account acts as (#82).
+        rest.size == 3 && rest[0] == "services" && rest[2] == "profile" && (method == "GET" || method == "PUT") -> {
+            val p = connected(rest[1], error) ?: return true
+            val dz = p as? DeezerWebServerProvider ?: return true.also { error(400, "${p.label(env)} has no profiles: only Deezer (web) on a Family account.") }
+            val chosen = if (method == "PUT") {
+                val b = body() ?: return true.also { badJson() }
+                val want = b.text("profile") ?: return true.also { error(400, "\"profile\" is the profile's id or name: see GET.") }
+                runCatching { runBlocking { dz.setProfile(env, want) } }.getOrElse { return true.also { _ -> error(409, it.message ?: it.javaClass.simpleName) } }
+            } else null
+            val list = runCatching { runBlocking { dz.profiles(env) } }.getOrElse { return true.also { _ -> error(502, "${p.label(env)}: ${it.message ?: it.javaClass.simpleName}") } }
+            json(200, buildJsonObject {
+                put("family", list.isNotEmpty())
+                put("profiles", JsonArray(list.map { pr -> buildJsonObject {
+                    put("id", pr.id); put("name", pr.name); put("picture", pr.picture?.let { JsonPrimitive(it) } ?: JsonNull)
+                    put("holder", pr.holder); put("selected", if (chosen != null) pr.id == chosen.id else pr.selected)
+                } }))
+            })
+        }
+        // A personal server's second address (2.2): {"away": "https://…"}, or null / "" to take it away.
+        rest.size == 3 && rest[0] == "services" && rest[2] == "address" && (method == "PUT" || method == "PATCH") -> {
+            val p = (connected(rest[1], error) ?: return true) as? com.xlollx.songport.providers.CredentialsProvider
+            if (p == null || !p.offersSecondAddress) return true.also { error(400, "Only a personal server reached at an address has a second one.") }
+            val b = body() ?: return true.also { badJson() }
+            p.setAwayAddress(env, b.text("away"))
+            env.log("auth", "${p.id}: second address ${if (p.awayAddress(env) == null) "taken away" else "set"} through the API")
+            json(200, serviceJson(p))
+        }
         rest.size == 3 && rest[0] == "services" && rest[2] == "search" && method == "GET" -> {
             val p = connected(rest[1], error) ?: return true
             val q = query["q"]?.trim().orEmpty().ifEmpty { return true.also { error(400, "Say what to look for: ?q=Artist - Title (or a link).") } }
@@ -337,7 +395,14 @@ internal fun Web.serviceJson(p: MusicProvider) = buildJsonObject {
     put("account", p.accountName(env)?.let { JsonPrimitive(it) } ?: JsonNull)
     // What it can do: a script asks before it tries.
     put("canWrite", p.canWrite); put("canCreatePlaylists", p.canCreatePlaylists); put("canRenamePlaylists", p.canRenamePlaylists)
-    put("canDeletePlaylists", p.canDeletePlaylists); put("canRemoveTracks", p.canRemoveTracks); put("linkOnly", p.linkOnly)
+    put("canDeletePlaylists", p.canDeletePlaylists); put("canRemoveTracks", p.canRemoveTracks); put("linkOnly", p.linkOnly); put("canSetCover", p.canSetCover)
+    // YouTube (official API): the day's quota this Trackhop used.
+    quotaJson(p)?.let { put("quota", it) }
+    // A personal server's addresses (2.2): the second one, away from home, and the one requests go to now.
+    if (p is com.xlollx.songport.providers.CredentialsProvider && p.offersSecondAddress && p.isConnected(env)) {
+        put("awayAddress", p.awayAddress(env)?.let { JsonPrimitive(it) } ?: JsonNull)
+        put("addressInUse", p.addressInUse(env)?.let { JsonPrimitive(it) } ?: JsonNull)
+    }
 }
 
 private fun Web.fileSettings() = buildJsonObject {

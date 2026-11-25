@@ -206,11 +206,23 @@ private val findings = ConcurrentHashMap<String, UnplayableFindings>()
 
 private fun Web.unplayableTool(r: Web.Req) {
     val candidates = readable().filter { it.detectsUnplayable }
+    // The weekly look (UnplayableWeekly): turned on or off, or run now, from the card on the first page.
+    if (r.method == "POST" && r.form["action"] == "weekly") {
+        if (r.form["now"] == "1") {
+            if (Tasks.running(UnplayableWeekly.TITLE)) return redirect(r.ex, "/tools/unplayable?err=${q("The check is already running.")}")
+            val t = Tasks.start(UnplayableWeekly.TITLE, "/tools/unplayable", { env.log("unplayable", it) }, env.owner, env.marks) { t ->
+                """<div class="card">${h(UnplayableWeekly.run(env) { t.progress = it })}</div>"""
+            }
+            return redirect(r.ex, "/tools/task/${q(t.id)}")
+        }
+        UnplayableWeekly.set(env, r.form["weekly"] == "on")
+        return redirect(r.ex, "/tools/unplayable?ok=${q(if (UnplayableWeekly.on(env)) "The weekly check is on." else "The weekly check is off.")}")
+    }
     val params = if (r.method == "POST") r.form else r.query
     val service = params["service"]?.let { id -> candidates.firstOrNull { it.id == id } }
         ?: return send(
             r.ex, 200,
-            page("Unplayable tracks", notice(r) + serviceForm("/tools/unplayable", candidates, "The tracks a service still lists but can no longer play (greyed out: pulled from the catalogue, not licensed in your country). Trackhop finds them and proposes a playable version.")),
+            page("Unplayable tracks", notice(r) + unplayableWeeklyCard(candidates.isNotEmpty()) + serviceForm("/tools/unplayable", candidates, "The tracks a service still lists but can no longer play (greyed out: pulled from the catalogue, not licensed in your country). Trackhop finds them and proposes a playable version.")),
         )
     val back = "/tools/unplayable?service=${q(service.id)}"
     if (r.method == "POST") {
@@ -325,4 +337,17 @@ private fun Web.mbTagsResult(service: MusicProvider, tags: LibraryTools.MbidTags
     sb.append("</ul>")
     if (tags.untagged.size > MBTAGS_SHOWN) sb.append("""<p class="muted">…and ${tags.untagged.size - MBTAGS_SHOWN} more.</p>""")
     return sb.append("</div>").toString()
+}
+
+/** The weekly look's card (UnplayableWeekly): its switch, what the last look found, a look now. */
+private fun Web.unplayableWeeklyCard(any: Boolean): String {
+    if (!any) return ""
+    val last = UnplayableWeekly.last(env)
+    val channels = UnplayableWeekly.channels(env).size
+    val told = if (channels == 0) """No notification channel takes "Tracks to review" yet: <a href="/settings/notifications">add or change one</a>, or the look finds them without telling anyone."""
+        else "Told on $channels notification ${if (channels == 1) "channel" else "channels"} (those that take \"Tracks to review\")."
+    return """<form method="post" action="/tools/unplayable" class="card"><input type="hidden" name="action" value="weekly"><h3>Every week</h3>
+<label class="check"><input type="checkbox" name="weekly"${if (UnplayableWeekly.on(env)) " checked" else ""}> Check my playlists every week for tracks that no longer play, and tell me</label>
+<p class="muted">$told Nothing is changed by itself: you replace them here.${last?.let { " Last check: ${Html.date(it.at)}: ${h(UnplayableWeekly.summary(it))}" } ?: ""}</p>
+<div class="actions"><button class="secondary">Save</button> <button class="secondary" name="now" value="1">Check now</button></div></form>"""
 }

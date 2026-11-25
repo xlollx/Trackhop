@@ -50,8 +50,10 @@ internal class CliCommands(
         "runs" -> runs(p.takeIf { it.isNotEmpty() }?.joinToString(" "), o)
         "report" -> if (p.isEmpty()) issue(o) else report(p.joinToString(" "))
         "review" -> review(p, o)
-        "services" -> services()
+        "services" -> if (p.firstOrNull() == "add" || p.firstOrNull() == "remove") CliRadio(this).services(p, o) else if (p.firstOrNull() == "profile") { need(p, 2, "services profile <service> [<profile>]"); profile(p[1], p.drop(2).joinToString(" ").takeIf { it.isNotEmpty() }) } else services(p.joinToString(" "), o.value("kind"))
+        "catalog" -> catalog(p.joinToString(" "), o)
         "playlists" -> playlists(one(p, "playlists <service>"))
+        "profiles" -> { need(p, 1, "profiles <service> [<profile>]"); profiles(p[0], p.drop(1).joinToString(" ").takeIf { it.isNotEmpty() }) }
         "tracks" -> { need(p, 2, "tracks <service> <playlist>"); tracks(p[0], p[1]) }
         "add", "remove" -> { need(p, 3, "$command <service> <playlist> <track>..."); edit(command, p[0], p[1], p.drop(2)) }
         "create" -> { need(p, 2, "create <service> <name>"); create(p[0], p.drop(1).joinToString(" ")) }
@@ -63,7 +65,7 @@ internal class CliCommands(
         "wanted" -> wanted(o)
         "records" -> { need(p, 2, "records <service> <playlist> [--currency EUR] [--kind all|records|merch]"); records(p[0], p.drop(1).joinToString(" "), o) }
         "concerts" -> { need(p, 2, "concerts <service> <playlist> [--country IT]"); concerts(p[0], p.drop(1).joinToString(" "), o) }
-        "setlists" -> { need(p, 2, "setlists <service> <playlist>"); setlists(p[0], p.drop(1).joinToString(" ")) }
+        "setlists" -> { need(p, 2, "setlists <service> <playlist>"); setlists(p[0], p.drop(1).joinToString(" "), o.value("artists")) }
         "export" -> { need(p, 2, "export <service> <playlist> [<file>]"); export(p[0], p[1], p.getOrNull(2), o) }
         "files" -> filesCommand(p, o)
         "import" -> import(one(p, "import <file>"), o)
@@ -85,7 +87,8 @@ internal class CliCommands(
         "diagnostics" -> diagnostics(o)
         "crowded" -> crowded()
         "spread" -> spread(o.has("apply"))
-        else -> CliV2(this).run(command, p, o) ?: throw Cli.Failure(2, "unknown command \"$command\". See: trackhop help")
+        "multi" -> CliMulti(this).run(p, o)
+        else -> CliConn(this).run(command, p, o) ?: CliRadio(this).run(command, p, o) ?: CliV2(this).run(command, p, o) ?: CliParity(this).run(command, p, o) ?: CliNotifications(this).run(command, p, o) ?: throw Cli.Failure(2, "unknown command \"$command\". See: trackhop help")
     }
 
     private fun need(p: List<String>, n: Int, form: String) { if (p.size < n) throw Cli.Failure(2, "usage: trackhop $form") }
@@ -115,7 +118,7 @@ internal class CliCommands(
     private fun allSyncs() = api.get("syncs").jsonArray.map { it.jsonObject }
 
     /** The sync named [ask]: its id, its exact name, or the only one whose name starts with or holds it. */
-    private fun sync(ask: String): JsonObject {
+    internal fun sync(ask: String): JsonObject {
         val list = allSyncs()
         list.firstOrNull { it.s("id") == ask }?.let { return it }
         val exact = list.filter { it.s("name").equals(ask, ignoreCase = true) }
@@ -188,6 +191,7 @@ internal class CliCommands(
         out.println("  ${route(o)}")
         out.println("  schedule ${o.s("schedule")}${if (o.b("archive")) ", keeps every track (archive)" else if (o.b("mirrorRemovals")) ", mirrors removals" else ""}${pair(o)}${if (!o.b("enabled")) ", off" else ""}${if (o.b("running")) ", running now" else ""}")
         (o["radio"] as? JsonObject)?.let { out.println("  listens ${it.s("window")}") }
+        matchingLine(o).takeIf { it.isNotEmpty() }?.let { out.println("  matching: $it") }
         groups(o).takeIf { it.isNotEmpty() }?.let { out.println("  $it") }
         o.l("nextRun")?.let { out.println("  next run ${whenAt(it)}") }
         val runs = o["runs"]?.jsonArray.orEmpty()
@@ -233,7 +237,7 @@ internal class CliCommands(
         }
         if (asJson) print(JsonArray(done.values.map { o -> buildJsonObject { put("id", o.s("id")); put("name", o.s("name")); put("result", o["lastResult"] ?: JsonNull) } }))
         if (done.size < targets.size) throw Cli.Failure(1, "still running after 6 hours: ${targets.filter { it.s("id") !in done }.joinToString(", ") { it.s("name") }}")
-        return if (done.values.all { (it["lastResult"] as? JsonObject)?.b("ok") == true }) 0 else 1
+        return Cli.runExit(done.values.map { it["lastResult"] as? JsonObject })
     }
 
     private fun toggle(ask: String, on: Boolean): Int {
@@ -254,11 +258,72 @@ internal class CliCommands(
             ?: throw Cli.Failure(1, "no service \"$ask\" here. See: trackhop services")
     }
 
-    private fun services(): Int {
-        val list = allServices()
+    private fun services(find: String = "", kind: String? = null): Int {
+        val list = if (find.isEmpty() && kind == null) allServices()
+            else api.get("services?q=${enc(find)}${kind?.let { "&kind=${enc(it)}" } ?: ""}").jsonArray.map { it.jsonObject }
         if (asJson) return print(JsonArray(list)).let { 0 }
-        if (list.isEmpty()) out.println("No services added yet: add them on Trackhop's page, Services.")
-        for (o in list) out.println("${o.s("name")}  (${o.s("id")})  ${if (o.b("connected")) "connected" + (o["account"].str()?.let { " as $it" } ?: "") else "not connected"}")
+        if (list.isEmpty()) out.println(if (find.isEmpty() && kind == null) "No services added yet: add them on Trackhop's page, Services." else "No service matches.")
+        for (o in list) out.println("${o.s("name")}  (${o.s("id")})  ${when {
+            o.s("serviceId") == "radio" -> "radio: ${o.s("station")}, ${o.s("stream")}"
+            o.s("serviceId") == "shazam" -> "Shazam: My Shazam Tracks on Spotify or Apple Music"
+            o.b("connected") -> "connected" + (o["account"].str()?.let { " as $it" } ?: "")
+            else -> "not connected"
+        }}${if (o.b("web")) ", unofficial" else ""}")
+        return 0
+    }
+
+    /** YouTube Music (web): the profiles with how much music each holds and the one the music seems to be on; with [ask], use that one. */
+    private fun profiles(serviceAsk: String, ask: String?): Int {
+        val s = service(serviceAsk)
+        val r = api.get("services/${enc(s.s("id"))}/channels").jsonObject
+        val list = r["channels"]?.jsonArray?.map { it.jsonObject }.orEmpty()
+        if (ask != null) {
+            val c = list.firstOrNull { it.s("id") == ask } ?: list.firstOrNull { it.s("name").equals(ask, ignoreCase = true) }
+                ?: throw Cli.Failure(1, "no profile \"$ask\". See: trackhop profiles ${s.s("id")}")
+            val done = api.post("services/${enc(s.s("id"))}/channels", kotlinx.serialization.json.buildJsonObject { put("id", c.s("id")) })
+            if (asJson) return print(done).let { 0 }
+            out.println("${s.s("name")} now uses ${c.s("name")}.")
+            return 0
+        }
+        if (asJson) return print(r).let { 0 }
+        val current = r.s("current"); val suggested = r.s("suggested")
+        for (c in list) {
+            val counts = listOfNotNull(
+                (c["playlists"] as? JsonPrimitive)?.intOrNull?.let { if (it == 1) "1 playlist" else "$it playlists" },
+                (c["likedSongs"] as? JsonPrimitive)?.intOrNull?.let { if (it == 1) "1 liked song" else "$it liked songs" },
+            ).joinToString(", ")
+            val mark = if (c.s("id") == current) "* " else "  "
+            out.println("$mark${c.s("name")}  (${if (c.b("own")) "own channel" else c.s("byline").ifEmpty { "brand account" }})${if (counts.isNotEmpty()) "  $counts" else ""}  ${c.s("id")}")
+        }
+        if (suggested.isNotEmpty()) list.firstOrNull { it.s("id") == suggested }?.let {
+            out.println("The profile in use is empty; your music seems to be on ${it.s("name")}: trackhop profiles ${s.s("id")} \"${it.s("name")}\"")
+        }
+        return 0
+    }
+
+    /** "Which service?" on the command line: every service that can be added, by category, or those matching [words]. */
+    private fun catalog(words: String, o: Cli.Opts): Int {
+        val params = listOfNotNull(words.takeIf { it.isNotBlank() }?.let { "q=${enc(it)}" }, o.value("category")?.let { "category=${enc(it)}" })
+        val list = api.get("catalog" + if (params.isEmpty()) "" else "?" + params.joinToString("&")).jsonArray.map { it.jsonObject }
+        if (asJson) return print(JsonArray(list)).let { 0 }
+        if (list.isEmpty()) out.println("No service found.")
+        for (f in list) {
+            val routes = f["routes"]!!.jsonArray.map { it.jsonObject }
+            val add = routes.mapNotNull { it["add"].str() }.joinToString(", ").ifEmpty { "added" }
+            out.println("${f.s("name")}  [${f.s("categoryName")}]  $add")
+        }
+        return 0
+    }
+
+    /** Deezer (web) on a Family account: its profiles, or (with [ask], an id or a name) act as another (#82). */
+    private fun profile(serviceAsk: String, ask: String?): Int {
+        val s = service(serviceAsk)
+        val path = "services/${enc(s.s("id"))}/profile"
+        val r = (if (ask == null) api.get(path) else api.send("PUT", path, buildJsonObject { put("profile", ask) })).jsonObject
+        if (asJson) return print(r).let { 0 }
+        val list = r["profiles"]?.jsonArray?.map { it.jsonObject }.orEmpty()
+        if (list.isEmpty()) out.println("${s.s("name")} is not a Deezer Family account: there is no profile to choose.")
+        for (o in list) out.println("${if (o.b("selected")) "* " else "  "}${o.s("name")}  (${o.s("id")})${if (o.b("holder")) "  account holder" else ""}")
         return 0
     }
 
@@ -448,7 +513,7 @@ internal class CliCommands(
 
     private val dayNames = listOf("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 
-    private fun day(d: String): Int = d.trim().lowercase().let { w -> w.toIntOrNull()?.takeIf { it in 1..7 } ?: (dayNames.indexOfFirst { w.startsWith(it) } + 1).takeIf { it > 0 } }
+    internal fun day(d: String): Int = d.trim().lowercase().let { w -> w.toIntOrNull()?.takeIf { it in 1..7 } ?: (dayNames.indexOfFirst { w.startsWith(it) } + 1).takeIf { it > 0 } }
         ?: throw Cli.Failure(2, "--days takes days as mon,tue… or 1 (Monday) to 7")
 
     /** The sync options (--name, --schedule, --every, --at, --days, --changes, --follows, --color) as the API's body fields. */
@@ -470,10 +535,29 @@ internal class CliCommands(
         if (o.has("one-way")) put("twoWay", false)
         if (o.has("two-way-removals")) put("twoWayRemovals", true)
         if (o.has("no-two-way-removals")) put("twoWayRemovals", false)
+        // Matching: how close a match must be, explicit versions, same album, studio versions only; the source's order.
+        val policy = buildJsonObject {
+            o.value("strictness")?.let { put("strictness", it) }
+            o.value("explicit")?.let { put("explicit", it) }
+            for (flag in listOf("same-album", "studio-only", "artist-names-differ")) if (o.has(flag) && o.has("no-$flag")) throw Cli.Failure(2, "--$flag or --no-$flag, not both")
+            if (o.has("no-same-album")) put("sameAlbum", false)
+            if (o.has("no-studio-only")) put("studioOnly", false)
+            if (o.has("same-album")) put("sameAlbum", true)
+            if (o.has("any-album")) put("sameAlbum", false)
+            if (o.has("studio-only")) put("studioOnly", true)
+            if (o.has("any-version")) put("studioOnly", false)
+            if (o.has("artist-names-differ")) put("artistNamesCanDiffer", true)
+            if (o.has("no-artist-names-differ")) put("artistNamesCanDiffer", false)
+        }
+        if (policy.isNotEmpty()) put("policy", policy)
+        // A saved schedule to follow (trackhop schedules), or "none": its own timing again.
+        o.value("use-schedule")?.let { put("savedSchedule", if (it == "none") kotlinx.serialization.json.JsonNull else JsonPrimitive(it)) }
+        if (o.has("keep-order")) put("keepOrder", true)
+        if (o.has("no-keep-order")) put("keepOrder", false)
     }
 
     /** [now] (a sync's tags as the API gives them) with --tag KEY=VALUE added or changed and --untag KEY taken off; null when neither is given. */
-    private fun tagsField(o: Cli.Opts, now: JsonObject?): JsonObject? {
+    internal fun tagsField(o: Cli.Opts, now: JsonObject?): JsonObject? {
         if (o.all("tag").isEmpty() && o.all("untag").isEmpty()) return null
         val fold = com.xlollx.songport.sync.Labels::fold
         val tags = LinkedHashMap<String, String>()
@@ -490,6 +574,10 @@ internal class CliCommands(
     private fun isLink(s: String) = s.startsWith("http://") || s.startsWith("https://")
 
     private fun newSync(p: List<String>, o: Cli.Opts): Int {
+        // From a radio station or Shazam: no playlist to name (CliRadio).
+        p.firstOrNull()?.let { runCatching { service(it) }.getOrNull() }?.takeIf { CliRadio.isRadioOrShazam(it.s("serviceId")) }?.let { src ->
+            return CliRadio(this).newSync(src, p, o) { syncFields(o); tagsField(o, null)?.let { put("tags", it) } }
+        }
         need(p, 3, "new <service> <playlist> <service> [<playlist>] [options]")
         val src = service(p[0])
         val dst = service(p[2])
@@ -515,7 +603,7 @@ internal class CliCommands(
     private fun editSync(p: List<String>, o: Cli.Opts): Int {
         val target = sync(one(p, "edit <sync> [options]"))
         val body = buildJsonObject { syncFields(o); tagsField(o, target["tags"] as? JsonObject)?.let { put("tags", it) } }
-        if (body.isEmpty()) throw Cli.Failure(2, "say what to change: --name, --schedule or --every, --at, --days, --changes, --follows, --color, --label, --tag, --untag, --favorite, --two-way (trackhop help edit)")
+        if (body.isEmpty()) throw Cli.Failure(2, "say what to change: --name, --schedule or --every, --at, --days, --changes, --follows, --color, --label, --tag, --untag, --favorite, --two-way, --strictness, --explicit, --studio-only, --keep-order (trackhop help edit)")
         val r = api.send("PATCH", "syncs/${enc(target.s("id"))}", body).jsonObject
         if (asJson) return print(r).let { 0 }
         out.println("${r.s("name")}: ${route(r)}, ${r.s("timing")}${if (r.b("archive")) ", archive" else if (r.b("mirrorRemovals")) ", mirrors removals" else ""}${pair(r)}${groups(r).let { if (it.isEmpty()) "" else ", $it" }}")
@@ -726,7 +814,7 @@ internal class CliCommands(
         val s = service(serviceAsk)
         val pl = playlist(s.s("id"), playlistAsk)
         if (!asJson) out.println("Looking up the artists of ${pl.s("name")} (MusicBrainz asks for one request a second: this can take a minute)...")
-        val r = api.get("concerts?service=${enc(s.s("id"))}&playlist=${enc(pl.s("id"))}" + (o.value("country")?.let { "&country=${enc(it)}" } ?: "")).jsonObject
+        val r = api.get("concerts?service=${enc(s.s("id"))}&playlist=${enc(pl.s("id"))}" + (o.value("country")?.let { "&country=${enc(it)}" } ?: "") + (o.value("artists")?.let { "&artists=${enc(it)}" } ?: "")).jsonObject
         if (asJson) return print(r).let { 0 }
         val artists = r["artists"]?.jsonArray.orEmpty().map { it.jsonObject }
         val dated = artists.filter { it["events"]?.jsonArray.orEmpty().isNotEmpty() }
@@ -748,11 +836,11 @@ internal class CliCommands(
         return 0
     }
 
-    private fun setlists(serviceAsk: String, playlistAsk: String): Int {
+    private fun setlists(serviceAsk: String, playlistAsk: String, artists: String? = null): Int {
         val s = service(serviceAsk)
         val pl = playlist(s.s("id"), playlistAsk)
         if (!asJson) out.println("Looking up the artists of ${pl.s("name")} on setlist.fm (two a second: this can take a moment)...")
-        val r = api.get("setlists?service=${enc(s.s("id"))}&playlist=${enc(pl.s("id"))}").jsonObject
+        val r = api.get("setlists?service=${enc(s.s("id"))}&playlist=${enc(pl.s("id"))}" + (artists?.let { "&artists=${enc(it)}" } ?: "")).jsonObject
         if (asJson) return print(r).let { 0 }
         val artists = r["artists"]?.jsonArray.orEmpty().map { it.jsonObject }
         val found = artists.filter { it["setlists"]?.jsonArray.orEmpty().isNotEmpty() }
@@ -775,7 +863,7 @@ internal class CliCommands(
         val s = service(serviceAsk)
         val pl = playlist(s.s("id"), playlistAsk)
         if (!asJson) out.println("Looking up the artists of ${pl.s("name")} (Discogs, MusicBrainz and the shops ask to go slowly: this can take a few minutes)...")
-        val r = api.get("records?service=${enc(s.s("id"))}&playlist=${enc(pl.s("id"))}" + (o.value("currency")?.let { "&currency=${enc(it)}" } ?: "") +
+        val r = api.get("records?service=${enc(s.s("id"))}&playlist=${enc(pl.s("id"))}" + (o.value("currency")?.let { "&currency=${enc(it)}" } ?: "") + (o.value("artists")?.let { "&artists=${enc(it)}" } ?: "") +
             (o.value("kind")?.let { "&kind=${enc(it)}" } ?: "")).jsonObject
         if (asJson) return print(r).let { 0 }
         r["artists"]?.jsonArray.orEmpty().map { it.jsonObject }.forEach { a ->
@@ -835,7 +923,7 @@ internal class CliCommands(
     private fun export(serviceAsk: String, playlistAsk: String, file: String?, o: Cli.Opts): Int {
         val s = service(serviceAsk)
         val pl = playlist(s.s("id"), playlistAsk)
-        val format = o.value("format") ?: file?.substringAfterLast('.', "")?.takeIf { it in setOf("csv", "m3u", "xspf", "jspf", "wpl", "zpl", "txt") } ?: "csv"
+        val format = o.value("format") ?: file?.substringAfterLast('.', "")?.takeIf { it in setOf("csv", "m3u", "xspf", "jspf", "wpl", "zpl", "txt", "json") } ?: "csv"
         val text = api.raw("GET", "services/${enc(s.s("id"))}/playlists/${enc(pl.s("id"))}/export?format=${enc(format)}", null)
         if (file == null) out.print(text) else { CliFiles.save(file, text); out.println("Saved ${pl.s("name")} to $file") }
         return 0
@@ -854,7 +942,7 @@ internal class CliCommands(
         "get" -> {
             val name = file(p.getOrNull(1) ?: throw Cli.Failure(2, "usage: trackhop files get <name> [<file>] [--format F]"))
             val to = p.getOrNull(2)
-            val format = o.value("format") ?: to?.substringAfterLast('.', "")?.takeIf { it in setOf("csv", "m3u", "xspf", "jspf", "wpl", "zpl", "txt") } ?: "csv"
+            val format = o.value("format") ?: to?.substringAfterLast('.', "")?.takeIf { it in setOf("csv", "m3u", "xspf", "jspf", "wpl", "zpl", "txt", "json") } ?: "csv"
             val text = api.raw("GET", "files/${enc(name)}?format=${enc(format)}", null)
             if (to == null) out.print(text) else { CliFiles.save(to, text); out.println("Saved $name to $to") }
             0
@@ -1121,5 +1209,16 @@ internal class CliCommands(
         const val MAX_LIST = 20
         val pretty = Json { prettyPrint = true }
         val time: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault())
+    }
+
+    /** A sync's matching rules other than the defaults, in words ("strict, artist names can differ"); "" for the defaults. */
+    private fun matchingLine(o: JsonObject): String {
+        val m = o["matching"] as? JsonObject ?: return ""
+        return listOfNotNull(
+            m.s("strictness").takeIf { it.isNotEmpty() && it != "normal" },
+            when (m.s("explicit")) { "explicit" -> "prefers explicit"; "clean" -> "prefers clean"; else -> null },
+            "same album".takeIf { m.b("sameAlbum") }, "studio versions only".takeIf { m.b("studioOnly") },
+            "artist names can differ".takeIf { m.b("artistNamesCanDiffer") },
+        ).joinToString(", ")
     }
 }

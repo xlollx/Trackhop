@@ -329,6 +329,7 @@ fun UnmatchedScreen(reportId: String, onAllToFix: (() -> Unit)? = null, onClose:
                         expanded = !selecting && expanded == "u-" + track.id, onToggle = { tap("u-" + track.id) },
                         selected = ("u-" + track.id in selection).takeIf { selecting }, onLongPress = { pick("u-" + track.id) },
                         search = { q -> engine.searchOnTarget(job, q, track) },
+                        policy = job.policy,
                         webSearchUrl = webSearch, openTrack = openTrack, askAi = askFor(track),
                         onPick = { c -> engine.resolveManually(job, reportId, track, c) },
                         onIgnore = { engine.ignore(job, reportId, track) },
@@ -490,9 +491,14 @@ private fun UnmatchedRow(
     askAi: (suspend (List<Track>) -> com.xlollx.songport.ai.AiClient.Suggestion)? = null,
     selected: Boolean? = null,
     onLongPress: (() -> Unit)? = null,
+    policy: com.xlollx.songport.model.MatchPolicy = com.xlollx.songport.model.MatchPolicy(),
 ) {
     val scope = rememberCoroutineScope()
     var accepting by remember { mutableStateOf(false) }
+    // "Why wasn't it matched?" (2.2): the closest candidates with their scores, on demand.
+    var why by remember(track.id) { mutableStateOf<List<com.xlollx.songport.sync.MatchExplain.Explained>?>(null) }
+    var whyBusy by remember(track.id) { mutableStateOf(false) }
+    val query = if (track.artists.isEmpty()) track.title else "${track.artistLine} - ${track.title}"
     // The sync's own runner-up, when it had one: accepted with a tap, no search to read through.
     val proposal: (@Composable () -> Unit)? = if (suggestion != null && !expanded) {
         {
@@ -517,11 +523,34 @@ private fun UnmatchedRow(
         leading = { StatusMark(if (absent) Icons.Filled.Block else Icons.Filled.SearchOff, if (absent) Tone.Warning else Tone.Neutral) },
     ) {
         MatchSearch(
-            initialQuery = if (track.artists.isEmpty()) track.title else "${track.artistLine} - ${track.title}",
+            initialQuery = query,
             targetName = dstName,
             pickLabel = stringResource(R.string.unmatched_add),
-            search = search, onPick = onPick, onError = onError, autoSearch = true, webSearchUrl = webSearchUrl, openTrack = openTrack, askAi = askAi,
-            extraActions = { busy -> TextButton(enabled = !busy, onClick = onIgnore) { Text(stringResource(R.string.unmatched_ignore)) } },
+            // One pick at a time for this song, from either list: two would add two songs to the playlist.
+            search = search, onPick = { t -> accepting = true; try { onPick(t) } finally { accepting = false } }, onError = onError, autoSearch = true, webSearchUrl = webSearchUrl, openTrack = openTrack, askAi = askAi,
+            pickBusy = accepting,
+            extraActions = { busy ->
+                TextButton(enabled = !busy && !whyBusy, onClick = {
+                    if (why != null) { why = null; return@TextButton }
+                    whyBusy = true
+                    scope.launch {
+                        try {
+                            why = com.xlollx.songport.sync.MatchExplain.explainAll(track, search(query).hits.map { it.track }, policy)
+                        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { onError(e.message ?: "") }
+                        whyBusy = false
+                    }
+                }) { Text(stringResource(R.string.why_not_matched_q)) }
+                TextButton(enabled = !busy, onClick = onIgnore) { Text(stringResource(R.string.unmatched_ignore)) }
+            },
         )
+        why?.let { list ->
+            WhyNotMatched(list, policy.acceptThreshold, busy = accepting) { c ->
+                accepting = true
+                scope.launch {
+                    try { onPick(c) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { onError(e.message ?: "") }
+                    accepting = false
+                }
+            }
+        }
     }
 }

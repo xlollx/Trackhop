@@ -9,7 +9,7 @@ import com.xlollx.songport.platform.Env
  * the user is the account's email and the secret is the "Subsonic API key" of the profile's Subsonic
  * tab, never the Koel password (Koel checks the salted token against that key); a playlist cannot be
  * made public through this API (Koel always answers `public: false`); songs carry no play count and
- * no file path, and lyrics live in Koel itself, so they are only listed.
+ * no file path, lyrics live in Koel itself, so they are only listed, and it keeps no star ratings.
  */
 class KoelProvider(slot: String = "") : SubsonicProvider(slot) {
     override val serviceId = SERVICE
@@ -21,6 +21,8 @@ class KoelProvider(slot: String = "") : SubsonicProvider(slot) {
     override val loginForm = LoginForm(needsUrl = true, needsUser = true, needsSecret = true, secretLabelName = "login_apikey", hintName = "login_hint_koel")
     override val canSetVisibility: Boolean get() = false
     override val lyricsSupport: LyricsSupport get() = LyricsSupport.REPORT_ONLY
+    // Koel has favourites, not star ratings.
+    override val takesRatings: Boolean get() = false
 
     override suspend fun login(ctx: Env, url: String, user: String, secret: String) {
         try {

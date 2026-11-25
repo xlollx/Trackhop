@@ -139,6 +139,24 @@ class NotifyTest {
         assertEquals("Trackhop: Città", form["title"]); assertEquals("+3 −1", form["message"])
     }
 
+    @Test fun appriseSendsToItsConfigurationKeyWithTheTag() {
+        val r = sent(channel(Notify.Kind.APPRISE, "url" to "$url/notify/trackhop", "tag" to " music "))
+        assertEquals("POST", r.method)
+        assertEquals("/notify/trackhop", r.path)
+        val b = body(r)
+        assertEquals("Trackhop: Città", b.s("title")); assertEquals("+3 −1", b.s("body"))
+        assertEquals("info", b.s("type")); assertEquals("music", b.s("tag"))
+        // No tag: every service of the configuration, so none is sent.
+        assertNull(body(sent(channel(Notify.Kind.APPRISE, "url" to "$url/notify/k")))["tag"])
+        // A failed sync arrives as a failure, in the services that tell them apart.
+        val job = SyncJob("j1", "Mix", PlaylistRef("csv", "a", "a"), PlaylistRef("csv", null, "b"))
+        val fm = Notify.richMessage(env, job, report(error = "boom"), Notify.Event.entries.toSet())!!
+        assertEquals("failure", body(sent(channel(Notify.Kind.APPRISE, "url" to "$url/notify/k"), m = fm)).s("type"))
+        // The address is the secret: never shown back.
+        assertTrue(Notify.Kind.APPRISE.fields.first { it.key == "url" }.secret)
+        assertEquals("Apprise API URL is missing.", Notify.send(channel(Notify.Kind.APPRISE, "tag" to "x"), msg))
+    }
+
     @Test fun aRefusalSaysWhyWithoutTheSecret() {
         mock.enqueue(MockResponse().setResponseCode(401).setBody("""{"ok":false,"description":"Unauthorized: bot 999:TOKENTOKEN"}"""))
         val error = Notify.send(channel(Notify.Kind.TELEGRAM, "token" to "999:TOKENTOKEN", "chat" to "1"), msg)!!
@@ -146,6 +164,13 @@ class NotifyTest {
         assertFalse(error, error.contains("TOKENTOKEN"))
         // A channel that lacks its token is not tried.
         assertEquals("Bot token is missing.", Notify.send(channel(Notify.Kind.TELEGRAM, "chat" to "1"), msg))
+    }
+
+    @Test fun anAppriseRefusalNamingItsKeyDoesNotShowTheKey() {
+        mock.enqueue(MockResponse().setResponseCode(424).setBody("""{"error":"failed request /notify/key9secret"}"""))
+        val error = Notify.send(channel(Notify.Kind.APPRISE, "url" to "$url/notify/key9secret"), msg)!!
+        assertTrue(error, error.startsWith("HTTP 424: failed request /notify/"))
+        assertFalse(error, error.contains("key9secret"))
     }
 
     private fun report(added: Int = 0, removed: Int = 0, error: String? = null, review: Int = 0, heldBack: Int = 0) = SyncReport(
@@ -239,6 +264,15 @@ class NotifyTest {
         Notify.restore(env, listOf(c.copy(values = mapOf("server" to "https://evil.example", "token" to ""))))
         val r = Notify.channel(env, "g1")!!
         assertEquals("", r.value("token")); assertFalse(r.enabled)
+    }
+
+    @Test fun anAppriseChannelRestoredFromItsOwnFileKeepsItsAddress() {
+        val c = Notify.build("a1", Notify.Kind.APPRISE, "Apprise", true, Notify.Event.entries.toSet(), mapOf("url" to "https://apprise.example.org/notify/key123", "tag" to "music"), null).getOrThrow()
+        Notify.put(env, c)
+        // The file has no address (it is the secret): the one here stays, and the channel stays on.
+        Notify.restore(env, listOf(c.copy(values = mapOf("url" to "", "tag" to "music"))))
+        val r = Notify.channel(env, "a1")!!
+        assertEquals("https://apprise.example.org/notify/key123", r.value("url")); assertTrue(r.enabled)
     }
 
     @Test fun aFailureLineKeepsNoAddressOrToken() {

@@ -207,6 +207,41 @@ class WebTest {
         assertEquals("teal", env.store.job("k")!!.color)
     }
 
+    @Test fun theMatchingRulesAreOnTheSyncsPage() {
+        val m = com.xlollx.songport.model.PlaylistRef("csv", "In", "In")
+        env.store.upsertJob(com.xlollx.songport.model.SyncJob("m", "m", m, com.xlollx.songport.model.PlaylistRef("csv", "Out", "Out")))
+        val page = get("/syncs/m").body()
+        assertTrue(page.contains("Matching rules") && page.contains("Artist names can differ"))
+        post("/syncs/m/schedule", "name=m&every=1440&changes=add&matching=1&strictness=1&explicit=-1&artistNamesCanDiffer=on", *origin)
+        assertEquals(com.xlollx.songport.model.MatchPolicy(strictness = 1, explicit = -1, artistsMayDiffer = true), env.store.job("m")!!.policy)
+        assertTrue(get("/syncs/m").body().contains("""name="artistNamesCanDiffer" checked"""))
+        // A form without the section leaves the rules as they are; unticked, the box is off.
+        post("/syncs/m/schedule", "name=m&every=1440&changes=add", *origin)
+        assertTrue(env.store.job("m")!!.policy.artistsMayDiffer)
+        post("/syncs/m/schedule", "name=m&every=1440&changes=add&matching=1&strictness=0&explicit=0", *origin)
+        assertEquals(com.xlollx.songport.model.MatchPolicy(), env.store.job("m")!!.policy)
+    }
+
+    @Test fun copyStarRatingsIsOfferedFromAFileToAServerThatTakesThem() {
+        val m = com.xlollx.songport.model.PlaylistRef("csv", "Lib", "Lib")
+        env.store.upsertJob(com.xlollx.songport.model.SyncJob("r", "r", m, com.xlollx.songport.model.PlaylistRef("subsonic", "p", "p")))
+        env.store.upsertJob(com.xlollx.songport.model.SyncJob("n", "n", m, com.xlollx.songport.model.PlaylistRef("csv", "Out", "Out")))
+        assertTrue(get("/syncs/r").body().contains("Copy star ratings"))
+        assertFalse(get("/syncs/n").body().contains("Copy star ratings"))
+        post("/syncs/r/schedule", "name=r&every=1440&changes=add&ratings=1&copyRatings=on", *origin)
+        assertTrue(env.store.job("r")!!.copyRatings)
+        // A form that does not offer it leaves it as it is.
+        post("/syncs/r/schedule", "name=r&every=1440&changes=add", *origin)
+        assertTrue(env.store.job("r")!!.copyRatings)
+        post("/syncs/r/schedule", "name=r&every=1440&changes=add&ratings=1", *origin)
+        assertFalse(env.store.job("r")!!.copyRatings)
+        // A run's ratings beside its added and removed tracks.
+        val report = com.xlollx.songport.model.SyncReport("rep", "r", "r", System.currentTimeMillis(), 1000, added = 2, ratingsSet = 3)
+        env.store.addReport(report)
+        env.store.upsertJob(env.store.job("r")!!.copy(lastReportId = "rep"))
+        assertTrue(get("/syncs/r").body().contains("★ 3 ratings set"))
+    }
+
     @Test fun thePageNamesColoursTagsStarsAndFilters() {
         fun job(id: String) = com.xlollx.songport.model.SyncJob(id, id, com.xlollx.songport.model.PlaylistRef("subsonic", id, id), com.xlollx.songport.model.PlaylistRef("csv", id, id))
         listOf("one", "two", "three").forEach { env.store.upsertJob(job(it)) }
@@ -381,6 +416,69 @@ class WebTest {
         assertFalse(File(data, "csv/Road Trip.csv").exists())
         // Used once: the same choice again finds nothing.
         assertTrue(post("/files/library", "t=$t&p=1", *origin).headers().firstValue("Location").orElse("").contains("err="))
+    }
+
+    // #79: "Select all" ticks every playlist of the library, the smart ones too; "None" none; by default your own ones.
+    @Test fun anItunesLibrarysPlaylistsCanAllBeTickedOrNone() {
+        val boundary = "----trackhop79"
+        val body = tmp.newFile("upload79.bin")
+        writeLibrary(body, songs = 10, boundary = boundary)
+        val res = client.send(
+            HttpRequest.newBuilder(URI("$base/files")).header("Authorization", auth).header("Origin", base)
+                .header("Content-Type", "multipart/form-data; boundary=$boundary").POST(HttpRequest.BodyPublishers.ofFile(body.toPath())).build(),
+            HttpResponse.BodyHandlers.ofString(),
+        )
+        val to = res.headers().firstValue("Location").orElse("")
+        fun ticked(url: String) = Regex("""name="p" value="\d+" checked""").findAll(get(url).body()).count()
+        assertTrue(get(to).body().contains("sel=all"))
+        assertEquals(2, ticked(to))
+        assertEquals(3, ticked("$to&sel=all"))
+        assertEquals(0, ticked("$to&sel=none"))
+    }
+
+    @Test fun theFilesCanAllBeTickedOrNone() {
+        File(data, "csv").mkdirs()
+        listOf("A", "B", "C").forEach { File(data, "csv/$it.csv").writeText("title,artist\nSong,Band\n") }
+        fun ticked(url: String) = Regex("""form="bulk" name="f:[^"]+" checked""").findAll(get(url).body()).count()
+        assertEquals(0, ticked("/connectors/csv"))
+        assertEquals(3, ticked("/connectors/csv?all=1"))
+        // The line being tried stays.
+        assertTrue(get("/connectors/csv?sample=x+y").body().contains("""href="/connectors/csv?all=1&amp;sample=x+y">Select all</a> · <a href="/connectors/csv?sample=x+y">None</a>"""))
+    }
+
+    @Test fun theMissingTracksCanAllBeTickedOrNoneOrAnAlbumsOnes() {
+        fun t(id: String, title: String, album: String) = com.xlollx.songport.model.Track(id, title, listOf("Black Sabbath"), album = album)
+        env.store.update { d ->
+            d.copy(
+                jobs = d.jobs + com.xlollx.songport.model.SyncJob("w", "To Navidrome", com.xlollx.songport.model.PlaylistRef("spotify", "p", "P"), com.xlollx.songport.model.PlaylistRef("subsonic", "t", "T")),
+                reports = listOf(
+                    com.xlollx.songport.model.SyncReport(
+                        "rw", "w", "To Navidrome", 1_780_000_000_000, 10, sourceCount = 3,
+                        unmatchedTracks = listOf(t("s1", "Paranoid", "Paranoid"), t("s2", "Iron Man", "Paranoid"), t("s3", "N.I.B.", "Black Sabbath")),
+                    ),
+                ) + d.reports,
+            )
+        }
+        fun ticked(url: String) = Regex("""name="id" value="[^"]+" checked""").findAll(get(url).body()).count()
+        assertEquals(0, ticked("/tools/wanted?view=albums"))
+        assertEquals(3, ticked("/tools/wanted?view=albums&tick=all"))
+        assertEquals(3, ticked("/tools/wanted?tick=all"))
+        // An album's All: its two tracks, the view kept; the one-track album has none.
+        val page = get("/tools/wanted?view=albums").body()
+        val links = Regex("""href="(/tools/wanted\?view=albums&amp;tick=[^"#]+)#album-\d+"""").findAll(page).map { it.groupValues[1].replace("&amp;", "&") }.toList()
+        assertEquals(page, 1, links.size)
+        assertEquals(2, ticked(links.single()))
+        assertTrue(page.contains("""<a href="/tools/wanted?view=albums&amp;tick=all">Select all</a> · <a href="/tools/wanted?view=albums">None</a>"""))
+    }
+
+    @Test fun aPlaylistsTracksCanAllBeTickedOrNone() {
+        File(data, "csv").mkdirs()
+        File(data, "csv/Mix.csv").writeText("title,artist\nSong,Band\nOther,Band\nThird,Band\n")
+        assertEquals(303, post("/connectors/add", "service=csv", *origin).statusCode())
+        fun ticked(url: String) = Regex("""name="t_[^"]+" checked""").findAll(get(url).body()).count()
+        assertTrue(get("/playlists/csv/Mix").body().contains("""<a href="/playlists/csv/Mix?all=1">Select all</a> · <a href="/playlists/csv/Mix">None</a>"""))
+        assertEquals(0, ticked("/playlists/csv/Mix"))
+        assertEquals(3, ticked("/playlists/csv/Mix?all=1"))
     }
 
     @Test fun anUploadCutShortAddsNothingAndLeavesNothing() {

@@ -46,6 +46,18 @@ data class Track(
     val feedUrl: String? = null,
     /** A followed podcast's id in Apple's podcast directory (iTunes), where it is known. */
     val itunesId: String? = null,
+    /**
+     * The song's star rating, 0 = none, 1..5 stars: set by hand in iTunes (and kept in the playlist
+     * file made from it), or the user's rating on a personal server (Subsonic's `userRating`).
+     */
+    val rating: Int = 0,
+    /** The star rating of the song's album, as [rating]: 0 = none, 1..5 stars. */
+    val albumRating: Int = 0,
+    /**
+     * The service's id of the album the song is on, where its listing gives one (Subsonic's
+     * `albumId`): the album whose rating a sync with [SyncJob.copyRatings] sets. Only lives during a run.
+     */
+    @kotlinx.serialization.Transient val albumId: String? = null,
 ) {
     val artistLine: String get() = artists.joinToString(", ")
     val isrcNorm: String? get() = isrc?.trim()?.uppercase()?.takeIf { it.length >= 10 }
@@ -102,6 +114,12 @@ data class SyncJob(
     val days: List<Int> = emptyList(),
     val mirrorRemovals: Boolean = false,
     /**
+     * Copies the source's star ratings ([Track.rating], [Track.albumRating]) to the target, where it
+     * takes them ([com.xlollx.songport.providers.RatingWriter]), for songs and albums rated by hand.
+     * Unrated ones are left alone (never cleared); a rating is set only where it differs.
+     */
+    val copyRatings: Boolean = false,
+    /**
      * The source replaces most of its tracks by itself (a Spotify daylist, Discover Weekly, Release
      * Radar): with [mirrorRemovals], large removals are expected and go through on scheduled runs too,
      * instead of waiting for a confirmation in the preview.
@@ -138,6 +156,14 @@ data class SyncJob(
     /** Versioni (vedi MusicProvider.playlistVersion) viste all'ultimo giro riuscito: uguali = niente da fare. */
     val sourceVersion: String? = null,
     val targetVersion: String? = null,
+    /**
+     * What the last run that read the source whole ran under (the matching's revision and this sync's
+     * rules, see SyncEngine.runKey), and when: a scheduled run skips an unchanged source only under
+     * the same ones and for a day at most, so a new matching, a changed rule or an expired "not
+     * found" is searched again.
+     */
+    val versionsKey: Int = 0,
+    val fullRunEpoch: Long = 0,
     val policy: MatchPolicy = MatchPolicy(),
     /** After adding, put the target in the source's order (where the target service can move tracks). */
     val keepOrder: Boolean = false,
@@ -195,6 +221,27 @@ data class SyncJob(
      * Null = a timing of its own, set by hand. See sync/Schedules.
      */
     val scheduleId: String? = null,
+    /**
+     * The connector this sync's source comes through when the songs are kept elsewhere: a radio
+     * connector ("radio", "radio@2": one per station, see sync/RadioConnectors), whose songs heard
+     * are noted in the File playlist [source]; or "shazam", whose songs are in the playlist the Shazam
+     * app fills, [source]. Shown as the source in the app and on the server, and what "in use" means
+     * for that connector; the run reads [source] as it always did. Null for every other sync.
+     */
+    val via: String? = null,
+)
+
+/**
+ * A radio connector's station (Settings.radioStations, by connector id): its name, its stream
+ * (Icecast/Shoutcast, which send the title on air), and its site. See sync/RadioConnectors.
+ */
+@Serializable
+data class RadioStation(
+    val station: String,
+    val stream: String,
+    val homepage: String? = null,
+    /** Where the radio directory says it is from, as shown when it was chosen ("Italy"); may be blank. */
+    val country: String = "",
 )
 
 /**
@@ -245,6 +292,12 @@ data class MatchPolicy(
     val sameAlbum: Boolean = false,
     /** Mai una versione live/remix/acustica/karaoke al posto di una che non lo e'. */
     val studioOnly: Boolean = false,
+    /**
+     * "Artist names can differ" (#81): the same title (0.95) and length (3 s) with the same album is
+     * the song even when the artists' names do not meet (周杰伦 on one service, Jay Chou on the other);
+     * without an album to compare it is a song to check. Off by default.
+     */
+    val artistsMayDiffer: Boolean = false,
 ) {
     val acceptThreshold: Double get() = 0.70 + 0.08 * strictness
     val reviewThreshold: Double get() = 0.86 + 0.05 * strictness
@@ -318,6 +371,8 @@ data class SyncReport(
      * counted among the not found ([unmatched]); the next run adds them.
      */
     val notAdded: List<String> = emptyList(),
+    /** Star ratings this run set on the target's songs and albums ([SyncJob.copyRatings]). */
+    val ratingsSet: Int = 0,
 ) {
     val ok: Boolean get() = error == null
     /** Stopped because there was no internet: what it did stays, and it runs again once the connection is back. */
@@ -367,6 +422,11 @@ data class SyncPlan(
     val twoWay: TwoWayPlan? = null,
     /** Among [uncertain], the source ids a recent run already asked about (see [SyncReport.reviewAsked]). */
     val reviewAsked: Set<String> = emptySet(),
+    /**
+     * With [SyncJob.copyRatings]: each rated source track with the target track it matches (already
+     * there, or added by this run), for the ratings step after the additions.
+     */
+    val rated: List<Pair<Track, Track>> = emptyList(),
 )
 
 /**

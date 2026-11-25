@@ -131,7 +131,7 @@
     <string name="ytm_not_installed">Trackhop Bridge yüklü değil.</string>
     <string name="ytm_install">Bridge\'i indir</string>
     <string name="report_issue">GitHub\'da bildir</string>
-    <string name="provider_note_youtube">Kendi Google Cloud projenizle resmi YouTube Data API. Günlük kota sınırlıdır: büyük senkronizasyonlar birkaç gün sürebilir.</string>
+    <string name="provider_note_youtube">Resmi YouTube Data API. Günlük kota sınırlıdır: büyük senkronizasyonlar birkaç gün sürebilir.</string>
     <string name="provider_note_tidal">TIDAL çalma listeleri.</string>
     <string name="provider_note_deezer">Deezer çalma listeleri ve favorileri (beta), zaten sahip olduğunuz bir Deezer geliştirici uygulamasıyla: Deezer artık yenilerini kabul etmiyor.</string>
 
@@ -553,7 +553,7 @@
     <string name="provider_note_jellyfin">Jellyfin sunucunuz. Kayıt yok, kota yok. Favoriler beğenilen şarkı sayılır.</string>
     <string name="provider_note_plex">X-Plex-Token\'ınızla Plex Media Server\'ınız. Müzik çalma listeleri sunucuda okunur, oluşturulur ve güncellenir.</string>
     <string name="provider_note_lastfm">Bir Last.fm profilinin favori parçaları kaynak olarak. Parolanla giriş yapınca Favori parçalar bir hedef de olur: Trackhop parçaları senin yerine favorilere ekler. Ücretsiz bir Last.fm API anahtarı gerekir.</string>
-    <string name="provider_note_listenbrainz">Bir ListenBrainz kullanıcısının çalma listeleri ve favori parçaları. Kullanıcı jetonunuzla favori parçalar yazılabilir de (hedef olarak beğenilen şarkılar).</string>
+    <string name="provider_note_listenbrainz">Bir ListenBrainz kullanıcısının çalma listeleri ve favori parçaları. Kullanıcı jetonunuzla bir hedef de olur: çalma listeleriniz (MusicBrainz kayıtlarıyla oluşturulur, doldurulur ve boşaltılır) ve favori parçalarınız.</string>
     <string name="login_title">%1$s hesabında oturum aç</string>
     <string name="login_url">Sunucu adresi</string>
     <string name="login_user">Kullanıcı adı</string>
@@ -571,8 +571,8 @@
     <string name="login_hint_jellyfin">Jellyfin sunucunuzun adresini (örneğin https://jellyfin.example.com), kullanıcı adınızı ve şifrenizi girin.</string>
     <string name="login_hint_plex">Plex Media Server adresinizi (örneğin http://192.168.1.10:32400) ve X-Plex-Token\'ınızı girin. Plex, jetonu nasıl bulacağınızı destek sayfalarında açıklar (\"Finding an authentication token\").</string>
     <string name="login_hint_lastfm">Last.fm kullanıcı adını gir. Yalnızca favori parçaları okumak için parolayı boş bırak (profil herkese açık olmalı). Parolayla Trackhop parçaları favorilere de ekleyebilir: bir oturum almak için bir kez kullanılır ve saklanmaz.</string>
-    <string name="login_hint_listenbrainz">Çalma listelerini ve favori parçalarını okumak istediğiniz ListenBrainz kullanıcı adını girin. Favori parçaları yazmak için de kullanıcı jetonunuzu ekleyin (listenbrainz.org → Settings).</string>
-    <string name="listenbrainz_token_needed">ListenBrainz, favori parçaları yazmak için kullanıcı jetonunuzu gerektirir: Hesaplar\'dan ekleyin (listenbrainz.org → Settings).</string>
+    <string name="login_hint_listenbrainz">Çalma listelerini ve favori parçalarını okumak istediğiniz ListenBrainz kullanıcı adını girin. Kendi çalma listelerinizi ve favori parçalarınızı da yazmak için kullanıcı jetonunuzu ekleyin (listenbrainz.org → Settings).</string>
+    <string name="listenbrainz_token_needed">ListenBrainz, çalma listelerini ve favori parçaları yazmak için kullanıcı jetonunuzu gerektirir: Hesaplar\'dan ekleyin (listenbrainz.org → Settings).</string>
     <string name="login_token_optional">Kullanıcı jetonu (isteğe bağlı)</string>
     <string name="listenbrainz_token_invalid">ListenBrainz bu jetonu kabul etmedi.</string>
     <string name="setup_why_lastfm">Last.fm, herkese açık profilleri okumak için anında verilen ücretsiz bir API anahtarı gerektirir.</string>
@@ -625,6 +625,13 @@
     <string name="route_note_server">Kendi sunucunuz: adres, kullanıcı adı ve şifre.</string>
     <string name="connector_name_label">Bağlayıcı adı</string>
     <string name="connector_rename">Yeniden adlandır</string>
+    <string name="accounts_search">Hesaplarda ara</string>
+    <string name="accounts_filter_all">Tümü</string>
+    <string name="accounts_filter_official">Resmi</string>
+    <string name="accounts_filter_web">Web</string>
+    <string name="accounts_filter_connected">Bağlı</string>
+    <string name="account_color_none">Yok</string>
+    <string name="accounts_no_match">Eşleşen hesap yok</string>
     <string name="connect_switch_account">Tarayıcı başka bir %1$s hesabında zaten oturum açmış olabilir. Oturum açma sayfasında “Siz değil misiniz?” seçeneğini seçin veya hesap değiştirin, sonra bu bağlayıcının hesabıyla devam edin.</string>
     <string name="provider_note_amazon">Amazon\'un açık API\'si yok: Trackhop web oynatıcının arayüzünü kullanır, bu yüzden Amazon arayüzü değiştirdiğinde çalışmayı bırakabilir. Çalma listeleri, arama, oluşturma, ekleme ve kaldırma desteklenir.</string>
     <string name="amazon_not_installed_hint">GitHub\'dan \"Trackhop Bridge\" yardımcı uygulamasını (1.3.1 veya üzeri) yükleyin ya da güncelleyin, sonra buraya dönüp Bağlan\'a dokunun.</string>
@@ -702,7 +709,7 @@
     <string name="onboarding_title">Trackhop\'a hoş geldiniz</string>
     <string name="onboarding_intro">Çalma listelerinizi bir müzik servisinden diğerine kopyalayın ve elle ya da zamanlayarak güncel tutun. Ücretsiz, abonelik yok, oluşturulacak hesap yok.</string>
     <string name="onboarding_step1_title">1. Servislerinizi bağlayın</string>
-    <string name="onboarding_step1_desc">Spotify, Apple Music, YouTube Music, TIDAL, Deezer, kendi sunucunuz veya bir dosya.</string>
+    <string name="onboarding_step1_desc">Spotify, Apple Music, YouTube Music, TIDAL, kendi sunucunuz veya bir dosya.</string>
     <string name="onboarding_step2_title">2. Bir senkronizasyon oluşturun</string>
     <string name="onboarding_step2_desc">Bir kaynak çalma listesi ve bir hedef seçin. Önizleme, herhangi bir şey olmadan önce tam olarak nelerin değişeceğini gösterir.</string>
     <string name="onboarding_step3_title">3. Çalışmasına izin verin</string>
@@ -990,6 +997,7 @@
     <string name="job_color_preview">Kartın görünümü</string>
     <string name="color_red">Kırmızı</string>
     <string name="color_orange">Turuncu</string>
+    <string name="color_amber">Kehribar</string>
     <string name="color_yellow">Sarı</string>
     <string name="color_green">Yeşil</string>
     <string name="color_teal">Turkuaz</string>
@@ -1213,7 +1221,7 @@
     <string name="help_quota_body">YouTube günde ayrı sayılan 100 aramaya ve geri kalan her şey için sabit sayıda birime izin verir: bir parça eklemek 50 birim tutar. İkisi de Pasifik saatiyle gece yarısı sıfırlanır. Büyük bir ilk senkronizasyon birkaç gün sürebilir ve kendi kendine devam eder.</string>
     <string name="help_review_title">Parçaları düzeltme</string>
     <string name="help_change_body">Trackhop\'un seçtiği parçayı sizin seçtiğinizle değiştirir: servis izin veriyorsa yanlış olan hedeften kaldırılır ve seçiminiz sonraki çalıştırmalar için hatırlanır.</string>
-    <string name="help_proposal_body">Bulunan en yakın parça, ama kendiliğinden eklenecek kadar yakın değil: doğruysa Ekle\'ye dokunun. Bulunamayan parçalar bir hafta sonra yeniden aranır; hemen aramak için birini açın.</string>
+    <string name="help_proposal_body">Bulunan en yakın parça, ama kendiliğinden eklenecek kadar yakın değil: doğruysa Ekle\'ye dokunun. Bulunamayan parçalar bir ay sonra yeniden aranır; hemen aramak için birini açın.</string>
     <string name="help_proposal_example">“Song” için önerilen “Song (Remastered 2011)”.</string>
     <string name="help_ignore_body">Bu servise yapılan tüm senkronizasyonlar için bu parçayı aramayı ve bildirmeyi bırakır. Henüz geri alınamaz; bu yüzden orada bulunmayan parçalar için kullanın, örneğin bir ev kaydı.</string>
     <string name="help_results_title">Arama sonuçları</string>
@@ -1275,7 +1283,7 @@
     <string name="howto_preview_body">Önizleme, bir çalıştırmanın ne yapacağını hiçbir şeyi değiştirmeden gösterir. Bir senkronizasyon oluşturduktan sonra ya da bir kartın ⋮ menüsü › Önizleme ile açılır.\n# Neleri listeler\n• Zaten hedefte olanlar, eklenecekler, kaldırılacaklar (yalnızca Kaldırmaları yansıt ile), bulunamayanlar ve yoksayılanlar.\n• Kontrol edilecek eşleşmeler: Doğru görünüyor veya Değiştir\'e dokunun. Karara bağladıklarınız hatırlanır; gerisi çalıştırmadan sonra incelemede yeniden sorulur.\n• YouTube için çalıştırmanın harcayacağı birimler.\nBunun için önizleme eksik her parçayı hedefte arar, bu yüzden büyük bir çalma listesi biraz zaman alır. Bulduklarını çalıştırma yeniden kullanır.\n# Büyük kaldırmalar\nBir çalıştırma 10\'dan fazla parçayı ve hedefin dörtte birinden fazlasını kaldıracaksa kırmızı bir not görünür. Önce kaynağı kontrol edin: bir çalma listesini yalnızca kısmen listeleyen bir servis tam olarak böyle görünür. Parçaların gerçekten gitmesi gerekiyorsa Bu parçaları hedeften kaldır\'ı işaretleyip Şimdi çalıştır\'a dokunun. İşaret yalnızca elle başlatılan o çalıştırma ve yalnızca gördüğünüz parçalar için geçerlidir; zamanlanmış çalıştırmalar onları bekletmeye devam eder.\n# Şimdi çalıştır\nÖnizlemenin bulduklarını kullanarak senkronizasyonu hemen çalıştırır; bu yüzden önizlemenin kendisinden çok daha hızlıdır.\n# Ekran\nÜstte parçaların nereden nereye gittiği ve önizleme bunları hesaplarken adımlar; altında sayılar: eklenecek, kaldırılacak, zaten var, bulunamadı. Şimdi çalıştır altta kalır.</string>
     <string name="howto_review_title">Bulunamayan parçalar</string>
     <string name="howto_review_summary">Eksik kalanları bulun ve belirsiz eşleşmeleri kontrol edin.</string>
-    <string name="howto_review_body"># Nerede bulunur\n• Bir senkronizasyon kartındaki Bulunamadı etiketi veya düzeltilecek düğmesi.\n• Karttaki bulunamadı sayısı.\n• Ayarlar › Gelişmiş › Günlük › İncele.\n# Bir parçayı düzeltmek\n• Öneri: bulunan en yakın parça, ama kendiliğinden eklenecek kadar yakın değil. Doğruysa Ekle\'ye dokunun.\n• Başlığa, “sanatçı - başlık” biçimine göre arayın ya da herhangi bir servisten bir parça bağlantısı yapıştırın. … ile aç, servisin kendi uygulamasını açar.\n• En olası en üsttedir; kaynağın albümü, diğer sonuçlar ve YouTube Music\'te videolar altta kapalı durur.\n• Yapay zekaya sor, kendi yapay zekanızdan (Ayarlar › Gelişmiş › Yapay zekanız) daha iyi bir arama ister.\n• Yoksay, o servise yapılan tüm senkronizasyonlar için bir parçayı aramayı bırakır. Henüz geri alınamaz.\nHer seçim sonraki çalıştırmalar için hatırlanır. Bulunamayan parçalar bir hafta sonra yeniden aranır.\n# Belirsiz eşleşmeler\nTrackhop\'un emin olmadığı eşleşmeler. Doğru görünüyor birini tutar; Değiştir onu değiştirir ve servis izin veriyorsa yanlış parçayı hedeften kaldırır.\n# Eşleştirme kuralları\nDüzenleyicideki Eşleştirme kuralları bir parçanın nasıl seçileceğini belirler: Katılık, Müstehcen sürümler, Aynı albüm ve Yalnızca stüdyo sürümleri. Deezer ile tam kayıt (Ayarlar › Senkronizasyon) bir kaydı tanımlayan kodu arar; böylece Spotify, Apple Music ve TIDAL tam sürümü döndürür.</string>
+    <string name="howto_review_body"># Nerede bulunur\n• Bir senkronizasyon kartındaki Bulunamadı etiketi veya düzeltilecek düğmesi.\n• Karttaki bulunamadı sayısı.\n• Ayarlar › Gelişmiş › Günlük › İncele.\n# Bir parçayı düzeltmek\n• Öneri: bulunan en yakın parça, ama kendiliğinden eklenecek kadar yakın değil. Doğruysa Ekle\'ye dokunun.\n• Başlığa, “sanatçı - başlık” biçimine göre arayın ya da herhangi bir servisten bir parça bağlantısı yapıştırın. … ile aç, servisin kendi uygulamasını açar.\n• En olası en üsttedir; kaynağın albümü, diğer sonuçlar ve YouTube Music\'te videolar altta kapalı durur.\n• Yapay zekaya sor, kendi yapay zekanızdan (Ayarlar › Gelişmiş › Yapay zekanız) daha iyi bir arama ister.\n• Yoksay, o servise yapılan tüm senkronizasyonlar için bir parçayı aramayı bırakır. Henüz geri alınamaz.\nHer seçim sonraki çalıştırmalar için hatırlanır. Bulunamayan parçalar bir ay sonra yeniden aranır.\n# Belirsiz eşleşmeler\nTrackhop\'un emin olmadığı eşleşmeler. Doğru görünüyor birini tutar; Değiştir onu değiştirir ve servis izin veriyorsa yanlış parçayı hedeften kaldırır.\n# Eşleştirme kuralları\nDüzenleyicideki Eşleştirme kuralları bir parçanın nasıl seçileceğini belirler: Katılık, Müstehcen sürümler, Aynı albüm ve Yalnızca stüdyo sürümleri. Deezer ile tam kayıt (Ayarlar › Senkronizasyon) bir kaydı tanımlayan kodu arar; böylece Spotify, Apple Music ve TIDAL tam sürümü döndürür.</string>
     <string name="howto_backups_title">Yedekler ve geri yükleme</string>
     <string name="howto_backups_summary">Çalma listelerinizin kopyalarını saklayın ve geri alın.</string>
     <string name="howto_backups_body"># Tam yedekleme\nAraçlar › Tam yedekleme, bir servisin tüm çalma listelerini ve beğenilen şarkılarını Dosya çalma listeleri\'ne tarihli dosyalar olarak kaydeder. Her çalma listesinin son 5 sürümü saklanır, değişmemiş bir çalma listesi yeniden yazılmaz. Serviste hiçbir şey değişmez.\n# Klasöre yedekle\nAyarlar › Yedekler\'de bir klasör seçin (SD kart, bir bulut uygulaması, klasör sunan herhangi bir uygulama). Her çalıştırma bağlı tüm servisleri okur, değişenleri kaydeder ve yeni dosyaları oraya kopyalar; böylece telefondan bağımsız kalırlar. Yalnızca manuel, Her gün veya Her hafta seçin ya da Şimdi kopyala\'ya dokunun. YouTube\'da okuma kota harcar.\n# Geri yükleme\n• Bir çalma listesi: Araçlar › Dosya çalma listeleri › Dosya içe aktar, klasörden seçin, sonra bu dosyadan istediğiniz servise bir senkronizasyon oluşturun.\n• Kaldırmaları yansıt ile kaldırılan parçalar: Ayarlar › Gelişmiş › Günlük › Geri yükle.\n• Çalınamayan parça düzeltmesi: Araçlar › Çalınamayan parçalar › Son düzeltmeyi geri al.\n# Tek bir çalma listesini dışa aktarma\nAraçlar › Çalma listesini dışa aktar, onu CSV, M3U, XSPF, JSPF veya düz metin olarak kaydeder.</string>
@@ -1991,6 +1999,31 @@
     <string name="support_kofi_desc">Tek seferlik · kart veya PayPal · hesap gerekmez</string>
     <string name="support_sponsors_desc">Aylık veya tek seferlik · GitHub hesabıyla</string>
     <string name="stat_in_playlist">listede</string>
+    <string name="stat_in_source">kaynakta</string>
+    <plurals name="stat_list_removals">
+        <item quantity="one">%d kaldırma</item>
+        <item quantity="other">%d kaldırma</item>
+    </plurals>
+    <plurals name="stat_list_additions">
+        <item quantity="one">%d ekleme</item>
+        <item quantity="other">%d ekleme</item>
+    </plurals>
+    <plurals name="nway_removed_from">
+        <item quantity="one">%1$d hizmetten kaldırıldı: %2$s</item>
+        <item quantity="other">%1$d hizmetten kaldırıldı: %2$s</item>
+    </plurals>
+    <plurals name="nway_removed_from_all">
+        <item quantity="one">%1$d hizmetin tümünden kaldırıldı</item>
+        <item quantity="other">%1$d hizmetin tümünden kaldırıldı</item>
+    </plurals>
+    <plurals name="nway_added_to">
+        <item quantity="one">%1$d hizmete eklendi: %2$s</item>
+        <item quantity="other">%1$d hizmete eklendi: %2$s</item>
+    </plurals>
+    <plurals name="nway_added_to_all">
+        <item quantity="one">%1$d hizmetin tümüne eklendi</item>
+        <item quantity="other">%1$d hizmetin tümüne eklendi</item>
+    </plurals>
     <string name="settings_card_style">Kart stili</string>
     <string name="settings_card_style_summary">Renkler, durum, çalıştırmalar, boyut ve görünüm</string>
     <string name="settings_card_accent">Renkli eşitleme kartları</string>
@@ -2193,6 +2226,9 @@
     <string name="notify_help_slack">Bir kanal için incoming webhook\'lu bir uygulama oluştur (api.slack.com/messaging/webhooks) ve URL\'sini yapıştır.</string>
     <string name="notify_help_matrix">Odada bir (bot) hesap: erişim token\'ı (Element: Ayarlar › Yardım ve hakkında) ve odanın id\'si (Oda ayarları › Gelişmiş).</string>
     <string name="notify_help_pushover">User key\'in pushover.net ana sayfasında; API token\'ı için orada bir uygulama oluştur.</string>
+    <string name="notify_help_apprise">Apprise API\'nin adresi ve kayıtlı bir yapılandırmanın anahtarı (…/notify/anahtar). Etiket yalnızca işaretlediği servislere gönderir; boşsa hepsine.</string>
+    <string name="notify_field_apprise_url">Apprise API URL\'si</string>
+    <string name="notify_field_apprise_tag">Etiket (isteğe bağlı)</string>
     <string name="notify_field_telegram_token">Bot token\'ı</string>
     <string name="notify_field_telegram_chat">Chat id</string>
     <string name="notify_field_ntfy_server">Sunucu</string>
@@ -3332,6 +3368,16 @@
         <item quantity="one">%d eşitleme kullanıyor:</item>
         <item quantity="other">%d eşitleme kullanıyor:</item>
     </plurals>
+    <string name="sched_used_by_name">%1$s kullanıyor</string>
+    <plurals name="sched_services">
+        <item quantity="one">%d hizmet</item>
+        <item quantity="other">%d hizmet</item>
+    </plurals>
+    <string name="sched_multi_pill">çoklu</string>
+    <string name="sched_edit_note_multi_one">Kaydetmek çalışma zamanını değiştirir. Yalnızca bir hizmeti değiştirmek için çoklu senkronizasyonu aç.</string>
+    <string name="sched_edit_note_multi">Kaydetmek hepsinin çalışma zamanını değiştirir. Yalnızca birini değiştirmek için o eşitlemeyi aç ve Ayır’a dokun. Çoklu senkronizasyonun yalnızca bir hizmetini değiştirmek için çoklu senkronizasyonu aç.</string>
+    <string name="settings_help_buttons">Yardım düğmeleri (?)</string>
+    <string name="settings_help_buttons_summary">Seçeneklerin yanında bir “?” gösterir. Kılavuzlar %1$s › %2$s içinde kalır.</string>
     <string name="whats_new_21_collections_title">Paylaşılan koleksiyonlar</string>
     <string name="whats_new_21_collections_body">Birden çok çalma listesini tek bir davetle paylaş. Takip eden hepsini, yenileri de dahil, alır ya da bazılarını seçer; herkes kendi servisinde.</string>
     <string name="whats_new_21_nway_title">Tek çalma listesi, birden çok serviste</string>
@@ -3362,6 +3408,34 @@
     <string name="whats_new_21_widgets_body">Bir widget, eşitlemeyi kartının renkleri ve stiliyle gösterir.</string>
     <string name="whats_new_21_gaana_title">Gaana</string>
     <string name="whats_new_21_gaana_body">Gaana çalma listelerin ve favori şarkıların (alfa) ve bağlantısından herkese açık Gaana listeleri.</string>
+    <string name="whats_new_22_chooser_title">Hangi hizmet?</string>
+    <string name="whats_new_22_chooser_body">Bir hizmet seçmek artık bir seçiciyle başlar: ada göre ara (başka adlar da çalışır), önce kendi hesapların, sonra kategoriler.</string>
+    <string name="whats_new_22_matching_title">Daha akıllı eşleştirme</string>
+    <string name="whats_new_22_matching_body">Konuklar (feat.), remiksler, Taylor\'s Version gibi sürümler, Deluxe ve Remaster basımları ve AC/DC gibi adlar daha iyi eşleşir. Geleneksel ve basitleştirilmiş Çince birbirini tanır.</string>
+    <string name="whats_new_22_rerun_title">Daha az tekrar, daha net cevaplar</string>
+    <string name="whats_new_22_rerun_body">Değişmeyen bir kaynak atlanır, bulunamayan şarkılar bir ay sonra yeniden aranır. \"Neden eşleşmedi?\" Trackhop\'un baktığı adayları gösterir.</string>
+    <string name="whats_new_22_ytm_title">Hangi YouTube Music profili</string>
+    <string name="whats_new_22_ytm_body">Trackhop hangi profilin ya da kanalın bağlı olduğunu gösterir ve müziğin başka birindeyse seni uyarır.</string>
+    <string name="whats_new_22_deezer_title">Deezer</string>
+    <string name="whats_new_22_deezer_body">Aile planları: profili seç. Deezer\'ın resmi girişi artık yeni kullanıcılara sunulmuyor; \"Neden Deezer yok?\" açıklıyor.</string>
+    <string name="whats_new_22_listenbrainz_title">Hedef olarak ListenBrainz</string>
+    <string name="whats_new_22_listenbrainz_body">Çalma listelerini ListenBrainz\'e gönder, yalnızca ondan okuma.</string>
+    <string name="whats_new_22_plex_title">Plex için daha fazlası</string>
+    <string name="whats_new_22_plex_body">Beş yıldız beğenilen şarkı sayılır. \"Sounds like\" ve \"Sonic adventure\" şarkıların sesine göre listeler kurar. Bir listeyi bir Plex Home kullanıcısına kopyala.</string>
+    <string name="whats_new_22_twoaddr_title">Evde ve dışarıda</string>
+    <string name="whats_new_22_twoaddr_body">Kişisel bir sunucunun evde ve dışarıda olmak üzere iki adresi olabilir; Trackhop çalışanı kullanır.</string>
+    <string name="whats_new_22_applerem_title">Apple Music\'te kaldırma</string>
+    <string name="whats_new_22_applerem_body">Senkronizasyonlar artık Apple Music listelerinden de şarkı kaldırabilir.</string>
+    <string name="whats_new_22_files_title">Dosyalar, puanlar ve seçim</string>
+    <string name="whats_new_22_files_body">Bir çalma listesi dosyasının bağlantısını kaynak olarak kullan. Soundiiz\'in okuyabildiği JSON dışa aktar. Yıldız puanlarını kopyala. Uzun listelerin üstünde Tümünü seç ve Hiçbiri.</string>
+    <string name="whats_new_22_apprise_title">Apprise bildirimleri</string>
+    <string name="whats_new_22_apprise_body">Bir senkronizasyonun sonucunu Apprise\'a, oradan da hemen her sohbete ya da uygulamaya gönder.</string>
+    <string name="whats_new_22_quick_title">Daha hızlı başlangıç</string>
+    <string name="whats_new_22_quick_body">Tek hedef ile birkaç hedef arasında geçiş daha hızlı. İlk açılışta üç karşılama sayfası var ve doğrudan ilk hizmetine geçersin.</string>
+    <string name="whats_new_22_spotifykey_title">Spotify ve kendi anahtarın</string>
+    <string name="whats_new_22_spotifykey_body">Spotify kendi anahtarını istediğinde Trackhop artık bunu en başta söylüyor.</string>
+    <string name="whats_new_22_desktop_title">Masaüstü ve Docker</string>
+    <string name="whats_new_22_desktop_body">Uygulamanın yaptığı hemen her şey artık orada: inceleme, Düzeltilecekler, zamanlamalar, önizleme, kapaklar, istatistikler, konser günlüğü, paylaşılan listeler, roast, YouTube kotası ve daha fazlası. Birkaç senkronizasyon bir arada ve hizmet seçici de.</string>
     <string name="nway_run_place">%1$s · %2$d/%3$d</string>
     <string name="nway_run_services">Senkronize ediliyor · %2$d hizmetten %1$d.</string>
     <string name="nway_run_now_desc">Şimdi %1$s senkronize ediliyor</string>
@@ -3409,4 +3483,213 @@
     <string name="nway_change_source">Kaynak olur</string>
     <string name="nway_change_none">Çalma listeleri ve takip biçimleri olduğu gibi kalır.</string>
     <string name="nway_schedule_note">Bu çoklu senkronizasyondaki her çalma listesi bu zamanlamayla çalışır.</string>
+    <string name="card_compat_your_name">Adın</string>
+    <string name="card_compat_their_name">Onun adı</string>
+    <string name="card_compat_names_note">İsteğe bağlı. Adlar bu telefonda kalır: yalnızca görselde yer alır.</string>
+    <string name="editor_copy_ratings">Yıldız puanlarını kopyala</string>
+    <string name="editor_copy_ratings_desc">iTunes\'ta puanlanan şarkılar ve albümler %1$s üzerinde de aynı yıldızları alır. Puanlanmamış olanlar olduğu gibi kalır.</string>
+    <plurals name="ratings_set">
+        <item quantity="one">★ %1$d puan ayarlandı</item>
+        <item quantity="other">★ %1$d puan ayarlandı</item>
+    </plurals>
+    <string name="note_ratings_failed">%2$s tarafından kabul edilmeyen yıldız puanları: %1$d. Eşitlemenin kendisi tamamlandı; bir sonraki çalıştırmada yeniden denenecek.</string>
+    <string name="to_fix_accept_suggestions">Önerileri kabul et (%1$d)</string>
+    <plurals name="to_fix_bulk_accepted">
+        <item quantity="one">%1$d öneri kabul edildi</item>
+        <item quantity="other">%1$d öneri kabul edildi</item>
+    </plurals>
+    <plurals name="to_fix_bulk_no_suggestion">
+        <item quantity="one">%1$d kaldı: öneri yok</item>
+        <item quantity="other">%1$d kaldı: öneri yok</item>
+    </plurals>
+    <plurals name="to_fix_bulk_later">
+        <item quantity="one">%1$d parça, senkronizasyonu yeniden çalışana kadar kenara ayrıldı</item>
+        <item quantity="other">%1$d parça, senkronizasyonu yeniden çalışana kadar kenara ayrıldı</item>
+    </plurals>
+    <plurals name="to_fix_bulk_ignored">
+        <item quantity="one">%1$d parça yoksayıldı</item>
+        <item quantity="other">%1$d parça yoksayıldı</item>
+    </plurals>
+    <plurals name="unplayable_undecided">
+        <item quantity="one">%1$d karar verilmemiş</item>
+        <item quantity="other">%1$d karar verilmemiş</item>
+    </plurals>
+    <string name="unplayable_remove_all">Hepsini kaldır</string>
+    <string name="unplayable_skip_all">Hepsini atla</string>
+    <plurals name="manage_delete_n_title">
+        <item quantity="one">%2$s üzerinden %1$d çalma listesi silinsin mi?</item>
+        <item quantity="other">%2$s üzerinden %1$d çalma listesi silinsin mi?</item>
+    </plurals>
+    <string name="manage_delete_n_body">Doğrudan %1$s üzerinden kaldırılırlar. Bunlara yazan senkronizasyonlar kapatılır.</string>
+    <plurals name="manage_delete_n">
+        <item quantity="one">%1$d çalma listesini sil</item>
+        <item quantity="other">%1$d çalma listesini sil</item>
+    </plurals>
+    <plurals name="manage_deleted_n">
+        <item quantity="one">%1$d çalma listesi silindi</item>
+        <item quantity="other">%1$d çalma listesi silindi</item>
+    </plurals>
+    <plurals name="manage_delete_failed_n">
+        <item quantity="one">%1$d silinemedi</item>
+        <item quantity="other">%1$d silinemedi</item>
+    </plurals>
+    <plurals name="manage_syncs_turned_off">
+        <item quantity="one">%1$d senkronizasyon kapatıldı</item>
+        <item quantity="other">%1$d senkronizasyon kapatıldı</item>
+    </plurals>
+    <plurals name="manage_delete_turns_off">
+        <item quantity="one">%1$d senkronizasyon bu çalma listesine yazıyor: kapatılacak.</item>
+        <item quantity="other">%1$d senkronizasyon bu çalma listesine yazıyor: kapatılacak.</item>
+    </plurals>
+    <string name="saved_matches_forget_short">Unut</string>
+    <plurals name="saved_matches_forgotten_n">
+        <item quantity="one">%1$d unutuldu: sonraki senkronizasyon yeniden arar.</item>
+        <item quantity="other">%1$d unutuldu: sonraki senkronizasyon yeniden arar.</item>
+    </plurals>
+    <string name="deezer_profile">Deezer profili</string>
+    <string name="deezer_profile_title">Hangi profil?</string>
+    <string name="deezer_profile_hint">Bu Deezer hesabı bir Family planı. Trackhop seçtiğin profilin çalma listelerini ve favorilerini okur ve yazar. Daha sonra hesabın ⋮ menüsünden değiştirebilirsin.</string>
+    <string name="deezer_profile_holder">Hesap sahibi</string>
+    <string name="deezer_profile_later">Daha sonra</string>
+    <string name="deezer_profile_use">Bu profili kullan</string>
+    <string name="deezer_profile_failed">Deezer bu profile geçmedi: önceki profil kalıyor. Daha sonra tekrar dene.</string>
+    <string name="deezer_profile_as">%1$s · Family profili</string>
+    <string name="deezer_why_title">Deezer neden yok?</string>
+    <string name="deezer_why_official_title">Resmi Deezer neden yok?</string>
+    <string name="deezer_why_body">Deezer artık API\'sini kullanan yeni uygulamaları kabul etmiyor: şimdilik burada sunamıyoruz.</string>
+    <!-- YouTube Music profiles (own channel, brand accounts); Spotify with the build's key; the welcome's last button. -->
+    <string name="ytm_profile_title">Hangi YouTube Music profili?</string>
+    <string name="ytm_profile_body">Google hesabınızda %1$d profil var. Trackhop çalma listelerini ve beğenilen şarkıları seçtiğiniz profilde okur ve yazar.</string>
+    <string name="ytm_profile_body_one">Trackhop çalma listelerini ve beğenilen şarkıları seçtiğiniz profilde okur ve yazar.</string>
+    <string name="ytm_profile_wrong">Trackhop %1$s profilini kullanıyor; orada çalma listesi ya da beğenilen şarkı yok. Müziğiniz %2$s üzerinde görünüyor.</string>
+    <string name="ytm_profile_empty">Boş</string>
+    <string name="ytm_profile_here">Müziğiniz burada</string>
+    <string name="ytm_profile_nothing">çalma listesi yok, beğenilen şarkı yok</string>
+    <string name="ytm_profile_no_playlists">çalma listesi yok</string>
+    <string name="ytm_profile_no_liked">beğenilen şarkı yok</string>
+    <string name="ytm_profile_pick_hint">YouTube Music uygulamasında kullandığınızı seçin. Daha sonra hesabın kartından değiştirebilirsiniz.</string>
+    <string name="ytm_profile_use">%1$s kullan</string>
+    <string name="ytm_profile_continue">%1$s ile devam et</string>
+    <string name="ytm_profile_keep">%1$s kalsın</string>
+    <string name="ytm_profile_card_wrong">%1$s profili boş. Müziğiniz %2$s üzerinde görünüyor.</string>
+    <string name="ytm_profile_change">Değiştir</string>
+    <string name="ytm_profile_row">Profil: %1$s</string>
+    <string name="ytm_profile_brand">marka hesabı</string>
+    <string name="youtube_empty_channel">Bu kanalda çalma listesi ya da beğenilen şarkı yok. Müziğiniz başka bir profildeyse (marka hesabı), yeniden giriş yapın ve Google\'ın listesinde o profili seçin.</string>
+    <string name="youtube_empty_keep">Böyle kalsın</string>
+    <string name="connect_spotify_shared_note">Spotify, Trackhop\'un bu sürümünün yalnızca birkaç hesap bağlamasına izin veriyor. Sizinki büyük olasılıkla ücretsiz, kendinize ait bir anahtar gerektirecek: yaklaşık iki dakika, bir Spotify Premium hesabıyla; uygulama adım adım yol gösterir.</string>
+    <string name="connect_try_anyway">Yine de dene</string>
+    <string name="connect_use_own_key">Kendi anahtarımı kullan</string>
+    <string name="onboarding_connect_first">İlk hizmetini bağla</string>
+    <plurals name="ytm_profile_playlists">
+        <item quantity="one">%d çalma listesi</item>
+        <item quantity="other">%d çalma listesi</item>
+    </plurals>
+    <plurals name="ytm_profile_liked">
+        <item quantity="one">%d beğenilen şarkı</item>
+        <item quantity="other">%d beğenilen şarkı</item>
+    </plurals>
+    <string name="chooser_your_accounts">Hesapların</string>
+    <string name="chooser_all">Tümü</string>
+    <string name="chooser_cat_games">Oyunlar</string>
+    <string name="chooser_cat_radio">Radyo ve listeler</string>
+    <string name="chooser_cat_podcasts">Podcast\'ler</string>
+    <string name="chooser_cat_listening">Dinlemeler</string>
+    <string name="chooser_cat_regional">Bölgesel</string>
+    <string name="chooser_cat_files">Dosyalar</string>
+    <string name="chooser_area_east_asia">Doğu Asya</string>
+    <string name="chooser_area_india_middle_east">Hindistan · Orta Doğu</string>
+    <string name="chooser_area_africa">Afrika</string>
+    <string name="chooser_area_europe">Avrupa</string>
+    <string name="chooser_area_americas">Amerika</string>
+    <string name="chooser_show_all">Tümünü göster (%1$d)</string>
+    <string name="chooser_suggested_here">Bulunduğun yer için öneriler</string>
+    <string name="chooser_cannot_target">Hedef olamaz</string>
+    <string name="chooser_no_results">“%1$s” için hizmet bulunamadı</string>
+    <string name="chooser_clear_search">Aramayı temizle</string>
+    <plurals name="chooser_search">
+        <item quantity="one">%1$d hizmette ara</item>
+        <item quantity="other">%1$d hizmette ara</item>
+    </plurals>
+    <string name="format_soundiiz">JSON (Soundiiz)</string>
+    <string name="playlisturl_label">Çalma listesi dosyası (bağlantı)</string>
+    <string name="provider_note_playlisturl">Çevrimiçi tutulan bir çalma listesi dosyası: bir .xspf, .m3u, .m3u8, .jspf veya .pls dosyasının bağlantısını eşitlemenin kaynağı olarak yapıştırın. Trackhop her çalıştırmada onu yeniden okur.</string>
+    <string name="playlisturl_unreadable">Bu bağlantıdaki çalma listesi dosyası okunamadı (%1$s)</string>
+    <string name="apple_removal_check_name">Trackhop denetimi (silebilirsiniz)</string>
+    <string name="apple_removal_check_description">Trackhop tarafından Apple Music çalma listelerinizden parça kaldırabildiğini denetlemek için bir kez oluşturuldu. Silebilirsiniz.</string>
+    <string name="login_url_away">Ev dışı adres (isteğe bağlı)</string>
+    <string name="login_url_away_hint">İlki yanıt vermediğinde kullanılır, örneğin mobil veride. Wi-Fi\'da önce ilki denenir; en son çalışan hatırlanır.</string>
+    <string name="account_via_home">Şu an: %1$s (ev)</string>
+    <string name="account_via_away">Şu an: %1$s (ev dışı)</string>
+    <string name="why_not_matched_q">Neden eşleşmedi?</string>
+    <string name="why_not_matched">Neden eşleşmedi?</string>
+    <string name="why_needs">gereken %%%1$d</string>
+    <string name="why_axis_title">Başlık</string>
+    <string name="why_axis_artist">Sanatçı</string>
+    <string name="why_axis_length">Süre</string>
+    <string name="why_axis_version">Sürüm</string>
+    <string name="why_axis_album">Albüm</string>
+    <string name="why_reason_same_isrc">aynı ISRC</string>
+    <string name="why_reason_same_recording">aynı MusicBrainz kaydı</string>
+    <string name="why_reason_other_title">başka bir başlık</string>
+    <string name="why_reason_other_artist">başka bir sanatçı</string>
+    <string name="why_reason_length">süre %1$s</string>
+    <string name="why_reason_version">başka bir sürüm (canlı, remix…)</string>
+    <string name="why_reason_album">başka bir albüm</string>
+    <string name="why_use">Bunu kullan</string>
+    <string name="why_none">Arama karşılaştıracak bir şey bulamadı.</string>
+    <string name="why_footer">Yalnızca aramanın en yakın sonuçları gösterilir (en fazla 5). \"Bunu kullan\" eşleşmeyi sonraki eşitlemeler için kaydeder.</string>
+    <string name="plex_home_owner_only">Plex: sunucunun kullanıcılarını yalnızca sunucu sahibinin jetonu listeleyebilir.</string>
+    <string name="plex_home_user_unknown">Plex: bu kullanıcı artık sunucuyu paylaşmıyor.</string>
+    <string name="discover_sonic_title">Şuna benzer (Plex)</string>
+    <string name="discover_sonic_desc">Seçtiğiniz şarkıya benzeyen şarkılar ya da bir şarkıdan diğerine bir yolculuk, Plex sunucunuzun ses analizinden.</string>
+    <string name="sonic_like">Şuna benzer</string>
+    <string name="sonic_adventure">Ses yolculuğu</string>
+    <string name="sonic_from">Başlangıç (şarkı adı)</string>
+    <string name="sonic_to">Bitiş (şarkı adı)</string>
+    <string name="sonic_find">Bul</string>
+    <string name="sonic_none_connected">Önce bir Plex sunucusu bağlayın (Hesaplar). Ses analizi Plex Pass gerektirir.</string>
+    <string name="sonic_empty">Plex bir şey döndürmedi: sunucu bu şarkıyı henüz analiz etmemiş olabilir (ses analizi Plex Pass gerektirir).</string>
+    <string name="sonic_not_found">Plex\'te \"%1$s\" adlı şarkı yok.</string>
+    <string name="sonic_save_plex">Plex\'e kaydet</string>
+    <string name="sonic_send">Başka bir hizmete eşitle</string>
+    <string name="sonic_saved">Plex\'e kaydedildi: %1$s</string>
+    <string name="sonic_name_like">%1$s benzeri</string>
+    <string name="sonic_name_adventure">%1$s → %2$s</string>
+    <string name="plex_copy_menu">Bir Plex Home kullanıcısına kopyala…</string>
+    <string name="plex_copy_title">\"%1$s\" listesini kopyala:</string>
+    <string name="plex_copy_nobody">Bu sunucu henüz kimseyle paylaşılmıyor.</string>
+    <string name="plex_copy_note">Kopya, aynı şarkılarla bu sunucudaki kitaplığına gider.</string>
+    <string name="plex_copy_button">Kopyala</string>
+    <string name="plex_copy_done">\"%1$s\", %2$s kullanıcısına kopyalandı</string>
+    <string name="provider_note_apple_full">Kitaplığınızdaki Apple Music çalma listeleri. Abonelik ve MusicKit geliştirici jetonu gerekir. Apple\'ın API\'si yalnızca ekler: kaldırmalar, çalma listesinin listesi yeniden yazılarak yapılır; önce küçük ayrı bir listede bir kez denetlenir.</string>
+    <string name="policy_artists_differ">Sanatçı adları farklı olabilir</string>
+    <string name="policy_artists_differ_desc">Her hizmetin farklı yazdığı sanatçılar için (周杰倫 ve Jay Chou): aynı ad, süre ve albüm yeterlidir. Albüm yoksa parça incelemeye gider.</string>
+    <string name="provider_note_radio">Bir istasyonun çaldığı şarkılar, her senkronun seçtiği saatlerde iki dakikada bir not edilir. Her istasyon için bir tane ekle. Yalnızca istasyonun gönderdiği şarkı adları okunur; ses asla saklanmaz.</string>
+    <string name="provider_note_shazam">Shazam ile tanıdığın her şarkı, Shazam uygulamasının Spotify veya Apple Music hesabında doldurduğu çalma listesinden (My Shazam Tracks).</string>
+    <string name="radio_add_title">Radyo ekle</string>
+    <string name="radio_add">Ekle</string>
+    <string name="whats_new_22_radio_title">Hesaplarda radyo ve Shazam</string>
+    <string name="whats_new_22_radio_body">Her radyo istasyonu adı ve rengiyle ayrı bir hesap: istediğin kadar ekle ve kaynak olarak kullan. Shazam da orada. Radyo ve Shazam senkronların kendiliğinden taşındı.</string>
+    <string name="bell_title">Bildirimler</string>
+    <string name="bell_desc_update">Bildirimler, güncelleme var</string>
+    <string name="bell_mark_all_read">Tümünü okundu say</string>
+    <string name="bell_clear">Temizle</string>
+    <string name="bell_clear_confirm">Bildirim geçmişi temizlensin mi?</string>
+    <string name="bell_empty">Henüz bir şey yok. Trackhop\'un sana bildirdikleri burada görünür.</string>
+    <string name="bell_notifications_off">Trackhop bildirimleri kapalı: yenileri yine de buraya gelir.</string>
+    <string name="bell_turn_on">Aç</string>
+    <string name="bell_kept">%1$d gün saklanır (en fazla %2$d).</string>
+    <string name="bell_today">Bugün</string>
+    <string name="bell_yesterday">Dün</string>
+    <string name="bell_update_ready">Bir güncelleme hazır</string>
+    <string name="bell_update_have">Sende %1$s var</string>
+    <string name="bell_update_download">İndir</string>
+    <string name="bell_update_update">Güncelle</string>
+    <plurals name="bell_desc_unread">
+        <item quantity="one">Bildirimler, %d okunmamış</item>
+        <item quantity="other">Bildirimler, %d okunmamış</item>
+    </plurals>
+    <string name="whats_new_22_bell_title">Bildirim zili</string>
+    <string name="whats_new_22_bell_body">Bir bildirime dokunmak, ilgili yeri açar. Üstteki zil hepsini saklar ve yeni sürüm çıktığında gösterir.</string>
 </resources>

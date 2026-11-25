@@ -61,4 +61,15 @@ class TrackLookupTest {
         assertEquals("Faint", t.title)
         assertEquals(listOf("Linkin Park"), t.artists)
     }
+
+    @Test fun onlyAmazonMusicsOwnAddressIsFetchedAsPasted() {
+        assertEquals(true, TrackLookup.amazonMusicPage("https://music.amazon.it/tracks/B012345678"))
+        assertEquals(true, TrackLookup.amazonMusicPage("https://music.amazon.co.uk/albums/B0?trackAsin=B012345678"))
+        assertEquals(false, TrackLookup.amazonMusicPage("http://127.0.0.1:8080/?x=music.amazon.com/tracks/B012345678"))
+        assertEquals(false, TrackLookup.amazonMusicPage("https://music.amazon.com.example.org/tracks/B012345678"))
+        assertEquals(false, TrackLookup.amazonMusicPage("https://music.amazon.bad.co/tracks/B012345678"))
+        assertEquals(false, TrackLookup.amazonMusicPage("https://music.amazon.evil.de/tracks/B012345678"))
+        assertEquals(true, TrackLookup.amazonMusicPage("https://music.amazon.com.au/tracks/B012345678"))
+        assertEquals(true, TrackLookup.amazonMusicPage("https://MUSIC.amazon.de/tracks/B012345678"))
+    }
 }

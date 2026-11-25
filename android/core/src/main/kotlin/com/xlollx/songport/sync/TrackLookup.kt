@@ -110,10 +110,24 @@ object TrackLookup {
             "tidal" -> getText("https://embed.tidal.com/oembed?url=" + Http.enc("https://tidal.com/browse/track/${ref.trackId}"))
                 ?.let { parseOEmbed(it, ref.trackId, ref.service) }?.takeIf { it.artists.isNotEmpty() }
                 ?: page("https://tidal.com/browse/track/${ref.trackId}", ref.trackId)
-            "amazon" -> page(Regex("""https?://\S+""").find(link)?.value ?: "https://music.amazon.com/tracks/${ref.trackId}", ref.trackId)
+            // The link as pasted (a country's store) only when it is Amazon Music's own address: any other
+            // host that merely mentions one is not fetched, the song's address is made from its id.
+            "amazon" -> page(Regex("""https?://\S+""").find(link)?.value?.takeIf { amazonMusicPage(it) } ?: "https://music.amazon.com/tracks/${ref.trackId}", ref.trackId)
             else -> null
         }
     }.getOrNull()
+
+    /**
+     * [url] is on one of Amazon Music's own sites (music.amazon.com, .co.uk, .com.au…), over https: a
+     * listed host, not any shaped like one (music.amazon.bad.co is bad.co's). Any other link is not
+     * fetched; the song's address is made from its id ("https://music.amazon.com/tracks/<id>").
+     */
+    internal fun amazonMusicPage(url: String): Boolean = runCatching { java.net.URI(url) }.getOrNull()
+        ?.let { it.scheme == "https" && it.host?.lowercase() in AMAZON_MUSIC_HOSTS } == true
+
+    private val AMAZON_MUSIC_HOSTS = listOf(
+        "com", "co.uk", "de", "fr", "it", "es", "ca", "com.au", "co.jp", "in", "com.br", "com.mx",
+    ).map { "music.amazon.$it" }.toSet()
 
     private suspend fun getText(url: String): String? {
         val r = Http.send("GET", url, headers = mapOf("Accept" to "application/json"), maxRateLimitRetries = 0)

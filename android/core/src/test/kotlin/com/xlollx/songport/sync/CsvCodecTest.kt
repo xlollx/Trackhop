@@ -61,4 +61,39 @@ class CsvCodecTest {
         // Without a unit in the header the old guess stays: small numbers are seconds.
         assertEquals(240_000L, CsvCodec.parse("title,artist,duration\nX,A,240\n")[0].durationMs)
     }
+
+    @Test fun withoutRatingsTheFileIsAsBefore() {
+        val tracks = listOf(Track("1", "Volare", listOf("Domenico Modugno"), "Nel blu", 200_000, "ITA1"))
+        assertEquals("title,artist,album,duration_ms,isrc\r\nVolare,Domenico Modugno,Nel blu,200000,ITA1\r\n", CsvCodec.encode(tracks))
+    }
+
+    @Test fun ratingsTravelInTheirOwnColumns() {
+        val tracks = listOf(
+            Track("1", "Volare", listOf("Domenico Modugno"), "Nel blu", 200_000, rating = 4, albumRating = 5),
+            Track("2", "Azzurro", listOf("Paolo Conte"), durationMs = 180_000),
+            Track("3", "Caruso", listOf("Lucio Dalla"), albumRating = 3),
+        )
+        val text = CsvCodec.encode(tracks)
+        assertEquals("title,artist,album,duration_ms,isrc,rating,album_rating", text.lineSequence().first())
+        val back = CsvCodec.parse(text)
+        assertEquals(listOf(4, 0, 0), back.map { it.rating })
+        assertEquals(listOf(5, 0, 3), back.map { it.albumRating })
+        // The same song with or without stars keeps its id: matches saved before still hold.
+        assertEquals(CsvCodec.parse(CsvCodec.encode(tracks.map { it.copy(rating = 0, albumRating = 0) })).map { it.id }, back.map { it.id })
+    }
+
+    @Test fun ratingsWithPodcastColumnsToo() {
+        val tracks = listOf(Track("1", "Show", listOf("Pub"), feedUrl = "https://f.example/rss", rating = 2))
+        val text = CsvCodec.encode(tracks)
+        assertEquals("title,artist,album,duration_ms,isrc,feed_url,itunes_id,rating,album_rating", text.lineSequence().first())
+        assertEquals(2, CsvCodec.parse(text).single().rating)
+    }
+
+    @Test fun aRatingColumnInAnotherFileIsNotRead() {
+        val csv = "Title,Artist,Rating,Album Rating\nVolare,Domenico Modugno,5,4\n"
+        val p = CsvCodec.parse(csv).single()
+        assertEquals(0, p.rating)
+        assertEquals(0, p.albumRating)
+        assertEquals("Volare", p.title)
+    }
 }

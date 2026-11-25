@@ -75,10 +75,10 @@ private fun Web.readableForConcerts(): List<MusicProvider> =
 private suspend fun Web.playlistsOf(p: MusicProvider): List<Playlist> = p.libraryEntries(env, false) + p.playlists(env)
 
 /** Looks the playlist's artists up: what the page's task and the API both run. */
-private suspend fun Web.concertsOf(p: MusicProvider, playlistId: String, country: String, progress: (Int, Int) -> Unit = { _, _ -> }): Concerts.Result {
-    val artists = Concerts.artistsOf(p.tracks(env, playlistId))
+private suspend fun Web.concertsOf(p: MusicProvider, playlistId: String, country: String, picked: Set<String>? = null, progress: (Int, Int) -> Unit = { _, _ -> }): Concerts.Result {
+    val artists = ArtistPicks.chosen(p.tracks(env, playlistId), picked)
     // Spotify (web) is asked too where this person has it connected (Features.v2): foreground only.
-    val r = SpotifyConcertsServer.asking(env) { Concerts.find(env, artists, country, progress = progress) }
+    val r = SpotifyConcertsServer.asking(env) { Concerts.find(env, artists, country, whole = picked == null, progress = progress) }
     env.log("concerts", "${p.label(env)} / $playlistId in ${r.country}: ${r.artists.count { it.events.isNotEmpty() }} of ${r.artists.size} artists with dates")
     return r
 }
@@ -126,7 +126,7 @@ internal fun Web.apiConcerts(method: String, rest: List<String>, query: Map<Stri
             val lists = playlistsOf(p)
             val pl = lists.firstOrNull { it.id == wanted } ?: lists.filter { it.name.equals(wanted, ignoreCase = true) }.singleOrNull()
                 ?: return@runBlocking null
-            concertsOf(p, pl.id, country)
+            concertsOf(p, pl.id, country, ArtistPicks.of(emptyList(), query["artists"]))
         }
     }.getOrElse { return true.also { _ -> error(502, "${p.label(env)}: ${it.message ?: it.javaClass.simpleName}") } }
         ?: return true.also { error(404, "No playlist \"$wanted\" on ${p.label(env)} (or more than one with that name: use its id).") }
@@ -155,11 +155,12 @@ internal fun Web.concertsPage(r: Web.Req) {
         .getOrElse { return send(r.ex, 200, page(title, """<div class="card err">${h(it.message)}</div>""")) }
     val playlist = params["playlist"]?.let { id -> lists.firstOrNull { it.id == id } }
     if (r.method == "POST" && playlist != null) {
+        val picked = pickedArtists(r)
         val country = Concerts.country(params["country"]) ?: startCountry()
         env.keyValues("ui")[UI_COUNTRY] = country
         val task = Tasks.start(title, "/tools/concerts?service=${q(service.id)}&playlist=${q(playlist.id)}", { env.log("concerts", it) }, env.owner, env.marks) { t ->
             t.progress = "Reading the playlist"
-            val res = concertsOf(service, playlist.id, country) { done, total -> t.progress = "Artist ${minOf(done + 1, total)} of $total" }
+            val res = concertsOf(service, playlist.id, country, picked) { done, total -> t.progress = "Artist ${minOf(done + 1, total)} of $total" }
             concertsHtml(playlist.name, res)
         }
         return redirect(r.ex, "/tools/task/${q(task.id)}")
@@ -172,6 +173,7 @@ internal fun Web.concertsPage(r: Web.Req) {
     body.append("""<form method="post" action="/tools/concerts" class="card">$intro<input type="hidden" name="service" value="${h(service.id)}">
 <label>Playlist on ${h(service.label(env))}</label><select name="playlist">$opts</select>
 <label>Country</label><select name="country">$countries</select>
+${artistPickFields(r, service, playlist?.id)}
 <p><button>Find concerts</button> <a class="button secondary" href="/tools/concerts">Another service</a></p></form>""")
     send(r.ex, 200, page(title, body.toString()))
 }
