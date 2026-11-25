@@ -37,10 +37,10 @@ class ServiceChooserFlowTest : FlowTest() {
         store.updateSettings { it.copy(connectorColors = mapOf("spotify" to "teal")) }
         openChooser()
         waitText(s(R.string.chooser_your_accounts))
-        // Spotify, YouTube Music (two routes, one row), Deezer, Jellyfin, File.
-        assertTrue(exists(plural(R.plurals.chooser_search, 5, 5)))
-        // The chips: All and the categories with something in them; Games waits for its first member.
-        listOf(R.string.chooser_all, R.string.services_group_streaming, R.string.services_group_servers, R.string.chooser_cat_files).forEach { assertTrue(exists(s(it))) }
+        // Spotify, YouTube Music (two routes, one row), Deezer, Jellyfin, Radio, Shazam (2.2: connectors of their own), File.
+        assertTrue("seven services in the search's hint", exists(plural(R.plurals.chooser_search, 7, 7)))
+        // The chips: All and the categories with something in them (Radio & charts: the radio and Shazam); Games waits for its first member.
+        listOf(R.string.chooser_all, R.string.services_group_streaming, R.string.services_group_servers, R.string.chooser_cat_radio, R.string.chooser_cat_files).forEach { assertTrue(s(it), exists(s(it))) }
         assertFalse(exists(s(R.string.chooser_cat_games)))
         assertFalse(exists(s(R.string.chooser_cat_podcasts)))
         // A chip shows that category alone.
