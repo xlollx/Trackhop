@@ -110,7 +110,9 @@ internal fun Web.apiNotifyHistory(method: String, rest: List<String>, body: () -
             json(200, buildJsonObject { put("unread", NotifyHistory.unread(l)); put("entries", JsonArray(l.map { NotifyPages.json(it) })) })
         }
         rest.size == 3 && rest[2] == "read" && method == "POST" -> {
-            val id = (body()?.get("id") as? JsonPrimitive)?.contentOrNull
+            // Not JSON (or too large) is an error, never "all read"; an empty body is the explicit mark-all.
+            val b = body() ?: return true.also { error(400, "Send JSON: {\"id\": \"<notification id>\"}, or an empty body to mark all read.") }
+            val id = (b["id"] as? JsonPrimitive)?.contentOrNull
             if (id != null) history.markRead(id) else history.markAllRead()
             history.settle()
             json(200, buildJsonObject { put("unread", NotifyHistory.unread(history.entries.value)) })

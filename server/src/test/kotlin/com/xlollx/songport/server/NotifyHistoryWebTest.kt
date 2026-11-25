@@ -104,6 +104,15 @@ class NotifyHistoryWebTest {
             assertTrue(json, json.contains("\"url\": \"/syncs/j1/review/r1\"") && json.contains("\"unread\": 1"))
             // GET /api/v1/notifications is still the channels.
             assertTrue(cli("notify").second.contains("Home"))
+            // A body that is not JSON is refused, not taken as "mark all read".
+            val bad = client.send(
+                HttpRequest.newBuilder(URI("$base/api/v1/notifications/history/read")).header("Authorization", "Bearer ${Api.newToken(env)}")
+                    .header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString("{\"id\":")).build(),
+                HttpResponse.BodyHandlers.ofString(),
+            )
+            assertEquals(bad.body(), 400, bad.statusCode())
+            history.settle()
+            assertEquals(1, NotifyHistory.unread(history.entries.value))
             assertEquals(0, cli("notifications", "read").first)
             history.settle()
             assertEquals(0, NotifyHistory.unread(history.entries.value))
