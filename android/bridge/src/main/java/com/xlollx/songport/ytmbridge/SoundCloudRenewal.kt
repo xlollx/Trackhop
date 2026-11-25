@@ -83,7 +83,7 @@ object SoundCloudRenewal {
     @Volatile var lostConnection: String? = null
         private set
 
-    fun forget() { lastProactive.set(0) }
+    fun forget() { lastProactive.set(0); refusedLately.clear() }
 
     /**
      * When the session was found gone for good (epoch ms, as text), or null while it can still be
@@ -176,10 +176,12 @@ object SoundCloudRenewal {
         if (pausedAfterStrike(app)) return false
         val started = System.currentTimeMillis()
         if (!quiet) BridgeNet.log("soundcloud", "renewing the session in a hidden page ($why)")
+        if (!ahead) rememberRefused(refused)
         val page = runCatching { hiddenPage(app, current) }.getOrElse { Page(null, null, it.message ?: it.javaClass.simpleName) }
-        val found = page.found
+        // A token refused a moment ago, given back by the page, is no renewal.
+        val found = page.found?.takeIf { !refusedLately.contains(it.token) }
         if (found == null || found.token == current) {
-            val problem = page.problem ?: "the page gave no new token"
+            val problem = page.problem ?: if (page.found != null) RENEWED_NOTHING else "the page gave no new token"
             BridgeNet.log("soundcloud", "the session could not be renewed${if (quiet) " ($why)" else ""}: $problem")
             if (problem == RENEWED_NOTHING && (!ahead || tokenOver(app))) strike(app)
             if (NetWords.readable(problem)) lostConnection = problem
@@ -195,12 +197,25 @@ object SoundCloudRenewal {
     /**
      * The token a renewal found: the page's Authorization header first, then the cookie of any
      * SoundCloud host, as at sign-in, and only one other than [old] (the page may send the old one
-     * before it renews).
+     * before it renews). A cookie counts only when the page changed it: [before] is each site's
+     * `oauth_token` when the page was opened, and a token already in the jar then is an older one
+     * left there (the owner's log, 25/11: a stale cookie taken "in 1 s", refused at once, twice).
      */
-    fun newToken(header: SoundCloudBridge.Found?, cookies: Map<String, String?>, old: String?): SoundCloudBridge.Found? {
+    fun newToken(header: SoundCloudBridge.Found?, cookies: Map<String, String?>, old: String?, before: Map<String, String?> = emptyMap()): SoundCloudBridge.Found? {
         val fresh = header?.takeIf { it.token != old }
-        val jars = cookies.mapValues { (_, jar) -> jar?.takeIf { SoundCloudBridge.oauthToken(it) != old } }
+        val jars = cookies.mapValues { (site, jar) ->
+            jar?.takeIf { SoundCloudBridge.oauthToken(it).let { t -> t != old && t != before[site] } }
+        }
         return SoundCloudBridge.pick(fresh, jars, null)
+    }
+
+    /** The tokens refused lately (in memory only): a page that gives one of them back has renewed nothing. */
+    private val refusedLately = java.util.concurrent.ConcurrentLinkedDeque<String>()
+
+    private fun rememberRefused(token: String?) {
+        if (token == null || refusedLately.contains(token)) return
+        refusedLately.addFirst(token)
+        while (refusedLately.size > 4) refusedLately.pollLast()
     }
 
     /**
@@ -235,6 +250,8 @@ object SoundCloudRenewal {
         var web: WebView? = null
         val cm = CookieManager.getInstance()
         fun jars() = SoundCloudBridge.COOKIE_SITES.associateWith { runCatching { cm.getCookie(it) }.getOrNull() }
+        // Each site's token before the page runs: only one the page then changes is a renewal.
+        val before = AtomicReference<Map<String, String?>>(emptyMap())
 
         // Only watched, as at sign-in: the client id and the token the page's API calls carry.
         fun watch(request: WebResourceRequest) {
@@ -288,13 +305,14 @@ object SoundCloudRenewal {
                             netFailed.compareAndSet(null, NetWords.pageLoad("a request of the page", req.url.host ?: "api-v2.soundcloud.com", err.errorCode, d))
                     }
                 }
+                before.set(jars().mapValues { (_, jar) -> SoundCloudBridge.oauthToken(jar) })
                 w.loadUrl(SoundCloudBridge.MOBILE_SITE + "/")
                 // The cookie the page renews has no request to show it: the jar is looked at every second,
                 // and a page that has loaded and renewed nothing for a while is given up on.
                 main.postDelayed(object : Runnable {
                     override fun run() {
                         if (over.get()) return
-                        if (newToken(null, jars(), old) != null) { latch.countDown(); return }
+                        if (newToken(null, jars(), old, before.get()) != null) { latch.countDown(); return }
                         val at = loadedAt.get()
                         if (at > 0 && System.currentTimeMillis() - at > SETTLE_MS) { problem.compareAndSet(null, settled(checked.get(), netFailed.get())); latch.countDown(); return }
                         main.postDelayed(this, 1_000)
@@ -312,7 +330,7 @@ object SoundCloudRenewal {
         main.post {
             try {
                 val jars = jars()
-                val found = newToken(header.get(), jars, old)
+                val found = newToken(header.get(), jars, old, before.get())
                 val why = problem.get() ?: if (!inTime) "no new token within $TIMEOUT_S s" else null
                 // DataDome's page means the renewal failed, whatever the jar says.
                 val fail = problem.get()?.contains("DataDome") == true

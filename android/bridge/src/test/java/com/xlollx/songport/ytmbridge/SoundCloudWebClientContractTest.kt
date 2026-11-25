@@ -415,6 +415,35 @@ class SoundCloudWebClientContractTest {
         assertNull(SoundCloudRenewal.expiredAt(app))
     }
 
+    /** The owner's log, 25/11: a stale token left in another site's jar, taken "in 1 s" for a renewal, refused at once. */
+    @Test fun aCookieTheJarHadBeforeThePageIsNoRenewal() {
+        val stale = "2-294035-123-StaleStale3"
+        val before = mapOf(SoundCloudBridge.SITE to stale, SoundCloudBridge.MOBILE_SITE to oldToken, "https://secure.soundcloud.com" to null)
+        val unchanged = mapOf(SoundCloudBridge.SITE to "oauth_token=$stale", SoundCloudBridge.MOBILE_SITE to "oauth_token=$oldToken", "https://secure.soundcloud.com" to null)
+        assertNull(SoundCloudRenewal.newToken(null, unchanged, oldToken, before))
+        // The page renews the mobile site's cookie: that one counts.
+        val renewed = unchanged + (SoundCloudBridge.MOBILE_SITE to "oauth_token=$newToken")
+        assertEquals(newToken, SoundCloudRenewal.newToken(null, renewed, oldToken, before)?.token)
+        assertEquals("cookie:m.soundcloud.com", SoundCloudRenewal.newToken(null, renewed, oldToken, before)?.source)
+        // The page's own request still counts, whatever the jar.
+        assertEquals("2-1-2-HeAdEr3", SoundCloudRenewal.newToken(SoundCloudBridge.Found("2-1-2-HeAdEr3", "header:api-mobi.soundcloud.com"), unchanged, oldToken, before)?.token)
+    }
+
+    /** The owner's log, 25/11: two "renewals" in a row gave tokens refused at once; a token refused a moment ago is no renewal. */
+    @Test fun aPageThatGivesBackARefusedTokenRenewsNothing() {
+        signedInByMobileCookie()
+        val logs = logs()
+        var give = newToken
+        pageAnswer = { SoundCloudRenewal.Page(SoundCloudBridge.Found(give, "cookie:soundcloud.com"), null, null) }
+        assertTrue(SoundCloudRenewal.renew(app, oldToken, "refused"))
+        assertEquals(newToken, SoundCloudBridge.token(app))
+        // newToken refused in turn, and the page gives back the old one, refused before: nothing renewed.
+        give = oldToken
+        assertFalse(SoundCloudRenewal.renew(app, newToken, "refused"))
+        assertEquals(newToken, SoundCloudBridge.token(app))
+        assertTrue(logs.toString(), logs.any { it.contains("could not be renewed: ${SoundCloudRenewal.RENEWED_NOTHING}") })
+    }
+
     @Test fun aSecondPageThatRenewsNothingAnHourLaterEndsTheSessionOnce() {
         signedInByMobileCookie()
         val logs = logs()
