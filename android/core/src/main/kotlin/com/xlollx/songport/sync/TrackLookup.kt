@@ -117,9 +117,17 @@ object TrackLookup {
         }
     }.getOrNull()
 
-    /** [url] is on Amazon Music's own site (music.amazon.com, .co.uk, .com.au…), over https. */
+    /**
+     * [url] is on one of Amazon Music's own sites (music.amazon.com, .co.uk, .com.au…), over https: a
+     * listed host, not any shaped like one (music.amazon.bad.co is bad.co's). Any other link is not
+     * fetched; the song's address is made from its id ("https://music.amazon.com/tracks/<id>").
+     */
     internal fun amazonMusicPage(url: String): Boolean = runCatching { java.net.URI(url) }.getOrNull()
-        ?.let { it.scheme == "https" && it.host?.lowercase()?.matches(Regex("""music\.amazon\.[a-z]{2,3}(\.[a-z]{2})?""")) == true } == true
+        ?.let { it.scheme == "https" && it.host?.lowercase() in AMAZON_MUSIC_HOSTS } == true
+
+    private val AMAZON_MUSIC_HOSTS = listOf(
+        "com", "co.uk", "de", "fr", "it", "es", "ca", "com.au", "co.jp", "in", "com.br", "com.mx",
+    ).map { "music.amazon.$it" }.toSet()
 
     private suspend fun getText(url: String): String? {
         val r = Http.send("GET", url, headers = mapOf("Accept" to "application/json"), maxRateLimitRetries = 0)
