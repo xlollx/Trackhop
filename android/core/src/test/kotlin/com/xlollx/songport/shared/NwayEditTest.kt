@@ -279,6 +279,14 @@ class NwayEditTest {
         for (s in listOf(a, b, c, d)) assertEquals(s.id, listOf(1, 2, 3, 4, 5), songs(s))
     }
 
+    @Test fun aNewGroupWithTheIdOfOneHereIsRefusedAndThatOneKeepsItsKey() {
+        val g = NwayEdit.create(env, NwayEdit.Draft("Trip", item(a), listOf(item(b))))
+        val keys = env.tokens.ids().filter { it.startsWith("shared:") }.associateWith { env.tokens.get(it) }
+        assertTrue(runCatching { NwayEdit.create(env, NwayEdit.Draft("Other", item(c), listOf(item(d))), id = g.id) }.isFailure)
+        assertEquals(listOf(g), now().groups)
+        assertEquals(keys, env.tokens.ids().filter { it.startsWith("shared:") }.associateWith { env.tokens.get(it) })
+    }
+
     @Test fun aNewGroupThatCannotBeWrittenLeavesNothingBehind() {
         env.store.failWrites = true
         val made = runCatching { NwayEdit.create(env, NwayEdit.Draft("Trip", item(a), listOf(item(b)))) }

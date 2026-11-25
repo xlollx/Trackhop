@@ -221,6 +221,8 @@ object NwayEdit {
         require(missing(draft) == null) { "Not ready to save: ${missing(draft)}" }
         require(draft.items.all { !it.playlistId.isNullOrBlank() }) { "A playlist of the draft was not made" }
         val source = draft.source!!
+        // An id the caller gives is a new group's: one already here keeps its key and its state.
+        require(id == null || env.store.data.groups.none { it.id == id }) { "A multi sync with that id already exists" }
         // The group's key and its empty list first; it is in the store only with all its syncs.
         val group = if (id == null) SharedGroups.create(env, draft.name, "", "", "", "", null, Invite.LOCAL)
             else SharedGroups.create(env, draft.name, "", "", "", "", null, Invite.LOCAL, id = id)
