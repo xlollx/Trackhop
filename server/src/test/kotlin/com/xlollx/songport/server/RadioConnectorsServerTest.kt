@@ -134,6 +134,10 @@ class RadioConnectorsServerTest {
         val patched = call("PATCH", "syncs/${job.id}", """{"radio":{"start":"06:00"}}""")
         assertEquals(patched.text, 200, patched.code)
         assertEquals(6 * 60, env.store.job(job.id)!!.radio!!.startMinute)
+        // Days that are not a list are refused, not left as they were in silence.
+        assertEquals(400, call("PATCH", "syncs/${job.id}", """{"radio":{"days":"1"}}""").code)
+        assertEquals(400, call("POST", "syncs", """{"source":{"service":"radio@2"},"target":{"service":"csv","playlist":"Heard"},"radio":{"days":"1"}}""").code)
+        assertEquals(listOf(6, 7), env.store.job(job.id)!!.radio!!.days)
         // The unused one goes, with its station; the used one stays.
         assertEquals(409, call("DELETE", "services/radio@2").code)
         assertEquals(200, call("DELETE", "services/radio").code)

@@ -55,6 +55,8 @@ private fun minuteOf(v: String?): Int? = v?.trim()?.let { Regex("""^(\d{1,2}):(\
  */
 internal fun radioWindowOf(base: RadioSource, o: JsonObject?): RadioSource {
     if (o == null) return base
+    // Given, it is a list: anything else is an error, never the default week kept in silence.
+    o["days"]?.let { if (it !is JsonArray && it !is JsonNull) throw IllegalArgumentException("\"radio.days\" is a list of days from 1 (Monday) to 7 (Sunday): [6, 7].") }
     val days = (o["days"] as? JsonArray)?.map { (it as? JsonPrimitive)?.intOrNull?.takeIf { d -> d in 1..7 } ?: throw IllegalArgumentException("\"radio.days\" are numbers from 1 (Monday) to 7 (Sunday).") }
         ?.distinct()?.sorted()
     if (days != null && days.isEmpty()) throw IllegalArgumentException("\"radio.days\" needs at least one day.")
