@@ -347,7 +347,9 @@ class StoreScreenshots {
         // 2 "Which service?": Accounts › Add connector.
         open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_ACCOUNTS)) {
             step("shot $n") {
-                waitText(s(R.string.connector_add)); Thread.sleep(3000)
+                // The extended button keeps its words out of the merged tree: looked for in the unmerged one.
+                compose.waitUntil(15_000) { bounds(s(R.string.connector_add)) != null }
+                Thread.sleep(3000)
                 // The tap does not always open the chooser (the page still settling): tried again until the screen changes.
                 fun differs(a: Bitmap, b: Bitmap): Boolean {
                     var d = 0; var t = 0
