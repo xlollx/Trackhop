@@ -347,11 +347,22 @@ class StoreScreenshots {
         // 2 "Which service?": Accounts › Add connector.
         open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_ACCOUNTS)) {
             step("shot $n") {
-                waitText(s(R.string.connector_add)); Thread.sleep(800)
-                // A tap does not always reach the button: its click, through the icon that names it.
-                compose.onAllNodes(androidx.compose.ui.test.hasClickAction() and hasAnyDescendant(androidx.compose.ui.test.hasContentDescription(s(R.string.connector_add))), useUnmergedTree = true)
-                    .onFirst().performSemanticsAction(SemanticsActions.OnClick)
-                Thread.sleep(2500); compose.waitForIdle()
+                waitText(s(R.string.connector_add)); Thread.sleep(3000)
+                // The tap does not always open the chooser (the page still settling): tried again until the screen changes.
+                fun differs(a: Bitmap, b: Bitmap): Boolean {
+                    var d = 0; var t = 0
+                    for (y in 0 until a.height step 40) for (x in 0 until a.width step 40) { t++; if (a.getPixel(x, y) != b.getPixel(x, y)) d++ }
+                    return d > t / 5
+                }
+                for (attempt in 1..4) {
+                    val before = instr.uiAutomation.takeScreenshot()
+                    realTap(s(R.string.connector_add))
+                    val after = instr.uiAutomation.takeScreenshot()
+                    val opened = before != null && after != null && differs(before, after)
+                    android.util.Log.i("StoreScreenshots", "chooser attempt $attempt opened=$opened")
+                    if (opened) break
+                    Thread.sleep(1500)
+                }
             }
             snap()
         }
