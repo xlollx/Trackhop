@@ -28,33 +28,38 @@ internal object LibraryScanServer {
     data class Result(val service: String, val playlists: Int, val repeats: List<Repeat>, val orphanLiked: List<Track>, val failed: List<String>)
 
     const val LIKED = "Liked songs"
+    /** Who owns the liked songs in a scan: no playlist id is this. */
+    private const val LIKED_KEY = "\u0000liked"
 
     /** The last scan of each service, for its Save buttons. */
     val last = ConcurrentHashMap<String, Result>()
 
     suspend fun run(env: Env, provider: MusicProvider, onProgress: (String) -> Unit = {}): Result {
         val lists = provider.playlists(env).filter { it.ownedByMe }
+        // Each song's playlist by id: two playlists of one name are two, and a playlist named Liked songs is a playlist.
         val owner = IdentityHashMap<Track, String>()
+        val names = HashMap<String, String>()
         val all = ArrayList<Track>()
         val failed = ArrayList<String>()
         var liked: List<Track> = emptyList()
         if (provider.supportsLikedSongs) {
             onProgress(LIKED)
             liked = try { provider.tracks(env, MusicProvider.LIKED_ID) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { failed += "$LIKED (${e.message})"; emptyList() }
-            liked.forEach { owner[it] = LIKED; all += it }
+            liked.forEach { owner[it] = LIKED_KEY; all += it }
         }
         for (pl in lists) {
             onProgress(pl.name)
             val tracks = try { provider.tracks(env, pl.id) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { failed += "${pl.name} (${e.message})"; continue }
-            tracks.forEach { owner[it] = pl.name; all += it }
+            names[pl.id] = pl.name
+            tracks.forEach { owner[it] = pl.id; all += it }
         }
         val repeats = ArrayList<Repeat>()
         val likedCovered = java.util.Collections.newSetFromMap(IdentityHashMap<Track, Boolean>())
         for (g in Duplicates.groups(all)) {
-            val inPlaylists = g.mapNotNull { owner[it] }.filter { it != LIKED }.distinct()
+            val inPlaylists = g.mapNotNull { owner[it] }.filter { it != LIKED_KEY }.distinct()
             // The same song twice in one playlist is a duplicate, not a repeat across playlists.
-            if (inPlaylists.size >= 2) repeats += Repeat(g.first { owner[it] != LIKED }, inPlaylists)
-            if (inPlaylists.isNotEmpty()) g.filter { owner[it] == LIKED }.forEach { likedCovered.add(it) }
+            if (inPlaylists.size >= 2) repeats += Repeat(g.first { owner[it] != LIKED_KEY }, inPlaylists.map { names.getValue(it) })
+            if (inPlaylists.isNotEmpty()) g.filter { owner[it] == LIKED_KEY }.forEach { likedCovered.add(it) }
         }
         return Result(provider.id, lists.size, repeats.sortedByDescending { it.playlists.size }, liked.filter { it !in likedCovered }, failed)
     }
