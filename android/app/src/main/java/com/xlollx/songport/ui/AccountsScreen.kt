@@ -107,7 +107,7 @@ import kotlinx.coroutines.withContext
  */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Boolean) -> Unit, onSetup: (MusicProvider) -> Unit, onManageFiles: () -> Unit = {}, onSendTo: (id: String, name: String) -> Unit = { _, _ -> }, pendingAdd: String? = null, onPendingAddTaken: () -> Unit = {}) {
+fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Boolean) -> Unit, onSetup: (MusicProvider) -> Unit, onManageFiles: () -> Unit = {}, onSendTo: (id: String, name: String) -> Unit = { _, _ -> }, onFilesInTools: (FilesStart) -> Unit = {}, pendingAdd: String? = null, onPendingAddTaken: () -> Unit = {}) {
     val ctx = LocalContext.current
     val store = remember { Store.get(ctx) }
     val data by store.state.collectAsState()
@@ -284,7 +284,7 @@ fun AccountsScreen(snackbar: SnackbarHostState, showAdd: Boolean, onShowAdd: (Bo
         }
         items(shown, key = { it.id }) { p ->
             key(refresh) {
-                if (p.serviceId == LocalFilesProvider.serviceId) FilesCard(snackbar, onRemove = { remove(p) }, onManage = onManageFiles, onSendTo = onSendTo)
+                if (p.serviceId == LocalFilesProvider.serviceId) FilesCard(snackbar, onRemove = { remove(p) }, onManage = onManageFiles, onSendTo = onSendTo, onOpenInTools = onFilesInTools)
                 // A source with nothing to sign in to (the charts): its name, what it is, remove.
                 else if (!p.requiresAuth) PlainSourceCard(
                     p, label = p.label(ctx), onRemove = { remove(p) },
@@ -719,13 +719,24 @@ private fun ProviderCard(
     }
 }
 
-/** File playlists: import, paste, export, delete. Shown in Tools always and in Accounts when the File connector is added. */
+/** What the File card in Accounts asks of Tools › File playlists, where importing and pasting live (#85). */
+enum class FilesStart { IMPORT, PASTE }
+
+/**
+ * File playlists: import, paste, export, delete. Shown in Tools always and in Accounts when the File
+ * connector is added. Importing and pasting happen only in Tools: the Accounts card ([onOpenInTools]
+ * set) has no picker of its own and sends the person there, where [start] begins the asked action.
+ * (#85: the Accounts card's own picker lost the picked file, its card re-keyed when the app resumed.)
+ */
 @Composable
 internal fun FilesCard(
     snackbar: SnackbarHostState,
     onRemove: (() -> Unit)? = null,
     onManage: () -> Unit = {},
     onSendTo: (id: String, name: String) -> Unit = { _, _ -> },
+    onOpenInTools: ((FilesStart) -> Unit)? = null,
+    start: FilesStart? = null,
+    onStarted: () -> Unit = {},
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -747,7 +758,15 @@ internal fun FilesCard(
     }
 
     var pendingImport by remember { mutableStateOf<Uri?>(null) }
-    val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> pendingImport = uri }
+    val importLauncher = if (onOpenInTools != null) null
+    else rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> pendingImport = uri }
+    fun launchImport() = importLauncher?.launch(
+        arrayOf(
+            "text/*", "text/csv", "text/comma-separated-values", "text/plain",
+            "application/json", "application/xml", "text/xml",
+            "audio/x-mpegurl", "application/vnd.apple.mpegurl", "application/octet-stream",
+        )
+    )
     LaunchedEffect(pendingImport) {
         val uri = pendingImport ?: return@LaunchedEffect
         pendingImport = null
@@ -824,6 +843,14 @@ internal fun FilesCard(
     }
 
     var pasteOpen by rememberSaveable { mutableStateOf(false) }
+    // Asked from the Accounts card: the import or the paste, begun here once.
+    LaunchedEffect(start) {
+        when (start ?: return@LaunchedEffect) {
+            FilesStart.IMPORT -> launchImport()
+            FilesStart.PASTE -> pasteOpen = true
+        }
+        onStarted()
+    }
     if (pasteOpen) PasteListDialog(
         onDismiss = { pasteOpen = false },
         onImport = { name, text ->
@@ -885,16 +912,8 @@ internal fun FilesCard(
             Spacer(Modifier.height(8.dp))
             // Wraps where the two do not fit side by side (a narrow phone, a large font).
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End), modifier = Modifier.fillMaxWidth()) {
-                TextButton(onClick = { pasteOpen = true }) { Text(stringResource(R.string.paste_list)) }
-                Button(onClick = {
-                    importLauncher.launch(
-                        arrayOf(
-                            "text/*", "text/csv", "text/comma-separated-values", "text/plain",
-                            "application/json", "application/xml", "text/xml",
-                            "audio/x-mpegurl", "application/vnd.apple.mpegurl", "application/octet-stream",
-                        )
-                    )
-                }) {
+                TextButton(onClick = { onOpenInTools?.invoke(FilesStart.PASTE) ?: run { pasteOpen = true } }) { Text(stringResource(R.string.paste_list)) }
+                Button(onClick = { onOpenInTools?.invoke(FilesStart.IMPORT) ?: launchImport() }) {
                     Text(stringResource(R.string.csv_import))
                 }
             }
