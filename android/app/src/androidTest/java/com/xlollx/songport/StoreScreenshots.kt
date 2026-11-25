@@ -309,6 +309,33 @@ class StoreScreenshots {
             }
             compose.waitForIdle()
         }
+        fun shell(cmd: String) = instr.uiAutomation.executeShellCommand(cmd).use { java.io.FileInputStream(it.fileDescriptor).readBytes() }
+        // A tidy status bar again: the system UI may have forgotten the script's demo mode.
+        step("demo mode") {
+            listOf("-e command enter", "-e command clock -e hhmm 1200", "-e command battery -e level 100 -e plugged false",
+                "-e command network -e wifi show -e level 4 -e fully true", "-e command network -e mobile show -e datatype none -e level 4",
+                "-e command notifications -e visible false").forEach { shell("am broadcast -a com.android.systemui.demo $it") }
+        }
+        val height = app.resources.displayMetrics.heightPixels
+        // Where [text] is on the screen, from the unmerged tree (a dialog's or a sheet's too), or null.
+        fun bounds(text: String) = runCatching {
+            compose.onAllNodesWithText(text, useUnmergedTree = true).fetchSemanticsNodes().firstOrNull()?.boundsInWindow
+        }.getOrNull()
+        // A real tap on [text]: the injected click misses the buttons that open a dialog or a sheet.
+        fun realTap(text: String) {
+            val r = bounds(text) ?: error("no $text")
+            shell("input tap ${r.center.x.toInt()} ${r.center.y.toInt()}")
+            Thread.sleep(2500); compose.waitForIdle()
+        }
+        // Real drags up until [text] shows in the lower part of the screen, or [tries] drags.
+        fun swipeUntil(text: String, tries: Int = 8) {
+            repeat(tries) {
+                val r = bounds(text)
+                if (r != null && r.top > 0 && r.bottom < height * 0.82f) return
+                shell("input swipe 540 ${(height * 0.75).toInt()} 540 ${(height * 0.35).toInt()} 900")
+                Thread.sleep(900); compose.waitForIdle()
+            }
+        }
         val firstJob = Demo.PLAYLISTS[0].second
         val multi = Demo.PLAYLISTS[3].second
 
@@ -316,7 +343,7 @@ class StoreScreenshots {
         open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_SYNCS)) { waitText(firstJob); snap() }
         // 2 "Which service?": Accounts › Add connector.
         open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_ACCOUNTS)) {
-            step("shot $n") { waitText(fourthName); click(s(R.string.connector_add)); waitText(s(R.string.connector_pick_title)); Thread.sleep(800) }
+            step("shot $n") { waitText(fourthName); realTap(s(R.string.connector_add)) }
             snap()
         }
         // 3 A new sync: Spotify to YouTube Music.
@@ -348,10 +375,8 @@ class StoreScreenshots {
         open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_TOOLS)) {
             step("shot $n") {
                 waitText(s(R.string.tools_transfer_title))
-                bringIn(s(R.string.not_found_title))
-                click(s(R.string.not_found_title))
-                waitText(s(R.string.not_found_save_playlist))
-                Thread.sleep(1000)
+                swipeUntil(s(R.string.not_found_title))
+                realTap(s(R.string.not_found_title))
             }
             snap()
         }
@@ -368,7 +393,7 @@ class StoreScreenshots {
         }
         // 8 Accounts: radio stations and Shazam as accounts, next to the services.
         open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_ACCOUNTS)) {
-            step("shot $n") { waitText(fourthName); bringIn("Shazam") }
+            step("shot $n") { Thread.sleep(1500); swipeUntil("Shazam") }
             snap()
         }
         // 9 Discover.
@@ -414,7 +439,8 @@ class StoreScreenshots {
                         "job-road-9" -> r.copy(unmatched = road.map { it.toString() }, unmatchedTracks = road)
                         else -> r
                     }
-                })
+                // Newest first, as the app keeps them: "the last run" is the first of its sync.
+                }.sortedByDescending { it.startedEpoch })
             }
         }
         step("22 multi") {
@@ -435,7 +461,7 @@ class StoreScreenshots {
             store.updateSettings { s0 ->
                 val (s1, _) = com.xlollx.songport.sync.RadioConnectors.add(s0, com.xlollx.songport.model.RadioStation("Coastline FM", "https://stream.example.com/coastline"), color = "teal")
                 val (s2, _) = com.xlollx.songport.sync.RadioConnectors.add(s1, com.xlollx.songport.model.RadioStation("Night Owl Radio", "https://stream.example.com/nightowl"), color = "orange")
-                s2.copy(connectors = (s2.connectors + com.xlollx.songport.sync.RadioConnectors.SHAZAM).distinct())
+                com.xlollx.songport.sync.RadioConnectors.addShazam(s2)
             }
         }
         store.flush()
