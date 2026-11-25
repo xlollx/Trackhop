@@ -3547,4 +3547,10 @@
     <string name="provider_note_apple_full">ライブラリ内の Apple Music プレイリスト。サブスクリプションと MusicKit 開発者トークンが必要です。Apple の API は追加しかできないため、削除はプレイリストの一覧を書き直して行います（専用の小さなプレイリストで一度確認済み）。</string>
     <string name="policy_artists_differ">アーティスト名が違っていてもよい</string>
     <string name="policy_artists_differ_desc">サービスごとに表記が違うアーティスト（周杰倫とJay Chou）向け：曲名・長さ・アルバムが同じなら十分です。アルバムがない場合は確認に回ります。</string>
+    <string name="provider_note_radio">局が流した曲を、各同期が選んだ時間帯に2分ごとに記録します。局ごとに1つ追加してください。読み取るのは局が送る曲名だけで、音声は保存しません。</string>
+    <string name="provider_note_shazam">Shazam で認識したすべての曲。Shazam アプリが Spotify または Apple Music に作るプレイリスト（My Shazam Tracks）から。</string>
+    <string name="radio_add_title">ラジオを追加</string>
+    <string name="radio_add">追加</string>
+    <string name="whats_new_22_radio_title">アカウントにラジオと Shazam</string>
+    <string name="whats_new_22_radio_body">ラジオ局はそれぞれ名前と色を持つアカウントになりました。好きなだけ追加して、同期の元として使えます。Shazam も追加できます。既存のラジオと Shazam の同期は自動で移行されました。</string>
 </resources>

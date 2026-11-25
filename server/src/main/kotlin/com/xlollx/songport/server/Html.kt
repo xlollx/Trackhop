@@ -55,6 +55,9 @@ object Html {
             ?: when (serviceId) {
                 "csv" -> """<svg viewBox="0 0 24 24"><path fill="#fff" d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>"""
                 "subsonic", "koel" -> """<svg viewBox="0 0 24 24"><path fill="#fff" d="M20 13H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zM7 19c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM20 3H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1zM7 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>"""
+                // A radio station's service (one per station) and Shazam's (2.2).
+                "radio" -> """<svg viewBox="0 0 24 24"><path fill="#fff" d="M3.24 6.15C2.51 6.43 2 7.17 2 8v12c0 1.1.89 2 2 2h16c1.11 0 2-.9 2-2V8c0-1.11-.89-2-2-2H8.3l8.26-3.34L15.88 1 3.24 6.15zM7 20c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm13-8h-2v-2h-2v2H4V8h16v4z"/></svg>"""
+                "shazam" -> """<svg viewBox="0 0 24 24"><path fill="#fff" d="${com.xlollx.songport.providers.ServiceMarks.SHAZAM}"/></svg>"""
                 else -> """<b>${h(name.take(1).uppercase())}</b>"""
             }
         val ringStyle = ring?.takeIf { Regex("#[0-9A-Fa-f]{6}").matches(it) }?.let {

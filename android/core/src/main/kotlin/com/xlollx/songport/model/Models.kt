@@ -221,6 +221,27 @@ data class SyncJob(
      * Null = a timing of its own, set by hand. See sync/Schedules.
      */
     val scheduleId: String? = null,
+    /**
+     * The connector this sync's source comes through when the songs are kept elsewhere: a radio
+     * connector ("radio", "radio@2": one per station, see sync/RadioConnectors), whose songs heard
+     * are noted in the File playlist [source]; or "shazam", whose songs are in the playlist the Shazam
+     * app fills, [source]. Shown as the source in the app and on the server, and what "in use" means
+     * for that connector; the run reads [source] as it always did. Null for every other sync.
+     */
+    val via: String? = null,
+)
+
+/**
+ * A radio connector's station (Settings.radioStations, by connector id): its name, its stream
+ * (Icecast/Shoutcast, which send the title on air), and its site. See sync/RadioConnectors.
+ */
+@Serializable
+data class RadioStation(
+    val station: String,
+    val stream: String,
+    val homepage: String? = null,
+    /** Where the radio directory says it is from, as shown when it was chosen ("Italy"); may be blank. */
+    val country: String = "",
 )
 
 /**

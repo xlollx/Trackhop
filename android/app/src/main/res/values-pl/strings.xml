@@ -3909,4 +3909,10 @@
     <string name="provider_note_apple_full">Playlisty Apple Music z twojej biblioteki. Wymaga subskrypcji i tokena dewelopera MusicKit. API Apple tylko dodaje: usuwanie odbywa się przez ponowne zapisanie listy playlisty, sprawdzone raz na małej, osobnej playliście.</string>
     <string name="policy_artists_differ">Nazwy wykonawców mogą się różnić</string>
     <string name="policy_artists_differ_desc">Dla wykonawców, których każdy serwis zapisuje inaczej (周杰倫 i Jay Chou): wystarczy ten sam tytuł, długość i album. Bez albumu utwór trafia do przeglądu.</string>
+    <string name="provider_note_radio">Utwory grane przez stację, zapisywane co dwie minuty w godzinach wybranych przez każdą synchronizację. Dodaj jedną na stację. Czytane są tylko tytuły wysyłane przez stację; dźwięk nigdy nie jest zapisywany.</string>
+    <string name="provider_note_shazam">Każdy utwór rozpoznany w Shazam, z playlisty, którą aplikacja Shazam wypełnia na twoim Spotify lub Apple Music (My Shazam Tracks).</string>
+    <string name="radio_add_title">Dodaj radio</string>
+    <string name="radio_add">Dodaj</string>
+    <string name="whats_new_22_radio_title">Radio i Shazam w Kontach</string>
+    <string name="whats_new_22_radio_body">Każda stacja radiowa to osobne konto z nazwą i kolorem: dodaj ich ile chcesz i używaj jako źródła. Jest też Shazam. Twoje synchronizacje radia i Shazam przeniosły się same.</string>
 </resources>

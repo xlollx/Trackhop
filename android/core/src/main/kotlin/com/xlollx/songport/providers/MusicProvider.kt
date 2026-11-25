@@ -558,6 +558,7 @@ object Providers {
         Factory(MopidyProvider.SERVICE) { MopidyProvider(it) },
         Factory(LastFmProvider.SERVICE) { LastFmProvider(it) },
         Factory(ListenBrainzProvider.SERVICE) { ListenBrainzProvider(it) },
+        Factory(com.xlollx.songport.sync.RadioConnectors.SERVICE) { RadioProvider(it) },
     )
 
     /** Chiamato dallo Store quando cambiano i connettori scelti, gli account aggiuntivi o i loro nomi. */

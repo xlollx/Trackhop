@@ -314,3 +314,47 @@ internal fun RadioAlarmHint() {
         }
     }
 }
+
+/**
+ * Accounts › Add › Radio (2.2): the station, found by name in the radio directory or from its
+ * stream, then the connector's name and colour. [onAdd] gets the station, the name and the colour key.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun RadioAddDialog(onDismiss: () -> Unit, onAdd: (com.xlollx.songport.model.RadioStation, String, String?) -> Unit) {
+    var picked by remember { mutableStateOf<RadioDirectory.Station?>(null) }
+    var name by rememberSaveable { mutableStateOf("") }
+    var color by rememberSaveable { mutableStateOf<String?>(null) }
+    val st = picked
+    FitDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(st?.name ?: stringResource(R.string.radio_add_title)) },
+        text = {
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                if (st == null) RadioStationPicker { s -> picked = s; name = s.name }
+                else {
+                    OutlinedTextField(
+                        value = name, onValueChange = { name = it }, singleLine = true,
+                        label = { Text(stringResource(R.string.connector_name_label)) }, modifier = Modifier.fillMaxWidth(),
+                    )
+                    Text(stringResource(R.string.job_color), style = MaterialTheme.typography.labelLarge)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        com.xlollx.songport.data.AccountColors.ALL.forEach { (key, _) ->
+                            val argb = com.xlollx.songport.data.AccountColors.argb(key) ?: return@forEach
+                            FilterChip(
+                                selected = color == key, onClick = { color = if (color == key) null else key },
+                                label = { Text("●", color = androidx.compose.ui.graphics.Color(argb)) },
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            if (st != null) TextButton(enabled = name.isNotBlank(), onClick = {
+                onAdd(com.xlollx.songport.model.RadioStation(st.name, st.stream, st.homepage.ifBlank { null }, st.country), name.trim(), color)
+            }) { Text(stringResource(R.string.radio_add)) }
+        },
+        dismissButton = { TextButton(onClick = { if (st != null) picked = null else onDismiss() }) { Text(stringResource(R.string.cancel)) } },
+    )
+}

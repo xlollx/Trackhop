@@ -64,7 +64,7 @@ internal object Accounts {
 
     /** The syncs that read from or write to [p]: an extra account in use is not removed. */
     fun inUse(store: FileStore, p: MusicProvider): Boolean =
-        store.data.jobs.any { it.source.provider == p.id || it.target.provider == p.id }
+        store.data.jobs.any { it.source.provider == p.id || it.target.provider == p.id || it.via == p.id }
 
     /**
      * Takes [p] off the list. The main account goes as it always did on the server (its syncs keep
@@ -73,6 +73,12 @@ internal object Accounts {
      */
     fun remove(env: Env, p: MusicProvider): Boolean {
         val store = env.store
+        // A radio station or Shazam: refused while a sync comes through it; the station goes with it.
+        if (com.xlollx.songport.sync.RadioConnectors.isRadio(p.id) || p.id == com.xlollx.songport.sync.RadioConnectors.SHAZAM) {
+            if (inUse(store, p)) return false
+            store.updateSettings { s -> if (p.id == com.xlollx.songport.sync.RadioConnectors.SHAZAM) s.copy(connectors = s.connectors - p.id) else com.xlollx.songport.sync.RadioConnectors.remove(s, p.id) }
+            return true
+        }
         if (p.slot.isEmpty()) {
             store.updateSettings { it.copy(connectors = it.connectors - p.id) }
             return true

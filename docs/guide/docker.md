@@ -802,6 +802,10 @@ multi sync whole.
 | `GET /api/v1/catalog` | Every service the server can add, with its category and other names ("Navidrome" finds Subsonic); `q` searches, `category` narrows (`streaming`, `server`, `radio`, `listening`, `regional`, `files`…). |
 | `GET /api/v1/services/{service}` | One service: connected, account, and what it can do. YouTube (official API) adds `quota`: the day's `units` and `searches` this Trackhop used, of `unitsDaily` and `searchesDaily`. |
 | `POST /api/v1/services/{service}/test` | Test the connection: three calls, one after the other (who is signed in, the playlist list, one search), each with `ok` and what the service answered (`detail`). Read only. |
+| `GET /api/v1/radio/stations` | Radio stations by name (`q=`), from the radio directory: `name`, `stream`, `homepage`, `country`, to add one. |
+| `POST /api/v1/services/radio` | A radio station as a service of its own: `{"station", "stream", "homepage"?, "name"?, "color"?}`. One per station (the same stream again is the same one; the first is `radio`, the next `radio@2`…). A sync from it: `POST /api/v1/syncs` with `"source": {"service": "radio@2"}` and, optionally, `"radio": {"days": [1,2,3,4,5], "start": "08:00", "end": "10:00"}` (every day 08:00 to 10:00 when left out). |
+| `POST /api/v1/services/shazam` | Shazam as a service (one): a sync from it (`"source": {"service": "shazam"}`) brings every song you Shazam, from My Shazam Tracks on Spotify, every hour. |
+| `DELETE /api/v1/services/{service}` | Takes a radio station or Shazam away; refused (409) while a sync comes through it. |
 | `GET /api/v1/services/{service}/search` | Look for a track: q is "Artist - Title" or a link. |
 | `GET /api/v1/services/{service}/profile` | Deezer (web) on a Family plan: its profiles, the one the account acts as marked (`selected`), the holder's (`holder`). |
 | `PUT /api/v1/services/{service}/profile` | Deezer (web) on a Family plan: act as another profile, `{"profile": "id or name"}`; Deezer refusing the switch is a 409 and the profile before stays. |

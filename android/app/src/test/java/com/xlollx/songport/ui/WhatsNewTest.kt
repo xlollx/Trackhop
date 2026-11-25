@@ -88,6 +88,8 @@ class WhatsNewTest {
         val two = WhatsNew.releases.first()
         assertEquals("2.2", two.version)
         assertEquals(com.xlollx.songport.R.string.whats_new_22_chooser_title, two.items.first().title)
+        // Radio stations and Shazam as accounts, in every build.
+        assertTrue(two.items.any { it.title == com.xlollx.songport.R.string.whats_new_22_radio_title })
         assertEquals(listOf("2.2"), WhatsNew.versionsToShow(WhatsNew.releases.map { it.version }, seen = "2.1.6", onboardingDone = true))
     }
 }

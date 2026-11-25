@@ -46,6 +46,11 @@ data class Settings(
     val connectorNames: Map<String, String> = emptyMap(),
     /** The colour each connector wears as a ring round its logo, by provider id: an [AccountColors] key; absent = none. */
     val connectorColors: Map<String, String> = emptyMap(),
+    /**
+     * The station of each radio connector, by connector id ("radio", "radio@2"): one connector per
+     * station, as many as wanted (sync/RadioConnectors). Absent for every other connector.
+     */
+    val radioStations: Map<String, com.xlollx.songport.model.RadioStation> = emptyMap(),
     /** True once existing connections have been turned into connectors (one-time migration). */
     val connectorsInit: Boolean = false,
     /** Richiedi impronta/PIN all'apertura dell'app. */
@@ -330,7 +335,7 @@ open class FileStore(dir: File) {
      * beside it (`store.json.before-restore`). False, and nothing changed, when the copy cannot be read or saved.
      */
     fun restoreGoodCopy(): Boolean {
-        val restored = runCatching { com.xlollx.songport.sync.Schedules.normalized(null, com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(goodCopy.readText()))) }.getOrNull() ?: return false
+        val restored = runCatching { com.xlollx.songport.sync.RadioConnectors.normalized(com.xlollx.songport.sync.Schedules.normalized(null, com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(goodCopy.readText())))) }.getOrNull() ?: return false
         flush()
         runCatching { if (file.exists()) AtomicFiles.copy(file, File(file.parentFile, BEFORE_RESTORE)) }
         val before = synchronized(lock) { _state.value.also { _state.value = restored } }
@@ -366,7 +371,8 @@ open class FileStore(dir: File) {
         if (!file.exists()) return StoreData()
         return try {
             val text = file.readText()
-            com.xlollx.songport.sync.Schedules.normalized(null, com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(text))).also { keepGoodCopy(text) }
+            // Radio and Shazam syncs from before their connectors are brought to them (sync/RadioConnectors).
+            com.xlollx.songport.sync.RadioConnectors.normalized(com.xlollx.songport.sync.Schedules.normalized(null, com.xlollx.songport.sync.Labels.normalized(json.decodeFromString<StoreData>(text)))).also { keepGoodCopy(text) }
         } catch (e: Exception) {
             // The last good copy is kept as it is from here on, until the person decides.
             if (goodCopy.exists()) runCatching { goodCopyOffer.createNewFile() }
@@ -391,7 +397,10 @@ open class FileStore(dir: File) {
             // label gives its colour to the card, a ready colour is its own label, tags are tidy.
             val labelled = if (made.jobs !== before.jobs || made.settings.labels !== before.settings.labels) com.xlollx.songport.sync.Labels.normalized(made) else made
             // And the syncs linked to a saved schedule follow it, whatever wrote either (sync/Schedules).
-            next = if (labelled.jobs !== before.jobs || labelled.settings.savedSchedules !== before.settings.savedSchedules) com.xlollx.songport.sync.Schedules.normalized(before, labelled) else labelled
+            val scheduled = if (labelled.jobs !== before.jobs || labelled.settings.savedSchedules !== before.settings.savedSchedules) com.xlollx.songport.sync.Schedules.normalized(before, labelled) else labelled
+            // And a radio or Shazam sync is on its connector, however it was written (a configuration
+            // file, a backup, an older form of the API): sync/RadioConnectors.
+            next = if (scheduled.jobs !== before.jobs || scheduled.settings.radioStations !== before.settings.radioStations) com.xlollx.songport.sync.RadioConnectors.normalized(scheduled) else scheduled
             _state.value = next
         }
         Providers.configure(next.settings.extraAccounts, next.settings.connectorNames, next.settings.connectors)

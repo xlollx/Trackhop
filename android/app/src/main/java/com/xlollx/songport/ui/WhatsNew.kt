@@ -146,6 +146,8 @@ object WhatsNew {
                     Item(Icons.Filled.Group, JobColor.PINK, R.string.whats_new_22_deezer_title, R.string.whats_new_22_deezer_body,
                         shown = { com.xlollx.songport.providers.BridgePlugin.builtIn }),
                     Item(Icons.Filled.Headphones, JobColor.YELLOW, R.string.whats_new_22_listenbrainz_title, R.string.whats_new_22_listenbrainz_body),
+                    // A radio station per account, Shazam as one: in every build, as the radio and Shazam syncs were.
+                    Item(Icons.Filled.Radio, JobColor.ORANGE, R.string.whats_new_22_radio_title, R.string.whats_new_22_radio_body),
                     Item(Icons.Filled.Star, JobColor.ORANGE, R.string.whats_new_22_plex_title, R.string.whats_new_22_plex_body),
                     Item(Icons.Filled.Wifi, JobColor.TEAL, R.string.whats_new_22_twoaddr_title, R.string.whats_new_22_twoaddr_body),
                     Item(Icons.Filled.LibraryMusic, JobColor.RED, R.string.whats_new_22_applerem_title, R.string.whats_new_22_applerem_body,

@@ -3547,4 +3547,10 @@
     <string name="provider_note_apple_full">你资料库中的 Apple Music 歌单。需要订阅和 MusicKit 开发者令牌。Apple 的 API 只能添加：移除通过重写歌单列表完成，并先在一个专用的小歌单上检查一次。</string>
     <string name="policy_artists_differ">艺人名称可以不同</string>
     <string name="policy_artists_differ_desc">适用于各服务写法不同的艺人（周杰倫 与 Jay Chou）：标题、时长和专辑相同即可。没有专辑时，歌曲会进入复核。</string>
+    <string name="provider_note_radio">电台播放的歌曲，在每个同步选择的时段内每两分钟记录一次。每个电台添加一个。只读取电台发送的歌名，从不保存音频。</string>
+    <string name="provider_note_shazam">你用 Shazam 识别的每首歌，来自 Shazam 应用在你的 Spotify 或 Apple Music 上填充的播放列表（My Shazam Tracks）。</string>
+    <string name="radio_add_title">添加电台</string>
+    <string name="radio_add">添加</string>
+    <string name="whats_new_22_radio_title">账户里的电台和 Shazam</string>
+    <string name="whats_new_22_radio_body">每个电台都是独立的账户，有自己的名称和颜色：想加多少都行，并可作为来源使用。Shazam 也在其中。你的电台和 Shazam 同步已自动迁移。</string>
 </resources>
