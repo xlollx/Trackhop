@@ -115,6 +115,10 @@ internal class CliRadio(private val c: CliCommands) {
                 o.value("name")?.let { put("name", it) }
                 o.value("color")?.let { put("color", if (it == "none") "" else it) }
                 o.value("label")?.let { put("label", if (it == "none") "" else it) }
+                // The card's own marks, as for any new sync (its hours stay the radio's window above).
+                if (o.has("favorite")) put("favorite", true)
+                if (o.has("unfavorite")) put("favorite", false)
+                c.tagsField(o, null)?.let { put("tags", it) }
             } else fields()
         }
         val r = api.send("POST", "syncs", body).jsonObject

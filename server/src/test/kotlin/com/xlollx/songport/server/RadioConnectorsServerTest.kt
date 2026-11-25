@@ -179,9 +179,11 @@ class RadioConnectorsServerTest {
         assertTrue(out, out.contains("Radio 105 (radio)"))
         val listed = cli("services")
         assertTrue(listed.second, listed.second.contains("radio: Radio 105"))
-        val made = cli("new", "radio", "csv", "Heard", "--days", "mon,tue", "--from", "07:00", "--to", "09:30")
+        val made = cli("new", "radio", "csv", "Heard", "--days", "mon,tue", "--from", "07:00", "--to", "09:30", "--tag", "genre=metal", "--favorite")
         assertEquals(made.second, 0, made.first)
         val job = env.store.data.jobs.single { it.via == "radio" }
+        assertEquals(mapOf("genre" to "metal"), job.tags)
+        assertTrue(job.favorite)
         assertEquals(listOf(1, 2), job.radio!!.days)
         assertEquals(7 * 60, job.radio!!.startMinute)
         assertEquals(9 * 60 + 30, job.radio!!.endMinute)

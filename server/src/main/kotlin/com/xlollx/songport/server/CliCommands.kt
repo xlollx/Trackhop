@@ -557,7 +557,7 @@ internal class CliCommands(
     }
 
     /** [now] (a sync's tags as the API gives them) with --tag KEY=VALUE added or changed and --untag KEY taken off; null when neither is given. */
-    private fun tagsField(o: Cli.Opts, now: JsonObject?): JsonObject? {
+    internal fun tagsField(o: Cli.Opts, now: JsonObject?): JsonObject? {
         if (o.all("tag").isEmpty() && o.all("untag").isEmpty()) return null
         val fold = com.xlollx.songport.sync.Labels::fold
         val tags = LinkedHashMap<String, String>()
