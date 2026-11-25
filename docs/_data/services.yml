@@ -309,19 +309,38 @@ rows:
   write: 'yes'
   remove: 'yes'
   how:
-    en: Official (beta), or quick sign-in
-    it: Ufficiale (beta), o accesso rapido
-    es: Oficial (beta), o acceso rápido
-    pt: Oficial (beta), ou login rápido
-    fr: Officiel (bêta), ou connexion rapide
-    de: Offiziell (Beta) oder Schnellanmeldung
-    pl: Oficjalnie (beta) albo szybkie logowanie
-    ru: Официально (бета) или быстрый вход
-    tr: Resmi (beta) ya da hızlı giriş
-    ja: 公式（ベータ）またはクイックサインイン
-    ko: 공식(베타) 또는 빠른 로그인
-    zh: 官方（测试版）或快速登录
-  where: deezer
+    en: Quick sign-in with your Deezer account; a Family plan picks its profile
+    it: Accesso rapido con il tuo account Deezer; con un piano Family scegli il profilo
+    es: Acceso rápido con tu cuenta de Deezer; con un plan Family eliges el perfil
+    pt: Login rápido com sua conta Deezer; num plano Family você escolhe o perfil
+    fr: Connexion rapide avec votre compte Deezer ; avec une offre Famille, vous choisissez le profil
+    de: Schnellanmeldung mit deinem Deezer-Konto; bei einem Family-Abo wählst du das Profil
+    pl: Szybkie logowanie kontem Deezer; w planie Family wybierasz profil
+    ru: Быстрый вход с аккаунтом Deezer; в тарифе Family вы выбираете профиль
+    tr: Deezer hesabınızla hızlı giriş; Family planında profili seçersiniz
+    ja: Deezer アカウントでクイックサインイン。Family プランではプロフィールを選択
+    ko: Deezer 계정으로 빠른 로그인. Family 요금제는 프로필 선택
+    zh: 用 Deezer 账号快速登录；家庭套餐可选择个人资料
+  where: unofficial
+- name: ''
+  group: streaming
+  read: 'yes'
+  write: 'yes'
+  remove: 'yes'
+  how:
+    en: 'Official (beta): only with an app id you already have, Deezer no longer creates new ones'
+    it: 'Ufficiale (beta): solo con un app id che hai già, Deezer non ne crea più di nuovi'
+    es: 'Oficial (beta): solo con un app id que ya tengas, Deezer ya no crea nuevos'
+    pt: 'Oficial (beta): só com um app id que você já tem, a Deezer não cria mais novos'
+    fr: 'Officiel (bêta) : seulement avec un app id que vous avez déjà, Deezer n’en crée plus'
+    de: 'Offiziell (Beta): nur mit einer App-ID, die du schon hast; Deezer vergibt keine neuen mehr'
+    pl: 'Oficjalnie (beta): tylko z app id, które już masz; Deezer nie tworzy już nowych'
+    ru: 'Официально (бета): только с уже имеющимся app id, новые Deezer больше не выдаёт'
+    tr: 'Resmi (beta): yalnızca zaten sahip olduğunuz bir app id ile, Deezer artık yenisini vermiyor'
+    ja: '公式（ベータ）: すでにお持ちの app id でのみ。Deezer は新規発行を終了しています'
+    ko: '공식(베타): 이미 가진 app id로만 가능, Deezer는 더 이상 새로 발급하지 않음'
+    zh: 官方（测试版）：仅限你已有的 app id，Deezer 已不再发放新的
+  where: all
 - name: LiveOne
   group: streaming
   read: 'yes'
