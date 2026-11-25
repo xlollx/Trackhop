@@ -730,8 +730,10 @@
     <plurals name="widget_jobs">
         <item quantity="other">已配置 %d 个同步</item>
     </plurals>
+    <string name="setup_spotify_no_key_route">没有 Premium 时，请改用“%1$s”登录，无需密钥。</string>
+    <string name="setup_use_route">改用 %1$s</string>
     <string-array name="setup_steps_spotify">
-        <item>使用你日常使用的 Spotify 账号登录 developer.spotify.com。Spotify 要求该账号为 Premium 会员；如果要求你接受开发者条款，请接受。 如果该页面上的“Web API”是灰色的，说明账号没有 Premium：Spotify 不会授予密钥，请改用另一条路径。</item>
+        <item>使用你日常使用的 Spotify 账号登录 developer.spotify.com。Spotify 要求该账号为 Premium 会员；如果要求你接受开发者条款，请接受。 如果该页面上的“Web API”是灰色的，说明账号没有 Premium，Spotify 不会为其授予密钥。</item>
         <item>点按“Create app”。名称和描述可随意填写（例如“Trackhop”）。“Website”留空。</item>
         <item>在“Redirect URIs”中准确粘贴下方显示的地址，然后点按“Add”。没有这一步，登录就无法返回应用。</item>
         <item>在“Which API/SDKs are you planning to use?”下勾选“Web API”，接受条款并点按“Save”。</item>

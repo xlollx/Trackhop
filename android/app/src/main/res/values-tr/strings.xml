@@ -740,8 +740,10 @@
         <item quantity="one">%d senkronizasyon yapılandırıldı</item>
         <item quantity="other">%d senkronizasyon yapılandırıldı</item>
     </plurals>
+    <string name="setup_spotify_no_key_route">Premium yoksa bunun yerine \"%1$s\" ile oturum açın: anahtar gerekmez.</string>
+    <string name="setup_use_route">Bunun yerine %1$s kullan</string>
     <string-array name="setup_steps_spotify">
-        <item>developer.spotify.com adresinde her gün kullandığınız Spotify hesabıyla oturum açın. Spotify bu hesabın Premium olmasını şart koşar; geliştirici koşullarını kabul etmeniz istenirse kabul edin. O sayfada \"Web API\" gri görünüyorsa hesabın Premium\'u yoktur: Spotify anahtara izin vermez, bunun yerine diğer yolu kullanın.</item>
+        <item>developer.spotify.com adresinde her gün kullandığınız Spotify hesabıyla oturum açın. Spotify bu hesabın Premium olmasını şart koşar; geliştirici koşullarını kabul etmeniz istenirse kabul edin. O sayfada \"Web API\" gri görünüyorsa hesabın Premium\'u yoktur ve Spotify ona anahtar vermez.</item>
         <item>\"Create app\" düğmesine basın. Ad ve açıklama size kalmış (örneğin \"Trackhop\"). \"Website\" alanını boş bırakın.</item>
         <item>\"Redirect URIs\" alanına aşağıda gösterilen adresi tam olarak yapıştırın ve \"Add\" düğmesine basın. Bu olmadan oturum açma uygulamaya geri dönemez.</item>
         <item>\"Which API/SDKs are you planning to use?\" altında \"Web API\" seçeneğini işaretleyin, koşulları kabul edin ve \"Save\" düğmesine basın.</item>

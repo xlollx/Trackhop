@@ -876,7 +876,17 @@ private fun MainScreen(
                     targetProvider, com.xlollx.songport.model.Playlist(targetId, targetOf.target.playlistName),
                     onClose = { targetJob = null }, onChanged = {},
                 )
-                wizard != null -> SetupWizardScreen(wizard) { wizardFor = null }
+                wizard != null -> SetupWizardScreen(wizard, onUseRoute = { service ->
+                    // The key page's other route ("Spotify (web)"): its sign-in, as Accounts › + starts it,
+                    // on an account of it not signed in yet, or a new one; nothing where one is signed in already.
+                    wizardFor = null
+                    tab = MainActivity.TAB_ACCOUNTS
+                    val mine = Providers.connectors().filter { it.serviceId == service.serviceId }
+                    if (mine.none { it.isConnected(ctx) }) {
+                        connectNow = mine.firstOrNull { it.requiresAuth }
+                            ?: Providers.byId(com.xlollx.songport.ui.addConnector(store, service, service.displayName).also { Scheduler.applyKeepAlive(ctx) }) ?: service
+                    }
+                }) { wizardFor = null }
                 unmatched != null -> UnmatchedScreen(unmatched, onAllToFix = { unmatchedReport = null; matchesAsked = true; tab = MainActivity.TAB_TOOLS }) { unmatchedReport = null }
                 filesOpen -> FilesScreen(onClose = { filesOpen = false }, onSendTo = { id, name ->
                     filesOpen = false

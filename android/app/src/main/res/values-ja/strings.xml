@@ -730,8 +730,10 @@
     <plurals name="widget_jobs">
         <item quantity="other">%d 件の同期を設定済み</item>
     </plurals>
+    <string name="setup_spotify_no_key_route">Premium がない場合は、代わりに「%1$s」でログインしてください。キーは不要です。</string>
+    <string name="setup_use_route">%1$s を使う</string>
     <string-array name="setup_steps_spotify">
-        <item>普段使っている Spotify アカウントで developer.spotify.com にログインします。Spotify ではそのアカウントが Premium である必要があります。開発者向け規約への同意を求められたら、同意してください。 そのページで「Web API」がグレーのままなら、アカウントに Premium がありません。Spotify はキーを発行しないので、もう一方の経路を使ってください。</item>
+        <item>普段使っている Spotify アカウントで developer.spotify.com にログインします。Spotify ではそのアカウントが Premium である必要があります。開発者向け規約への同意を求められたら、同意してください。 そのページで「Web API」がグレーのままなら、アカウントに Premium がなく、Spotify はキーを発行しません。</item>
         <item>「Create app」を押します。名前と説明は自由です（例：「Trackhop」）。「Website」は空欄のままにします。</item>
         <item>「Redirect URIs」に、下に表示されているアドレスをそのまま貼り付けて「Add」を押します。これがないと、ログイン後にアプリへ戻れません。</item>
         <item>「Which API/SDKs are you planning to use?」で「Web API」にチェックを入れ、規約に同意して「Save」を押します。</item>

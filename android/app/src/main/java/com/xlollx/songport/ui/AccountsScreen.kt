@@ -418,7 +418,26 @@ internal fun addConnector(store: Store, service: MusicProvider, name: String): S
 
 /** The services offered to add, in display order: plugin-based ones only where this build may name them or a plugin is installed. */
 internal fun addableServices(ctx: android.content.Context): List<MusicProvider> =
-    Providers.services().filter { !it.linkOnly && (!it.pluginBased || BuildConfig.PLUGIN_LINKS || it.isConfigured(ctx)) && !(it is DeezerProvider && !it.offered(ctx.env)) }
+    Providers.services().filter { offeredToAdd(it, BuildConfig.PLUGIN_LINKS) { it.isConfigured(ctx) } && !(it is DeezerProvider && !it.offered(ctx.env)) }
+
+/** [p] can be added here: not a link-only source, and a web sign-in only where this build may name it ([pluginLinks]) or its connector answers ([configured]). */
+internal fun offeredToAdd(p: MusicProvider, pluginLinks: Boolean, configured: () -> Boolean): Boolean =
+    !p.linkOnly && (!p.pluginBased || pluginLinks || configured())
+
+/**
+ * A key setup page's other way in, for an account the service gives no key to: Spotify without
+ * Premium signs in by "Spotify (web)". Named and offered only where that route is among the
+ * services this install can add ([addableServices]).
+ */
+internal object KeylessRoute {
+    private val ROUTES = mapOf(com.xlollx.songport.providers.SpotifyProvider.SERVICE to com.xlollx.songport.providers.SpotifyBridgeProvider.SERVICE)
+
+    fun of(provider: MusicProvider, addable: List<MusicProvider>): MusicProvider? =
+        ROUTES[provider.serviceId]?.let { id -> addable.firstOrNull { it.serviceId == id } }
+
+    fun of(ctx: android.content.Context, provider: MusicProvider): MusicProvider? =
+        if (provider.serviceId !in ROUTES) null else of(provider, addableServices(ctx))
+}
 
 /** The official Deezer is kept from new users (Deezer accepts no new apps): true when this build is in that case. */
 internal fun deezerOfficialWithheld(ctx: android.content.Context): Boolean =
