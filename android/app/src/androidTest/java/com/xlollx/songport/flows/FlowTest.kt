@@ -365,6 +365,10 @@ abstract class FlowTest {
             n.performClick()
         } catch (e: AssertionError) {
             if (e.message?.contains("inject") != true) throw e
+            // No such node at all: Compose says that too as "Failed to inject touch input" (it looks
+            // the node up before touching). Nothing was tapped: said as the failure it is, never
+            // taken for a menu that closed under the finger.
+            if (e.message?.contains("could not find any node") == true) throw e
             // A row of a menu or a picker closes it as the finger lifts: the touch landed, and its
             // window went away before the injection was over. Nothing left to tap then; the steps
             // that follow check the choice was made.
