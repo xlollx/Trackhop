@@ -77,6 +77,6 @@ internal object UnplayableWeekly {
             if (count == 1) "1 track no longer plays" else "$count tracks no longer play",
             (per + "Trackhop can replace them with a playable version: Tools › Unplayable tracks, ${env.baseUrl.trimEnd('/')}/tools/unplayable").joinToString("\n"),
         )
-        channels(env).forEach { c -> Notify.send(c, m)?.let { env.log("notify", "${c.name} (${c.kind.label}): $it") } }
+        Notify.sendAll(env, channels(env), m, "unplayable", com.xlollx.songport.notify.NotifTarget.Unplayable(null))
     }
 }

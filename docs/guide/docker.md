@@ -702,6 +702,9 @@ enter them again (the channels wait, turned off). On a server for several people
 From a terminal, `trackhop notify` lists the channels and `trackhop notify test <name or id>` sends a
 test. For the whole run as JSON (Home Assistant, n8n), use the [webhook](#api) instead.
 
+The **Notifications** page (in the menu) lists what was sent to your channels in the last 30 days, with the
+channels that took it and a link to the sync, its review or the page it is about; `trackhop notifications` shows the same.
+
 ## API
 
 Other tools (Home Assistant, n8n, Node-RED, a script) can do what the page does: make and change
@@ -939,6 +942,9 @@ also reads the tour dates on Spotify's artist pages when you have **Spotify (web
 | `PATCH /api/v1/notifications/{channel}` | Change a channel (a secret left out keeps its value). |
 | `DELETE /api/v1/notifications/{channel}` | Remove a channel. |
 | `POST /api/v1/notifications/{channel}/test` | Send a test message. |
+| `GET /api/v1/notifications/history` | What was sent to the channels, newest first, with each one's result and the page it leads to (`url`). |
+| `POST /api/v1/notifications/history/read` | Mark one entry as read (`{"id"}`), or all of them. |
+| `DELETE /api/v1/notifications/history` | Clear the history. |
 
 **Locks**
 

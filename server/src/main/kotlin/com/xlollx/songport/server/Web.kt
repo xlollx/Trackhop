@@ -205,6 +205,7 @@ class Web(
             path[0] == "tools" -> tools(r, path.drop(1))
             path == listOf("settings") -> settingsPage(r)
             path == listOf("settings", "notifications") -> notificationsPage(r)
+            path == listOf("notifications") -> notificationHistoryPage(r)
             path == listOf("settings", "schedules") -> schedulesPage(r)
             path == listOf("tofix") -> toFixPage(r)
             path[0] == "playlists" -> playlists(r, path.drop(1))
