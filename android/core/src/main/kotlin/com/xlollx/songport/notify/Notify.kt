@@ -315,7 +315,8 @@ object Notify {
         val merged = incoming.map { c ->
             val old = here[c.id]?.takeIf { it.kind == c.kind }
             // The secrets this Trackhop has for it, while the file sends them to the same addresses.
-            val keep = old != null && sameAddresses(c.kind, old) { f -> c.value(f.key) }
+            // An address that is itself the secret (Apprise's) is not in the file: the one here, as when editing.
+            val keep = old != null && sameAddresses(c.kind, old) { f -> c.value(f.key).ifEmpty { if (f.secret) old.value(f.key) else "" } }
             val values = c.kind.fields.associate { f -> f.key to (if (f.secret) (if (keep) old!!.value(f.key) else "") else c.value(f.key)) }
             val next = c.copy(values = values)
             // On only for a channel already here: one that came with a file (shared, perhaps) waits to be turned on.

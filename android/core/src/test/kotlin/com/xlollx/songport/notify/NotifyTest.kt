@@ -259,6 +259,15 @@ class NotifyTest {
         assertEquals("", r.value("token")); assertFalse(r.enabled)
     }
 
+    @Test fun anAppriseChannelRestoredFromItsOwnFileKeepsItsAddress() {
+        val c = Notify.build("a1", Notify.Kind.APPRISE, "Apprise", true, Notify.Event.entries.toSet(), mapOf("url" to "https://apprise.example.org/notify/key123", "tag" to "music"), null).getOrThrow()
+        Notify.put(env, c)
+        // The file has no address (it is the secret): the one here stays, and the channel stays on.
+        Notify.restore(env, listOf(c.copy(values = mapOf("url" to "", "tag" to "music"))))
+        val r = Notify.channel(env, "a1")!!
+        assertEquals("https://apprise.example.org/notify/key123", r.value("url")); assertTrue(r.enabled)
+    }
+
     @Test fun aFailureLineKeepsNoAddressOrToken() {
         val line = Notify.message("x", report(error = "Sign-in of me@example.org failed at 192.168.1.20:4533 with bot" + FAKE_BOT + ""), setOf(Notify.Event.FAILED))!!.text
         assertFalse(line, line.contains("me@example.org") || line.contains("192.168.1.20") || line.contains(FAKE_BOT.substringAfter(":")))
