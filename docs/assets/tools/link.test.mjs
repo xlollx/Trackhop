@@ -779,7 +779,7 @@ test('from Spotify, a song MusicBrainz knows: its ISRC opens Deezer, and the alb
   assert.equal(r.services[1].url, 'https://www.deezer.com/track/142986206');
   assert.ok(!net.asked.concat(net.extra).some((x) => x.includes('/ws/2/isrc/')));
   // Wikidata is asked once, by the ISRC, for what is still a search.
-  assert.equal(net.extra.filter((x) => x.includes('query.wikidata.org')).length, 1);
+  assert.equal(net.extra.filter((x) => new URL(x.split(' ')[1]).hostname === 'query.wikidata.org').length, 1);
   // MusicBrainz busy: the lookup goes on without it.
   const busy = await lookup(parseLink(SPOTIFY_SONG), fakeNet([['musicbrainz.org', new ToolError('no-answer', 'MusicBrainz')], ...net.routes.filter((x) => !x[0].includes('musicbrainz'))]));
   assert.deepEqual([busy.guess, busy.artist, note(busy, 'deezer')], [true, 'Someone Else', 'guess guessed']);
