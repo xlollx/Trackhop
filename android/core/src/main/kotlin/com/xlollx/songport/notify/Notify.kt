@@ -152,7 +152,17 @@ object Notify {
         fun addresses(): List<String> = kind.fields.filter { it.url }.map { value(it.key) }.filter { it.isNotBlank() }
 
         /** Its secrets' values, to keep them out of anything shown (an error message). */
-        fun secrets(): List<String> = kind.fields.filter { it.secret }.map { value(it.key) }.filter { it.length >= 4 }
+        fun secrets(): List<String> = (kind.fields.filter { it.secret }.map { value(it.key) } + appriseKey()).filter { it.length >= 4 }
+
+        /**
+         * Apprise's configuration key (…/notify/<key>) on its own: a refusal can name the path without
+         * the whole address ({"error": "failed request /notify/<key>"}), and the key alone sends.
+         */
+        private fun appriseKey(): List<String> = if (kind != Kind.APPRISE) emptyList() else
+            value("url").trim().toHttpUrlOrNull()?.pathSegments?.let { seg ->
+                val at = seg.lastIndexOf("notify")
+                if (at >= 0) seg.drop(at + 1).filter { it.isNotBlank() } else emptyList()
+            }.orEmpty()
     }
 
     data class Message(val title: String, val text: String, val rich: Rich? = null)

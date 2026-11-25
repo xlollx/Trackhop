@@ -166,6 +166,13 @@ class NotifyTest {
         assertEquals("Bot token is missing.", Notify.send(channel(Notify.Kind.TELEGRAM, "chat" to "1"), msg))
     }
 
+    @Test fun anAppriseRefusalNamingItsKeyDoesNotShowTheKey() {
+        mock.enqueue(MockResponse().setResponseCode(424).setBody("""{"error":"failed request /notify/key9secret"}"""))
+        val error = Notify.send(channel(Notify.Kind.APPRISE, "url" to "$url/notify/key9secret"), msg)!!
+        assertTrue(error, error.startsWith("HTTP 424: failed request /notify/"))
+        assertFalse(error, error.contains("key9secret"))
+    }
+
     private fun report(added: Int = 0, removed: Int = 0, error: String? = null, review: Int = 0, heldBack: Int = 0) = SyncReport(
         "r1", "j1", "Road trip", 0, 0, added = added, removed = removed, error = error, heldBack = heldBack,
         reviewTracks = List(review) { MatchReview(Track("s$it", "Song"), Track("t$it", "Song"), 0.7) },
