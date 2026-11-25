@@ -1,0 +1,1 @@
+Trackhop 2.2.1. Exportez les titres que vos synchros n'ont pas trouvés, pour tous les services : CSV, M3U, texte, JSON ou liste Lidarr, ou enregistrez-les comme playlist Fichier à synchroniser partout. Dans Correspondances enregistrées › À corriger et dans Outils. Petites corrections.

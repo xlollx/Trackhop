@@ -5,6 +5,12 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`, `v2.x`)
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 2.2.1
+
+Released with the app's 2.2.1.
+
+- **Songs not found, for every service**: Tools › Songs not found lists what your syncs could not find on any service, not only on your own server; export it (CSV, M3U, text, JSON, Lidarr list) or save it as a File playlist to sync anywhere. Also `GET /api/v1/wanted?scope=all&on=<service>`, `POST /api/v1/wanted/file-playlist` and `trackhop wanted --everywhere [--on <service>] [--save-as <name>]`. Missing on my server and the Lidarr link are unchanged.
+
 ## 2.2.0
 
 Released with the app's 2.2.

@@ -1,0 +1,1 @@
+Trackhop 2.2.1. Exporte as músicas que suas sincronizações não encontraram, para qualquer serviço: CSV, M3U, texto, JSON ou lista do Lidarr, ou salve-as como playlist de arquivo para sincronizar em qualquer lugar. Em Correspondências salvas › A corrigir e em Ferramentas. Pequenas correções.

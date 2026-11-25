@@ -1,0 +1,1 @@
+Trackhop 2.2.1. Exportiere die Songs, die deine Syncs nicht gefunden haben, für jeden Dienst: CSV, M3U, Text, JSON oder eine Lidarr-Liste, oder speichere sie als Datei-Playlist zum Synchronisieren überallhin. Unter Gespeicherte Zuordnungen › Zu klären und in Werkzeuge. Kleine Korrekturen.

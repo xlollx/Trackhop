@@ -1,0 +1,1 @@
+Trackhop 2.2.1. Eksportuj utwory, których synchronizacje nie znalazły, dla każdego serwisu: CSV, M3U, tekst, JSON lub lista Lidarr, albo zapisz je jako playlistę z pliku do synchronizacji gdziekolwiek. W Zapisanych dopasowaniach › Do poprawy i w Narzędziach. Drobne poprawki.
