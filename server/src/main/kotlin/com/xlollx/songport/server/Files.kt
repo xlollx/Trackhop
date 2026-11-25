@@ -218,6 +218,7 @@ internal fun Web.tools(r: Web.Req, rest: List<String>) {
         // Discover's pages of 1.18: not found until the release switch is on (Features).
         "releases" -> if (Features.v2) releasesTool(r) else notFound(r)
         "wanted" -> wantedPage(r)
+        "notfound" -> notFoundPage(r)
         "concerts" -> if (Features.v2) concertsPage(r) else notFound(r)
         "setlists" -> if (Features.v2) setlistsPage(r) else notFound(r)
         "records" -> if (Features.v2) recordsPage(r) else notFound(r)
@@ -238,6 +239,7 @@ private fun Web.toolsIndex(r: Web.Req) {
     tool("/playlists", "Playlists and transfer", "See a service's playlists and their tracks, rename, delete, take tracks out; or copy several to another service at once.")
     tool("/tools/export", "Export a playlist", "Any playlist of a connected service as CSV, M3U, XSPF, JSPF, WPL/ZPL or plain text${if (Features.v2) ", followed podcasts as OPML" else ""}, or saved into File.")
     tool("/connectors/csv", "File playlists", "Upload a playlist file to sync it anywhere; download the ones Trackhop saved.")
+    tool("/tools/notfound", "Songs not found", "The songs your syncs could not find, on every service, each once: download them (CSV, M3U, text, JSON, Lidarr) or save them as a File playlist to sync anywhere.")
     tool("/tools/wanted", "Missing on my server", "The tracks of your playlists that your Navidrome, Jellyfin, Emby, Plex, Lyrion or Mopidy server does not have, each once: by album, tick what you got, download the list (CSV, M3U, text, Lidarr).")
     if (Features.v2) tool("/tools/records", "Records and merch", "The CDs, vinyl and cassettes of a playlist's artists on Discogs, the merch in their own shops, their official sites and shops, and searches on shops: plain links.")
     if (Features.v2) tool("/tools/concerts", "Concerts", "The upcoming concerts of a playlist's artists in a country, from Ticketmaster and MusicBrainz, with links to the tickets.")

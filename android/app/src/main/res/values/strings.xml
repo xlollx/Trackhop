@@ -3413,4 +3413,31 @@
     <string name="nway_change_source">Becomes the source</string>
     <string name="nway_change_none">The playlists and how they follow stay as they are.</string>
     <string name="nway_schedule_note">Every playlist of this multi sync runs on this schedule.</string>
+    <!-- 2.2.1 (#73): Export the songs not found -->
+    <string name="not_found_title">Export the songs not found</string>
+    <string name="not_found_desc">The songs your syncs\' last runs couldn\'t find, on any service, each once.</string>
+    <string name="tools_row_not_found">The songs your syncs couldn\'t find, on every service: as a file, or as a File playlist to sync anywhere.</string>
+    <string name="not_found_export_button">Export the songs not found (%1$d)</string>
+    <string name="not_found_missing_on">Missing on</string>
+    <string name="not_found_all_services">All services</string>
+    <string name="not_found_as_file">As a file</string>
+    <string name="not_found_as_playlist">As a playlist</string>
+    <string name="not_found_playlist_name">Playlist name</string>
+    <string name="not_found_default_name">Not found</string>
+    <string name="not_found_default_name_on">Not found on %1$s</string>
+    <string name="not_found_save_playlist">Save as File playlist</string>
+    <string name="not_found_open">Open</string>
+    <string name="not_found_format_csv">spreadsheets, Trackhop</string>
+    <string name="not_found_format_m3u">players</string>
+    <string name="not_found_format_text">Artist - Title</string>
+    <string name="not_found_format_json">everything</string>
+    <string name="not_found_format_lidarr">artists with a MusicBrainz id</string>
+    <plurals name="not_found_saved">
+        <item quantity="one">Saved %1$d song in the File playlist “%2$s”.</item>
+        <item quantity="other">Saved %1$d songs in the File playlist “%2$s”.</item>
+    </plurals>
+    <plurals name="not_found_playlist_hint">
+        <item quantity="one">A File playlist with this song. You can then sync it to any other service.</item>
+        <item quantity="other">A File playlist with these %1$d songs. You can then sync it to any other service.</item>
+    </plurals>
 </resources>

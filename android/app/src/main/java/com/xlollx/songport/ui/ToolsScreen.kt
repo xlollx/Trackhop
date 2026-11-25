@@ -122,6 +122,8 @@ private enum class Tool(val icon: androidx.compose.ui.graphics.vector.ImageVecto
     MBTAGS(Icons.Filled.Sell, R.string.tools_mbtags_title, R.string.tools_row_mbtags, true),
     LYRICS(Icons.Filled.Lyrics, R.string.tools_lyrics_title, R.string.tools_row_lyrics, true),
     WANTED(Icons.Filled.Checklist, R.string.tools_wanted_title, R.string.tools_row_wanted, false),
+    /** 2.2.1 (#73): not a page, the sheet "Export the songs not found" (NotFoundExport). */
+    NOTFOUND(Icons.Filled.Download, R.string.not_found_title, R.string.tools_row_not_found, false),
     SERVER(Icons.Filled.Cloud, R.string.server_title, R.string.server_row_desc, false),
     SHARED(Icons.Filled.Groups, R.string.shared_title, R.string.shared_row_desc, false),
     RECENT(Icons.Filled.History, R.string.recent_transfers_title, R.string.recent_transfers_row, false),
@@ -190,6 +192,10 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
 
     val current = open
     fun close() { open = null }
+    // "Export the songs not found" (#73), from its row in the list: composed even when closed, for the file pickers' answers.
+    var exporting by rememberSaveable { mutableStateOf(false) }
+    val notFound = remember(storeData.jobs, storeData.reports) { notFoundCount(storeData) }
+    NotFoundExport(exporting && current == null, { exporting = false }, snackbar) { open = Tool.FILES }
     // A tool's page has its own top bar with the way back: the tab's "Tools" header steps aside,
     // so there is one header, not two stacked.
     DisposableEffect(current != null) {
@@ -236,7 +242,7 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
                     Tool.WANTED -> WantedCard(local)
                     Tool.SERVER -> ServerSyncsPage(local)
                     Tool.RECENT -> RecentTransfersPage(onReview)
-                    Tool.MATCHES -> SavedMatchesPage(local)
+                    Tool.MATCHES -> SavedMatchesPage(local) { open = Tool.FILES }
                     Tool.TWINS -> provider?.let { PlaylistTwinsPage(it, local) }
                     Tool.LISTENED -> MarkListenedPage(connected, local, onGoToAccounts)
                     else -> {}
@@ -279,6 +285,8 @@ fun ToolsScreen(snackbar: SnackbarHostState, onManageFiles: () -> Unit = {}, onS
             ToolRow(Tool.SCAN, provider) { onScan(it!!) }
             // Only for who syncs to a server of their own: the songs it still lacks.
             if (hasServerSync) ToolRow(Tool.WANTED, provider) { open = Tool.WANTED }
+            // Every service's songs not found, as a file or a File playlist.
+            if (notFound > 0) ToolRow(Tool.NOTFOUND, provider) { exporting = true }
             // Only with "Coordinate with my server" set: the server's syncs, run and reviewed from here.
             if (serverOn && (v2 || hasHandedOver)) ToolRow(Tool.SERVER, provider) { open = Tool.SERVER }
             // 1.18 (Features): listens Last.fm or ListenBrainz never saw, marked by hand.

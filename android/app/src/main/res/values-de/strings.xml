@@ -3411,4 +3411,31 @@
     <string name="nway_change_source">Wird zur Quelle</string>
     <string name="nway_change_none">Die Playlists und wie sie folgen bleiben, wie sie sind.</string>
     <string name="nway_schedule_note">Jede Playlist dieses Multi-Syncs läuft nach diesem Zeitplan.</string>
+    <!-- 2.2.1 (#73): Export the songs not found -->
+    <string name="not_found_title">Nicht gefundene Songs exportieren</string>
+    <string name="not_found_desc">Die Songs, die die letzten Durchläufe deiner Syncs nicht gefunden haben, auf jedem Dienst, jeder einmal.</string>
+    <string name="tools_row_not_found">Die Songs, die deine Syncs nicht gefunden haben, auf allen Diensten: als Datei oder als Datei-Playlist zum Synchronisieren überallhin.</string>
+    <string name="not_found_export_button">Nicht gefundene Songs exportieren (%1$d)</string>
+    <string name="not_found_missing_on">Fehlt auf</string>
+    <string name="not_found_all_services">Alle Dienste</string>
+    <string name="not_found_as_file">Als Datei</string>
+    <string name="not_found_as_playlist">Als Playlist</string>
+    <string name="not_found_playlist_name">Name der Playlist</string>
+    <string name="not_found_default_name">Nicht gefunden</string>
+    <string name="not_found_default_name_on">Nicht gefunden auf %1$s</string>
+    <string name="not_found_save_playlist">Als Datei-Playlist speichern</string>
+    <string name="not_found_open">Öffnen</string>
+    <string name="not_found_format_csv">Tabellen, Trackhop</string>
+    <string name="not_found_format_m3u">Player</string>
+    <string name="not_found_format_text">Künstler - Titel</string>
+    <string name="not_found_format_json">alles</string>
+    <string name="not_found_format_lidarr">Künstler mit MusicBrainz-ID</string>
+    <plurals name="not_found_saved">
+        <item quantity="one">%1$d Song in der Datei-Playlist „%2$s“ gespeichert.</item>
+        <item quantity="other">%1$d Songs in der Datei-Playlist „%2$s“ gespeichert.</item>
+    </plurals>
+    <plurals name="not_found_playlist_hint">
+        <item quantity="one">Eine Datei-Playlist mit diesem Song. Du kannst sie dann mit jedem anderen Dienst synchronisieren.</item>
+        <item quantity="other">Eine Datei-Playlist mit diesen %1$d Songs. Du kannst sie dann mit jedem anderen Dienst synchronisieren.</item>
+    </plurals>
 </resources>

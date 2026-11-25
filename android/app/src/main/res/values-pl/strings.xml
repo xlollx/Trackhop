@@ -3607,4 +3607,35 @@
     <string name="nway_change_source">Staje się źródłem</string>
     <string name="nway_change_none">Playlisty i sposób, w jaki podążają, zostają bez zmian.</string>
     <string name="nway_schedule_note">Każda playlista tej synchronizacji wielokrotnej działa według tego harmonogramu.</string>
+    <!-- 2.2.1 (#73): Export the songs not found -->
+    <string name="not_found_title">Eksportuj nieznalezione utwory</string>
+    <string name="not_found_desc">Utwory, których ostatnie przebiegi Twoich synchronizacji nie znalazły, w dowolnym serwisie, każdy raz.</string>
+    <string name="tools_row_not_found">Utwory, których Twoje synchronizacje nie znalazły, we wszystkich serwisach: jako plik lub jako playlista Plik do synchronizacji gdziekolwiek.</string>
+    <string name="not_found_export_button">Eksportuj nieznalezione utwory (%1$d)</string>
+    <string name="not_found_missing_on">Brakuje w</string>
+    <string name="not_found_all_services">Wszystkie serwisy</string>
+    <string name="not_found_as_file">Jako plik</string>
+    <string name="not_found_as_playlist">Jako playlista</string>
+    <string name="not_found_playlist_name">Nazwa playlisty</string>
+    <string name="not_found_default_name">Nie znaleziono</string>
+    <string name="not_found_default_name_on">Nie znaleziono w %1$s</string>
+    <string name="not_found_save_playlist">Zapisz jako playlistę Plik</string>
+    <string name="not_found_open">Otwórz</string>
+    <string name="not_found_format_csv">arkusze, Trackhop</string>
+    <string name="not_found_format_m3u">odtwarzacze</string>
+    <string name="not_found_format_text">Wykonawca - Tytuł</string>
+    <string name="not_found_format_json">wszystko</string>
+    <string name="not_found_format_lidarr">wykonawcy z id MusicBrainz</string>
+    <plurals name="not_found_saved">
+        <item quantity="one">Zapisano %1$d utwór w playliście Plik „%2$s”.</item>
+        <item quantity="few">Zapisano %1$d utwory w playliście Plik „%2$s”.</item>
+        <item quantity="many">Zapisano %1$d utworów w playliście Plik „%2$s”.</item>
+        <item quantity="other">Zapisano %1$d utworu w playliście Plik „%2$s”.</item>
+    </plurals>
+    <plurals name="not_found_playlist_hint">
+        <item quantity="one">Playlista Plik z tym utworem. Potem możesz ją zsynchronizować z dowolnym innym serwisem.</item>
+        <item quantity="few">Playlista Plik z tymi %1$d utworami. Potem możesz ją zsynchronizować z dowolnym innym serwisem.</item>
+        <item quantity="many">Playlista Plik z tymi %1$d utworami. Potem możesz ją zsynchronizować z dowolnym innym serwisem.</item>
+        <item quantity="other">Playlista Plik z tymi %1$d utworami. Potem możesz ją zsynchronizować z dowolnym innym serwisem.</item>
+    </plurals>
 </resources>

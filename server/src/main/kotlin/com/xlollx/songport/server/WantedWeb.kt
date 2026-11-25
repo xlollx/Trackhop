@@ -113,6 +113,7 @@ internal fun Web.wantedPage(r: Web.Req) {
         body.append("""<p class="muted">Lidarr: Settings › Import Lists › Custom List, List URL <code>${h(env.baseUrl.trimEnd('/'))}/api/v1/wanted?format=lidarr&amp;key=$key</code> (this key opens this list only; a new API token changes it). Lidarr adds the artists whose MusicBrainz id is known.</p>""")
     }
     body.append("</div>")
+    body.append("""<p class="muted">The songs not found on every service, not only your server: <a href="/tools/notfound">Songs not found</a>.</p>""")
     if (list.isEmpty()) {
         body.append("""<div class="card ok">Nothing missing${if (all) "" else " (or you got it all)"}.</div>""")
         return send(r.ex, 200, page(title, body.toString()))
@@ -151,5 +152,50 @@ internal fun Web.wantedPage(r: Web.Req) {
         list.filter { it.got }.forEach { w -> body.append("""<label class="check"><input type="checkbox" name="id" value="${h(w.id)}"> ${h(w.toString())}</label>""") }
         body.append("""<p><button class="secondary" name="action" value="untick">Not got after all</button></p></form></div>""")
     }
+    send(r.ex, 200, page(title, body.toString()))
+}
+
+/**
+ * Tools › Songs not found (issue #73): what every sync's last run could not find, on any service or
+ * on one, downloaded in the formats of Missing on my server or saved as a new File playlist to sync
+ * on anywhere (never a playlist on the service the songs are missing on). Works without JavaScript.
+ */
+internal fun Web.notFoundPage(r: Web.Req) {
+    val title = "Songs not found"
+    if (r.method == "POST") {
+        val on = r.form["on"].orEmpty()
+        val back = "/tools/notfound" + (if (on.isEmpty()) "?" else "?on=${q(on)}&")
+        val (pl, n) = runCatching { wantedToFilePlaylist(mapOf("scope" to "all", "on" to on), r.form["name"]) }
+            .getOrElse { return redirect(r.ex, back + "err=${q(it.message ?: "Wrong request.")}") }
+        return redirect(r.ex, back + "ok=${q("Saved $n tracks in the File playlist \"${pl.name}\": sync it to any service from File playlists.")}")
+    }
+    val services = Wanted.missingOn(env.store.data)
+    val on = r.query["on"].orEmpty().takeIf { s -> services.any { it.first == s } }.orEmpty()
+    val list = Wanted.list(env.store.data, { MusicBrainz.known(env, it) }, Wanted.Filter(scope = Wanted.Scope.ALL, on = on.ifEmpty { null }))
+    fun label(id: String) = Providers.all().firstOrNull { it.serviceId == id }?.displayName ?: id
+    r.query["format"]?.let { f ->
+        val format = Wanted.Format.of(f) ?: Wanted.Format.CSV
+        val base = if (on.isEmpty()) "songs-not-found" else "songs-not-found-on-$on"
+        return attachment(r, if (format == Wanted.Format.LIDARR) "$base-lidarr.json" else "$base.${format.ext}", format.encode(list), format.mime)
+    }
+    val body = StringBuilder(notice(r))
+    body.append("""<div class="card"><p class="muted">The songs your syncs' last runs could not find, on every service, each once. Download them, or save them as a File playlist and sync it to any other service. For your own server's list, with ticks and Lidarr, see <a href="/tools/wanted">Missing on my server</a>.</p>""")
+    if (services.isEmpty()) {
+        body.append("""<p>Nothing missing: your syncs found every song.</p></div>""")
+        return send(r.ex, 200, page(title, body.toString()))
+    }
+    val all = if (on.isEmpty()) list.size else Wanted.list(env.store.data, filter = Wanted.Filter(scope = Wanted.Scope.ALL)).size
+    val opts = """<option value="">All services ($all)</option>""" + services.joinToString("") { (id, n) -> """<option value="${h(id)}"${if (id == on) " selected" else ""}>${h(label(id))} ($n)</option>""" }
+    body.append("""<form method="get" action="/tools/notfound" class="row"><label>Missing on <select name="on">$opts</select></label> <button class="secondary">Show</button></form>""")
+    fun link(format: String) = "/tools/notfound?" + listOfNotNull(on.takeIf { it.isNotEmpty() }?.let { "on=${q(it)}" }, "format=$format").joinToString("&")
+    body.append("""<p class="muted">Download: ${WANTED_FORMATS.joinToString(" · ") { (f, l) -> """<a href="${h(link(f.name.lowercase()))}" download>$l</a>""" }}</p>""")
+    val name = if (on.isEmpty()) "Not found" else "Not found on ${label(on)}"
+    body.append("""<form method="post" action="/tools/notfound" class="row"><input type="hidden" name="on" value="${h(on)}"><label>Save as File playlist <input name="name" value="${h(name)}" required maxlength="200"></label> <button>Save</button></form></div>""")
+    body.append("""<div class="card"><p><b>${list.size}</b> tracks</p>""")
+    list.forEach { w ->
+        val bits = listOfNotNull(w.album.takeIf { it.isNotBlank() }?.let { h(it) }, "from ${w.syncs.joinToString(", ") { h(it.syncName) }}")
+        body.append("""<p><b>${h(w.artistLine)}</b> — ${h(w.title)}<br><span class="muted">${bits.joinToString(" · ")}</span></p>""")
+    }
+    body.append("</div>")
     send(r.ex, 200, page(title, body.toString()))
 }

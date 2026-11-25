@@ -3419,4 +3419,31 @@
     <string name="nway_change_source">Pasa a ser el origen</string>
     <string name="nway_change_none">Las playlists y su forma de seguir se quedan como están.</string>
     <string name="nway_schedule_note">Todas las playlists de esta sincronización múltiple siguen esta programación.</string>
+    <!-- 2.2.1 (#73): Export the songs not found -->
+    <string name="not_found_title">Exportar las canciones no encontradas</string>
+    <string name="not_found_desc">Las canciones que las últimas ejecuciones de tus sincronizaciones no encontraron, en cualquier servicio, cada una una vez.</string>
+    <string name="tools_row_not_found">Las canciones que tus sincronizaciones no encontraron, en todos los servicios: como archivo o como playlist de Archivo para sincronizar donde quieras.</string>
+    <string name="not_found_export_button">Exportar las canciones no encontradas (%1$d)</string>
+    <string name="not_found_missing_on">Faltan en</string>
+    <string name="not_found_all_services">Todos los servicios</string>
+    <string name="not_found_as_file">Como archivo</string>
+    <string name="not_found_as_playlist">Como playlist</string>
+    <string name="not_found_playlist_name">Nombre de la playlist</string>
+    <string name="not_found_default_name">No encontradas</string>
+    <string name="not_found_default_name_on">No encontradas en %1$s</string>
+    <string name="not_found_save_playlist">Guardar como playlist de Archivo</string>
+    <string name="not_found_open">Abrir</string>
+    <string name="not_found_format_csv">hojas de cálculo, Trackhop</string>
+    <string name="not_found_format_m3u">reproductores</string>
+    <string name="not_found_format_text">Artista - Título</string>
+    <string name="not_found_format_json">todo</string>
+    <string name="not_found_format_lidarr">artistas con id de MusicBrainz</string>
+    <plurals name="not_found_saved">
+        <item quantity="one">%1$d canción guardada en la playlist de Archivo “%2$s”.</item>
+        <item quantity="other">%1$d canciones guardadas en la playlist de Archivo “%2$s”.</item>
+    </plurals>
+    <plurals name="not_found_playlist_hint">
+        <item quantity="one">Una playlist de Archivo con esta canción. Luego puedes sincronizarla con cualquier otro servicio.</item>
+        <item quantity="other">Una playlist de Archivo con estas %1$d canciones. Luego puedes sincronizarla con cualquier otro servicio.</item>
+    </plurals>
 </resources>

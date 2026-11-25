@@ -3605,4 +3605,35 @@
     <string name="nway_change_source">Становится источником</string>
     <string name="nway_change_none">Плейлисты и то, как они следуют, остаются как есть.</string>
     <string name="nway_schedule_note">Все плейлисты этой мультисинхронизации работают по этому расписанию.</string>
+    <!-- 2.2.1 (#73): Export the songs not found -->
+    <string name="not_found_title">Экспорт ненайденных треков</string>
+    <string name="not_found_desc">Треки, которые последние запуски ваших синхронизаций не нашли, в любом сервисе, каждый по одному разу.</string>
+    <string name="tools_row_not_found">Треки, которые ваши синхронизации не нашли, во всех сервисах: файлом или плейлистом «Файл», чтобы синхронизировать куда угодно.</string>
+    <string name="not_found_export_button">Экспорт ненайденных треков (%1$d)</string>
+    <string name="not_found_missing_on">Нет в</string>
+    <string name="not_found_all_services">Все сервисы</string>
+    <string name="not_found_as_file">Файлом</string>
+    <string name="not_found_as_playlist">Плейлистом</string>
+    <string name="not_found_playlist_name">Название плейлиста</string>
+    <string name="not_found_default_name">Не найдено</string>
+    <string name="not_found_default_name_on">Не найдено в %1$s</string>
+    <string name="not_found_save_playlist">Сохранить как плейлист «Файл»</string>
+    <string name="not_found_open">Открыть</string>
+    <string name="not_found_format_csv">таблицы, Trackhop</string>
+    <string name="not_found_format_m3u">плееры</string>
+    <string name="not_found_format_text">Исполнитель - Название</string>
+    <string name="not_found_format_json">всё</string>
+    <string name="not_found_format_lidarr">исполнители с id MusicBrainz</string>
+    <plurals name="not_found_saved">
+        <item quantity="one">Сохранён %1$d трек в плейлисте «Файл» «%2$s».</item>
+        <item quantity="few">Сохранено %1$d трека в плейлисте «Файл» «%2$s».</item>
+        <item quantity="many">Сохранено %1$d треков в плейлисте «Файл» «%2$s».</item>
+        <item quantity="other">Сохранено %1$d трека в плейлисте «Файл» «%2$s».</item>
+    </plurals>
+    <plurals name="not_found_playlist_hint">
+        <item quantity="one">Плейлист «Файл» с этим треком. Потом его можно синхронизировать с любым другим сервисом.</item>
+        <item quantity="few">Плейлист «Файл» с этими %1$d треками. Потом его можно синхронизировать с любым другим сервисом.</item>
+        <item quantity="many">Плейлист «Файл» с этими %1$d треками. Потом его можно синхронизировать с любым другим сервисом.</item>
+        <item quantity="other">Плейлист «Файл» с этими %1$d треками. Потом его можно синхронизировать с любым другим сервисом.</item>
+    </plurals>
 </resources>

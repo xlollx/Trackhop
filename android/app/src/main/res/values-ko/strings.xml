@@ -3313,4 +3313,29 @@
     <string name="nway_change_source">원본이 됩니다</string>
     <string name="nway_change_none">플레이리스트와 따라가는 방식은 그대로입니다.</string>
     <string name="nway_schedule_note">이 멀티 동기화의 모든 플레이리스트가 이 주기로 실행됩니다.</string>
+    <!-- 2.2.1 (#73): Export the songs not found -->
+    <string name="not_found_title">찾지 못한 곡 내보내기</string>
+    <string name="not_found_desc">동기화의 마지막 실행에서 찾지 못한 곡. 어떤 서비스든, 곡마다 한 번씩.</string>
+    <string name="tools_row_not_found">동기화가 찾지 못한 곡(모든 서비스): 파일로, 또는 어디로든 동기화할 수 있는 \'파일\' 플레이리스트로.</string>
+    <string name="not_found_export_button">찾지 못한 곡 내보내기 (%1$d)</string>
+    <string name="not_found_missing_on">없는 곳</string>
+    <string name="not_found_all_services">모든 서비스</string>
+    <string name="not_found_as_file">파일로</string>
+    <string name="not_found_as_playlist">플레이리스트로</string>
+    <string name="not_found_playlist_name">플레이리스트 이름</string>
+    <string name="not_found_default_name">찾지 못한 곡</string>
+    <string name="not_found_default_name_on">%1$s에서 찾지 못한 곡</string>
+    <string name="not_found_save_playlist">\'파일\' 플레이리스트로 저장</string>
+    <string name="not_found_open">열기</string>
+    <string name="not_found_format_csv">스프레드시트, Trackhop</string>
+    <string name="not_found_format_m3u">플레이어</string>
+    <string name="not_found_format_text">아티스트 - 제목</string>
+    <string name="not_found_format_json">전체</string>
+    <string name="not_found_format_lidarr">MusicBrainz ID가 있는 아티스트</string>
+    <plurals name="not_found_saved">
+        <item quantity="other">%1$d곡을 \'파일\' 플레이리스트 “%2$s”에 저장했어요.</item>
+    </plurals>
+    <plurals name="not_found_playlist_hint">
+        <item quantity="other">이 %1$d곡이 담긴 \'파일\' 플레이리스트. 나중에 다른 어떤 서비스로도 동기화할 수 있어요.</item>
+    </plurals>
 </resources>

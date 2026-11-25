@@ -3419,4 +3419,31 @@
     <string name="nway_change_source">Devient la source</string>
     <string name="nway_change_none">Les playlists et leur façon de suivre restent telles quelles.</string>
     <string name="nway_schedule_note">Chaque playlist de cette sync multiple suit cette planification.</string>
+    <!-- 2.2.1 (#73): Export the songs not found -->
+    <string name="not_found_title">Exporter les titres introuvables</string>
+    <string name="not_found_desc">Les titres que les dernières exécutions de tes synchros n\'ont pas trouvés, sur n\'importe quel service, chacun une fois.</string>
+    <string name="tools_row_not_found">Les titres que tes synchros n\'ont pas trouvés, sur tous les services : en fichier, ou en playlist Fichier à synchroniser partout.</string>
+    <string name="not_found_export_button">Exporter les titres introuvables (%1$d)</string>
+    <string name="not_found_missing_on">Manquent sur</string>
+    <string name="not_found_all_services">Tous les services</string>
+    <string name="not_found_as_file">En fichier</string>
+    <string name="not_found_as_playlist">En playlist</string>
+    <string name="not_found_playlist_name">Nom de la playlist</string>
+    <string name="not_found_default_name">Introuvables</string>
+    <string name="not_found_default_name_on">Introuvables sur %1$s</string>
+    <string name="not_found_save_playlist">Enregistrer en playlist Fichier</string>
+    <string name="not_found_open">Ouvrir</string>
+    <string name="not_found_format_csv">tableurs, Trackhop</string>
+    <string name="not_found_format_m3u">lecteurs</string>
+    <string name="not_found_format_text">Artiste - Titre</string>
+    <string name="not_found_format_json">tout</string>
+    <string name="not_found_format_lidarr">artistes avec un id MusicBrainz</string>
+    <plurals name="not_found_saved">
+        <item quantity="one">%1$d titre enregistré dans la playlist Fichier « %2$s ».</item>
+        <item quantity="other">%1$d titres enregistrés dans la playlist Fichier « %2$s ».</item>
+    </plurals>
+    <plurals name="not_found_playlist_hint">
+        <item quantity="one">Une playlist Fichier avec ce titre. Tu pourras ensuite la synchroniser avec n\'importe quel autre service.</item>
+        <item quantity="other">Une playlist Fichier avec ces %1$d titres. Tu pourras ensuite la synchroniser avec n\'importe quel autre service.</item>
+    </plurals>
 </resources>
