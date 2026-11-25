@@ -1,0 +1,24 @@
+Trackhop 2.2 is here, and 2.2.1 with it.
+
+The headline: pick a service in seconds, see why a song was missed, and never lose a notice.
+
+Android app
+• "Which service?": one chooser for streaming, home servers, radio, files and more, with search
+• Smarter matching: feat., remixes, Taylor's Version, Deluxe and Remaster editions
+• "Why wasn't it matched?" shows the candidates Trackhop looked at, and lets you pick one
+• Export the songs your syncs couldn't find: CSV, M3U, text, JSON, a Lidarr list, or a File playlist to sync anywhere (2.2.1)
+• Radio stations and Shazam as accounts, each with its own name and colour
+• A bell keeps every notification, and a tap opens what it's about
+• Deezer Family: choose the profile. YouTube Music shows which profile is connected
+• Plex: five stars count as liked songs, Sounds like, and copies for Plex Home users
+• ListenBrainz as a target, Apple Music removals, ratings in files, Apprise notifications
+• One playlist kept the same on several of your services
+
+Desktop (Windows, macOS, Linux) and Docker
+• Nearly everything the app does, in the browser of your computer or server
+
+Free, no subscription. On Google Play, F-Droid and GitHub, and every download is at trackhop.org
+
+Thank you to every user who sent an idea or a report: much of 2.2 started there. Keep them coming.
+
+#trackhop #playlists #playlisttransfer #musicsync #musicapp #android #androidapp #opensource #selfhosted #docker #homelab #plex #radio #shazam #windows #macos #linux #musiclovers #newrelease
