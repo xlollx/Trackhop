@@ -181,12 +181,16 @@ object ConcertAlerts {
     fun toChannels(env: Env, alerts: List<Alert>): Int {
         if (alerts.isEmpty()) return 0
         val channels = runCatching { Notify.channels(env) }.getOrDefault(emptyList()).filter { it.enabled && it.missing().isEmpty() && Notify.Event.RELEASES in it.events }
-        return channels.count { c ->
-            alerts.all { a ->
-                val m = Notify.Message(title(env, a), text(env, a) + (a.event.url.takeIf { it.isNotBlank() }?.let { "\n$it" } ?: ""))
-                Notify.send(c, m).also { err -> err?.let { env.log("notify", "${c.name} (${c.kind.label}): $it") } } == null
-            }
+        if (channels.isEmpty()) return 0
+        // A channel counts when it took every alert; each alert is one entry of the server's history.
+        val failed = HashSet<String>()
+        for (a in alerts) {
+            val m = Notify.Message(title(env, a), text(env, a) + (a.event.url.takeIf { it.isNotBlank() }?.let { "\n$it" } ?: ""))
+            val target = a.event.url.takeIf { it.startsWith("https://") || it.startsWith("http://") }?.let { com.xlollx.songport.notify.NotifTarget.Link(it) }
+                ?: com.xlollx.songport.notify.NotifTarget.Followed
+            Notify.sendAll(env, channels, m, "concert", target).forEachIndexed { i, r -> if (r.error != null) failed += channels[i].id }
         }
+        return channels.count { it.id !in failed }
     }
 }
 
