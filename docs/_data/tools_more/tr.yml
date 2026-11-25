@@ -42,6 +42,8 @@ button:
   go: Düğmeyi oluştur
   style: Stil
   styles: {dark: Koyu, light: Açık, violet: Mor}
+  brand: "Görünüm"
+  brands: {name: "Logo ve ad", logo: "Yalnızca logo (kompakt)"}
   text: Düğmedeki metin
   default_text: Her serviste dinle
   preview: Önizleme

@@ -42,6 +42,8 @@ button:
   go: 生成按钮
   style: 样式
   styles: {dark: 深色, light: 浅色, violet: 紫色}
+  brand: "外观"
+  brands: {name: "标志和名称", logo: "仅标志（紧凑）"}
   text: 按钮文字
   default_text: 在任何服务上收听
   preview: 预览

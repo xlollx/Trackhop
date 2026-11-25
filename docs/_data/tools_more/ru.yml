@@ -42,6 +42,8 @@ button:
   go: Сделать кнопку
   style: Стиль
   styles: {dark: Тёмная, light: Светлая, violet: Фиолетовая}
+  brand: "Вид"
+  brands: {name: "Логотип и название", logo: "Только логотип (компактно)"}
   text: Текст на кнопке
   default_text: Слушать в любом сервисе
   preview: Предпросмотр

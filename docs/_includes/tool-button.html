@@ -24,6 +24,11 @@
       <label class="tool-chk"><input type="radio" name="btn-style" value="{{ st[0] }}"{% if forloop.first %} checked{% endif %}><span class="t">{{ st[1] }}</span></label>
       {%- endfor %}
     </fieldset>
+    <fieldset class="btn-styles"><legend>{{ b.brand }}</legend>
+      {%- for br in b.brands %}
+      <label class="tool-chk"><input type="radio" name="btn-brand" value="{{ br[0] }}"{% if forloop.first %} checked{% endif %}><span class="t">{{ br[1] }}</span></label>
+      {%- endfor %}
+    </fieldset>
     <label class="btn-textlabel">{{ b.text }} <input class="btn-text" type="text" maxlength="60" value="{{ b.default_text | escape }}"></label>
     <p class="tool-muted">{{ b.preview }}</p>
     <div class="btn-preview"></div>
