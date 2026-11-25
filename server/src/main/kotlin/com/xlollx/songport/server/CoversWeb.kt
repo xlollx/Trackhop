@@ -112,6 +112,8 @@ internal fun Web.coverPng(r: Web.Req, p: MusicProvider, playlist: Playlist) {
 /** Puts a drawn cover ([variant]) or [image]'s bytes on the playlist; the outcome in words. */
 internal fun Web.setCover(p: MusicProvider, playlist: Playlist, variant: Int?, image: ByteArray?): String {
     if (!p.canSetCover) throw IllegalArgumentException("${p.label(env)} does not take covers from Trackhop.")
+    // As the Cover card, which shows only on your own playlists: a followed one is not yours to change.
+    if (!playlist.ownedByMe) throw IllegalArgumentException("${playlist.name} is not one of your playlists.")
     val raw = image ?: run {
         val tracks = runBlocking { p.tracks(env, playlist.id) }
         CoverDraw.png(CoverDraw.gradient(playlist.name, CoverDraw.artists(tracks), variant ?: 0))
