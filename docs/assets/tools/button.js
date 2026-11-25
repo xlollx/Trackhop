@@ -21,7 +21,7 @@ const MARK = '<g transform="translate(-21 -21)" fill="currentColor" stroke="curr
   + '<path d="M52.6,37.2 C58.5,38.6 63.4,42.4 63.2,49.6 C61.6,45.2 58,42.9 52.6,42.6 Z" stroke="none"/>'
   + '</g></g>';
 /** The mark as a whole <svg>, 20 px. */
-export const MARK_SVG = `<svg width="20" height="20" viewBox="0 0 66 66" aria-hidden="true">${MARK}</svg>`;
+export const MARK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 66 66" aria-hidden="true">${MARK}</svg>`;
 /** The brand after the text, smaller and softer. */
 export const BRAND = 'Trackhop';
 export const BRAND_CSS = 'font-weight:500;font-size:12px;opacity:.75;padding-left:8px;margin-left:2px;border-left:1px solid currentColor';
