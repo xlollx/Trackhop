@@ -1,8 +1,8 @@
 {%- comment -%}
   /link: one song or album link in, a button per service out (assets/tools/link-ui.js).
   The texts are in _data/tools.yml, by the page's language. The lookups go from the visitor's
-  browser to the public catalogues of Apple (iTunes), Deezer and Spotify, and to MusicBrainz and
-  Wikidata for the exact links they keep; nothing is stored.
+  browser to the public catalogues of Apple (iTunes), Deezer and Spotify, and to MusicBrainz,
+  ListenBrainz and Wikidata for the exact links they keep; nothing is stored.
 {%- endcomment -%}
 {%- assign lang = page.lang | default: 'en' -%}
 {%- assign s = site.data.tools[lang] -%}

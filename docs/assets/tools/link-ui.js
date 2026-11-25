@@ -1,5 +1,5 @@
 // /link: the page around link.js. The pasted link is looked up from this browser on the public
-// catalogues of Apple (iTunes), Deezer, Spotify, MusicBrainz and Wikidata, and their cover pictures, and nowhere else. Nothing is stored: no
+// catalogues of Apple (iTunes), Deezer, Spotify, MusicBrainz, ListenBrainz and Wikidata, and their cover pictures, and nowhere else. Nothing is stored: no
 // cookies, no storage, no statistics. The address bar gets ?u=<link>, so the result can be shared.
 import { parseLink, lookup, spotifyBase, spotifyResult, copyText, clock, display, serviceName, browserNet } from './link.js';
 import { ToolError } from './io.js';

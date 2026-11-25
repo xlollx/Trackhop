@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseLink, display, plainTitle, titleKey, sameArtist, pickMatch, searchUrl, queryOf, buildServices, copyText, clock,
   getJson, jsonp, lookup, spotifyBase, spotifyResult, SERVICES, matches, albumSong, spaced, coverSignature, coverDistance, pickCover,
-  COVER_GRID, COVER_SAME, COVER_MARGIN, serviceLink, relLinks, wikidataQuery, wikidataLinks, addKnown, WD_TIMEOUT } from './link.js';
+  COVER_GRID, COVER_SAME, COVER_MARGIN, serviceLink, relLinks, wikidataQuery, wikidataLinks, wikidataId, lbIds, addKnown, WD_TIMEOUT } from './link.js';
 import { ToolError } from './io.js';
 
 const refuses = (fn, code, detail) => assert.throws(fn, (e) => e instanceof ToolError && e.code === code && (detail == null || e.detail === detail));
@@ -313,7 +313,7 @@ const itunesSong = (id, name, artist, ms, album = 'Rumours') => ({ wrapperType: 
 const deezerSong = (id, title, artist, seconds) => ({ id, title, duration: seconds, artist: { name: artist }, album: { title: 'Rumours', cover_big: 'https://cdn-images.dzcdn.net/c.jpg' }, isrc: 'USWB10400046' });
 
 /** What is asked on top of the rest (MusicBrainz, a barcode, a Deezer song or album whole): a test that gives no answer for it gets "not found". */
-const OPTIONAL = /musicbrainz\.org|query\.wikidata\.org|lookup\?upc=|api\.deezer\.com\/(track|album)\//;
+const OPTIONAL = /musicbrainz\.org|query\.wikidata\.org|labs\.api\.listenbrainz\.org|lookup\?upc=|api\.deezer\.com\/(track|album)\//;
 
 /**
  * A net that answers by the first matching piece of the URL, and keeps what it was asked: in
@@ -439,7 +439,10 @@ test('from Spotify: only the title is known, so the artist is a best guess', asy
     'jsonp https://api.deezer.com/search?q=Dreams&limit=50',
   ]);
   // MusicBrainz was asked first, and did not know the link.
-  assert.deepEqual(net.extra, ['fetch https://musicbrainz.org/ws/2/url?resource=https%3A%2F%2Fopen.spotify.com%2Ftrack%2F0ofHAoxe9vBkTCp2UQIavz&inc=recording-rels&fmt=json']);
+  assert.equal(net.extra[0], 'fetch https://musicbrainz.org/ws/2/url?resource=https%3A%2F%2Fopen.spotify.com%2Ftrack%2F0ofHAoxe9vBkTCp2UQIavz&inc=recording-rels&fmt=json');
+  // Then Wikidata, by the pasted Spotify ID only (the artist is a guess: nothing is asked by it).
+  assert.equal(net.extra.length, 2);
+  assert.ok(decodeURIComponent(net.extra[1]).includes('?i wdt:P2207 "0ofHAoxe9vBkTCp2UQIavz".'));
   assert.equal(r.fix, true);
   assert.equal(r.guess, true);
   assert.equal(r.title, 'Dreams - 2004 Remaster');
@@ -962,7 +965,7 @@ test('Wikidata: one query by the ISRC or the barcode, and its answer read strict
   const q = wikidataQuery('song', ['uswb12205362']);
   assert.match(q, /VALUES \?c\{"USWB12205362"\} \?i wdt:P1243 \?c\./);
   for (const p of ['P4578', 'P13398', 'P10110', 'P1651', 'P2724', 'P2207']) assert.ok(q.includes('wdt:' + p + ' '), p);
-  assert.ok(!wikidataQuery('song', ['"} ; DROP']).includes('DROP'));
+  assert.equal(wikidataQuery('song', ['"} ; DROP']), null);
   const a = wikidataQuery('album', ['0886445613261']);
   assert.match(a, /wdt:P3962/);
   for (const form of ['"0886445613261"', '"886445613261"', '"00886445613261"']) assert.ok(a.includes(form), form);
@@ -1075,6 +1078,126 @@ test('from Spotify unknown to MusicBrainz: the ISRC of an exact Deezer match lea
   const blind = fakeNet(routes, {});
   const g = await lookup(parseLink(SPOTIFY_SONG), blind);
   assert.equal(note(g, 'deezer'), 'guess guessed');
-  assert.ok(!blind.asked.concat(blind.extra).some((x) => x.includes('/ws/2/isrc/') || x.includes('wikidata')));
+  const sent = blind.asked.concat(blind.extra).map(decodeURIComponent);
+  assert.ok(!sent.some((x) => x.includes('/ws/2/isrc/') || x.includes('listenbrainz') || x.includes('P1243')));
+  // Wikidata is still asked by the pasted Spotify ID, which is no guess.
+  assert.ok(sent.some((x) => x.includes('wdt:P2207 "0NWn0F8r2PHaqcMDnGDKvj"')));
   assert.deepEqual([note(g, 'tidal'), note(g, 'ytmusic')], ['search', 'search']);
+});
+
+// ---- ListenBrainz, Wikidata by the pasted ID, MusicBrainz by barcode ----
+
+/** A net for addKnown: answers by the first matching piece, keeps every URL asked. */
+function routeNet(routes) {
+  const asked = [];
+  return { asked, json: async (url, opts) => {
+    asked.push(decodeURIComponent(url));
+    for (const [piece, reply] of routes) {
+      if (!decodeURIComponent(url).includes(piece)) continue;
+      if (reply instanceof Error) throw reply;
+      return typeof reply === 'function' ? reply(url, opts) : reply;
+    }
+    throw new ToolError('not-found', 'test');
+  } };
+}
+const MBID_RICK = '8f3471b5-7e6a-48da-86a9-c1c07a0f47ae';
+
+test('wikidataId and wikidataQuery: the pasted page’s own ID, in the same single query as the code', () => {
+  assert.equal(wikidataId(parseLink('https://open.spotify.com/track/6JEK0CvvjDjjMUBFoXShNZ')), '6JEK0CvvjDjjMUBFoXShNZ');
+  assert.equal(wikidataId(parseLink('https://www.deezer.com/album/6237061')), '6237061');
+  assert.equal(wikidataId(parseLink('https://music.apple.com/us/album/rumours/594061854')), '594061854');
+  assert.equal(wikidataId(parseLink('https://music.apple.com/gb/album/dreams/594061854?i=594061857')), '594061854?i=594061857');
+  // A /song/ link does not say its album: Wikidata's "album?i=track" cannot be written.
+  assert.equal(wikidataId(parseLink('https://music.apple.com/us/song/dreams/594061857')), null);
+  const q = wikidataQuery('song', ['GBARL9300135'], parseLink('https://open.spotify.com/track/6JEK0CvvjDjjMUBFoXShNZ'));
+  assert.ok(q.includes('{VALUES ?c{"GBARL9300135"} ?i wdt:P1243 ?c.} UNION {?i wdt:P2207 "6JEK0CvvjDjjMUBFoXShNZ".}'));
+  const a = wikidataQuery('album', [], parseLink('https://www.deezer.com/album/6237061'));
+  assert.ok(a.includes('{?i wdt:P2723 "6237061".}') && !a.includes('UNION') && a.includes('wdt:P4300 ?ytmusic'));
+  assert.ok(wikidataQuery('album', [], parseLink('https://music.apple.com/us/album/rumours/594061854')).includes('wdt:P2281 "594061854"'));
+  // A song's link is not asked about as an album, and nothing at all is no query.
+  assert.equal(wikidataQuery('album', [], parseLink('https://www.deezer.com/track/1')), null);
+  assert.equal(wikidataQuery('song', [], null), null);
+  // An album's YouTube playlist is its YouTube Music page only when it is the album's own.
+  assert.deepEqual(wikidataLinks(wdAnswer([{ ytmusic: 'PLabcdefghijklmnop' }, { ytmusic: 'OLAK5uy_kdpPEVnR3XYjslKeEaw9ZcVnu0kLfS1J0' }]), 'album'),
+    { ytmusic: 'https://music.youtube.com/playlist?list=OLAK5uy_kdpPEVnR3XYjslKeEaw9ZcVnu0kLfS1J0' });
+});
+
+test('lbIds: by the recording, and by artist, album and title when the recording gives several', async () => {
+  const net = routeNet([
+    ['spotify-id-from-mbid', [{ spotify_track_ids: ['6bnZlZvEmocCLdp0622Idi', '0y8ngXGlfJ8kLa8h1d2MPr', 'bad id', 7] }]],
+    ['spotify-id-from-metadata', [{ spotify_track_ids: ['0y8ngXGlfJ8kLa8h1d2MPr'] }]],
+    ['apple-music-id-from-mbid', [{ apple_music_track_ids: ['1559885421'] }]],
+    ['apple-music-id-from-metadata', new ToolError('no-answer', 'ListenBrainz')],
+  ]);
+  const known = { mbid: MBID_RICK, artist: 'Rick Astley', title: 'Never Gonna Give You Up', album: 'Whenever You Need Somebody' };
+  assert.deepEqual(await lbIds('spotify', known, net), ['0y8ngXGlfJ8kLa8h1d2MPr', '6bnZlZvEmocCLdp0622Idi']);
+  assert.ok(net.asked.includes('https://labs.api.listenbrainz.org/spotify-id-from-metadata/json?artist_name=Rick+Astley&release_name=Whenever+You+Need+Somebody&track_name=Never+Gonna+Give+You+Up'));
+  // One ID by the recording is enough; no recording and no album is nothing to ask by.
+  net.asked.length = 0;
+  assert.deepEqual(await lbIds('apple', known, net), ['1559885421']);
+  assert.equal(net.asked.length, 1);
+  assert.deepEqual(await lbIds('apple', { artist: 'Rick Astley', title: 'x' }, net), []);
+  assert.deepEqual(await lbIds('apple', { ...known, mbid: null }, net), []);
+});
+
+test('addKnown, from Apple or Deezer: ListenBrainz finds the recording, MusicBrainz its links, ListenBrainz Spotify', async () => {
+  const net = routeNet([
+    ['recording-search/json?query=Rick+Astley+Never+Gonna+Give+You+Up', [
+      { recording_name: 'Never Gonna Give You Up (live)', recording_mbid: '00000000-0000-0000-0000-000000000000', artist_credit_name: 'Rick Astley' },
+      { recording_name: 'Never Gonna Give You Up', recording_mbid: MBID_RICK, artist_credit_name: 'Rick Astley' }]],
+    ['musicbrainz.org/ws/2/recording/' + MBID_RICK + '?inc=isrcs+url-rels&fmt=json', { isrcs: ['GBARL9300135'], relations: [
+      { url: { resource: 'https://tidal.com/track/490851477' } }, { url: { resource: 'https://music.youtube.com/watch?v=Om61naQC8is' } }] }],
+    ['spotify-id-from-mbid', [{ spotify_track_ids: ['6JEK0CvvjDjjMUBFoXShNZ'] }]],
+    ['query.wikidata.org', wdAnswer([{ youtube: 'dQw4w9WgXcQ', tidal: '1' }])],
+  ]);
+  const found = { apple: { url: 'https://music.apple.com/us/song/1', mark: 'exact', note: 'pasted' }, deezer: { url: 'd', mark: 'guess', note: 'differs' } };
+  await addKnown('song', found, { artist: 'Rick Astley', title: 'Never Gonna Give You Up', link: parseLink('https://music.apple.com/us/song/x/1') }, net);
+  assert.deepEqual(Object.fromEntries(Object.entries(found).map(([id, f]) => [id, f.mark + ' ' + f.note])), {
+    apple: 'exact pasted', deezer: 'guess differs', tidal: 'exact mb', ytmusic: 'exact mb', spotify: 'exact lb', youtube: 'exact wd',
+  });
+  assert.equal(found.spotify.url, 'https://open.spotify.com/track/6JEK0CvvjDjjMUBFoXShNZ');
+  // Wikidata is asked by the ISRC MusicBrainz gave.
+  assert.ok(net.asked.some((u) => u.includes('VALUES ?c{"GBARL9300135"}')));
+  // Without a sure artist nothing is searched by name.
+  const none = routeNet([]);
+  await addKnown('song', {}, { title: 'Never Gonna Give You Up' }, none);
+  assert.deepEqual(none.asked, []);
+});
+
+test('addKnown: several Apple songs from ListenBrainz, the one on the album is taken', async () => {
+  const net = routeNet([
+    ['apple-music-id-from-mbid', [{ apple_music_track_ids: ['11', '22'] }]],
+    ['itunes.apple.com/lookup?id=11,22&country=us', { results: [itunesSong(11, 'Dreams', 'Fleetwood Mac', 257800, 'Greatest Hits'), itunesSong(22, 'Dreams', 'Fleetwood Mac', 257800, 'Rumours')] }],
+  ]);
+  const found = { spotify: { url: 's', mark: 'exact', note: 'pasted' } };
+  await addKnown('song', found, { rels: [], mbid: MBID_RICK, artist: 'Fleetwood Mac', title: 'Dreams', album: 'Rumours (Deluxe)', durationMs: 257000 }, net);
+  assert.deepEqual(found.apple, { url: 'https://music.apple.com/us/album/x/1?i=22', mark: 'exact', note: 'lb' });
+});
+
+test('addKnown, an album: MusicBrainz’s release by its barcode, then the release’s links', async () => {
+  const net = routeNet([
+    ['musicbrainz.org/ws/2/release/?query=barcode:603497925797 OR barcode:0603497925797 OR barcode:00603497925797', { releases: [
+      { id: '11111111-1111-1111-1111-111111111111', barcode: '5099999999999' }, { id: '22222222-2222-2222-2222-222222222222', barcode: '603497925797' }] }],
+    ['musicbrainz.org/ws/2/release/22222222-2222-2222-2222-222222222222?inc=url-rels&fmt=json', { relations: [
+      { url: { resource: 'https://tidal.com/browse/album/77646150' } }, { url: { resource: 'https://open.spotify.com/album/1bt6q2SruMsBtcerNVtpZB' } }] }],
+  ]);
+  const found = { deezer: { url: 'https://www.deezer.com/album/6237061', mark: 'exact', note: 'pasted' } };
+  await addKnown('album', found, { upc: '603497925797', artist: 'Fleetwood Mac', title: 'Rumours', link: parseLink('https://www.deezer.com/album/6237061') }, net);
+  assert.deepEqual([found.tidal.url, found.tidal.note, found.spotify.note], ['https://tidal.com/browse/album/77646150', 'mb', 'mb']);
+  // Albums never ask ListenBrainz's song mappers.
+  assert.ok(!net.asked.some((u) => u.includes('listenbrainz')));
+  // MusicBrainz busy (503, which getJson gives as "no answer"): nothing changes, Wikidata is still asked.
+  const busy = routeNet([['musicbrainz.org', new ToolError('no-answer', 'MusicBrainz')], ['query.wikidata.org', wdAnswer([])]]);
+  const same = { deezer: { url: 'x', mark: 'exact', note: 'pasted' } };
+  await addKnown('album', same, { upc: '603497925797', link: parseLink('https://www.deezer.com/album/6237061') }, busy);
+  assert.deepEqual(same, { deezer: { url: 'x', mark: 'exact', note: 'pasted' } });
+  assert.equal(busy.asked.filter((u) => u.includes('musicbrainz')).length, 1);
+});
+
+test('addKnown: ListenBrainz silent or answering nonsense changes nothing', async () => {
+  for (const reply of [new ToolError('no-answer', 'ListenBrainz'), new Error('boom'), {}, [{}], [{ spotify_track_ids: ['javascript:alert(1)'], apple_music_track_ids: ['1x'] }]]) {
+    const found = { deezer: { url: 'd', mark: 'exact', note: 'pasted' } };
+    await addKnown('song', found, { rels: [], mbid: MBID_RICK, artist: 'A', title: 'B', album: 'C' }, routeNet([['listenbrainz', reply]]));
+    assert.deepEqual(found, { deezer: { url: 'd', mark: 'exact', note: 'pasted' } });
+  }
 });

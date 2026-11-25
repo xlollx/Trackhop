@@ -92,12 +92,12 @@ en:
     legend_search: The button opens that service's search with the artist and title already typed in. Those services don't let a page look up a song without a sign-in.
     cta: Moving more than one song? The Trackhop app does this for whole playlists, and adds "Link for every service" to your share sheet.
     how_h: How it finds the song
-    how: "Your browser asks the music services' public catalogues about the link you pasted: who the song is by, which album it is on, how long it is. With that it builds one button per service. A button says Exact only when a barcode, an ISRC, the cover or the length shows it is the same thing, and it says which. For a Spotify link it also asks MusicBrainz, the open music encyclopedia, for the album's barcode. Where MusicBrainz or Wikidata keep the song's own page on another service, that button opens it and says where the link comes from."
+    how: "Your browser asks the music services' public catalogues about the link you pasted: who the song is by, which album it is on, how long it is. With that it builds one button per service. A button says Exact only when a barcode, an ISRC, the cover or the length shows it is the same thing, and it says which. For a Spotify link it also asks MusicBrainz, the open music encyclopedia, for the album's barcode. Where MusicBrainz, ListenBrainz or Wikidata know the song's own page on another service, that button opens it and says where the link comes from."
     why_h: Why some buttons say Search
     why: Most services only let a page look up a song after you sign in, and this page never asks you to. For those it opens their own search with the artist and title filled in, and it says so on the button.
     stays_h: What stays with you
     stays: There is no Trackhop server behind this page. The link goes from your browser to the services it is looked up on, and nothing is kept once you close the tab.
-    stays_db: To find exact links your browser also asks MusicBrainz and Wikidata, open music databases.
+    stays_db: To find exact links your browser also asks MusicBrainz, ListenBrainz and Wikidata, open music databases.
     button: 'Want a button like this on your blog or site? <a href="/button">Make a "Listen on any service" button</a>.'
   js:
     lang: en
@@ -307,6 +307,7 @@ en:
         isrc: Same ISRC
         cover: Same title and cover
         mb: From MusicBrainz
+        lb: From ListenBrainz
         wd: From Wikidata
       fix_open: Not right? Change the artist
       guess_h: Best guess from the title
@@ -454,12 +455,12 @@ it:
     legend_search: Il pulsante apre la ricerca di quel servizio con artista e titolo già scritti. Quei servizi non lasciano cercare un brano a una pagina senza un accesso.
     cta: Devi spostare più di un brano? L'app Trackhop lo fa per playlist intere, e aggiunge "Link per ogni servizio" al menu di condivisione.
     how_h: Come trova il brano
-    how: "Il tuo browser chiede ai cataloghi pubblici dei servizi musicali notizie sul link che hai incollato: di chi è il brano, in quale album sta, quanto dura. Con questo prepara un pulsante per ogni servizio. Un pulsante dice Esatto solo quando un codice a barre, un ISRC, la copertina o la durata mostrano che è la stessa cosa, e dice quale. Per un link di Spotify chiede anche a MusicBrainz, l'enciclopedia libera della musica, il codice a barre dell'album. Dove MusicBrainz o Wikidata conservano la pagina del brano su un altro servizio, quel pulsante la apre e dice da dove viene il link."
+    how: "Il tuo browser chiede ai cataloghi pubblici dei servizi musicali notizie sul link che hai incollato: di chi è il brano, in quale album sta, quanto dura. Con questo prepara un pulsante per ogni servizio. Un pulsante dice Esatto solo quando un codice a barre, un ISRC, la copertina o la durata mostrano che è la stessa cosa, e dice quale. Per un link di Spotify chiede anche a MusicBrainz, l'enciclopedia libera della musica, il codice a barre dell'album. Dove MusicBrainz, ListenBrainz o Wikidata conoscono la pagina del brano su un altro servizio, quel pulsante la apre e dice da dove viene il link."
     why_h: Perché alcuni pulsanti dicono Ricerca
     why: Quasi tutti i servizi lasciano cercare un brano a una pagina solo dopo un accesso, e questa pagina non te lo chiede mai. Per quelli apre la loro ricerca con artista e titolo già scritti, e lo dice sul pulsante.
     stays_h: Cosa resta a te
     stays: Dietro questa pagina non c'è nessun server di Trackhop. Il link va dal tuo browser ai servizi su cui viene cercato, e quando chiudi la scheda non resta niente.
-    stays_db: Per trovare i link esatti il tuo browser chiede anche a MusicBrainz e Wikidata, database musicali aperti.
+    stays_db: Per trovare i link esatti il tuo browser chiede anche a MusicBrainz, ListenBrainz e Wikidata, database musicali aperti.
     button: 'Vuoi un pulsante così sul tuo blog o sito? <a href="/it/button">Crea un pulsante "Ascolta su qualsiasi servizio"</a>.'
   js:
     lang: it
@@ -669,6 +670,7 @@ it:
         isrc: Stesso ISRC
         cover: Stesso titolo e stessa copertina
         mb: Da MusicBrainz
+        lb: Da ListenBrainz
         wd: Da Wikidata
       fix_open: Non è questo? Cambia l'artista
       guess_h: Un'ipotesi a partire dal titolo
