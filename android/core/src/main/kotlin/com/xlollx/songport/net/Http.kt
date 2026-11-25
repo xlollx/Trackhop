@@ -87,9 +87,15 @@ object Http {
                 val b = body ?: if (method == "POST" || method == "PUT" || method == "PATCH") ByteArray(0).toRequestBody(null) else null
                 method(method, b)
             }.build()
+            // A request that changes something and got an answer (a redirect) before the failure was
+            // received there: never sent again to the other address.
+            val answered = java.util.concurrent.atomic.AtomicBoolean(false)
+            val caller = if (method == "GET" || method == "HEAD" || !ServerAddresses.paired(target)) client
+                else client.newBuilder().addNetworkInterceptor { ch -> ch.proceed(ch.request()).also { answered.set(true) } }.build()
             val resp = try {
-                client.newCall(request(target)).execute()
+                caller.newCall(request(target)).execute()
             } catch (e: java.io.IOException) {
+                if (answered.get()) throw e
                 val other = ServerAddresses.failover(target, e) ?: throw e
                 target = other
                 client.newCall(request(target)).execute()

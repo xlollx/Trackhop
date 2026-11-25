@@ -62,6 +62,9 @@ object ServerAddresses {
         url.startsWith(b) && (url.length == b.length || url[b.length] == '/' || url[b.length] == '?')
     }.maxByOrNull { it.length }
 
+    /** True when [url] is on a server with two addresses (it can fail over). */
+    fun paired(url: String): Boolean = baseOf(url) != null
+
     /** [url] sent to the address chosen now for its server; any other url as it is. */
     fun route(url: String): String {
         val b = baseOf(url) ?: return url

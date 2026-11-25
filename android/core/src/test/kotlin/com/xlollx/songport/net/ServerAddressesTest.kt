@@ -87,6 +87,19 @@ class ServerAddressesTest {
         assertEquals(away, ServerAddresses.awayOf(home))
     }
 
+    @Test fun aPostAnsweredWithARedirectThatFailsIsNotSentAgainElsewhere() = runBlocking {
+        val first = MockWebServer().apply { start() }
+        try {
+            val h = first.url("/").toString().trimEnd('/')
+            ServerAddresses.register(h, away)
+            // The server applied the POST and points elsewhere; that address does not answer.
+            first.enqueue(MockResponse().setResponseCode(302).setHeader("Location", "http://127.0.0.1:1/done"))
+            val r = runCatching { Http.send("POST", "$h/rest/createPlaylist?name=a", body = Http.jsonBody("{}")) }
+            assertEquals(true, r.isFailure)
+            assertEquals(0, server.requestCount)
+        } finally { first.shutdown() }
+    }
+
     @Test fun unregisterForgetsThePair() {
         ServerAddresses.register(home, away)
         ServerAddresses.unregister(home)
