@@ -65,7 +65,7 @@ internal class CliParity(private val c: CliCommands) {
                 "Read only. It reads every playlist once (on YouTube, as much quota as a full backup)."),
             Cli.Cmd("twins", "Services and playlists", listOf("twins <service>", "twins <service> keep <group> <copy> [--no-add]"),
                 "the copies of one playlist on a service; keep one, delete the others",
-                "keep: <group> and <copy> are numbers from the list. Before deleting, the songs only the others have are added to the one\n" +
+                "keep: <group> and <copy> are numbers from the list, or the ids --json shows (they stay put when the list changes). Before deleting, the songs only the others have are added to the one\n" +
                     "kept (--no-add: not), and each deleted copy is saved in Files. A copy a sync uses is never deleted.", listOf("keep")),
             Cli.Cmd("add-link", "Services and playlists", listOf("add-link <link> <service> [<playlist>]"), "a song's link from any music app, found on a service and added to one of your playlists",
                 "Without <playlist>: what was found (the song, the same recording there, the candidates). With it: the best is added."),
@@ -355,8 +355,13 @@ internal class CliParity(private val c: CliCommands) {
         if (!c.asJson) out.println("Reading every playlist...")
         val groups = (api.get("services/${enc(s)}/twins") as JsonArray).map { it.jsonObject }
         if (p.getOrNull(1) == "keep") {
-            val g = p.getOrNull(2)?.toIntOrNull()?.let { groups.getOrNull(it - 1) } ?: throw Cli.Failure(1, "no such group: see trackhop twins $s")
-            val copy = p.getOrNull(3)?.toIntOrNull()?.let { g.list("copies").getOrNull(it - 1) } ?: throw Cli.Failure(1, "no such copy in that group")
+            // By number from the list, or by the ids --json shows: an id names the same group and copy however the list changed.
+            val ga = p.getOrNull(2)
+            val g = (ga?.toIntOrNull()?.let { groups.getOrNull(it - 1) } ?: groups.firstOrNull { it.s("group") == ga })
+                ?: throw Cli.Failure(1, "no such group: see trackhop twins $s")
+            val ca = p.getOrNull(3)
+            val copy = (ca?.toIntOrNull()?.let { g.list("copies").getOrNull(it - 1) } ?: g.list("copies").firstOrNull { it.s("id") == ca })
+                ?: throw Cli.Failure(1, "no such copy in that group")
             val r = api.post("services/${enc(s)}/twins", buildJsonObject { put("group", g.s("group")); put("keep", copy.s("id")); put("addMissing", !o.has("no-add")) }).jsonObject
             if (c.asJson) print(r) else out.println("Kept ${copy.s("name")}; ${(r["deleted"] as JsonArray).size} deleted (each saved in Files).")
             return 0
