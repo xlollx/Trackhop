@@ -270,7 +270,16 @@ class StoreScreenshots {
     private fun shootLanguage(folder: String) {
         val dir = File(app.getExternalFilesDir(null), "shots/$folder").apply { mkdirs() }
         var n = 0
+        fun demoBar() = step("demo mode") {
+            // The system UI can restart during the run and forget the script's demo mode: asked again before each picture.
+            listOf("-e command enter", "-e command clock -e hhmm 1200", "-e command battery -e level 100 -e plugged false",
+                "-e command network -e wifi show -e level 4 -e fully true", "-e command network -e mobile show -e datatype none -e level 4",
+                "-e command notifications -e visible false").forEach {
+                instr.uiAutomation.executeShellCommand("am broadcast -a com.android.systemui.demo $it").use { f -> java.io.FileInputStream(f.fileDescriptor).readBytes() }
+            }
+        }
         fun snap(settle: Long = 1200) {
+            demoBar()
             compose.waitForIdle(); Thread.sleep(settle); compose.waitForIdle()
             val bmp = instr.uiAutomation.takeScreenshot() ?: return
             n++
@@ -310,12 +319,6 @@ class StoreScreenshots {
             compose.waitForIdle()
         }
         fun shell(cmd: String) = instr.uiAutomation.executeShellCommand(cmd).use { java.io.FileInputStream(it.fileDescriptor).readBytes() }
-        // A tidy status bar again: the system UI may have forgotten the script's demo mode.
-        step("demo mode") {
-            listOf("-e command enter", "-e command clock -e hhmm 1200", "-e command battery -e level 100 -e plugged false",
-                "-e command network -e wifi show -e level 4 -e fully true", "-e command network -e mobile show -e datatype none -e level 4",
-                "-e command notifications -e visible false").forEach { shell("am broadcast -a com.android.systemui.demo $it") }
-        }
         val height = app.resources.displayMetrics.heightPixels
         // Where [text] is on the screen, from the unmerged tree (a dialog's or a sheet's too), or null.
         fun bounds(text: String) = runCatching {
@@ -345,10 +348,10 @@ class StoreScreenshots {
         open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_ACCOUNTS)) {
             step("shot $n") {
                 waitText(s(R.string.connector_add)); Thread.sleep(800)
-                // The Play build's taller list keeps the tap from reaching the button: its click, through the icon that names it.
-                if (play) compose.onAllNodes(androidx.compose.ui.test.hasClickAction() and hasAnyDescendant(androidx.compose.ui.test.hasContentDescription(s(R.string.connector_add))), useUnmergedTree = true)
-                    .onFirst().performSemanticsAction(SemanticsActions.OnClick).also { Thread.sleep(2500); compose.waitForIdle() }
-                else realTap(s(R.string.connector_add))
+                // A tap does not always reach the button: its click, through the icon that names it.
+                compose.onAllNodes(androidx.compose.ui.test.hasClickAction() and hasAnyDescendant(androidx.compose.ui.test.hasContentDescription(s(R.string.connector_add))), useUnmergedTree = true)
+                    .onFirst().performSemanticsAction(SemanticsActions.OnClick)
+                Thread.sleep(2500); compose.waitForIdle()
             }
             snap()
         }
