@@ -1156,7 +1156,7 @@ ${changesFields(null)}${ratingsField(null, src, dst)}${pairFields(null)}${matchi
             source = PlaylistRef(src.id, srcId, srcName),
             target = PlaylistRef(dst.id, dstId, dstName),
             schedule = runCatching { Schedule.valueOf(r.form["schedule"].orEmpty()) }.getOrDefault(Schedule.MANUAL),
-        ).let { withMatching(withRatings(withChanges(withTiming(it, r), r), r), r) }
+        ).let { withMatching(withRatings(withChanges(withTiming(it, r), r), r), r.form) }
             .let { j -> runCatching { pairing(j, r.form["twoWay"] == "on", r.form["twoWay"] == "on" && r.form["twoWayRemovals"] == "on") }.getOrElse { return redirect(r.ex, "$back&err=${q(it.message ?: "Error")}") } }
         val warning = conflictWarning(job)
         env.store.upsertJob(job)
