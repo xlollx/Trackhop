@@ -148,6 +148,16 @@ class RadioConnectorsServerTest {
         assertTrue(shazam.text, shazam.text.contains("Spotify"))
     }
 
+    @Test fun aStationsSiteIsALinkOnlyForAnHttpAddress() {
+        assertEquals(""" · <a href="https://radio.example/" target="_blank" rel="noopener">site</a>""", radioSiteLink("https://radio.example/"))
+        assertEquals(""" · <a href="http://radio.example/a?b=1&amp;c=2" target="_blank" rel="noopener">site</a>""", radioSiteLink("http://radio.example/a?b=1&c=2"))
+        assertEquals("", radioSiteLink("javascript:alert(1)"))
+        assertEquals("", radioSiteLink(" JavaScript:alert(1)"))
+        assertEquals("", radioSiteLink("data:text/html,x"))
+        assertEquals("", radioSiteLink(""))
+        assertEquals("", radioSiteLink(null))
+    }
+
     @Test fun theCommandLineAddsAStationAndMakesASyncFromIt() {
         boot()
         val (code, out) = cli("services", "add", "radio", "--stream", r105, "--station", "Radio 105")

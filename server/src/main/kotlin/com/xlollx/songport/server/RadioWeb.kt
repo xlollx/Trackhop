@@ -142,7 +142,7 @@ internal fun Web.radioPanel(job: SyncJob): String {
         st.error != null -> """<p class="err">${h(radio.station)}: ${h(st.error)}</p>"""
         else -> """<p class="ok">On air: ${h(st.lastTitle ?: "waiting for the first title…")}</p><p class="muted">${st.songs} new songs since ${Html.date(st.since)}. They reach the playlist every ${RadioListener.RUN_EVERY_MS / 60_000} minutes, and when the window closes.</p>"""
     }
-    return """<div class="card">$RADIO_ICON <b>${h(radio.station)}</b>${radio.homepage?.let { """ · <a href="${h(it)}" target="_blank" rel="noopener">site</a>""" } ?: ""}
+    return """<div class="card">$RADIO_ICON <b>${h(radio.station)}</b>${radioSiteLink(radio.homepage)}
 $now<p><a href="/playlists/csv/${q(job.source.playlistId.orEmpty())}">The songs heard so far</a></p></div>
 <form method="post" action="/syncs/${q(job.id)}/radio" class="card"><h3>Days and hours</h3>${radioWindowFields(radio)}<p><button class="secondary">Save</button></p></form>"""
 }
@@ -204,7 +204,15 @@ internal fun Web.radioConnectorCard(p: com.xlollx.songport.providers.RadioProvid
     val st = p.station(env) ?: return """<div class="card muted">This radio has no station: remove it and add it again.</div>"""
     val syncs = com.xlollx.songport.sync.RadioConnectors.syncsOf(env.store.data.jobs, p.id)
     val list = syncs.joinToString("") { """<li><a href="/syncs/${q(it.id)}">${h(it.name)}</a> <span class="muted">${h(it.radio?.let { r -> RadioTitles.describe(r) }.orEmpty())}</span></li>""" }
-    return """<div class="card">$RADIO_ICON <b>${h(st.station)}</b>${st.country.takeIf { it.isNotBlank() }?.let { " · " + h(it) } ?: ""}${st.homepage?.let { """ · <a href="${h(it)}" target="_blank" rel="noopener">site</a>""" } ?: ""}<br><span class="muted">${h(st.stream)}</span>
+    return """<div class="card">$RADIO_ICON <b>${h(st.station)}</b>${st.country.takeIf { it.isNotBlank() }?.let { " · " + h(it) } ?: ""}${radioSiteLink(st.homepage)}<br><span class="muted">${h(st.stream)}</span>
 ${if (syncs.isEmpty()) """<p class="muted">No sync listens to it yet.</p>""" else "<ul>$list</ul>"}
 ${if (env.may(Permissions.RADIO)) """<p><a class="button" href="/syncs/radio?connector=${q(p.id)}">$RADIO_ICON New sync from this station</a></p>""" else ""}</div>"""
 }
+
+/**
+ * A station's "site" link: only for an http(s) address. The directory's homepage is the station's
+ * own text, so a `javascript:` one (or any other scheme) gets no link, also for stations saved before.
+ */
+internal fun radioSiteLink(homepage: String?): String =
+    homepage?.trim()?.takeIf { it.startsWith("http://", true) || it.startsWith("https://", true) }
+        ?.let { """ · <a href="${h(it)}" target="_blank" rel="noopener">site</a>""" }.orEmpty()
