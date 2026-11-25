@@ -113,7 +113,8 @@ class DeezerWebClient(private val host: WebHost) {
             keepArl(gw("deezer.userAutolog", jsonObj(), retry = false, token = token))
         } catch (e: BridgeException) {
             if (isFatal(e) || e is Limited) throw e
-            BridgeNet.log("deezer", "family profile: switch refused: ${e.message?.take(160)}")
+            // Not the gateway's text (an answer's body, its error values): the kind of failure only.
+            BridgeNet.log("deezer", "family profile: switch refused (${e.javaClass.simpleName})")
             throw BridgeException(PROFILE_REFUSED, e)
         }
     }
