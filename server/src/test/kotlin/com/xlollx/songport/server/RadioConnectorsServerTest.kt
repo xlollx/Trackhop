@@ -158,6 +158,16 @@ class RadioConnectorsServerTest {
         assertEquals("", radioSiteLink(null))
     }
 
+    @Test fun anAddedStationsStreamAddressIsNotWrittenToTheLog() {
+        boot()
+        Log.reset()
+        val added = call("POST", "services/radio", """{"station":"Secret FM","stream":"https://radio.example/live?token=s3cr3t"}""")
+        assertEquals(added.text, 201, added.code)
+        val lines = Log.recent()
+        assertTrue(lines.toString(), lines.any { it.contains("added radio") })
+        assertTrue(lines.toString(), lines.none { it.contains("s3cr3t") })
+    }
+
     @Test fun theCommandLineAddsAStationAndMakesASyncFromIt() {
         boot()
         val (code, out) = cli("services", "add", "radio", "--stream", r105, "--station", "Radio 105")

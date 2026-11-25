@@ -97,7 +97,7 @@ internal fun Web.apiRadio(ex: HttpExchange, method: String, rest: List<String>, 
                 RadioConnectors.add(s, RadioStation(station, stream, b.text("homepage")), b.text("name"), color).let { (next, made) -> id = made; next.copy(connectorsInit = true) }
             }
             val p = Providers.byId(id) ?: return true.also { error(500, "The connector was not made.") }
-            env.log("services", "added radio ${p.label(env)} ($stream)")
+            env.log("services", "added radio ${p.label(env)}")
             json(if (before.radioStations.containsKey(id)) 200 else 201, connectorJson(p))
         }
         // Shazam's connector: one, so asking twice gives the same.

@@ -163,7 +163,7 @@ internal fun Web.radioConnectorAdd(r: Web.Req) {
             com.xlollx.songport.sync.RadioConnectors.add(s, com.xlollx.songport.model.RadioStation(station, stream, r.form["homepage"]?.trim()?.takeIf { it.isNotEmpty() }, r.form["country"].orEmpty()), r.form["name"], color)
                 .let { (next, made) -> id = made; next.copy(connectorsInit = true) }
         }
-        env.log("services", "added radio $station ($stream)")
+        env.log("services", "added radio $station")
         return redirect(r.ex, "/connectors/${q(id)}?ok=${q("Added. Make a sync from it: New sync, from ${Providers.byId(id)?.label(env) ?: station}.")}")
     }
     val body = StringBuilder(notice(r))
