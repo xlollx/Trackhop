@@ -18,7 +18,7 @@ internal fun Web.matchingFields(job: SyncJob?): String {
     fun radio(name: String, value: Int, now: Int, text: String) =
         """<label class="check"><input type="radio" name="$name" value="$value"${if (value == now) " checked" else ""}> $text</label>"""
     return """
-<input type="hidden" name="matching" value="1"><fieldset style="border:0;padding:0;margin:12px 0 0"><legend style="font-weight:600;font-size:14px">Matching</legend>
+<input type="hidden" name="matching" value="1"><fieldset style="border:0;padding:0;margin:12px 0 0"><legend style="font-weight:600;font-size:14px">Matching rules</legend>
 <label>How close a match must be</label>
 ${radio("strictness", -1, p.strictness, "Lenient: more songs found, more of them to check")}
 ${radio("strictness", 0, p.strictness, "Normal")}

@@ -534,6 +534,9 @@ internal class CliCommands(
         val policy = buildJsonObject {
             o.value("strictness")?.let { put("strictness", it) }
             o.value("explicit")?.let { put("explicit", it) }
+            for (flag in listOf("same-album", "studio-only", "artist-names-differ")) if (o.has(flag) && o.has("no-$flag")) throw Cli.Failure(2, "--$flag or --no-$flag, not both")
+            if (o.has("no-same-album")) put("sameAlbum", false)
+            if (o.has("no-studio-only")) put("studioOnly", false)
             if (o.has("same-album")) put("sameAlbum", true)
             if (o.has("any-album")) put("sameAlbum", false)
             if (o.has("studio-only")) put("studioOnly", true)
@@ -1197,5 +1200,16 @@ internal class CliCommands(
         const val MAX_LIST = 20
         val pretty = Json { prettyPrint = true }
         val time: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault())
+    }
+
+    /** A sync's matching rules other than the defaults, in words ("strict, artist names can differ"); "" for the defaults. */
+    private fun matchingLine(o: JsonObject): String {
+        val m = o["matching"] as? JsonObject ?: return ""
+        return listOfNotNull(
+            m.s("strictness").takeIf { it.isNotEmpty() && it != "normal" },
+            when (m.s("explicit")) { "explicit" -> "prefers explicit"; "clean" -> "prefers clean"; else -> null },
+            "same album".takeIf { m.b("sameAlbum") }, "studio versions only".takeIf { m.b("studioOnly") },
+            "artist names can differ".takeIf { m.b("artistNamesCanDiffer") },
+        ).joinToString(", ")
     }
 }
