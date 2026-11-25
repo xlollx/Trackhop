@@ -425,7 +425,9 @@ class StoreScreenshots {
                 if (r != null && r.top > height * 0.2f) {
                     val from = (height * 0.8f).toInt()
                     val dy = (r.top - height * 0.16f).toInt().coerceAtMost((height * 0.6f).toInt())
-                    shell("input swipe 540 $from 540 ${from - dy} 1500")
+                    // On the left: a long "Add connector" button reaches the middle of the screen.
+                    val x = app.resources.displayMetrics.widthPixels / 5
+                    shell("input swipe $x $from $x ${from - dy} 1500")
                     Thread.sleep(1200); compose.waitForIdle()
                 }
             }
