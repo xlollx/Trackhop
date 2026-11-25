@@ -359,7 +359,10 @@ object HandOver {
      */
     fun groupIds(members: List<Nway.Member>, made: List<ServerSyncs.MadeMember>): Map<String, String> = buildMap {
         for (m in members) {
-            val there = made.firstOrNull { FileStore.family(it.service) == FileStore.family(m.playlist.provider) && it.playlistId == m.playlist.playlistId } ?: continue
+            val same = made.filter { FileStore.family(it.service) == FileStore.family(m.playlist.provider) && it.playlistId == m.playlist.playlistId }
+            // Two accounts of one service can each have a playlist of that id: then only the one of this
+            // very account, else none (the handover is refused as not made whole, never crossed).
+            val there = same.singleOrNull() ?: same.singleOrNull { it.service == m.playlist.provider } ?: continue
             put(m.down.id, there.down)
             val up = m.up
             if (up != null && there.up != null) put(up.id, there.up)

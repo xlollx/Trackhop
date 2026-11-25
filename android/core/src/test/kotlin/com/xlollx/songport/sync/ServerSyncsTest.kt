@@ -294,5 +294,11 @@ class ServerSyncsTest {
         assertEquals(3, made.size)
         assertEquals(mapOf("d-sp" to "S-d", "u-sp" to "S-u", "d-ti" to "T-d", "d-dz" to "Z-d", "u-dz" to "Z-u"), HandOver.groupIds(members, made))
         try { ServerSyncs.parseMulti(parseJson("[]")); fail() } catch (e: ServerSyncs.Failure) { assertEquals(ServerSyncs.Failure.Kind.ODD, e.kind) }
+        // Two TIDAL accounts there with a playlist of the same id: not guessed, so the handover is refused.
+        val twice = made + ServerSyncs.MadeMember("tidal@3", "t1", "T3-d", null)
+        assertEquals(null, HandOver.groupIds(members, twice)["d-ti"])
+        // Unless one of them is this very account's.
+        val exact = made.map { if (it.service == "tidal@2") it.copy(service = "tidal") else it } + ServerSyncs.MadeMember("tidal@3", "t1", "T3-d", null)
+        assertEquals("T-d", HandOver.groupIds(members, exact)["d-ti"])
     }
 }
