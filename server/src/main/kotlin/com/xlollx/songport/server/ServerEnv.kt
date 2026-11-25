@@ -151,3 +151,6 @@ private val SERVER_TEXTS = mapOf(
     "error_target_shrunk" to "%1\$s lists only %2\$d tracks, but the last run left %3\$d there: probably an incomplete answer. Nothing was changed. " +
         "Try again later; if the playlist really is that small now, choose Sync anyway.",
 )
+
+/** The most pixels a cover sent to Trackhop may have (a 6000 × 6000 one fits): beyond, it is not decoded. */
+internal const val MAX_COVER_PIXELS = 40_000_000L
