@@ -1,0 +1,1 @@
+Trackhop 2.2.2. Importer un fichier et Coller une liste sur la carte Fichier des Comptes fonctionnent de nouveau : les deux ouvrent Playlists Fichier dans Outils et importent là, comme depuis Outils.

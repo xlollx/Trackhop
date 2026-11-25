@@ -1,0 +1,1 @@
+Trackhop 2.2.2. Import file and Paste a list on the File card in Accounts work again: both open File playlists in Tools and import there, the same way as from Tools.

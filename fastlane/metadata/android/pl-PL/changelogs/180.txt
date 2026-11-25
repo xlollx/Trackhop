@@ -1,0 +1,1 @@
+Trackhop 2.2.2. Importuj plik i Wklej listę na karcie Plik w Kontach znów działają: oba otwierają Playlisty z plików w Narzędziach i importują tam, tak jak z Narzędzi.
