@@ -343,7 +343,13 @@ class StoreScreenshots {
         open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_SYNCS)) { waitText(firstJob); snap() }
         // 2 "Which service?": Accounts › Add connector.
         open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_ACCOUNTS)) {
-            step("shot $n") { waitText(s(R.string.connector_add)); Thread.sleep(800); realTap(s(R.string.connector_add)) }
+            step("shot $n") {
+                waitText(s(R.string.connector_add)); Thread.sleep(800)
+                // The Play build's taller list keeps the tap from reaching the button: its click, through the icon that names it.
+                if (play) compose.onAllNodes(androidx.compose.ui.test.hasClickAction() and hasAnyDescendant(androidx.compose.ui.test.hasContentDescription(s(R.string.connector_add))), useUnmergedTree = true)
+                    .onFirst().performSemanticsAction(SemanticsActions.OnClick).also { Thread.sleep(2500); compose.waitForIdle() }
+                else realTap(s(R.string.connector_add))
+            }
             snap()
         }
         // 3 A new sync: Spotify to YouTube Music.
