@@ -31,7 +31,7 @@ On your phone, on a schedule. No account, no server, no subscription.</p>
   <a href="https://appgallery.huawei.com/app/C119677919"><img src="docs/assets/badges/appgallery.svg" height="56" alt="Explore it on Huawei AppGallery"></a>
   <a href="https://f-droid.org/packages/com.xlollx.songport/"><img src="docs/assets/badges/fdroid.svg" height="56" alt="Get it on F-Droid"></a>
   <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/xlollx/Trackhop"><img src="docs/assets/badges/obtainium.svg" height="56" alt="Get it on Obtainium"></a>
-  <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="docs/assets/badges/github.svg" height="56" alt="Download the APK from GitHub (2.1.4)"></a>
+  <a href="https://github.com/xlollx/Trackhop/releases/latest"><img src="docs/assets/badges/github.svg" height="56" alt="Download the APK from GitHub"></a>
 </p>
 
 <p align="center">
