@@ -131,7 +131,12 @@ internal fun Web.apiCover(ex: com.sun.net.httpserver.HttpExchange, method: Strin
     val bytes = ex.requestBody.readNBytes(15_000_001)
     if (bytes.size > 15_000_000) return true.also { error(413, "Images up to 15 MB.") }
     val image = if (type.startsWith("image/")) bytes else null
-    val variant = if (image == null) runCatching { kotlinx.serialization.json.Json.parseToJsonElement(String(bytes).ifBlank { "{}" }) as kotlinx.serialization.json.JsonObject }.getOrNull()?.number("variant") ?: 0 else null
+    val variant = if (image == null) {
+        // A body cut short or a variant that is not a number: refused, not taken for the first drawn cover.
+        val o = runCatching { kotlinx.serialization.json.Json.parseToJsonElement(String(bytes).ifBlank { "{}" }) as kotlinx.serialization.json.JsonObject }.getOrNull()
+        if (o == null || (o["variant"] != null && o.number("variant") == null)) return true.also { error(400, "Send an image, or JSON such as {\"variant\": 2}.") }
+        o.number("variant") ?: 0
+    } else null
     val done = runCatching { setCover(p, pl, variant, image) }.getOrElse { return true.also { _ -> error(if (it is IllegalArgumentException) 400 else 502, it.message ?: "Error") } }
     json(200, buildJsonObject { put("done", done) })
     return true

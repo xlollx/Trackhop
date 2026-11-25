@@ -348,6 +348,22 @@ class ParityApiTest {
         assertTrue(r.text, r.code == 400 || r.code == 404)
     }
 
+    @Test fun aCoverRequestCutShortIsRefusedNotTakenForTheFirstCover() {
+        val set = ArrayList<String>()
+        val covers = object : com.xlollx.songport.providers.MusicProvider by com.xlollx.songport.providers.LocalFilesProvider {
+            override val canSetCover = true
+            override suspend fun setPlaylistCover(ctx: com.xlollx.songport.platform.Env, playlistId: String, jpeg: ByteArray) { set += playlistId }
+        }
+        com.xlollx.songport.providers.Providers.testDoubles = listOf(covers)
+        try {
+            assertEquals(400, call("PUT", "services/csv/playlists/In/cover", "{\"variant\":").code)
+            assertEquals(400, call("PUT", "services/csv/playlists/In/cover", "{\"variant\":\"two\"}").code)
+            assertEquals(emptyList<String>(), set)
+            assertEquals(200, call("PUT", "services/csv/playlists/In/cover", "{\"variant\":2}").code)
+            assertEquals(listOf("In"), set)
+        } finally { com.xlollx.songport.providers.Providers.testDoubles = emptyList() }
+    }
+
     @Test fun sharedPlaylistsAsAMember() {
         assertEquals(0, call("GET", "shared").arr.size)
         assertEquals(400, call("POST", "shared", """{"link":"https://example.org","service":"csv"}""").code)
