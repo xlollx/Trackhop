@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseLink, display, plainTitle, titleKey, sameArtist, pickMatch, searchUrl, queryOf, buildServices, copyText, clock,
   getJson, jsonp, lookup, spotifyBase, spotifyResult, SERVICES, matches, albumSong, spaced, coverSignature, coverDistance, pickCover,
-  COVER_GRID, COVER_SAME, COVER_MARGIN } from './link.js';
+  COVER_GRID, COVER_SAME, COVER_MARGIN, serviceLink, relLinks, wikidataQuery, wikidataLinks, addKnown, WD_TIMEOUT } from './link.js';
 import { ToolError } from './io.js';
 
 const refuses = (fn, code, detail) => assert.throws(fn, (e) => e instanceof ToolError && e.code === code && (detail == null || e.detail === detail));
@@ -313,7 +313,7 @@ const itunesSong = (id, name, artist, ms, album = 'Rumours') => ({ wrapperType: 
 const deezerSong = (id, title, artist, seconds) => ({ id, title, duration: seconds, artist: { name: artist }, album: { title: 'Rumours', cover_big: 'https://cdn-images.dzcdn.net/c.jpg' }, isrc: 'USWB10400046' });
 
 /** What is asked on top of the rest (MusicBrainz, a barcode, a Deezer song or album whole): a test that gives no answer for it gets "not found". */
-const OPTIONAL = /musicbrainz\.org|lookup\?upc=|api\.deezer\.com\/(track|album)\//;
+const OPTIONAL = /musicbrainz\.org|query\.wikidata\.org|lookup\?upc=|api\.deezer\.com\/(track|album)\//;
 
 /**
  * A net that answers by the first matching piece of the URL, and keeps what it was asked: in
@@ -756,7 +756,9 @@ test('from Spotify, a song MusicBrainz knows: its ISRC opens Deezer, and the alb
   const net = fakeNet([
     ['open.spotify.com/oembed', { title: 'Shape of You' }],
     ['musicbrainz.org/ws/2/url', { relations: [{ recording: { id: 'd7500dd6' } }] }],
-    ['musicbrainz.org/ws/2/recording/d7500dd6?inc=isrcs', { isrcs: ['not-one', 'GBAHS1600463'] }],
+    ['musicbrainz.org/ws/2/recording/d7500dd6?inc=isrcs+url-rels', { isrcs: ['not-one', 'GBAHS1600463'], relations: [
+      { ended: true, url: { resource: 'https://tidal.com/browse/track/1' } }, { url: { resource: 'https://tidal.com/track/67189507' } },
+      { url: { resource: 'https://music.youtube.com/watch?v=JGwWNGJdvx8' } }, { url: { resource: 'https://www.deezer.com/track/999' } }] }],
     ['api.deezer.com/track/isrc:GBAHS1600463', { ...dz(142986206, 'Shape of You', 'Ed Sheeran', 233, album), isrc: 'GBAHS1600463', track_position: 1, disk_number: 1 }],
     ['api.deezer.com/album/14996073', { id: 14996073, title: 'Shape of You', upc: '190295854126' }],
     ['lookup?upc=190295854126&entity=song', { results: [itunesAlbum(77, 'Shape of You - Single', 'Ed Sheeran', 1), placed(itunesSong(78, 'Shape of You', 'Ed Sheeran', 233712, 'Shape of You - Single'), 1, 1, 77)] }],
@@ -768,6 +770,13 @@ test('from Spotify, a song MusicBrainz knows: its ISRC opens Deezer, and the alb
   assert.equal(r.services[0].url, 'https://music.apple.com/us/album/x/1?i=78');
   assert.equal(r.services[1].url, 'https://www.deezer.com/track/142986206');
   assert.deepEqual([r.artist, r.album, r.guess, r.fix], ['Ed Sheeran', 'Shape of You - Single', false, false]);
+  // The recording's own links, asked with its ISRCs: TIDAL and YouTube Music open the song; Deezer, already exact by the ISRC, stays.
+  assert.deepEqual([note(r, 'tidal'), note(r, 'ytmusic'), note(r, 'youtube')], ['exact mb', 'exact mb', 'search']);
+  assert.equal(r.services.find((x) => x.id === 'tidal').url, 'https://tidal.com/browse/track/67189507');
+  assert.equal(r.services[1].url, 'https://www.deezer.com/track/142986206');
+  assert.ok(!net.asked.concat(net.extra).some((x) => x.includes('/ws/2/isrc/')));
+  // Wikidata is asked once, by the ISRC, for what is still a search.
+  assert.equal(net.extra.filter((x) => x.includes('query.wikidata.org')).length, 1);
   // MusicBrainz busy: the lookup goes on without it.
   const busy = await lookup(parseLink(SPOTIFY_SONG), fakeNet([['musicbrainz.org', new ToolError('no-answer', 'MusicBrainz')], ...net.routes.filter((x) => !x[0].includes('musicbrainz'))]));
   assert.deepEqual([busy.guess, busy.artist, note(busy, 'deezer')], [true, 'Someone Else', 'guess guessed']);
@@ -879,4 +888,155 @@ test('from Apple Music: Deezer’s barcode leading back to the pasted page is ce
   assert.equal(note(seen, 'deezer'), 'exact cover');
   const unlike = await lookup(link, fakeNet([apple, search, whole, upc, back(1)], { ...covers, 'https://cdn-images.dzcdn.net/rumours/56.jpg': picture(6, 56) }));
   assert.equal(note(unlike, 'deezer'), 'guess differs');
+});
+
+// ---- More exact buttons: MusicBrainz and Wikidata ----
+
+test('serviceLink: the pages of a song on each service, rebuilt from their parts', () => {
+  const song = (u) => serviceLink(u, 'song');
+  assert.deepEqual(song('https://tidal.com/track/490851477'), { id: 'tidal', url: 'https://tidal.com/browse/track/490851477' });
+  assert.deepEqual(song('http://listen.tidal.com/browse/track/490851477?u'), { id: 'tidal', url: 'https://tidal.com/browse/track/490851477' });
+  assert.deepEqual(song('https://music.youtube.com/watch?v=Om61naQC8is&feature=share'), { id: 'ytmusic', url: 'https://music.youtube.com/watch?v=Om61naQC8is' });
+  assert.deepEqual(song('https://www.youtube.com/watch?v=dQw4w9WgXcQ'), { id: 'youtube', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' });
+  assert.deepEqual(song('https://youtu.be/dQw4w9WgXcQ'), { id: 'youtube', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' });
+  assert.deepEqual(song('https://music.amazon.de/tracks/B07D3KH4ZB'), { id: 'amazon', url: 'https://music.amazon.de/tracks/B07D3KH4ZB' });
+  assert.deepEqual(song('https://soundcloud.com/rick-astley-official/never-gonna-give-you-up-4'), { id: 'soundcloud', url: 'https://soundcloud.com/rick-astley-official/never-gonna-give-you-up-4' });
+  assert.deepEqual(song('https://music.apple.com/gb/song/1438556832'), { id: 'apple', url: 'https://music.apple.com/gb/song/1438556832' });
+  assert.deepEqual(song('https://www.deezer.com/track/3750996072'), { id: 'deezer', url: 'https://www.deezer.com/track/3750996072' });
+  assert.deepEqual(song('https://open.spotify.com/track/1Ojc3QD0dfJ5HG8uzLsfTg'), { id: 'spotify', url: 'https://open.spotify.com/track/1Ojc3QD0dfJ5HG8uzLsfTg' });
+  // An album asks for album pages, and a song's page is not one.
+  const album = (u) => serviceLink(u, 'album');
+  assert.deepEqual(album('https://tidal.com/browse/album/77646150'), { id: 'tidal', url: 'https://tidal.com/browse/album/77646150' });
+  assert.deepEqual(album('https://music.youtube.com/playlist?list=OLAK5uy_kdpPEVnR3XYjslKeEaw9ZcVnu0kLfS1J0'),
+    { id: 'ytmusic', url: 'https://music.youtube.com/playlist?list=OLAK5uy_kdpPEVnR3XYjslKeEaw9ZcVnu0kLfS1J0' });
+  assert.deepEqual(album('https://music.youtube.com/browse/MPREb_9nqEki4ZDpp'), { id: 'ytmusic', url: 'https://music.youtube.com/browse/MPREb_9nqEki4ZDpp' });
+  assert.deepEqual(album('https://music.amazon.com/albums/B07D3KH4ZB'), { id: 'amazon', url: 'https://music.amazon.com/albums/B07D3KH4ZB' });
+  assert.deepEqual(album('https://soundcloud.com/artist/sets/the-album'), { id: 'soundcloud', url: 'https://soundcloud.com/artist/sets/the-album' });
+  assert.equal(album('https://tidal.com/browse/track/490851477'), null);
+  assert.equal(album('https://www.youtube.com/watch?v=dQw4w9WgXcQ'), null);
+  assert.equal(song('https://tidal.com/browse/album/77646150'), null);
+  assert.equal(song('https://music.amazon.com/albums/B07D3KH4ZB?trackAsin=B07D3KH4ZC'), null);
+  assert.equal(song('https://soundcloud.com/artist/sets/the-album'), null);
+});
+
+test('serviceLink: look-alike hosts, other schemes and odd pages are refused', () => {
+  for (const u of ['https://tidal.com.evil.example/browse/track/1', 'https://evil-tidal.com/browse/track/1', 'https://tidal.co/browse/track/1',
+    'https://music.youtube.com.evil.example/watch?v=dQw4w9WgXcQ', 'https://youtube.co/watch?v=dQw4w9WgXcQ', 'https://music-youtube.com/watch?v=dQw4w9WgXcQ',
+    'https://music.amazon.evil.example/tracks/B07D3KH4ZB', 'https://amazon.com/tracks/B07D3KH4ZB', 'https://soundcloud.com.evil.example/a/b',
+    'https://music.apple.com.evil.example/gb/song/1', 'https://deezer.com.evil.example/track/1',
+    'javascript:alert(1)//tidal.com/track/1', 'data:text/html,tidal.com', 'ftp://tidal.com/track/1', 'https://user:pw@tidal.com/track/1',
+    'https://tidal.com:8443/track/1', 'https://tidal.com/track/1x', 'https://tidal.com/browse/track/1/extra', 'https://www.youtube.com/watch?v=short',
+    'https://www.youtube.com/watch?v=dQw4w9WgXcQ"><script>', 'https://www.youtube.com/embed/dQw4w9WgXcQ', 'https://music.youtube.com/watch',
+    'https://music.amazon.com/tracks/not-an-asin', 'https://soundcloud.com/search/sounds', 'https://soundcloud.com/a', 'https://soundcloud.com/a/b/c',
+    'not a url', '', null, undefined]) {
+    assert.equal(serviceLink(u, 'song'), null, String(u));
+  }
+});
+
+test('relLinks: MusicBrainz url-rels as one page per service, a standing link before an ended one', () => {
+  const rels = [
+    { type: 'streaming', ended: true, url: { resource: 'https://tidal.com/track/1' } },
+    { type: 'free streaming', url: { resource: 'https://music.youtube.com/watch?v=Om61naQC8is' } },
+    { type: 'free streaming', url: { resource: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' } },
+    { type: 'other databases', url: { resource: 'https://rateyourmusic.com/song/rick-astley/never-gonna-give-you-up/' } },
+    { type: 'streaming', url: { resource: 'https://music.apple.com/gb/song/1438556832' } },
+    { type: 'streaming', url: { resource: 'https://music.apple.com/gb/song/1624945512' } },
+    { type: 'streaming', url: { resource: 'https://tidal.com/track/490851477' } },
+    { type: 'streaming', url: { resource: 'https://tidal.com.evil.example/track/2' } },
+    { type: 'free streaming', url: { resource: 'javascript:alert(1)' } },
+    { type: 'free streaming' }, null,
+  ];
+  assert.deepEqual(relLinks(rels, 'song'), {
+    ytmusic: 'https://music.youtube.com/watch?v=Om61naQC8is', youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    apple: 'https://music.apple.com/gb/song/1438556832', tidal: 'https://tidal.com/browse/track/490851477',
+  });
+  assert.deepEqual(relLinks(undefined, 'song'), {});
+  assert.deepEqual(relLinks(rels, 'album'), {});
+});
+
+/** Wikidata's answer to wikidataQuery, as the SPARQL endpoint gives it. */
+const wdAnswer = (rows) => ({ head: { vars: ['tidal', 'amazon', 'apple', 'youtube', 'deezer', 'spotify'] },
+  results: { bindings: rows.map((r) => Object.fromEntries(Object.entries(r).map(([k, v]) => [k, { type: 'literal', value: v }]))) } });
+
+test('Wikidata: one query by the ISRC or the barcode, and its answer read strictly', () => {
+  const q = wikidataQuery('song', ['uswb12205362']);
+  assert.match(q, /VALUES \?c\{"USWB12205362"\} \?i wdt:P1243 \?c\./);
+  for (const p of ['P4578', 'P13398', 'P10110', 'P1651', 'P2724', 'P2207']) assert.ok(q.includes('wdt:' + p + ' '), p);
+  assert.ok(!wikidataQuery('song', ['"} ; DROP']).includes('DROP'));
+  const a = wikidataQuery('album', ['0886445613261']);
+  assert.match(a, /wdt:P3962/);
+  for (const form of ['"0886445613261"', '"886445613261"', '"00886445613261"']) assert.ok(a.includes(form), form);
+  assert.deepEqual(wikidataLinks(wdAnswer([
+    { tidal: '251443347', apple: '1647736563?i=1647736879', youtube: 'Y3I42iaiH04', amazon: 'B0BJ2WRV1Q' },
+    { tidal: '999', youtube: 'not-a-video-id-at-all' },
+    { apple: 'javascript:alert(1)', spotify: 'short', deezer: '12x' },
+  ]), 'song'), {
+    tidal: 'https://tidal.com/browse/track/251443347', apple: 'https://music.apple.com/us/album/1647736563?i=1647736879',
+    youtube: 'https://www.youtube.com/watch?v=Y3I42iaiH04', amazon: 'https://music.amazon.com/tracks/B0BJ2WRV1Q',
+  });
+  assert.deepEqual(wikidataLinks(wdAnswer([{ tidal: '77646150', apple: '1440650711', spotify: '4LH4d3cOWNNsVw41Gqt2kv' }]), 'album'), {
+    tidal: 'https://tidal.com/browse/album/77646150', apple: 'https://music.apple.com/us/album/1440650711', spotify: 'https://open.spotify.com/album/4LH4d3cOWNNsVw41Gqt2kv',
+  });
+  assert.deepEqual(wikidataLinks(null, 'song'), {});
+  assert.deepEqual(wikidataLinks({ results: {} }, 'album'), {});
+});
+
+test('addKnown: MusicBrainz by the ISRC first, then Wikidata only for what is still a search', async () => {
+  const asked = [];
+  const net = { json: async (url, opts) => {
+    asked.push([url, opts.timeout]);
+    if (url.includes('musicbrainz.org/ws/2/isrc/USWB12205362?inc=url-rels')) {
+      return { recordings: [{ relations: [{ url: { resource: 'https://tidal.com/track/1' } }] }, { relations: [{ url: { resource: 'https://music.apple.com/us/song/7' } }] }] };
+    }
+    if (url.startsWith('https://query.wikidata.org/sparql?format=json&query=')) return wdAnswer([{ tidal: '2', youtube: 'Y3I42iaiH04', apple: '3?i=4', deezer: '5' }]);
+    throw new Error('unexpected ' + url);
+  } };
+  const found = { deezer: { url: 'https://www.deezer.com/track/9', mark: 'exact', note: 'pasted' }, apple: { url: 'a', mark: 'guess', note: 'differs' } };
+  await addKnown('song', found, { isrc: 'USWB12205362' }, net);
+  // MusicBrainz's Apple page replaces a best guess; Wikidata's TIDAL does not replace MusicBrainz's, nor its Deezer the pasted one.
+  assert.deepEqual(found, {
+    deezer: { url: 'https://www.deezer.com/track/9', mark: 'exact', note: 'pasted' },
+    apple: { url: 'https://music.apple.com/us/song/7', mark: 'exact', note: 'mb' },
+    tidal: { url: 'https://tidal.com/browse/track/1', mark: 'exact', note: 'mb' },
+    youtube: { url: 'https://www.youtube.com/watch?v=Y3I42iaiH04', mark: 'exact', note: 'wd' },
+  });
+  assert.equal(asked.length, 2);
+  assert.equal(asked[1][1], WD_TIMEOUT);
+  // Nothing to ask by, or nothing left to find: no request.
+  asked.length = 0;
+  await addKnown('song', {}, {}, net);
+  await addKnown('album', {}, { upc: 'nope' }, net);
+  assert.equal(asked.length, 0);
+});
+
+test('addKnown: MusicBrainz or Wikidata silent, late or wrong leaves the buttons as they were', async () => {
+  for (const fail of [new ToolError('no-answer', 'Wikidata'), new ToolError('not-found', 'MusicBrainz'), new Error('boom')]) {
+    const found = { apple: { url: 'a', mark: 'guess', note: 'differs' } };
+    const net = { json: async () => { throw fail; } };
+    await addKnown('song', found, { isrc: 'USWB12205362' }, net);
+    assert.deepEqual(found, { apple: { url: 'a', mark: 'guess', note: 'differs' } });
+  }
+  // A timeout, as getJson gives it: the request is cut at Wikidata's own short time.
+  const found = {};
+  const timeouts = [];
+  const late = { json: (url, { timeout }) => { timeouts.push(timeout); return getJson(url, { name: 'Wikidata', timeout: 5, fetch: (u, { signal }) => new Promise((ok, no) => signal.addEventListener('abort', () => no(new Error('aborted')))) }); } };
+  await addKnown('album', found, { rels: Promise.resolve([]), upc: '886445613261' }, late);
+  assert.deepEqual(found, {});
+  assert.deepEqual(timeouts, [WD_TIMEOUT]);
+});
+
+test('from Deezer: MusicBrainz is asked by the song’s ISRC, Wikidata for the rest', async () => {
+  const net = fakeNet([
+    ['api.deezer.com/track/3750996072', { ...deezerSong(3750996072, 'Never Gonna Give You Up', 'Rick Astley', 213), isrc: 'GBARL9300135' }],
+    ['itunes.apple.com/search', { results: [itunesSong(1, 'Never Gonna Give You Up', 'Rick Astley', 214000, 'Whenever You Need Somebody')] }],
+    ['musicbrainz.org/ws/2/isrc/GBARL9300135?inc=url-rels&fmt=json', { recordings: [{ relations: [
+      { url: { resource: 'https://music.youtube.com/watch?v=Om61naQC8is' } }, { url: { resource: 'https://tidal.com/track/490851477' } },
+      { url: { resource: 'https://open.spotify.com/track/6JEK0CvvjDjjMUBFoXShNZ' } }] }] }],
+    ['query.wikidata.org', wdAnswer([{ youtube: 'dQw4w9WgXcQ', tidal: '1' }])],
+  ]);
+  const r = await lookup(parseLink('https://www.deezer.com/track/3750996072'), net);
+  assert.deepEqual(Object.fromEntries(r.services.map((s) => [s.id, note(r, s.id)])), {
+    apple: 'exact same', deezer: 'exact pasted', spotify: 'exact mb', ytmusic: 'exact mb', youtube: 'exact wd', tidal: 'exact mb', amazon: 'search', soundcloud: 'search',
+  });
+  assert.equal(r.services.find((x) => x.id === 'youtube').url, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
 });
