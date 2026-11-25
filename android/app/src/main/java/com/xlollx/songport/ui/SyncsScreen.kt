@@ -2382,8 +2382,11 @@ fun SyncEditorScreen(
     LaunchedEffect(shazamMode, shazamTry) {
         if (!shazamMode) return@LaunchedEffect
         shazamLookup = ShazamLookup.Looking
-        val hosts = (listOfNotNull(Providers.byId(srcProvider)) + Providers.connectors())
-            .filter { ShazamLibrary.canHost(it.serviceId) && Connections.isConnected(ctx.env, it) }.distinctBy { it.id }
+        // Off the main thread: an account with no fresh answer is asked now (the connectors app, the encrypted store).
+        val hosts = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            (listOfNotNull(Providers.byId(srcProvider)) + Providers.connectors())
+                .filter { ShazamLibrary.canHost(it.serviceId) && Connections.isConnected(ctx.env, it) }.distinctBy { it.id }
+        }
         val errors = ArrayList<String>()
         for (p in hosts) {
             val l = loadPlaylists(ctx, p.id, forTarget = false)
