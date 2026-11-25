@@ -287,6 +287,17 @@ class NwayEditTest {
         assertEquals(keys, env.tokens.ids().filter { it.startsWith("shared:") }.associateWith { env.tokens.get(it) })
     }
 
+    @Test fun twoNewGroupsAskedAtOnceWithOneIdMakeOne() {
+        val start = java.util.concurrent.CountDownLatch(1)
+        val pool = java.util.concurrent.Executors.newFixedThreadPool(8)
+        val tries = (1..8).map { pool.submit<Result<SharedGroup>> { start.await(); runCatching { NwayEdit.create(env, NwayEdit.Draft("Trip", item(a), listOf(item(b))), id = "0123456789abcdef") } } }
+        start.countDown()
+        val made = tries.map { it.get() }
+        pool.shutdown()
+        assertEquals(1, made.count { it.isSuccess })
+        assertEquals(listOf(made.single { it.isSuccess }.getOrThrow()), now().groups)
+    }
+
     @Test fun aNewGroupThatCannotBeWrittenLeavesNothingBehind() {
         env.store.failWrites = true
         val made = runCatching { NwayEdit.create(env, NwayEdit.Draft("Trip", item(a), listOf(item(b)))) }

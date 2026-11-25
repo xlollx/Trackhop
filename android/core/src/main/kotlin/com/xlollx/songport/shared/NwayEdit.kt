@@ -215,7 +215,14 @@ object NwayEdit {
      * nothing. Nothing is written to any service until its first run. [id]: the group's id when the
      * caller has one (a multi sync handed over from a phone to the server keeps its own).
      */
-    fun create(env: Env, draft: Draft, timed: (SyncJob) -> SyncJob = { it }, styled: (SyncJob) -> SyncJob = { it }, id: String? = null): SharedGroup {
+    fun create(env: Env, draft: Draft, timed: (SyncJob) -> SyncJob = { it }, styled: (SyncJob) -> SyncJob = { it }, id: String? = null): SharedGroup =
+        // A caller's id: the check that no group has it, the key and state written, the commit and the
+        // cleanup are one step, so two requests with one id (a handover asked again) never both pass it.
+        if (id == null) createNow(env, draft, timed, styled, null) else synchronized(CREATE_WITH_ID) { createNow(env, draft, timed, styled, id) }
+
+    private val CREATE_WITH_ID = Any()
+
+    private fun createNow(env: Env, draft: Draft, timed: (SyncJob) -> SyncJob, styled: (SyncJob) -> SyncJob, id: String?): SharedGroup {
         // Offered from Trackhop 1.18; a group that exists keeps running without it.
         check(Features.v2) { "Not available in this version" }
         require(missing(draft) == null) { "Not ready to save: ${missing(draft)}" }
