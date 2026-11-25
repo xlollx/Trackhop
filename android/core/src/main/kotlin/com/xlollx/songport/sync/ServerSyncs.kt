@@ -97,7 +97,15 @@ class ServerSyncs(address: String, private val token: String) {
     /** Starts [id] on the server. */
     suspend fun run(id: String) { call("POST", "syncs/${safeId(id)}/run") }
     /** Starts the multi sync [id] on the server, whole: its syncs one after the other, as its own run. */
-    suspend fun runMulti(id: String) { call("POST", "multi/${safeId(id)}/run") }
+    /** Already running there counts as started, as /syncs/{id}/run answers for a sync that is running: several syncs of
+     *  the same multi sync started together (an automation by tag) start it once, without an error for the others. */
+    suspend fun runMulti(id: String) {
+        try {
+            call("POST", "multi/${safeId(id)}/run")
+        } catch (e: Failure) {
+            if (e.kind != Failure.Kind.REFUSED || !e.detail.endsWith("is running already.")) throw e
+        }
+    }
 
     /** Deletes [id] on the server (its playlists stay as they are). A sync gone already is no failure. */
     suspend fun delete(id: String) {

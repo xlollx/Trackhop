@@ -301,4 +301,12 @@ class ServerSyncsTest {
         val exact = made.map { if (it.service == "tidal@2") it.copy(service = "tidal") else it } + ServerSyncs.MadeMember("tidal@3", "t1", "T3-d", null)
         assertEquals("T-d", HandOver.groupIds(members, exact)["d-ti"])
     }
+
+    @Test fun aMultiSyncAlreadyRunningCountsAsStarted() = runBlocking {
+        answer = { MockResponse().setResponseCode(409).setBody("""{"error":"Gym group is running already."}""") }
+        api().runMulti("g1")
+        assertEquals("POST /api/v1/multi/g1/run", calls.last())
+        answer = { MockResponse().setResponseCode(409).setBody("""{"error":"Something else."}""") }
+        try { api().runMulti("g1"); fail() } catch (e: ServerSyncs.Failure) { assertEquals(ServerSyncs.Failure.Kind.REFUSED, e.kind) }
+    }
 }
