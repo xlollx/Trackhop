@@ -68,7 +68,8 @@ internal fun SonicPage(snackbar: SnackbarHostState, onNewSyncFromFile: (name: St
     var error by remember { mutableStateOf<String?>(null) }
 
     if (servers.size > 1) FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        servers.forEach { s -> FilterChip(selected = s.id == plex.id, onClick = { serverId = s.id; result = null }, label = { Text(s.label(ctx.env)) }) }
+        // Another server: the songs picked on this one are not its songs (the same ids are others there).
+        servers.forEach { s -> FilterChip(selected = s.id == plex.id, onClick = { if (s.id != plex.id) { from = null; to = null }; serverId = s.id; result = null }, label = { Text(s.label(ctx.env)) }) }
     }
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         FilterChip(selected = !adventure, onClick = { adventure = false; result = null }, label = { Text(stringResource(R.string.sonic_like)) })
