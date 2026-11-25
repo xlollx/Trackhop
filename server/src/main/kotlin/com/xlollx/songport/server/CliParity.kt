@@ -357,9 +357,11 @@ internal class CliParity(private val c: CliCommands) {
         if (p.getOrNull(1) == "keep") {
             // By number from the list, or by the ids --json shows: an id names the same group and copy however the list changed.
             val ga = p.getOrNull(2)
-            val g = byIdOrNumber(groups, "group", ga) ?: throw Cli.Failure(1, "no such group: see trackhop twins $s")
+            val g = (ga?.toIntOrNull()?.let { groups.getOrNull(it - 1) } ?: groups.firstOrNull { it.s("group") == ga })
+                ?: throw Cli.Failure(1, "no such group: see trackhop twins $s")
             val ca = p.getOrNull(3)
-            val copy = byIdOrNumber(g.list("copies"), "id", ca) ?: throw Cli.Failure(1, "no such copy in that group")
+            val copy = (ca?.toIntOrNull()?.let { g.list("copies").getOrNull(it - 1) } ?: g.list("copies").firstOrNull { it.s("id") == ca })
+                ?: throw Cli.Failure(1, "no such copy in that group")
             val r = api.post("services/${enc(s)}/twins", buildJsonObject { put("group", g.s("group")); put("keep", copy.s("id")); put("addMissing", !o.has("no-add")) }).jsonObject
             if (c.asJson) print(r) else out.println("Kept ${copy.s("name")}; ${(r["deleted"] as JsonArray).size} deleted (each saved in Files).")
             return 0
@@ -543,14 +545,4 @@ internal class CliParity(private val c: CliCommands) {
         }
         return 0
     }
-}
-
-/**
- * The item of [items] whose [key] is exactly [arg], else the one at that number (from 1) in the list:
- * an id first, so a copy whose id is "1" is never taken for the first one in the list.
- */
-internal fun byIdOrNumber(items: List<JsonObject>, key: String, arg: String?): JsonObject? {
-    if (arg == null) return null
-    return items.firstOrNull { (it[key] as? JsonPrimitive)?.contentOrNull == arg }
-        ?: arg.toIntOrNull()?.let { items.getOrNull(it - 1) }
 }
