@@ -1,5 +1,25 @@
 [
  {
+  "id": "v2.2.2",
+  "kind": "app",
+  "version": "2.2.2",
+  "date": "2026-11-25",
+  "notes": {
+   "en": "Trackhop 2.2.2. Import file and Paste a list on the File card in Accounts work again: both open File playlists in Tools and import there, the same way as from Tools.",
+   "it": "Trackhop 2.2.2. Importa file e Incolla un elenco nella scheda File di Account funzionano di nuovo: aprono Playlist File in Strumenti e importano lì, come da Strumenti.",
+   "es": "Trackhop 2.2.2. Importar archivo y Pegar una lista en la tarjeta Archivo de Cuentas vuelven a funcionar: ambos abren Listas de archivo en Herramientas e importan allí, como desde Herramientas.",
+   "pt": "Trackhop 2.2.2. Importar arquivo e Colar uma lista no cartão Arquivo de Contas voltaram a funcionar: os dois abrem Playlists de arquivo em Ferramentas e importam lá, como em Ferramentas.",
+   "fr": "Trackhop 2.2.2. Importer un fichier et Coller une liste sur la carte Fichier des Comptes fonctionnent de nouveau : les deux ouvrent Playlists Fichier dans Outils et importent là, comme depuis Outils.",
+   "de": "Trackhop 2.2.2. Datei importieren und Liste einfügen auf der Datei-Karte in Konten funktionieren wieder: Beide öffnen Datei-Playlists in Werkzeuge und importieren dort, wie aus Werkzeuge.",
+   "pl": "Trackhop 2.2.2. Importuj plik i Wklej listę na karcie Plik w Kontach znów działają: oba otwierają Playlisty z plików w Narzędziach i importują tam, tak jak z Narzędzi.",
+   "ru": "Trackhop 2.2.2. «Импорт файла» и «Вставить список» на карточке «Файл» в «Аккаунтах» снова работают: оба открывают плейлисты-файлы в «Инструментах» и импортируют там, как из «Инструментов».",
+   "tr": "Trackhop 2.2.2. Hesaplar'daki Dosya kartında Dosya içe aktar ve Liste yapıştır yeniden çalışıyor: ikisi de Araçlar'da Dosya çalma listelerini açar ve orada, Araçlar'dan olduğu gibi içe aktarır.",
+   "ja": "Trackhop 2.2.2。アカウントの「ファイル」カードの「ファイルを読み込む」と「リストを貼り付け」が再び動作します。どちらもツールのファイルのプレイリストを開き、ツールと同じ方法で読み込みます。",
+   "ko": "Trackhop 2.2.2. 계정의 파일 카드에서 파일 가져오기와 목록 붙여넣기가 다시 작동합니다. 둘 다 도구의 파일 재생목록을 열고, 도구에서와 같은 방식으로 가져옵니다.",
+   "zh": "Trackhop 2.2.2。账户中“文件”卡片上的“导入文件”和“粘贴列表”恢复正常：两者都会打开“工具”中的文件歌单，并以与“工具”相同的方式导入。"
+  }
+ },
+ {
   "id": "v2.2.1",
   "kind": "app",
   "version": "2.2.1",
