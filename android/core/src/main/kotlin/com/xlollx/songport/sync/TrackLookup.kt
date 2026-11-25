@@ -110,10 +110,16 @@ object TrackLookup {
             "tidal" -> getText("https://embed.tidal.com/oembed?url=" + Http.enc("https://tidal.com/browse/track/${ref.trackId}"))
                 ?.let { parseOEmbed(it, ref.trackId, ref.service) }?.takeIf { it.artists.isNotEmpty() }
                 ?: page("https://tidal.com/browse/track/${ref.trackId}", ref.trackId)
-            "amazon" -> page(Regex("""https?://\S+""").find(link)?.value ?: "https://music.amazon.com/tracks/${ref.trackId}", ref.trackId)
+            // The link as pasted (a country's store) only when it is Amazon Music's own address: any other
+            // host that merely mentions one is not fetched, the song's address is made from its id.
+            "amazon" -> page(Regex("""https?://\S+""").find(link)?.value?.takeIf { amazonMusicPage(it) } ?: "https://music.amazon.com/tracks/${ref.trackId}", ref.trackId)
             else -> null
         }
     }.getOrNull()
+
+    /** [url] is on Amazon Music's own site (music.amazon.com, .co.uk, .com.au…), over https. */
+    internal fun amazonMusicPage(url: String): Boolean = runCatching { java.net.URI(url) }.getOrNull()
+        ?.let { it.scheme == "https" && it.host?.lowercase()?.matches(Regex("""music\.amazon\.[a-z]{2,3}(\.[a-z]{2})?""")) == true } == true
 
     private suspend fun getText(url: String): String? {
         val r = Http.send("GET", url, headers = mapOf("Accept" to "application/json"), maxRateLimitRetries = 0)
