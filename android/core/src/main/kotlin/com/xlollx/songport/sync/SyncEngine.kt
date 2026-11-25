@@ -219,7 +219,9 @@ class SyncEngine(
             if (sourceVersion != latest.sourceVersion || targetVersion != latest.targetVersion || (whole && sourceVersion != null))
                 store.upsertJob(latest.copy(
                     sourceVersion = sourceVersion, targetVersion = targetVersion,
-                    versionsKey = if (whole) runKey(latest) else latest.versionsKey,
+                    // Only the settings this run went by (with the target it may have made): changed
+                    // meanwhile (the matching rules), nothing is certified and the next run goes whole.
+                    versionsKey = if (whole) runKey(latest).takeIf { it == runKey(job.copy(target = job.target.copy(playlistId = latest.target.playlistId))) } ?: 0 else latest.versionsKey,
                     fullRunEpoch = if (whole) report.startedEpoch else latest.fullRunEpoch,
                 ))
         }

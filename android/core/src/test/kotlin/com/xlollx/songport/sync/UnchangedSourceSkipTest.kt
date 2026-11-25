@@ -24,11 +24,12 @@ class UnchangedSourceSkipTest {
     private lateinit var dst: MemoryService
     private lateinit var engine: SyncEngine
     private var reads = 0
+    private var onRead: () -> Unit = {}
 
     @Before fun setUp() {
         env = ContractEnv()
         src = object : MemoryService("msrc") {
-            override suspend fun tracks(ctx: com.xlollx.songport.platform.Env, playlistId: String): List<Track> { reads++; return super.tracks(ctx, playlistId) }
+            override suspend fun tracks(ctx: com.xlollx.songport.platform.Env, playlistId: String): List<Track> { reads++; onRead(); return super.tracks(ctx, playlistId) }
         }
         dst = MemoryService("mdst")
         Providers.testDoubles = listOf(src, dst)
@@ -93,5 +94,25 @@ class UnchangedSourceSkipTest {
         env.store.upsertJob(env.store.job("j")!!.let { it.copy(fullRunEpoch = it.fullRunEpoch - 25L * 3_600_000) })
         assertFalse(skipped(engine.run(env.store.job("j")!!, unattended = true)))
         assertEquals(4, reads)
+    }
+
+    @Test fun rulesChangedWhileARunReadsAreNotCertifiedByIt() = runBlocking {
+        env.store.upsertJob(job())
+        // The matching rules are changed while the run reads the source: it went by the old ones.
+        onRead = { onRead = {}; env.store.upsertJob(env.store.job("j")!!.let { it.copy(policy = it.policy.copy(artistsMayDiffer = true)) }) }
+        engine.run(job())
+        val saved = env.store.job("j")!!
+        assertTrue(saved.policy.artistsMayDiffer)
+        assertTrue(saved.versionsKey != engine.runKey(saved))
+        assertFalse(skipped(engine.run(saved, unattended = true)))
+    }
+
+    @Test fun aTargetMadeByTheRunIsCertifiedByIt() = runBlocking {
+        val made = job().copy(target = PlaylistRef("mdst", null, "New"))
+        env.store.upsertJob(made)
+        engine.run(made)
+        val saved = env.store.job("j")!!
+        assertTrue(saved.target.playlistId != null)
+        assertEquals(engine.runKey(saved), saved.versionsKey)
     }
 }
