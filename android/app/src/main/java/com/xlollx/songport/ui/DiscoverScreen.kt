@@ -285,7 +285,10 @@ fun DiscoverScreen(
     val store = Store.get(ctx)
     val savedOrder = store.state.collectAsState().value.settings.discoverOrder
     // Sounds like (Plex) only while a Plex server is connected.
-    val sonicOn = remember { plexServers(ctx).isNotEmpty() }
+    // Read off the main thread (a server's sign-in is in the encrypted store): the card shows once it is known.
+    val sonicOn by androidx.compose.runtime.produceState(false) {
+        value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { plexServers(ctx).isNotEmpty() }
+    }
     val order = DiscoverCard.ordered(savedOrder).filter { it != DiscoverCard.SONIC || sonicOn }
     // The order while a card is dragged: saved when it is let go.
     var dragOrder by remember { mutableStateOf<List<DiscoverCard>?>(null) }

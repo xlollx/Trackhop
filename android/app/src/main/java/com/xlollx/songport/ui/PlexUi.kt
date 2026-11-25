@@ -54,7 +54,11 @@ internal fun plexServers(ctx: android.content.Context): List<PlexProvider> =
 internal fun SonicPage(snackbar: SnackbarHostState, onNewSyncFromFile: (name: String, fileId: String) -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
-    val servers = remember { plexServers(ctx) }
+    // Read off the main thread (a server's sign-in is in the encrypted store); nothing shown until then.
+    val loaded by androidx.compose.runtime.produceState<List<PlexProvider>?>(null) {
+        value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { plexServers(ctx) }
+    }
+    val servers = loaded ?: return
     if (servers.isEmpty()) { ToolNote(stringResource(R.string.sonic_none_connected)); return }
     var serverId by rememberSaveable { mutableStateOf(servers.first().id) }
     val plex = servers.firstOrNull { it.id == serverId } ?: servers.first()
