@@ -7,6 +7,7 @@ import com.xlollx.songport.model.ProviderException
 import com.xlollx.songport.model.Track
 import com.xlollx.songport.net.Http
 import com.xlollx.songport.net.arr
+import com.xlollx.songport.net.bool
 import com.xlollx.songport.net.get
 import com.xlollx.songport.net.int
 import com.xlollx.songport.net.long
@@ -112,6 +113,19 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider(), Play
     /** A song's rating, 0 to 10 (10 = five stars), -1 to clear it: PUT /:/rate, as Plex's own apps do. */
     private suspend fun rate(ctx: Env, ratingKey: String, rating: Int) {
         api(ctx, "PUT", "/:/rate?key=${Http.enc(ratingKey)}&identifier=com.plexapp.plugins.library&rating=$rating")
+    }
+
+    /**
+     * A playlist's last change, size and length, from its own metadata (one light call): a scheduled
+     * sync skips one that did not change. None for a smart playlist, whose songs change with the library.
+     */
+    override suspend fun playlistVersion(ctx: Env, playlistId: String): String? {
+        if (MusicProvider.isLibrary(playlistId)) return null
+        val p = api(ctx, "GET", "/playlists/$playlistId")["MediaContainer"]["Metadata"][0] ?: return null
+        val smart = p["smart"].let { it.bool ?: (it.str == "1") || (it.int == 1) }
+        if (smart) return null
+        val updated = (p["updatedAt"].long ?: return null).toString()
+        return "$updated|${p["leafCount"].long ?: -1}|${p["duration"].long ?: -1}"
     }
 
     /** Each song of the playlist with its `viewCount`: the plays of the account whose token signed in. */

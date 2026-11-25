@@ -109,6 +109,10 @@ object Api {
 
     // ------------------------------------------------------------------ JSON
 
+    /** The matching rules' values as the API names them. */
+    val STRICTNESS = mapOf(-1 to "loose", 0 to "normal", 1 to "strict")
+    val EXPLICIT = mapOf(0 to "either", 1 to "explicit", -1 to "clean")
+
     fun job(env: ServerEnv, j: SyncJob, running: Boolean): JsonObject = buildJsonObject {
         put("id", j.id)
         put("name", j.name)
@@ -145,6 +149,14 @@ object Api {
         put("linkedSyncId", other?.let { JsonPrimitive(it.id) } ?: JsonNull)
         put("twin", other != null && !other.twin && (j.twin || j.name == other.name + " ↔"))
         put("twoWayRemovals", j.twoWayRemovals)
+        // How a track is chosen among the candidates (the editor's Matching rules).
+        put("matching", buildJsonObject {
+            put("strictness", STRICTNESS[j.policy.strictness.coerceIn(-1, 1)])
+            put("explicit", EXPLICIT[j.policy.explicit.coerceIn(-1, 1)])
+            put("sameAlbum", j.policy.sameAlbum)
+            put("studioOnly", j.policy.studioOnly)
+            put("artistNamesCanDiffer", j.policy.artistsMayDiffer)
+        })
         put("enabled", j.enabled)
         // Came turned off with a configuration from another device: where its schedule runs (null once turned on here).
         put("scheduledOn", j.scheduledOn?.takeIf { !j.enabled }?.let { JsonPrimitive(it) } ?: JsonNull)

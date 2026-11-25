@@ -116,6 +116,7 @@ internal fun matching(job: SyncJob, b: JsonObject): SyncJob {
     level("explicit", listOf("clean", "either", "explicit"))?.let { policy = policy.copy(explicit = it) }
     p.flag("sameAlbum")?.let { policy = policy.copy(sameAlbum = it) }
     p.flag("studioOnly")?.let { policy = policy.copy(studioOnly = it) }
+    p.flag("artistNamesCanDiffer")?.let { policy = policy.copy(artistsMayDiffer = it) }
     return j.copy(policy = policy)
 }
 

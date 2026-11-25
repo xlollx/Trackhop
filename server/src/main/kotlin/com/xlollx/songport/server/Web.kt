@@ -1117,7 +1117,7 @@ ${if (src.linkOnly) """<label>Public link on ${h(src.label(env))}</label><input 
 <label>To ${h(dst.label(env))}</label><select name="dstPlaylist">${if (dst.canCreatePlaylists) "<option value=\"\">A new playlist with the same name</option>" else ""}${opts(dstLists.getOrDefault(emptyList()))}</select>
 <label>Name of the sync (optional)</label><input type="text" name="name">
 ${timingFields(null)}
-${changesFields(null)}${ratingsField(null, src, dst)}${pairFields(null)}
+${changesFields(null)}${ratingsField(null, src, dst)}${pairFields(null)}${matchingFields(null)}
 <p><button>Create</button> <a class="button secondary" href="/syncs/new">Back</a></p></form>""",
         )
         send(r.ex, 200, page("New sync", body.toString()))
@@ -1156,7 +1156,7 @@ ${changesFields(null)}${ratingsField(null, src, dst)}${pairFields(null)}
             source = PlaylistRef(src.id, srcId, srcName),
             target = PlaylistRef(dst.id, dstId, dstName),
             schedule = runCatching { Schedule.valueOf(r.form["schedule"].orEmpty()) }.getOrDefault(Schedule.MANUAL),
-        ).let { withRatings(withChanges(withTiming(it, r), r), r) }
+        ).let { withMatching(withRatings(withChanges(withTiming(it, r), r), r), r) }
             .let { j -> runCatching { pairing(j, r.form["twoWay"] == "on", r.form["twoWay"] == "on" && r.form["twoWayRemovals"] == "on") }.getOrElse { return redirect(r.ex, "$back&err=${q(it.message ?: "Error")}") } }
         val warning = conflictWarning(job)
         env.store.upsertJob(job)

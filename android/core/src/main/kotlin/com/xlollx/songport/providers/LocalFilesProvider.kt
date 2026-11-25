@@ -82,6 +82,14 @@ object LocalFilesProvider : MusicProvider {
         return if (f.exists()) CsvCodec.parse(read(f)) else emptyList()
     }
 
+    /** The file's content, summed up (CRC-32 and length): a scheduled sync skips a file that did not change. */
+    override suspend fun playlistVersion(ctx: Env, playlistId: String): String? {
+        if (MusicProvider.isLibrary(playlistId)) return null
+        val f = file(ctx, playlistId).takeIf { it.exists() } ?: return null
+        val bytes = runCatching { f.readBytes() }.getOrNull() ?: return null
+        return java.util.zip.CRC32().apply { update(bytes) }.value.toString(16) + "|" + bytes.size
+    }
+
     /** Un file puo' "contenere" qualunque brano: il candidato e' il brano stesso con id stabile. */
     override suspend fun search(ctx: Env, track: Track): List<Track> = listOf(CsvCodec.withStableId(track))
 

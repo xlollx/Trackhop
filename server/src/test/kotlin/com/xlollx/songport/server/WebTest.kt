@@ -207,6 +207,21 @@ class WebTest {
         assertEquals("teal", env.store.job("k")!!.color)
     }
 
+    @Test fun theMatchingRulesAreOnTheSyncsPage() {
+        val m = com.xlollx.songport.model.PlaylistRef("csv", "In", "In")
+        env.store.upsertJob(com.xlollx.songport.model.SyncJob("m", "m", m, com.xlollx.songport.model.PlaylistRef("csv", "Out", "Out")))
+        val page = get("/syncs/m").body()
+        assertTrue(page.contains("Matching rules") && page.contains("Artist names can differ"))
+        post("/syncs/m/schedule", "name=m&every=1440&changes=add&matching=1&strictness=1&explicit=-1&artistNamesCanDiffer=on", *origin)
+        assertEquals(com.xlollx.songport.model.MatchPolicy(strictness = 1, explicit = -1, artistsMayDiffer = true), env.store.job("m")!!.policy)
+        assertTrue(get("/syncs/m").body().contains("""name="artistNamesCanDiffer" checked"""))
+        // A form without the section leaves the rules as they are; unticked, the box is off.
+        post("/syncs/m/schedule", "name=m&every=1440&changes=add", *origin)
+        assertTrue(env.store.job("m")!!.policy.artistsMayDiffer)
+        post("/syncs/m/schedule", "name=m&every=1440&changes=add&matching=1&strictness=0&explicit=0", *origin)
+        assertEquals(com.xlollx.songport.model.MatchPolicy(), env.store.job("m")!!.policy)
+    }
+
     @Test fun copyStarRatingsIsOfferedFromAFileToAServerThatTakesThem() {
         val m = com.xlollx.songport.model.PlaylistRef("csv", "Lib", "Lib")
         env.store.upsertJob(com.xlollx.songport.model.SyncJob("r", "r", m, com.xlollx.songport.model.PlaylistRef("subsonic", "p", "p")))

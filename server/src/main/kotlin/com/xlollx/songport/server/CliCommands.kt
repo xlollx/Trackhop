@@ -191,6 +191,7 @@ internal class CliCommands(
         out.println("  ${route(o)}")
         out.println("  schedule ${o.s("schedule")}${if (o.b("archive")) ", keeps every track (archive)" else if (o.b("mirrorRemovals")) ", mirrors removals" else ""}${pair(o)}${if (!o.b("enabled")) ", off" else ""}${if (o.b("running")) ", running now" else ""}")
         (o["radio"] as? JsonObject)?.let { out.println("  listens ${it.s("window")}") }
+        matchingLine(o).takeIf { it.isNotEmpty() }?.let { out.println("  matching: $it") }
         groups(o).takeIf { it.isNotEmpty() }?.let { out.println("  $it") }
         o.l("nextRun")?.let { out.println("  next run ${whenAt(it)}") }
         val runs = o["runs"]?.jsonArray.orEmpty()
@@ -537,6 +538,8 @@ internal class CliCommands(
             if (o.has("any-album")) put("sameAlbum", false)
             if (o.has("studio-only")) put("studioOnly", true)
             if (o.has("any-version")) put("studioOnly", false)
+            if (o.has("artist-names-differ")) put("artistNamesCanDiffer", true)
+            if (o.has("no-artist-names-differ")) put("artistNamesCanDiffer", false)
         }
         if (policy.isNotEmpty()) put("policy", policy)
         // A saved schedule to follow (trackhop schedules), or "none": its own timing again.

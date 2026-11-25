@@ -29,6 +29,7 @@ ${radio("explicit", 0, p.explicit, "Either")}
 ${radio("explicit", 1, p.explicit, "Prefer the explicit version")}
 <label class="check"><input type="checkbox" name="sameAlbum"${if (p.sameAlbum) " checked" else ""}> Same album: a song from another album counts much less</label>
 <label class="check"><input type="checkbox" name="studioOnly"${if (p.studioOnly) " checked" else ""}> Studio versions only: never a live, remix, acoustic or karaoke version in place of one that is not</label>
+<label class="check"><input type="checkbox" name="artistNamesCanDiffer"${if (p.artistsMayDiffer) " checked" else ""}> Artist names can differ: the same title, length and album is enough (as for 周杰倫 and Jay Chou); without an album, to review</label>
 <label class="check"><input type="checkbox" name="keepOrder"${if (job?.keepOrder == true) " checked" else ""}> Keep the source's order in the destination (a little slower on some services)</label></fieldset>"""
 }
 
@@ -41,6 +42,7 @@ internal fun withMatching(job: SyncJob, form: Map<String, String>): SyncJob {
         explicit = level("explicit", job.policy.explicit),
         sameAlbum = form["sameAlbum"] == "on",
         studioOnly = form["studioOnly"] == "on",
+        artistsMayDiffer = form["artistNamesCanDiffer"] == "on",
     )
     return job.copy(policy = p, keepOrder = form["keepOrder"] == "on")
 }
