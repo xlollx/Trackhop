@@ -52,7 +52,7 @@ internal class CliParity(private val c: CliCommands) {
                 "transfers rm <transfer>",
             ), "recent transfers: File playlists sent once to a service (a setlist, a pasted list)",
                 "send makes a new playlist on <service> from the File playlist <file>, once: not a sync. Its songs not found are\n" +
-                    "reviewed with trackhop review; each transfer leaves the list after a week (the playlist stays).",
+                    "reviewed on the web page, Tools › Recent transfers; each transfer leaves the list after a week (the playlist stays).",
                 listOf("send", "rm")),
             Cli.Cmd("extend", "Tools", listOf("extend <service> <playlist> [--count N] [--describe TEXT] [--into-new NAME] [--wait]"),
                 "more songs in a playlist's spirit from your own AI, added at its end (or into a new playlist)",
@@ -284,7 +284,7 @@ internal class CliParity(private val c: CliCommands) {
                     val what = when {
                         res == null -> "sending"
                         res["error"].str() != null -> "failed: ${res.s("error")}"
-                        else -> "+${res.n("added")}, ${res.n("notFound")} not found" + if (res.n("toReview") > 0) " (trackhop review ${t.s("id")})" else ""
+                        else -> "+${res.n("added")}, ${res.n("notFound")} not found" + if (res.n("toReview") > 0) " (to review: Tools › Recent transfers on the web page)" else ""
                     }
                     out.println("${t.s("name")}  (${t.s("id")})  to ${(t["target"] as JsonObject).s("service")}: $what")
                 }
