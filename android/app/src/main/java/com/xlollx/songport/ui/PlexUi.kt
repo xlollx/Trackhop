@@ -116,8 +116,11 @@ internal fun SonicPage(snackbar: SnackbarHostState, onNewSyncFromFile: (name: St
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End), verticalAlignment = Alignment.CenterVertically) {
         // Any service: the songs as a File playlist, the source of a new sync.
         OutlinedButton(enabled = !busy, onClick = {
-            val id = LocalFilesProvider.importTracks(ctx.env, name, list)
-            onNewSyncFromFile(name, id)
+            // The File playlist is written off the main thread; the new sync opens from here after.
+            scope.launch {
+                val id = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { LocalFilesProvider.importTracks(ctx.env, name, list) }
+                onNewSyncFromFile(name, id)
+            }
         }) { Text(stringResource(R.string.sonic_send)) }
         ToolPrimaryButton(stringResource(R.string.sonic_save_plex), busy = busy, enabled = !busy, onClick = {
             busy = true
