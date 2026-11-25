@@ -115,6 +115,8 @@ object PlaylistTwins {
         val used = HashMap<String, Int>()
         val deleted = ArrayList<String>()
         for (c in deletable) {
+            // A sync made for it while its songs were read: it stays too.
+            if (syncsOf(env.store.data.syncs, provider.id, c.playlist.id).isNotEmpty()) continue
             // Two copies of one name are saved as two files, not as versions of one.
             val base = savedAs(c.playlist.name)
             val n = used.merge(base, 1, Int::plus)!!

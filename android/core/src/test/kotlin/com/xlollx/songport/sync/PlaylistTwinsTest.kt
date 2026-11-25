@@ -67,6 +67,27 @@ class PlaylistTwinsTest {
         assertEquals(1, saved.size)
         assertEquals(10, saved.single().trackCount)
     }
+    @Test fun aCopyASyncStartsUsingWhileItsSongsAreReadStays() = runBlocking {
+        val env = ContractEnv()
+        val p = object : MemoryService("msvc") {
+            val deleted = ArrayList<String>()
+            override suspend fun deletePlaylist(ctx: Env, playlistId: String) { deleted += playlistId; lists.remove(playlistId) }
+            override suspend fun tracks(ctx: Env, playlistId: String): List<com.xlollx.songport.model.Track> {
+                // A sync is made for b while delete reads it.
+                if (playlistId == "b") env.store.upsertJob(SyncJob("j", "Road Trip", PlaylistRef("msvc", "b", "Mix"), PlaylistRef("other", "t", "t")))
+                return super.tracks(ctx, playlistId)
+            }
+        }
+        p.lists["a"] = songs(0 until 10).toMutableList()
+        p.lists["b"] = songs(0 until 10).toMutableList()
+        p.names["a"] = "Mix"; p.names["b"] = "Mix"
+        val group = PlaylistTwins.find(env, p).single()
+        env.store.update { it.copy(jobs = emptyList()) }
+        val kept = group.copies.single { it.playlist.id == "a" }
+        assertEquals(emptyList<String>(), PlaylistTwins.delete(env, p, kept, group.copies - kept, addMissing = false) { "$it (deleted copy)" })
+        assertEquals(emptyList<String>(), p.deleted)
+    }
+
     @Test fun aSongAddedToACopyAfterTheReadingIsSavedAndAddedNotLost() = runBlocking {
         val env = ContractEnv()
         val p = Deleting("msvc")
