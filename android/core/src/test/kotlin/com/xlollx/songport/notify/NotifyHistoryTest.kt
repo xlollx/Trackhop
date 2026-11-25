@@ -69,4 +69,19 @@ class NotifyHistoryTest {
         assertEquals("↑", NotifyHistory.badge(3, update = true))
         assertEquals("↑", NotifyHistory.badge(0, update = true))
     }
+
+    @Test fun aRepeatedNoticeIsKeptOnceWhileUnread() {
+        val h = history(); h.settle()
+        val t = NotifTarget.Account("spotify")
+        val a = h.addOnce("signin", "Spotify: sign in again", "", t)
+        repeat(20) { h.addOnce("signin", "Spotify: sign in again", "", t) }
+        h.addOnce("signin", "TIDAL: sign in again", "", NotifTarget.Account("tidal"))
+        h.settle()
+        assertEquals(2, h.entries.value.size)
+        assertEquals(a, h.addOnce("signin", "Spotify: sign in again", "", t))
+        // Once read, a new one is a new notice.
+        h.markAllRead(); h.settle()
+        h.addOnce("signin", "Spotify: sign in again", "", t); h.settle()
+        assertEquals(3, h.entries.value.size)
+    }
 }

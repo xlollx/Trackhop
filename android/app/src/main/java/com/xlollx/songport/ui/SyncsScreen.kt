@@ -2184,7 +2184,7 @@ fun SyncEditorScreen(
 
     // Saved, so a rotation or a fold keeps what was chosen (the job itself travels as JSON).
     var name by rememberSaveable { mutableStateOf(job.name) }
-    var srcProvider by rememberSaveable { mutableStateOf(job.source.provider.ifEmpty { available.firstOrNull()?.id ?: "" }) }
+    var srcProvider by rememberSaveable { mutableStateOf(job.source.provider.ifEmpty { available.firstOrNull { !com.xlollx.songport.sync.RadioConnectors.isRadio(it.id) && it.id != com.xlollx.songport.sync.RadioConnectors.SHAZAM }?.id ?: "" }) }
     var srcPlaylist by rememberSaveable(stateSaver = PlaylistSaver) { mutableStateOf<Playlist?>(job.source.playlistId?.let { Playlist(it, job.source.playlistName) }) }
     // A pasted link is a source of its own: the field stays, the service's playlist list does not.
     var linkMode by rememberSaveable { mutableStateOf(job.source.link != null) }

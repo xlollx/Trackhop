@@ -70,6 +70,19 @@ class NotifyHistory(private val file: File, private val now: () -> Long = System
         return e.id
     }
 
+    /**
+     * As [add], unless the same notice (kind, title, target) is still unread there: its id then. For notices a background
+     * check may repeat many times while it cannot reach the user (a "sign in again" with Android's notifications off).
+     */
+    fun addOnce(kind: String, title: String, text: String = "", target: NotifTarget? = null): String {
+        val t = target?.encode()
+        fun same(e: Entry) = !e.read && e.kind == kind && e.title == title && e.target == t
+        _entries.value.firstOrNull(::same)?.let { return it.id }
+        val e = Entry(java.util.UUID.randomUUID().toString(), now(), kind, title, text, t, false, emptyList())
+        change { l -> if (l.any(::same)) l else listOf(e) + l }
+        return e.id
+    }
+
     fun markRead(id: String) = change { l -> l.map { if (it.id == id && !it.read) it.copy(read = true) else it } }
     fun markAllRead() = change { l -> if (l.none { !it.read }) l else l.map { if (it.read) it else it.copy(read = true) } }
     fun clear() = change { emptyList() }

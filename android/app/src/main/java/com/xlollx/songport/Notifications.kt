@@ -407,7 +407,8 @@ object Notifications {
         val target = NotifTarget.Account(connectorId)
         val text = context.getString(R.string.notif_signin_again_text)
         val title = context.getString(R.string.notif_signin_again_title, service)
-        val entry = remember(context, "signin", title, text, target)
+        // Once in the bell while unread: with notifications off, every call of a gone session would add it again.
+        val entry = runCatching { NotifyHistory.of(context.filesDir).addOnce("signin", title, text, target) }.getOrNull()
         if (!canPost(context)) return false
         ensureChannel(context)
         // Its own request code per connector: another connector's notification keeps its own target.
