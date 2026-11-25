@@ -7,11 +7,18 @@ import java.util.Date
 object Html {
     fun h(s: String?): String = (s ?: "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;")
 
+    /**
+     * [s] inside a JavaScript string in quotes ('…'), for an inline handler: then [h] for the
+     * attribute. The browser turns &#39; back into ' before the script runs, so [h] alone would let
+     * a name with an apostrophe end the string.
+     */
+    fun js(s: String): String = s.replace("\\", "\\\\").replace("'", "\\'").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "").replace("<", "\\x3c")
+
     fun date(epoch: Long): String = if (epoch <= 0) "never" else SimpleDateFormat("yyyy-MM-dd HH:mm").format(Date(epoch))
 
     /** A button that posts to [action]: every change goes through POST, never a link. */
     fun postButton(action: String, label: String, style: String = "", fields: Map<String, String> = emptyMap(), confirm: String? = null): String =
-        """<form method="post" action="${h(action)}" class="inline"${confirm?.let { " onsubmit=\"return confirm('${h(it)}')\"" } ?: ""}>""" +
+        """<form method="post" action="${h(action)}" class="inline"${confirm?.let { " onsubmit=\"return confirm('${h(js(it))}')\"" } ?: ""}>""" +
             fields.entries.joinToString("") { (k, v) -> """<input type="hidden" name="${h(k)}" value="${h(v)}">""" } +
             """<button class="${h(style)}">${h(label)}</button></form>"""
 

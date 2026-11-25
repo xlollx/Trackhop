@@ -105,7 +105,7 @@ internal fun Web.playlists(r: Web.Req, rest: List<String>) {
     }
     if (tracks.size > 1000) body.append("<li class=\"muted\">… ${tracks.size - 1000} more</li>")
     body.append("</ol>")
-    if (removable && tracks.isNotEmpty()) body.append("""<p><button class="danger" onclick="return confirm('Take the ticked tracks out of ${h(playlist.name)}?')">Take out the ticked tracks</button></p>""")
+    if (removable && tracks.isNotEmpty()) body.append("""<p><button class="danger" onclick="return confirm('Take the ticked tracks out of ${h(Html.js(playlist.name))}?')">Take out the ticked tracks</button></p>""")
     body.append("</form>")
     if (owned && service.canDeletePlaylists) {
         body.append("<p>" + Html.postButton(back, "Delete this playlist", "danger", fields = mapOf("action" to "delete"), confirm = "Delete ${playlist.name} on ${service.label(env)}? This cannot be undone here.") + "</p>")
