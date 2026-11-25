@@ -151,9 +151,4 @@ say_title: 'Cosa dicono di Trackhop'
 say_intro: 'Commenti sotto i video e i post che parlano di Trackhop e messaggi di chi lo sostiene. Nomi e foto oscurati.'
 say_alt: 'Commenti di chi usa Trackhop: "Track Hop is absolute gem", "the greatest thing that''s ever happened to me", "one of the best discoveries", e due messaggi di sostenitori che lodano la sincronizzazione automatica, gli aggiornamenti con Obtainium e la sicurezza, e post su X che lo definiscono "a game changer for music lovers who use multiple platforms"'
 gallery_title: "Dai un'occhiata"
-itch_alt: "Scaricalo su itch.io"
-sourceforge_alt: "Scaricalo su SourceForge"
-itch_phone_note: "L'APK completo, aggiornato a ogni versione"
-sourceforge_phone_note: "Ogni versione, in copia"
-itch_desktop_note: "Windows, macOS e Linux"
-sourceforge_desktop_note: "Ogni versione, in copia"
+other_stores: "Altri store"

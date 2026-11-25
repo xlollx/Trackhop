@@ -149,9 +149,4 @@ say_title: 'Co mówią inni'
 say_intro: 'Komentarze pod filmami i postami o Trackhop oraz wiadomości od wspierających. Nazwy i zdjęcia ukryte.'
 say_alt: 'Komentarze osób korzystających z Trackhop i dwie wiadomości od wspierających, chwalące automatyczną synchronizację i bezpieczeństwo, oraz posty na X, które nazywają go "a game changer for music lovers who use multiple platforms"'
 gallery_title: "Zobacz"
-itch_alt: "Pobierz z itch.io"
-sourceforge_alt: "Pobierz z SourceForge"
-itch_phone_note: "Pełny plik APK, aktualizowany z każdą wersją"
-sourceforge_phone_note: "Każda wersja, w kopii lustrzanej"
-itch_desktop_note: "Windows, macOS i Linux"
-sourceforge_desktop_note: "Każda wersja, w kopii lustrzanej"
+other_stores: "Inne sklepy"
