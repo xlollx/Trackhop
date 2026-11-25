@@ -3,7 +3,7 @@
  "version": "2.2.1",
  "tag": "server-v2.2.1",
  "release": "https://github.com/xlollx/Trackhop/releases/tag/server-v2.2.1",
- "checked": "2026-11-25T13:58:53Z",
+ "checked": "2026-11-25T18:15:51Z",
  "clean": false,
  "files": [
   {
@@ -20,7 +20,7 @@
    "sha256": "b66e7bd5a6982adaeaa53e1591ecbb6fc79932ed2dfd56fc6a9a53bdbd4dd445",
    "malicious": 1,
    "suspicious": 0,
-   "engines": 55,
+   "engines": 59,
    "flagged_by": {
     "Panda": "Exploit/WinampPLS"
    },
@@ -49,7 +49,7 @@
    "sha256": "be3f8080a9e1520cd314f66e2628f8060104e1f683ae54a029d55fb4dbc5524a",
    "malicious": 1,
    "suspicious": 0,
-   "engines": 52,
+   "engines": 56,
    "flagged_by": {
     "Panda": "Exploit/WinampPLS"
    },
@@ -58,23 +58,19 @@
   {
    "name": "Trackhop-Desktop-v2.2.1-macos-arm64.dmg",
    "sha256": "6ba5833d524ea03901b3ee92f5148620e3326970e193efe03e332c0fe4030cf3",
-   "malicious": 1,
+   "malicious": 0,
    "suspicious": 0,
-   "engines": 57,
-   "flagged_by": {
-    "Microsoft": "Trojan:Script/Wacatac.B!ml"
-   },
+   "engines": 51,
+   "flagged_by": {},
    "link": "https://www.virustotal.com/gui/file/6ba5833d524ea03901b3ee92f5148620e3326970e193efe03e332c0fe4030cf3"
   },
   {
    "name": "Trackhop-Desktop-v2.2.1-macos-x64.dmg",
    "sha256": "e8ee885e9a6f0871207cd2f3f183116c482c4b6d522c17eb6caaf6b156b512ff",
-   "malicious": 1,
+   "malicious": 0,
    "suspicious": 0,
-   "engines": 55,
-   "flagged_by": {
-    "Microsoft": "Trojan:Script/Wacatac.C!ml"
-   },
+   "engines": 57,
+   "flagged_by": {},
    "link": "https://www.virustotal.com/gui/file/e8ee885e9a6f0871207cd2f3f183116c482c4b6d522c17eb6caaf6b156b512ff"
   },
   {
@@ -91,7 +87,7 @@
    "sha256": "b7697583ae603f42f7fc5adaf3ab6db2a9383a8b2200086347d4d49e2bb2ca42",
    "malicious": 1,
    "suspicious": 0,
-   "engines": 57,
+   "engines": 58,
    "flagged_by": {
     "Panda": "Exploit/WinampPLS"
    },
@@ -100,12 +96,10 @@
   {
    "name": "Trackhop-Desktop-v2.2.1-windows.zip",
    "sha256": "0d3bad0f5fa985e6077e3071e7b6d40a0bc38b1069e79d3d07f64cc24abdc4ba",
-   "malicious": 1,
+   "malicious": 0,
    "suspicious": 0,
-   "engines": 56,
-   "flagged_by": {
-    "Panda": "Exploit/WinampPLS"
-   },
+   "engines": 38,
+   "flagged_by": {},
    "link": "https://www.virustotal.com/gui/file/0d3bad0f5fa985e6077e3071e7b6d40a0bc38b1069e79d3d07f64cc24abdc4ba"
   }
  ]
