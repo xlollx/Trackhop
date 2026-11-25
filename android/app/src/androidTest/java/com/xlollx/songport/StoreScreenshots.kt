@@ -419,7 +419,15 @@ class StoreScreenshots {
                 Thread.sleep(1500)
                 // The first station at the top of the list: the second one and Shazam under it.
                 compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText("Coastline FM"))
-                compose.waitForIdle()
+                compose.waitForIdle(); Thread.sleep(800)
+                // Brought in only as far as the bottom edge: a slow drag (no fling) lifts it near the top.
+                val r = bounds("Coastline FM")
+                if (r != null && r.top > height * 0.2f) {
+                    val from = (height * 0.8f).toInt()
+                    val dy = (r.top - height * 0.16f).toInt().coerceAtMost((height * 0.6f).toInt())
+                    shell("input swipe 540 $from 540 ${from - dy} 1500")
+                    Thread.sleep(1200); compose.waitForIdle()
+                }
             }
             snap()
         }
