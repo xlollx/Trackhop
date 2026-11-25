@@ -85,16 +85,21 @@ internal fun SonicPage(snackbar: SnackbarHostState, onNewSyncFromFile: (name: St
     }
     ToolPrimaryButton(stringResource(R.string.sonic_find), busy = busy, enabled = !busy && fromText.isNotBlank() && (!adventure || toText.isNotBlank()), onClick = {
         busy = true; error = null; result = null
+        // The server and the mode this Find is for: picked otherwise meanwhile, its answer is dropped.
+        val on = plex
+        val adv = adventure
+        fun current() = serverId == on.id && adventure == adv
         scope.launch {
             try {
                 val env = ctx.env
-                val a = from ?: plex.findSongs(env, fromText.trim()).firstOrNull() ?: throw IllegalStateException(ctx.getString(R.string.sonic_not_found, fromText.trim()))
-                from = a
-                result = if (adventure) {
-                    val b = to ?: plex.findSongs(env, toText.trim()).firstOrNull() ?: throw IllegalStateException(ctx.getString(R.string.sonic_not_found, toText.trim()))
-                    to = b
-                    plex.sonicAdventure(env, a.id, b.id)
-                } else plex.soundsLike(env, a.id)
+                val a = from ?: on.findSongs(env, fromText.trim()).firstOrNull() ?: throw IllegalStateException(ctx.getString(R.string.sonic_not_found, fromText.trim()))
+                if (current()) from = a
+                val found = if (adv) {
+                    val b = to ?: on.findSongs(env, toText.trim()).firstOrNull() ?: throw IllegalStateException(ctx.getString(R.string.sonic_not_found, toText.trim()))
+                    if (current()) to = b
+                    on.sonicAdventure(env, a.id, b.id)
+                } else on.soundsLike(env, a.id)
+                if (current()) result = found
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { error = e.message ?: "" }
             busy = false
         }
