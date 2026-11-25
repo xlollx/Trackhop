@@ -84,6 +84,8 @@ object ServiceCatalog {
         "mopidy" to Info(Category.SERVER, listOf("Iris")),
 
         "charts" to Info(Category.RADIO, listOf("Top 100", "Billboard")),
+        "radio" to Info(Category.RADIO, listOf("FM", "Internet radio", "Station", "Icecast", "Shoutcast")),
+        "shazam" to Info(Category.RADIO, listOf("My Shazam Tracks")),
 
         "lastfm" to Info(Category.LISTENING, listOf("Scrobbles", "Libre.fm")),
         "listenbrainz" to Info(Category.LISTENING, listOf("MusicBrainz", "Scrobbles")),

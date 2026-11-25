@@ -175,6 +175,9 @@ object ConfigBackup {
         connectors = (current.connectors + incoming.connectors).distinct(),
         connectorNames = current.connectorNames + incoming.connectorNames,
         connectorColors = current.connectorColors + incoming.connectorColors,
+        // The file's stations win by id: a sync here whose station the file gave another one's id
+        // is moved to a connector of its own station by the store (sync/RadioConnectors).
+        radioStations = current.radioStations + incoming.radioStations,
         extraAccounts = (current.extraAccounts.keys + incoming.extraAccounts.keys).associateWith { k ->
             ((current.extraAccounts[k] ?: emptyList()) + (incoming.extraAccounts[k] ?: emptyList())).distinct()
         },

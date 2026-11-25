@@ -70,11 +70,15 @@ private fun installServerConnectorsOnly(officialOnly: Boolean) = Providers.insta
         Factory(MopidyProvider.SERVICE) { MopidyProvider(it) },
         Factory(LastFmProvider.SERVICE) { LastFmProvider(it) },
         Factory(ListenBrainzProvider.SERVICE) { ListenBrainzProvider(it) },
+        // A radio station, one connector per station (2.2): titles the station sends, so on every build.
+        Factory(com.xlollx.songport.sync.RadioConnectors.SERVICE) { com.xlollx.songport.providers.RadioProvider(it) },
     ),
     singletons = listOfNotNull(
         LocalFilesProvider,
         // Apple Music's and Deezer's public charts: official feeds, so on every build.
         com.xlollx.songport.providers.ChartsProvider,
+        // Every song the user Shazams, from Shazam's playlist on Spotify (2.2): official, so on every build.
+        com.xlollx.songport.providers.ShazamProvider,
         // A playlist file kept online, from its link (2.2): no service involved, so on every build.
         com.xlollx.songport.providers.PlaylistUrlProvider,
         SoundCloudProvider.takeUnless { officialOnly },
