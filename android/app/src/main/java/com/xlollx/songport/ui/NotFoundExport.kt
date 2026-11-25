@@ -75,7 +75,9 @@ internal fun NotFoundExport(show: Boolean, onDismiss: () -> Unit, snackbar: Snac
     var saving by rememberSaveable { mutableStateOf(false) }
 
     fun list(): List<Wanted.Want> = Wanted.list(data, { MusicBrainz.known(ctx.env, it) }, Wanted.Filter(scope = Wanted.Scope.ALL, on = on.ifEmpty { null }))
-    fun serviceName(id: String) = providerOf(id, ctx = ctx)?.displayName ?: id
+    // A target's id ("ytm", "spotify_bridge"…) by its family's name: the web connectors' ids are no family of their own.
+    fun serviceName(id: String) = providerOf(com.xlollx.songport.data.FileStore.family(id), ctx = ctx)?.displayName
+        ?: com.xlollx.songport.providers.Providers.byId(id)?.displayName ?: id
     val defaultName = if (on.isEmpty()) stringResource(R.string.not_found_default_name) else stringResource(R.string.not_found_default_name_on, serviceName(on))
 
     val formats = listOf(Wanted.Format.CSV, Wanted.Format.M3U, Wanted.Format.TEXT, Wanted.Format.JSON, Wanted.Format.LIDARR)
