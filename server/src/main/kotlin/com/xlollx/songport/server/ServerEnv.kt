@@ -100,6 +100,16 @@ class ServerEnv(
         kv.getOrPut(name) { JsonKeyValues(File(File(dataDir, "kv"), "${name.replace(Regex("[^A-Za-z0-9_.-]"), "_")}.json")) }
 
     override fun squareJpeg(raw: ByteArray, minSide: Int, maxSide: Int, maxBytes: Int): ByteArray? {
+        // Its size first, from the header: an image too big to hold in memory is not decoded at all.
+        val pixels = runCatching {
+            val iis = ImageIO.createImageInputStream(ByteArrayInputStream(raw))
+            try {
+                ImageIO.getImageReaders(iis).asSequence().firstOrNull()?.let { r ->
+                    try { r.input = iis; r.getWidth(0).toLong() * r.getHeight(0) } finally { r.dispose() }
+                }
+            } finally { iis?.close() }
+        }.getOrNull()
+        if (pixels != null && pixels > MAX_COVER_PIXELS) return null
         val src = runCatching { ImageIO.read(ByteArrayInputStream(raw)) }.getOrNull() ?: return null
         val sq = com.xlollx.songport.sync.Covers.square(src.width, src.height, minSide, maxSide)
         val img = BufferedImage(sq.side, sq.side, BufferedImage.TYPE_INT_RGB)
