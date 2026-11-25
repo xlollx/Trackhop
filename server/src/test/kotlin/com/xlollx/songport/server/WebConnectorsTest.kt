@@ -415,6 +415,8 @@ class WebConnectorsTest {
 
     /** A Family account: the holder (42, dz) and a member it may act as (222, Giulia), moved to by user.loginMulti. */
     @Volatile private var switched = false
+    /** Deezer keeps the session on the holder whatever profile is asked for. */
+    @Volatile private var stayOnHolder = false
     private fun deezerFamily(): (Seen) -> Answer? = { r ->
         when {
             r.host != "www.deezer.com" -> null
@@ -423,7 +425,7 @@ class WebConnectorsTest {
                 else """{"error":[],"results":{"USER":{"USER_ID":"42","BLOG_NAME":"dz","LOVEDTRACKS_ID":"9","MULTI_ACCOUNT":{"ENABLED":true}},"checkForm":"tok"}}""",
             )
             r.query["method"] == "deezer.getChildAccounts" -> Answer("""{"error":[],"results":[{"USER_ID":"222","BLOG_NAME":"Giulia","USER_PICTURE":"ab12","EXTRA_FAMILY":{"IS_LOGGABLE_AS":true}}]}""")
-            r.query["method"] == "user.loginMulti" -> { switched = r.body.contains("222"); Answer("""{"error":[],"results":true}""", setCookie = "arl=${"e".repeat(64)}; path=/; domain=.deezer.com") }
+            r.query["method"] == "user.loginMulti" -> { switched = !stayOnHolder && r.body.contains("222"); Answer("""{"error":[],"results":true}""", setCookie = "arl=${"e".repeat(64)}; path=/; domain=.deezer.com") }
             r.query["method"] == "deezer.userAutolog" -> Answer("""{"error":[],"results":true}""")
             else -> null
         }
@@ -471,7 +473,19 @@ class WebConnectorsTest {
             post("/connectors/deezer_bridge/connect", "cookies=" + java.net.URLEncoder.encode("arl=web-arl-2", "UTF-8"))
             assertEquals("Giulia", env.tokens.get("deezer_bridge")!!.userName)
             assertEquals("222", env.tokens.get("deezer_bridge")!!.userId)
+
+            // Fresh cookies, and Deezer refuses the profile now: still connected as the profile, whose
+            // calls fail, never as the holder in its place.
+            switched = false
+            stayOnHolder = true
+            post("/connectors/deezer_bridge/connect", "cookies=" + java.net.URLEncoder.encode("arl=web-arl-3", "UTF-8"))
+            assertEquals("222", env.tokens.get("deezer_bridge")!!.userId)
+            assertEquals("Giulia", env.tokens.get("deezer_bridge")!!.userName)
+            val asked = seen.size
+            assertTrue(runCatching { runBlocking { com.xlollx.songport.providers.Providers.byId("deezer_bridge")!!.playlists(env) } }.isFailure)
+            assertFalse(seen.drop(asked).any { it.query["method"] == "deezer.pageProfile" })
         } finally {
+            stayOnHolder = false
             server.stop(0)
         }
     }

@@ -65,13 +65,21 @@ class DeezerWebServerProvider(override val slot: String = "") : CookieConnector 
         // Fresh cookies of the same Family account keep the profile chosen before (#82).
         val holderBefore = kv[DeezerWebClient.HOLDER]?.takeIf { it.isNotEmpty() }
         val profileBefore = kv[DeezerWebClient.PROFILE]?.takeIf { it.isNotEmpty() }
+        val before = ctx.tokens.get(id)
+        var profileRefused = false
         val user = withContext(Dispatchers.IO) {
             // A new session: the last one's gateway sid and user token go.
             forget(ctx, kv)
             try {
                 val c = DeezerWebClient(ServerWebHost(ctx, id, kv, probe))
                 val me = c.user(refresh = true)
-                if (profileBefore != null && me.id == holderBefore && me.family) runCatching { c.setProfile(profileBefore) }.getOrElse { me } else me
+                if (profileBefore != null && me.id == holderBefore && me.family) runCatching { c.setProfile(profileBefore) }.getOrElse {
+                    // Deezer refuses the profile now: it stays the one required (calls fail until it is
+                    // chosen again on the page), never the holder's library in its place.
+                    kv[DeezerWebClient.PROFILE] = profileBefore
+                    profileRefused = true
+                    me
+                } else me
             } catch (e: Exception) {
                 forget(ctx, kv)
                 throw when {
@@ -83,7 +91,8 @@ class DeezerWebServerProvider(override val slot: String = "") : CookieConnector 
                 }
             }
         }
-        ctx.tokens.set(id, probe.copy(userId = user.id, userName = user.name.orEmpty()))
+        if (profileRefused) ctx.tokens.set(id, probe.copy(userId = profileBefore!!, userName = before?.takeIf { it.userId == profileBefore }?.userName.orEmpty()))
+        else ctx.tokens.set(id, probe.copy(userId = user.id, userName = user.name.orEmpty()))
     }
 
     /** A Deezer Family account (known once it was read): its profiles can be chosen. */
