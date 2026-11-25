@@ -3,6 +3,9 @@ package com.xlollx.songport.sync
 import com.xlollx.songport.data.FileStore
 import com.xlollx.songport.data.StoreData
 import com.xlollx.songport.data.WantedMark
+import com.xlollx.songport.platform.Env
+import com.xlollx.songport.providers.LocalFilesProvider
+import com.xlollx.songport.model.Playlist
 import com.xlollx.songport.model.SyncJob
 import com.xlollx.songport.model.SyncReport
 import com.xlollx.songport.model.Track
@@ -70,13 +73,52 @@ object Wanted {
      * by provider id like "jellyfin@2" or by service like "jellyfin"), entries first seen at or after
      * [since] (epoch ms), and whether the ticked ones are listed too.
      */
-    data class Filter(val sync: String? = null, val service: String? = null, val since: Long = 0, val withGot: Boolean = false)
+    data class Filter(
+        val sync: String? = null,
+        val service: String? = null,
+        val since: Long = 0,
+        val withGot: Boolean = false,
+        /** [Scope.ALL]: the not found of every sync, whatever its target (issue #73); the servers' list otherwise. */
+        val scope: Scope = Scope.SERVERS,
+        /** Only what is missing on this target (a provider id like "spotify" or "jellyfin@2", or a service like "jellyfin"). */
+        val on: String? = null,
+    )
+
+    /**
+     * Whose not found are listed: [SERVERS] is "Missing on my server" (with its memory of first
+     * sightings and ticks); [ALL] is every sync's, on any service, for "Export the songs not found"
+     * (no memory: an entry is as old as the run that missed it, and nothing is ticked).
+     */
+    enum class Scope {
+        SERVERS, ALL;
+
+        companion object {
+            /** By name ("servers", "all" or "everywhere"); [SERVERS] when not given, null when unknown. */
+            fun of(s: String?): Scope? = when (s?.trim()?.lowercase()?.takeIf { it.isNotEmpty() }) {
+                null, "servers", "server" -> SERVERS
+                "all", "everywhere" -> ALL
+                else -> null
+            }
+        }
+    }
 
     // ------------------------------------------------------------------ the list
 
     /** The list, sorted by artist and title ("The" left aside). [known] gives what MusicBrainz said of an ISRC, from the cache only. */
     fun list(data: StoreData, known: (String?) -> MusicBrainz.Known? = { null }, filter: Filter = Filter()): List<Want> =
-        collect(data, known).filter { w -> keep(w, filter, data.syncs) }
+        collect(data, known, filter.scope, filter.on).filter { w -> keep(w, filter, data.syncs) }
+
+    /**
+     * The services something is missing on, for [Scope.ALL]: each target service (the part of a
+     * provider id before '@') with how many entries miss there, most first.
+     */
+    fun missingOn(data: StoreData): List<Pair<String, Int>> =
+        data.syncs.map { it.target.provider.substringBefore('@') }.distinct().filter { it != com.xlollx.songport.shared.SharedProvider.ID }
+            .map { s -> s to collect(data, { null }, Scope.ALL, s).size }
+            .filter { it.second > 0 }
+            .sortedByDescending { it.second }
+
+    private fun sameService(p: String, s: String) = p.lowercase() == s || (!s.contains('@') && p.substringBefore('@').lowercase() == s)
 
     private fun keep(w: Want, f: Filter, jobs: List<SyncJob>): Boolean {
         if (!f.withGot && w.got) return false
@@ -86,8 +128,7 @@ object Wanted {
             if (w.syncs.none { it.syncId in ids }) return false
         }
         f.service?.trim()?.lowercase()?.takeIf { it.isNotEmpty() }?.let { s ->
-            fun same(p: String) = p.lowercase() == s || (!s.contains('@') && p.substringBefore('@').lowercase() == s)
-            if (w.syncs.none { same(it.source) || same(it.target) }) return false
+            if (w.syncs.none { sameService(it.source, s) || sameService(it.target, s) }) return false
         }
         return true
     }
@@ -98,10 +139,12 @@ object Wanted {
 
     private class Item(val track: Track, val from: From, val seen: Long)
 
-    private fun collect(data: StoreData, known: (String?) -> MusicBrainz.Known?): List<Want> {
+    private fun collect(data: StoreData, known: (String?) -> MusicBrainz.Known?, scope: Scope = Scope.SERVERS, on: String? = null): List<Want> {
         val items = ArrayList<Item>()
+        val target = on?.trim()?.lowercase()?.takeIf { it.isNotEmpty() }
         for (job in data.syncs) {
-            if (!isServer(job.target.provider)) continue
+            if (scope == Scope.SERVERS && !isServer(job.target.provider)) continue
+            if (target != null && !sameService(job.target.provider, target)) continue
             val run = lastRun(data, job) ?: continue
             val ignored = job.ignoredSourceIds.toHashSet()
             val from = From(job.id, job.name, job.source.provider, job.target.provider)
@@ -122,7 +165,8 @@ object Wanted {
             val isrc = best.isrcNorm ?: tracks.firstNotNullOfOrNull { it.isrcNorm }
             val allKeys = idx.flatMap { keys[it] }.toSet()
             val id = tracks.mapNotNull { it.isrcNorm }.minOrNull()?.let { "isrc:$it" } ?: allKeys.filter { it.startsWith("t:") }.min()
-            val mark = data.wanted[id] ?: allKeys.firstNotNullOfOrNull { data.wanted[it] }
+            // The memory is the servers' list's: the other services' not found have none.
+            val mark = if (scope != Scope.SERVERS) null else data.wanted[id] ?: allKeys.firstNotNullOfOrNull { data.wanted[it] }
             val mb = tracks.mapNotNull { it.isrcNorm }.distinct().mapNotNull { known(it) }
             val recordings = mb.flatMap { it.recordings }.distinct()
             Want(
@@ -166,6 +210,19 @@ object Wanted {
             .map { (_, ws) -> Album(ws.first().artistLine, ws.firstOrNull { it.album.isNotBlank() }?.album.orEmpty(), ws) }
             .sortedWith(compareBy({ sortKey(it.artist) }, { it.album.isEmpty() }, { sortKey(it.album) }))
 
+    /**
+     * "Save as File playlist" (issue #73): a new playlist of the File service named [name] (a name
+     * already taken gets " (2)"), holding [wants] in their order, to sync on to any service. Never a
+     * playlist on the service the songs are missing on: only File. Returns the playlist made.
+     */
+    suspend fun saveAsFilePlaylist(env: Env, name: String, wants: List<Want>): Playlist {
+        val clean = name.trim().ifEmpty { throw IllegalArgumentException("The playlist needs a name.") }
+        val pl = LocalFilesProvider.createPlaylist(env, clean, "")
+        val tracks = wants.map { it.track() }
+        if (tracks.isNotEmpty()) LocalFilesProvider.addTracks(env, pl.id, tracks)
+        return pl.copy(trackCount = LocalFilesProvider.tracks(env, pl.id).size)
+    }
+
     // ------------------------------------------------------------------ memory
 
     /**
@@ -196,7 +253,7 @@ object Wanted {
             val wanted = ids.toSet()
             val marks = d.wanted.toMutableMap()
             changed = 0
-            for (w in collect(d) { null }) {
+            for (w in collect(d, { null })) {
                 if (w.id !in wanted || w.got == got) continue
                 w.keys.forEach { marks.remove(it) }
                 marks[w.id] = WantedMark(w.firstSeen, got)
