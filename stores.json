@@ -1,8 +1,8 @@
 {
- "checked": "2026-11-24T16:31:21Z",
+ "checked": "2026-11-25T16:11:55Z",
  "chocolatey": {
-  "versions": 23,
-  "downloads": 101,
+  "versions": 25,
+  "downloads": 106,
   "note": "the installer comes from the GitHub release: mostly already in the GitHub count"
  }
 }
