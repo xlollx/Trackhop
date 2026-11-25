@@ -149,9 +149,4 @@ say_title: '大家怎么说'
 say_intro: '介绍 Trackhop 的视频和帖子下的评论，以及支持者的留言。已隐去名字和头像。'
 say_alt: 'Trackhop 用户的评论，以及两位支持者称赞自动同步和安全性的留言，以及 X 上称它为“a game changer for music lovers who use multiple platforms”的帖子'
 gallery_title: "看一看"
-itch_alt: "在 itch.io 上获取"
-sourceforge_alt: "在 SourceForge 上获取"
-itch_phone_note: "完整 APK，每个版本都会更新"
-sourceforge_phone_note: "每个版本的镜像"
-itch_desktop_note: "Windows、macOS 和 Linux"
-sourceforge_desktop_note: "每个版本的镜像"
+other_stores: "其他商店"
