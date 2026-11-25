@@ -2836,7 +2836,11 @@ fun SyncEditorScreen(
                     // Bidirezionale: crea la sync gemella al contrario, senza rimozioni (niente cancellazioni a ping-pong).
                     val srcObj = Providers.byId(srcProvider)
                     // A public link or someone else's playlist can be read, not written: nothing to send back to.
-                    val srcOwned = srcPlaylist?.ownedByMe == true && srcObj != null && Connections.isConnected(ctx.env, srcObj)
+                    // Signed in: as the editor found it at first, then asked again off the main thread for this source.
+                    val srcSignedIn by androidx.compose.runtime.produceState(srcObj != null && signedIn.any { it.id == srcObj.id }, srcObj?.id) {
+                        value = srcObj != null && kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { runCatching { Connections.isConnected(ctx.env, srcObj) }.getOrDefault(false) }
+                    }
+                    val srcOwned = srcPlaylist?.ownedByMe == true && srcObj != null && srcSignedIn
                     // Not into Shazam's own playlist: Shazam alone writes there.
                     val biPossible = !shazamMode && !createNew && srcObj?.canWrite == true && srcOwned &&
                         srcObj.supportsLibrary(srcPlaylist?.id, asTarget = true) &&
