@@ -58,6 +58,17 @@ class ParityCliTest {
         assertEquals(1, cli("edit", "Road trip", "--strictness", "very").code)
     }
 
+    @Test fun aTwinsCopyIsFoundByItsIdBeforeItsNumber() {
+        fun o(id: String) = kotlinx.serialization.json.buildJsonObject { put("id", kotlinx.serialization.json.JsonPrimitive(id)) }
+        val copies = listOf(o("9"), o("1"), o("abc"))
+        assertEquals(o("1"), byIdOrNumber(copies, "id", "1"))
+        assertEquals(o("1"), byIdOrNumber(copies, "id", "2"))
+        assertEquals(o("abc"), byIdOrNumber(copies, "id", "3"))
+        assertEquals(o("abc"), byIdOrNumber(copies, "id", "abc"))
+        assertEquals(null, byIdOrNumber(copies, "id", "4"))
+        assertEquals(null, byIdOrNumber(copies, "id", null))
+    }
+
     @Test fun servicesAreFound() {
         assertEquals(0, cli("services", "--kind", "official").code)
         assertTrue(cli("services", "nothing-like-it").out.contains("No service matches"))
