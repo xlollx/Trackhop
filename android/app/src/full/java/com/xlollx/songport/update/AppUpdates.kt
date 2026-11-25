@@ -40,9 +40,6 @@ object AppUpdates {
         "in.sunilpaulmathew.izzyondroid" to "IzzyOnDroid", "com.android.vending" to "Google Play",
     )
 
-    /** The updaters of F-Droid's own builds: the bell says a version is out, with no download. */
-    private val NOTICE_ONLY = setOf("F-Droid", "Droid-ify", "Neo Store")
-
     private fun prefs(ctx: Context) = ctx.getSharedPreferences("app_updates", Context.MODE_PRIVATE)
 
     fun enabled(ctx: Context): Boolean = prefs(ctx).getBoolean("enabled", true)
@@ -66,15 +63,12 @@ object AppUpdates {
 
     /** Shows what the last check found, then asks GitHub again when the last answer is old (or [force]). */
     suspend fun check(ctx: Context, force: Boolean = false) = withContext(Dispatchers.IO) {
-        // Installed by F-Droid (or an app of its family): looked up all the same, for the bell's notice only
-        // (2.2): F-Droid brings the version itself. No notification: the daily check stays off there.
-        val by = updatedBy(ctx)
-        val noticeOnly = by != null && by in NOTICE_ONLY
-        if (!enabled(ctx) || (by != null && !noticeOnly)) { UpdateState.set(null); return@withContext }
+        // An app store or updater installed Trackhop (F-Droid lags GitHub a lot): no check, no notice (UpdateState.checksHere).
+        if (!enabled(ctx) || !UpdateState.checksHere(updatedBy(ctx))) { UpdateState.set(null); return@withContext }
         val p = prefs(ctx)
         fun publish() {
             val name = p.getString("name", null)
-            UpdateState.set(name?.takeIf { UpdateState.newer(it, BuildConfig.VERSION_NAME) }?.let { UpdateState.Available(it, p.getString("url", null), noticeOnly) })
+            UpdateState.set(name?.takeIf { UpdateState.newer(it, BuildConfig.VERSION_NAME) }?.let { UpdateState.Available(it, p.getString("url", null)) })
         }
         publish()
         if (!force && System.currentTimeMillis() - p.getLong("checked", 0) < EVERY_MS) return@withContext

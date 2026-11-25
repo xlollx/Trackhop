@@ -3559,7 +3559,6 @@
     <string name="bell_yesterday">어제</string>
     <string name="bell_update_ready">업데이트가 준비되었습니다</string>
     <string name="bell_update_have">현재 버전: %1$s</string>
-    <string name="bell_update_fdroid">앱 스토어에서 곧 제공됩니다.</string>
     <string name="bell_update_download">다운로드</string>
     <string name="bell_update_update">업데이트</string>
     <plurals name="bell_desc_unread">

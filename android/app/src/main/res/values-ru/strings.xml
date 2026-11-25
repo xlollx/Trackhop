@@ -3920,7 +3920,6 @@
     <string name="bell_yesterday">Вчера</string>
     <string name="bell_update_ready">Обновление готово</string>
     <string name="bell_update_have">У вас %1$s</string>
-    <string name="bell_update_fdroid">Магазин приложений скоро его доставит.</string>
     <string name="bell_update_download">Скачать</string>
     <string name="bell_update_update">Обновить</string>
     <plurals name="bell_desc_unread">

@@ -3560,7 +3560,6 @@
     <string name="bell_yesterday">昨日</string>
     <string name="bell_update_ready">アップデートの準備ができました</string>
     <string name="bell_update_have">現在のバージョン：%1$s</string>
-    <string name="bell_update_fdroid">アプリストアからまもなく届きます。</string>
     <string name="bell_update_download">ダウンロード</string>
     <string name="bell_update_update">アップデート</string>
     <plurals name="bell_desc_unread">

@@ -214,8 +214,6 @@ class UpdateCheckWorker(ctx: Context, params: WorkerParameters) : CoroutineWorke
         com.xlollx.songport.update.AppUpdates.check(ctx)
         val found = com.xlollx.songport.update.UpdateState.available.value ?: return Result.success()
         val name = found.versionName ?: return Result.success()
-        // F-Droid brings it: the bell says it, no notification.
-        if (found.noticeOnly) return Result.success()
         val prefs = ctx.getSharedPreferences("app_update_notice", Context.MODE_PRIVATE)
         if (prefs.getString("notified", null) == name) return Result.success()
         if (Notifications.appUpdate(ctx, name, found.url)) prefs.edit().putString("notified", name).apply()

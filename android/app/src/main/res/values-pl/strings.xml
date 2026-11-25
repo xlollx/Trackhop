@@ -3922,7 +3922,6 @@
     <string name="bell_yesterday">Wczoraj</string>
     <string name="bell_update_ready">Aktualizacja jest gotowa</string>
     <string name="bell_update_have">Masz %1$s</string>
-    <string name="bell_update_fdroid">Twój sklep z aplikacjami wkrótce ją dostarczy.</string>
     <string name="bell_update_download">Pobierz</string>
     <string name="bell_update_update">Aktualizuj</string>
     <plurals name="bell_desc_unread">

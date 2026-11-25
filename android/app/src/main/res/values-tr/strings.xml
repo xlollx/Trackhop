@@ -3678,7 +3678,6 @@
     <string name="bell_yesterday">Dün</string>
     <string name="bell_update_ready">Bir güncelleme hazır</string>
     <string name="bell_update_have">Sende %1$s var</string>
-    <string name="bell_update_fdroid">Uygulama mağazan yakında getirecek.</string>
     <string name="bell_update_download">İndir</string>
     <string name="bell_update_update">Güncelle</string>
     <plurals name="bell_desc_unread">

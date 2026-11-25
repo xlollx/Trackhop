@@ -3684,7 +3684,6 @@
     <string name="bell_yesterday">Yesterday</string>
     <string name="bell_update_ready">An update is ready</string>
     <string name="bell_update_have">You have %1$s</string>
-    <string name="bell_update_fdroid">Your app store will bring it soon.</string>
     <string name="bell_update_download">Download</string>
     <string name="bell_update_update">Update</string>
     <plurals name="bell_desc_unread">

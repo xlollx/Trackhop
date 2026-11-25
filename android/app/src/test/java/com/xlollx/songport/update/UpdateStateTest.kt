@@ -15,4 +15,10 @@ class UpdateStateTest {
         assertFalse(UpdateState.newer("1.5.2", "1.5.3"))
         assertFalse(UpdateState.newer("1.5", "1.5.0"))
     }
+
+    /** 2.2: F-Droid (and any store or updater) brings its own build, long after GitHub's: no check, so no notice in the bell. */
+    @Test fun noCheckWhenAStoreOrUpdaterInstalledTrackhop() {
+        assertTrue(UpdateState.checksHere(null))
+        for (by in listOf("F-Droid", "Droid-ify", "Neo Store", "Obtainium", "IzzyOnDroid", "Google Play")) assertFalse(by, UpdateState.checksHere(by))
+    }
 }

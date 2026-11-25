@@ -191,7 +191,7 @@ private fun NotificationSheet(
     )
 }
 
-/** The new version, on top: Download (GitHub), Update (Google Play's flow), or only the notice (F-Droid brings it). */
+/** The new version, on top: Download (GitHub) or Update (Google Play's flow). */
 @Composable
 private fun UpdateRow(a: UpdateState.Available) {
     val ctx = LocalContext.current
@@ -206,11 +206,11 @@ private fun UpdateRow(a: UpdateState.Available) {
                 style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSecondaryContainer,
             )
             Text(
-                if (a.noticeOnly) stringResource(R.string.bell_update_fdroid) else stringResource(R.string.bell_update_have, com.xlollx.songport.BuildConfig.VERSION_NAME),
+                stringResource(R.string.bell_update_have, com.xlollx.songport.BuildConfig.VERSION_NAME),
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer,
             )
         }
-        if (!a.noticeOnly) FilledTonalButton(onClick = { AppUpdates.open(ctx) }) {
+        FilledTonalButton(onClick = { AppUpdates.open(ctx) }) {
             Text(stringResource(if (a.versionName != null) R.string.bell_update_download else R.string.bell_update_update))
         }
     }
