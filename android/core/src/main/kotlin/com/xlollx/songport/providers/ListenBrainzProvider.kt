@@ -296,8 +296,7 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
     private suspend fun removeFromPlaylist(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (playlistId.startsWith(CREATED_FOR)) unsupported(ctx)
         val token = needToken(ctx)
-        val now = read(ctx, playlistId).map { it.id }
-        val positions = entryPositions(now, tracks)
+        val positions = entryPositions(serverOrder(read(ctx, playlistId)), tracks)
         for (i in positions.sortedDescending()) {
             api(ctx, "/1/playlist/$playlistId/item/delete", "POST", jsonObj("index" to i, "count" to 1), token)
         }
@@ -364,6 +363,17 @@ class ListenBrainzProvider(override val slot: String = "") : CredentialsProvider
          * its own position ([Track.itemId]) when that still holds the same recording, else the first
          * other entry with it not taken yet; none when the recording is no longer there.
          */
+        /**
+         * The playlist's entries by their place on the server ([Track.itemId]): an entry [read] left out
+         * (one without a title) keeps its place, as an empty one no removal names.
+         */
+        internal fun serverOrder(read: List<Track>): List<String> {
+            val size = (read.maxOfOrNull { it.itemId?.toIntOrNull() ?: -1 } ?: -1) + 1
+            val out = MutableList(maxOf(size, 0)) { "" }
+            read.forEach { t -> t.itemId?.toIntOrNull()?.takeIf { it >= 0 }?.let { out[it] = t.id } }
+            return out
+        }
+
         internal fun entryPositions(now: List<String>, wanted: List<Track>): List<Int> {
             val taken = HashSet<Int>()
             for (t in wanted) {

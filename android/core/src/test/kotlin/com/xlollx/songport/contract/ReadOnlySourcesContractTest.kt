@@ -526,6 +526,19 @@ class ListenBrainzContractTest : ContractTest() {
         noMoreRequests()
     }
 
+    /** An entry without a title is not read, but it holds its place: the one after it is removed, not it. */
+    @Test fun anUntitledEntryKeepsItsPlaceForRemovals() = runBlocking {
+        signIn()
+        json("""{"playlist":{"track":[
+            {"identifier":"https://musicbrainz.org/recording/${mbid(9)}","creator":"x"},
+            {"identifier":"https://musicbrainz.org/recording/${mbid(2)}","title":"B","creator":"b"}]}}""")
+        json("""{"status":"ok"}""")
+        lb.removeTracks(env, mbid(5), listOf(Track(mbid(2), "B", itemId = "1")))
+        assertCall(next(), "GET", host, "/1/playlist/${mbid(5)}")
+        assertEquals(1, next().jsonBody()["index"].int)
+        noMoreRequests()
+    }
+
     @Test fun entryPositionsKeepTheirOwnPlaceWhenItHolds() {
         val now = listOf("a", "b", "a", "c")
         assertEquals(setOf(2), ListenBrainzProvider.entryPositions(now, listOf(Track("a", "", itemId = "2"))).toSet())
