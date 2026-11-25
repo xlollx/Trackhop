@@ -71,9 +71,9 @@ THE ICON · Michel Henke · Pisqui❤️ · BjörnH. · Bougtib · Anonymous Mix
 <br><a href="https://ko-fi.com/xlollx"><img src="docs/assets/badges/kofi.svg" height="28" alt="Support me on Ko-fi"></a>
 <br><sub>Want your name here? <a href="https://ko-fi.com/xlollx">Ko-fi</a> (card or PayPal) or <a href="https://github.com/sponsors/xlollx">GitHub Sponsors</a>.</sub></p>
 
-<p align="center"><img src="docs/store/demo.gif" width="200" alt="A tour of Trackhop: syncs, a new sync, accounts, the Discover tab, a shared track, the compatibility and poster cards, unplayable tracks, settings, the welcome screen"></p>
+<p align="center"><img src="docs/store/demo.gif" width="200" alt="A tour of Trackhop: syncs, Which service?, a new sync, a playlist on several services, Why wasn't it matched?, exporting the songs not found, the notification bell, the Discover tab, radio and Shazam as accounts, the welcome screen"></p>
 
-<p align="center"><img src="docs/store/screenshots.png" width="100%" alt="Syncs with their numbers, a new sync, the Discover tab, a shared track going into a playlist, how compatible two playlists are, unplayable tracks and their replacements"></p>
+<p align="center"><img src="docs/store/screenshots.png" width="100%" alt="Syncs with their numbers, Which service?, a playlist on several services, Why wasn't it matched?, the notification bell, the Discover tab"></p>
 
 <p align="center"><sub>More pictures: <a href="#gallery">Gallery</a>.</sub></p>
 

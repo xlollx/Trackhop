@@ -83,10 +83,10 @@ Square, for Instagram and other social feeds (1080 × 1080):
 Android (click for full size, 1080 × 2400):
 
 <div class="press-row phones">
-  <a href="/store/play/en-US/1.jpg"><img src="/store/play/en-US/1.jpg" alt="Syncs screen with two playlists in sync" loading="lazy"></a>
-  <a href="/store/play/en-US/2.jpg"><img src="/store/play/en-US/2.jpg" alt="Creating a new sync: source and target" loading="lazy"></a>
-  <a href="/store/play/en-US/6.jpg"><img src="/store/play/en-US/6.jpg" alt="How compatible are we? Two playlists compared" loading="lazy"></a>
-  <a href="/store/play/en-US/8.jpg"><img src="/store/play/en-US/8.jpg" alt="Unplayable tracks replaced with versions that play" loading="lazy"></a>
+  <a href="/store/shots/en-US/1.jpg"><img src="/store/shots/en-US/1.jpg" alt="Syncs with their numbers and the notification bell" loading="lazy"></a>
+  <a href="/store/shots/en-US/2.jpg"><img src="/store/shots/en-US/2.jpg" alt="Which service? The chooser for streaming, home servers, radio and more" loading="lazy"></a>
+  <a href="/store/shots/en-US/5.jpg"><img src="/store/shots/en-US/5.jpg" alt="Why wasn't it matched? The candidates Trackhop looked at" loading="lazy"></a>
+  <a href="/store/shots/en-US/8.jpg"><img src="/store/shots/en-US/8.jpg" alt="The Discover tab" loading="lazy"></a>
 </div>
 
 Trackhop Desktop (1440 × 810):
