@@ -94,9 +94,17 @@ elif [ "$os" = macos ]; then
 else
   tar -C "$work/out" -czf "dist/$name-$suffix.tar.gz" Trackhop
   # server/desktop/deb: jpackage's postinst and prerm with the menu steps allowed to fail, so the
-  # package installs on a system without a desktop (Raspberry Pi OS Lite, a server).
+  # package installs on a system without a desktop (Raspberry Pi OS Lite, a server). They are JDK 21's
+  # templates (its words in capitals): an older jpackage would leave some unfilled, and the package
+  # would not install. There its own templates are used, as before they were added.
+  deb_res=(--resource-dir server/desktop/deb)
+  jdk=$(jpackage --version 2>/dev/null | head -1 | cut -d. -f1 || true)
+  if [ "${jdk:-0}" -lt 21 ] 2>/dev/null; then
+    echo "jpackage $jdk: the .deb uses jpackage's own install scripts (server/desktop/deb needs JDK 21)" >&2
+    deb_res=()
+  fi
   jpackage --type deb --app-image "$work/out/Trackhop" --name Trackhop --dest "$work" \
-    --resource-dir server/desktop/deb \
+    "${deb_res[@]}" \
     --app-version "$version" --vendor xlollx --description "Trackhop Desktop (beta)" \
     --linux-package-name trackhop --linux-shortcut --linux-menu-group "AudioVideo;Audio" \
     --linux-app-category sound \
