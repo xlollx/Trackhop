@@ -1,112 +1,112 @@
 {
  "product": "desktop",
- "version": "2.2.0",
- "tag": "server-v2.2.0",
- "release": "https://github.com/xlollx/Trackhop/releases/tag/server-v2.2.0",
- "checked": "2026-11-25T12:37:33Z",
+ "version": "2.2.1",
+ "tag": "server-v2.2.1",
+ "release": "https://github.com/xlollx/Trackhop/releases/tag/server-v2.2.1",
+ "checked": "2026-11-25T13:58:53Z",
  "clean": false,
  "files": [
   {
-   "name": "Trackhop-Desktop-v2.2.0-linux-arm64.deb",
-   "sha256": "edcb7c09d527ee47a080d3fbffc846c3b1f81c3370477449e4953caaa6822750",
+   "name": "Trackhop-Desktop-v2.2.1-linux-arm64.deb",
+   "sha256": "ba17608e52a24b984cb0b6e93894c9e4f4803ea8afceec2d2a799d24516527df",
    "malicious": 0,
    "suspicious": 0,
    "engines": 58,
    "flagged_by": {},
-   "link": "https://www.virustotal.com/gui/file/edcb7c09d527ee47a080d3fbffc846c3b1f81c3370477449e4953caaa6822750"
+   "link": "https://www.virustotal.com/gui/file/ba17608e52a24b984cb0b6e93894c9e4f4803ea8afceec2d2a799d24516527df"
   },
   {
-   "name": "Trackhop-Desktop-v2.2.0-linux-arm64.tar.gz",
-   "sha256": "191417fab8b828726da440bc5903257764af849c056015df7beee30eb54f4945",
+   "name": "Trackhop-Desktop-v2.2.1-linux-arm64.tar.gz",
+   "sha256": "b66e7bd5a6982adaeaa53e1591ecbb6fc79932ed2dfd56fc6a9a53bdbd4dd445",
    "malicious": 1,
    "suspicious": 0,
-   "engines": 53,
+   "engines": 55,
    "flagged_by": {
     "Panda": "Exploit/WinampPLS"
    },
-   "link": "https://www.virustotal.com/gui/file/191417fab8b828726da440bc5903257764af849c056015df7beee30eb54f4945"
+   "link": "https://www.virustotal.com/gui/file/b66e7bd5a6982adaeaa53e1591ecbb6fc79932ed2dfd56fc6a9a53bdbd4dd445"
   },
   {
-   "name": "Trackhop-Desktop-v2.2.0-linux.deb",
-   "sha256": "5363aeaf1430786b349af60ead3b6806936fa510d2791d84925d74d1e1485a0e",
+   "name": "Trackhop-Desktop-v2.2.1-linux.deb",
+   "sha256": "d0731e81593a59a1e2dc1c4f4d8ab961e785e31d016f676e54a694a507802cc8",
    "malicious": 0,
    "suspicious": 0,
-   "engines": 57,
+   "engines": 58,
    "flagged_by": {},
-   "link": "https://www.virustotal.com/gui/file/5363aeaf1430786b349af60ead3b6806936fa510d2791d84925d74d1e1485a0e"
+   "link": "https://www.virustotal.com/gui/file/d0731e81593a59a1e2dc1c4f4d8ab961e785e31d016f676e54a694a507802cc8"
   },
   {
-   "name": "Trackhop-Desktop-v2.2.0-linux.flatpak",
-   "sha256": "539321d4b10e922eeec2a57423f9f9a07bfe8a25e1f89f154d3e05e3e09b6bf1",
+   "name": "Trackhop-Desktop-v2.2.1-linux.flatpak",
+   "sha256": "43a84c633d834e4c56f4c6a71a664e63b76b769ab68fa60f8c53a8b41b20c636",
    "malicious": 0,
    "suspicious": 0,
-   "engines": 60,
+   "engines": 61,
    "flagged_by": {},
-   "link": "https://www.virustotal.com/gui/file/539321d4b10e922eeec2a57423f9f9a07bfe8a25e1f89f154d3e05e3e09b6bf1"
+   "link": "https://www.virustotal.com/gui/file/43a84c633d834e4c56f4c6a71a664e63b76b769ab68fa60f8c53a8b41b20c636"
   },
   {
-   "name": "Trackhop-Desktop-v2.2.0-linux.tar.gz",
-   "sha256": "30d937199ab73322bcb943f954089c8fcd7513205bf51f5ba84e4cf4e73464c0",
+   "name": "Trackhop-Desktop-v2.2.1-linux.tar.gz",
+   "sha256": "be3f8080a9e1520cd314f66e2628f8060104e1f683ae54a029d55fb4dbc5524a",
    "malicious": 1,
    "suspicious": 0,
-   "engines": 53,
+   "engines": 52,
    "flagged_by": {
     "Panda": "Exploit/WinampPLS"
    },
-   "link": "https://www.virustotal.com/gui/file/30d937199ab73322bcb943f954089c8fcd7513205bf51f5ba84e4cf4e73464c0"
+   "link": "https://www.virustotal.com/gui/file/be3f8080a9e1520cd314f66e2628f8060104e1f683ae54a029d55fb4dbc5524a"
   },
   {
-   "name": "Trackhop-Desktop-v2.2.0-macos-arm64.dmg",
-   "sha256": "0a4cd060a80a95aa55d30de6014f38c249dd81960bba8cd8846f152e8962fc12",
+   "name": "Trackhop-Desktop-v2.2.1-macos-arm64.dmg",
+   "sha256": "6ba5833d524ea03901b3ee92f5148620e3326970e193efe03e332c0fe4030cf3",
    "malicious": 1,
    "suspicious": 0,
    "engines": 57,
    "flagged_by": {
     "Microsoft": "Trojan:Script/Wacatac.B!ml"
    },
-   "link": "https://www.virustotal.com/gui/file/0a4cd060a80a95aa55d30de6014f38c249dd81960bba8cd8846f152e8962fc12"
+   "link": "https://www.virustotal.com/gui/file/6ba5833d524ea03901b3ee92f5148620e3326970e193efe03e332c0fe4030cf3"
   },
   {
-   "name": "Trackhop-Desktop-v2.2.0-macos-x64.dmg",
-   "sha256": "7aa86e4f0f87a64e6ab8281e2b0a4fffebacf180f032904cd58da95a1c0d5bd6",
+   "name": "Trackhop-Desktop-v2.2.1-macos-x64.dmg",
+   "sha256": "e8ee885e9a6f0871207cd2f3f183116c482c4b6d522c17eb6caaf6b156b512ff",
    "malicious": 1,
    "suspicious": 0,
-   "engines": 59,
+   "engines": 55,
    "flagged_by": {
-    "Microsoft": "Trojan:Script/Wacatac.B!ml"
+    "Microsoft": "Trojan:Script/Wacatac.C!ml"
    },
-   "link": "https://www.virustotal.com/gui/file/7aa86e4f0f87a64e6ab8281e2b0a4fffebacf180f032904cd58da95a1c0d5bd6"
+   "link": "https://www.virustotal.com/gui/file/e8ee885e9a6f0871207cd2f3f183116c482c4b6d522c17eb6caaf6b156b512ff"
   },
   {
-   "name": "Trackhop-Desktop-v2.2.0-windows.msi",
-   "sha256": "69dd5301866467cf4685df4984232cf6a51bc74c36b03dc8ef28270cbd75c0b9",
+   "name": "Trackhop-Desktop-v2.2.1-windows.msi",
+   "sha256": "1b67a2cbf89c1afe8c62c8845e149cded51067ad52285b771cccc7ff8cb2b066",
    "malicious": 0,
    "suspicious": 0,
-   "engines": 54,
+   "engines": 52,
    "flagged_by": {},
-   "link": "https://www.virustotal.com/gui/file/69dd5301866467cf4685df4984232cf6a51bc74c36b03dc8ef28270cbd75c0b9"
+   "link": "https://www.virustotal.com/gui/file/1b67a2cbf89c1afe8c62c8845e149cded51067ad52285b771cccc7ff8cb2b066"
   },
   {
-   "name": "Trackhop-Desktop-v2.2.0-windows.msix",
-   "sha256": "141d91cb39d59a575c480e33bb82c1c8ac208ec973f7fbf002478e5f30a5bda5",
+   "name": "Trackhop-Desktop-v2.2.1-windows.msix",
+   "sha256": "b7697583ae603f42f7fc5adaf3ab6db2a9383a8b2200086347d4d49e2bb2ca42",
    "malicious": 1,
    "suspicious": 0,
    "engines": 57,
    "flagged_by": {
     "Panda": "Exploit/WinampPLS"
    },
-   "link": "https://www.virustotal.com/gui/file/141d91cb39d59a575c480e33bb82c1c8ac208ec973f7fbf002478e5f30a5bda5"
+   "link": "https://www.virustotal.com/gui/file/b7697583ae603f42f7fc5adaf3ab6db2a9383a8b2200086347d4d49e2bb2ca42"
   },
   {
-   "name": "Trackhop-Desktop-v2.2.0-windows.zip",
-   "sha256": "a1015aeb0039bb93ad7383329481e24970851e8c5cb219e43af62e5a2662c1e2",
+   "name": "Trackhop-Desktop-v2.2.1-windows.zip",
+   "sha256": "0d3bad0f5fa985e6077e3071e7b6d40a0bc38b1069e79d3d07f64cc24abdc4ba",
    "malicious": 1,
    "suspicious": 0,
-   "engines": 57,
+   "engines": 56,
    "flagged_by": {
     "Panda": "Exploit/WinampPLS"
    },
-   "link": "https://www.virustotal.com/gui/file/a1015aeb0039bb93ad7383329481e24970851e8c5cb219e43af62e5a2662c1e2"
+   "link": "https://www.virustotal.com/gui/file/0d3bad0f5fa985e6077e3071e7b6d40a0bc38b1069e79d3d07f64cc24abdc4ba"
   }
  ]
 }
