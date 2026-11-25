@@ -269,7 +269,9 @@
       try { saved = localStorage.getItem('menuLang'); } catch (e) {}
       var page = (document.documentElement.lang || '').slice(0, 2), nav = (navigator.language || 'en').slice(0, 2).toLowerCase();
       var lang = known.indexOf(saved) >= 0 ? saved : (page && page !== 'en' && known.indexOf(page) >= 0) ? page : known.indexOf(nav) >= 0 ? nav : 'en';
-      function lang_(l) {
+      function lang_(v) {
+        // Only one of the known codes: the value then reaches the links' addresses.
+        var l = known[known.indexOf(v)] || 'en';
         sel.value = l;
         var groups = d.querySelectorAll('.grp');
         groups.forEach(function (g) {
