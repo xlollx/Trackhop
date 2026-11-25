@@ -284,7 +284,8 @@ class NwayEditTest {
         val keys = env.tokens.ids().filter { it.startsWith("shared:") }.associateWith { env.tokens.get(it) }
         assertTrue(runCatching { NwayEdit.create(env, NwayEdit.Draft("Other", item(c), listOf(item(d))), id = g.id) }.isFailure)
         assertEquals(listOf(g), now().groups)
-        assertEquals(keys, env.tokens.ids().filter { it.startsWith("shared:") }.associateWith { env.tokens.get(it) })
+        // Compared as a yes or no: a failure message would print the keys.
+        assertTrue("The group's key changed", keys == env.tokens.ids().filter { it.startsWith("shared:") }.associateWith { env.tokens.get(it) })
     }
 
     @Test fun twoNewGroupsAskedAtOnceWithOneIdMakeOne() {
