@@ -19,7 +19,7 @@ package and signing certificate before answering.
 
 ### Trackhop Bridge
 
-[Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) is the reference plugin, by the same
+[Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge/releases/latest) is the reference plugin, by the same
 author, free and open source (GPL-3.0). It is distributed on GitHub only, never on Google Play.
 It adds:
 

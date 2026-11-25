@@ -59,7 +59,7 @@ the phone in Settings › Plugins and offer their services in Accounts; they nev
 download one. How the interface works, and the plugins known so far, are on the
 [connector plugins](../plugins) page.
 
-The reference plugin is **[Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge)**, by the
+The reference plugin is **[Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge/releases/latest)**, by the
 same author: it gives the store builds the same web connectors the GitHub build carries inside. It is
 distributed on GitHub only. Read its notes before installing: those web interfaces are not official
 APIs, they are against the services' terms, and they can stop working without notice.

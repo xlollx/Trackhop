@@ -13,7 +13,7 @@ Music playlists and liked songs to Apple Music and can keep them in sync. Free a
 
 - [Trackhop](https://github.com/xlollx/Trackhop/releases/latest) from GitHub or
   [F-Droid](https://f-droid.org/packages/com.xlollx.songport/), on Android 8.0 or newer. With the
-  Google Play or AppGallery app, add the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge)
+  Google Play or AppGallery app, add the [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge/releases/latest)
   plugin for Amazon Music.
 - Your Amazon Music account (Prime or Unlimited) and an Apple Music subscription.
 

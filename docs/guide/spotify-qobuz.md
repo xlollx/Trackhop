@@ -14,7 +14,7 @@ service and the other follows. Free and open source, no Trackhop account.
 - [Trackhop](https://github.com/xlollx/Trackhop/releases/latest) from GitHub or
   [F-Droid](https://f-droid.org/packages/com.xlollx.songport/), [Trackhop Desktop](desktop) or the
   [Docker server](docker). The Google Play and AppGallery apps reach Qobuz through the
-  [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge) plugin.
+  [Trackhop Bridge](https://github.com/xlollx/Trackhop-Bridge/releases/latest) plugin.
 - Your Qobuz account (also one made with Google) and a Spotify account.
 
 ## Step by step
