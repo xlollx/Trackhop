@@ -415,7 +415,12 @@ class StoreScreenshots {
         }
         // 8 Accounts: radio stations and Shazam as accounts, next to the services.
         open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_ACCOUNTS)) {
-            step("shot $n") { Thread.sleep(1500); swipeUntil("Shazam") }
+            step("shot $n") {
+                Thread.sleep(1500)
+                // The first station at the top of the list: the second one and Shazam under it.
+                compose.onAllNodes(hasScrollToNodeAction()).onFirst().performScrollToNode(hasText("Coastline FM"))
+                compose.waitForIdle()
+            }
             snap()
         }
         // 9 Discover.
