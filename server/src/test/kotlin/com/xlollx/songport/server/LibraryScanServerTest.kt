@@ -54,4 +54,17 @@ class LibraryScanServerTest {
         // In the playlist called Liked songs: not a liked song in no playlist.
         assertEquals(emptyList<Track>(), res.orphanLiked)
     }
+
+    @Test fun aPlaylistNotReadMakesTheLikedInNoPlaylistUnsure() = runBlocking {
+        val env = ServerEnv(tmp.newFolder("data"), Strings(emptyMap()), "https://songport.example.org")
+        val read = Lib(mapOf(Playlist("a", "A", 1) to listOf(song("Other"))), liked = listOf(song("Liked one")))
+        assertEquals(false, LibraryScanServer.run(env, read).playlistsUnread)
+        val broken = object : MusicProvider by read {
+            override suspend fun tracks(ctx: Env, playlistId: String): List<Track> =
+                if (playlistId == "a") throw IllegalStateException("down") else read.tracks(ctx, playlistId)
+        }
+        val res = LibraryScanServer.run(env, broken)
+        assertEquals(true, res.playlistsUnread)
+        assertEquals(listOf("Liked one"), res.orphanLiked.map { it.title })
+    }
 }

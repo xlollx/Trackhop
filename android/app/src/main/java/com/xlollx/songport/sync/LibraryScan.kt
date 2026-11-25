@@ -15,7 +15,8 @@ import java.util.IdentityHashMap
 object LibraryScan {
 
     data class Repeat(val track: Track, val playlists: List<String>)
-    data class Result(val playlists: Int, val repeats: List<Repeat>, val orphanLiked: List<Track>, val failed: List<String>)
+    /** [playlistsUnread]: a playlist was not read, so a liked track shown in none may be in it. */
+    data class Result(val playlists: Int, val repeats: List<Repeat>, val orphanLiked: List<Track>, val failed: List<String>, val playlistsUnread: Boolean = false)
 
     suspend fun run(ctx: Context, provider: MusicProvider, onProgress: (String) -> Unit = {}): Result {
         val lists = provider.playlists(ctx).filter { it.ownedByMe }
@@ -25,6 +26,7 @@ object LibraryScan {
         val likedKey = "\u0000liked"
         val all = ArrayList<Track>()
         val failed = ArrayList<String>()
+        var playlistsUnread = false
         val likedName = ctx.getString(com.xlollx.songport.R.string.liked_songs)
         var liked: List<Track> = emptyList()
         if (provider.supportsLikedSongs) {
@@ -34,7 +36,7 @@ object LibraryScan {
         }
         for (pl in lists) {
             onProgress(pl.name)
-            val tracks = try { provider.tracks(ctx, pl.id) } catch (e: Exception) { failed += "${pl.name} (${e.message})"; continue }
+            val tracks = try { provider.tracks(ctx, pl.id) } catch (e: Exception) { failed += "${pl.name} (${e.message})"; playlistsUnread = true; continue }
             names[pl.id] = pl.name
             tracks.forEach { owner[it] = pl.id; all += it }
         }
@@ -48,6 +50,6 @@ object LibraryScan {
             if (inPlaylists.isNotEmpty()) g.filter { owner[it] == likedKey }.forEach { likedCovered.add(it) }
         }
         val orphan = liked.filter { it !in likedCovered }
-        return Result(lists.size, repeats.sortedByDescending { it.playlists.size }, orphan, failed)
+        return Result(lists.size, repeats.sortedByDescending { it.playlists.size }, orphan, failed, playlistsUnread)
     }
 }

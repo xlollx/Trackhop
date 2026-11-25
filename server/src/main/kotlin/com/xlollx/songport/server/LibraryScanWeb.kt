@@ -25,7 +25,8 @@ import java.util.concurrent.ConcurrentHashMap
  */
 internal object LibraryScanServer {
     data class Repeat(val track: Track, val playlists: List<String>)
-    data class Result(val service: String, val playlists: Int, val repeats: List<Repeat>, val orphanLiked: List<Track>, val failed: List<String>)
+    /** [playlistsUnread]: a playlist was not read, so a liked song shown in none may be in it (not a list to save). */
+    data class Result(val service: String, val playlists: Int, val repeats: List<Repeat>, val orphanLiked: List<Track>, val failed: List<String>, val playlistsUnread: Boolean = false)
 
     const val LIKED = "Liked songs"
     /** Who owns the liked songs in a scan: no playlist id is this. */
@@ -41,6 +42,7 @@ internal object LibraryScanServer {
         val names = HashMap<String, String>()
         val all = ArrayList<Track>()
         val failed = ArrayList<String>()
+        var playlistsUnread = false
         var liked: List<Track> = emptyList()
         if (provider.supportsLikedSongs) {
             onProgress(LIKED)
@@ -49,7 +51,7 @@ internal object LibraryScanServer {
         }
         for (pl in lists) {
             onProgress(pl.name)
-            val tracks = try { provider.tracks(env, pl.id) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { failed += "${pl.name} (${e.message})"; continue }
+            val tracks = try { provider.tracks(env, pl.id) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { failed += "${pl.name} (${e.message})"; playlistsUnread = true; continue }
             names[pl.id] = pl.name
             tracks.forEach { owner[it] = pl.id; all += it }
         }
@@ -61,7 +63,7 @@ internal object LibraryScanServer {
             if (inPlaylists.size >= 2) repeats += Repeat(g.first { owner[it] != LIKED_KEY }, inPlaylists.map { names.getValue(it) })
             if (inPlaylists.isNotEmpty()) g.filter { owner[it] == LIKED_KEY }.forEach { likedCovered.add(it) }
         }
-        return Result(provider.id, lists.size, repeats.sortedByDescending { it.playlists.size }, liked.filter { it !in likedCovered }, failed)
+        return Result(provider.id, lists.size, repeats.sortedByDescending { it.playlists.size }, liked.filter { it !in likedCovered }, failed, playlistsUnread)
     }
 }
 
@@ -75,6 +77,7 @@ internal fun Web.scanPage(r: Web.Req) {
         when (r.form["action"]) {
             "save" -> {
                 val res = LibraryScanServer.last[env.owner + p.id] ?: return redirect(r.ex, "/tools/scan?err=${q("That scan is no longer kept: scan again.")}")
+                if (r.form["list"] != "repeats" && res.playlistsUnread) return redirect(r.ex, "/tools/scan?err=${q("A playlist was not read, so those liked songs may be in it: scan again.")}")
                 val (name, tracks) = if (r.form["list"] == "repeats") "${p.label(env)} in several playlists" to res.repeats.map { it.track } else "${p.label(env)} liked, in no playlist" to res.orphanLiked
                 val id = LocalFilesProvider.importTracks(env, name, tracks)
                 return redirect(r.ex, "/connectors/csv?ok=${q("Saved as the File playlist $id (${tracks.size} songs).")}")
@@ -119,7 +122,8 @@ private fun Web.scanHtml(p: MusicProvider, res: LibraryScanServer.Result): Strin
             append("<ul>")
             res.orphanLiked.take(300).forEach { append("""<li>${h(it.artistLine)} – ${h(it.title)}</li>""") }
             if (res.orphanLiked.size > 300) append("""<li class="muted">…and ${res.orphanLiked.size - 300} more</li>""")
-            append("</ul>").append(save("liked"))
+            append("</ul>")
+            if (!res.playlistsUnread) append(save("liked"))
         }
         append("</div>")
     }
