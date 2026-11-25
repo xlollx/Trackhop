@@ -413,7 +413,9 @@ class StoreScreenshots {
             }
             snap()
         }
-        // 8 Accounts: radio stations and Shazam as accounts, next to the services.
+        // 8 Discover (the stores show the first eight).
+        open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_DISCOVER)) { waitText(s(R.string.discover_wrapped_title)); snap() }
+        // 9 Accounts: radio stations and Shazam as accounts, next to the services.
         open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_ACCOUNTS)) {
             step("shot $n") {
                 Thread.sleep(1500)
@@ -433,8 +435,6 @@ class StoreScreenshots {
             }
             snap()
         }
-        // 9 Discover.
-        open(main().putExtra(MainActivity.EXTRA_TAB, MainActivity.TAB_DISCOVER)) { waitText(s(R.string.discover_wrapped_title)); snap() }
         // 10 The welcome, first page.
         Store.get(app).updateSettings { it.copy(onboardingDone = false) }
         open(main()) { snap(2000) }

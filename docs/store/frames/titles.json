@@ -7,8 +7,8 @@
     "5": {"title": "Perché non è stato abbinato?", "sub": "Vedi i candidati che Trackhop ha valutato"},
     "6": {"title": "Porta con te i brani mancanti", "sub": "In un file o in una playlist da sincronizzare"},
     "7": {"title": "Ogni avviso in un posto solo", "sub": "Toccane uno per aprire ciò di cui parla"},
-    "8": {"title": "Radio e Shazam come account", "sub": "Ciò che passa in onda diventa playlist"},
-    "9": {"title": "Il tuo Wrapped, quando vuoi", "sub": "Una scheda per le storie"},
+    "8": {"title": "Il tuo Wrapped, quando vuoi", "sub": "Una scheda per le storie"},
+    "9": {"title": "Radio e Shazam come account", "sub": "Ciò che passa in onda diventa playlist"},
     "10": {"title": "Nessun account da creare", "sub": "Scegli i servizi e parti"}
   },
   "en-US": {
@@ -19,8 +19,8 @@
     "5": {"title": "Why wasn't it matched?", "sub": "See every candidate Trackhop looked at"},
     "6": {"title": "Take the missing songs along", "sub": "As a file, or as a playlist to sync"},
     "7": {"title": "Every notice in one place", "sub": "Tap one to open what it's about"},
-    "8": {"title": "Radio and Shazam as accounts", "sub": "Turn what's on air into playlists"},
-    "9": {"title": "Your Wrapped, whenever you like", "sub": "A card made for your stories"},
+    "8": {"title": "Your Wrapped, whenever you like", "sub": "A card made for your stories"},
+    "9": {"title": "Radio and Shazam as accounts", "sub": "Turn what's on air into playlists"},
     "10": {"title": "No account to create", "sub": "Pick your services and go"}
   },
   "de-DE": {
@@ -31,8 +31,8 @@
     "5": {"title": "Warum nicht zugeordnet?", "sub": "Sieh jeden Kandidaten, den Trackhop prüfte"},
     "6": {"title": "Fehlende Songs mitnehmen", "sub": "Als Datei oder als Playlist zum Synchronisieren"},
     "7": {"title": "Alle Hinweise an einem Ort", "sub": "Ein Tipp öffnet, worum es geht"},
-    "8": {"title": "Radio und Shazam als Konten", "sub": "Was im Radio läuft, wird zur Playlist"},
-    "9": {"title": "Dein Wrapped, wann du willst", "sub": "Eine Karte für deine Storys"},
+    "8": {"title": "Dein Wrapped, wann du willst", "sub": "Eine Karte für deine Storys"},
+    "9": {"title": "Radio und Shazam als Konten", "sub": "Was im Radio läuft, wird zur Playlist"},
     "10": {"title": "Kein Konto nötig", "sub": "Dienste wählen und loslegen"}
   },
   "es-ES": {
@@ -43,8 +43,8 @@
     "5": {"title": "¿Por qué no se emparejó?", "sub": "Mira cada candidata que Trackhop revisó"},
     "6": {"title": "Llévate las canciones que faltan", "sub": "En un archivo o en una playlist para sincronizar"},
     "7": {"title": "Todos los avisos en un sitio", "sub": "Toca uno para abrir aquello de lo que trata"},
-    "8": {"title": "Radio y Shazam como cuentas", "sub": "Lo que suena en antena, en playlists"},
-    "9": {"title": "Tu Wrapped, cuando quieras", "sub": "Una tarjeta para tus historias"},
+    "8": {"title": "Tu Wrapped, cuando quieras", "sub": "Una tarjeta para tus historias"},
+    "9": {"title": "Radio y Shazam como cuentas", "sub": "Lo que suena en antena, en playlists"},
     "10": {"title": "Sin cuentas que crear", "sub": "Elige tus servicios y empieza"}
   },
   "fr-FR": {
@@ -55,8 +55,8 @@
     "5": {"title": "Pourquoi pas associé ?", "sub": "Vois chaque candidat examiné par Trackhop"},
     "6": {"title": "Emporte les titres manquants", "sub": "En fichier, ou en playlist à synchroniser"},
     "7": {"title": "Toutes les alertes au même endroit", "sub": "Touche-en une pour ouvrir ce dont elle parle"},
-    "8": {"title": "Radio et Shazam comme comptes", "sub": "Ce qui passe à l'antenne devient playlist"},
-    "9": {"title": "Ton Wrapped, quand tu veux", "sub": "Une carte pour tes stories"},
+    "8": {"title": "Ton Wrapped, quand tu veux", "sub": "Une carte pour tes stories"},
+    "9": {"title": "Radio et Shazam comme comptes", "sub": "Ce qui passe à l'antenne devient playlist"},
     "10": {"title": "Aucun compte à créer", "sub": "Choisis tes services et c'est parti"}
   },
   "pl-PL": {
@@ -67,8 +67,8 @@
     "5": {"title": "Dlaczego nie dopasowano?", "sub": "Zobacz każdego kandydata, którego sprawdził Trackhop"},
     "6": {"title": "Zabierz brakujące utwory", "sub": "Jako plik lub playlista do synchronizacji"},
     "7": {"title": "Wszystkie powiadomienia w jednym miejscu", "sub": "Dotknij, by otworzyć to, czego dotyczy"},
-    "8": {"title": "Radio i Shazam jako konta", "sub": "To, co leci w eterze, w playlistach"},
-    "9": {"title": "Twój Wrapped, kiedy chcesz", "sub": "Karta gotowa do relacji"},
+    "8": {"title": "Twój Wrapped, kiedy chcesz", "sub": "Karta gotowa do relacji"},
+    "9": {"title": "Radio i Shazam jako konta", "sub": "To, co leci w eterze, w playlistach"},
     "10": {"title": "Bez zakładania konta", "sub": "Wybierz serwisy i zaczynaj"}
   },
   "pt-BR": {
@@ -79,8 +79,8 @@
     "5": {"title": "Por que não foi associado?", "sub": "Veja cada candidata que o Trackhop avaliou"},
     "6": {"title": "Leve as músicas que faltam", "sub": "Em arquivo ou numa playlist para sincronizar"},
     "7": {"title": "Todos os avisos num só lugar", "sub": "Toque em um para abrir aquilo de que trata"},
-    "8": {"title": "Rádio e Shazam como contas", "sub": "O que toca no ar vira playlist"},
-    "9": {"title": "Seu Wrapped, quando quiser", "sub": "Um card para os seus stories"},
+    "8": {"title": "Seu Wrapped, quando quiser", "sub": "Um card para os seus stories"},
+    "9": {"title": "Rádio e Shazam como contas", "sub": "O que toca no ar vira playlist"},
     "10": {"title": "Sem conta para criar", "sub": "Escolha seus serviços e comece"}
   },
   "ru-RU": {
@@ -91,8 +91,8 @@
     "5": {"title": "Почему не сопоставлено?", "sub": "Посмотрите всех кандидатов, которых проверил Trackhop"},
     "6": {"title": "Заберите ненайденные треки", "sub": "Файлом или плейлистом для синхронизации"},
     "7": {"title": "Все уведомления в одном месте", "sub": "Нажмите, чтобы открыть то, о чём оно"},
-    "8": {"title": "Радио и Shazam как аккаунты", "sub": "То, что звучит в эфире, — в плейлисты"},
-    "9": {"title": "Твой Wrapped, когда захочешь", "sub": "Карточка для сторис"},
+    "8": {"title": "Твой Wrapped, когда захочешь", "sub": "Карточка для сторис"},
+    "9": {"title": "Радио и Shazam как аккаунты", "sub": "То, что звучит в эфире, — в плейлисты"},
     "10": {"title": "Без регистрации", "sub": "Выбери сервисы и начинай"}
   },
   "tr-TR": {
@@ -103,8 +103,8 @@
     "5": {"title": "Neden eşleşmedi?", "sub": "Trackhop'un baktığı her adayı gör"},
     "6": {"title": "Eksik şarkıları yanına al", "sub": "Dosya ya da eşitlenecek bir liste olarak"},
     "7": {"title": "Tüm bildirimler tek yerde", "sub": "Birine dokun, ilgili yeri aç"},
-    "8": {"title": "Hesap olarak radyo ve Shazam", "sub": "Yayında çalanlar listeye dönüşür"},
-    "9": {"title": "Wrapped'in,\nne zaman istersen", "sub": "Hikâyeler için bir kart"},
+    "8": {"title": "Wrapped'in,\nne zaman istersen", "sub": "Hikâyeler için bir kart"},
+    "9": {"title": "Hesap olarak radyo ve Shazam", "sub": "Yayında çalanlar listeye dönüşür"},
     "10": {"title": "Hesap açmaya gerek yok", "sub": "Servislerini seç ve başla"}
   },
   "ja-JP": {
@@ -115,8 +115,8 @@
     "5": {"title": "なぜ一致しなかった？", "sub": "Trackhop が調べた候補をすべて表示"},
     "6": {"title": "見つからなかった曲も\n持ち出せる", "sub": "ファイルにも、同期できるプレイリストにも"},
     "7": {"title": "お知らせはひとつの場所に", "sub": "タップすると、その内容の画面が開きます"},
-    "8": {"title": "ラジオと Shazam を\nアカウントに", "sub": "オンエアされた曲をプレイリストに"},
-    "9": {"title": "Wrapped を、\nいつでも", "sub": "ストーリーズにぴったりのカード"},
+    "8": {"title": "Wrapped を、\nいつでも", "sub": "ストーリーズにぴったりのカード"},
+    "9": {"title": "ラジオと Shazam を\nアカウントに", "sub": "オンエアされた曲をプレイリストに"},
     "10": {"title": "アカウント登録は不要", "sub": "サービスを選んで始めよう"}
   },
   "ko-KR": {
@@ -127,8 +127,8 @@
     "5": {"title": "왜 연결되지 않았나요?", "sub": "Trackhop이 살펴본 후보를 모두 보여 줘요"},
     "6": {"title": "찾지 못한 곡도\n가져가세요", "sub": "파일로, 또는 동기화할 플레이리스트로"},
     "7": {"title": "모든 알림을 한곳에", "sub": "누르면 해당 화면이 열려요"},
-    "8": {"title": "라디오와 Shazam을\n계정으로", "sub": "방송에서 나온 곡을 플레이리스트로"},
-    "9": {"title": "나만의 Wrapped, 언제든지", "sub": "스토리에 올릴 카드로"},
+    "8": {"title": "나만의 Wrapped, 언제든지", "sub": "스토리에 올릴 카드로"},
+    "9": {"title": "라디오와 Shazam을\n계정으로", "sub": "방송에서 나온 곡을 플레이리스트로"},
     "10": {"title": "계정 만들 필요 없음", "sub": "서비스를 고르고 시작하세요"}
   },
   "zh-CN": {
@@ -139,8 +139,8 @@
     "5": {"title": "为什么没有匹配？", "sub": "查看 Trackhop 比较过的每个候选"},
     "6": {"title": "把未找到的歌曲带走", "sub": "导出为文件，或存为可同步的歌单"},
     "7": {"title": "所有通知集中一处", "sub": "点按即可打开相关内容"},
-    "8": {"title": "电台和 Shazam 作为账户", "sub": "把电台播放的歌曲变成歌单"},
-    "9": {"title": "你的 Wrapped，\n随时生成", "sub": "做成卡片，分享到动态"},
+    "8": {"title": "你的 Wrapped，\n随时生成", "sub": "做成卡片，分享到动态"},
+    "9": {"title": "电台和 Shazam 作为账户", "sub": "把电台播放的歌曲变成歌单"},
     "10": {"title": "无需注册账号", "sub": "选好平台，马上开始"}
   }
 }
