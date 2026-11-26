@@ -73,13 +73,11 @@ data class KeepAlive(val state: State, val problem: String? = null, val offline:
                 ?: probe(ctx, p) { p.playlists(ctx) }
 
         /**
-         * Whether "Reconnect" goes on to sign the account out and open its sign-in after [k]: anything
-         * but a renewal, except a failure of the connection (nothing is signed out while offline).
+         * Whether "Reconnect" goes on to sign the account out and open its sign-in after [k]: only when
+         * the service really ended the session ([State.EXPIRED]) or there is none ([State.NOT_SIGNED_IN]).
+         * A failure of any other kind (no connection, an outage, a 5xx, a connector without the
+         * renewal) signs nothing out: a session that still works is never thrown away.
          */
-        fun needsSignIn(k: KeepAlive): Boolean = when (k.state) {
-            State.RENEWED -> false
-            State.FAILED -> !k.offline
-            State.EXPIRED, State.NOT_SIGNED_IN -> true
-        }
+        fun needsSignIn(k: KeepAlive): Boolean = k.state == State.EXPIRED || k.state == State.NOT_SIGNED_IN
     }
 }

@@ -431,7 +431,7 @@ class AccountsTest {
         } finally { nas.stop(0) }
     }
 
-    /** Reconnect (2.2.3): renewed, the green line; not renewable, signed out with its sign-in form; out of reach, nothing changed. Per account. */
+    /** Reconnect (2.2.3): renewed, the green line; a failure that is no session gone, or out of reach: nothing changed. Per account. */
     @Test fun reconnectRenewsOrSignsOutForANewSignIn() {
         twoJellyfins()
         val page = get("/connectors/${enc("jellyfin@2")}").body()
@@ -440,13 +440,11 @@ class AccountsTest {
         val ok = post("/connectors/${enc("jellyfin@2")}/reconnect", emptyMap()).location()
         assertTrue(ok, ok.startsWith("/connectors/${enc("jellyfin@2")}?ok=") && java.net.URLDecoder.decode(ok, "UTF-8").contains("session renewed, nothing else to do"))
         assertNotNull(env.tokens.get("jellyfin@2"))
-        // The server refuses the account now: signed out, back on its page with the sign-in form and the notice.
+        // The server answers with an error that is not a session gone (a 404, a 500): nothing signed out, credentials kept.
         env.tokens.set("jellyfin@2", env.tokens.get("jellyfin@2")!!.copy(userId = "u-gone"))
-        val gone = post("/connectors/${enc("jellyfin@2")}/reconnect", emptyMap()).location()
-        assertTrue(gone, gone.contains("?err=") && java.net.URLDecoder.decode(gone, "UTF-8").contains("could not be renewed. Sign in again."))
-        assertNull(env.tokens.get("jellyfin@2"))
-        assertNotNull(env.tokens.get("jellyfin"))
-        assertTrue(get(gone).body().contains("""name="secret""""))
+        val refused = post("/connectors/${enc("jellyfin@2")}/reconnect", emptyMap()).location()
+        assertTrue(refused, refused.contains("?err=") && java.net.URLDecoder.decode(refused, "UTF-8").contains("could not be reached, nothing changed"))
+        assertNotNull(env.tokens.get("jellyfin@2"))
         // Out of reach: nothing signed out.
         friend.stop()
         val away = post("/connectors/jellyfin/reconnect", emptyMap()).location()

@@ -119,5 +119,10 @@ class SessionsKeepAliveTest {
         val r = SessionsKeepAlive.reconnect(env, offline)
         assertFalse(r.renewed); assertFalse(r.signedOut)
         assertEquals(0, offline.disconnected)
+        // A server error (Plex answering 500): the saved credentials stay.
+        val plex = Account("ka_plex", true, KeepAlive.failed(com.xlollx.songport.model.ProviderException("Plex API 500: Internal Server Error")))
+        val p5 = SessionsKeepAlive.reconnect(env, plex)
+        assertFalse(p5.renewed); assertFalse(p5.signedOut)
+        assertEquals(0, plex.disconnected)
     }
 }

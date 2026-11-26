@@ -182,7 +182,9 @@ abstract class OAuthProvider : MusicProvider {
                 // The status alone: the answer's text is not logged, nor anything of the tokens.
                 ctx.log(id, "access not renewed (HTTP ${resp.code})")
             }
-            throw ProviderException("$displayName: session expired, please reconnect (${resp.code})")
+            if (resp.code == 400 || resp.code == 401) throw ProviderException("$displayName: session expired, please reconnect (${resp.code})")
+            // An outage or a throttle (5xx, 429): the sign-in stays, the next call tries again.
+            throw ProviderException("$displayName: access not renewed (HTTP ${resp.code}), try again later", code = resp.code)
         }
         val j = parseJson(resp.body)
         ctx.log(id, "access renewed" + (j["expires_in"].long?.let { " for ${it / 60} min" } ?: ""))

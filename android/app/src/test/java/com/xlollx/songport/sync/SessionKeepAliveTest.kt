@@ -235,14 +235,16 @@ class SessionKeepAliveTest {
         assertEquals(KA.RENEWED, web(SessionKeepAlive.Answer(null, null, false, renewed = true))())
         assertEquals(KA.EXPIRED, web(SessionKeepAlive.Answer(null, null, true))())
         assertEquals(KA.NOT_SIGNED_IN, web(SessionKeepAlive.Answer(null, null, false, connected = false))())
-        // An older connector without the method: not renewed, so a new sign-in follows.
+        // Signed in, not renewed now, no error (SoundCloud's token still fresh, YouTube Music renewed a moment ago): it works.
+        assertEquals(KA.RENEWED, web(SessionKeepAlive.Answer(null, null, false, renewed = false, connected = true))())
+        // An older connector without the method: not renewed, nothing signed out.
         val old = web(SessionKeepAlive.Answer("unknown method qobuz.keepAlive", null, false))()
-        assertTrue(KA.needsSignIn(old))
-        // Offline: nothing is signed out.
-        val offline = web(SessionKeepAlive.Answer(null, null, false, problem = "no internet", offline = true))()
-        assertFalse(KA.needsSignIn(offline))
-        // No connector at all: not renewed.
-        assertTrue(KA.needsSignIn(SessionKeepAlive.renewNow("amazon", null) { error("not official") }))
+        assertFalse(KA.needsSignIn(old))
+        // A failed call (an outage) or no connection: nothing signed out.
+        assertFalse(KA.needsSignIn(web(SessionKeepAlive.Answer(null, null, false, problem = "HTTP 503"))()))
+        assertFalse(KA.needsSignIn(web(SessionKeepAlive.Answer(null, null, false, problem = "no internet", offline = true))()))
+        // No connector at all: nothing signed out.
+        assertFalse(KA.needsSignIn(SessionKeepAlive.renewNow("amazon", null) { error("not official") }))
         // An official account: its own renewal.
         assertEquals(KA.RENEWED, SessionKeepAlive.renewNow("tidal@2", { error("no connector call") }) { KA.RENEWED })
     }
@@ -261,8 +263,10 @@ class SessionKeepAliveTest {
         val signIn = listOf("said SIGN_IN", "signed out", "sign-in opened", "ended SIGN_IN")
         assertEquals(signIn, flow(KA.EXPIRED))
         assertEquals(signIn, flow(KA.NOT_SIGNED_IN))
-        assertEquals(signIn, flow(KA.failed(IllegalStateException("unknown method qobuz.keepAlive"))))
-        // The service out of reach: nothing signed out.
-        assertEquals(listOf("said OFFLINE", "ended OFFLINE"), flow(KA.failed(java.net.UnknownHostException("api.tidal.com"))))
+        // Not renewed this time (out of reach, an outage, an older connector): nothing signed out.
+        val nothing = listOf("said OFFLINE", "ended OFFLINE")
+        assertEquals(nothing, flow(KA.failed(java.net.UnknownHostException("api.tidal.com"))))
+        assertEquals(nothing, flow(KA.failed(IllegalStateException("unknown method qobuz.keepAlive"))))
+        assertEquals(nothing, flow(KA.failed(com.xlollx.songport.model.ProviderException("TIDAL: access not renewed (HTTP 503), try again later"))))
     }
 }

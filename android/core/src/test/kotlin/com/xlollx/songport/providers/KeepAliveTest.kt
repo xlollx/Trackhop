@@ -41,7 +41,8 @@ class KeepAliveTest {
         s.fail = com.xlollx.songport.model.ProviderException("Server API 401: unauthorized")
         val refused = KeepAlive.renewNow(env, s)
         assertEquals(KeepAlive.State.FAILED, refused.state)
-        assertTrue(KeepAlive.needsSignIn(refused))
+        // A refusal that is not a session gone (an outage, a 500): nothing signed out.
+        assertFalse(KeepAlive.needsSignIn(refused))
         s.connected = false
         assertEquals(KeepAlive.NOT_SIGNED_IN, KeepAlive.renewNow(env, s))
     }
@@ -50,7 +51,8 @@ class KeepAliveTest {
         assertFalse(KeepAlive.needsSignIn(KeepAlive.RENEWED))
         assertTrue(KeepAlive.needsSignIn(KeepAlive.EXPIRED))
         assertTrue(KeepAlive.needsSignIn(KeepAlive.NOT_SIGNED_IN))
-        assertTrue(KeepAlive.needsSignIn(KeepAlive.failed(IllegalStateException("the page changed"))))
+        assertFalse(KeepAlive.needsSignIn(KeepAlive.failed(IllegalStateException("the page changed"))))
+        assertFalse(KeepAlive.needsSignIn(KeepAlive.failed(com.xlollx.songport.model.ProviderException("Plex API 500: oops"))))
         // Offline: nothing is signed out.
         assertFalse(KeepAlive.needsSignIn(KeepAlive.failed(java.net.UnknownHostException("api.example.org"))))
     }

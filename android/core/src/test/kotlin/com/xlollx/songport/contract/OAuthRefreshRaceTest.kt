@@ -13,6 +13,7 @@ import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -101,7 +102,9 @@ class OAuthRefreshRaceTest : ContractTest() {
     @Test fun aRealRevocationStillSignsOut() = runBlocking {
         env.tokens.set("tidal", Tokens("OLD", "RT0", expiresAt = System.currentTimeMillis() + 1_000, userId = "u1"))
         used += "RT0" // revoked: the service refuses it
-        assertEquals(KeepAlive.EXPIRED, td.keepAlive(env))
+        val k = td.keepAlive(env)
+        assertEquals(KeepAlive.EXPIRED, k)
+        assertTrue("a real revocation signs out", KeepAlive.needsSignIn(k))
         assertNull(stored())
         assertTrue(env.logs.any { it.contains("signed out, a new sign-in is needed") })
     }
@@ -123,6 +126,12 @@ class OAuthRefreshRaceTest : ContractTest() {
         onRefresh = { MockResponse().setResponseCode(503).setBody("down") }
         val out = td.keepAlive(env)
         assertEquals(KeepAlive.State.FAILED, out.state)
+        assertNotNull(stored())
+        // "Reconnect" signs nothing out on an outage, and the error does not ask for a new sign-in.
+        assertFalse(KeepAlive.needsSignIn(out))
+        assertFalse(out.problem.orEmpty(), out.problem.orEmpty().contains("please reconnect"))
+        onRefresh = { MockResponse().setResponseCode(429).setBody("slow down") }
+        assertEquals(KeepAlive.State.FAILED, td.keepAlive(env).state)
         assertNotNull(stored())
         // Logs say the status, never a token.
         assertTrue(env.logs.none { it.contains("RT0") || it.contains("OLD") })

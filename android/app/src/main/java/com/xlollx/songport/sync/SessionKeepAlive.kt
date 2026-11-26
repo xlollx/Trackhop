@@ -148,8 +148,9 @@ object SessionKeepAlive {
     /**
      * "Reconnect" on one account ([connectorId]): its session renewed now, the same renewal as the
      * keep-alive's. A web connector answers through [bridge] (null: no connector there, or an older
-     * one without the method: not renewed), an official one through [official]. Then
-     * [KeepAlive.needsSignIn] says whether the account is signed out for a new sign-in.
+     * one without the method: not renewed, nothing changed), an official one through [official].
+     * Then [KeepAlive.needsSignIn] says whether the account is signed out for a new sign-in: only
+     * when the session is really gone.
      */
     suspend fun renewNow(
         connectorId: String,
@@ -162,9 +163,12 @@ object SessionKeepAlive {
         return when {
             b.error != null -> KeepAlive(KeepAlive.State.FAILED, b.error.take(200))
             expiryOf(b.expiredAt, b.expired) != null -> KeepAlive.EXPIRED
-            b.renewed -> KeepAlive.RENEWED
             !b.connected -> KeepAlive.NOT_SIGNED_IN
-            else -> KeepAlive(KeepAlive.State.FAILED, b.problem, offline = b.offline)
+            // Not renewed this time with a reason (a web connector's call that failed): nothing changed.
+            !b.renewed && b.problem != null -> KeepAlive(KeepAlive.State.FAILED, b.problem, offline = b.offline)
+            // Signed in, no error, no expiry: the session works (SoundCloud's token still fresh,
+            // YouTube Music renewed a moment ago or still answering), whether renewed now or not.
+            else -> KeepAlive.RENEWED
         }
     }
 
@@ -190,7 +194,7 @@ object SessionKeepAlive {
         return k
     }
 
-    /** What "Reconnect" ends with: the session works; signed out for a new sign-in; the service out of reach (nothing changed). */
+    /** What "Reconnect" ends with: the session works; signed out for a new sign-in (the session gone); not renewed this time (nothing changed). */
     enum class ReconnectStep { RENEWED, SIGN_IN, OFFLINE }
 
     fun reconnectStep(k: KeepAlive): ReconnectStep = when {
