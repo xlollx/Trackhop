@@ -48,6 +48,9 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          # main takes pushes only through a pull request or from the ruleset's bypass list, where the
+          # workflow's own token is not: the deploy key BOT_DEPLOY_KEY is (26/11).
+          ssh-key: ${{ secrets.BOT_DEPLOY_KEY }}
       - name: Release notes
         run: python3 scripts/site_data.py releases
       - name: Publish
@@ -56,7 +59,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/_data/releases.json
-          git commit -m "Site: what's new"
+          git commit -m "Site: what's new [skip ci]"
           for i in 1 2 3; do git pull --rebase -q origin main && git push origin HEAD:main && break; sleep 5; done
-          # A push made with the workflow's token may not start the site's build on its own.
+          # [skip ci] keeps Build and CodeQL from running on a data commit; the site's build is asked for here.
           gh api -X POST "repos/${{ github.repository }}/pages/builds" > /dev/null || true

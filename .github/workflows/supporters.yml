@@ -32,6 +32,10 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          # main takes pushes only through a pull request or from the ruleset's bypass list, where the
+          # workflow's own token is not: the deploy key BOT_DEPLOY_KEY is (26/11).
+          ssh-key: ${{ secrets.BOT_DEPLOY_KEY }}
 
       - name: Ko-fi supporter, or one added by hand
         if: github.event_name == 'repository_dispatch' || inputs.name != ''
@@ -57,8 +61,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/_data/supporters.yml README.md
-          git commit -m "Site: thank $names"
+          git commit -m "Site: thank $names [skip ci]"
           # Someone may have pushed meanwhile: replay on top and try again.
           for i in 1 2 3; do git pull --rebase -q origin main && git push origin HEAD:main && break; sleep 5; done
-          # A push made with the workflow's token may not start the site's build on its own.
+          # [skip ci] keeps Build and CodeQL from running on a data commit; the site's build is asked for here.
           gh api -X POST "repos/${{ github.repository }}/pages/builds" > /dev/null || true
