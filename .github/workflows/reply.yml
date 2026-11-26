@@ -1,0 +1,74 @@
+# Posts a reply as the maintainer, with the maintainer's own token (secret REPLY_TOKEN): on an issue or
+# a pull request, or on a discussion (optionally under one of its comments), and can close the issue.
+# Started by hand (or through the API) with the number and the text; the text is posted as given.
+name: Reply
+
+on:
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: 'Where: issue (also a pull request) or discussion'
+        type: choice
+        options: [issue, discussion]
+        default: issue
+      number:
+        description: 'Issue, pull request or discussion number'
+        required: true
+      body:
+        description: 'The reply (Markdown)'
+        required: true
+      close:
+        description: 'Issue only: close it after the reply (completed / not_planned)'
+        type: choice
+        options: ['no', completed, not_planned]
+        default: 'no'
+      reply_to:
+        description: 'Discussion only: the node id of the comment to answer under (optional)'
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reply-${{ inputs.kind }}-${{ inputs.number }}
+
+jobs:
+  reply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ secrets.REPLY_TOKEN }}
+      REPO: ${{ github.repository }}
+      OWNER: ${{ github.repository_owner }}
+      NAME: ${{ github.event.repository.name }}
+      KIND: ${{ inputs.kind }}
+      NUMBER: ${{ inputs.number }}
+      BODY: ${{ inputs.body }}
+      CLOSE: ${{ inputs.close }}
+      REPLY_TO: ${{ inputs.reply_to }}
+    steps:
+      - name: Post
+        run: |
+          [ -n "$GH_TOKEN" ] || { echo "::error::The secret REPLY_TOKEN is missing."; exit 1; }
+          case "$NUMBER" in ''|*[!0-9]*) echo "::error::Not a number: $NUMBER"; exit 1;; esac
+          if [ "$KIND" = issue ]; then
+            url=$(jq -n --arg b "$BODY" '{body: $b}' | gh api -X POST "repos/$REPO/issues/$NUMBER/comments" --input - --jq .html_url)
+            echo "Posted: $url"
+            if [ "$CLOSE" != no ]; then
+              gh api -X PATCH "repos/$REPO/issues/$NUMBER" -f state=closed -f state_reason="$CLOSE" > /dev/null && echo "Closed as $CLOSE"
+            fi
+          else
+            id=$(gh api graphql -F owner="$OWNER" -F name="$NAME" -F n="$NUMBER" \
+              -f query='query($owner: String!, $name: String!, $n: Int!) { repository(owner: $owner, name: $name) { discussion(number: $n) { id } } }' \
+              --jq .data.repository.discussion.id)
+            [ -n "$id" ] && [ "$id" != null ] || { echo "::error::No discussion #$NUMBER"; exit 1; }
+            args=(-f d="$id" -f b="$BODY")
+            if [ -n "$REPLY_TO" ]; then
+              q='mutation($d: ID!, $b: String!, $r: ID!) { addDiscussionComment(input: {discussionId: $d, body: $b, replyToId: $r}) { comment { url } } }'
+              args+=(-f r="$REPLY_TO")
+            else
+              q='mutation($d: ID!, $b: String!) { addDiscussionComment(input: {discussionId: $d, body: $b}) { comment { url } } }'
+            fi
+            url=$(gh api graphql "${args[@]}" -f query="$q" --jq .data.addDiscussionComment.comment.url)
+            echo "Posted: $url"
+          fi
