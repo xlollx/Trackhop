@@ -12,6 +12,7 @@ Released with the app's 2.2.3.
 - **Signed-in services stay signed in on their own**: twice a day the server renews the session of each signed-in account (the official sign-ins and the web connectors it runs), one after the other, with one line per account in the log. You are asked to sign in again (on your notification channels and on the Notifications page) only when a service really ended a session.
 - **Reconnect**: a button on each service's page renews its session now; when that cannot work, the account is signed out and its sign-in opens. Also `POST /api/v1/services/{id}/reconnect` and `trackhop reconnect <service>`.
 - **Fixed**: TIDAL and other official sign-ins could sign out by themselves when several syncs renewed the same access at once; renewals now go one at a time per account.
+- **Fixed**: Deezer liked songs synced to another service's liked songs keep their order: the newest like ends on top. Thanks to @Doggo785 (#87).
 
 ## 2.2.1
 
