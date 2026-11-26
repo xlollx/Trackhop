@@ -3723,4 +3723,9 @@
         <item quantity="one">Eine Datei-Playlist mit diesem Song. Du kannst sie dann mit jedem anderen Dienst synchronisieren.</item>
         <item quantity="other">Eine Datei-Playlist mit diesen %1$d Songs. Du kannst sie dann mit jedem anderen Dienst synchronisieren.</item>
     </plurals>
+    <string name="account_reconnect">Neu verbinden</string>
+    <string name="reconnect_working">Wird neu verbunden…</string>
+    <string name="reconnect_renewed">%1$s: Sitzung erneuert, sonst ist nichts zu tun.</string>
+    <string name="reconnect_sign_in">%1$s: Die Sitzung konnte nicht erneuert werden. Melde dich erneut an.</string>
+    <string name="reconnect_offline">%1$s: Der Dienst war nicht erreichbar, nichts wurde geändert. Versuche es später noch einmal.</string>
 </resources>

@@ -3731,4 +3731,9 @@
         <item quantity="one">Une playlist Fichier avec ce titre. Tu pourras ensuite la synchroniser avec n\'importe quel autre service.</item>
         <item quantity="other">Une playlist Fichier avec ces %1$d titres. Tu pourras ensuite la synchroniser avec n\'importe quel autre service.</item>
     </plurals>
+    <string name="account_reconnect">Reconnecter</string>
+    <string name="reconnect_working">Reconnexion…</string>
+    <string name="reconnect_renewed">%1$s : session renouvelée, rien d\'autre à faire.</string>
+    <string name="reconnect_sign_in">%1$s : la session n\'a pas pu être renouvelée. Reconnectez-vous.</string>
+    <string name="reconnect_offline">%1$s : service injoignable, rien n\'a changé. Réessayez plus tard.</string>
 </resources>

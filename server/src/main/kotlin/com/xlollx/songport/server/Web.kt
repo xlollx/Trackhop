@@ -755,6 +755,8 @@ $removals"""
                 body.append(
                     """<div class="card row"><div><span class="ok">Connected</span>${p.accountName(env)?.let { " as <b>" + h(it) + "</b>" } ?: ""}</div><div class="actions">""" +
                         Html.postButton("/connectors/${q(p.id)}/test", "Test the connection", "secondary") + " " +
+                        // Renewed on its own; when it cannot be, signed out and on to its sign-in.
+                        Html.postButton("/connectors/${q(p.id)}/reconnect", h(env.text("account_reconnect")), "secondary") + " " +
                         Html.postButton("/connectors/${q(p.id)}/disconnect", "Disconnect", "secondary") + "</div></div>" + quotaCard(p),
                 )
                 if (p is CredentialsProvider && p.loginForm.needsUrl && p.offersSecondAddress) body.append(addressCard(p))

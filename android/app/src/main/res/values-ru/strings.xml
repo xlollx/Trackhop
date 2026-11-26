@@ -3969,4 +3969,9 @@
         <item quantity="many">Плейлист «Файл» с этими %1$d треками. Потом его можно синхронизировать с любым другим сервисом.</item>
         <item quantity="other">Плейлист «Файл» с этими %1$d треками. Потом его можно синхронизировать с любым другим сервисом.</item>
     </plurals>
+    <string name="account_reconnect">Переподключить</string>
+    <string name="reconnect_working">Переподключение…</string>
+    <string name="reconnect_renewed">%1$s: сессия обновлена, больше ничего делать не нужно.</string>
+    <string name="reconnect_sign_in">%1$s: не удалось обновить сессию. Войдите снова.</string>
+    <string name="reconnect_offline">%1$s: сервис недоступен, ничего не изменилось. Попробуйте позже.</string>
 </resources>

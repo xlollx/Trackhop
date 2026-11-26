@@ -642,6 +642,13 @@ private fun ProviderCard(
                 PageNote(stringResource(p.notConfiguredRes ?: R.string.not_configured_hint), tone = Tone.Error)
             }
             Spacer(Modifier.height(8.dp))
+            // "Reconnect" at work: the session renewed on its own first.
+            var reconnecting by remember(p.id) { mutableStateOf(false) }
+            if (reconnecting) Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp)) {
+                androidx.compose.material3.CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 2.dp)
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(R.string.reconnect_working), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
             if (connected && tight) encrypted(Modifier.fillMaxWidth())
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 if (connected && !tight) encrypted(Modifier.weight(1f)) else Spacer(Modifier.weight(1f))
@@ -683,6 +690,29 @@ private fun ProviderCard(
                 )
                 val actions = listOfNotNull(
                     if (connected) MenuAction(stringResource(R.string.account_test), { testing = true }) else null,
+                    // Every account, signed in or not: renewed on its own, else signed out and on to its sign-in.
+                    if (p.requiresAuth) MenuAction(stringResource(R.string.account_reconnect), {
+                        if (!reconnecting) {
+                            reconnecting = true
+                            val label = p.label(ctx)
+                            cardScope.launch {
+                                com.xlollx.songport.sync.SessionKeepAlive.reconnectFlow(
+                                    renew = { com.xlollx.songport.sync.SessionKeepAlive.reconnect(ctx, p) },
+                                    signOut = { p.disconnect(ctx) },
+                                    signIn = onConnect,
+                                    say = { step ->
+                                        onMessage(ctx.getString(when (step) {
+                                            com.xlollx.songport.sync.SessionKeepAlive.ReconnectStep.RENEWED -> R.string.reconnect_renewed
+                                            com.xlollx.songport.sync.SessionKeepAlive.ReconnectStep.SIGN_IN -> R.string.reconnect_sign_in
+                                            com.xlollx.songport.sync.SessionKeepAlive.ReconnectStep.OFFLINE -> R.string.reconnect_offline
+                                        }, label))
+                                    },
+                                )
+                                reconnecting = false
+                                onChanged()
+                            }
+                        }
+                    }) else null,
                     if (channels) MenuAction(stringResource(R.string.ytm_channel), { choosingChannel = true }) else null,
                     if (family) MenuAction(stringResource(R.string.deezer_profile), { choosingProfile = true }) else null,
                     if (p.setupGuide != null && p.slot.isEmpty() && configured) MenuAction(stringResource(R.string.setup_cta), { onSetup(p) }) else null,

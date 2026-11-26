@@ -431,6 +431,29 @@ class AccountsTest {
         } finally { nas.stop(0) }
     }
 
+    /** Reconnect (2.2.3): renewed, the green line; not renewable, signed out with its sign-in form; out of reach, nothing changed. Per account. */
+    @Test fun reconnectRenewsOrSignsOutForANewSignIn() {
+        twoJellyfins()
+        val page = get("/connectors/${enc("jellyfin@2")}").body()
+        assertTrue(page.contains("/connectors/${enc("jellyfin@2")}/reconnect"))
+        // Works: the short message, both accounts as they were.
+        val ok = post("/connectors/${enc("jellyfin@2")}/reconnect", emptyMap()).location()
+        assertTrue(ok, ok.startsWith("/connectors/${enc("jellyfin@2")}?ok=") && java.net.URLDecoder.decode(ok, "UTF-8").contains("session renewed, nothing else to do"))
+        assertNotNull(env.tokens.get("jellyfin@2"))
+        // The server refuses the account now: signed out, back on its page with the sign-in form and the notice.
+        env.tokens.set("jellyfin@2", env.tokens.get("jellyfin@2")!!.copy(userId = "u-gone"))
+        val gone = post("/connectors/${enc("jellyfin@2")}/reconnect", emptyMap()).location()
+        assertTrue(gone, gone.contains("?err=") && java.net.URLDecoder.decode(gone, "UTF-8").contains("could not be renewed. Sign in again."))
+        assertNull(env.tokens.get("jellyfin@2"))
+        assertNotNull(env.tokens.get("jellyfin"))
+        assertTrue(get(gone).body().contains("""name="secret""""))
+        // Out of reach: nothing signed out.
+        friend.stop()
+        val away = post("/connectors/jellyfin/reconnect", emptyMap()).location()
+        assertTrue(away, java.net.URLDecoder.decode(away, "UTF-8").contains("could not be reached, nothing changed"))
+        assertNotNull(env.tokens.get("jellyfin"))
+    }
+
     @Test fun slotsAreNumberedAsInTheApp() {
         assertEquals("2", Accounts.nextSlot(emptyList()))
         assertEquals("3", Accounts.nextSlot(listOf("2")))

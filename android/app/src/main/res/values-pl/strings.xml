@@ -3971,4 +3971,9 @@
         <item quantity="many">Playlista Plik z tymi %1$d utworami. Potem możesz ją zsynchronizować z dowolnym innym serwisem.</item>
         <item quantity="other">Playlista Plik z tymi %1$d utworami. Potem możesz ją zsynchronizować z dowolnym innym serwisem.</item>
     </plurals>
+    <string name="account_reconnect">Połącz ponownie</string>
+    <string name="reconnect_working">Ponowne łączenie…</string>
+    <string name="reconnect_renewed">%1$s: sesja odnowiona, nic więcej nie trzeba robić.</string>
+    <string name="reconnect_sign_in">%1$s: nie udało się odnowić sesji. Zaloguj się ponownie.</string>
+    <string name="reconnect_offline">%1$s: serwis jest nieosiągalny, nic się nie zmieniło. Spróbuj później.</string>
 </resources>

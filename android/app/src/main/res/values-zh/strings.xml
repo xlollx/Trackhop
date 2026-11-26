@@ -3600,4 +3600,9 @@
     <plurals name="not_found_playlist_hint">
         <item quantity="other">包含这 %1$d 首歌曲的“文件”歌单。之后可以同步到任何其他服务。</item>
     </plurals>
+    <string name="account_reconnect">重新连接</string>
+    <string name="reconnect_working">正在重新连接…</string>
+    <string name="reconnect_renewed">%1$s：会话已续期，无需其他操作。</string>
+    <string name="reconnect_sign_in">%1$s：无法续期会话，请重新登录。</string>
+    <string name="reconnect_offline">%1$s：无法连接到该服务，未做任何更改。请稍后再试。</string>
 </resources>

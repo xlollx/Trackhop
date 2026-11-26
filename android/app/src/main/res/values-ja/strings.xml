@@ -3600,4 +3600,9 @@
     <plurals name="not_found_playlist_hint">
         <item quantity="other">この %1$d 曲の「ファイル」プレイリスト。あとで他のどのサービスにも同期できます。</item>
     </plurals>
+    <string name="account_reconnect">再接続</string>
+    <string name="reconnect_working">再接続しています…</string>
+    <string name="reconnect_renewed">%1$s：セッションを更新しました。ほかに必要な操作はありません。</string>
+    <string name="reconnect_sign_in">%1$s：セッションを更新できませんでした。もう一度ログインしてください。</string>
+    <string name="reconnect_offline">%1$s：サービスに接続できませんでした。何も変更していません。後でもう一度お試しください。</string>
 </resources>

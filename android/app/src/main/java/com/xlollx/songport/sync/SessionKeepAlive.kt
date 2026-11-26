@@ -190,6 +190,26 @@ object SessionKeepAlive {
         return k
     }
 
+    /** What "Reconnect" ends with: the session works; signed out for a new sign-in; the service out of reach (nothing changed). */
+    enum class ReconnectStep { RENEWED, SIGN_IN, OFFLINE }
+
+    fun reconnectStep(k: KeepAlive): ReconnectStep = when {
+        k.renewed -> ReconnectStep.RENEWED
+        KeepAlive.needsSignIn(k) -> ReconnectStep.SIGN_IN
+        else -> ReconnectStep.OFFLINE
+    }
+
+    /**
+     * "Reconnect" from an account's menu: [renew] first; said with [say]; when it cannot work, the
+     * account is signed out ([signOut], as its Disconnect does) and its sign-in opened ([signIn]).
+     */
+    suspend fun reconnectFlow(renew: suspend () -> KeepAlive, signOut: () -> Unit, signIn: () -> Unit, say: (ReconnectStep) -> Unit): ReconnectStep {
+        val step = reconnectStep(renew())
+        say(step)
+        if (step == ReconnectStep.SIGN_IN) { signOut(); signIn() }
+        return step
+    }
+
     // ------------------------------------------------------------------ "sign in again", once per expiry
 
     /** The expiry of a session that says only that it is gone: told once until it works again. */

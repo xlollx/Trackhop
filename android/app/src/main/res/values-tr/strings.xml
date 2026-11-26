@@ -3721,4 +3721,9 @@
         <item quantity="one">Bu şarkıyla bir Dosya çalma listesi. Sonra onu başka herhangi bir servise senkronlayabilirsin.</item>
         <item quantity="other">Bu %1$d şarkıyla bir Dosya çalma listesi. Sonra onu başka herhangi bir servise senkronlayabilirsin.</item>
     </plurals>
+    <string name="account_reconnect">Yeniden bağlan</string>
+    <string name="reconnect_working">Yeniden bağlanıyor…</string>
+    <string name="reconnect_renewed">%1$s: oturum yenilendi, başka bir şey yapmaya gerek yok.</string>
+    <string name="reconnect_sign_in">%1$s: oturum yenilenemedi. Yeniden giriş yap.</string>
+    <string name="reconnect_offline">%1$s: servise ulaşılamadı, hiçbir şey değişmedi. Daha sonra yeniden dene.</string>
 </resources>

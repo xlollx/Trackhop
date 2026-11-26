@@ -3599,4 +3599,9 @@
     <plurals name="not_found_playlist_hint">
         <item quantity="other">이 %1$d곡이 담긴 \'파일\' 플레이리스트. 나중에 다른 어떤 서비스로도 동기화할 수 있어요.</item>
     </plurals>
+    <string name="account_reconnect">다시 연결</string>
+    <string name="reconnect_working">다시 연결하는 중…</string>
+    <string name="reconnect_renewed">%1$s: 세션을 갱신했습니다. 더 할 일은 없습니다.</string>
+    <string name="reconnect_sign_in">%1$s: 세션을 갱신할 수 없습니다. 다시 로그인하세요.</string>
+    <string name="reconnect_offline">%1$s: 서비스에 연결할 수 없어 아무것도 바뀌지 않았습니다. 나중에 다시 시도하세요.</string>
 </resources>

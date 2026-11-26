@@ -246,4 +246,23 @@ class SessionKeepAliveTest {
         // An official account: its own renewal.
         assertEquals(KA.RENEWED, SessionKeepAlive.renewNow("tidal@2", { error("no connector call") }) { KA.RENEWED })
     }
+
+    @Test fun reconnectFromTheMenuRenewsSignsOutOrLeavesAllAsItIs() = kotlinx.coroutines.runBlocking {
+        val KA = com.xlollx.songport.providers.KeepAlive
+        suspend fun flow(k: com.xlollx.songport.providers.KeepAlive): List<String> {
+            val done = ArrayList<String>()
+            val step = SessionKeepAlive.reconnectFlow({ k }, signOut = { done += "signed out" }, signIn = { done += "sign-in opened" }, say = { done += "said ${it.name}" })
+            done += "ended ${step.name}"
+            return done
+        }
+        // Renewed: the short message and nothing else.
+        assertEquals(listOf("said RENEWED", "ended RENEWED"), flow(KA.RENEWED))
+        // Not renewable: signed out, then the service's sign-in.
+        val signIn = listOf("said SIGN_IN", "signed out", "sign-in opened", "ended SIGN_IN")
+        assertEquals(signIn, flow(KA.EXPIRED))
+        assertEquals(signIn, flow(KA.NOT_SIGNED_IN))
+        assertEquals(signIn, flow(KA.failed(IllegalStateException("unknown method qobuz.keepAlive"))))
+        // The service out of reach: nothing signed out.
+        assertEquals(listOf("said OFFLINE", "ended OFFLINE"), flow(KA.failed(java.net.UnknownHostException("api.tidal.com"))))
+    }
 }

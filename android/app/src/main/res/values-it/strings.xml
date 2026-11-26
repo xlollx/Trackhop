@@ -3723,4 +3723,9 @@
         <item quantity="one">Una playlist File con questo brano. Poi puoi sincronizzarla con qualsiasi altro servizio.</item>
         <item quantity="other">Una playlist File con questi %1$d brani. Poi puoi sincronizzarla con qualsiasi altro servizio.</item>
     </plurals>
+    <string name="account_reconnect">Ricollega</string>
+    <string name="reconnect_working">Ricollegamento…</string>
+    <string name="reconnect_renewed">%1$s: sessione rinnovata, nient\'altro da fare.</string>
+    <string name="reconnect_sign_in">%1$s: non è stato possibile rinnovare la sessione. Accedi di nuovo.</string>
+    <string name="reconnect_offline">%1$s: servizio non raggiungibile, non è cambiato nulla. Riprova più tardi.</string>
 </resources>

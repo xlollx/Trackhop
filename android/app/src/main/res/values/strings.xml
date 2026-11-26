@@ -3727,4 +3727,9 @@
         <item quantity="one">A File playlist with this song. You can then sync it to any other service.</item>
         <item quantity="other">A File playlist with these %1$d songs. You can then sync it to any other service.</item>
     </plurals>
+    <string name="account_reconnect">Reconnect</string>
+    <string name="reconnect_working">Reconnecting…</string>
+    <string name="reconnect_renewed">%1$s: session renewed, nothing else to do.</string>
+    <string name="reconnect_sign_in">%1$s: the session could not be renewed. Sign in again.</string>
+    <string name="reconnect_offline">%1$s: the service could not be reached, nothing changed. Try again later.</string>
 </resources>
