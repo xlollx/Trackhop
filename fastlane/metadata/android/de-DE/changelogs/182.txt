@@ -1,0 +1,1 @@
+Trackhop 2.2.4. Amazon Music: Die erneute Anmeldung schloss zu früh, auf music.amazon.com statt auf der Seite des Kontos (music.amazon.de, .it…), und Syncs schlugen dann mit "Sitzung abgelaufen" fehl. Die Anmeldung wartet jetzt auf den angemeldeten Player und wechselt zur Seite des Kontos. Fragt Amazon Music nach einer Anmeldung, melde dich noch einmal an.

@@ -1,0 +1,1 @@
+Trackhop 2.2.4. Corretto: riaccedendo a un servizio web l'accesso poteva chiudersi prima di finire, e le sue sync fallivano con "sessione scaduta". Se un servizio ti chiede di accedere, accedi ancora una volta.

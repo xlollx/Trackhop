@@ -1,0 +1,1 @@
+Trackhop 2.2.4. Behoben: Die erneute Anmeldung bei einem Webdienst konnte schließen, bevor sie fertig war, und seine Syncs schlugen dann mit "Sitzung abgelaufen" fehl. Fragt ein Dienst nach einer Anmeldung, melde dich noch einmal an.

@@ -1,0 +1,1 @@
+Trackhop 2.2.4. Amazon Music: riaccedendo, l'accesso si chiudeva troppo presto su music.amazon.com invece che sul sito dell'account (music.amazon.it, .de…) e le sync fallivano con "sessione scaduta". Ora l'accesso aspetta il player collegato e passa al sito dell'account. Se Amazon Music ti chiede di accedere, accedi ancora una volta.

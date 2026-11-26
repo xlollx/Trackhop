@@ -1,0 +1,1 @@
+Trackhop 2.2.4. Amazon Music: 다시 로그인할 때 계정 사이트(music.amazon.de, .it…) 대신 music.amazon.com에서 너무 일찍 닫혀 동기화가 "세션 만료"로 실패했습니다. 이제 로그인된 플레이어를 기다린 뒤 계정 사이트로 이동합니다. Amazon Music이 로그인을 요청하면 한 번 더 로그인하세요.

@@ -1,0 +1,1 @@
+Trackhop 2.2.4. Amazon Music: signing in again closed too early, on music.amazon.com instead of the account's own site (music.amazon.it, .de…), and syncs then failed with "session expired". The sign-in now waits for the signed-in player and moves on to the account's site. If Amazon Music asks you to sign in, sign in once more.

@@ -48,7 +48,9 @@ object AmazonSession {
         ctx.applicationContext.getSharedPreferences(REGION, Context.MODE_PRIVATE).getString(LAST_DOMAIN, null)?.takeIf { it in AmazonClient.DOMAINS }
 
     fun rememberDomain(ctx: Context, domain: String) {
-        if (domain !in AmazonClient.DOMAINS) return
+        // music.amazon.com is where every sign-in starts anyway; kept, it would only overwrite the
+        // account's own site after a sign-in that closed there too early (26/11).
+        if (domain !in AmazonClient.DOMAINS || domain == "music.amazon.com") return
         ctx.applicationContext.getSharedPreferences(REGION, Context.MODE_PRIVATE).edit().putString(LAST_DOMAIN, domain).apply()
     }
 
@@ -121,6 +123,12 @@ object AmazonSession {
         } else if (was == AmazonRoute.SKILL) {
             BridgeNet.log("amazon", "Amazon Music: this account's player uses GraphQL again")
         }
+    }
+
+    /** Forgets the player's mirrored headers (and where they were seen), keeping the session itself. */
+    fun forgetHeaders(ctx: Context) {
+        prefs(ctx).edit().remove("headers").remove("headers_ua").remove("headers_host").remove("headers_at").apply()
+        AmazonBridge.forget()
     }
 
     fun headers(ctx: Context): String? = prefs(ctx).getString("headers", null)

@@ -1,0 +1,1 @@
+Trackhop 2.2.4. Naprawiono: ponowne logowanie do usługi internetowej mogło zamknąć się przed końcem, a jej synchronizacje kończyły się błędem "sesja wygasła". Jeśli usługa poprosi o zalogowanie, zaloguj się jeszcze raz.

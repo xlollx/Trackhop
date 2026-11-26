@@ -51,5 +51,20 @@ class AmazonRegionalSignInTest {
         // Only a regional player's host is kept.
         AmazonSession.rememberDomain(app, "evil.example.com")
         assertEquals("music.amazon.it", AmazonSession.lastDomain(app))
+        // A sign-in that closed on music.amazon.com too early does not overwrite the account's own site.
+        AmazonSession.save(app, "at-main=x; session-id=1", "music.amazon.com", null)
+        assertEquals("music.amazon.it", AmazonSession.lastDomain(app))
+    }
+
+    @Test fun headersOfASignedOutPlayerAreForgottenAndTheSessionKept() {
+        val app = RuntimeEnvironment.getApplication() as Application
+        AmazonSession.save(app, "at-acbit=x; session-id=1", "music.amazon.it", null)
+        AmazonSession.saveHeaders(app, "{\"csrf-token\":\"t\"}", "UA", "music.amazon.com")
+        assertEquals("music.amazon.com", AmazonSession.headersHost(app))
+        AmazonSession.forgetHeaders(app)
+        assertNull(AmazonSession.headersHost(app))
+        assertNull(AmazonSession.headers(app))
+        assertEquals(0L, AmazonSession.headersAt(app))
+        assertEquals("music.amazon.it", AmazonSession.domain(app))
     }
 }

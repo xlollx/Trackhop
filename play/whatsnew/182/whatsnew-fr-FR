@@ -1,0 +1,1 @@
+Trackhop 2.2.4. Corrigé : la reconnexion à un service web pouvait se fermer avant la fin, et ses synchros échouaient avec « session expirée ». Si un service vous demande de vous connecter, reconnectez-vous une fois.

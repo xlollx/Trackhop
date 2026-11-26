@@ -1,0 +1,1 @@
+Trackhop 2.2.4. Fixed: signing in again to a web service could close before it finished, and its syncs then failed with "session expired". If a service asks you to sign in, sign in once more.

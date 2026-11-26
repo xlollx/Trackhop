@@ -1,0 +1,1 @@
+Trackhop 2.2.4. Corregido: al volver a iniciar sesión en un servicio web, podía cerrarse antes de terminar y sus sincronizaciones fallaban con "sesión caducada". Si un servicio te pide iniciar sesión, hazlo una vez más.

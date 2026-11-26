@@ -1,0 +1,1 @@
+Trackhop 2.2.4. Corrigido: ao entrar de novo em um serviço web, o login podia fechar antes de terminar e as sincronizações falhavam com "sessão expirada". Se um serviço pedir login, entre mais uma vez.

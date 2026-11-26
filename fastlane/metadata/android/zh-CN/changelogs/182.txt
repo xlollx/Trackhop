@@ -1,0 +1,1 @@
+Trackhop 2.2.4。Amazon Music：重新登录时会过早地在 music.amazon.com 关闭，而不是账号自己的站点（music.amazon.de、.it…），之后同步会因“会话已过期”而失败。现在登录会等待已登录的播放器，并转到账号的站点。如果 Amazon Music 要求登录，请再登录一次。

@@ -1,0 +1,1 @@
+Trackhop 2.2.4. Amazon Music: al volver a iniciar sesión, se cerraba demasiado pronto en music.amazon.com en lugar del sitio de la cuenta (music.amazon.es, .it…) y las sincronizaciones fallaban con "sesión caducada". Ahora espera al reproductor con la sesión iniciada y pasa al sitio de la cuenta. Si Amazon Music te pide iniciar sesión, hazlo una vez más.

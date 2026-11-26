@@ -1,0 +1,1 @@
+Trackhop 2.2.4. Amazon Music: yeniden giriş, hesabın kendi sitesi (music.amazon.com.tr, .it…) yerine music.amazon.com'da çok erken kapanıyordu ve eşitlemeler "oturum süresi doldu" hatasıyla başarısız oluyordu. Giriş artık oturum açmış oynatıcıyı bekliyor ve hesabın sitesine geçiyor. Amazon Music giriş isterse bir kez daha giriş yap.

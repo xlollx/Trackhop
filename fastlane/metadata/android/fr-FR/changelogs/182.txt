@@ -1,0 +1,1 @@
+Trackhop 2.2.4. Amazon Music : la reconnexion se fermait trop tôt, sur music.amazon.com au lieu du site du compte (music.amazon.fr, .it…), et les synchros échouaient ensuite avec « session expirée ». La connexion attend désormais le lecteur connecté et passe au site du compte. Si Amazon Music vous demande de vous connecter, reconnectez-vous une fois.

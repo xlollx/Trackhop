@@ -96,6 +96,8 @@ class AmazonLoginActivity : ComponentActivity() {
         }
         // A new sign-in starts from an empty jar: old Amazon cookies would ride along with the new ones.
         val wiped = AmazonSession.wipeCookies()
+        // And the player's headers of the last session: only those of this sign-in may close the screen.
+        AmazonSession.forgetHeaders(applicationContext)
         BridgeNet.log("amazon", "sign-in started ($wiped old Amazon cookies removed first; ${BridgeUa.describe()})")
         // Where the last session worked (kept across a sign-out): the account's own site from the start.
         val start = AmazonSession.lastDomain(applicationContext)
@@ -122,6 +124,16 @@ class AmazonLoginActivity : ComponentActivity() {
         val cm = CookieManager.getInstance()
         val app = applicationContext
         val current = Uri.parse(web.url ?: "").host?.takeIf { AmazonClient.isMusicDomain(it) }
+        // Amazon runs the player for a signed-out visitor too (26/11: its headers were there one second
+        // after the sign-in page opened, and the screen closed on music.amazon.com as soon as the
+        // password went in, before the account's own site). Headers and a configuration seen while no
+        // Amazon site holds a signed-in session are that visitor's: forgotten, so only the player of
+        // the signed-in account can say where the account belongs.
+        if (!manual && AmazonClient.DOMAINS.keys.none { AmazonSession.looksSignedIn(cm.getCookie("https://$it")) }) {
+            if (AmazonSession.headersAt(app) != 0L) AmazonSession.forgetHeaders(app)
+            playerConfig = null
+            readySince = 0L
+        }
         // Moved to the account's own site: ready once the player there has made its call.
         val ready = AmazonBridge.ready(app) && movedTo.let { it == null || AmazonSession.headersHost(app) == it }
 

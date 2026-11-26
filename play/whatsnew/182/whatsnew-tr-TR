@@ -1,0 +1,1 @@
+Trackhop 2.2.4. Düzeltildi: bir web hizmetine yeniden giriş bitmeden kapanabiliyordu ve eşitlemeleri "oturum süresi doldu" hatasıyla başarısız oluyordu. Bir hizmet giriş isterse bir kez daha giriş yap.

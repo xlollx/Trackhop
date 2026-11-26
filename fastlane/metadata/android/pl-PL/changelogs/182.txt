@@ -1,0 +1,1 @@
+Trackhop 2.2.4. Amazon Music: ponowne logowanie zamykało się za wcześnie, na music.amazon.com zamiast na stronie konta (music.amazon.de, .it…), a synchronizacje kończyły się błędem "sesja wygasła". Logowanie czeka teraz na zalogowany odtwarzacz i przechodzi na stronę konta. Jeśli Amazon Music poprosi o zalogowanie, zaloguj się jeszcze raz.

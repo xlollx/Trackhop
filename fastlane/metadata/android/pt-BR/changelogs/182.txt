@@ -1,0 +1,1 @@
+Trackhop 2.2.4. Amazon Music: ao entrar de novo, o login fechava cedo demais em music.amazon.com em vez do site da conta (music.amazon.com.br, .it…) e as sincronizações falhavam com "sessão expirada". Agora o login espera o player conectado e passa para o site da conta. Se o Amazon Music pedir login, entre mais uma vez.
