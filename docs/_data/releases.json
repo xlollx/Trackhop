@@ -1,5 +1,25 @@
 [
  {
+  "id": "v2.2.6",
+  "kind": "app",
+  "version": "2.2.6",
+  "date": "2026-11-26",
+  "notes": {
+   "en": "Trackhop 2.2.6. Navidrome and Subsonic: \"Keep the source order\" now works there too. Songs found on a later run no longer stay at the end of the playlist: Trackhop puts the playlist back in the source's order. Thanks to raykai (#96).",
+   "it": "Trackhop 2.2.6. Navidrome e Subsonic: ora anche lì funziona \"Mantieni l'ordine dell'origine\". I brani trovati in un giro successivo non restano più in fondo alla playlist: Trackhop la rimette nell'ordine dell'origine. Grazie a raykai (#96).",
+   "es": "Trackhop 2.2.6. Navidrome y Subsonic: \"Mantener el orden del origen\" ahora también funciona ahí. Las canciones encontradas en una ejecución posterior ya no se quedan al final de la lista: Trackhop la vuelve a poner en el orden del origen. Gracias a raykai (#96).",
+   "pt": "Trackhop 2.2.6. Navidrome e Subsonic: \"Manter a ordem da origem\" agora funciona lá também. Músicas encontradas numa execução seguinte não ficam mais no fim da playlist: o Trackhop a coloca de volta na ordem da origem. Obrigado, raykai (#96).",
+   "fr": "Trackhop 2.2.6. Navidrome et Subsonic : « Garder l'ordre de la source » fonctionne maintenant aussi. Les titres trouvés lors d'une exécution suivante ne restent plus en fin de playlist : Trackhop la remet dans l'ordre de la source. Merci à raykai (#96).",
+   "de": "Trackhop 2.2.6. Navidrome und Subsonic: \"Reihenfolge der Quelle beibehalten\" funktioniert jetzt auch dort. Songs, die bei einem späteren Lauf gefunden werden, bleiben nicht mehr am Ende der Playlist: Trackhop bringt sie in die Reihenfolge der Quelle. Danke an raykai (#96).",
+   "pl": "Trackhop 2.2.6. Navidrome i Subsonic: „Zachowaj kolejność źródła” działa teraz także tam. Utwory znalezione przy kolejnym uruchomieniu nie zostają już na końcu playlisty: Trackhop układa ją w kolejności źródła. Dzięki, raykai (#96).",
+   "ru": "Trackhop 2.2.6. Navidrome и Subsonic: «Сохранять порядок источника» теперь работает и там. Песни, найденные при следующем запуске, больше не остаются в конце плейлиста: Trackhop возвращает порядок источника. Спасибо raykai (#96).",
+   "tr": "Trackhop 2.2.6. Navidrome ve Subsonic: \"Kaynak sırasını koru\" artık orada da çalışıyor. Sonraki bir çalıştırmada bulunan şarkılar artık listenin sonunda kalmıyor: Trackhop listeyi kaynağın sırasına geri koyuyor. Teşekkürler raykai (#96).",
+   "ja": "Trackhop 2.2.6。Navidrome と Subsonic：「元の順序を保つ」が使えるようになりました。後の同期で見つかった曲がプレイリストの最後に残らず、Trackhop が元の順序に並べ直します。raykai さんに感謝（#96）。",
+   "ko": "Trackhop 2.2.6. Navidrome, Subsonic: 이제 '원본 순서 유지'가 여기서도 작동합니다. 나중 실행에서 찾은 곡이 더 이상 재생목록 끝에 남지 않고, Trackhop이 원본 순서대로 다시 정렬합니다. raykai 님 감사합니다(#96).",
+   "zh": "Trackhop 2.2.6。Navidrome 和 Subsonic：“保持来源的顺序”现在也可以使用了。之后运行时找到的歌曲不再留在播放列表末尾：Trackhop 会按来源的顺序重新排列。感谢 raykai（#96）。"
+  }
+ },
+ {
   "id": "v2.2.5",
   "kind": "app",
   "version": "2.2.5",
@@ -57,6 +77,15 @@
    "ja": "Trackhop 2.2.3。ログイン中のサービスは自動でログインを維持します。1日2回、各アカウントのセッションを更新するため、サービスが本当に終了した場合にだけ再ログインをお願いします。新機能：「アカウント」で各アカウントのメニューに「再接続」。修正：複数の同期を同時に実行すると TIDAL などが勝手にログアウトすることがありました。 Deezer の「お気に入りの曲」を他のサービスの「お気に入りの曲」に同期しても順番を保ちます（最新が一番上）。 Amazon Music：再ログイン時もアカウントの地域サイトを維持します。 @Doggo785 さん、ありがとうございます（#87）。",
    "ko": "Trackhop 2.2.3. 로그인된 서비스가 스스로 로그인 상태를 유지합니다. 하루 두 번 각 계정의 세션을 갱신하므로 서비스가 실제로 세션을 끝냈을 때만 다시 로그인하라고 요청합니다. 새 기능: 계정에서 각 계정 메뉴의 다시 연결. 수정: 여러 동기화를 동시에 실행하면 TIDAL 등이 저절로 로그아웃될 수 있었습니다. Deezer의 좋아요 표시한 곡을 다른 서비스의 좋아요 표시한 곡으로 동기화해도 순서가 유지됩니다(최신 곡이 맨 위). Amazon Music: 다시 로그인해도 계정의 지역 사이트를 유지합니다. @Doggo785 님께 감사드립니다(#87).",
    "zh": "Trackhop 2.2.3。已登录的服务会自动保持登录：每天两次续期每个账号的会话，只有当服务真正结束会话时才会请你重新登录。新增：在“账号”中每个账号的菜单里加入“重新连接”。修复：同时运行多个同步时，TIDAL 等登录可能会自行退出。 将 Deezer 的“喜欢的歌曲”同步到其他服务的“喜欢的歌曲”时会保持顺序：最新喜欢的排在最上面。 Amazon Music：重新登录会保留账号所属的地区网站。 感谢 @Doggo785（#87）。"
+  }
+ },
+ {
+  "id": "server-v2.2.5",
+  "kind": "server",
+  "version": "2.2.5",
+  "date": "2026-11-26",
+  "notes": {
+   "en": "Released with the app's 2.2.6.\n\n- **Fixed**: on Navidrome and Subsonic, songs found on a later run stayed at the end of the playlist. \"Keep the source's order\" now works there too: the Subsonic API has no move, so Trackhop writes the playlist back whole in the source's order. Thanks to raykai (#96)."
   }
  },
  {
