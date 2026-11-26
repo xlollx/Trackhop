@@ -1,8 +1,12 @@
-# Deletes the branches already fully merged into a base branch (next-* by default), by hand only.
-# main, badges and the base itself are always kept; a branch with any commit the base lacks is kept too.
+# Deletes the branches already fully merged into a base branch (main by default): by hand, and on its own
+# every Sunday. main, badges and the base itself are always kept; a branch with any commit the base lacks
+# is kept too. The weekly run leaves branches touched in the last 7 days (a new branch with no commit of
+# its own yet looks merged).
 name: Prune merged branches
 
 on:
+  schedule:
+    - cron: '41 4 * * 0'
   workflow_dispatch:
     inputs:
       base:
@@ -26,13 +30,16 @@ jobs:
           fetch-depth: 0
       - name: Delete merged branches
         env:
-          BASE: ${{ inputs.base }}
-          DRY: ${{ inputs.dry_run }}
+          BASE: ${{ inputs.base || 'main' }}
+          DRY: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+          MIN_AGE_DAYS: ${{ github.event_name == 'schedule' && '7' || '0' }}
         run: |
           git fetch --prune origin
           git rev-parse --verify "origin/$BASE" >/dev/null
           for b in $(git for-each-ref --format='%(refname:strip=3)' refs/remotes/origin); do
             case "$b" in HEAD|main|badges|gh-pages|"$BASE") continue;; esac
+            age=$(( ( $(date +%s) - $(git log -1 --format=%ct "origin/$b") ) / 86400 ))
+            if [ "$age" -lt "$MIN_AGE_DAYS" ]; then echo "kept (touched $age days ago): $b"; continue; fi
             if git merge-base --is-ancestor "origin/$b" "origin/$BASE"; then
               echo "merged: $b"
               [ "$DRY" = "true" ] || git push origin --delete "$b"
