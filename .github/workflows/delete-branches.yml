@@ -1,0 +1,38 @@
+# Deletes the branches named by hand, merged or not (Prune merged branches keeps the unmerged ones).
+# main, badges and gh-pages are always refused; names with anything but letters, digits, . _ / - are refused.
+name: Delete named branches
+
+on:
+  workflow_dispatch:
+    inputs:
+      branches:
+        description: Branch names, separated by spaces or commas
+        required: true
+      dry_run:
+        description: Only list what would be deleted
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Delete the named branches
+        env:
+          BRANCHES: ${{ inputs.branches }}
+          DRY: ${{ inputs.dry_run }}
+        run: |
+          git fetch --prune origin
+          for b in $(printf '%s' "$BRANCHES" | tr ',' ' '); do
+            case "$b" in main|badges|gh-pages) echo "refused (protected): $b"; continue;; esac
+            if ! printf '%s' "$b" | grep -qE '^[A-Za-z0-9._/-]+$'; then echo "refused (name): $b"; continue; fi
+            if ! git rev-parse --verify -q "refs/remotes/origin/$b" >/dev/null; then echo "not found: $b"; continue; fi
+            echo "delete: $b ($(git rev-list --count "origin/main..origin/$b") commits not in main)"
+            [ "$DRY" = "true" ] || git push origin --delete "$b"
+          done
