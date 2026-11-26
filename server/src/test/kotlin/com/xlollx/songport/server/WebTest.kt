@@ -589,6 +589,9 @@ class WebTest {
         val where = java.net.URLDecoder.decode(tried.headers().firstValue("Location").orElse(""), "UTF-8")
         assertTrue(where, where.contains("Artist: Muse · Album: Absolution · Title: Hysteria"))
         assertTrue(get(tried.headers().firstValue("Location").get().removePrefix(base)).body().contains("value=\"Music/Muse/Absolution/03 Hysteria.mp3\""))
+        // #91: "Try the patterns" sits in the upload form; it sends the fields only, never the file
+        // already chosen (a whole library is far over the 20 MB of an ordinary form).
+        assertTrue(get("/connectors/csv").body().contains("formaction=\"/files/try\" formenctype=\"application/x-www-form-urlencoded\""))
     }
 
     // "Send to a service" from a File playlist: the new-sync form starts with File as the source and

@@ -5,6 +5,12 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`, `v2.x`)
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 2.2.3
+
+Released on its own (the app stays at 2.2.4).
+
+- **Fixed**: Files › "Try the patterns" answered "Too large: files up to 20 MB" when a big file (an Apple Music/iTunes library) was already chosen for upload: the button sent the file too. It now sends only the patterns and the line to try. Thanks to raykai (#91).
+
 ## 2.2.2
 
 Released with the app's 2.2.3.

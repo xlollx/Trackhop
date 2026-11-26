@@ -94,7 +94,7 @@ Examples: <code>{artist}/{album}/{track} {title}</code> · <code>Music/{artist}/
 Or a regular expression after <code>re:</code> with named groups, such as <code>re:^(?&lt;artist&gt;.+?) _ (?&lt;title&gt;.+)$</code>.</p>
 <textarea name="patterns" rows="4" spellcheck="false" style="font-family:monospace">${h(env.store.data.settings.fileNamePatterns.joinToString("\n"))}</textarea>
 <label>Try a line from your file</label><input name="sample" value="${h(sample)}" spellcheck="false">
-<p><button class="secondary" formaction="/files/try" formnovalidate>Try the patterns</button></p></details>
+<p><button class="secondary" formaction="/files/try" formenctype="application/x-www-form-urlencoded" formnovalidate>Try the patterns</button></p></details>
 <p><button>Upload</button></p></form>
 <form method="post" action="/files/text" class="card"><h3>Paste a playlist</h3><label for="ptname">Name</label><input type="text" id="ptname" name="name" maxlength="120" placeholder="From the radio">
 <label for="pttext">One song per line: Artist - Title (numbers in front and a file's own patterns are understood)</label><textarea id="pttext" name="text" rows="6" required placeholder="Moderat - A New Error&#10;Bonobo - Kerala"></textarea>
