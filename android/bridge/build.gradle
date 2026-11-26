@@ -23,6 +23,11 @@ android {
 
     testOptions {
         unitTests.all { test ->
+            // Robolectric downloads its Android jar on first use. Maven Central answers 429 to CI runners
+            // at times (26/11: two Build runs failed before any test ran); Google's mirror of Central serves
+            // the same files. Overridable with -Drobolectric.dependency.repo.url.
+            test.systemProperty 'robolectric.dependency.repo.url',
+                System.getProperty('robolectric.dependency.repo.url', 'https://maven-central.storage-download.googleapis.com/maven2')
             test.testLogging {
                 events "failed"
                 exceptionFormat "full"
