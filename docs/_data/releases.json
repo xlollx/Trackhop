@@ -1,5 +1,34 @@
 [
  {
+  "id": "v2.2.3",
+  "kind": "app",
+  "version": "2.2.3",
+  "date": "2026-11-26",
+  "notes": {
+   "en": "Trackhop 2.2.3. Signed-in services stay signed in: sessions are renewed twice a day, so you sign in again only when a service really ends one. New: Reconnect in each account's menu in Accounts. Fixed: TIDAL and others could sign out on their own during parallel syncs. Deezer Liked songs synced to another service's Liked songs keep their order: the newest like ends on top. Amazon Music: signing in again keeps the account's regional site. Thanks to @Doggo785 (#87).",
+   "it": "Trackhop 2.2.3. I servizi restano collegati: le sessioni si rinnovano due volte al giorno e riaccedi solo se un servizio le chiude davvero. Nuovo: Ricollega nel menu di ogni account in Account. Corretto: TIDAL e altri potevano scollegarsi da soli con più sync insieme. I Brani preferiti di Deezer copiati nei preferiti di un altro servizio tengono l'ordine: l'ultimo resta in cima. Amazon Music: riaccedendo resta il sito regionale dell'account. Grazie a @Doggo785 (#87).",
+   "es": "Trackhop 2.2.3. Los servicios siguen conectados solos: las sesiones se renuevan dos veces al día y solo vuelves a entrar si un servicio las cierra. Nuevo: Reconectar en el menú de cada cuenta (Cuentas). Corregido: TIDAL y otras podían desconectarse solas con sincronizaciones en paralelo. Las Canciones que te gustan de Deezer copiadas a las de otro servicio mantienen el orden: la última arriba. Amazon Music: al volver a entrar se mantiene el sitio regional. Gracias a @Doggo785 (#87).",
+   "pt": "Trackhop 2.2.3. Os serviços continuam conectados: as sessões são renovadas duas vezes por dia e você só entra de novo se um serviço as encerrar. Novo: Reconectar no menu de cada conta (Contas). Corrigido: TIDAL e outros podiam sair sozinhos com sincronizações em paralelo. Músicas curtidas do Deezer copiadas para as de outro serviço mantêm a ordem: a mais recente no topo. Amazon Music: entrar de novo mantém o site regional da conta. Obrigado a @Doggo785 (#87).",
+   "fr": "Trackhop 2.2.3. Les services restent connectés : les sessions sont renouvelées deux fois par jour, reconnexion seulement si un service les ferme. Nouveau : Reconnecter dans le menu de chaque compte (Comptes). Corrigé : TIDAL et d'autres se déconnectaient seuls avec des synchros en parallèle. Les Titres likés Deezer copiés vers ceux d'un autre service gardent l'ordre : le dernier en haut. Amazon Music : reconnexion sur le site régional du compte. Merci à @Doggo785 (#87).",
+   "de": "Trackhop 2.2.3. Angemeldete Dienste bleiben von selbst angemeldet: Jede Kontositzung wird zweimal täglich erneuert, neu anmelden musst du dich nur, wenn ein Dienst sie wirklich beendet hat. Neu: Neu verbinden im Kontomenü (Konten). Behoben: TIDAL u. a. meldeten sich bei parallelen Syncs selbst ab. Deezer-Lieblingssongs in Lieblingssongs anderer Dienste behalten die Reihenfolge: der neueste oben. Amazon Music: Neue Anmeldung bleibt auf der Regionalseite. Danke an @Doggo785 (#87).",
+   "pl": "Trackhop 2.2.3. Serwisy same pozostają zalogowane: sesje są odnawiane dwa razy dziennie, a logujesz się ponownie tylko, gdy serwis je zakończy. Nowość: Połącz ponownie w menu konta (Konta). Poprawka: TIDAL i inne mogły same się wylogować przy równoległych synchronizacjach. Polubione utwory z Deezera kopiowane do polubionych innego serwisu zachowują kolejność: najnowszy na górze. Amazon Music: ponowne logowanie zostaje na stronie regionu konta. Dzięki @Doggo785 (#87).",
+   "ru": "Trackhop 2.2.3. Сервисы остаются подключёнными сами: сессии обновляются дважды в день, и войти снова нужно, только если сервис их завершил. Новое: «Переподключить» в меню аккаунта («Аккаунты»). Исправлено: TIDAL и другие могли сами выходить при параллельных синхронизациях. Любимые треки Deezer, скопированные в любимые другого сервиса, сохраняют порядок: новый сверху. Amazon Music: повторный вход остаётся на региональном сайте. Спасибо @Doggo785 (#87).",
+   "tr": "Trackhop 2.2.3. Servisler bağlı kalır: oturumlar günde iki kez yenilenir, yeniden giriş yalnızca servis oturumu kapattığında gerekir. Yeni: Hesaplar'da her hesabın menüsünde Yeniden bağlan. Düzeltildi: TIDAL ve diğerleri paralel eşitlemelerde kendiliğinden çıkış yapabiliyordu. Deezer'daki Beğenilen şarkılar başka bir servisinkilere sırasıyla aktarılır: en yenisi en üstte. Amazon Music: yeniden giriş hesabın bölge sitesinde kalır. Teşekkürler @Doggo785 (#87).",
+   "ja": "Trackhop 2.2.3。ログイン中のサービスは自動でログインを維持します。1日2回、各アカウントのセッションを更新するため、サービスが本当に終了した場合にだけ再ログインをお願いします。新機能：「アカウント」で各アカウントのメニューに「再接続」。修正：複数の同期を同時に実行すると TIDAL などが勝手にログアウトすることがありました。 Deezer の「お気に入りの曲」を他のサービスの「お気に入りの曲」に同期しても順番を保ちます（最新が一番上）。 Amazon Music：再ログイン時もアカウントの地域サイトを維持します。 @Doggo785 さん、ありがとうございます（#87）。",
+   "ko": "Trackhop 2.2.3. 로그인된 서비스가 스스로 로그인 상태를 유지합니다. 하루 두 번 각 계정의 세션을 갱신하므로 서비스가 실제로 세션을 끝냈을 때만 다시 로그인하라고 요청합니다. 새 기능: 계정에서 각 계정 메뉴의 다시 연결. 수정: 여러 동기화를 동시에 실행하면 TIDAL 등이 저절로 로그아웃될 수 있었습니다. Deezer의 좋아요 표시한 곡을 다른 서비스의 좋아요 표시한 곡으로 동기화해도 순서가 유지됩니다(최신 곡이 맨 위). Amazon Music: 다시 로그인해도 계정의 지역 사이트를 유지합니다. @Doggo785 님께 감사드립니다(#87).",
+   "zh": "Trackhop 2.2.3。已登录的服务会自动保持登录：每天两次续期每个账号的会话，只有当服务真正结束会话时才会请你重新登录。新增：在“账号”中每个账号的菜单里加入“重新连接”。修复：同时运行多个同步时，TIDAL 等登录可能会自行退出。 将 Deezer 的“喜欢的歌曲”同步到其他服务的“喜欢的歌曲”时会保持顺序：最新喜欢的排在最上面。 Amazon Music：重新登录会保留账号所属的地区网站。 感谢 @Doggo785（#87）。"
+  }
+ },
+ {
+  "id": "server-v2.2.2",
+  "kind": "server",
+  "version": "2.2.2",
+  "date": "2026-11-26",
+  "notes": {
+   "en": "Released with the app's 2.2.3.\n\n- **Signed-in services stay signed in on their own**: twice a day the server renews the session of each signed-in account (the official sign-ins and the web connectors it runs), one after the other, with one line per account in the log. You are asked to sign in again (on your notification channels and on the Notifications page) only when a service really ended a session.\n- **Reconnect**: a button on each service's page renews its session now; when that cannot work, the account is signed out and its sign-in opens. Also `POST /api/v1/services/{id}/reconnect` and `trackhop reconnect <service>`.\n- **Fixed**: TIDAL and other official sign-ins could sign out by themselves when several syncs renewed the same access at once; renewals now go one at a time per account.\n- **Fixed**: Deezer liked songs synced to another service's liked songs keep their order: the newest like ends on top. Thanks to @Doggo785 (#87)."
+  }
+ },
+ {
   "id": "v2.2.2",
   "kind": "app",
   "version": "2.2.2",
