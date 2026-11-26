@@ -79,12 +79,76 @@ const pageUrl = (result) => {
   return u;
 };
 
+// ---- The cover: a picture disc on a turntable ----
+// The song's own cover is printed across the record, which turns (one turn in 2.4 s) while the arm leans in
+// towards the centre and back, as on the home page; both stay still where motion is reduced (tools.css).
+// Drawn here in SVG, nothing fetched but the cover itself. On a narrow screen the cover's column is small:
+// the record alone is shown, closer.
+const svgEl = (tag, attrs = {}, ...kids) => {
+  const e = document.createElementNS(SVG, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  for (const c of kids) if (c) e.append(c);
+  return e;
+};
+const narrow = window.matchMedia('(max-width: 860px)');
+const deckBox = () => (narrow.matches ? '3.6 3.6 35.8 35.8' : '2.6 2.6 54.8 40.8');
+let shownDeck = null;
+narrow.addEventListener('change', () => { if (shownDeck) shownDeck.setAttribute('viewBox', deckBox()); });
+
 function cover(result) {
-  const blank = () => el('span', { class: 'lk-art lk-noart', 'aria-hidden': 'true' }, icon('note'));
-  if (!result.art) return blank();
-  const img = el('img', { class: 'lk-art', src: result.art, alt: fmt(T.art, { title: result.album || result.title }), width: 600, height: 600, referrerpolicy: 'no-referrer', decoding: 'async' });
-  img.addEventListener('error', () => img.replaceWith(blank()));
-  return img;
+  const C = 21.5, R = 16.3;
+  const art = /^https:\/\//.test(result.art || '') ? result.art : null;
+  const stop = (offset, color, opacity = 1) => svgEl('stop', { offset, 'stop-color': color, 'stop-opacity': opacity });
+  const defs = svgEl('defs', {},
+    svgEl('linearGradient', { id: 'lkd-p', x1: 0, y1: 0, x2: 1, y2: 1 }, stop(0, '#dcdfe4'), stop(0.5, '#bfc3ca'), stop(1, '#a3a8b1')),
+    svgEl('linearGradient', { id: 'lkd-s', x1: 0, y1: 0, x2: 1, y2: 1 }, stop(0, '#55515e'), stop(1, '#0f0d12')),
+    svgEl('pattern', { id: 'lkd-b', width: 60, height: 0.8, patternUnits: 'userSpaceOnUse' },
+      svgEl('rect', { width: 60, height: 0.12, fill: '#fff', 'fill-opacity': 0.35 }),
+      svgEl('rect', { y: 0.4, width: 60, height: 0.12, fill: '#8d929b', 'fill-opacity': 0.18 })),
+    svgEl('radialGradient', { id: 'lkd-d', cx: 0.5, cy: 0.5, r: 0.5 }, stop(0.62, '#000', 0), stop(1, '#000', 0.28)),
+    svgEl('clipPath', { id: 'lkd-c' }, svgEl('circle', { cx: C, cy: C, r: R })));
+  // The record: the cover, then its grooves (fine rings, dark and light, closer towards the edge).
+  const grooves = svgEl('g', { fill: 'none' });
+  for (let r = 6.6, i = 0; r < 16.1; r += r > 8 ? 0.28 : 0.6, i++) {
+    const dark = i % 2 === 0;
+    grooves.append(svgEl('circle', { cx: C, cy: C, r: r.toFixed(2), stroke: dark ? '#000' : '#fff', 'stroke-opacity': dark ? 0.3 : 0.1, 'stroke-width': dark ? 0.16 : 0.09 }));
+  }
+  let picture = null;
+  if (art) {
+    picture = svgEl('image', { href: art, x: C - R, y: C - R, width: 2 * R, height: 2 * R, preserveAspectRatio: 'xMidYMid slice', 'clip-path': 'url(#lkd-c)' });
+    picture.addEventListener('error', () => picture.remove());
+  }
+  const record = svgEl('g', { class: 'lk-spin' }, svgEl('circle', { cx: C, cy: C, r: R, fill: '#0f0d12' }), picture, grooves);
+  const arm = svgEl('g', { class: 'lk-arm' },
+    svgEl('rect', { x: 47.2, y: 3.9, width: 2.8, height: 3.6, rx: 0.7, fill: 'url(#lkd-s)' }),
+    svgEl('path', { d: 'M48.6 10.4 L45.6 27.2 L38.4 30.6', fill: 'none', stroke: 'url(#lkd-s)', 'stroke-width': 1.1, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }),
+    svgEl('rect', { x: 34.2, y: 29.4, width: 4.6, height: 2.6, rx: 0.5, transform: 'rotate(-25 36.5 30.7)', fill: '#1d1a22', stroke: '#77737f', 'stroke-width': 0.2 }));
+  const knob = (cx, cy, r) => svgEl('circle', { cx, cy, r, fill: '#2a2630' });
+  const svg = svgEl('svg', { class: 'lk-art lk-deck', viewBox: deckBox(), role: 'img', 'aria-label': fmt(T.art, { title: result.album || result.title }) },
+    defs,
+    svgEl('rect', { x: 3, y: 3, width: 54, height: 40, rx: 5, fill: 'url(#lkd-p)' }),
+    svgEl('rect', { x: 3, y: 3, width: 54, height: 40, rx: 5, fill: 'url(#lkd-b)' }),
+    svgEl('path', { d: 'M3 3 L30 3 L16 43 L3 43 Z', fill: '#fff', opacity: 0.14 }),
+    svgEl('path', { d: 'M38 3 L44 3 L30 43 L24 43 Z', fill: '#fff', opacity: 0.12 }),
+    svgEl('rect', { x: 3, y: 3, width: 54, height: 40, rx: 5, fill: 'none', stroke: '#8d929b', 'stroke-opacity': 0.8, 'stroke-width': 0.4 }),
+    svgEl('circle', { cx: C, cy: C, r: 17.4, fill: '#2a2630' }),
+    record,
+    // The light the grooves catch stays where it is while the record turns.
+    svgEl('circle', { cx: C, cy: C, r: R, fill: 'url(#lkd-d)' }),
+    svgEl('path', { d: 'M21.5 21.5 L12.2 8.2 A16.3 16.3 0 0 1 17.6 5.7 Z', fill: '#fff', opacity: 0.13 }),
+    svgEl('path', { d: 'M21.5 21.5 L30.8 34.8 A16.3 16.3 0 0 1 25.4 37.3 Z', fill: '#fff', opacity: 0.08 }),
+    svgEl('circle', { cx: C, cy: C, r: R, fill: 'none', stroke: '#000', 'stroke-opacity': 0.45, 'stroke-width': 0.5 }),
+    svgEl('circle', { cx: C, cy: C, r: 1.3, fill: '#d9dce2' }),
+    svgEl('circle', { cx: C, cy: C, r: 0.5, fill: '#111' }),
+    knob(48.6, 10.4, 4.2),
+    svgEl('circle', { cx: 48.6, cy: 10.4, r: 2.6, fill: 'url(#lkd-s)', stroke: '#77737f', 'stroke-width': 0.25 }),
+    arm,
+    knob(51.6, 28.6, 1.5),
+    svgEl('rect', { x: 39.4, y: 37, width: 5, height: 2.4, rx: 1.2, fill: '#2a2630' }),
+    svgEl('circle', { cx: 43.2, cy: 38.2, r: 0.9, fill: '#dcdfe4' }),
+    knob(48.6, 38.2, 1.7), knob(53.2, 38.2, 1.7));
+  shownDeck = svg;
+  return svg;
 }
 
 function details(result) {

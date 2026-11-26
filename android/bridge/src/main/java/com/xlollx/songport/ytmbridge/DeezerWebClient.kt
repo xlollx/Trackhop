@@ -304,10 +304,13 @@ class DeezerWebClient(private val host: WebHost) {
         return out
     }
 
-    /** Favourite tracks, newest first as Deezer lists them: their ids, then their details in batches. */
+    /** Favourite tracks, newest first: their ids, then their details in batches. */
     fun likedTracks(): List<TrackDto> {
         val r = gw("song.getFavoriteIds", jsonObj("nb" to MAX_LIKED, "start" to 0))
-        val favs = r["data"].arr.mapNotNull { f -> f["SNG_ID"].str?.let { it to f["DATE_ADD"].num } }
+        // Newest first, as the sync expects: the gateway lists them oldest first and leaves DATE_ADD out
+        // (seen 2026-11), so reversed; then by DATE_ADD when every one has it, the same second's kept reversed.
+        val favs = r["data"].arr.mapNotNull { f -> f["SNG_ID"].str?.let { it to f["DATE_ADD"].num } }.asReversed()
+            .let { l -> if (l.all { it.second != null }) l.sortedByDescending { it.second } else l }
         if (favs.isEmpty()) {
             if ((r["total"].num ?: 0) > 0 || r == null) unexpected("song.getFavoriteIds", r)
             return emptyList()

@@ -214,7 +214,9 @@ class DeezerProvider(override val slot: String = "") : OAuthProvider() {
             }
             url = j["next"].str
         }
-        return out
+        // Liked songs newest first, as the sync saves them (SyncEngine): the API lists them oldest first,
+        // so reversed before the sort and the ones liked in the same second stay newest first.
+        return if (playlistId == MusicProvider.LIKED_ID) out.asReversed().sortedByDescending { it.addedAt } else out
     }
 
     /** A playlist's entries by offset, the last pages first: the tracks a sync just added are there. */

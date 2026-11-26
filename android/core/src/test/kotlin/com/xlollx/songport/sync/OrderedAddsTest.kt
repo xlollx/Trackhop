@@ -46,6 +46,17 @@ class OrderedAddsTest {
         assertTrue(dst.addsInOrder.isNotEmpty() && dst.addsInOrder.all { it })
     }
 
+    /** Liked → liked: a source lists its liked songs newest first; they are saved oldest first, so the newest ends on top. */
+    @Test fun likedToLikedSavesTheOldestFirst() {
+        src.lists[MusicProvider.LIKED_ID] = (5 downTo 1).map { Track(id = "s$it", title = "Song $it", artists = listOf("Band"), durationMs = 200_000) }.toMutableList()
+        runBlocking {
+            val job = SyncJob(id = "l", name = "l", source = PlaylistRef("msrc", MusicProvider.LIKED_ID, "Liked"), target = PlaylistRef("mdst", MusicProvider.LIKED_ID, "Liked"), keepOrder = true)
+                .also { env.store.upsertJob(it) }
+            SyncEngine(env).run(job)
+        }
+        assertEquals(listOf("ds1", "ds2", "ds3", "ds4", "ds5"), dst.lists[MusicProvider.LIKED_ID]!!.map { it.id })
+    }
+
     @Test fun otherwiseInOneBatch() {
         run(keepOrder = false)
         assertEquals(5, dst.lists[MusicProvider.LIKED_ID]!!.size)
