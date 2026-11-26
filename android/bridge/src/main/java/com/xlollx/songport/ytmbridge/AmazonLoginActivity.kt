@@ -32,6 +32,12 @@ class AmazonLoginActivity : ComponentActivity() {
     @Volatile private var left = false
     /** When the player's page first showed a signed-in cookie jar; 0 while not on the player. */
     private var signedSince = 0L
+    /** The player's configuration on this sign-in (the account's store), once its page gave it. */
+    @Volatile private var playerConfig: kotlinx.serialization.json.JsonObject? = null
+    /** When the player's headers were first seen without its configuration yet; 0 before. */
+    private var readySince = 0L
+    /** The account's own regional site, once the player was found ready on another: the sign-in goes on there. */
+    private var movedTo: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,7 +80,7 @@ class AmazonLoginActivity : ComponentActivity() {
         BridgeUa.apply(this, web)
         // The player runs here, in front of the user: the surest place to see the headers it builds
         // for its own API calls, which are the only thing carrying an access token.
-        val early = AmazonBridge.install(this, web)
+        val early = AmazonBridge.install(this, web) { cfg -> playerConfig = cfg }
         web.webViewClient = object : SafeWebViewClient() {
             override fun onPageStarted(view: WebView, url: String?, favicon: android.graphics.Bitmap?) {
                 if (!early) view.evaluateJavascript(AmazonBridge.HOOK, null)
@@ -91,7 +97,10 @@ class AmazonLoginActivity : ComponentActivity() {
         // A new sign-in starts from an empty jar: old Amazon cookies would ride along with the new ones.
         val wiped = AmazonSession.wipeCookies()
         BridgeNet.log("amazon", "sign-in started ($wiped old Amazon cookies removed first; ${BridgeUa.describe()})")
-        web.loadUrl(LOGIN_URL)
+        // Where the last session worked (kept across a sign-out): the account's own site from the start.
+        val start = AmazonSession.lastDomain(applicationContext)
+        if (start != null && start != DEFAULT_DOMAIN) BridgeNet.log("amazon", "sign-in starts on $start, where the last session worked")
+        web.loadUrl("https://${start ?: DEFAULT_DOMAIN}/")
         // The player is a single page app: navigation does not always report a finished page.
         handler.postDelayed(object : Runnable {
             override fun run() { if (!left && !isFinishing) { capture(); handler.postDelayed(this, 1500) } }
@@ -113,7 +122,27 @@ class AmazonLoginActivity : ComponentActivity() {
         val cm = CookieManager.getInstance()
         val app = applicationContext
         val current = Uri.parse(web.url ?: "").host?.takeIf { AmazonClient.isMusicDomain(it) }
-        val ready = AmazonBridge.ready(app)
+        // Moved to the account's own site: ready once the player there has made its call.
+        val ready = AmazonBridge.ready(app) && movedTo.let { it == null || AmazonSession.headersHost(app) == it }
+
+        if (!manual && ready && movedTo == null) {
+            val seenOn = AmazonSession.headersHost(app) ?: current
+            val cfg = playerConfig
+            if (cfg == null && seenOn != null) {
+                // The account's store is in the player's configuration: a few seconds to read it first.
+                if (readySince == 0L) readySince = System.currentTimeMillis()
+                if (System.currentTimeMillis() - readySince < CONFIG_WAIT_MS) return
+            }
+            val c = cfg?.let { AmazonClient.Config(it) }
+            val home = seenOn?.let { AmazonClient.regionalDomain(it, AmazonSession.gqlHost(app), c?.raw?.get("marketplaceId")?.let { m -> (m as? kotlinx.serialization.json.JsonPrimitive)?.content }, c?.musicTerritory) }
+            if (home != null) {
+                movedTo = home
+                signedSince = 0L
+                BridgeNet.log("amazon", "the player started on $seenOn, but the account belongs to $home: the sign-in goes on there")
+                web.loadUrl("https://$home/")
+                return
+            }
+        }
 
         if (!manual && !ready) {
             // On the player's page with a signed-in jar: tell the user why the screen stays, and start
@@ -126,7 +155,7 @@ class AmazonLoginActivity : ComponentActivity() {
 
         // The site to keep: where the player's headers were seen, else the player page on screen;
         // any signed-in Amazon domain only as a last resort (Done, or patience over).
-        val candidates = listOfNotNull(AmazonSession.headersHost(app).takeIf { ready }, current) + AmazonClient.DOMAINS.keys
+        val candidates = listOfNotNull(movedTo, AmazonSession.headersHost(app).takeIf { ready }, current) + AmazonClient.DOMAINS.keys
         val hit = candidates.distinct()
             .map { it to cm.getCookie("https://$it") }
             .firstOrNull { (_, ck) -> AmazonSession.looksSignedIn(ck) }
@@ -163,7 +192,10 @@ class AmazonLoginActivity : ComponentActivity() {
 
     companion object {
         const val ACTION = "com.xlollx.songport.ytmbridge.AMAZON_LOGIN"
-        private const val LOGIN_URL = "https://music.amazon.com/"
+        /** Where a sign-in starts when no session worked here before: Amazon moves the account to its own site. */
+        private const val DEFAULT_DOMAIN = "music.amazon.com"
+        /** How long the player's configuration (the account's store) is waited for once its headers are seen. */
+        private const val CONFIG_WAIT_MS = 10_000L
         /** How long to stay on the player's page waiting for its first call before settling for the cookies. */
         private const val PATIENCE_MS = 60_000L
     }

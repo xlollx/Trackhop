@@ -1104,6 +1104,31 @@ class AmazonClient(private val ctx: Context) {
         fun territory(domain: String): String = DOMAINS[domain]?.language?.substringAfter('_') ?: "US"
 
         fun isMusicDomain(host: String?): Boolean = host != null && (host in DOMAINS || host.startsWith("music.amazon."))
+
+        /** The regional player of [country] ("IT" → music.amazon.it, "US" → music.amazon.com); null where there is none. */
+        fun domainOf(country: String?): String? {
+            val c = country?.uppercase()?.takeIf { it.length == 2 } ?: return null
+            return DOMAINS.entries.firstOrNull { it.value.language.substringAfter('_') == c }?.key
+        }
+
+        /** An EU-side API host ("gql-eu.", "eu.gql."): the player of a "Rest of Europe" account on music.amazon.com. */
+        fun isEuGqlHost(host: String?): Boolean =
+            host != null && isGqlHost(host) && host.lowercase().substringBefore(".music.amazon.").contains("eu")
+
+        /**
+         * Where a sign-in must wait for the player instead of [host], where it is ready now: the
+         * regional site of the store the account belongs to ([marketplaceId], else [territory], from
+         * the player's configuration) when that is another site. Amazon starts every sign-in on
+         * music.amazon.com and moves an Italian account to music.amazon.it only afterwards (26/11:
+         * a session kept on .com was refused a minute later). Null: [host] is the account's own.
+         * A "Rest of Europe" account (no store of its own, or its player on music.amazon.com with an
+         * EU-side API host [gqlHost]) lives on music.amazon.com and is kept there.
+         */
+        fun regionalDomain(host: String, gqlHost: String?, marketplaceId: String?, territory: String?): String? {
+            if (host == "music.amazon.com" && isEuGqlHost(gqlHost)) return null
+            val home = domainOf(MARKETPLACES[marketplaceId] ?: territory) ?: return null
+            return home.takeIf { it != host }
+        }
     }
 }
 

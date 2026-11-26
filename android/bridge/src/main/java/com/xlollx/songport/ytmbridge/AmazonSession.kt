@@ -36,7 +36,24 @@ object AmazonSession {
 
     fun save(ctx: Context, cookies: String, domain: String, account: String?) {
         prefs(ctx).edit().putString("cookies", cookies).putString("domain", domain).putString("account", account ?: account(ctx)).apply()
+        rememberDomain(ctx, domain)
     }
+
+    /**
+     * The regional site the last session worked on (a host, nothing secret), kept across a sign-out
+     * so the next sign-in starts there: Amazon starts on music.amazon.com and moves an account to
+     * its own site only afterwards, a step a sign-in could close before.
+     */
+    fun lastDomain(ctx: Context): String? =
+        ctx.applicationContext.getSharedPreferences(REGION, Context.MODE_PRIVATE).getString(LAST_DOMAIN, null)?.takeIf { it in AmazonClient.DOMAINS }
+
+    fun rememberDomain(ctx: Context, domain: String) {
+        if (domain !in AmazonClient.DOMAINS) return
+        ctx.applicationContext.getSharedPreferences(REGION, Context.MODE_PRIVATE).edit().putString(LAST_DOMAIN, domain).apply()
+    }
+
+    private const val REGION = "amazon_region"
+    private const val LAST_DOMAIN = "last_domain"
 
     /** Display name of the customer, when the player's configuration revealed it. */
     fun saveAccount(ctx: Context, account: String) {

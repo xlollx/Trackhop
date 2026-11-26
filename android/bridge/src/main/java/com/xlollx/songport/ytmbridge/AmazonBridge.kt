@@ -110,7 +110,7 @@ object AmazonBridge {
      * evaluate [HOOK] in its page callbacks.
      */
     @SuppressLint("AddJavascriptInterface")
-    fun install(ctx: Context, web: WebView): Boolean {
+    fun install(ctx: Context, web: WebView, onConfig: ((JsonObject) -> Unit)? = null): Boolean {
         val app = ctx.applicationContext
         web.addJavascriptInterface(object {
             @JavascriptInterface
@@ -126,11 +126,12 @@ object AmazonBridge {
             /** Status of one of the player's own API calls, for the diagnostics log. */
             @JavascriptInterface
             fun status(op: String, code: Int) { playerStatus(op, code) }
-            /** The configuration is only used here for the display name shown on the status screen. */
+            /** The configuration: the display name shown on the status screen, and the account's store for the sign-in ([onConfig]). */
             @JavascriptInterface
             fun config(json: String, ua: String?) {
                 val j = parseJson(json) as? JsonObject ?: return
                 AmazonClient.Config(j).customerName?.takeIf { it.isNotBlank() }?.let { AmazonSession.saveAccount(app, it) }
+                onConfig?.invoke(j)
             }
         }, "AmzBridge")
         val early = WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)
