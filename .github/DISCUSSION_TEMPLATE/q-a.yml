@@ -1,0 +1,31 @@
+# The form of a new discussion in the Q&A category (the file is named after the category's slug).
+title: "[Question] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ask anything about using Trackhop: setting up a service, a sync, Desktop or Docker. Italiano va benissimo.
+        Something that does not work as it should is a [bug report](https://github.com/xlollx/Trackhop/issues/new/choose) instead; a security problem goes in a [private report](https://github.com/xlollx/Trackhop/security/advisories/new).
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where you use Trackhop
+      multiple: true
+      options: [Android (Google Play), Android (GitHub / F-Droid), Desktop (Windows), Desktop (macOS), Desktop (Linux), Docker server, iPhone (through Desktop or Docker)]
+  - type: dropdown
+    id: services
+    attributes:
+      label: Services involved, if any
+      multiple: true
+      options: [Spotify, YouTube Music, YouTube, Apple Music, Amazon Music, TIDAL, Deezer, SoundCloud, Qobuz, Subsonic/Navidrome, Jellyfin, Plex, Last.fm, ListenBrainz, Files, Other]
+  - type: input
+    id: version
+    attributes:
+      label: Trackhop version
+      description: Optional. Settings › About in the app, or the footer of the Desktop/Docker page.

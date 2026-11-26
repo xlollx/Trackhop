@@ -266,6 +266,8 @@ reports are what make it better: if something does not work as it should, say so
 - **How to report**: open an [issue](https://github.com/xlollx/Trackhop/issues/new/choose) and attach
   the **technical details report** (Settings → *Sync log* → *Share technical details*): versions, connectors, the
   last sync steps and plugin statistics, never tokens or track lists. Italian is welcome.
+- **Questions and ideas**: [Discussions](https://github.com/xlollx/Trackhop/discussions): ask how to
+  set something up (Q&A), share an idea and vote on others' (Ideas), or show your setup.
 - **Known rough edges**: see [Known limits](#known-limits). Matching depends on each catalogue's search:
   a track "not found" is usually missing or titled differently on the destination, and the review
   screen exists for those.

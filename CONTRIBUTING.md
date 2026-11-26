@@ -6,6 +6,7 @@ Thanks for helping. Issues and pull requests are welcome, from anyone.
 
 - **A bug or a small fix:** open the pull request directly.
 - **A new feature or a new service:** open an issue first, so we agree on the approach before you write the code.
+- **A question, or an idea to talk over first:** [Discussions](https://github.com/xlollx/Trackhop/discussions).
 - **A security problem:** never in a public issue. See [SECURITY.md](SECURITY.md).
 
 ## Building and testing

@@ -1,5 +1,11 @@
 blank_issues_enabled: true
 contact_links:
+  - name: A question about using Trackhop
+    url: https://github.com/xlollx/Trackhop/discussions/categories/q-a
+    about: How to set up a service, a sync, Desktop or Docker. Answered in Discussions, where others can find it too.
+  - name: An idea to talk over
+    url: https://github.com/xlollx/Trackhop/discussions/categories/ideas
+    about: Something to discuss and vote on before it becomes a feature request.
   - name: Trackhop Bridge (YouTube Music, Amazon Music, Spotify/Apple sign-in without developer keys)
     url: https://github.com/xlollx/Trackhop-Bridge/issues/new/choose
     about: Problems that appear only with a Bridge connector belong in the Bridge repository.

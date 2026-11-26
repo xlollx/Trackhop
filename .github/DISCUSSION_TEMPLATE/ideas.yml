@@ -1,0 +1,20 @@
+# The form of a new discussion in the Ideas category (the file is named after the category's slug).
+title: "[Idea] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        An idea to talk over with others before it becomes a request: vote it up, add how you would use it. Italiano va benissimo.
+        A precise request (a service, an option) can also go straight to a [feature request](https://github.com/xlollx/Trackhop/issues/new?template=feature_request.yml).
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: The problem it solves counts more than the exact solution.
+    validations:
+      required: true
+  - type: textarea
+    id: today
+    attributes:
+      label: What you do today instead
+      description: Optional.
