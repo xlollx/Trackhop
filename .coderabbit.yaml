@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
-# CodeRabbit reviews the pull requests into main (the release one: next-* → main). Free for public
+# CodeRabbit reviews the pull requests into main (and into next-* release branches). Free for public
 # repositories. It reviews the code: store texts, screenshots and generated files are left out.
 language: en-US
 early_access: false
