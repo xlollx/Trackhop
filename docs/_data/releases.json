@@ -1,5 +1,25 @@
 [
  {
+  "id": "v2.2.4",
+  "kind": "app",
+  "version": "2.2.4",
+  "date": "2026-11-26",
+  "notes": {
+   "en": "Trackhop 2.2.4. Amazon Music: signing in again closed too early, on music.amazon.com instead of the account's own site (music.amazon.it, .de…), and syncs then failed with \"session expired\". The sign-in now waits for the signed-in player and moves on to the account's site. If Amazon Music asks you to sign in, sign in once more.",
+   "it": "Trackhop 2.2.4. Amazon Music: riaccedendo, l'accesso si chiudeva troppo presto su music.amazon.com invece che sul sito dell'account (music.amazon.it, .de…) e le sync fallivano con \"sessione scaduta\". Ora l'accesso aspetta il player collegato e passa al sito dell'account. Se Amazon Music ti chiede di accedere, accedi ancora una volta.",
+   "es": "Trackhop 2.2.4. Amazon Music: al volver a iniciar sesión, se cerraba demasiado pronto en music.amazon.com en lugar del sitio de la cuenta (music.amazon.es, .it…) y las sincronizaciones fallaban con \"sesión caducada\". Ahora espera al reproductor con la sesión iniciada y pasa al sitio de la cuenta. Si Amazon Music te pide iniciar sesión, hazlo una vez más.",
+   "pt": "Trackhop 2.2.4. Amazon Music: ao entrar de novo, o login fechava cedo demais em music.amazon.com em vez do site da conta (music.amazon.com.br, .it…) e as sincronizações falhavam com \"sessão expirada\". Agora o login espera o player conectado e passa para o site da conta. Se o Amazon Music pedir login, entre mais uma vez.",
+   "fr": "Trackhop 2.2.4. Amazon Music : la reconnexion se fermait trop tôt, sur music.amazon.com au lieu du site du compte (music.amazon.fr, .it…), et les synchros échouaient ensuite avec « session expirée ». La connexion attend désormais le lecteur connecté et passe au site du compte. Si Amazon Music vous demande de vous connecter, reconnectez-vous une fois.",
+   "de": "Trackhop 2.2.4. Amazon Music: Die erneute Anmeldung schloss zu früh, auf music.amazon.com statt auf der Seite des Kontos (music.amazon.de, .it…), und Syncs schlugen dann mit \"Sitzung abgelaufen\" fehl. Die Anmeldung wartet jetzt auf den angemeldeten Player und wechselt zur Seite des Kontos. Fragt Amazon Music nach einer Anmeldung, melde dich noch einmal an.",
+   "pl": "Trackhop 2.2.4. Amazon Music: ponowne logowanie zamykało się za wcześnie, na music.amazon.com zamiast na stronie konta (music.amazon.de, .it…), a synchronizacje kończyły się błędem \"sesja wygasła\". Logowanie czeka teraz na zalogowany odtwarzacz i przechodzi na stronę konta. Jeśli Amazon Music poprosi o zalogowanie, zaloguj się jeszcze raz.",
+   "ru": "Trackhop 2.2.4. Amazon Music: повторный вход закрывался слишком рано, на music.amazon.com вместо сайта аккаунта (music.amazon.de, .it…), и синхронизации затем падали с ошибкой «сессия истекла». Теперь вход ждёт плеер с выполненным входом и переходит на сайт аккаунта. Если Amazon Music просит войти, войдите ещё раз.",
+   "tr": "Trackhop 2.2.4. Amazon Music: yeniden giriş, hesabın kendi sitesi (music.amazon.com.tr, .it…) yerine music.amazon.com'da çok erken kapanıyordu ve eşitlemeler \"oturum süresi doldu\" hatasıyla başarısız oluyordu. Giriş artık oturum açmış oynatıcıyı bekliyor ve hesabın sitesine geçiyor. Amazon Music giriş isterse bir kez daha giriş yap.",
+   "ja": "Trackhop 2.2.4。Amazon Music：再ログインがアカウントのサイト（music.amazon.co.jp、.it…）ではなく music.amazon.com で早く閉じてしまい、同期が「セッション切れ」で失敗していました。ログインはサインイン済みのプレーヤーを待ってからアカウントのサイトへ移るようになりました。Amazon Music からログインを求められたら、もう一度ログインしてください。",
+   "ko": "Trackhop 2.2.4. Amazon Music: 다시 로그인할 때 계정 사이트(music.amazon.de, .it…) 대신 music.amazon.com에서 너무 일찍 닫혀 동기화가 \"세션 만료\"로 실패했습니다. 이제 로그인된 플레이어를 기다린 뒤 계정 사이트로 이동합니다. Amazon Music이 로그인을 요청하면 한 번 더 로그인하세요.",
+   "zh": "Trackhop 2.2.4。Amazon Music：重新登录时会过早地在 music.amazon.com 关闭，而不是账号自己的站点（music.amazon.de、.it…），之后同步会因“会话已过期”而失败。现在登录会等待已登录的播放器，并转到账号的站点。如果 Amazon Music 要求登录，请再登录一次。"
+  }
+ },
+ {
   "id": "v2.2.3",
   "kind": "app",
   "version": "2.2.3",
