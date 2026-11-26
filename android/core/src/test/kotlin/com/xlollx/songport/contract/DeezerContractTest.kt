@@ -194,6 +194,12 @@ class DeezerContractTest : ContractTest() {
         assertEquals(listOf(1500L), pauses)
     }
 
+    /** /user/me/tracks lists the favourites oldest first (as /user/{id}/tracks does); the sync wants them newest first, the same second's too. */
+    @Test fun likedTracksAreNewestFirst() = runBlocking {
+        json(page(listOf(track(1), track(2), track(3).replace("${1_700_000_003}", "${1_700_000_002}")), 3, null))
+        assertEquals(listOf("1003", "1002", "1001"), dz.tracks(env, MusicProvider.LIKED_ID).map { it.id })
+    }
+
     @Test fun likedVersionAndChecksum() = runBlocking {
         json("""{"data":[${track(1)}],"total":77}""")
         assertEquals("77|1001", dz.playlistVersion(env, MusicProvider.LIKED_ID))
