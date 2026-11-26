@@ -56,7 +56,7 @@
     <string name="editor_mirror">削除も反映</string>
     <string name="editor_mirror_desc">同期元にない曲は、手動で追加したものも含めて同期先からすべて削除します。オフの場合は追加のみ行います。</string>
     <string name="editor_keep_order">元の順序を保つ</string>
-    <string name="editor_keep_order_desc">追加後、同期先を元の順序に並べ替えます。Spotify、YouTube Music、TIDAL、Deezer で使えます。</string>
+    <string name="editor_keep_order_desc">追加後、同期先を元の順序に並べ替えます。Spotify、YouTube Music、TIDAL、Deezer、Jellyfin、Navidrome（Subsonic）で使えます。</string>
     <string name="note_order_aligned">順序を元に合わせました。</string>
     <string name="note_order_failed">順序を合わせられませんでした: %1$s</string>
     <string name="policy_title">マッチングのルール</string>

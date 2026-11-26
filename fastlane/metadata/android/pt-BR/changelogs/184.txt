@@ -1,0 +1,1 @@
+Trackhop 2.2.6. Navidrome e Subsonic: "Manter a ordem da origem" agora funciona lá também. Músicas encontradas numa execução seguinte não ficam mais no fim da playlist: o Trackhop a coloca de volta na ordem da origem. Obrigado, raykai (#96).

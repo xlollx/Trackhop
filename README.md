@@ -321,7 +321,7 @@ reports are what make it better: if something does not work as it should, say so
 | | Bidirectional | One switch creates the reverse twin sync; with "Removals too" a track removed on one side is removed on the other as well (from the run after the next, large removals held for confirmation). The two share timing, colour, label, tags and star, and are deleted together. [Guide](https://trackhop.org/guide/two-way-sync). |
 | | Favourites, colour labels and tags | Star a sync (starred ones stay on top unless "Favourites always on top" is off), name a colour as a label, add key/value tags such as `genre = metal`; search and filter by them. On Desktop and Docker a group runs by tag, label or star from the page, the API, the command line or MCP. [Guide](https://trackhop.org/guide/organise-syncs). |
 | | One sync, one device | A set-up restored on another phone keeps its scheduled syncs off there until turned on. |
-| | Keep the source order | After the adds, the target is put in the source's order; Spotify (both routes), YouTube Music and Deezer can move tracks. |
+| | Keep the source order | After the adds, the target is put in the source's order; Spotify (both routes), YouTube Music, Deezer, Jellyfin and Navidrome/Subsonic (written back whole: the Subsonic API has no move) can do it. |
 | | "Liked songs" as source or target | Spotify, Deezer, Subsonic, Jellyfin, Last.fm, ListenBrainz. |
 | | Shazam sync | Every song you Shazam, in a playlist of your choice on any service. Shazam has no API for your library, so nothing unofficial is used: in Shazam's settings, connect Spotify or Apple Music and Shazam keeps every Shazam in a "My Shazam Tracks" playlist there; "Shazam" as the source in the editor finds that playlist on your connected account (or says how to turn it on) and syncs it hourly. The card wears Shazam's mark. Also on Desktop and Docker (Spotify). [Guide](https://trackhop.org/guide/shazam). |
 | | Radio sync | The songs an internet radio plays in the hours you choose (days, from, to; past midnight too), in a playlist on any service. Find the station by name in radio-browser.info or paste its stream; only the song title the station sends with its stream is read, never the audio, and adverts, news and the station's name are left out. On the phone the stream is sampled every 2 minutes (a few seconds each, a few MB an hour), on Wi‑Fi by default, from a quiet "Listening to …" notification; the songs are synced every 10 minutes and when the window closes. The card wears a radio and says what is on air. Also on Desktop and Docker. [Guide](https://trackhop.org/guide/radio). |
@@ -838,7 +838,7 @@ public issue.
 
 - Code: [JPMarcelino](https://github.com/JPMarcelino) (#66, two-way pairs handed to the server),
   [Doggo785](https://github.com/Doggo785) (#87, Deezer liked songs in the right order).
-- Reports and ideas: [raykai](https://github.com/raykai) (#67), [ingoau](https://github.com/ingoau) (#68, #69).
+- Reports and ideas: [raykai](https://github.com/raykai) (#67, #95, #96), [ingoau](https://github.com/ingoau) (#68, #69).
 
 ## Formerly Songport
 

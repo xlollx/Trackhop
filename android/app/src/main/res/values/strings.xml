@@ -56,7 +56,7 @@
     <string name="editor_mirror">Mirror removals</string>
     <string name="editor_mirror_desc">Remove from the target every track that is not in the source, including tracks added there by hand. Off = only add.</string>
     <string name="editor_keep_order">Keep the source order</string>
-    <string name="editor_keep_order_desc">After adding, the target is put in the source’s order. Spotify, TIDAL, YouTube Music and Deezer can do it.</string>
+    <string name="editor_keep_order_desc">After adding, the target is put in the source’s order. Spotify, TIDAL, YouTube Music, Deezer, Jellyfin and Navidrome (Subsonic) can do it.</string>
     <string name="note_order_aligned">Order aligned to the source.</string>
     <string name="note_order_failed">Order not aligned: %1$s</string>
     <string name="policy_title">Matching rules</string>

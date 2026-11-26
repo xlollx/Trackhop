@@ -56,7 +56,7 @@
     <string name="editor_mirror">삭제도 반영</string>
     <string name="editor_mirror_desc">원본에 없는 곡은 직접 추가한 곡까지 모두 대상에서 삭제해요. 끄면 추가만 합니다.</string>
     <string name="editor_keep_order">원본 순서 유지</string>
-    <string name="editor_keep_order_desc">추가한 뒤 대상을 원본과 같은 순서로 정렬해요. Spotify, YouTube Music, TIDAL, Deezer에서 가능합니다.</string>
+    <string name="editor_keep_order_desc">추가한 뒤 대상을 원본과 같은 순서로 정렬해요. Spotify, YouTube Music, TIDAL, Deezer, Jellyfin, Navidrome(Subsonic)에서 가능합니다.</string>
     <string name="note_order_aligned">순서를 원본에 맞췄어요.</string>
     <string name="note_order_failed">순서를 맞추지 못했어요: %1$s</string>
     <string name="policy_title">매칭 규칙</string>

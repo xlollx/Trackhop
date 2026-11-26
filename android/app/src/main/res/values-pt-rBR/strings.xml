@@ -56,7 +56,7 @@
     <string name="editor_mirror">Espelhar remoções</string>
     <string name="editor_mirror_desc">Remove do destino toda faixa que não está na origem, inclusive as adicionadas lá à mão. Desligado = só adiciona.</string>
     <string name="editor_keep_order">Manter a ordem da origem</string>
-    <string name="editor_keep_order_desc">Depois de adicionar, o destino é colocado na ordem da origem. Spotify, TIDAL, YouTube Music e Deezer permitem isso.</string>
+    <string name="editor_keep_order_desc">Depois de adicionar, o destino é colocado na ordem da origem. Spotify, TIDAL, YouTube Music, Deezer, Jellyfin e Navidrome (Subsonic) permitem isso.</string>
     <string name="note_order_aligned">Ordem alinhada à origem.</string>
     <string name="note_order_failed">Ordem não alinhada: %1$s</string>
     <string name="policy_title">Regras de correspondência</string>

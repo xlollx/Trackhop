@@ -74,7 +74,7 @@ on chosen days. Options worth knowing:
   the editor asks right under it: *Copy the latest version (replace)* (mirror removals, big turnovers
   expected) or *Keep every track (archive)*. An archive hides the removal and order options.
 - **Keep the source order**: after adding, the target is put in the source's order (Spotify, YouTube
-  Music, Deezer).
+  Music, TIDAL, Deezer, Jellyfin, Navidrome/Subsonic).
 - **Wi-Fi only**, **Enabled**, and the matching rules.
 
 Saving opens the **preview**: at the top, where the tracks go from and to, and the steps while it works
