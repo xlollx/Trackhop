@@ -573,6 +573,38 @@ object BridgeCore {
                 "liveone.presets" -> ok(json.encodeToString(LiveOneWebClient(ctx, slot).presets()))
                 "liveone.search" -> ok(json.encodeToString(LiveOneWebClient(ctx, slot).search(arg ?: "")))
                 "liveone.add" -> { LiveOneWebClient(ctx, slot).addPresets(extras?.getStringArray("ids")?.toList() ?: emptyList()); Bundle() }
+                // ---- Trackhop's twice-daily keep-alive of each web session ("Reconnect" asks the same): one
+                // cheap signed-in call, which renews a refused session the way that connector's calls do (a
+                // hidden page of the service's site, the player's page, a refresh token), answering as
+                // `soundcloud.keepAlive` does. Not signed in: nothing is done. An older Bridge answers
+                // "unknown method", which Trackhop skips.
+                "spotify.keepAlive" -> keepAlive("spotify", slot, { SpotifyBridge.session(slot).isConnected(ctx) }) {
+                    // A fresh Web API token from the account's cookies, as the player gets one.
+                    SpotifyBridge.invalidateToken(slot); SpotifyBridge.token(ctx, slot)
+                }
+                "deezer.keepAlive" -> keepAlive("deezer", slot, { DeezerBridge.session(slot).isConnected(ctx) }) {
+                    DeezerWebClient(ctx, slot).user(refresh = true)
+                }
+                "qobuz.keepAlive" -> keepAlive("qobuz", slot, { QobuzBridge.session(slot).isConnected(ctx) }) {
+                    QobuzWebClient(ctx, slot).probe()
+                }
+                "anghami.keepAlive" -> keepAlive("anghami", slot, { AnghamiBridge.session(slot).isConnected(ctx) }) {
+                    AnghamiWebClient(ctx, slot).probe()
+                }
+                "gaana.keepAlive" -> keepAlive("gaana", slot, { GaanaBridge.session(slot).isConnected(ctx) }) {
+                    GaanaWebClient(ctx, slot).probe()
+                }
+                "liveone.keepAlive" -> keepAlive("liveone", slot, { LiveOneBridge.session(slot).isConnected(ctx) }) {
+                    // The session renewed from its refresh token, as the player does (the token rotates).
+                    LiveOneWebClient(ctx, slot).wsToken(renew = true)
+                }
+                "apple.keepAlive" -> keepAlive("apple", slot, { AppleBridge.session(slot).isConnected(ctx) }) {
+                    AppleBridge.keepAlive(ctx, slot)
+                }
+                "amazon.keepAlive" -> keepAlive("amazon", slot, { AmazonSession.isConnected(ctx) }) {
+                    // On the account's own regional site (the saved domain), the player's page renewed on a refusal.
+                    AmazonRoute.run(ctx, { it.libraryPlaylists() }, { it.libraryPlaylists() })
+                }
                 // ---- SoundCloud web session: api-v2 with the web app's client id and the account's OAuth token.
                 // Tracks travel as SoundCloud's own track objects, trimmed: Trackhop parses them like its public links.
                 "soundcloud.status" -> Bundle().apply {
@@ -699,6 +731,44 @@ object BridgeCore {
         putInt("total", total)
         if (offset + PAGE < total) putInt("next", offset + PAGE)
     }
+
+    /**
+     * One keep-alive ([service] the log tag): not [connected], nothing is done; otherwise [probe],
+     * one signed-in call. `renewed`: the session works; `expired`: the service ended it (its error
+     * says so, or the account is signed out after the call); neither: not renewed this time (the
+     * network, an outage), with `problem`. One log line, never a token or a cookie.
+     */
+    internal fun keepAlive(service: String, slot: String, connected: () -> Boolean, probe: () -> Unit): Bundle {
+        val who = if (slot.isEmpty()) "" else " (account $slot)"
+        if (!connected()) return Bundle().apply { putBoolean("renewed", false); putBoolean("connected", false); putBoolean("expired", false) }
+        return try {
+            probe()
+            BridgeNet.log(service, "keep-alive$who: the session works")
+            Bundle().apply { putBoolean("renewed", true); putBoolean("connected", true); putBoolean("expired", false) }
+        } catch (e: Exception) {
+            val why = NetWords.of(e)
+            val still = runCatching { connected() }.getOrDefault(true)
+            val gone = !still || (NetWords.transport(e) == null && sessionGone(why))
+            BridgeNet.log(service, "keep-alive$who: " + if (gone) "the session is gone, a new sign-in is needed" else "not renewed this time ($why)")
+            Bundle().apply {
+                putBoolean("renewed", false); putBoolean("connected", still); putBoolean("expired", gone)
+                if (!gone) putString("problem", why)
+            }
+        }
+    }
+
+    /** What a web connector says when its session is gone for good (Trackhop's app reads the same words). */
+    private val GONE_WORDS = listOf(
+        "rejected the session (401)",
+        "web session has expired",
+        "session has ended",
+        "session has expired",
+        "no longer accepts the session",
+        "no longer opens the player",
+        "served the player to a signed-out visitor",
+    )
+
+    internal fun sessionGone(error: String?): Boolean = error != null && GONE_WORDS.any { error.contains(it, ignoreCase = true) }
 
     private fun ok(jsonText: String) = Bundle().apply { putString("json", jsonText) }
     private fun err(message: String) = Bundle().apply { putString("error", message) }

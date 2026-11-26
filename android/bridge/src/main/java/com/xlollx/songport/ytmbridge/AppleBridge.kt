@@ -201,6 +201,33 @@ object AppleBridge {
         return jwt
     }
 
+    const val EXPIRED = "the Apple Music web session has expired: sign in again"
+
+    /**
+     * Trackhop's keep-alive: one signed-in call (the account's storefront) with the stored user
+     * token; refused (401), the token is renewed in a hidden page ([renewal]) and the call made
+     * again. Throws [EXPIRED] when Apple refuses the session and no renewal works.
+     */
+    fun keepAlive(ctx: Context, slot: String = Slots.PRIMARY) {
+        val session = session(slot)
+        repeat(2) { attempt ->
+            val user = userToken(session.cookies(ctx)) ?: throw BridgeException("not connected")
+            val req = Request.Builder().url("$AMP/v1/me/storefront")
+                .header("Authorization", "Bearer ${developerToken(ctx, slot)}")
+                .header("Music-User-Token", user)
+                .header("media-user-token", user)
+                .header("Origin", "https://music.apple.com")
+                .header("Referer", "https://music.apple.com/")
+                .header("User-Agent", UA)
+                .build()
+            val code = http.newCall(req).execute().use { it.code }
+            if (code in 200..299) return
+            // 403 is an account without a subscription, not a session gone.
+            if (code != 401) throw BridgeException("Apple Music: HTTP $code")
+            if (attempt > 0 || !renewal.renew(ctx, slot, user)) throw BridgeException(EXPIRED)
+        }
+    }
+
     /** Storefront of the signed-in account (it, de, us...), fetched once. */
     fun storefront(ctx: Context, slot: String = Slots.PRIMARY): String? {
         val session = session(slot)
