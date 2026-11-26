@@ -110,6 +110,7 @@ object Cli {
             "<words> finds a service by its name or the account it is connected as; --kind keeps the official ones, the unofficial (web) ones or the connected ones.\nA radio is one station: add as many as you like (trackhop stations <words> finds them); a sync from one: trackhop new radio@2 <service>."),
         Cmd("catalog", "Services and playlists", listOf("catalog [<words>] [--category streaming|server|radio|listening|regional|files]"), "every service that can be added, by category; words also match other names (Navidrome finds Subsonic)"),
         Cmd("playlists", "Services and playlists", listOf("playlists <service>"), "a service's playlists"),
+        Cmd("reconnect", "Services and playlists", listOf("reconnect <service>"), "renew an account's session now; when it cannot be renewed, the account is signed out and the address of its sign-in is shown"),
         Cmd("profiles", "Services and playlists", listOf("profiles <service> [<profile>]"), "YouTube Music (web): the profiles (own channel, brand accounts) with their music, or read and write as one from now on"),
         Cmd("tracks", "Services and playlists", listOf("tracks <service> <playlist>"), "a playlist's tracks"),
         Cmd("add", "Services and playlists", listOf("add <service> <playlist> <track>..."), "add tracks: \"Artist - Title\", a link from any service, or an id"),

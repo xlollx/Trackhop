@@ -53,6 +53,7 @@ internal class CliCommands(
         "services" -> if (p.firstOrNull() == "add" || p.firstOrNull() == "remove") CliRadio(this).services(p, o) else if (p.firstOrNull() == "profile") { need(p, 2, "services profile <service> [<profile>]"); profile(p[1], p.drop(2).joinToString(" ").takeIf { it.isNotEmpty() }) } else services(p.joinToString(" "), o.value("kind"))
         "catalog" -> catalog(p.joinToString(" "), o)
         "playlists" -> playlists(one(p, "playlists <service>"))
+        "reconnect" -> reconnect(one(p, "reconnect <service>"))
         "profiles" -> { need(p, 1, "profiles <service> [<profile>]"); profiles(p[0], p.drop(1).joinToString(" ").takeIf { it.isNotEmpty() }) }
         "tracks" -> { need(p, 2, "tracks <service> <playlist>"); tracks(p[0], p[1]) }
         "add", "remove" -> { need(p, 3, "$command <service> <playlist> <track>..."); edit(command, p[0], p[1], p.drop(2)) }
@@ -316,6 +317,16 @@ internal class CliCommands(
     }
 
     /** Deezer (web) on a Family account: its profiles, or (with [ask], an id or a name) act as another (#82). */
+    /** "Reconnect": the session renewed now, or the account signed out with where to sign in again. */
+    private fun reconnect(serviceAsk: String): Int {
+        val s = service(serviceAsk)
+        val r = api.post("services/${enc(s.s("id"))}/reconnect").jsonObject
+        if (asJson) return print(r).let { 0 }
+        out.println(r.s("message"))
+        if (r.b("signedOut")) out.println("Sign in again: ${r.s("signIn")}")
+        return if (r.b("renewed")) 0 else 1
+    }
+
     private fun profile(serviceAsk: String, ask: String?): Int {
         val s = service(serviceAsk)
         val path = "services/${enc(s.s("id"))}/profile"

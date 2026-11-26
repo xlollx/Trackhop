@@ -178,6 +178,15 @@ internal fun Web.apiMore(ex: HttpExchange, method: String, rest: List<String>, q
             val p = Providers.byId(rest[1]) ?: return true.also { error(404, "No service with that id: see GET /api/v1/services.") }
             json(200, serviceJson(p))
         }
+        // "Reconnect": the session renewed now; when it cannot be, the account is signed out and "signIn" says where to sign in again.
+        rest.size == 3 && rest[0] == "services" && rest[2] == "reconnect" && method == "POST" -> {
+            val p = Providers.byId(rest[1])?.takeIf { it.id in env.store.data.settings.connectors } ?: return true.also { error(404, "No service with that id: see GET /api/v1/services.") }
+            val done = runBlocking { SessionsKeepAlive.reconnect(env, p) }
+            json(200, buildJsonObject {
+                put("renewed", done.renewed); put("signedOut", done.signedOut); put("message", done.message)
+                if (done.signedOut) put("signIn", "${env.baseUrl}/connectors/${java.net.URLEncoder.encode(p.id, "UTF-8")}")
+            })
+        }
         // YouTube Music (web): the profiles (own channel, brand accounts) the account can act as, with how
         // much music each holds and which one the music seems to be on; POST picks one.
         rest.size == 3 && rest[0] == "services" && rest[2] == "channels" && method == "GET" -> {

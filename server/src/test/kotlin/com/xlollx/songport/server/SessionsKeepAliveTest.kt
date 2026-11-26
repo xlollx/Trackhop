@@ -36,7 +36,8 @@ class SessionsKeepAliveTest {
         override fun accountName(ctx: Env) = "listener"
         override fun startAuth(ctx: Env) {}
         override suspend fun completeAuth(ctx: Env, params: Map<String, String>, verifier: String) {}
-        override fun disconnect(ctx: Env) {}
+        var disconnected = 0
+        override fun disconnect(ctx: Env) { disconnected++ }
         override suspend fun keepAlive(ctx: Env): KeepAlive? { asked++; return outcome }
         override suspend fun playlists(ctx: Env): List<Playlist> = emptyList()
         override suspend fun tracks(ctx: Env, playlistId: String): List<Track> = emptyList()
@@ -103,5 +104,20 @@ class SessionsKeepAliveTest {
         runBlocking { SessionsKeepAlive.run(env, accounts = emptyList()) }
         assertFalse(SessionsKeepAlive.isDue(env, System.currentTimeMillis() + 60_000))
         assertTrue(SessionsKeepAlive.isDue(env, System.currentTimeMillis() + SessionsKeepAlive.EVERY_MS))
+    }
+
+    @Test fun reconnectRenewsOrSignsOutForANewSignIn() = runBlocking {
+        val ok = SessionsKeepAlive.reconnect(env, renewed)
+        assertTrue(ok.renewed); assertFalse(ok.signedOut)
+        assertEquals("KA_RENEWED: session renewed, nothing else to do.", ok.message)
+        assertEquals(0, renewed.disconnected)
+        val gone = SessionsKeepAlive.reconnect(env, ended)
+        assertFalse(gone.renewed); assertTrue(gone.signedOut)
+        assertEquals(1, ended.disconnected)
+        // Offline: nothing is signed out.
+        val offline = Account("ka_offline", true, KeepAlive.failed(java.net.UnknownHostException("api.example.org")))
+        val r = SessionsKeepAlive.reconnect(env, offline)
+        assertFalse(r.renewed); assertFalse(r.signedOut)
+        assertEquals(0, offline.disconnected)
     }
 }

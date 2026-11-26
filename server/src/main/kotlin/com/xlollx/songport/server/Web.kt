@@ -648,6 +648,18 @@ $removals"""
                 redirect(r.ex, url)
             }
             "disconnect" -> { provider.disconnect(env); redirect(r.ex, "$back?ok=${q("Disconnected.")}") }
+            // "Reconnect": the session renewed on its own; when it cannot be, signed out and straight to its sign-in.
+            "reconnect" -> {
+                val done = runBlocking { SessionsKeepAlive.reconnect(env, provider) }
+                when {
+                    done.renewed -> redirect(r.ex, "$back?ok=${q(done.message)}")
+                    !done.signedOut -> redirect(r.ex, "$back?err=${q(done.message)}")
+                    // A sign-in in the service's own page: there at once. A pasted session or a password: its form, on the service's page.
+                    provider !is CookieConnector && provider !is CredentialsProvider ->
+                        runCatching { auth.begin(provider) }.getOrNull()?.let { redirect(r.ex, it) } ?: redirect(r.ex, "$back?err=${q(done.message)}")
+                    else -> redirect(r.ex, "$back?err=${q(done.message)}")
+                }
+            }
             // A personal server's second address, set or taken away on a connected account (2.2).
             "address" -> {
                 val c = provider as? CredentialsProvider

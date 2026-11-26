@@ -81,6 +81,7 @@ internal object ApiDocs {
         Call("DELETE", "/services/{service}", "Services", "Takes a radio station or Shazam away; refused (409) while a sync comes through it."),
         Call("PUT", "/services/{service}/address", "Services", "A personal server's second address (away from home): tried when the first does not answer.", body = "{\"away\": \"https://…\" | null}"),
         Call("GET", "/services/{service}/search", "Services", "Look for a track: q is \"Artist - Title\" or a link.", listOf("q", "limit")),
+        Call("POST", "/services/{service}/reconnect", "Services", "Reconnect: the account's session renewed now (renewed: true); when it cannot be, the account is signed out (signedOut: true) and signIn is the page to sign in again; neither: the service could not be reached, nothing changed. message says it in words."),
         Call("GET", "/services/{service}/profile", "Services", "Deezer (web) on a Family account: its profiles, the one the account acts as marked."),
         Call("PUT", "/services/{service}/profile", "Services", "Deezer (web) on a Family account: act as another profile, checked with Deezer.", body = "{\"profile\": \"id or name\"}"),
         Call("GET", "/services/{service}/playlists", "Playlists", "A service's playlists and library entries."),

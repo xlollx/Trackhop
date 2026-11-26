@@ -8,7 +8,7 @@ import com.xlollx.songport.platform.Env
  * keep-alive and "Reconnect" ask each signed-in account once, so a session (a refresh token, a web
  * session) stays in use and the person is asked to sign in again only when the service really ended it.
  */
-data class KeepAlive(val state: State, val problem: String? = null) {
+data class KeepAlive(val state: State, val problem: String? = null, val offline: Boolean = false) {
     enum class State {
         /** The session works (renewed, or shown to work by a signed-in call). */
         RENEWED,
@@ -29,7 +29,7 @@ data class KeepAlive(val state: State, val problem: String? = null) {
         val NOT_SIGNED_IN = KeepAlive(State.NOT_SIGNED_IN)
 
         /** Not renewed because of [e]: its message, never a token (the connectors' errors carry none). */
-        fun failed(e: Throwable): KeepAlive = KeepAlive(State.FAILED, (e.message ?: e.javaClass.simpleName).take(200))
+        fun failed(e: Throwable): KeepAlive = KeepAlive(State.FAILED, (e.message ?: e.javaClass.simpleName).take(200), offline = NetError.isNetwork(e))
 
         /**
          * What a web connector says when its session is gone for good, as its error says it (the
@@ -62,6 +62,24 @@ data class KeepAlive(val state: State, val problem: String? = null) {
             } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
                 if (!p.isConnected(ctx) || (!NetError.isNetwork(e) && sessionGone(e.message))) EXPIRED else failed(e)
             }
+        }
+
+        /**
+         * "Reconnect": the account's session renewed now, as the keep-alive does; a connector with no
+         * renewal of its own ([MusicProvider.keepAlive] null) makes one signed-in call (its playlists).
+         */
+        suspend fun renewNow(ctx: Env, p: MusicProvider): KeepAlive =
+            try { p.keepAlive(ctx) } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) { failed(e) }
+                ?: probe(ctx, p) { p.playlists(ctx) }
+
+        /**
+         * Whether "Reconnect" goes on to sign the account out and open its sign-in after [k]: anything
+         * but a renewal, except a failure of the connection (nothing is signed out while offline).
+         */
+        fun needsSignIn(k: KeepAlive): Boolean = when (k.state) {
+            State.RENEWED -> false
+            State.FAILED -> !k.offline
+            State.EXPIRED, State.NOT_SIGNED_IN -> true
         }
     }
 }

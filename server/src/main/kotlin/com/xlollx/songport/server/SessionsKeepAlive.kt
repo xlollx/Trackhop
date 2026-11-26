@@ -78,4 +78,30 @@ object SessionsKeepAlive {
         if (channels.isNotEmpty()) Notify.sendAll(env, channels, Notify.Message(title, text), "signin", target)
         else runCatching { NotifyHistory.of(env).addOnce("signin", title, text, target) }
     }
+
+    /** What "Reconnect" did: [renewed] (nothing else to do), or [signedOut] (a new sign-in is needed), and what to say. */
+    data class Reconnected(val renewed: Boolean, val signedOut: Boolean, val message: String)
+
+    /**
+     * "Reconnect" (the Services page, the API, the CLI): the account's session renewed now, as the
+     * keep-alive does; when that cannot work the account is signed out, as its "Disconnect" does, so
+     * its sign-in comes next. Offline nothing is signed out.
+     */
+    suspend fun reconnect(env: Env, p: MusicProvider): Reconnected {
+        val k = KeepAlive.renewNow(env, p)
+        val name = p.label(env)
+        env.log("keepalive", "${p.id}: reconnect: " + when {
+            k.renewed -> "renewed"
+            KeepAlive.needsSignIn(k) -> "not renewed (${k.state.name.lowercase()}), signed out for a new sign-in"
+            else -> "not renewed, no connection: nothing changed"
+        })
+        if (k.renewed) {
+            env.keyValues(KV)[told(p.id)] = ""
+            return Reconnected(true, false, "$name: session renewed, nothing else to do.")
+        }
+        if (!KeepAlive.needsSignIn(k)) return Reconnected(false, false, "$name: the service could not be reached, nothing changed. Try again later.")
+        runCatching { p.disconnect(env) }
+        env.keyValues(KV)[told(p.id)] = ""
+        return Reconnected(false, true, "$name: the session could not be renewed. Sign in again.")
+    }
 }
