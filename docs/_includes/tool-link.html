@@ -1,5 +1,5 @@
 {%- comment -%}
-  /link: one song or album link in, a button per service out (assets/tools/link-ui.js).
+  /link: one song or album link (or a song's name, searched on Deezer and iTunes) in, a button per service out (assets/tools/link-ui.js).
   The texts are in _data/tools.yml, by the page's language. The lookups go from the visitor's
   browser to the public catalogues of Apple (iTunes), Deezer and Spotify, and to MusicBrainz,
   ListenBrainz and Wikidata for the exact links they keep; nothing is stored.
@@ -34,7 +34,7 @@
     <div class="lk-row">
       <div class="lk-field">
         <svg class="i" aria-hidden="true"><use href="#lk-i-link"/></svg>
-        <input id="lk-in" name="u" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://…" aria-describedby="lk-priv">
+        <input id="lk-in" name="u" type="text" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="{{ k.placeholder }}" aria-describedby="lk-priv">
         <button class="tool-btn ghost small lk-pastebtn" type="button" hidden><svg class="i" aria-hidden="true"><use href="#lk-i-paste"/></svg>{{ k.paste }}</button>
       </div>
       <button class="tool-btn lk-go" type="submit">{{ k.go }}</button>
@@ -45,6 +45,7 @@
     <div class="tool-error lk-err" id="lk-err" role="alert" hidden></div>
   </form>
   <noscript><p class="tool-error">{{ s.noscript }}</p></noscript>
+  <section class="lk-pick" aria-labelledby="lk-pick-h" hidden></section>
 
   <div class="lk-two">
     <section class="lk-panel" aria-labelledby="lk-reads-h">

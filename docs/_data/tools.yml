@@ -73,8 +73,9 @@ en:
     guide: 'To move the playlist itself to another service, and keep it in step: <a href="/guide/export-playlist-csv">export and import with the app</a>.'
   link:
     h1: A link for every service
-    lead: A friend sent you a song on a service you don't use? Paste the link here and open the same song wherever you listen.
-    label: Paste a song or album link
+    lead: A friend sent you a song on a service you don't use? Paste the link, or type the song, and open it wherever you listen.
+    label: Paste a link, or type a song and its artist
+    placeholder: open.spotify.com/track/… or Fleetwood Mac Dreams
     paste: Paste
     go: Find it
     priv: "Nothing is stored: the lookup goes straight from your browser to the services"
@@ -262,6 +263,10 @@ en:
       home: /
       finding: Looking…
       found: "Found: {what}"
+      pick_h: Which one?
+      pick_for: "What Deezer and Apple Music found for “{q}”. Pick yours and it opens on every service."
+      pick_foot: Not here? Add the artist or the album, or check the spelling.
+      picked: ["One song for “{q}”", "{n} songs for “{q}”"]
       from: "{service} link"
       marks:
         exact: Exact
@@ -325,8 +330,11 @@ en:
       get: get Trackhop
       err:
         empty:
-          h: Paste a link first.
-          p: A song or album link from Apple Music, Deezer or Spotify.
+          h: Paste a link or type a song first.
+          p: A song or album link from Apple Music, Deezer or Spotify, or a song's title and artist.
+        nothing:
+          h: "Nothing turned up for “{q}”."
+          p: Check the spelling, or try the title and the artist alone, without other words.
         not-link:
           h: That doesn't look like a link.
           p: "In the music app, use Share › Copy link on a song or an album, then paste it here."
@@ -436,8 +444,9 @@ it:
     guide: 'Per portare la playlist su un altro servizio e tenerla allineata: <a href="/guide/export-playlist-csv">esporta e importa con l''app</a> (in inglese).'
   link:
     h1: Un link per ogni servizio
-    lead: Ti hanno mandato una canzone su un servizio che non usi? Incolla qui il link e apri la stessa canzone dove ascolti tu.
-    label: Incolla il link di un brano o di un album
+    lead: Ti hanno mandato una canzone su un servizio che non usi? Incolla il link, o scrivi il brano, e aprilo dove ascolti tu.
+    label: Incolla un link, o scrivi un brano e il suo artista
+    placeholder: open.spotify.com/track/… o Fleetwood Mac Dreams
     paste: Incolla
     go: Cerca
     priv: "Non viene salvato niente: la ricerca va dal tuo browser direttamente ai servizi"
@@ -625,6 +634,10 @@ it:
       home: /it/
       finding: Cerco…
       found: "Trovato: {what}"
+      pick_h: Quale?
+      pick_for: "Cosa hanno trovato Deezer e Apple Music per “{q}”. Scegli il tuo e si apre su ogni servizio."
+      pick_foot: Non c'è? Aggiungi l'artista o l'album, o controlla come è scritto.
+      picked: ["Un brano per “{q}”", "{n} brani per “{q}”"]
       from: "Link di {service}"
       marks:
         exact: Esatto
@@ -688,8 +701,11 @@ it:
       get: scarica Trackhop
       err:
         empty:
-          h: Prima incolla un link.
-          p: Il link di un brano o di un album di Apple Music, Deezer o Spotify.
+          h: Prima incolla un link o scrivi un brano.
+          p: Il link di un brano o di un album di Apple Music, Deezer o Spotify, oppure il titolo e l'artista di un brano.
+        nothing:
+          h: "Nessun brano trovato per “{q}”."
+          p: Controlla come è scritto, o prova solo il titolo e l'artista, senza altre parole.
         not-link:
           h: Questo non sembra un link.
           p: "Nell'app di musica usa Condividi › Copia link su un brano o su un album, poi incollalo qui."

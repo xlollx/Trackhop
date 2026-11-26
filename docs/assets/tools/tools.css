@@ -304,6 +304,30 @@ main.tool-wide { max-width: 1072px; }
 /* Before a link is pasted: what it reads, where it takes you */
 .lk-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; max-width: 760px; }
 @media (max-width: 700px) { .lk-two { grid-template-columns: 1fr; } }
+.lk-pick { display: flex; flex-direction: column; gap: 10px; padding: 20px 22px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); max-width: 760px; }
+.lk-pick[hidden] { display: none; }
+.prose .lk-pick h2 { margin: 0; font-size: 20px; }
+.lk-pick h2:focus { outline: none; }
+.prose .lk-pick p { margin: 0; }
+.prose .lk-pick-list { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.prose .lk-pick-list li { margin: 0; padding: 0; }
+.lk-pick-row { width: 100%; display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.lk-pick-row:hover { background: var(--surface-2); }
+.lk-pick-row:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.lk-pick-row img, .lk-noart { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; display: grid; place-items: center; background: var(--surface-2); color: var(--ink-2); }
+.lk-pick-t { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+.lk-pick-t > * { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lk-pick-t span { color: var(--ink-2); font-size: 14.5px; }
+.lk-pick-t small { color: var(--ink-2); font-size: 13px; }
+.lk-pick-src { font-size: 12.5px; padding: 3px 9px; border-radius: 999px; background: var(--surface-2); color: var(--ink-2); white-space: nowrap; }
+.lk-pick[aria-busy] .lk-pick-list { opacity: .55; }
+@media (max-width: 560px) {
+  .lk-pick { padding: 16px; }
+  .lk-pick-row { grid-template-columns: 44px minmax(0, 1fr); }
+  .lk-pick-row img, .lk-noart { width: 44px; height: 44px; }
+  .lk-pick-row > :first-child { grid-row: span 2; }
+  .lk-pick-src { grid-column: 2; justify-self: start; margin-top: -4px; }
+}
 .lk-panel { display: flex; flex-direction: column; gap: 12px; padding: 18px; border-radius: var(--radius); background: var(--surface-2); min-width: 0; }
 .prose .lk-panel h2 { font-size: 16px; line-height: 1.3; }
 .lk-reads { display: flex; flex-direction: column; }

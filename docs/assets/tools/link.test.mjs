@@ -3,7 +3,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseLink, display, plainTitle, titleKey, sameArtist, pickMatch, searchUrl, queryOf, buildServices, copyText, clock,
   getJson, jsonp, lookup, spotifyBase, spotifyResult, SERVICES, matches, albumSong, spaced, coverSignature, coverDistance, pickCover,
-  COVER_GRID, COVER_SAME, COVER_MARGIN, serviceLink, relLinks, wikidataQuery, wikidataLinks, wikidataId, lbIds, addKnown, WD_TIMEOUT } from './link.js';
+  COVER_GRID, COVER_SAME, COVER_MARGIN, serviceLink, relLinks, wikidataQuery, wikidataLinks, wikidataId, lbIds, addKnown, WD_TIMEOUT,
+  isName, searchSongs, PICK_MAX } from './link.js';
 import { ToolError } from './io.js';
 
 const refuses = (fn, code, detail) => assert.throws(fn, (e) => e instanceof ToolError && e.code === code && (detail == null || e.detail === detail));
@@ -1200,4 +1201,43 @@ test('addKnown: ListenBrainz silent or answering nonsense changes nothing', asyn
     await addKnown('song', found, { rels: [], mbid: MBID_RICK, artist: 'A', title: 'B', album: 'C' }, routeNet([['listenbrainz', reply]]));
     assert.deepEqual(found, { deezer: { url: 'd', mark: 'exact', note: 'pasted' } });
   }
+});
+
+// ---- A song by its name ----
+
+test('isName: words are a name to search for; an address or a stray letter is not', () => {
+  for (const t of ['bad omens kingdom of cards', 'Dreams', '  Björk  ', '99 Luftballons', '久石譲 summer']) assert.equal(isName(t), true, t);
+  for (const t of ['', ' ', 'a', '!!', 'https://example.com/x', 'ftp://x', 'x'.repeat(201)]) assert.equal(isName(t), false, t);
+});
+
+test('searchSongs: Deezer and Apple Music in turn, the same song once, Deezer’s link first', async () => {
+  const net = fakeNet([
+    ['api.deezer.com/search?q=dreams%20fleetwood&', { data: [deezerSong(63480987, 'Dreams (2004 Remaster)', 'Fleetwood Mac', 257), deezerSong(91, 'Dreams (Live)', 'Fleetwood Mac', 300)] }],
+    ['term=dreams+fleetwood&', { results: [itunesSong(11, 'Dreams', 'Fleetwood Mac', 257800), itunesSong(15, 'Dreams', 'Beck', 297000, 'Colors')] }],
+  ]);
+  const songs = await searchSongs('dreams fleetwood', net, { country: 'it' });
+  assert.deepEqual(songs.map((s) => [s.title, s.artist, s.sources.join('+')]),
+    [['Dreams (2004 Remaster)', 'Fleetwood Mac', 'deezer+apple'], ['Dreams', 'Beck', 'apple'], ['Dreams (Live)', 'Fleetwood Mac', 'deezer']]);
+  assert.equal(songs[0].url, 'https://www.deezer.com/track/63480987');
+  assert.equal(parseLink(songs[1].url).service, 'apple');
+  assert.ok(net.asked.some((a) => a.includes('&country=it&')));
+});
+
+test('searchSongs: at most PICK_MAX; one catalogue silent is lived with, both is an error', async () => {
+  const many = { data: Array.from({ length: 15 }, (_, i) => deezerSong(100 + i, 'Song ' + i, 'Artist ' + i, 200)) };
+  const silentApple = ['itunes.apple.com/search', new ToolError('no-answer', 'Apple Music')];
+  const songs = await searchSongs('song', fakeNet([['api.deezer.com/search', many], silentApple]));
+  assert.equal(songs.length, PICK_MAX);
+  assert.deepEqual(songs[0].sources, ['deezer']);
+  assert.deepEqual(await searchSongs('nothing', fakeNet([['api.deezer.com/search', { data: [] }], ['itunes.apple.com/search', { results: [] }]])), []);
+  await rejects(searchSongs('song', fakeNet([['api.deezer.com/search', new ToolError('no-answer', 'Deezer')], silentApple])), 'no-answer');
+});
+
+test('searchSongs: the song whose title and artist were typed goes before the popular ones', async () => {
+  const net = fakeNet([
+    ['api.deezer.com/search', { data: [deezerSong(1, 'Bad Omens', '5 Seconds of Summer', 215), deezerSong(2, 'The Death of Peace of Mind', 'Bad Omens', 241), deezerSong(3, 'Kingdom of Cards', 'Bad Omens', 261)] }],
+    ['itunes.apple.com/search', { results: [] }],
+  ]);
+  const songs = await searchSongs('bad omens kingdom of cards', net);
+  assert.deepEqual(songs.map((s) => s.title), ['Kingdom of Cards', 'Bad Omens', 'The Death of Peace of Mind']);
 });
