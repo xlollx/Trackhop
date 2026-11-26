@@ -340,6 +340,15 @@ main.tool-wide { max-width: 1072px; }
 .lk-song { display: flex; flex-direction: column; gap: 16px; padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); min-width: 0; }
 .prose .lk-art { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; border-radius: 12px; display: block; border: 1px solid var(--line); background: var(--surface-2); }
 .lk-noart { display: grid; place-items: center; color: var(--ink-3); font-size: 40px; }
+.prose .lk-deck { aspect-ratio: 54.8 / 40.8; border: 0; border-radius: 0; background: none; overflow: hidden; }
+.lk-deck .lk-spin { transform-box: fill-box; transform-origin: center; }
+.lk-deck .lk-arm { transform-box: view-box; transform-origin: 48.6px 10.4px; }
+@media (prefers-reduced-motion: no-preference) {
+  .lk-deck .lk-spin { animation: lk-spin 2.4s linear infinite; }
+  .lk-deck .lk-arm { animation: lk-arm 2.4s ease-in-out infinite; }
+}
+@keyframes lk-spin { to { transform: rotate(360deg); } }
+@keyframes lk-arm { 50% { transform: rotate(1.2deg); } }
 .lk-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .lk-kind { font-size: 13.5px; font-weight: 600; color: var(--ink-3); }
 .prose .lk-title { font-size: clamp(24px, 3vw, 30px); font-weight: 800; letter-spacing: -.02em; line-height: 1.15; }
@@ -354,6 +363,7 @@ main.tool-wide { max-width: 1072px; }
 @media (max-width: 860px) {
   .lk-result { grid-template-columns: minmax(0, 1fr); }
   .lk-song { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 14px; align-items: center; padding: 14px; }
+  .prose .lk-deck { aspect-ratio: 1; border-radius: 12px; }
   .lk-song .lk-acts, .lk-song .lk-guess, .lk-song .lk-sure { grid-column: 1 / -1; }
   .lk-side { display: contents; }
   .lk-main { order: 2; }
