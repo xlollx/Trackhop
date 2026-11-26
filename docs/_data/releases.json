@@ -1,5 +1,25 @@
 [
  {
+  "id": "v2.2.5",
+  "kind": "app",
+  "version": "2.2.5",
+  "date": "2026-11-26",
+  "notes": {
+   "en": "Trackhop 2.2.5. Navidrome, Subsonic, Jellyfin and Plex: after a library was scanned again or re-imported, its songs get new ids and syncs filled playlists with entries that played nothing. Trackhop now checks the songs it remembers, searches again the ones that changed and repairs those playlists. New: forget every saved match to one service at once (Saved matches). Thanks to raykai (#95).",
+   "it": "Trackhop 2.2.5. Navidrome, Subsonic, Jellyfin e Plex: dopo una nuova scansione o importazione della libreria i brani cambiano id e le sync riempivano le playlist di voci che non suonavano niente. Ora Trackhop controlla i brani che ricorda, ricerca quelli cambiati e ripara quelle playlist. Nuovo: dimentica in un colpo tutti gli abbinamenti salvati di un servizio (Abbinamenti salvati). Grazie a raykai (#95).",
+   "es": "Trackhop 2.2.5. Navidrome, Subsonic, Jellyfin y Plex: tras volver a escanear o importar la biblioteca, las canciones cambian de id y las sincronizaciones llenaban las listas de entradas que no sonaban. Ahora Trackhop comprueba las canciones que recuerda, vuelve a buscar las que cambiaron y repara esas listas. Nuevo: olvidar de una vez todas las coincidencias guardadas de un servicio. Gracias a raykai (#95).",
+   "pt": "Trackhop 2.2.5. Navidrome, Subsonic, Jellyfin e Plex: depois de escanear ou importar a biblioteca de novo, as músicas mudam de id e as sincronizações enchiam as playlists de entradas que não tocavam nada. Agora o Trackhop verifica as músicas que lembra, busca de novo as que mudaram e conserta essas playlists. Novo: esquecer de uma vez todas as correspondências de um serviço. Obrigado, raykai (#95).",
+   "fr": "Trackhop 2.2.5. Navidrome, Subsonic, Jellyfin et Plex : après un nouveau scan ou import de la bibliothèque, les titres changent d'id et les synchros remplissaient les playlists d'entrées qui ne jouaient rien. Trackhop vérifie maintenant les titres mémorisés, recherche ceux qui ont changé et répare ces playlists. Nouveau : oublier d'un coup toutes les correspondances d'un service. Merci à raykai (#95).",
+   "de": "Trackhop 2.2.5. Navidrome, Subsonic, Jellyfin und Plex: Nach einem neuen Scan oder Import der Bibliothek bekommen die Songs neue IDs, und Syncs füllten Playlists mit Einträgen, die nichts abspielten. Trackhop prüft jetzt die gemerkten Songs, sucht geänderte neu und repariert diese Playlists. Neu: alle gespeicherten Zuordnungen zu einem Dienst auf einmal vergessen. Danke an raykai (#95).",
+   "pl": "Trackhop 2.2.5. Navidrome, Subsonic, Jellyfin i Plex: po ponownym skanowaniu lub imporcie biblioteki utwory dostają nowe id, a synchronizacje wypełniały playlisty wpisami, które nic nie odtwarzały. Teraz Trackhop sprawdza zapamiętane utwory, wyszukuje ponownie zmienione i naprawia te playlisty. Nowość: zapomnij naraz wszystkie zapisane dopasowania do jednej usługi. Dzięki, raykai (#95).",
+   "ru": "Trackhop 2.2.5. Navidrome, Subsonic, Jellyfin и Plex: после повторного сканирования или импорта библиотеки у песен меняются id, и синхронизации заполняли плейлисты записями, которые ничего не играли. Теперь Trackhop проверяет запомненные песни, заново ищет изменившиеся и чинит эти плейлисты. Новое: забыть сразу все сохранённые совпадения для одного сервиса. Спасибо raykai (#95).",
+   "tr": "Trackhop 2.2.5. Navidrome, Subsonic, Jellyfin ve Plex: kütüphane yeniden tarandığında veya içe aktarıldığında şarkıların kimlikleri değişiyor ve eşitlemeler çalma listelerini hiçbir şey çalmayan girişlerle dolduruyordu. Trackhop artık hatırladığı şarkıları kontrol ediyor, değişenleri yeniden arıyor ve bu listeleri onarıyor. Yeni: bir hizmetin tüm kayıtlı eşleşmelerini tek seferde unut. Teşekkürler raykai (#95).",
+   "ja": "Trackhop 2.2.5。Navidrome、Subsonic、Jellyfin、Plex：ライブラリを再スキャン・再インポートすると曲の ID が変わり、同期で何も再生されない項目がプレイリストに入っていました。Trackhop は記憶している曲を確認し、変わった曲を検索し直して、そのプレイリストを修復するようになりました。新機能：1つのサービスへの保存済みの一致をまとめて削除。raykai さんに感謝（#95）。",
+   "ko": "Trackhop 2.2.5. Navidrome, Subsonic, Jellyfin, Plex: 라이브러리를 다시 스캔하거나 가져오면 곡 ID가 바뀌어 동기화가 아무것도 재생되지 않는 항목으로 재생목록을 채웠습니다. 이제 Trackhop이 기억한 곡을 확인하고 바뀐 곡을 다시 검색해 그 재생목록을 고칩니다. 새 기능: 한 서비스의 저장된 일치를 한 번에 지우기. raykai 님 감사합니다(#95).",
+   "zh": "Trackhop 2.2.5。Navidrome、Subsonic、Jellyfin 和 Plex：重新扫描或重新导入音乐库后，歌曲的 ID 会改变，同步会在播放列表里加入无法播放的条目。现在 Trackhop 会检查记住的歌曲，重新搜索已改变的歌曲并修复这些播放列表。新功能：一次忘记某个服务的所有已保存匹配。感谢 raykai（#95）。"
+  }
+ },
+ {
   "id": "v2.2.4",
   "kind": "app",
   "version": "2.2.4",
@@ -37,6 +57,15 @@
    "ja": "Trackhop 2.2.3。ログイン中のサービスは自動でログインを維持します。1日2回、各アカウントのセッションを更新するため、サービスが本当に終了した場合にだけ再ログインをお願いします。新機能：「アカウント」で各アカウントのメニューに「再接続」。修正：複数の同期を同時に実行すると TIDAL などが勝手にログアウトすることがありました。 Deezer の「お気に入りの曲」を他のサービスの「お気に入りの曲」に同期しても順番を保ちます（最新が一番上）。 Amazon Music：再ログイン時もアカウントの地域サイトを維持します。 @Doggo785 さん、ありがとうございます（#87）。",
    "ko": "Trackhop 2.2.3. 로그인된 서비스가 스스로 로그인 상태를 유지합니다. 하루 두 번 각 계정의 세션을 갱신하므로 서비스가 실제로 세션을 끝냈을 때만 다시 로그인하라고 요청합니다. 새 기능: 계정에서 각 계정 메뉴의 다시 연결. 수정: 여러 동기화를 동시에 실행하면 TIDAL 등이 저절로 로그아웃될 수 있었습니다. Deezer의 좋아요 표시한 곡을 다른 서비스의 좋아요 표시한 곡으로 동기화해도 순서가 유지됩니다(최신 곡이 맨 위). Amazon Music: 다시 로그인해도 계정의 지역 사이트를 유지합니다. @Doggo785 님께 감사드립니다(#87).",
    "zh": "Trackhop 2.2.3。已登录的服务会自动保持登录：每天两次续期每个账号的会话，只有当服务真正结束会话时才会请你重新登录。新增：在“账号”中每个账号的菜单里加入“重新连接”。修复：同时运行多个同步时，TIDAL 等登录可能会自行退出。 将 Deezer 的“喜欢的歌曲”同步到其他服务的“喜欢的歌曲”时会保持顺序：最新喜欢的排在最上面。 Amazon Music：重新登录会保留账号所属的地区网站。 感谢 @Doggo785（#87）。"
+  }
+ },
+ {
+  "id": "server-v2.2.4",
+  "kind": "server",
+  "version": "2.2.4",
+  "date": "2026-11-26",
+  "notes": {
+   "en": "Released with the app's 2.2.5.\n\n- **Fixed**: after a Navidrome, Subsonic, Jellyfin or Plex library was scanned again or re-imported, its songs got new ids and syncs kept adding the old ones, so playlists filled with entries that played nothing. Trackhop now checks the songs it remembers on these servers, searches again the ones that changed and repairs the playlists it wrote. Thanks to raykai (#95).\n- **Forget every saved match to a service** at once: on Tools › Saved matches (with \"To:\" set) and on the service's page; also `DELETE /api/v1/matches?to=<service>`."
   }
  },
  {
