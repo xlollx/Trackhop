@@ -207,8 +207,9 @@ class DeezerWebClientContractTest {
         assertEquals(listOf("3135557", "3135556"), call(1).json()["SNG_IDS"].arr.map { it.str })
     }
 
+    /** Oldest first as the gateway sends them, two liked in the same second (an import): newest first all the same. */
     @Test fun likedTracksWithDatesAreSortedNewestFirst() {
-        ok("""{"data":[{"SNG_ID":"1","DATE_ADD":1700000000},{"SNG_ID":"2","DATE_ADD":1710000000},{"SNG_ID":"3","DATE_ADD":1720000000}],"total":3,"checksum":"c1"}""")
+        ok("""{"data":[{"SNG_ID":"1","DATE_ADD":1700000000},{"SNG_ID":"2","DATE_ADD":1710000000},{"SNG_ID":"3","DATE_ADD":1710000000}],"total":3,"checksum":"c1"}""")
         ok("""{"data":[${song("1", "Oldest")},${song("2", "Middle")},${song("3", "Newest")}],"count":3}""")
         assertEquals(listOf("3", "2", "1"), dz.likedTracks().map { it.id })
     }

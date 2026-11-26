@@ -307,10 +307,10 @@ class DeezerWebClient(private val host: WebHost) {
     /** Favourite tracks, newest first: their ids, then their details in batches. */
     fun likedTracks(): List<TrackDto> {
         val r = gw("song.getFavoriteIds", jsonObj("nb" to MAX_LIKED, "start" to 0))
-        // Newest first, as the sync expects: by DATE_ADD when every favourite has one; the gateway lists
-        // them oldest first and leaves DATE_ADD out (seen 2026-11), so then they are reversed.
-        val favs = r["data"].arr.mapNotNull { f -> f["SNG_ID"].str?.let { it to f["DATE_ADD"].num } }
-            .let { l -> if (l.all { it.second != null }) l.sortedByDescending { it.second } else l.asReversed() }
+        // Newest first, as the sync expects: the gateway lists them oldest first and leaves DATE_ADD out
+        // (seen 2026-11), so reversed; then by DATE_ADD when every one has it, the same second's kept reversed.
+        val favs = r["data"].arr.mapNotNull { f -> f["SNG_ID"].str?.let { it to f["DATE_ADD"].num } }.asReversed()
+            .let { l -> if (l.all { it.second != null }) l.sortedByDescending { it.second } else l }
         if (favs.isEmpty()) {
             if ((r["total"].num ?: 0) > 0 || r == null) unexpected("song.getFavoriteIds", r)
             return emptyList()
