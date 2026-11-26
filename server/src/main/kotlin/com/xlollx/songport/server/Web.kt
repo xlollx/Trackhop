@@ -648,6 +648,12 @@ $removals"""
                 redirect(r.ex, url)
             }
             "disconnect" -> { provider.disconnect(env); redirect(r.ex, "$back?ok=${q("Disconnected.")}") }
+            // Every saved match to this service (#95: its library imported anew, the ids changed).
+            "forget-matches" -> {
+                val n = com.xlollx.songport.sync.SavedMatches.forgetAllTo(store, com.xlollx.songport.data.FileStore.family(provider.id))
+                env.log("matches", "every saved match to ${provider.id} forgotten ($n)")
+                redirect(r.ex, "$back?ok=${q("$n saved ${if (n == 1) "match" else "matches"} forgotten: the next syncs search them again.")}")
+            }
             // "Reconnect": the session renewed on its own; when it cannot be, signed out and straight to its sign-in.
             "reconnect" -> {
                 val done = runBlocking { SessionsKeepAlive.reconnect(env, provider) }
@@ -737,6 +743,21 @@ $removals"""
         else -> ""
     }
 
+    /**
+     * The saved matches to [p]'s service, with a way to forget every one at once: a personal server
+     * whose library was scanned anew gives its songs new ids (#95). Null when none are saved.
+     */
+    private fun savedMatchesCard(p: MusicProvider): String? {
+        val service = com.xlollx.songport.data.FileStore.family(p.id)
+        val n = com.xlollx.songport.sync.SavedMatches.countTo(env.store.data, service)
+        if (n == 0) return null
+        val list = if (com.xlollx.songport.Features.v2) """ <a href="/tools/matches?to=${q(service)}">See them</a>""" else ""
+        return """<div class="card"><h3>Saved matches</h3><p class="muted">$n songs of your syncs are matched to songs on ${h(p.displayName)}.$list""" +
+            (if (p.losesIds) " After its library is scanned anew or imported again, they may point to songs it no longer has: syncs find that out and search again, or forget them all here." else "") +
+            "</p><p>" + Html.postButton("/connectors/${q(p.id)}/forget-matches", "Forget every saved match to ${p.displayName}", "secondary",
+                confirm = "Forget the $n saved matches to ${p.displayName}? The next syncs search those songs again. Songs ignored there stay ignored.") + "</p></div>"
+    }
+
     private fun connectorPage(r: Req, p: MusicProvider) {
         val body = StringBuilder(notice(r))
         if (p is CookieConnector) body.append(if (p is YtmServerProvider) ytmNote() else webPlayerNote(p))
@@ -792,6 +813,7 @@ $removals"""
 <label>${h(env.text("login_password"))}</label><input type="password" name="secret" autocomplete="current-password" required>
 <p><button class="secondary">${h(env.text("login_submit"))}</button></p></form>""",
         )
+        savedMatchesCard(p)?.let(body::append)
         body.append(accountCard(p))
         body.append("""<p>${Html.postButton("/connectors/${q(p.id)}/remove", if (p.slot.isEmpty()) "Remove from the list" else env.text("account_remove"), "danger",
             confirm = if (p.slot.isEmpty()) "Remove this service from the list?" else "${env.text("account_remove")}?")}</p>""")

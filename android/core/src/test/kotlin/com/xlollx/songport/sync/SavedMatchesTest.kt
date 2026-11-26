@@ -111,4 +111,44 @@ class SavedMatchesTest {
         assertTrue(SavedMatches.matches(e, names, " velvet "))
         assertFalse(SavedMatches.matches(e, names, "comet"))
     }
+
+    /** #95: a library imported anew; every match to it goes at once, the other services' stay, ignored songs stay ignored. */
+    @Test fun forgetEveryMatchToOneService() {
+        env.store.update { d ->
+            d.copy(
+                matchCache = mapOf(
+                    "msrc:a>subsonic" to "n1", "msrc:b>subsonic#album" to "al1", "msrc:c>subsonic@2" to "n3", "msrc:a>mdst" to "da",
+                ),
+                autoMatches = mapOf("msrc:a>subsonic" to "${Matcher.REVISION}|n1"),
+                missCache = mapOf("msrc:d>subsonic" to System.currentTimeMillis(), "msrc:d>mdst" to System.currentTimeMillis()),
+                ignoredTracks = setOf("msrc:e>subsonic"),
+                reviewDecisions = mapOf("msrc:a>subsonic" to ReviewDecision(DecisionKind.MATCH, "n1", 1), "msrc:e>subsonic" to ReviewDecision(DecisionKind.IGNORE, null, 1)),
+                idChecks = mapOf("subsonic" to 1L, "mdst" to 1L),
+            )
+        }
+        assertEquals(3, SavedMatches.countTo(env.store.data, "subsonic"))
+        assertEquals(3, SavedMatches.forgetAllTo(env.store, "subsonic"))
+        val d = env.store.data
+        assertEquals(mapOf("msrc:a>mdst" to "da"), d.matchCache)
+        assertTrue(d.autoMatches.isEmpty())
+        assertEquals(setOf("msrc:d>mdst"), d.missCache.keys)
+        assertEquals(setOf("msrc:e>subsonic"), d.ignoredTracks)
+        assertEquals(setOf("msrc:e>subsonic"), d.reviewDecisions.keys)
+        assertEquals(setOf("mdst"), d.idChecks.keys)
+    }
+
+    /** Several rows forgotten in one write, as each one's own Forget does. */
+    @Test fun forgetSeveralAtOnce() {
+        env.store.update { d ->
+            d.copy(
+                matchCache = mapOf("msrc:a>mdst" to "da", "msrc:b>mdst" to "db", "msrc:c>mdst" to "dc"),
+                ignoredTracks = setOf("msrc:c>mdst"),
+                jobs = listOf(job.copy(ignoredSourceIds = listOf("c"))),
+            )
+        }
+        SavedMatches.forget(env.store, SavedMatches.entries(env.store.data).filter { it.sourceId != "b" })
+        assertEquals(mapOf("msrc:b>mdst" to "db"), env.store.data.matchCache)
+        assertTrue(env.store.data.ignoredTracks.isEmpty())
+        assertTrue(env.store.job("j")!!.ignoredSourceIds.isEmpty())
+    }
 }

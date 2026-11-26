@@ -2094,6 +2094,8 @@
     <string name="job_scheduled_on">已在 %1$s 上定时</string>
     <string name="backup_device_other">另一台设备</string>
     <string name="note_duplicates_repaired">已从目标中移除重复项：%1$d 个。这些歌曲在目标中各出现两次，而来源中只有一次。</string>
+    <string name="note_lost_matches">%1$s 已不再有 %2$d 个已保存的匹配（其曲库已重新扫描）：已重新搜索。</string>
+    <string name="note_unlisted_repaired">已修复：%2$s 上此播放列表有 %1$d 个条目不指向任何歌曲（重新扫描前的 ID），已移除。</string>
     <string name="note_not_added_limited">本次有 %1$d 首歌曲未添加（%2$s 限制了请求）：下次运行会添加剩下的。</string>
     <string name="note_running_elsewhere">正在 %1$s 上运行：已跳过</string>
     <string name="server_locks_title">与我的服务器协调</string>

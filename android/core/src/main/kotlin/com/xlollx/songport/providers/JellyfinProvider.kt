@@ -403,6 +403,15 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
         api(ctx, "DELETE", "/Items/$playlistId")
     }
 
+    override val losesIds: Boolean get() = true
+
+    /** The items the server still lists among [ids], asked in one call: the others are gone. */
+    override suspend fun lostIds(ctx: Env, ids: Collection<String>): Set<String> {
+        if (ids.isEmpty()) return emptySet()
+        val known = userItems(ctx, "Ids=${ids.joinToString(",") { Http.enc(it) }}")["Items"].arr.mapNotNullTo(HashSet()) { it["Id"].str?.replace("-", "")?.lowercase() }
+        return ids.filterTo(LinkedHashSet()) { it.replace("-", "").lowercase() !in known }
+    }
+
     override val canSetCover: Boolean get() = true
     override val coverIsV2: Boolean get() = true
 

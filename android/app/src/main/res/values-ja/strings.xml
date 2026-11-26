@@ -2094,6 +2094,8 @@
     <string name="job_scheduled_on">%1$s でスケジュール中</string>
     <string name="backup_device_other">もう一方の端末</string>
     <string name="note_duplicates_repaired">同期先から重複を削除しました：%1$d 件。どの曲も同期先に 2 回あり、移動元には 1 回だけです。</string>
+    <string name="note_lost_matches">%1$s に保存済みの一致 %2$d 件がなくなっていました（ライブラリが再スキャンされました）：もう一度検索しました。</string>
+    <string name="note_unlisted_repaired">修復しました：%2$s のこのプレイリストの %1$d 件の項目はどの曲にもつながっていませんでした（再スキャン前の ID）。削除しました。</string>
     <string name="note_not_added_limited">今回は %1$d 曲を追加できませんでした（%2$s がリクエストを制限しました）。残りは次回の同期で追加します。</string>
     <string name="note_running_elsewhere">%1$s で実行中のためスキップしました</string>
     <string name="server_locks_title">自分のサーバーと調整</string>

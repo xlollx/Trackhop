@@ -2144,6 +2144,8 @@
     <string name="job_scheduled_on">Agendada em %1$s</string>
     <string name="backup_device_other">o outro aparelho</string>
     <string name="note_duplicates_repaired">Duplicatas removidas do destino: %1$d. Cada uma dessas faixas estava lá duas vezes e está na origem uma vez só.</string>
+    <string name="note_lost_matches">%1$s não tinha mais %2$d correspondências salvas (a biblioteca foi escaneada de novo): buscadas de novo.</string>
+    <string name="note_unlisted_repaired">Reparada: %1$d entradas desta playlist em %2$s não levavam a nenhuma faixa (ids de antes de um novo escaneamento) e foram removidas.</string>
     <string name="note_not_added_limited">%1$d faixas não adicionadas desta vez (%2$s limitou as solicitações): a próxima sincronização adiciona o resto.</string>
     <string name="note_running_elsewhere">Em andamento em %1$s: pulada</string>
     <string name="server_locks_title">Coordenar com meu servidor</string>

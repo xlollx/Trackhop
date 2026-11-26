@@ -2136,6 +2136,8 @@
     <string name="job_scheduled_on">Geplant auf %1$s</string>
     <string name="backup_device_other">dem anderen Gerät</string>
     <string name="note_duplicates_repaired">Duplikate aus dem Ziel entfernt: %1$d. Jeder dieser Titel war dort doppelt und ist in der Quelle einmal.</string>
+    <string name="note_lost_matches">%1$s kannte %2$d gespeicherte Zuordnungen nicht mehr (die Bibliothek wurde neu eingelesen): erneut gesucht.</string>
+    <string name="note_unlisted_repaired">Repariert: %1$d Einträge dieser Playlist auf %2$s führten zu keinem Titel (IDs von vor einem neuen Bibliotheksscan) und wurden entfernt.</string>
     <string name="note_not_added_limited">%1$d Titel diesmal nicht hinzugefügt (%2$s hat die Anfragen begrenzt): Der nächste Lauf fügt den Rest hinzu.</string>
     <string name="note_running_elsewhere">Läuft auf %1$s: übersprungen</string>
     <string name="server_locks_title">Mit meinem Server abstimmen</string>

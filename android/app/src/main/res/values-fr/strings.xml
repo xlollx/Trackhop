@@ -2144,6 +2144,8 @@
     <string name="job_scheduled_on">Planifiée sur %1$s</string>
     <string name="backup_device_other">l\'autre appareil</string>
     <string name="note_duplicates_repaired">Doublons retirés de la destination : %1$d. Chacun de ces titres y était deux fois et n\'est qu\'une fois dans la source.</string>
+    <string name="note_lost_matches">%1$s n\'avait plus %2$d correspondances enregistrées (sa bibliothèque a été réanalysée) : recherchées à nouveau.</string>
+    <string name="note_unlisted_repaired">Réparée : %1$d entrées de cette playlist sur %2$s ne menaient à aucun titre (ids d\'avant une nouvelle analyse) et ont été retirées.</string>
     <string name="note_not_added_limited">%1$d titres non ajoutés cette fois (%2$s a limité les requêtes) : le prochain passage ajoute le reste.</string>
     <string name="note_running_elsewhere">En cours sur %1$s : ignorée</string>
     <string name="server_locks_title">Se coordonner avec mon serveur</string>

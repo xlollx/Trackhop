@@ -525,10 +525,11 @@ class SyncEngine(
         onProgress(Progress(Progress.Step.FETCH_TARGET))
         // A playlist created a moment ago is empty: skip the fetch (saves quota, and YouTube's Data API
         // may not even know the playlist yet).
-        val dstTracks = if (targetCreated) emptyList() else listing(job, dst, interactive, onWait) { readTarget(job, dst, targetId, onProgress, unattended, interactive, notes) }
+        val dstTracks = if (targetCreated) emptyList() else listing(job, dst, interactive, onWait) { readTarget(job, dst, targetId, onProgress, unattended, interactive, notes, dstDeclared) }
         if (!targetCreated) keepEntries(dst, targetId, dstTracks)
         val targetReadAt = if (targetCreated) 0L else System.currentTimeMillis()
-        val shrunkFrom = if (interactive && !targetCreated) shrunkFrom(job, targetId, dstTracks.size) else 0
+        // Not where the server counts the entries it no longer lists (#95): those are repaired, not a page left out.
+        val shrunkFrom = if (interactive && !targetCreated && !(dst.losesIds && dstDeclared > dstTracks.size)) shrunkFrom(job, targetId, dstTracks.size) else 0
         val dstById = dstTracks.associateBy { it.id }
         val index = Matcher.TrackIndex(dstTracks)
 
@@ -646,6 +647,23 @@ class SyncEngine(
         }
         store.markChecked(checked)
 
+        // #95: a personal server whose library was scanned anew gives its songs new ids. Entries it
+        // counts and no longer lists lead to no song (Navidrome keeps them: the playlist shows nothing),
+        // and the saved matches about to be added may point to songs it no longer has: checked
+        // before use (a few once a day, every one when the target has such entries), the lost ones
+        // forgotten and searched again in this run, and the target written anew with what it lists.
+        val unlisted = if (!targetCreated && dst.losesIds && !MusicProvider.isLibrary(targetId) && dstDeclared > dstTracks.size) dstDeclared - dstTracks.size else 0
+        val lostSaved = HashSet<String>()
+        if (!direct && dst.losesIds) {
+            val saved = toSearch.mapNotNull { s -> store.cachedMatch(src.id, s.id, dstKey)?.let { s.id to it } }
+            LostMatches.check(env, dst, saved.map { it.second }, force = unlisted > 0)?.let { found ->
+                LostMatches.forget(env, dst, found)
+                saved.filter { found.reimported || it.second in found.lost }.mapTo(lostSaved) { it.first }
+            }
+        }
+        if (lostSaved.isNotEmpty()) notes += str("note_lost_matches", dst.displayName, lostSaved.size)
+        var refound = 0
+
         // The target's version as it was read, where the service has one, asked only when a search
         // (the slow part) follows: adding much later, one light call says whether anyone wrote to
         // the playlist meanwhile (see apply).
@@ -690,6 +708,7 @@ class SyncEngine(
                 if (found.id in toAdd) addingLinks[s.id] = found.id else presentLinks[s.id] = target.id
                 matchedDstIds += target.id
                 newCache[FileStore.cacheKey(src.id, s.id, dstKey)] = target.id
+                if (s.id in lostSaved) refound++
                 if (score != null && score < job.policy.reviewThreshold) {
                     uncertain += MatchReview(s, found, score)
                     if (interactive) unsure += FileStore.cacheKey(src.id, s.id, dstKey)
@@ -860,7 +879,14 @@ class SyncEngine(
             val id = presentLinks[s.id] ?: addingLinks[s.id] ?: return@mapNotNull null
             (dstById[id] ?: toAdd[id])?.let { s to it }
         }
+        // The entries that lead nowhere go when this run found songs again for lost matches: a library
+        // only out of reach for a while (a drive not mounted) finds nothing, and its entries are left.
+        val repair = if (unlisted > 0 && refound > 0 && interrupted == null) unlisted else 0
+        if (unlisted > 0 && repair == 0) env.log("engine", "${job.name}: the $unlisted entries of the target that lead to no song are left as they are: no song found again for them")
+        val srcById = srcTracks.associateBy { it.id }
         return SyncPlan(
+            unlistedToRepair = repair,
+            addSources = addingLinks.entries.mapNotNull { (sid, tid) -> srcById[sid]?.let { tid to it } }.toMap(),
             rated = rated,
             twoWay = twoWay, targetReadAt = targetReadAt, targetVersion = targetVersion, duplicates = duplicates, reviewAsked = reviewAsked,
             targetPlaylistId = targetId,
@@ -902,7 +928,7 @@ class SyncEngine(
      */
     private suspend fun readTarget(
         job: SyncJob, dst: MusicProvider, targetId: String, onProgress: (Progress) -> Unit,
-        unattended: Boolean, interactive: Boolean, notes: MutableList<String>,
+        unattended: Boolean, interactive: Boolean, notes: MutableList<String>, declared: Int = -1,
     ): List<Track> {
         val first = patient(onProgress) { dst.tracks(env, targetId) }
         val expected = shrunkFrom(job, targetId, first.size)
@@ -912,6 +938,12 @@ class SyncEngine(
         val second = patient(onProgress) { dst.tracks(env, targetId) }
         val best = if (second.size >= first.size) second else first
         if (shrunkFrom(job, targetId, best.size) == 0) return best
+        // A server whose ids change (#95) counts entries that lead to no song since a rescan and lists
+        // only the others: the listing is whole, the rest are entries to repair, not a page left out.
+        if (dst.losesIds && declared > best.size) {
+            env.log("engine", "${job.name}: ${dst.displayName} counts $declared entries and lists ${best.size}: the others lead to no song any more")
+            return best
+        }
         if (interactive) {
             notes += str("note_target_shrunk", dst.displayName, best.size, expected)
             return best
@@ -1467,6 +1499,9 @@ class SyncEngine(
         // added the same tracks meanwhile. One look before writing, only when there is something to
         // add: the service's version where it has one, the whole listing when that changed or is unknown.
         var toAdd = plan.toAdd
+        // #95: entries the target's server counts and no longer lists (see plan) go first, the target
+        // written anew with what it lists, in its order; this run's additions then follow as ever.
+        if (plan.unlistedToRepair > 0) repairUnlisted(job, dst, targetId, plan.unlistedToRepair, notes, onProgress)
         if (toAdd.isNotEmpty() && plan.targetReadAt > 0 && System.currentTimeMillis() - plan.targetReadAt > rereadAfterMs) {
             val unchanged = plan.targetVersion != null && runCatching { dst.playlistVersion(env, targetId) }.getOrNull() == plan.targetVersion
             if (!unchanged) {
@@ -1624,6 +1659,22 @@ class SyncEngine(
             }
             }
         }
+        // #95: what this run added and the target does not show is an id its server no longer has (a
+        // saved match from before a rescan, taken by the server as an entry that leads nowhere).
+        var newMatches = plan.newMatches
+        if (dst.losesIds && addedList.isNotEmpty() && !offline && !MusicProvider.isLibrary(targetId)) {
+            val checked = checkAdded(job, src, dst, targetId, addedList, plan.addSources, notes, onProgress)
+            if (checked != null) {
+                val (lost, refound) = checked
+                addedList.removeAll { it.id in lost }
+                addedList += refound.values
+                added += refound.size - lost.size
+                val lostKeys = newMatches.filterValues { it in lost }.keys
+                newMatches = newMatches - lostKeys + refound.map { (s, t) -> FileStore.cacheKey(src.id, s.id, side(dst.id, job)) to t.id }
+                val foundFor = refound.keys.mapTo(HashSet()) { it.id }
+                unmatched += plan.addSources.filterKeys { it in lost }.values.filter { it.id !in foundFor }.distinctBy { it.id }
+            }
+        }
         if (limitedWhy != null) {
             env.log("engine", "${job.name}: adding stopped, ${dst.displayName} limited the requests: ${limitedWhy?.take(300)}; " +
                 "$added added, ${notAdded.size} ${tracksWord(notAdded.size)} left for the next run")
@@ -1705,7 +1756,7 @@ class SyncEngine(
             env.log("engine", "${job.name}: two-way state ${if (tw.first) "noted" else "updated"}, ${links.size} ${tracksWord(links.size)} on both sides")
         }
 
-        store.putMatches(plan.newMatches, auto = true)
+        store.putMatches(newMatches, auto = true)
         // Quanto l'utente ha gia' sistemato dal report provvisorio non deve ricomparire.
         val provisional = store.report(reportId)?.takeIf { it.partial }
         if (provisional != null) {
@@ -1749,6 +1800,67 @@ class SyncEngine(
             notAdded = notAdded.map { it.toString() },
             ratingsSet = ratingsSet,
         )
+    }
+
+    /**
+     * Writes [targetId] anew with the entries its server lists (#95): those it counts and no longer
+     * lists lead to no song and go. Never a reason to fail the run.
+     */
+    private suspend fun repairUnlisted(job: SyncJob, dst: MusicProvider, targetId: String, unlisted: Int, notes: MutableList<String>, onProgress: (Progress) -> Unit) {
+        try {
+            onProgress(Progress(Progress.Step.FETCH_TARGET))
+            val listed = patient(onProgress) { dst.tracks(env, targetId) }
+            if (!dst.replaceTracks(env, targetId, listed)) return
+            keepEntries(dst, targetId, listed)
+            notes += str("note_unlisted_repaired", unlisted, dst.displayName)
+            env.log("engine", "${job.name}: $unlisted ${if (unlisted == 1) "entry" else "entries"} that led to no song taken out of the target on ${dst.displayName}, ${listed.size} kept")
+        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+            env.log("engine", "${job.name}: entries that lead to no song not taken out on ${dst.displayName}: ${e.message?.take(160)}")
+        }
+    }
+
+    /**
+     * The target read again after adding (#95): an added id it does not list is a song its server no
+     * longer has. Each such id is forgotten and its source track searched once more; what is found is
+     * written with the target's listing in one go (the entries that lead nowhere go), where the
+     * server can, else added. Null when every addition is listed; otherwise the lost ids and the
+     * tracks found again, by source track. Never a reason to fail the run.
+     */
+    private suspend fun checkAdded(
+        job: SyncJob, src: MusicProvider, dst: MusicProvider, targetId: String, added: List<Track>, sources: Map<String, Track>,
+        notes: MutableList<String>, onProgress: (Progress) -> Unit,
+    ): Pair<Set<String>, Map<Track, Track>>? {
+        try {
+            onProgress(Progress(Progress.Step.FETCH_TARGET))
+            val listed = patient(onProgress) { dst.tracks(env, targetId) }
+            val ids = listed.mapTo(HashSet()) { it.id }
+            val unlisted = added.map { it.id }.filterTo(LinkedHashSet()) { it !in ids }
+            if (unlisted.isEmpty()) return null
+            // Each searched once more: found again under the same id, the song is there (a listing behind
+            // the write), not lost; under another id, that one replaces it.
+            val lost = LinkedHashSet<String>()
+            val refound = LinkedHashMap<Track, Track>()
+            for (id in unlisted) {
+                val s = sources[id]
+                val found = if (s == null) null else runCatching { searchScored(dst, targetId, s, job.policy)?.track }
+                    .onFailure { if (it is kotlinx.coroutines.CancellationException) throw it }.getOrNull()
+                if (found?.id == id) continue
+                lost += id
+                if (s != null && found != null && found.id !in unlisted && found.id !in ids) refound[s] = found
+            }
+            if (lost.isEmpty()) return null
+            env.log("engine", "${job.name}: ${dst.displayName} does not show ${lost.size} of the ${added.size} tracks just added: ids it no longer has (its library was rescanned); searched again")
+            store.forgetMatchesTo(dst.id, lost)
+            val wrote = refound.isNotEmpty() && (dst.replaceTracks(env, targetId, listed + refound.values) ||
+                run { dst.addTracks(env, targetId, refound.values.toList()); true })
+            if (wrote) keepEntries(dst, targetId, listed + refound.values)
+            notes += str("note_lost_matches", dst.displayName, lost.size)
+            env.log("engine", "${job.name}: ${refound.size} of the ${lost.size} found again on ${dst.displayName}" + if (wrote) ", the target written anew" else "")
+            return lost to refound
+        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+            env.log("engine", "${job.name}: additions not checked on ${dst.displayName}: ${e.message?.take(160)}")
+            return null
+        }
     }
 
     /**

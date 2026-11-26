@@ -427,6 +427,13 @@ data class SyncPlan(
      * there, or added by this run), for the ratings step after the additions.
      */
     val rated: List<Pair<Track, Track>> = emptyList(),
+    /**
+     * Entries of the target its server counts and no longer lists (#95: ids from before a rescan),
+     * to take out before adding, by writing the target anew with what it lists; 0 = nothing to repair.
+     */
+    val unlistedToRepair: Int = 0,
+    /** Each track to add (by its id) with the source track it was found for: searched again when the target does not show it after adding (#95). */
+    val addSources: Map<String, Track> = emptyMap(),
 )
 
 /**

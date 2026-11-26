@@ -155,6 +155,15 @@ internal fun Web.apiMore(ex: HttpExchange, method: String, rest: List<String>, q
             env.log("notify", "removed ${c.name} (${c.kind.label}) through the API")
             json(200, buildJsonObject { put("deleted", c.id) })
         }
+        // ---------------------------------------------------------------- saved matches
+        // Every saved match to one service at once (#95: a library imported anew gave its songs new ids).
+        rest == listOf("matches") && method == "DELETE" -> {
+            val to = query["to"]?.trim()?.takeIf { it.isNotEmpty() } ?: return true.also { error(400, "Say which service: ?to= its id (GET /api/v1/services), e.g. to=subsonic.") }
+            val service = com.xlollx.songport.data.FileStore.family(to).substringBefore('#')
+            val n = com.xlollx.songport.sync.SavedMatches.forgetAllTo(env.store, service)
+            env.log("matches", "every saved match to $service forgotten through the API ($n)")
+            json(200, buildJsonObject { put("to", service); put("forgotten", n) })
+        }
         // ---------------------------------------------------------------- settings
         rest == listOf("settings") && method == "GET" -> json(200, settingsJson())
         rest == listOf("settings") && (method == "PATCH" || method == "PUT") -> {

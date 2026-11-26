@@ -81,6 +81,34 @@ object SavedMatches {
         )
     }
 
+    /** [forget] for several at once, in one write of the store (a few thousand ticked rows stay quick). */
+    fun forget(store: FileStore, entries: Collection<Entry>) {
+        if (entries.isEmpty()) return
+        val keys = entries.flatMapTo(HashSet()) { it.keys }
+        store.update { d ->
+            val between = entries.flatMapTo(HashSet()) { e -> syncsBetween(d, e).map { it.id to e.sourceId } }
+            d.copy(
+                matchCache = d.matchCache - keys, missCache = d.missCache - keys, ignoredTracks = d.ignoredTracks - keys,
+                reviewDecisions = d.reviewDecisions - keys,
+                jobs = d.jobs.map { j ->
+                    val back = j.ignoredSourceIds.filterTo(HashSet()) { (j.id to it) in between }
+                    if (back.isEmpty()) j else j.copy(ignoredSourceIds = j.ignoredSourceIds - back)
+                },
+            )
+        }
+    }
+
+    /** How many matches are saved to [service] (a service family, without a library's kind), every kind of target. */
+    fun countTo(d: StoreData, service: String): Int =
+        d.matchCache.keys.count { FileStore.family(it.substringAfterLast('>', "")).substringBefore('#') == service }
+
+    /**
+     * Every saved match to [service] forgotten at once, the songs not found there too: for a server
+     * whose library was imported anew (#95), where each one points to a song it no longer has. The
+     * next syncs search them again; songs ignored there stay ignored. Returns how many matches went.
+     */
+    fun forgetAllTo(store: FileStore, service: String): Int = store.forgetMatchesTo(service, null)
+
     /** Not on the target service: no sync looks for it there any more (the review's "Ignore"). */
     fun notThere(store: FileStore, e: Entry, now: Long = System.currentTimeMillis()) = store.update { d ->
         val key = FileStore.cacheKey(e.source, e.sourceId, e.target)

@@ -2222,6 +2222,8 @@
     <string name="job_scheduled_on">Zaplanowana na: %1$s</string>
     <string name="backup_device_other">drugim urządzeniu</string>
     <string name="note_duplicates_repaired">Duplikaty usunięte z celu: %1$d. Każdy z tych utworów był tam dwa razy, a w źródle jest raz.</string>
+    <string name="note_lost_matches">%1$s nie miał już %2$d zapisanych dopasowań (biblioteka została ponownie przeskanowana): wyszukano je ponownie.</string>
+    <string name="note_unlisted_repaired">Naprawiono: %1$d pozycji tej playlisty w %2$s nie prowadziło do żadnego utworu (identyfikatory sprzed ponownego skanowania) i zostały usunięte.</string>
     <string name="note_not_added_limited">Tym razem nie dodano %1$d utworów (%2$s ograniczył zapytania): następne uruchomienie doda resztę.</string>
     <string name="note_running_elsewhere">Działa na %1$s: pominięto</string>
     <string name="server_locks_title">Uzgadniaj z moim serwerem</string>

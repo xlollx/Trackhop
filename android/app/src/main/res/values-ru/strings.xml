@@ -2220,6 +2220,8 @@
     <string name="job_scheduled_on">По расписанию на: %1$s</string>
     <string name="backup_device_other">другом устройстве</string>
     <string name="note_duplicates_repaired">Дубликаты удалены из цели: %1$d. Каждый из этих треков был там дважды, а в источнике он один.</string>
+    <string name="note_lost_matches">%1$s больше не знает %2$d сохранённых совпадений (библиотеку пересканировали): найдены заново.</string>
+    <string name="note_unlisted_repaired">Исправлено: %1$d записей этого плейлиста в %2$s не вели ни к одному треку (id до повторного сканирования) и удалены.</string>
     <string name="note_not_added_limited">На этот раз не добавлено треков: %1$d (%2$s ограничил запросы): следующий запуск добавит остальное.</string>
     <string name="note_running_elsewhere">Выполняется на %1$s: пропущено</string>
     <string name="server_locks_title">Согласовывать с моим сервером</string>

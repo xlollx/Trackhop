@@ -102,4 +102,36 @@ class SavedMatchesWebTest {
         assertEquals(403, refused.statusCode())
         assertEquals(mapOf("spotify:s2>deezer" to "d2"), env.store.data.matchCache)
     }
+
+    /** #95: more matches to one service than the list shows go at once, from the list, the service's page or the API. */
+    @Test fun forgetEveryMatchToOneServiceBeyondTheRowsShown() {
+        Features.v2 = true
+        fun many() = env.store.update { d -> d.copy(matchCache = mapOf("spotify:s2>deezer" to "d2") + (1..400).associate { "spotify:x$it>subsonic" to "n$it" }) }
+        many()
+        val page = get("/tools/matches?to=subsonic").body()
+        assertTrue(page, page.contains("Forget every saved match to") && page.contains("(400)"))
+        // Not offered without a service chosen.
+        assertFalse(get("/tools/matches").body().contains("Forget every saved match"))
+        val done = post("/tools/matches", "all=1&to=subsonic")
+        assertEquals(303, done.statusCode())
+        assertTrue(done.headers().firstValue("Location").orElse(""), done.headers().firstValue("Location").orElse("").contains("400+saved+matches+forgotten"))
+        assertEquals(mapOf("spotify:s2>deezer" to "d2"), env.store.data.matchCache)
+
+        // The service's own page.
+        many()
+        assertTrue(get("/connectors/subsonic").body().contains("/connectors/subsonic/forget-matches"))
+        assertEquals(303, post("/connectors/subsonic/forget-matches", "").statusCode())
+        assertEquals(mapOf("spotify:s2>deezer" to "d2"), env.store.data.matchCache)
+
+        // The API.
+        many()
+        val made = post("/tools/api", "action=token").body()
+        val token = Regex("""<pre>(th_[A-Za-z0-9_-]+)</pre>""").find(made)?.groupValues?.get(1) ?: error(made)
+        fun delete(path: String) = client.send(HttpRequest.newBuilder(URI("$base$path")).header("Authorization", "Bearer $token").DELETE().build(), HttpResponse.BodyHandlers.ofString())
+        assertEquals(400, delete("/api/v1/matches").statusCode())
+        val api = delete("/api/v1/matches?to=subsonic")
+        assertEquals(api.body(), 200, api.statusCode())
+        assertTrue(api.body(), api.body().contains("\"forgotten\":400"))
+        assertEquals(mapOf("spotify:s2>deezer" to "d2"), env.store.data.matchCache)
+    }
 }

@@ -346,6 +346,29 @@ open class SubsonicProvider(override val slot: String = "") : CredentialsProvide
     override suspend fun song(ctx: Env, songId: String): Track? =
         toTrack(call(ctx, "getSong", listOf("id" to songId))["song"])
 
+    override val losesIds: Boolean get() = true
+
+    /** `getSong` for each id: error 70, "data not found", is a song the server no longer has. */
+    override suspend fun lostIds(ctx: Env, ids: Collection<String>): Set<String> {
+        val lost = LinkedHashSet<String>()
+        for (id in ids) {
+            try { call(ctx, "getSong", listOf("id" to id)) } catch (e: ProviderException) { if (e.code == ERROR_NOT_FOUND) lost += id else throw e }
+        }
+        return lost
+    }
+
+    /**
+     * `createPlaylist` with the playlist's id replaces its whole list of songs (Navidrome, Gonic,
+     * Airsonic), entries whose song is gone included: the first songs go with it, the rest are added
+     * after it as [addTracks] adds them, in order.
+     */
+    override suspend fun replaceTracks(ctx: Env, playlistId: String, tracks: List<Track>): Boolean {
+        if (MusicProvider.isLibrary(playlistId)) return false
+        call(ctx, "createPlaylist", listOf("playlistId" to playlistId) + tracks.take(REPLACE_FIRST).map { "songId" to it.id })
+        if (tracks.size > REPLACE_FIRST) addTracks(ctx, playlistId, tracks.drop(REPLACE_FIRST))
+        return true
+    }
+
     override suspend fun deletePlaylist(ctx: Env, playlistId: String) {
         call(ctx, "deletePlaylist", listOf("id" to playlistId))
     }
@@ -402,6 +425,10 @@ open class SubsonicProvider(override val slot: String = "") : CredentialsProvide
         internal const val LYRICS_EXTENSION = "songLyrics"
         /** OpenSubsonic error 44: the API key is not valid. */
         private const val ERROR_INVALID_KEY = 44
+        /** Subsonic error 70: the requested data was not found (a song id the server no longer has). */
+        internal const val ERROR_NOT_FOUND = 70
+        /** The songs `createPlaylist` takes at once when a playlist is written anew; the rest are added after. */
+        private const val REPLACE_FIRST = 100
         internal const val NAVIDROME = "navidrome"
         /** An ISRC is rarely more than a couple of recordings: that many searches by id, then the title. */
         private const val MBID_QUERIES = 2

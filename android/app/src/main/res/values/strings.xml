@@ -2139,6 +2139,8 @@
     <string name="job_scheduled_on">Scheduled on %1$s</string>
     <string name="backup_device_other">the other device</string>
     <string name="note_duplicates_repaired">Duplicates removed from the target: %1$d. Each of these tracks was there twice and is in the source once.</string>
+    <string name="note_lost_matches">%1$s no longer had %2$d saved matches (its library was scanned again): searched again.</string>
+    <string name="note_unlisted_repaired">Repaired: %1$d entries of this playlist on %2$s led to no song (ids from before a library rescan) and were taken out.</string>
     <string name="note_not_added_limited">%1$d songs not added this time (%2$s limited the requests): the next run adds the rest.</string>
     <string name="note_running_elsewhere">Running on %1$s: skipped</string>
     <string name="server_locks_title">Coordinate with my server</string>

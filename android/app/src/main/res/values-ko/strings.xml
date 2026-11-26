@@ -2093,6 +2093,8 @@
     <string name="job_scheduled_on">%1$s에서 예약됨</string>
     <string name="backup_device_other">다른 기기</string>
     <string name="note_duplicates_repaired">대상에서 중복을 삭제했어요: %1$d개. 이 곡들은 대상에 두 번 있었고 원본에는 한 번만 있어요.</string>
+    <string name="note_lost_matches">%1$s에 저장된 매칭 %2$d개가 더 이상 없었어요(라이브러리를 다시 스캔했어요): 다시 검색했어요.</string>
+    <string name="note_unlisted_repaired">복구했어요: %2$s의 이 플레이리스트에서 %1$d개 항목이 어떤 곡으로도 이어지지 않아(다시 스캔하기 전의 ID) 삭제했어요.</string>
     <string name="note_not_added_limited">이번에는 %1$d곡을 추가하지 못했어요(%2$s에서 요청을 제한했어요). 나머지는 다음 실행에서 추가해요.</string>
     <string name="note_running_elsewhere">%1$s에서 실행 중이라 건너뛰었어요</string>
     <string name="server_locks_title">내 서버와 조율하기</string>

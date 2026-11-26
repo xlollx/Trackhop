@@ -173,7 +173,7 @@ private fun SavedTab(snackbar: SnackbarHostState) {
                 TextButton(onClick = {
                     val gone = entries.filter { it.key in selection }
                     picked = emptySet()
-                    gone.forEach { SavedMatches.forget(store, it) }
+                    SavedMatches.forget(store, gone)
                     val text = ctx.resources.getQuantityString(R.plurals.saved_matches_forgotten_n, gone.size, gone.size)
                     scope.launch { snackbar.showSnackbar(text) }
                 }) { Text(stringResource(R.string.saved_matches_forget_short), color = MaterialTheme.colorScheme.error) }

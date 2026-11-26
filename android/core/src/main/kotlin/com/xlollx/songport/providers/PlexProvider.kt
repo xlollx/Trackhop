@@ -278,6 +278,19 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider(), Play
         }
     }
 
+    override val losesIds: Boolean get() = true
+
+    /** The items Plex still has among [ids], asked in one call (404 when it has none of them): the others are gone. */
+    override suspend fun lostIds(ctx: Env, ids: Collection<String>): Set<String> {
+        if (ids.isEmpty()) return emptySet()
+        val t = creds(ctx)
+        val resp = Http.send("GET", "${t.extra["url"]}/library/metadata/${ids.joinToString(",") { Http.enc(it) }}", mapOf("X-Plex-Token" to t.accessToken, "Accept" to "application/json"))
+        if (resp.code == 404) return ids.toCollection(LinkedHashSet())
+        if (!resp.ok) throw ProviderException("$displayName API ${resp.code}: ${resp.body.take(200)}")
+        val known = parseJson(resp.body)["MediaContainer"]["Metadata"].arr.mapNotNullTo(HashSet()) { it["ratingKey"].str }
+        return ids.filterTo(LinkedHashSet()) { it !in known }
+    }
+
     override val removesSingleEntry: Boolean get() = true
     override suspend fun removeTracks(ctx: Env, playlistId: String, tracks: List<Track>) {
         if (playlistId == MusicProvider.LIKED_ID) { removeTracksReportingKept(ctx, playlistId, tracks); return }

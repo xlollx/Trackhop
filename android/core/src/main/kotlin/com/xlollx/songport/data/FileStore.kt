@@ -234,6 +234,11 @@ data class StoreData(
      * with any more are dropped at the next write. Stays on the device: a configuration file leaves it out.
      */
     val toFixLater: Map<String, Set<String>> = emptyMap(),
+    /**
+     * When the saved matches to each account of a server whose ids can change were last found good
+     * (see sync/LostMatches), by connector id: checked again a day later, not on every run.
+     */
+    val idChecks: Map<String, Long> = emptyMap(),
 ) {
     /** The user's syncs: [jobs] without the one-off transfers ([SyncJob.oneOff]), which never show or run as syncs. */
     val syncs: List<SyncJob> get() = jobs.filterNot { it.oneOff }
@@ -723,6 +728,34 @@ open class FileStore(dir: File) {
     }
 
     /** What the last run of [jobId] wrote on its target; null before the first run that recorded it. */
+    /**
+     * Forgets the matches to [dstProvider]'s service (every kind of target) that point to [lostIds],
+     * or every one when null, with what the engine and the review noted about them, and the songs
+     * not found there when every match goes: a server whose library was imported anew gives its
+     * songs new ids, and the next sync searches them again. Songs ignored there stay ignored.
+     * Returns how many matches went.
+     */
+    fun forgetMatchesTo(dstProvider: String, lostIds: Set<String>?): Int {
+        val service = family(dstProvider).substringBefore('#')
+        fun to(key: String) = family(key.substringAfterLast('>', "")).substringBefore('#') == service
+        var gone = 0
+        update { d ->
+            val keys = d.matchCache.filter { (k, v) -> to(k) && (lostIds == null || v in lostIds) }.keys
+            val decisions = d.reviewDecisions.filter { (k, v) -> to(k) && v.kind != com.xlollx.songport.sync.DecisionKind.IGNORE && (lostIds == null || k in keys || v.track in lostIds) }.keys
+            gone = keys.size
+            if (keys.isEmpty() && decisions.isEmpty() && (lostIds != null || d.missCache.keys.none(::to))) return@update d
+            d.copy(
+                matchCache = d.matchCache - keys, autoMatches = d.autoMatches - keys, reviewDecisions = d.reviewDecisions - decisions,
+                missCache = if (lostIds == null) d.missCache.filterKeys { !to(it) } else d.missCache,
+                idChecks = if (lostIds == null) d.idChecks.filterKeys { family(it) != service } else d.idChecks,
+            )
+        }
+        return gone
+    }
+
+    /** The saved matches to [providerId] were found good now: the next check waits a day (see sync/LostMatches). */
+    fun putIdCheck(providerId: String, at: Long = System.currentTimeMillis()) = update { d -> d.copy(idChecks = d.idChecks + (providerId to at)) }
+
     fun lastWrites(jobId: String): LastWrites? = data.lastWrites[jobId]
 
     /** Replaces what [jobId] wrote last; entries of syncs that no longer exist go. */

@@ -20,8 +20,15 @@ internal fun Web.savedMatchesPage(r: Web.Req) {
         val keys = r.rawForm.filter { it.first == "key" }.map { it.second }.toSet()
         val ticked = entries.filter { it.key in keys }
         if (ticked.isEmpty()) return redirect(r.ex, "/tools/matches?err=${q("Tick at least one match.")}")
-        ticked.forEach { SavedMatches.forget(env.store, it) }
+        SavedMatches.forget(env.store, ticked)
         return redirect(r.ex, "/tools/matches?ok=${q("${ticked.size} ${if (ticked.size == 1) "match" else "matches"} forgotten")}")
+    }
+    if (r.method == "POST" && r.form["all"] == "1") {
+        // Every saved match to one service, beyond the rows shown (#95: a library imported anew).
+        val to = r.form["to"]?.takeIf { it.isNotBlank() } ?: return redirect(r.ex, "/tools/matches?err=${q("Choose the service first (To:).")}")
+        val n = SavedMatches.forgetAllTo(env.store, to)
+        env.log("matches", "every saved match to $to forgotten ($n)")
+        return redirect(r.ex, "/tools/matches?to=${q(to)}&ok=${q("$n saved ${if (n == 1) "match" else "matches"} forgotten: the next syncs search them again.")}")
     }
     if (r.method == "POST") {
         val e = entries.firstOrNull { it.key == r.form["key"] } ?: return redirect(r.ex, "/tools/matches?err=${q("No longer remembered.")}")
@@ -43,7 +50,15 @@ internal fun Web.savedMatchesPage(r: Web.Req) {
     kinds.forEach { (k, label) -> body.append("""<option value="${k?.name.orEmpty()}"${if (k == kind) " selected" else ""}>${h(label)} (${entries.count { k == null || it.kind == k }})</option>""") }
     body.append("""</select> <select name="to"><option value="">To: all services</option>""")
     targets.forEach { t -> body.append("""<option value="${h(t)}"${if (t == to) " selected" else ""}>To: ${h(service(t))}</option>""") }
-    body.append("""</select> <button>Show</button></form></div>""")
+    body.append("""</select> <button>Show</button></form>""")
+    // One service chosen: all its matches can go at once, however many (the list shows SHOWN).
+    if (to != null) {
+        val n = SavedMatches.countTo(data, to)
+        if (n > 0) body.append("""<p class="muted">After a library is scanned anew or imported again, the saved matches to it point to songs it no longer has.</p><p>""" +
+            Html.postButton("/tools/matches", "Forget every saved match to ${service(to)} ($n)", "secondary", fields = mapOf("all" to "1", "to" to to),
+                confirm = "Forget the $n saved matches to ${service(to)}? The next syncs search those songs again. Songs ignored there stay ignored.") + "</p>")
+    }
+    body.append("</div>")
     if (list.isEmpty()) body.append("""<div class="card">${if (entries.isEmpty()) "Nothing remembered yet: the list fills up as your syncs run." else "Nothing matches these filters."}</div>""")
     else {
         // Several at once: boxes that belong to the form below through form= (each row holds its own

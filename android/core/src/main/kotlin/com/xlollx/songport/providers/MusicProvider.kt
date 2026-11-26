@@ -399,6 +399,25 @@ interface MusicProvider {
     fun rehydrate(track: Track): Track = track
 
     /**
+     * A personal server whose song ids change under us: a library scanned again or imported anew
+     * gives its songs new ids (Navidrome, Jellyfin, Plex), and the matches saved before point to
+     * songs it no longer has. The engine checks them before use ([lostIds]) and after adding (#95).
+     */
+    val losesIds: Boolean get() = false
+
+    /**
+     * Of [ids], songs this account gave before, the ones it no longer knows; null where the service
+     * cannot tell. Asked of a [losesIds] service only, a few ids at a time.
+     */
+    suspend fun lostIds(ctx: Env, ids: Collection<String>): Set<String>? = null
+
+    /**
+     * Writes [playlistId] anew with [tracks] alone, in their order: entries that lead to no song any
+     * more (a [losesIds] server's old ids) go with it. False where the service cannot.
+     */
+    suspend fun replaceTracks(ctx: Env, playlistId: String, tracks: List<Track>): Boolean = false
+
+    /**
      * In the coroutine context while a sync job that keeps the source order adds tracks: a service
      * that lists by the second of saving (Spotify's liked songs) then saves one track a second, in
      * order. Without it, the same tracks go in batches at full speed, in no guaranteed order. The

@@ -2136,6 +2136,8 @@
     <string name="job_scheduled_on">Programmata su %1$s</string>
     <string name="backup_device_other">l\'altro dispositivo</string>
     <string name="note_duplicates_repaired">Doppioni tolti dalla destinazione: %1$d. Ognuno di questi brani c\'era due volte, e nell\'origine c\'è una volta sola.</string>
+    <string name="note_lost_matches">%1$s non aveva più %2$d abbinamenti salvati (la sua libreria è stata scansionata di nuovo): cercati di nuovo.</string>
+    <string name="note_unlisted_repaired">Riparata: %1$d voci di questa playlist su %2$s non portavano a nessun brano (id di prima di una nuova scansione) e sono state tolte.</string>
     <string name="note_not_added_limited">%1$d brani non aggiunti questa volta (%2$s ha limitato le richieste): il prossimo giro aggiunge il resto.</string>
     <string name="note_running_elsewhere">In corso su %1$s: saltata</string>
     <string name="server_locks_title">Coordina con il mio server</string>
