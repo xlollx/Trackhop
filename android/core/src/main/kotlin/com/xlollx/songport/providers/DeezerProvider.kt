@@ -99,6 +99,9 @@ class DeezerProvider(override val slot: String = "") : OAuthProvider() {
         throw ProviderException("Deezer: session expired, please reconnect")
     }
 
+    /** Deezer's access has no refresh token: one cheap signed-in call keeps it in use (an invalid one is cleared by [dz]). */
+    override suspend fun probe(ctx: Env) { dz(ctx, "GET", "/user/me") }
+
     /** Chiamata Deezer: token come parametro di query; gli errori arrivano come JSON `error` con HTTP 200. */
     private suspend fun dz(ctx: Env, method: String, path: String, params: Map<String, String?> = emptyMap(), allowNoData: Boolean = false): JsonElement {
         // Public playlists are readable without an account (the same requests deezer.com makes for

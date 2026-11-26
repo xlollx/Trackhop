@@ -256,6 +256,13 @@ interface MusicProvider {
      * schermata dedicata con MusicKit JS.
      */
     fun startAuth(ctx: Env)
+
+    /**
+     * Renews this account's session now, so it stays in use (the twice-daily keep-alive, "Reconnect"):
+     * see [KeepAlive]. Null for a connector with no session to keep (a link source, a local server
+     * signed in with a password, a connector whose renewal runs elsewhere).
+     */
+    suspend fun keepAlive(ctx: Env): KeepAlive? = null
     /** Completa il login con i parametri del redirect (query + fragment). Solo per i flussi browser. */
     suspend fun completeAuth(ctx: Env, params: Map<String, String>, verifier: String)
     fun disconnect(ctx: Env)

@@ -10,6 +10,8 @@ import com.xlollx.songport.net.get
 import com.xlollx.songport.net.long
 import com.xlollx.songport.net.parseJson
 import com.xlollx.songport.net.str
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.JsonElement
 
 /**
@@ -112,14 +114,46 @@ abstract class OAuthProvider : MusicProvider {
     override fun disconnect(ctx: Env) = ctx.tokens.clear(id)
 
     protected open suspend fun tokens(ctx: Env): Tokens {
-        val store = ctx.tokens
-        var t = store.get(id) ?: throw ProviderException(ctx.text("error_not_connected", displayName))
-        if (t.isExpiringSoon() && t.refreshToken != null) {
-            t = refresh(ctx, t)
-            store.set(id, t)
-        }
-        return t
+        val t = ctx.tokens.get(id) ?: throw ProviderException(ctx.text("error_not_connected", displayName))
+        return if (t.isExpiringSoon() && t.refreshToken != null) renew(ctx, t) else t
     }
+
+    /**
+     * Renews the access the caller read as [seen] (expiring, or refused with a 401), one renewal at
+     * a time per account ([refreshLock]): several syncs at once would otherwise each send the same
+     * refresh token, and a service that rotates them refuses all but the first, which used to sign
+     * the account out (TIDAL, 25/11). Inside the lock the stored tokens are read again: when another
+     * call renewed them meanwhile, they are used as they are, with no refresh of their own.
+     */
+    protected suspend fun renew(ctx: Env, seen: Tokens): Tokens = refreshLock(ctx).withLock {
+        val now = ctx.tokens.get(id) ?: throw ProviderException(ctx.text("error_not_connected", displayName))
+        if (now.accessToken != seen.accessToken || now.refreshToken != seen.refreshToken) return@withLock now
+        val fresh = refresh(ctx, now)
+        ctx.tokens.set(id, fresh)
+        fresh
+    }
+
+    /** One lock per account and per data folder (a shared server holds several people's tokens). */
+    private fun refreshLock(ctx: Env): Mutex = REFRESH_LOCKS.getOrPut(ctx.dataDir.absolutePath + "|" + id) { Mutex() }
+
+    /**
+     * Renews this account's access now (the twice-daily keep-alive, "Reconnect"), so a refresh token
+     * stays in use: [KeepAlive.RENEWED], [KeepAlive.EXPIRED] when the service ended the sign-in (the
+     * tokens are gone), [KeepAlive.NOT_SIGNED_IN], or [KeepAlive.FAILED] (no network, an outage:
+     * nothing changed). A connector without a refresh token makes one cheap signed-in call ([probe]).
+     */
+    override suspend fun keepAlive(ctx: Env): KeepAlive {
+        val t = ctx.tokens.get(id) ?: return KeepAlive.NOT_SIGNED_IN
+        return try {
+            if (t.refreshToken != null) renew(ctx, t) else probe(ctx)
+            KeepAlive.RENEWED
+        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+            if (ctx.tokens.get(id) == null) KeepAlive.EXPIRED else KeepAlive.failed(e)
+        }
+    }
+
+    /** One cheap signed-in call, for a connector whose access has no refresh token; [keepAlive] reads a sign-out from the tokens being gone. */
+    protected open suspend fun probe(ctx: Env) { tokens(ctx) }
 
     protected open suspend fun refresh(ctx: Env, t: Tokens): Tokens {
         val resp = Http.send(
@@ -134,10 +168,20 @@ abstract class OAuthProvider : MusicProvider {
             ),
         )
         if (!resp.ok) {
-            // The status alone: the answer's text is not logged, nor anything of the tokens.
-            ctx.log(id, "access not renewed (HTTP ${resp.code})" + if (resp.code == 400 || resp.code == 401) ": signed out, a new sign-in is needed" else "")
-            // Refresh token revocato: l'utente dovra' ricollegare l'account.
-            if (resp.code == 400 || resp.code == 401) ctx.tokens.clear(id)
+            if (resp.code == 400 || resp.code == 401) {
+                // Refused: signed out only when the refresh token that failed is still the stored one.
+                // One another call (or a new sign-in) stored meanwhile is kept, and used.
+                val stored = ctx.tokens.get(id)
+                if (stored != null && stored.refreshToken != t.refreshToken) {
+                    ctx.log(id, "access not renewed (HTTP ${resp.code}) with a refresh token already replaced: the stored one is kept")
+                    return stored
+                }
+                ctx.log(id, "access not renewed (HTTP ${resp.code}): signed out, a new sign-in is needed")
+                ctx.tokens.clear(id)
+            } else {
+                // The status alone: the answer's text is not logged, nor anything of the tokens.
+                ctx.log(id, "access not renewed (HTTP ${resp.code})")
+            }
             throw ProviderException("$displayName: session expired, please reconnect (${resp.code})")
         }
         val j = parseJson(resp.body)
@@ -160,8 +204,7 @@ abstract class OAuthProvider : MusicProvider {
         var t = tokens(ctx)
         var resp = raw(t, method, url, body, extraHeaders)
         if (resp.code == 401 && t.refreshToken != null) {
-            t = refresh(ctx, t)
-            ctx.tokens.set(id, t)
+            t = renew(ctx, t)
             resp = raw(t, method, url, body, extraHeaders)
         }
         if (!resp.ok) {
@@ -184,8 +227,7 @@ abstract class OAuthProvider : MusicProvider {
         suspend fun send(t: Tokens) = Http.send(method, url, mapOf("Authorization" to "Bearer ${t.accessToken}", "Accept" to apiAccept) + extraHeaders, body)
         var resp = send(t)
         if (resp.code == 401 && t.refreshToken != null) {
-            t = refresh(ctx, t)
-            ctx.tokens.set(id, t)
+            t = renew(ctx, t)
             resp = send(t)
         }
         return resp
@@ -206,6 +248,7 @@ abstract class OAuthProvider : MusicProvider {
     companion object {
         /** Chiave interna: il redirect effettivo usato, quando non e' quello di default (loopback). */
         const val PARAM_REDIRECT_URI = "__redirect_uri"
+        private val REFRESH_LOCKS = java.util.concurrent.ConcurrentHashMap<String, Mutex>()
     }
 
     protected fun expiry(expiresIn: Long?): Long =

@@ -115,6 +115,19 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
 
     override fun disconnect(ctx: Env) = ctx.tokens.clear(id)
 
+    /**
+     * One cheap signed-in call (the account's storefront): a refused user token is renewed where the
+     * route can ([renewUserToken]) or cleared, which is a sign-out ([KeepAlive.EXPIRED]).
+     */
+    override suspend fun keepAlive(ctx: Env): KeepAlive {
+        if (!isConnected(ctx)) return KeepAlive.NOT_SIGNED_IN
+        return try {
+            api(ctx, "GET", "$API/v1/me/storefront"); KeepAlive.RENEWED
+        } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
+            if (!isConnected(ctx)) KeepAlive.EXPIRED else KeepAlive.failed(e)
+        }
+    }
+
     private fun defaultStorefront(): String =
         Locale.getDefault().country.lowercase().takeIf { it.length == 2 } ?: "us"
 
