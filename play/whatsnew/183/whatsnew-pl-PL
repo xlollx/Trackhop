@@ -1,0 +1,1 @@
+Trackhop 2.2.5. Navidrome, Subsonic, Jellyfin i Plex: po ponownym skanowaniu lub imporcie biblioteki utwory dostają nowe id, a synchronizacje wypełniały playlisty wpisami, które nic nie odtwarzały. Teraz Trackhop sprawdza zapamiętane utwory, wyszukuje ponownie zmienione i naprawia te playlisty. Nowość: zapomnij naraz wszystkie zapisane dopasowania do jednej usługi.

@@ -1,0 +1,1 @@
+Trackhop 2.2.5. Navidrome, Subsonic, Jellyfin and Plex: after a library was scanned again or re-imported, its songs get new ids and syncs filled playlists with entries that played nothing. Trackhop now checks the songs it remembers, searches again the ones that changed and repairs those playlists. New: forget every saved match to one service at once (Saved matches).

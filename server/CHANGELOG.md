@@ -5,6 +5,13 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`, `v2.x`)
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 2.2.4
+
+Released with the app's 2.2.5.
+
+- **Fixed**: after a Navidrome, Subsonic, Jellyfin or Plex library was scanned again or re-imported, its songs got new ids and syncs kept adding the old ones, so playlists filled with entries that played nothing. Trackhop now checks the songs it remembers on these servers, searches again the ones that changed and repairs the playlists it wrote. Thanks to raykai (#95).
+- **Forget every saved match to a service** at once: on Tools › Saved matches (with "To:" set) and on the service's page; also `DELETE /api/v1/matches?to=<service>`.
+
 ## 2.2.3
 
 Released on its own (the app stays at 2.2.4).

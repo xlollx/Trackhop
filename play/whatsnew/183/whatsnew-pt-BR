@@ -1,0 +1,1 @@
+Trackhop 2.2.5. Navidrome, Subsonic, Jellyfin e Plex: depois de escanear ou importar a biblioteca de novo, as músicas mudam de id e as sincronizações enchiam as playlists de entradas que não tocavam nada. Agora o Trackhop verifica as músicas que lembra, busca de novo as que mudaram e conserta essas playlists. Novo: esquecer de uma vez todas as correspondências de um serviço.
