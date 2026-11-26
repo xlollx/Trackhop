@@ -56,7 +56,7 @@
     <string name="editor_mirror">Kaldırmaları yansıt</string>
     <string name="editor_mirror_desc">Kaynakta olmayan her parçayı, elle eklenenler dahil, hedeften kaldırır. Kapalı = yalnızca ekler.</string>
     <string name="editor_keep_order">Kaynak sırasını koru</string>
-    <string name="editor_keep_order_desc">Ekleme sonrasında hedef, kaynağın sırasına göre düzenlenir. Spotify, TIDAL, YouTube Music ve Deezer bunu destekler.</string>
+    <string name="editor_keep_order_desc">Ekleme sonrasında hedef, kaynağın sırasına göre düzenlenir. Spotify, TIDAL, YouTube Music, Deezer, Jellyfin ve Navidrome (Subsonic) bunu destekler.</string>
     <string name="note_order_aligned">Sıra kaynağa göre hizalandı.</string>
     <string name="note_order_failed">Sıra hizalanamadı: %1$s</string>
     <string name="policy_title">Eşleştirme kuralları</string>

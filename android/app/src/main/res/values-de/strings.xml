@@ -56,7 +56,7 @@
     <string name="editor_mirror">Entfernungen spiegeln</string>
     <string name="editor_mirror_desc">Entfernt aus dem Ziel jeden Titel, der nicht in der Quelle ist, auch dort von Hand hinzugefügte. Aus = nur hinzufügen.</string>
     <string name="editor_keep_order">Reihenfolge der Quelle beibehalten</string>
-    <string name="editor_keep_order_desc">Nach dem Hinzufügen wird das Ziel in die Reihenfolge der Quelle gebracht. Spotify, TIDAL, YouTube Music und Deezer können das.</string>
+    <string name="editor_keep_order_desc">Nach dem Hinzufügen wird das Ziel in die Reihenfolge der Quelle gebracht. Spotify, TIDAL, YouTube Music, Deezer, Jellyfin und Navidrome (Subsonic) können das.</string>
     <string name="note_order_aligned">Reihenfolge an die Quelle angeglichen.</string>
     <string name="note_order_failed">Reihenfolge nicht angeglichen: %1$s</string>
     <string name="policy_title">Zuordnungsregeln</string>

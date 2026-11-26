@@ -56,7 +56,7 @@
     <string name="editor_mirror">Refléter les retraits</string>
     <string name="editor_mirror_desc">Retire de la cible chaque titre absent de la source, y compris ceux ajoutés à la main. Désactivé = ajout uniquement.</string>
     <string name="editor_keep_order">Garder l\'ordre de la source</string>
-    <string name="editor_keep_order_desc">Après les ajouts, la destination est remise dans l\'ordre de la source. Possible avec Spotify, TIDAL, YouTube Music et Deezer.</string>
+    <string name="editor_keep_order_desc">Après les ajouts, la destination est remise dans l\'ordre de la source. Possible avec Spotify, TIDAL, YouTube Music, Deezer, Jellyfin et Navidrome (Subsonic).</string>
     <string name="note_order_aligned">Ordre aligné sur la source.</string>
     <string name="note_order_failed">Ordre non aligné : %1$s</string>
     <string name="policy_title">Règles d\'appariement</string>

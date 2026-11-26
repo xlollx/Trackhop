@@ -56,7 +56,7 @@
     <string name="editor_mirror">Rispecchia le rimozioni</string>
     <string name="editor_mirror_desc">Togli dalla destinazione ogni brano che non è nell\'origine, anche quelli aggiunti lì a mano. Spento = aggiunge soltanto.</string>
     <string name="editor_keep_order">Mantieni l\'ordine dell\'origine</string>
-    <string name="editor_keep_order_desc">Dopo le aggiunte, la destinazione viene messa nell\'ordine dell\'origine. Lo permettono Spotify, TIDAL, YouTube Music e Deezer.</string>
+    <string name="editor_keep_order_desc">Dopo le aggiunte, la destinazione viene messa nell\'ordine dell\'origine. Lo permettono Spotify, TIDAL, YouTube Music, Deezer, Jellyfin e Navidrome (Subsonic).</string>
     <string name="note_order_aligned">Ordine allineato all\'origine.</string>
     <string name="note_order_failed">Ordine non allineato: %1$s</string>
     <string name="policy_title">Regole di abbinamento</string>

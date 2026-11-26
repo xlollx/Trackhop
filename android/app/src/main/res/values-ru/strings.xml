@@ -56,7 +56,7 @@
     <string name="editor_mirror">Зеркалировать удаления</string>
     <string name="editor_mirror_desc">Удалять из цели каждый трек, которого нет в источнике, включая добавленные туда вручную. Выкл. = только добавлять.</string>
     <string name="editor_keep_order">Сохранять порядок источника</string>
-    <string name="editor_keep_order_desc">После добавления треки в цели выстраиваются в порядке источника. Поддерживают Spotify, TIDAL, YouTube Music и Deezer.</string>
+    <string name="editor_keep_order_desc">После добавления треки в цели выстраиваются в порядке источника. Поддерживают Spotify, TIDAL, YouTube Music, Deezer, Jellyfin и Navidrome (Subsonic).</string>
     <string name="note_order_aligned">Порядок приведён к источнику.</string>
     <string name="note_order_failed">Порядок не приведён: %1$s</string>
     <string name="policy_title">Правила сопоставления</string>

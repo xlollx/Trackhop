@@ -183,6 +183,20 @@ class FakeServerProvidersTest {
         assertEquals(listOf("00", "4"), update.query["songIndexToRemove"])
     }
 
+    @Test fun subsonicWritesThePlaylistBackInTheWantedOrder() = runBlocking {
+        answer = { 200 to subsonic("1.16.1") }
+        val p = SubsonicProvider()
+        assertTrue(p.canReorder)
+        p.login(ctx, url, "admin", "pw")
+        val current = listOf("c", "a", "b", "a").mapIndexed { i, id -> Track(id = id, title = id, itemId = "$i") }
+        val ordered = listOf(current[1], current[2], current[0], current[3])
+        p.reorderTracks(ctx, "pl", current, ordered)
+        // No move in the API: createPlaylist with the playlist's id replaces its songs, copies kept.
+        val create = requests.single { it.path.endsWith("createPlaylist") }
+        assertEquals(listOf("pl"), create.query["playlistId"])
+        assertEquals(listOf("a", "b", "c", "a"), create.query["songId"])
+    }
+
     @Test fun subsonicSetsRatingsOfSongsAndAlbums() = runBlocking {
         answer = { r ->
             if (r.path.endsWith("getAlbum")) 200 to subsonic("1.16.1", ""","album":{"id":"al-7","name":"Ride the Lightning","userRating":2}""")

@@ -369,6 +369,15 @@ open class SubsonicProvider(override val slot: String = "") : CredentialsProvide
         return true
     }
 
+    /**
+     * The Subsonic API has no move: the playlist is written back whole in the wanted order, as
+     * [replaceTracks] writes it, copies included (#96).
+     */
+    override val canReorder: Boolean get() = true
+    override suspend fun reorderTracks(ctx: Env, playlistId: String, current: List<Track>, ordered: List<Track>) {
+        replaceTracks(ctx, playlistId, ordered)
+    }
+
     override suspend fun deletePlaylist(ctx: Env, playlistId: String) {
         call(ctx, "deletePlaylist", listOf("id" to playlistId))
     }
