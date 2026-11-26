@@ -1,0 +1,1 @@
+Trackhop 2.2.6. Navidrome and Subsonic: "Keep the source order" now works there too. Songs found on a later run no longer stay at the end of the playlist: Trackhop puts the playlist back in the source's order. Thanks to raykai (#96).

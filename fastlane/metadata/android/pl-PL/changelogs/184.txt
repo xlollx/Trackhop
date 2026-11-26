@@ -1,0 +1,1 @@
+Trackhop 2.2.6. Navidrome i Subsonic: „Zachowaj kolejność źródła” działa teraz także tam. Utwory znalezione przy kolejnym uruchomieniu nie zostają już na końcu playlisty: Trackhop układa ją w kolejności źródła. Dzięki, raykai (#96).

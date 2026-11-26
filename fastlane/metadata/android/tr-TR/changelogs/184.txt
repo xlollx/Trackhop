@@ -1,0 +1,1 @@
+Trackhop 2.2.6. Navidrome ve Subsonic: "Kaynak sırasını koru" artık orada da çalışıyor. Sonraki bir çalıştırmada bulunan şarkılar artık listenin sonunda kalmıyor: Trackhop listeyi kaynağın sırasına geri koyuyor. Teşekkürler raykai (#96).

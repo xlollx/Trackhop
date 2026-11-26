@@ -5,6 +5,12 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`, `v2.x`)
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 2.2.5
+
+Released with the app's 2.2.6.
+
+- **Fixed**: on Navidrome and Subsonic, songs found on a later run stayed at the end of the playlist. "Keep the source's order" now works there too: the Subsonic API has no move, so Trackhop writes the playlist back whole in the source's order. Thanks to raykai (#96).
+
 ## 2.2.4
 
 Released with the app's 2.2.5.

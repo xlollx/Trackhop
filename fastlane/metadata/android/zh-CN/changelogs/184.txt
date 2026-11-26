@@ -1,0 +1,1 @@
+Trackhop 2.2.6。Navidrome 和 Subsonic：“保持来源的顺序”现在也可以使用了。之后运行时找到的歌曲不再留在播放列表末尾：Trackhop 会按来源的顺序重新排列。感谢 raykai（#96）。
