@@ -168,6 +168,28 @@ object SessionKeepAlive {
         }
     }
 
+    /** The connector's side of a keep-alive call on this phone: null when no connector is there. */
+    fun bridgeOf(env: Env): (suspend (Planned) -> Answer?)? = if (!BridgePlugin.installed(env)) null else { p ->
+        withContext(Dispatchers.IO) { BridgePlugin.call(env, p.target.method, null, null, p.slot) }?.let { answerOf(it) }
+    }
+
+    /**
+     * "Reconnect" in an account's menu: [p]'s session renewed now. A renewal ends a "sign in again"
+     * told before; the caller then signs the account out and opens its sign-in when
+     * [KeepAlive.needsSignIn] says so.
+     */
+    suspend fun reconnect(ctx: Context, p: com.xlollx.songport.providers.MusicProvider): KeepAlive {
+        val env = ctx.env
+        val k = renewNow(p.id, bridgeOf(env)) { withContext(Dispatchers.IO) { KeepAlive.renewNow(env, p) } }
+        env.log("keepalive", "${p.id}: reconnect: " + when {
+            k.renewed -> "renewed"
+            KeepAlive.needsSignIn(k) -> "not renewed (${k.state.name.lowercase()}), a new sign-in follows"
+            else -> "not renewed, no connection: nothing changed"
+        })
+        if (k.renewed) noticeSignIn(ctx, p.id)
+        return k
+    }
+
     // ------------------------------------------------------------------ "sign in again", once per expiry
 
     /** The expiry of a session that says only that it is gone: told once until it works again. */
@@ -284,10 +306,7 @@ class KeepAliveWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(
         val ids = Store.get(ctx).data.settings.connectors
         if (!SessionKeepAlive.wanted(ids)) return Result.success()
         val env = ctx.env
-        val bridge: (suspend (SessionKeepAlive.Planned) -> SessionKeepAlive.Answer?)? = if (!BridgePlugin.installed(env)) null else { p ->
-            val b = withContext(Dispatchers.IO) { BridgePlugin.call(env, p.target.method, null, null, p.slot) }
-            b?.let { SessionKeepAlive.answerOf(it) }
-        }
+        val bridge = SessionKeepAlive.bridgeOf(env)
         // The official sign-in itself only: a web connector of the same service runs through the connector above.
         val official: suspend (String) -> Pair<String, KeepAlive>? = { id ->
             Providers.byId(id)?.let { p -> p.keepAlive(env)?.let { k -> p.displayName to k } }
