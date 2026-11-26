@@ -1,7 +1,7 @@
 // /link: the page around link.js. The pasted link is looked up from this browser on the public
 // catalogues of Apple (iTunes), Deezer, Spotify, MusicBrainz, ListenBrainz and Wikidata, and their cover pictures, and nowhere else. Nothing is stored: no
 // cookies, no storage, no statistics. The address bar gets ?u=<link>, so the result can be shared.
-import { parseLink, lookup, spotifyBase, spotifyResult, copyText, clock, display, serviceName, browserNet } from './link.js';
+import { parseLink, lookup, spotifyBase, spotifyResult, copyText, clock, display, serviceName, browserNet, isName, searchSongs } from './link.js';
 import { ToolError } from './io.js';
 import { strings, fmt, el } from './ui.js';
 
@@ -9,7 +9,7 @@ const T = strings.link;
 const root = document.getElementById('link-tool');
 const $ = (sel) => root.querySelector(sel);
 const form = $('.lk-paste'), input = $('#lk-in'), go = $('.lk-go'), pasteBtn = $('.lk-pastebtn'), errBox = $('#lk-err');
-const empty = $('.lk-two'), loaded = $('.lk-loaded'), box = $('.lk-result'), status = $('.lk-sr');
+const empty = $('.lk-two'), loaded = $('.lk-loaded'), box = $('.lk-result'), status = $('.lk-sr'), pickBox = $('.lk-pick');
 const goText = go.textContent;
 
 const SVG = 'http://www.w3.org/2000/svg';
@@ -39,14 +39,15 @@ function errorOf(e) {
   if (!(e instanceof ToolError)) { console.error(e); return { code: 'unknown', service: '' }; }
   if (e.code === 'many') return { code: e.detail, service: '' };
   if (e.code === 'no-answer' && navigator.onLine === false) return { code: 'offline', service: '' };
+  if (e.code === 'nothing') return { code: 'nothing', service: '', q: e.detail };
   return { code: e.code, service: e.detail };
 }
 
 /** The message of an error: a headline, then a sentence or a short list. */
 function errorParts(e) {
-  const { code, service } = errorOf(e);
+  const { code, service, q } = errorOf(e);
   const text = T.err[code] || T.err.unknown;
-  const parts = [icon('alert'), el('b', { text: fmt(text.h, { service }) })];
+  const parts = [icon('alert'), el('b', { text: fmt(text.h, { service, q }) })];
   if (text.p) parts.push(el('p', { text: text.p }));
   if (text.tips) {
     parts.push(el('ul', {}, ...text.tips.map((tip) => {
@@ -275,6 +276,8 @@ function render(result, refined) {
   const focused = document.activeElement;
   form.hidden = true;
   empty.hidden = true;
+  pickBox.hidden = true;
+  pickBox.replaceChildren();
   loaded.hidden = false;
   box.hidden = false;
   status.textContent = fmt(T.found, { what });
@@ -299,7 +302,8 @@ async function find(text, artist) {
   try {
     link = parseLink(text);
   } catch (e) {
-    showError(e);
+    if (e.code === 'not-link' && isName(text)) pick(text.trim(), mine, signal);
+    else showError(e);
     return;
   }
   busy(true);
@@ -320,6 +324,57 @@ async function find(text, artist) {
     if (mine === run) showError(e);
   } finally {
     if (mine === run) busy(false);
+  }
+}
+
+// ---- A song by its name: "Which one?" ----
+
+// The visitor's own country's store first: the same song has other names and other albums elsewhere.
+const country = (/^[a-z]{2,3}-([a-z]{2})\b/i.exec(navigator.language || '') || [, strings.lang === 'it' ? 'it' : 'us'])[1].toLowerCase();
+
+function setAddress(params) {
+  const u = new URL(location.pathname, location.origin);
+  for (const [k, v] of Object.entries(params)) u.searchParams.set(k, v);
+  try { history.replaceState(null, '', u); } catch (e) { /* a page opened from a file */ }
+}
+
+function pickRow(song) {
+  const art = /^https:\/\//.test(song.thumb || '') ? song.thumb : null;
+  const pic = art ? el('img', { src: art, alt: '', width: 48, height: 48, loading: 'lazy', referrerpolicy: 'no-referrer' }) : el('span', { class: 'lk-noart' }, icon('note'));
+  if (art) pic.addEventListener('error', () => pic.replaceWith(el('span', { class: 'lk-noart' }, icon('note'))));
+  const more = [song.album, song.durationMs ? clock(song.durationMs) : null].filter(Boolean).join(' · ');
+  const text = el('span', { class: 'lk-pick-t' }, el('b', { text: song.title }), el('span', { text: song.artist }));
+  if (more) text.append(el('small', { text: more }));
+  const button = el('button', { type: 'button', class: 'lk-pick-row' }, pic, text,
+    el('span', { class: 'lk-pick-src', text: song.sources.map(serviceName).join(' · ') }));
+  button.addEventListener('click', () => { input.value = song.url; find(song.url); });
+  return el('li', {}, button);
+}
+
+async function pick(term, mine, signal) {
+  busy(true);
+  pickBox.setAttribute('aria-busy', 'true');
+  try {
+    if (navigator.onLine === false) throw new ToolError('offline');
+    const songs = await searchSongs(term, browserNet, { country, signal });
+    if (mine !== run) return;
+    if (!songs.length) throw new ToolError('nothing', term);
+    const h = el('h2', { id: 'lk-pick-h', tabindex: '-1', text: T.pick_h });
+    pickBox.replaceChildren(h, el('p', { class: 'tool-muted', text: fmt(T.pick_for, { q: term }) }),
+      el('ul', { class: 'lk-pick-list', 'aria-labelledby': 'lk-pick-h' }, ...songs.map(pickRow)),
+      el('p', { class: 'tool-muted lk-pick-foot', text: T.pick_foot }));
+    pickBox.hidden = false;
+    empty.hidden = true;
+    status.textContent = fmt(T.picked, { n: songs.length, q: term });
+    setAddress({ q: term });
+  } catch (e) {
+    if (mine !== run) return;
+    pickBox.hidden = true;
+    pickBox.replaceChildren();
+    empty.hidden = false;
+    showError(e);
+  } finally {
+    if (mine === run) { busy(false); pickBox.removeAttribute('aria-busy'); }
   }
 }
 
@@ -365,6 +420,8 @@ $('.lk-again').addEventListener('click', () => {
   loaded.hidden = true;
   form.hidden = false;
   empty.hidden = false;
+  pickBox.hidden = true;
+  pickBox.replaceChildren();
   clearError();
   input.value = '';
   status.textContent = '';
@@ -372,9 +429,12 @@ $('.lk-again').addEventListener('click', () => {
   input.focus();
 });
 
-// /link?u=<link> looks the link up as the page opens, so a result can be passed on.
+// /link?u=<link> looks the link up as the page opens, so a result can be passed on; /link?q=<name> searches.
 const params = new URLSearchParams(location.search);
 if (params.get('u')) {
   input.value = params.get('u');
   find(params.get('u'), params.get('a') || '');
+} else if (params.get('q')) {
+  input.value = params.get('q');
+  find(params.get('q'));
 }

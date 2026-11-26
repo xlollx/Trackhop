@@ -1251,3 +1251,57 @@ function mbKnown(base) {
   const mb = base.mb || {}, code = (mb.codes || [])[0];
   return { rels: mb.rels || null, mbid: mb.mbid || null, link: base.link, isrc: base.link.kind === 'song' ? code : null, upc: base.link.kind === 'album' ? code : null };
 }
+
+// ---------------------------------------------------------------------------------------------
+// A song by its name
+// ---------------------------------------------------------------------------------------------
+
+/** The most songs the "Which one?" list shows. */
+export const PICK_MAX = 10;
+
+/** A typed text that is a name to search for, not a broken link: two letters or more, not a web address. */
+export function isName(text) {
+  const t = String(text == null ? '' : text).trim();
+  return t.length >= 2 && t.length <= 200 && /\p{L}|\p{N}/u.test(t) && !/^[a-z]+:\/\//i.test(t);
+}
+
+const sameSong = (a, b) => titleKey(a.title) === titleKey(b.title) && sameArtist(a.artist, b.artist)
+  && (!a.durationMs || !b.durationMs || Math.abs(a.durationMs - b.durationMs) <= DURATION_WINDOW_MS);
+
+/**
+ * The songs called [term] on Deezer and Apple Music (iTunes, in [country]'s store), asked at once from the
+ * browser: the first of each in turn, the same song from both shown once, at most [max], the songs whose
+ * title (and artist) are in [term] first. Each is
+ * { title, artist, album, durationMs, art, thumb, url, sources: ['deezer', 'apple'] }; its url is the
+ * Deezer link where Deezer has it, the Apple Music link otherwise, and opens as a pasted link would.
+ * One catalogue not answering is lived with; both not answering is an error (no-answer).
+ */
+export async function searchSongs(term, net = browserNet, { country = 'us', signal, max = PICK_MAX } = {}) {
+  net = bounded(net, { signal });
+  const q = String(term || '').trim();
+  const [dz, it] = await Promise.allSettled([deezerSearch(q, 'song', net, 15), itunesSearch(q, 'song', country, net, 15)]);
+  for (const r of [dz, it]) if (r.status === 'rejected' && !silent(r.reason)) throw r.reason;
+  if (dz.status === 'rejected' && it.status === 'rejected') throw new ToolError('no-answer', '');
+  const lists = [[dz.value || [], 'deezer'], [it.value || [], 'apple']];
+  const out = [];
+  for (let i = 0; out.length < max && lists.some(([l]) => i < l.length); i++) {
+    for (const [list, source] of lists) {
+      const item = list[i];
+      if (!item) continue;
+      const twin = out.find((o) => sameSong(o, item));
+      if (twin) {
+        if (!twin.sources.includes(source)) twin.sources.push(source);
+        if (!twin.art && item.art) { twin.art = item.art; twin.thumb = item.thumb; }
+        continue;
+      }
+      if (out.length >= max) break;
+      out.push({ title: item.title, artist: item.artist, album: item.album, durationMs: item.durationMs,
+        art: item.art, thumb: item.thumb, url: item.url, sources: [source] });
+    }
+  }
+  // The catalogues rank by popularity: a song whose title (and artist) the visitor typed goes first.
+  const words = ` ${fold(q)} `;
+  const typed = (s) => !!s && words.includes(` ${s} `);
+  const fit = (song) => (typed(titleKey(song.title)) ? 2 + (typed(artistKey(song.artist)) || typed(firstArtist(song.artist)) ? 1 : 0) : 0);
+  return out.map((song, i) => [fit(song), i, song]).sort((a, b) => b[0] - a[0] || a[1] - b[1]).map((x) => x[2]);
+}
