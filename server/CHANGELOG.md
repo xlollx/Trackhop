@@ -5,6 +5,14 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`, `v2.x`)
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 2.2.2
+
+Released with the app's 2.2.3.
+
+- **Signed-in services stay signed in on their own**: twice a day the server renews the session of each signed-in account (the official sign-ins and the web connectors it runs), one after the other, with one line per account in the log. You are asked to sign in again (on your notification channels and on the Notifications page) only when a service really ended a session.
+- **Reconnect**: a button on each service's page renews its session now; when that cannot work, the account is signed out and its sign-in opens. Also `POST /api/v1/services/{id}/reconnect` and `trackhop reconnect <service>`.
+- **Fixed**: TIDAL and other official sign-ins could sign out by themselves when several syncs renewed the same access at once; renewals now go one at a time per account.
+
 ## 2.2.1
 
 Released with the app's 2.2.1.

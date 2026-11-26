@@ -1,0 +1,1 @@
+Trackhop 2.2.3. I servizi collegati restano collegati da soli: due volte al giorno la sessione di ogni account viene rinnovata, così ti chiediamo di accedere di nuovo solo quando un servizio l'ha chiusa davvero. Nuovo: Ricollega nel menu di ogni account in Account. Corretto: TIDAL e altri accessi potevano scollegarsi da soli con più sync insieme.
