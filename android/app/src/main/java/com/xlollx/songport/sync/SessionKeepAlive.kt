@@ -9,30 +9,45 @@ import com.xlollx.songport.data.Store
 import com.xlollx.songport.platform.AndroidEnv
 import com.xlollx.songport.platform.Env
 import com.xlollx.songport.platform.env
+import com.xlollx.songport.providers.AmazonBridgeProvider
+import com.xlollx.songport.providers.AnghamiBridgeProvider
+import com.xlollx.songport.providers.AppleBridgeProvider
+import com.xlollx.songport.providers.AppleMusicProvider
 import com.xlollx.songport.providers.BridgePlugin
+import com.xlollx.songport.providers.DeezerBridgeProvider
+import com.xlollx.songport.providers.DeezerProvider
+import com.xlollx.songport.providers.GaanaBridgeProvider
+import com.xlollx.songport.providers.KeepAlive
+import com.xlollx.songport.providers.LiveOneBridgeProvider
+import com.xlollx.songport.providers.Providers
+import com.xlollx.songport.providers.QobuzBridgeProvider
+import com.xlollx.songport.providers.SpotifyBridgeProvider
+import com.xlollx.songport.providers.SpotifyProvider
+import com.xlollx.songport.providers.TidalProvider
 import com.xlollx.songport.providers.YouTubeBridgeProvider
+import com.xlollx.songport.providers.YouTubeProvider
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 /**
- * Keeps web sessions alive while they are not used, and says once when one is gone.
+ * Keeps every session alive while it is not used, and says once when one is gone, so the person is
+ * asked to sign in again only when the service really ended the session.
  *
- * - SoundCloud's web session is a token that lasts an hour, renewed by the site's own page, whose
- *   session lapses after a few idle days: once it has, nothing renews and the person has to sign in
- *   again. The connector renews it in the background (`soundcloud.keepAlive`).
- * - YouTube Music's session has short-lived cookies Google rotates from the player's own page; the
- *   connector never runs that page, and Google ends up refusing the session (a 401, issue #62).
- *   The connector runs the page in the background (`keepAlive`), for each account.
+ * - Web connectors (through the connector: built in, or the companion app): each answers a
+ *   `<service>.keepAlive` that does what its own renewal does. SoundCloud's web session is a token
+ *   renewed by the site's own page, whose session lapses after a few idle days; YouTube Music's
+ *   cookies are rotated by the player's page (issue #62); the others make one cheap signed-in call,
+ *   which renews a refused session the way their calls do (a hidden page of the site, Amazon's
+ *   player page on the account's own regional site, LiveOne's refresh token). Per account where the
+ *   service has several. An older connector that does not know a method answers an error: skipped.
+ * - Official sign-ins ([MusicProvider.keepAlive]): each connected account's access is renewed (one
+ *   renewal at a time per account, see OAuthProvider), so refresh tokens stay in use; Deezer's and
+ *   Apple's, which have none, make one cheap signed-in call.
  *
- * Twice a day, while such a connector is there. The other web connectors keep long-lived sessions
- * (Spotify's and Deezer's cookies, Qobuz's and Apple's tokens, Anghami's and Amazon's pages renewed
- * on use) and need no keep-alive. An older connector that does not know a method answers an error:
- * nothing is done.
- *
- * When a web session is found gone (here, or by any call: a sync, the picker), one notification
- * says to sign in again, once per expiry and per connector ([noticeExpiry], [noticeAnswer]). The
- * official connectors renew their own tokens and are not told here: a refresh that fails for good
- * fails the sync, which says so, as it always has.
+ * Twice a day, one call per account, one after the other with a pause between them; nothing for an
+ * account not signed in. When a session is found gone (here, or by any call: a sync, the picker), one
+ * notification says to sign in again, once per expiry and per connector ([noticeExpiry], [noticeAnswer]).
  */
 object SessionKeepAlive {
     /** A connector kept alive: its service id, the connectors' method, the name the notification gives, and whether it has extra accounts. */
@@ -41,7 +56,27 @@ object SessionKeepAlive {
     val TARGETS = listOf(
         Target(SoundCloudPublic.SERVICE, "soundcloud.keepAlive", "SoundCloud", slots = false),
         Target(YouTubeBridgeProvider.SERVICE, "keepAlive", "YouTube Music", slots = true),
+        Target(AmazonBridgeProvider.SERVICE, "amazon.keepAlive", "Amazon Music", slots = false),
+        Target(SpotifyBridgeProvider.SERVICE, "spotify.keepAlive", "Spotify", slots = true),
+        Target(DeezerBridgeProvider.SERVICE, "deezer.keepAlive", "Deezer", slots = true),
+        Target(QobuzBridgeProvider.SERVICE, "qobuz.keepAlive", "Qobuz", slots = true),
+        Target(AppleBridgeProvider.SERVICE, "apple.keepAlive", "Apple Music", slots = true),
+        Target(AnghamiBridgeProvider.SERVICE, "anghami.keepAlive", "Anghami", slots = true),
+        Target(GaanaBridgeProvider.SERVICE, "gaana.keepAlive", "Gaana", slots = true),
+        Target(LiveOneBridgeProvider.SERVICE, "liveone.keepAlive", "LiveOne", slots = true),
     )
+
+    /**
+     * The official sign-ins whose access is renewed ([MusicProvider.keepAlive]): OAuth with refresh
+     * tokens (Spotify, TIDAL, YouTube), and Deezer's and Apple Music's lasting tokens.
+     */
+    val OFFICIAL = setOf(SpotifyProvider.SERVICE, TidalProvider.SERVICE, YouTubeProvider.SERVICE, DeezerProvider.SERVICE, AppleMusicProvider.SERVICE)
+
+    /** The official accounts among [connectorIds] the keep-alive renews, once each, extra accounts too. */
+    fun officialPlan(connectorIds: List<String>): List<String> = connectorIds.distinct().filter { it.substringBefore('@') in OFFICIAL }
+
+    /** Between two accounts: one call at a time, never a burst. */
+    const val PACE_MS = 3_000L
 
     /** One connector of the person's ([connectorId], "ytm@2" for an extra account) and its [slot]. */
     class Planned(val connectorId: String, val slot: String, val target: Target)
@@ -56,7 +91,50 @@ object SessionKeepAlive {
     }
 
     /** Whether the keep-alive is scheduled: a kept-alive connector among [connectorIds]. */
-    fun wanted(connectorIds: List<String>): Boolean = plan(connectorIds).isNotEmpty()
+    fun wanted(connectorIds: List<String>): Boolean = plan(connectorIds).isNotEmpty() || officialPlan(connectorIds).isNotEmpty()
+
+    /** A web connector's answer to its keep-alive: an [error] (an older connector: skipped), or what it says of the session. */
+    class Answer(val error: String?, val expiredAt: String?, val expired: Boolean)
+
+    /**
+     * One run: each web account through [bridge] (null when no connector is there), then each official
+     * account through [official] (its name and outcome; null when nothing to renew), one at a time,
+     * with [pause] between two calls. A session gone goes to [expired] (connector id, the service's
+     * name, the expiry, told once by the caller); an official one that works again to [working].
+     * Returns one line per account for the log, never a token.
+     */
+    suspend fun run(
+        connectorIds: List<String>,
+        bridge: (suspend (Planned) -> Answer?)?,
+        official: suspend (String) -> Pair<String, KeepAlive>?,
+        expired: (String, String, String) -> Unit,
+        working: (String) -> Unit,
+        pause: suspend () -> Unit,
+    ): List<String> {
+        val out = ArrayList<String>()
+        var first = true
+        suspend fun paced() { if (!first) pause(); first = false }
+        if (bridge != null) for (p in plan(connectorIds)) {
+            paced()
+            // A connector that does not know the method (an older plugin) answers an error: nothing to do.
+            val b = runCatching { bridge(p) }.getOrNull()
+            if (b == null || b.error != null) { out += "${p.connectorId}: skipped"; continue }
+            val expiry = expiryOf(b.expiredAt, b.expired)
+            if (expiry != null) { expired(p.connectorId, p.target.name, expiry); out += "${p.connectorId}: session gone" }
+            else out += "${p.connectorId}: kept"
+        }
+        for (id in officialPlan(connectorIds)) {
+            val (name, k) = runCatching { official(id) }.getOrNull() ?: continue
+            if (k.state == KeepAlive.State.NOT_SIGNED_IN) continue
+            paced()
+            when (k.state) {
+                KeepAlive.State.RENEWED -> { working(id); out += "$id: renewed" }
+                KeepAlive.State.EXPIRED -> { expired(id, name, GONE); out += "$id: signed out by the service" }
+                else -> out += "$id: not renewed this time"
+            }
+        }
+        return out
+    }
 
     /**
      * The expiry a keep-alive's answer reports, or null while the session lives: SoundCloud's says
@@ -169,17 +247,24 @@ object SessionKeepAlive {
 class KeepAliveWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, params) {
     override suspend fun doWork(): Result {
         val ctx = applicationContext
-        val plan = SessionKeepAlive.plan(Store.get(ctx).data.settings.connectors)
-        if (plan.isEmpty()) return Result.success()
+        val ids = Store.get(ctx).data.settings.connectors
+        if (!SessionKeepAlive.wanted(ids)) return Result.success()
         val env = ctx.env
-        if (!BridgePlugin.installed(env)) return Result.success()
-        for (p in plan) {
-            // A connector that does not know the method (an older plugin) answers an error: nothing to do.
-            val b = withContext(Dispatchers.IO) { runCatching { BridgePlugin.call(env, p.target.method, null, null, p.slot) }.getOrNull() } ?: continue
-            if (b.containsKey("error")) continue
-            SessionKeepAlive.expiryOf(b.getString("expiredAt"), b.getBoolean("expired", false))
-                ?.let { SessionKeepAlive.noticeExpiry(ctx, p.connectorId, p.target.name, it) }
+        val bridge: (suspend (SessionKeepAlive.Planned) -> SessionKeepAlive.Answer?)? = if (!BridgePlugin.installed(env)) null else { p ->
+            val b = withContext(Dispatchers.IO) { BridgePlugin.call(env, p.target.method, null, null, p.slot) }
+            b?.let { SessionKeepAlive.Answer(it.getString("error"), it.getString("expiredAt"), it.getBoolean("expired", false)) }
         }
+        // The official sign-in itself only: a web connector of the same service runs through the connector above.
+        val official: suspend (String) -> Pair<String, KeepAlive>? = { id ->
+            Providers.byId(id)?.let { p -> p.keepAlive(env)?.let { k -> p.displayName to k } }
+        }
+        val lines = SessionKeepAlive.run(
+            ids, bridge, official,
+            expired = { id, name, expiry -> SessionKeepAlive.noticeExpiry(ctx, id, name, expiry) },
+            working = { id -> SessionKeepAlive.noticeSignIn(ctx, id) },
+            pause = { delay(SessionKeepAlive.PACE_MS) },
+        )
+        if (lines.isNotEmpty()) env.log("keepalive", lines.joinToString("; "))
         return Result.success()
     }
 }

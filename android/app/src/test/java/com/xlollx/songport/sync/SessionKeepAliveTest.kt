@@ -12,12 +12,16 @@ class SessionKeepAliveTest {
         assertTrue(SessionKeepAlive.wanted(listOf("spotify", "soundcloud")))
         assertTrue(SessionKeepAlive.wanted(listOf("ytm")))
         assertTrue(SessionKeepAlive.wanted(listOf("deezer_web", "ytm@2")))
-        assertFalse(SessionKeepAlive.wanted(listOf("spotify", "deezer_web", "spotify_bridge", "qobuz_web", "amazon", "youtube")))
+        // 2.2.3: every session is kept alive, the official sign-ins and the other web connectors too.
+        assertTrue(SessionKeepAlive.wanted(listOf("spotify")))
+        assertTrue(SessionKeepAlive.wanted(listOf("amazon")))
+        assertTrue(SessionKeepAlive.wanted(listOf("tidal@2")))
+        assertFalse(SessionKeepAlive.wanted(listOf("subsonic", "lastfm", "listenbrainz", "jellyfin", "local", "playlisturl")))
         assertFalse(SessionKeepAlive.wanted(emptyList()))
     }
 
     @Test fun thePlanNamesEachConnectorItsMethodAndAccount() {
-        val plan = SessionKeepAlive.plan(listOf("spotify", "soundcloud", "ytm", "ytm@2", "ytm", "deezer_bridge@2"))
+        val plan = SessionKeepAlive.plan(listOf("spotify", "soundcloud", "ytm", "ytm@2", "ytm"))
         assertEquals(listOf("soundcloud", "ytm", "ytm@2"), plan.map { it.connectorId })
         assertEquals(listOf("soundcloud.keepAlive", "keepAlive", "keepAlive"), plan.map { it.target.method })
         assertEquals(listOf("", "", "2"), plan.map { it.slot })
@@ -129,5 +133,99 @@ class SessionKeepAliveTest {
         allowed = true
         repeat(2) { SessionKeepAlive.tell(m, "deezer_bridge", SessionKeepAlive.GONE) { if (allowed) posted++; allowed } }
         assertEquals(1, posted)
+    }
+
+    @Test fun everyWebConnectorWithASessionIsKeptAliveWithItsSlots() {
+        val plan = SessionKeepAlive.plan(listOf(
+            "amazon", "spotify_bridge", "spotify_bridge@2", "deezer_bridge@2", "qobuz_web", "apple_bridge@3",
+            "anghami_web", "gaana_web", "liveone_web@2", "amazon@2", "spotify", "tidal",
+        ))
+        assertEquals(
+            listOf("amazon", "spotify_bridge", "spotify_bridge@2", "deezer_bridge@2", "qobuz_web", "apple_bridge@3", "anghami_web", "gaana_web", "liveone_web@2"),
+            plan.map { it.connectorId },
+        )
+        assertEquals(
+            listOf("amazon.keepAlive", "spotify.keepAlive", "spotify.keepAlive", "deezer.keepAlive", "qobuz.keepAlive", "apple.keepAlive", "anghami.keepAlive", "gaana.keepAlive", "liveone.keepAlive"),
+            plan.map { it.target.method },
+        )
+        assertEquals(listOf("", "", "2", "2", "", "3", "", "", "2"), plan.map { it.slot })
+        // Amazon Music serves one account: an extra one is not asked for. Official sign-ins are not web connectors.
+        assertTrue(plan.none { it.connectorId == "amazon@2" || it.connectorId == "spotify" || it.connectorId == "tidal" })
+    }
+
+    @Test fun theOfficialSignInsRenewedAreEachAccountOnce() {
+        assertEquals(
+            listOf("spotify", "tidal", "tidal@2", "youtube", "deezer", "apple"),
+            SessionKeepAlive.officialPlan(listOf("spotify", "tidal", "tidal@2", "spotify", "youtube", "deezer", "apple", "ytm", "deezer_bridge", "subsonic", "apple_bridge")),
+        )
+    }
+
+    private class Run {
+        val told = ArrayList<Triple<String, String, String>>()
+        val working = ArrayList<String>()
+        var pauses = 0
+        val asked = ArrayList<String>()
+    }
+
+    @Test fun aRunHandlesRenewedExpiredAndErrorAnswers() = kotlinx.coroutines.runBlocking {
+        val r = Run()
+        val answers = mapOf(
+            "soundcloud" to SessionKeepAlive.Answer(null, "1700000000000", false),
+            "ytm" to SessionKeepAlive.Answer(null, null, true),
+            "amazon" to SessionKeepAlive.Answer(null, null, false),
+            "qobuz_web" to SessionKeepAlive.Answer("unknown method qobuz.keepAlive", null, false),
+        )
+        val official = mapOf(
+            "spotify" to ("Spotify" to com.xlollx.songport.providers.KeepAlive.RENEWED),
+            "tidal" to ("TIDAL" to com.xlollx.songport.providers.KeepAlive.EXPIRED),
+            "deezer" to ("Deezer" to com.xlollx.songport.providers.KeepAlive.NOT_SIGNED_IN),
+            "youtube" to ("YouTube" to com.xlollx.songport.providers.KeepAlive(com.xlollx.songport.providers.KeepAlive.State.FAILED, "timeout")),
+        )
+        val lines = SessionKeepAlive.run(
+            listOf("soundcloud", "ytm", "amazon", "qobuz_web", "spotify", "tidal", "deezer", "youtube"),
+            bridge = { p -> r.asked += p.target.method; answers[p.connectorId] },
+            official = { id -> r.asked += id; official[id] },
+            expired = { id, name, expiry -> r.told += Triple(id, name, expiry) },
+            working = { r.working += it },
+            pause = { r.pauses++ },
+        )
+        assertEquals(
+            listOf(Triple("soundcloud", "SoundCloud", "1700000000000"), Triple("ytm", "YouTube Music", SessionKeepAlive.GONE), Triple("tidal", "TIDAL", SessionKeepAlive.GONE)),
+            r.told,
+        )
+        assertEquals(listOf("spotify"), r.working)
+        // One call per account, a pause between two calls; an account not signed in costs nothing.
+        assertEquals(listOf("soundcloud.keepAlive", "keepAlive", "amazon.keepAlive", "qobuz.keepAlive", "spotify", "tidal", "deezer", "youtube"), r.asked)
+        assertEquals(6, r.pauses)
+        assertEquals(listOf("soundcloud: session gone", "ytm: session gone", "amazon: kept", "qobuz_web: skipped", "spotify: renewed", "tidal: signed out by the service", "youtube: not renewed this time"), lines)
+    }
+
+    @Test fun withoutTheConnectorOnlyTheOfficialSignInsAreRenewed() = kotlinx.coroutines.runBlocking {
+        val r = Run()
+        SessionKeepAlive.run(
+            listOf("amazon", "spotify"),
+            bridge = null,
+            official = { id -> r.asked += id; "Spotify" to com.xlollx.songport.providers.KeepAlive.RENEWED },
+            expired = { id, name, expiry -> r.told += Triple(id, name, expiry) },
+            working = { r.working += it },
+            pause = { r.pauses++ },
+        )
+        assertEquals(listOf("spotify"), r.asked)
+        assertEquals(0, r.pauses)
+        assertTrue(r.told.isEmpty())
+    }
+
+    @Test fun aConnectorThatFailsIsSkipped() = kotlinx.coroutines.runBlocking {
+        val r = Run()
+        val lines = SessionKeepAlive.run(
+            listOf("deezer_bridge"),
+            bridge = { throw IllegalStateException("no connector") },
+            official = { null },
+            expired = { id, name, expiry -> r.told += Triple(id, name, expiry) },
+            working = { r.working += it },
+            pause = { r.pauses++ },
+        )
+        assertEquals(listOf("deezer_bridge: skipped"), lines)
+        assertTrue(r.told.isEmpty())
     }
 }
