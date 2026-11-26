@@ -70,6 +70,10 @@ class AnghamiWebServerProvider(override val slot: String = "") : CookieConnector
         ctx.tokens.set(id, probe)
     }
 
+    /** The twice-daily keep-alive and "Reconnect": one signed-in call (the playlists read once). */
+    override suspend fun keepAlive(ctx: Env): com.xlollx.songport.providers.KeepAlive =
+        com.xlollx.songport.providers.KeepAlive.probe(ctx, this) { io(ctx) { it.probe() } }
+
     override fun disconnect(ctx: Env) {
         ctx.tokens.clear(id)
         cache(ctx).clear()

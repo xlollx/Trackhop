@@ -89,6 +89,10 @@ class SpotifyWebServerProvider(override val slot: String = "") : CookieConnector
         ctx.tokens.set(id, probe.copy(userId = userId.orEmpty(), userName = name.orEmpty()))
     }
 
+    /** The twice-daily keep-alive and "Reconnect": one signed-in call (the player page read with the cookies: a signed-out visitor is a session gone). */
+    override suspend fun keepAlive(ctx: Env): com.xlollx.songport.providers.KeepAlive =
+        com.xlollx.songport.providers.KeepAlive.probe(ctx, this) { io(ctx) { c -> if (c.page().isAnonymous) throw BridgeException(EXPIRED) } }
+
     override fun disconnect(ctx: Env) {
         ctx.tokens.clear(id)
         forget(ctx, cache(ctx))

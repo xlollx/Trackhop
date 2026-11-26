@@ -98,6 +98,10 @@ class YtmServerProvider(override val slot: String = "") : CookieConnector {
         ctx.tokens.set(id, probe.copy(userName = name.orEmpty()))
     }
 
+    /** The twice-daily keep-alive and "Reconnect": one signed-in call (the library's playlists read with the cookies). */
+    override suspend fun keepAlive(ctx: Env): com.xlollx.songport.providers.KeepAlive =
+        com.xlollx.songport.providers.KeepAlive.probe(ctx, this) { io(ctx) { it.playlists() } }
+
     override fun disconnect(ctx: Env) { ctx.tokens.clear(id) }
 
     /** The brand account's page id this account's calls are made as; null (the default) is its own channel. */

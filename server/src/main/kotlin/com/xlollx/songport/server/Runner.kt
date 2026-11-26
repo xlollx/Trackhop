@@ -215,6 +215,10 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
         scope.cancel()
     }
 
+    /** The keep-alive running now, if any: one at a time. */
+    @Volatile private var keepAlive: kotlinx.coroutines.Job? = null
+    private val startedAt = System.currentTimeMillis()
+
     /** The scheduler: once a minute, the syncs that are due. */
     fun startScheduler() {
         if (env.may(Permissions.RADIO)) radio.start()
@@ -256,6 +260,11 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
         }
         // The followed artists' look (Tools › Followed artists), once a day or a week.
         guarded("artist alerts") { if (Features.v2) env.alertsTick(now) }
+        // Every signed-in session renewed twice a day (the app's keep-alive), in the background.
+        guarded("keep-alive") {
+            if (now - startedAt >= KEEP_ALIVE_AFTER_START_MS && SessionsKeepAlive.isDue(env, now) && keepAlive?.isActive != true)
+                keepAlive = scope.launch { guarded("keep-alive run") { SessionsKeepAlive.run(env) } }
+        }
         // "A new version is out" (Settings › Updates): twice a day at most, where this engine may check.
         guarded("updates") { Updates.checkIfDue(now) }
     }
@@ -276,6 +285,8 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
         private const val TICK_MS = 60_000L
         private const val STARTUP_DELAY_MS = 15_000L
         private const val RETRY_MS = 15 * 60_000L
+        /** The first keep-alive waits for the start to settle (the syncs due at start go first). */
+        private const val KEEP_ALIVE_AFTER_START_MS = 10 * 60_000L
 
         /** When [job] runs next by its schedule, or null for a manual one. */
         fun nextRun(job: SyncJob): Long? =

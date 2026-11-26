@@ -41,6 +41,7 @@ data class KeepAlive(val state: State, val problem: String? = null) {
             "web session has expired",
             "session has ended",
             "session has expired",
+            "cookies have expired",
             "no longer accepts the session",
             "no longer opens the player",
             "served the player to a signed-out visitor",

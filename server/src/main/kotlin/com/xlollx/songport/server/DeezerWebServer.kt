@@ -116,6 +116,10 @@ class DeezerWebServerProvider(override val slot: String = "") : CookieConnector 
         return p.copy(selected = true)
     }
 
+    /** The twice-daily keep-alive and "Reconnect": one signed-in call (the account read again through the gateway, the session renewed from the arl cookie as the player does). */
+    override suspend fun keepAlive(ctx: Env): com.xlollx.songport.providers.KeepAlive =
+        com.xlollx.songport.providers.KeepAlive.probe(ctx, this) { io(ctx) { it.user(refresh = true) } }
+
     override fun disconnect(ctx: Env) {
         ctx.tokens.clear(id)
         forget(ctx, cache(ctx))

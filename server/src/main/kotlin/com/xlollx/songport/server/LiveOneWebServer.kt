@@ -75,6 +75,10 @@ class LiveOneWebServerProvider(override val slot: String = "") : CookieConnector
         ctx.tokens.set(id, probe)
     }
 
+    /** The twice-daily keep-alive and "Reconnect": one signed-in call (the session renewed from its refresh token, as the player does (the token rotates)). */
+    override suspend fun keepAlive(ctx: Env): com.xlollx.songport.providers.KeepAlive =
+        com.xlollx.songport.providers.KeepAlive.probe(ctx, this) { io(ctx) { it.wsToken(renew = true) } }
+
     override fun disconnect(ctx: Env) {
         ctx.tokens.clear(id)
         cache(ctx).clear()
