@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/store/icon512.png" width="96" alt=""></p>
+<p align="center"><img src="docs/assets/turntable.png" width="360" alt=""></p>
 
 <h1 align="center">Trackhop</h1>
 
