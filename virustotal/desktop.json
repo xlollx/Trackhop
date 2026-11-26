@@ -3,7 +3,7 @@
  "version": "2.2.3",
  "tag": "server-v2.2.3",
  "release": "https://github.com/xlollx/Trackhop/releases/tag/server-v2.2.3",
- "checked": "2026-11-26T16:43:27Z",
+ "checked": "2026-11-26T18:33:23Z",
  "clean": false,
  "files": [
   {
@@ -20,7 +20,7 @@
    "sha256": "4b05706bece76127d0003b56ec38f487f7779582283ff101f3ef22c484d0e18e",
    "malicious": 1,
    "suspicious": 0,
-   "engines": 56,
+   "engines": 59,
    "flagged_by": {
     "Panda": "Exploit/WinampPLS"
    },
@@ -49,7 +49,7 @@
    "sha256": "3232084daa11d9fd9e60997390552f3ffcf3c9dc6be7c0fd3ae25dd0f272ad5d",
    "malicious": 1,
    "suspicious": 0,
-   "engines": 55,
+   "engines": 59,
    "flagged_by": {
     "Panda": "Exploit/WinampPLS"
    },
@@ -58,12 +58,10 @@
   {
    "name": "Trackhop-Desktop-v2.2.3-macos-arm64.dmg",
    "sha256": "dfb8af216f26e867ab0a0a87363eebcad2593f647e70143241d0adf3a098ea1b",
-   "malicious": 1,
+   "malicious": 0,
    "suspicious": 0,
-   "engines": 57,
-   "flagged_by": {
-    "Microsoft": "Trojan:Script/Wacatac.B!ml"
-   },
+   "engines": 59,
+   "flagged_by": {},
    "link": "https://www.virustotal.com/gui/file/dfb8af216f26e867ab0a0a87363eebcad2593f647e70143241d0adf3a098ea1b"
   },
   {
@@ -71,9 +69,9 @@
    "sha256": "e980e59c72754b81f41e4a5da966719b81ff2a9299800953adb52dd9ba093c20",
    "malicious": 1,
    "suspicious": 0,
-   "engines": 57,
+   "engines": 59,
    "flagged_by": {
-    "Microsoft": "Program:Script/Wacapew.A!ml"
+    "Microsoft": "Trojan:Script/Wacatac.B!ml"
    },
    "link": "https://www.virustotal.com/gui/file/e980e59c72754b81f41e4a5da966719b81ff2a9299800953adb52dd9ba093c20"
   },
@@ -91,7 +89,7 @@
    "sha256": "ee452ba0c959b1f9b5ce4a075127aad5548dc67c89432f769cae584c35d1e95c",
    "malicious": 1,
    "suspicious": 0,
-   "engines": 57,
+   "engines": 60,
    "flagged_by": {
     "Panda": "Exploit/WinampPLS"
    },
@@ -102,7 +100,7 @@
    "sha256": "ee92d97b1b558d8c26f803c3ef072dd44acd351bd822c2ce848036007d0fb832",
    "malicious": 1,
    "suspicious": 0,
-   "engines": 57,
+   "engines": 61,
    "flagged_by": {
     "Panda": "Exploit/WinampPLS"
    },
