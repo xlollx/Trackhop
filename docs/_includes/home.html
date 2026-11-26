@@ -11,7 +11,7 @@ The Desktop version is set here, once, for every language.
 <section class="hero">
   <div class="wrap">
     <div>
-      <img class="deck" src="/assets/turntable.png" alt="" width="260" height="194">
+      <picture><source media="(prefers-reduced-motion: reduce)" srcset="/assets/turntable.png"><img class="deck" src="/assets/turntable.webp" alt="" width="260" height="194"></picture>
       <h1>{{ h.h1 | default: en.h1 }}</h1>
       <p class="lead">{{ h.lead | default: en.lead }}</p>
       <p class="sub">{{ h.sub | default: en.sub }}</p>
