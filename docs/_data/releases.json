@@ -40,6 +40,15 @@
   }
  },
  {
+  "id": "server-v2.2.3",
+  "kind": "server",
+  "version": "2.2.3",
+  "date": "2026-11-26",
+  "notes": {
+   "en": "Released on its own (the app stays at 2.2.4).\n\n- **Fixed**: Files › \"Try the patterns\" answered \"Too large: files up to 20 MB\" when a big file (an Apple Music/iTunes library) was already chosen for upload: the button sent the file too. It now sends only the patterns and the line to try. Thanks to raykai (#91)."
+  }
+ },
+ {
   "id": "server-v2.2.2",
   "kind": "server",
   "version": "2.2.2",
