@@ -832,6 +832,12 @@ Issues and pull requests are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md) for
 what a pull request needs. Report vulnerabilities as described in [SECURITY.md](SECURITY.md), not in a
 public issue.
 
+**Contributors.** Thank you to everyone who made Trackhop better:
+
+- Code: [JPMarcelino](https://github.com/JPMarcelino) (#66, two-way pairs handed to the server),
+  [Doggo785](https://github.com/Doggo785) (#87, Deezer liked songs in the right order).
+- Reports that led to a fix: [raykai](https://github.com/raykai) (#67), [ingoau](https://github.com/ingoau) (#68, #69).
+
 ## Formerly Songport
 
 Same app, same code, same updates. The name changed because an
