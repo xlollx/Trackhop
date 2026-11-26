@@ -228,4 +228,22 @@ class SessionKeepAliveTest {
         assertEquals(listOf("deezer_bridge: skipped"), lines)
         assertTrue(r.told.isEmpty())
     }
+
+    @Test fun reconnectRenewsThroughTheConnectorOrTheOfficialSignIn() = kotlinx.coroutines.runBlocking {
+        val KA = com.xlollx.songport.providers.KeepAlive
+        fun web(a: SessionKeepAlive.Answer?) = suspend { SessionKeepAlive.renewNow("qobuz_web@2", { p -> assertEquals("2", p.slot); a }, { error("not official") }) }
+        assertEquals(KA.RENEWED, web(SessionKeepAlive.Answer(null, null, false, renewed = true))())
+        assertEquals(KA.EXPIRED, web(SessionKeepAlive.Answer(null, null, true))())
+        assertEquals(KA.NOT_SIGNED_IN, web(SessionKeepAlive.Answer(null, null, false, connected = false))())
+        // An older connector without the method: not renewed, so a new sign-in follows.
+        val old = web(SessionKeepAlive.Answer("unknown method qobuz.keepAlive", null, false))()
+        assertTrue(KA.needsSignIn(old))
+        // Offline: nothing is signed out.
+        val offline = web(SessionKeepAlive.Answer(null, null, false, problem = "no internet", offline = true))()
+        assertFalse(KA.needsSignIn(offline))
+        // No connector at all: not renewed.
+        assertTrue(KA.needsSignIn(SessionKeepAlive.renewNow("amazon", null) { error("not official") }))
+        // An official account: its own renewal.
+        assertEquals(KA.RENEWED, SessionKeepAlive.renewNow("tidal@2", { error("no connector call") }) { KA.RENEWED })
+    }
 }

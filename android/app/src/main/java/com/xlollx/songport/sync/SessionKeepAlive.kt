@@ -94,7 +94,10 @@ object SessionKeepAlive {
     fun wanted(connectorIds: List<String>): Boolean = plan(connectorIds).isNotEmpty() || officialPlan(connectorIds).isNotEmpty()
 
     /** A web connector's answer to its keep-alive: an [error] (an older connector: skipped), or what it says of the session. */
-    class Answer(val error: String?, val expiredAt: String?, val expired: Boolean)
+    class Answer(
+        val error: String?, val expiredAt: String?, val expired: Boolean,
+        val renewed: Boolean = false, val connected: Boolean = true, val problem: String? = null, val offline: Boolean = false,
+    )
 
     /**
      * One run: each web account through [bridge] (null when no connector is there), then each official
@@ -141,6 +144,29 @@ object SessionKeepAlive {
      * since when ([expiredAt]), YouTube Music's only that it is gone ([expired]).
      */
     fun expiryOf(expiredAt: String?, expired: Boolean): String? = expiredAt ?: GONE.takeIf { expired }
+
+    /**
+     * "Reconnect" on one account ([connectorId]): its session renewed now, the same renewal as the
+     * keep-alive's. A web connector answers through [bridge] (null: no connector there, or an older
+     * one without the method: not renewed), an official one through [official]. Then
+     * [KeepAlive.needsSignIn] says whether the account is signed out for a new sign-in.
+     */
+    suspend fun renewNow(
+        connectorId: String,
+        bridge: (suspend (Planned) -> Answer?)?,
+        official: suspend () -> KeepAlive,
+    ): KeepAlive {
+        val planned = plan(listOf(connectorId)).firstOrNull() ?: return official()
+        val b = bridge?.let { runCatching { it(planned) }.getOrElse { e -> return KeepAlive.failed(e) } }
+            ?: return KeepAlive(KeepAlive.State.FAILED, "no connector")
+        return when {
+            b.error != null -> KeepAlive(KeepAlive.State.FAILED, b.error.take(200))
+            expiryOf(b.expiredAt, b.expired) != null -> KeepAlive.EXPIRED
+            b.renewed -> KeepAlive.RENEWED
+            !b.connected -> KeepAlive.NOT_SIGNED_IN
+            else -> KeepAlive(KeepAlive.State.FAILED, b.problem, offline = b.offline)
+        }
+    }
 
     // ------------------------------------------------------------------ "sign in again", once per expiry
 
@@ -238,6 +264,14 @@ object SessionKeepAlive {
         }
     }
 
+    /** A connector's keep-alive answer, as [run] and [renewNow] read it. */
+    fun answerOf(b: Bundle): Answer = Answer(
+        b.getString("error"), b.getString("expiredAt"), b.getBoolean("expired", false),
+        renewed = b.getBoolean("renewed", false), connected = b.getBoolean("connected", true),
+        problem = b.getString("problem"),
+        offline = com.xlollx.songport.net.NetError.messageKind(b.getString("problem")) != com.xlollx.songport.net.NetError.Kind.NONE,
+    )
+
     /** The person signs in again, or signs out: the notification goes, and the next expiry is told. */
     fun noticeSignIn(ctx: Context, connectorId: String) {
         runCatching { if (forgetTold(Prefs(ctx), connectorId)) Notifications.cancelSignInAgain(ctx, connectorId) }
@@ -252,7 +286,7 @@ class KeepAliveWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(
         val env = ctx.env
         val bridge: (suspend (SessionKeepAlive.Planned) -> SessionKeepAlive.Answer?)? = if (!BridgePlugin.installed(env)) null else { p ->
             val b = withContext(Dispatchers.IO) { BridgePlugin.call(env, p.target.method, null, null, p.slot) }
-            b?.let { SessionKeepAlive.Answer(it.getString("error"), it.getString("expiredAt"), it.getBoolean("expired", false)) }
+            b?.let { SessionKeepAlive.answerOf(it) }
         }
         // The official sign-in itself only: a web connector of the same service runs through the connector above.
         val official: suspend (String) -> Pair<String, KeepAlive>? = { id ->
