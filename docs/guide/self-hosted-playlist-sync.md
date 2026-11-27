@@ -1,4 +1,5 @@
 ---
+bridge: false
 title: Self-hosted playlist sync for Navidrome, Jellyfin and Plex
 description: Keep your Navidrome, Jellyfin or Plex playlists in sync with Spotify, Apple Music, YouTube Music, TIDAL and Deezer, self-hosted with Docker or on your own computer. Free and open source, no account.
 ---

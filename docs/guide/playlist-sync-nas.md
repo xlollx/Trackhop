@@ -1,4 +1,5 @@
 ---
+bridge: false
 title: Playlist sync on a NAS or home server (Synology, Unraid, TrueNAS, Raspberry Pi)
 description: Run Trackhop with Docker on a Synology, Unraid, TrueNAS or Raspberry Pi and keep playlists in sync between Spotify, YouTube Music, TIDAL, Navidrome, Jellyfin and Plex around the clock. Free and open source.
 ---

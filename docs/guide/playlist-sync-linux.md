@@ -1,4 +1,5 @@
 ---
+bridge: false
 title: Playlist sync for Linux
 description: Keep playlists in sync between Spotify, YouTube, TIDAL, Navidrome, Jellyfin and Plex on Linux with Trackhop Desktop (.deb, Flatpak, snap, tar.gz) or Docker. Free, open source, no account.
 ---

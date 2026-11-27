@@ -1,3 +1,6 @@
+---
+bridge: false
+---
 # Trackhop Desktop (Windows, macOS, Linux)
 
 > Out of beta since 0.8.1. Keep a copy of the data folder (or save the set-up from *Tools › Backup &

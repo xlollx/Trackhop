@@ -1,4 +1,5 @@
 ---
+bridge: false
 title: Playlist sync for Mac
 description: Keep playlists in sync between Spotify, YouTube, TIDAL, Navidrome, Jellyfin and Plex on macOS (Apple silicon and Intel) with Trackhop Desktop. Free, open source, no account. Install with Homebrew or a .dmg.
 ---

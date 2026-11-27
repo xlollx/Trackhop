@@ -1,4 +1,5 @@
 ---
+bridge: false
 title: Help add a music service from your country
 description: Trackhop's developer cannot sign in to services that only work in some countries. How to record what the service's website does, safely, and send it so the service can be added.
 i18n: help-add

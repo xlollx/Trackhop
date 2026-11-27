@@ -1,0 +1,62 @@
+# Card shown at the top of the guide pages (below the title): the Bridge plugin for the store
+# versions of the Android app. Pages for Desktop, Docker, servers and iPhone set `bridge: false`.
+en:
+  title: 'Installed Trackhop from Google Play or AppGallery?'
+  text: 'Add <b>Trackhop Bridge</b>: YouTube Music, Amazon Music, SoundCloud, LiveOne, Anghami, Spotify, Apple Music and Deezer without developer keys, songs from TikTok videos and more.'
+  note: 'The GitHub and F-Droid versions already have all of it.'
+  which: 'Which Trackhop do I have?'
+it:
+  title: 'Hai installato Trackhop da Google Play o AppGallery?'
+  text: 'Aggiungi <b>Trackhop Bridge</b>: YouTube Music, Amazon Music, SoundCloud, LiveOne, Anghami, Spotify, Apple Music e Deezer senza chiavi da sviluppatore, le canzoni dei video TikTok e altro.'
+  note: 'Le versioni GitHub e F-Droid hanno già tutto.'
+  which: 'Quale Trackhop ho?'
+es:
+  title: '¿Instalaste Trackhop desde Google Play o AppGallery?'
+  text: 'Añade <b>Trackhop Bridge</b>: YouTube Music, Amazon Music, SoundCloud, LiveOne, Anghami, Spotify, Apple Music y Deezer sin claves de desarrollador, las canciones de los vídeos de TikTok y más.'
+  note: 'Las versiones de GitHub y F-Droid ya lo incluyen todo.'
+  which: '¿Qué Trackhop tengo?'
+pt:
+  title: 'Instalou o Trackhop pelo Google Play ou AppGallery?'
+  text: 'Adicione o <b>Trackhop Bridge</b>: YouTube Music, Amazon Music, SoundCloud, LiveOne, Anghami, Spotify, Apple Music e Deezer sem chaves de desenvolvedor, as músicas dos vídeos do TikTok e mais.'
+  note: 'As versões do GitHub e do F-Droid já têm tudo.'
+  which: 'Qual Trackhop eu tenho?'
+fr:
+  title: 'Trackhop installé depuis Google Play ou AppGallery ?'
+  text: 'Ajoutez <b>Trackhop Bridge</b> : YouTube Music, Amazon Music, SoundCloud, LiveOne, Anghami, Spotify, Apple Music et Deezer sans clés de développeur, les chansons des vidéos TikTok et plus encore.'
+  note: 'Les versions GitHub et F-Droid ont déjà tout.'
+  which: 'Quel Trackhop ai-je ?'
+de:
+  title: 'Trackhop aus Google Play oder AppGallery installiert?'
+  text: 'Füge <b>Trackhop Bridge</b> hinzu: YouTube Music, Amazon Music, SoundCloud, LiveOne, Anghami, Spotify, Apple Music und Deezer ohne Entwicklerschlüssel, Songs aus TikTok-Videos und mehr.'
+  note: 'Die GitHub- und F-Droid-Versionen haben schon alles.'
+  which: 'Welches Trackhop habe ich?'
+pl:
+  title: 'Trackhop zainstalowany z Google Play lub AppGallery?'
+  text: 'Dodaj <b>Trackhop Bridge</b>: YouTube Music, Amazon Music, SoundCloud, LiveOne, Anghami, Spotify, Apple Music i Deezer bez kluczy deweloperskich, utwory z filmów TikTok i więcej.'
+  note: 'Wersje z GitHuba i F-Droid mają to wszystko wbudowane.'
+  which: 'Którą wersję Trackhop mam?'
+ru:
+  title: 'Установили Trackhop из Google Play или AppGallery?'
+  text: 'Добавьте <b>Trackhop Bridge</b>: YouTube Music, Amazon Music, SoundCloud, LiveOne, Anghami, Spotify, Apple Music и Deezer без ключей разработчика, песни из видео TikTok и многое другое.'
+  note: 'В версиях с GitHub и F-Droid всё это уже есть.'
+  which: 'Какой у меня Trackhop?'
+tr:
+  title: 'Trackhop''u Google Play veya AppGallery''den mi kurdun?'
+  text: '<b>Trackhop Bridge</b>''i ekle: geliştirici anahtarı olmadan YouTube Music, Amazon Music, SoundCloud, LiveOne, Anghami, Spotify, Apple Music ve Deezer, TikTok videolarındaki şarkılar ve fazlası.'
+  note: 'GitHub ve F-Droid sürümlerinde bunların hepsi zaten var.'
+  which: 'Hangi Trackhop bende?'
+ja:
+  title: 'Google Play・AppGallery から Trackhop を入れましたか？'
+  text: '<b>Trackhop Bridge</b> を追加すると、YouTube Music、Amazon Music、SoundCloud、LiveOne、Anghami、開発者キーなしの Spotify・Apple Music・Deezer、TikTok 動画の曲などが使えます。'
+  note: 'GitHub 版と F-Droid 版には最初からすべて入っています。'
+  which: 'どの Trackhop を使っていますか？'
+ko:
+  title: 'Google Play 또는 AppGallery에서 Trackhop을 설치했나요?'
+  text: '<b>Trackhop Bridge</b>를 추가하세요: YouTube Music, Amazon Music, SoundCloud, LiveOne, Anghami, 개발자 키 없는 Spotify·Apple Music·Deezer, TikTok 영상 속 노래 등.'
+  note: 'GitHub 및 F-Droid 버전에는 이미 모두 들어 있습니다.'
+  which: '내 Trackhop은 어떤 버전인가요?'
+zh:
+  title: '从 Google Play 或 AppGallery 安装的 Trackhop？'
+  text: '添加 <b>Trackhop Bridge</b>：YouTube Music、Amazon Music、SoundCloud、LiveOne、Anghami，无需开发者密钥的 Spotify、Apple Music 和 Deezer，TikTok 视频里的歌曲等。'
+  note: 'GitHub 版和 F-Droid 版已全部内置。'
+  which: '我用的是哪个 Trackhop？'

@@ -1,0 +1,5 @@
+{%- assign bc = site.data.bridge_card[page.lang] | default: site.data.bridge_card.en -%}
+<aside class="guide-bridge">
+  <a class="gb-main" href="https://github.com/xlollx/Trackhop-Bridge/releases/latest"><img src="{{ '/assets/bridge-icon.png' | relative_url }}" alt="" width="40" height="40"><span class="gb-text"><strong>{{ bc.title }}</strong><br>{{ bc.text }}</span><span class="arrow" aria-hidden="true">›</span></a>
+  <p class="gb-note">{{ bc.note }} <a href="{{ '/guide/versions' | relative_url }}">{{ bc.which }}</a></p>
+</aside>

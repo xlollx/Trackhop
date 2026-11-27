@@ -1,4 +1,5 @@
 ---
+bridge: false
 title: Mopidy playlist sync
 description: Keep the playlists of your Mopidy server in sync with Spotify, YouTube Music, Apple Music, TIDAL, Deezer, Navidrome or Jellyfin, with Trackhop. Free and open source, no account.
 ---

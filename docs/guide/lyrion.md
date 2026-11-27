@@ -1,4 +1,5 @@
 ---
+bridge: false
 title: Lyrion Music Server playlist sync (Logitech Media Server, Squeezebox)
 description: Keep the playlists of your Lyrion Music Server (the former Logitech Media Server) in sync with Spotify, YouTube Music, Apple Music, TIDAL, Deezer, Navidrome or Jellyfin, with Trackhop. Free and open source, no account.
 ---
