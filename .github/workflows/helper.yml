@@ -1,0 +1,84 @@
+# Helper: simple project work done by a free model (GitHub Models, then OpenRouter's free models), so
+# the assistant that maintains Trackhop spends fewer tokens. Started by hand or through the API on a
+# working branch (never main): "translate" fills the other 11 app languages for the given string keys
+# (placeholders checked by code), "ask" writes a model's answer to a file. The result is committed to
+# the same branch, where it is reviewed and built like any other change.
+name: Helper
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'translate (string keys → 11 languages) or ask (task → file)'
+        type: choice
+        options: [translate, ask]
+        default: translate
+      branch:
+        description: 'Working branch to read and commit to (not main)'
+        required: true
+      keys:
+        description: 'translate: string keys of values/strings.xml, comma or space separated'
+        default: ''
+      langs:
+        description: 'translate: languages (empty = all 11: it es pt-rBR fr de pl ru tr ja ko zh)'
+        default: ''
+      glossary:
+        description: 'translate: extra terms to keep or how to say them (optional)'
+        default: ''
+      task:
+        description: 'ask: what to do'
+        default: ''
+      files:
+        description: 'ask: repository files to give the model, comma separated'
+        default: ''
+      out_path:
+        description: 'ask: file to write the answer to'
+        default: 'helper-out.md'
+      model:
+        description: 'Model id (optional; default: GitHub Models gpt-4.1-mini, then OpenRouter free)'
+        default: ''
+
+permissions:
+  contents: write
+  models: read
+
+concurrency:
+  group: helper-${{ inputs.branch }}
+  cancel-in-progress: false
+
+jobs:
+  helper:
+    if: inputs.branch != 'main' && inputs.branch != 'master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+      - name: Run
+        env:
+          MODE: ${{ inputs.mode }}
+          KEYS: ${{ inputs.keys }}
+          LANGS: ${{ inputs.langs }}
+          GLOSSARY: ${{ inputs.glossary }}
+          TASK: ${{ inputs.task }}
+          FILES: ${{ inputs.files }}
+          OUT_PATH: ${{ inputs.out_path }}
+          MODEL: ${{ inputs.model }}
+          GITHUB_TOKEN: ${{ github.token }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: python3 .github/scripts/helper.py
+      - name: Commit
+        env:
+          BRANCH: ${{ inputs.branch }}
+          MODE: ${{ inputs.mode }}
+          OUT: ${{ inputs.out_path }}
+        run: |
+          git config user.name xlollx
+          git config user.email 72248161+xlollx@users.noreply.github.com
+          git add -A android/app/src/main/res
+          if [ "$MODE" = ask ] && [ -f "$OUT" ]; then git add -- "$OUT"; fi
+          if git diff --cached --quiet; then echo "Nothing changed"; exit 0; fi
+          if [ "$MODE" = translate ]; then msg="Translations of the new strings (helper)"; else msg="Helper answer"; fi
+          git commit -q -m "$msg"
+          git push -q origin "HEAD:$BRANCH"
