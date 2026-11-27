@@ -26,7 +26,8 @@ Android 8.0 o successivo. Sul computer: [Trackhop Desktop](desktop) (Windows, ma
   dentro l'app, come in un browser. Niente da creare. Non è un'interfaccia ufficiale, quindi può smettere
   di funzionare se il sito cambia (l'app lo dice prima del primo accesso).
 - **Via ufficiale** (Spotify, YouTube Music, TIDAL, Apple Music): crei una chiave sviluppatore
-  gratuita a tuo nome; l'app ti guida passo per passo, in circa due minuti.
+  gratuita a tuo nome; l'app ti guida passo per passo, in pochi minuti (per YouTube ogni clic e ogni
+  errore di Google sono anche in [questa guida, in inglese](youtube-google-key)).
   Deezer non accetta più nuove app che usano la sua API: la sua via ufficiale resta solo per chi ha
   già un App ID suo.
 

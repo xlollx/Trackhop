@@ -718,7 +718,8 @@ shared key.
 - YouTube Music: either the optional Bridge app (no key at all; its repository explains what it is
   and what it risks) or, on the "YouTube Music (Google API)" card, a *Desktop* OAuth client from a
   Google Cloud project with YouTube Data API v3 enabled (client ID and secret); the app then uses
-  the loopback flow.
+  the loopback flow. Every click, the "add yourself as a test user" step and every Google error are in
+  [YouTube Music with your own Google key](https://trackhop.org/guide/youtube-google-key).
 - TIDAL: a client ID from developer.tidal.com.
 - Deezer: an application ID from developers.deezer.com, for those who already have one: Deezer
   stopped registering new apps in 2025 ([Deezer community](https://en.deezercommunity.com/features-feedback-44/api-auth-impossible-80857)),

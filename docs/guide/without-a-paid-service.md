@@ -16,7 +16,7 @@ limits of its free plan. What Trackhop does is put the right songs there and kee
 
 - **YouTube Music** (free account): playlists and liked songs, with ads. In the GitHub/F-Droid build,
   Desktop and Docker you sign in with your Google account; in the store builds through the official
-  Google route with your own key.
+  Google route with your own key ([how to make it](youtube-google-key)).
 - **Spotify Free**: playlists and liked songs, with ads. Writing to Spotify through its official
   route needs a developer key, which Spotify gives to Premium accounts only; the quick sign-in of the
   GitHub/F-Droid build, Desktop and Docker works with a free account.

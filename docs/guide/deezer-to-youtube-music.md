@@ -20,8 +20,8 @@ your playlist plays the album version and not a video with a long intro.
 
 1. **Connect Deezer** (*Accounts → Add connector → Deezer*) and sign in on Deezer's page.
 2. **Connect YouTube Music**: the quick sign-in uses your Google account and has no daily limit;
-   the official route uses your own Google API key, whose daily quota Trackhop shows and spreads
-   over several days for a big playlist.
+   the official route uses your own Google API key ([how to make it](youtube-google-key)), whose
+   daily quota Trackhop shows and spreads over several days for a big playlist.
 3. *Syncs → New sync*: source *Deezer* and a playlist, or *Liked songs* for your **Favourite
    tracks**; target *YouTube
    Music* and *create a new playlist*.

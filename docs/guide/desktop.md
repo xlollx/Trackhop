@@ -114,7 +114,8 @@ Music and Anghami links) use the installer or the ZIP.
 
 **Your own key.** Register this redirect with the service: `http://127.0.0.1:8642/callback`
 (Spotify and Google both accept plain `http` for `127.0.0.1`). The service's page in Trackhop
-shows the exact address and the steps.
+shows the exact address and the steps; for YouTube, every click and every Google error are in
+[YouTube Music with your own Google key](youtube-google-key).
 
 ## Notifications
 

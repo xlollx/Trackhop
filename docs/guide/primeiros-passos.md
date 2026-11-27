@@ -26,7 +26,8 @@ Android 8.0 ou mais recente. No computador: [Trackhop Desktop](desktop) (Windows
   serviço, dentro do app, como num navegador. Nada para criar. Não é uma interface oficial, então pode
   parar de funcionar se o site mudar (o app avisa antes do primeiro login).
 - **Conexão oficial** (Spotify, YouTube Music, TIDAL, Deezer, Apple Music): você cria uma chave de
-  desenvolvedor gratuita no seu nome; o app guia você passo a passo, em uns dois minutos.
+  desenvolvedor gratuita no seu nome; o app guia você passo a passo, em poucos minutos (para o YouTube,
+  cada clique e cada erro do Google estão também [neste guia, em inglês](youtube-google-key)).
 
 Servidores pessoais (Navidrome/Subsonic, Jellyfin, Emby, Plex) pedem só o endereço e o seu login. Arquivos
 não pedem nada. Depois de conectar, *⋮ → Testar a conexão* verifica login, playlists e busca de uma vez.

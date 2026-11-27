@@ -22,6 +22,7 @@ description (architecture, matching, services and their limits) stays in the
 - [Favourites, labels and tags](organise-syncs): star, colour, tag and arrange your syncs; card sizes, tiles, tablets.
 - [Notifications on Telegram, ntfy, Discord and more](notification-channels): a message when a sync changes something or fails.
 - [Troubleshooting](troubleshooting): the errors people actually meet, and what to do about each.
+- [YouTube Music with your own Google key](youtube-google-key): the free key for the official YouTube route, every click, and every Google error fixed.
 - [Is it safe?](security): every download checked on VirusTotal, the files' SHA-256 and how Trackhop is built.
 - [Reporting a problem](reporting-a-problem): the diagnostic report, and what makes a report useful.
 - [Help add a service from your country](help-add-a-service): Yandex Music, NetEase, Pandora and other services the developer cannot sign in to; how to record the website safely and what to send ([Русский](help-add-a-service-ru), [中文](help-add-a-service-zh)).

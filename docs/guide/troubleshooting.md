@@ -42,6 +42,12 @@ connector needs an update. See [Amazon Music capture](amazon-music-capture) and 
 waits the time it is told and resumes. A first sync of a thousand tracks can take an hour or two;
 later runs only search what is new.
 
+**Official route: "Access blocked: Trackhop has not completed the Google verification process".**
+With your own Google key, your Gmail must be listed as a **test user** of the key (Google Auth
+Platform › Audience › Test users), and you must sign in with that same account. This and every other
+Google error (redirect_uri_mismatch, invalid_client, signed out every week…), with the fix:
+[YouTube Music with your own Google key](youtube-google-key).
+
 **Official route: "quota exceeded".** The YouTube Data API allows about 100 searches a day per key.
 Use the quick route for big playlists.
 

@@ -741,11 +741,13 @@
         <item>可选：在“User Management”中最多可再添加 5 个 Spotify 账号（姓名和电子邮件），让他们也能使用你的密钥，例如家庭成员。</item>
     </string-array>
     <string-array name="setup_steps_youtube">
-        <item>使用你的 Google 账号登录 console.cloud.google.com 并创建一个项目。名称随意，例如“Trackhop”。等待项目创建完成的通知，然后选中该项目。</item>
-        <item>启用 YouTube Data API v3：链接会在库中打开它的页面，点按“启用”（Enable）。</item>
-        <item>Google Auth Platform →“概览”（Overview），点按“开始”（Get started）：应用名称填“Trackhop”，支持邮箱填你的电子邮件，受众群体选“外部”（External），联系邮箱填你的电子邮件。接受并点按“创建”（Create）。</item>
-        <item>Google Auth Platform →“受众群体”（Audience）：在“测试用户”（Test users）下点按“添加用户”（Add users），添加你自己的 Gmail 地址，然后保存。没有这一步，Google 会以“访问被阻止”拒绝登录。</item>
-        <item>Google Auth Platform →“客户端”（Clients）→“创建客户端”（Create client）：应用类型选“桌面应用”（Desktop app），名称随意。将 Client ID 和 Client secret 复制到这里。无需注册其他内容：应用会在 127.0.0.1 上接收登录。</item>
+        <item>用你要同步其 YouTube 播放列表的 Google 账号（个人 Gmail；学校或工作账号可能被管理员阻止）登录 console.cloud.google.com。如被要求，接受条款。创建一个项目，名称随意（例如“Trackhop”），等待通知后点按“选择项目”（Select project），并在顶部栏确认项目名称：后续所有步骤都在这个项目里完成。</item>
+        <item>启用 YouTube Data API v3：链接会打开它的页面。确认顶部显示的是你的项目，点按“启用”（Enable），等待页面变化。</item>
+        <item>Google Auth Platform →“概览”（Overview），点按“开始”（Get started）：应用名称“Trackhop”，支持邮箱填你的 Gmail，“下一步”；受众群体“外部”（External），“下一步”；联系邮箱填你的 Gmail，“下一步”；勾选同意，“继续”，“创建”。</item>
+        <item>不要跳过这一步。Google Auth Platform →“受众群体”（Audience）：在“测试用户”（Test users）下点按“添加用户”（Add users），填入你登录时要用的同一个 Gmail，点按“保存”。缺少这一步，Google 会显示“已拒绝访问：Trackhop 未完成 Google 验证流程”。</item>
+        <item>Google Auth Platform →“客户端”（Clients）→“创建客户端”（Create client）：应用类型选“桌面应用”（Desktop app，不是 Android，也不是 Web），名称随意，“创建”。立即把 Client ID 和 Client secret 复制到这里，不要带空格：secret 只显示这一次（丢了？打开该客户端，点按“添加密钥”）。</item>
+        <item>点按登录并选择同一个 Gmail。看到“Google 尚未验证此应用”时点按“继续”（这是你自己的应用），然后允许访问你的 YouTube 账号。有多个频道时，选择有你播放列表的那个。遇到其他错误：链接会打开列出每个错误及解决方法的指南。</item>
+        <item>建议：应用处于“测试中”（In testing）时，Google 每 7 天会让你退出登录。要保持登录：“受众群体”，“发布应用”（Publish app），“确认”，然后在这里再登录一次。除非超过 100 人使用，Google 不会审核它。</item>
     </string-array>
     <string-array name="setup_steps_tidal">
         <item>使用你的 TIDAL 账号登录 developer.tidal.com。</item>
