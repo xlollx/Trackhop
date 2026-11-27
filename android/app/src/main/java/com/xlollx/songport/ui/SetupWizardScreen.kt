@@ -17,6 +17,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.FileOpen
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -85,6 +92,22 @@ fun SetupWizardScreen(provider: MusicProvider, onUseRoute: (MusicProvider) -> Un
         onClose = onClose,
     )
     ScreenBackHandler(leave)
+    // The Google client file: null until one is picked, then whether it was read.
+    var imported by remember { mutableStateOf<Boolean?>(null) }
+    val scope = rememberCoroutineScope()
+    val pickClientFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) scope.launch {
+            val client = try {
+                withContext(Dispatchers.IO) { ctx.contentResolver.openInputStream(uri)?.use { String(it.readBytes(), Charsets.UTF_8) } }?.let { GoogleClientFile.parse(it) }
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Exception) { null }
+            if (client != null) {
+                clientId = client.id
+                if (client.secret.isNotEmpty()) secret = client.secret
+                error = null
+            }
+            imported = client != null
+        }
+    }
 
     fun save(): Boolean {
         val id = clientId.trim()
@@ -125,6 +148,10 @@ fun SetupWizardScreen(provider: MusicProvider, onUseRoute: (MusicProvider) -> Un
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(stringResource(guide.whyRes), style = MaterialTheme.typography.bodyMedium)
+            // Store builds without a plugin: other versions reach this service without a key; said once, with the site's page.
+            if (route == null && OfficialOnly.keylessElsewhere(provider.serviceId)) {
+                OfficialOnlyNotice(stringResource(R.string.official_only_key, provider.displayName))
+            }
 
             OutlinedButton(
                 onClick = { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(guide.dashboardUrl))) },
@@ -173,6 +200,22 @@ fun SetupWizardScreen(provider: MusicProvider, onUseRoute: (MusicProvider) -> Un
                             }
                         }
                     }
+                }
+            }
+
+            // Google: the client file from "Download JSON" fills both fields, nothing to copy by hand.
+            if (provider.serviceId == YouTubeProvider.SERVICE) {
+                OutlinedButton(onClick = { pickClientFile.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }, modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.Filled.FileOpen, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.setup_import_google_file))
+                }
+                imported?.let { ok ->
+                    Text(
+                        stringResource(if (ok) R.string.setup_import_google_ok else R.string.setup_import_google_bad),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (ok) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                    )
                 }
             }
 

@@ -745,7 +745,7 @@
         <item>启用 YouTube Data API v3：链接会打开它的页面。确认顶部显示的是你的项目，点按“启用”（Enable），等待页面变化。</item>
         <item>Google Auth Platform →“概览”（Overview），点按“开始”（Get started）：应用名称“Trackhop”，支持邮箱填你的 Gmail，“下一步”；受众群体“外部”（External），“下一步”；联系邮箱填你的 Gmail，“下一步”；勾选同意，“继续”，“创建”。</item>
         <item>不要跳过这一步。Google Auth Platform →“受众群体”（Audience）：在“测试用户”（Test users）下点按“添加用户”（Add users），填入你登录时要用的同一个 Gmail，点按“保存”。缺少这一步，Google 会显示“已拒绝访问：Trackhop 未完成 Google 验证流程”。</item>
-        <item>Google Auth Platform →“客户端”（Clients）→“创建客户端”（Create client）：应用类型选“桌面应用”（Desktop app，不是 Android，也不是 Web），名称随意，“创建”。立即把 Client ID 和 Client secret 复制到这里，不要带空格：secret 只显示这一次（丢了？打开该客户端，点按“添加密钥”）。</item>
+        <item>Google Auth Platform →“客户端”（Clients）→“创建客户端”（Create client）：应用类型选“桌面应用”（Desktop app，不是 Android，也不是 Web），名称随意，“创建”。立即把 Client ID 和 Client secret 复制到这里，不要带空格：secret 只显示这一次（丢了？打开该客户端，点按“添加密钥”）。 更简单：在同一窗口点按“下载 JSON”，然后使用下方的“导入客户端文件 (JSON)”。</item>
         <item>点按登录并选择同一个 Gmail。看到“Google 尚未验证此应用”时点按“继续”（这是你自己的应用），然后允许访问你的 YouTube 账号。有多个频道时，选择有你播放列表的那个。遇到其他错误：链接会打开列出每个错误及解决方法的指南。</item>
         <item>建议：应用处于“测试中”（In testing）时，Google 每 7 天会让你退出登录。要保持登录：“受众群体”，“发布应用”（Publish app），“确认”，然后在这里再登录一次。除非超过 100 人使用，Google 不会审核它。</item>
     </string-array>
@@ -3609,4 +3609,10 @@
     <string name="reconnect_renewed">%1$s：会话已续期，无需其他操作。</string>
     <string name="reconnect_sign_in">%1$s：无法续期会话，请重新登录。</string>
     <string name="reconnect_offline">%1$s：无法连接到该服务，未做任何更改。请稍后再试。</string>
+    <string name="official_only_intro">此版本仅通过各服务的官方 API 连接。Trackhop 的其他版本支持更多服务。</string>
+    <string name="official_only_key">设置密钥太麻烦？Trackhop 的其他版本无需开发者密钥即可连接 %1$s。</string>
+    <string name="official_only_link">哪个版本适合你？</string>
+    <string name="setup_import_google_file">导入客户端文件 (JSON)</string>
+    <string name="setup_import_google_ok">已从文件填入客户端 ID 和密钥。</string>
+    <string name="setup_import_google_bad">这不是 Google 客户端文件。请在 Google Cloud 中打开你的客户端并点按下载 JSON。</string>
 </resources>

@@ -755,7 +755,7 @@
         <item>Aktiviere die YouTube Data API v3: Der Link öffnet ihre Seite. Prüfe, dass oben dein Projekt steht, tippe auf \"Aktivieren\" und warte, bis sich die Seite ändert.</item>
         <item>Google Auth Platform, \"Übersicht\", tippe auf \"Jetzt starten\": App-Name \"Trackhop\", dein Gmail als Support-Adresse, \"Weiter\"; Zielgruppe \"Extern\", \"Weiter\"; dein Gmail als Kontakt, \"Weiter\"; Zustimmung ankreuzen, \"Fortfahren\", \"Erstellen\".</item>
         <item>Diesen Schritt nicht überspringen. Google Auth Platform, \"Zielgruppe\": Tippe unter \"Testnutzer\" auf \"Nutzer hinzufügen\", gib dasselbe Gmail ein, mit dem du dich anmeldest, und tippe auf \"Speichern\". Ohne ihn antwortet Google mit \"Zugriff blockiert: Trackhop hat den Bestätigungsprozess von Google nicht abgeschlossen\".</item>
-        <item>Google Auth Platform, \"Clients\", \"Client erstellen\": Anwendungstyp \"Desktop-App\" (nicht Android, nicht Web), beliebiger Name, \"Erstellen\". Kopiere Client ID und Client secret sofort hierher, ohne Leerzeichen: Google zeigt das Secret nur dieses eine Mal (verloren? Client öffnen und \"Secret hinzufügen\" tippen).</item>
+        <item>Google Auth Platform, \"Clients\", \"Client erstellen\": Anwendungstyp \"Desktop-App\" (nicht Android, nicht Web), beliebiger Name, \"Erstellen\". Kopiere Client ID und Client secret sofort hierher, ohne Leerzeichen: Google zeigt das Secret nur dieses eine Mal (verloren? Client öffnen und \"Secret hinzufügen\" tippen). Einfacher: Im selben Fenster auf \"JSON herunterladen\" tippen und unten \"Client-Datei importieren\" nutzen.</item>
         <item>Tippe auf Anmelden und wähle dasselbe Gmail. Bei \"Google hat diese App nicht überprüft\" tippe auf \"Weiter\" (es ist deine eigene App) und erlaube den Zugriff auf dein YouTube-Konto. Bei mehreren Kanälen wähle den mit deinen Playlists. Jeder andere Fehler: Der Link öffnet die Anleitung mit allen Fehlern und ihrer Lösung.</item>
         <item>Empfohlen: Solange die App \"Im Test\" ist, meldet Google dich alle 7 Tage ab. Um angemeldet zu bleiben: \"Zielgruppe\", \"App veröffentlichen\", \"Bestätigen\", dann hier noch einmal anmelden. Google prüft sie nur, wenn mehr als 100 Personen sie nutzen.</item>
     </string-array>
@@ -3732,4 +3732,10 @@
     <string name="reconnect_renewed">%1$s: Sitzung erneuert, sonst ist nichts zu tun.</string>
     <string name="reconnect_sign_in">%1$s: Die Sitzung konnte nicht erneuert werden. Melde dich erneut an.</string>
     <string name="reconnect_offline">%1$s: Der Dienst war nicht erreichbar, nichts wurde geändert. Versuche es später noch einmal.</string>
+    <string name="official_only_intro">Diese Version verbindet sich nur über die offiziellen APIs mit den Diensten. Andere Trackhop-Versionen unterstützen mehr.</string>
+    <string name="official_only_key">Einen Schlüssel einzurichten ist zu viel? Andere Trackhop-Versionen verbinden sich ohne Entwicklerschlüssel mit %1$s.</string>
+    <string name="official_only_link">Welche Version passt zu dir?</string>
+    <string name="setup_import_google_file">Client-Datei importieren (JSON)</string>
+    <string name="setup_import_google_ok">Client-ID und Secret aus der Datei übernommen.</string>
+    <string name="setup_import_google_bad">Das ist keine Google-Client-Datei. Öffne in Google Cloud deinen Client und tippe auf JSON herunterladen.</string>
 </resources>

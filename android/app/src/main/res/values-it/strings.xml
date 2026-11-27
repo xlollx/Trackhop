@@ -755,7 +755,7 @@
         <item>Abilita la YouTube Data API v3: il link apre la sua pagina. Controlla che in alto ci sia il tuo progetto, premi \"Abilita\" e aspetta che la pagina cambi.</item>
         <item>Google Auth Platform, \"Panoramica\", premi \"Inizia\": nome app \"Trackhop\", il tuo Gmail come assistenza, \"Avanti\"; pubblico \"Esterno\", \"Avanti\"; il tuo Gmail come contatto, \"Avanti\"; spunta l\'accordo, \"Continua\", \"Crea\".</item>
         <item>Non saltare questo passo. Google Auth Platform, \"Pubblico\": sotto \"Utenti di test\" premi \"Aggiungi utenti\", scrivi lo stesso Gmail con cui accederai e premi \"Salva\". Senza, Google risponde \"Accesso bloccato: Trackhop non ha completato la procedura di verifica di Google\".</item>
-        <item>Google Auth Platform, \"Client\", \"Crea client\": tipo di applicazione \"App desktop\" (non Android, non Web), nome libero, \"Crea\". Copia subito qui ID client e Client secret, senza spazi: Google mostra il secret solo questa volta (perso? apri il client e premi \"Aggiungi secret\").</item>
+        <item>Google Auth Platform, \"Client\", \"Crea client\": tipo di applicazione \"App desktop\" (non Android, non Web), nome libero, \"Crea\". Copia subito qui ID client e Client secret, senza spazi: Google mostra il secret solo questa volta (perso? apri il client e premi \"Aggiungi secret\"). Più facile: nella stessa finestra premi \"Scarica JSON\" e usa \"Importa il file del client\" qui sotto.</item>
         <item>Premi Accedi e scegli lo stesso Gmail. Su \"Google non ha verificato questa app\" premi \"Continua\" (è la tua app), poi consenti l\'accesso al tuo account YouTube. Se hai più canali, scegli quello con le tue playlist. Qualsiasi altro errore: il link apre la guida con ogni errore e come risolverlo.</item>
         <item>Consigliato: finché l\'app è \"In test\", Google ti disconnette ogni 7 giorni. Per restare collegato: \"Pubblico\", \"Pubblica app\", \"Conferma\", poi accedi qui ancora una volta. Google non la esamina se non la usano più di 100 persone.</item>
     </string-array>
@@ -3732,4 +3732,10 @@
     <string name="reconnect_renewed">%1$s: sessione rinnovata, nient\'altro da fare.</string>
     <string name="reconnect_sign_in">%1$s: non è stato possibile rinnovare la sessione. Accedi di nuovo.</string>
     <string name="reconnect_offline">%1$s: servizio non raggiungibile, non è cambiato nulla. Riprova più tardi.</string>
+    <string name="official_only_intro">Questa versione si collega ai servizi solo con le loro API ufficiali. Altre versioni di Trackhop ne supportano di più.</string>
+    <string name="official_only_key">Configurare una chiave è troppo? Altre versioni di Trackhop si collegano a %1$s senza chiave da sviluppatore.</string>
+    <string name="official_only_link">Quale versione fa per te?</string>
+    <string name="setup_import_google_file">Importa il file del client (JSON)</string>
+    <string name="setup_import_google_ok">Client ID e secret compilati dal file.</string>
+    <string name="setup_import_google_bad">Questo non è un file di client Google. In Google Cloud apri il tuo client e premi Scarica JSON.</string>
 </resources>
