@@ -3,7 +3,7 @@
  "version": "2.2.5",
  "tag": "server-v2.2.5",
  "release": "https://github.com/xlollx/Trackhop/releases/tag/server-v2.2.5",
- "checked": "2026-11-26T19:14:39Z",
+ "checked": "2026-11-27T18:16:25Z",
  "clean": false,
  "files": [
   {
@@ -20,7 +20,7 @@
    "sha256": "21ee0007554c44bc71b3adaf4d54acc5ffbe53fbcbf35e7c83fb7f4829f21adc",
    "malicious": 1,
    "suspicious": 0,
-   "engines": 56,
+   "engines": 48,
    "flagged_by": {
     "Panda": "Exploit/WinampPLS"
    },
@@ -49,7 +49,7 @@
    "sha256": "41c2e8c4d34961d1df5b1d777c19dee7d465b866429ba5bdc54f2cd76a0ab9b1",
    "malicious": 1,
    "suspicious": 0,
-   "engines": 54,
+   "engines": 53,
    "flagged_by": {
     "Panda": "Exploit/WinampPLS"
    },
@@ -58,23 +58,19 @@
   {
    "name": "Trackhop-Desktop-v2.2.5-macos-arm64.dmg",
    "sha256": "1001d75fae656a80013aa16a1201552e9a2d6b21e5d90f9ca7c7c97e3d346632",
-   "malicious": 1,
+   "malicious": 0,
    "suspicious": 0,
-   "engines": 57,
-   "flagged_by": {
-    "Microsoft": "Trojan:Script/Wacatac.B!ml"
-   },
+   "engines": 47,
+   "flagged_by": {},
    "link": "https://www.virustotal.com/gui/file/1001d75fae656a80013aa16a1201552e9a2d6b21e5d90f9ca7c7c97e3d346632"
   },
   {
    "name": "Trackhop-Desktop-v2.2.5-macos-x64.dmg",
    "sha256": "b1740609a8aa3461e02be213bbd3374a73de08f199251b269d4d1a9f7ed55005",
-   "malicious": 1,
+   "malicious": 0,
    "suspicious": 0,
-   "engines": 56,
-   "flagged_by": {
-    "Microsoft": "Trojan:Script/Wacatac.B!ml"
-   },
+   "engines": 59,
+   "flagged_by": {},
    "link": "https://www.virustotal.com/gui/file/b1740609a8aa3461e02be213bbd3374a73de08f199251b269d4d1a9f7ed55005"
   },
   {
@@ -91,7 +87,7 @@
    "sha256": "241a1a1c61288de01e2e7b0173f3610b1d8e2c02fd36fd92d3ca0c1fb7b9c104",
    "malicious": 1,
    "suspicious": 0,
-   "engines": 57,
+   "engines": 50,
    "flagged_by": {
     "Panda": "Exploit/WinampPLS"
    },
@@ -102,7 +98,7 @@
    "sha256": "1bd08ba704375b860477a8f103bfc5e33e3bf9179a9aafcd449e84ef98f10d19",
    "malicious": 1,
    "suspicious": 0,
-   "engines": 56,
+   "engines": 59,
    "flagged_by": {
     "Panda": "Exploit/WinampPLS"
    },
