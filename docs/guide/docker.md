@@ -100,7 +100,7 @@ playlist files. Back that folder up and you have backed up Trackhop.
 | Service | On the server | What you need |
 |---|---|---|
 | Spotify | yes | Your own key from developer.spotify.com |
-| YouTube | yes | Your own Google OAuth client (with its secret) |
+| YouTube | yes | Your own Google OAuth client (with its secret): [step by step](youtube-google-key) |
 | TIDAL | yes | Your own key from developer.tidal.com |
 | Deezer | yes (beta) | Your own app, and an `https` address |
 | Navidrome / Subsonic, Jellyfin, Emby (beta), Plex | yes | The server's address and your login |
@@ -208,8 +208,9 @@ the steps and shows the exact redirect address to paste. The rules each service 
   `SONGPORT_URL=http://127.0.0.1:8080` when you sign in from the server itself, or put Trackhop
   behind a reverse proxy with https.
 - **Google (YouTube)**: create a *Web application* OAuth client, add `<SONGPORT_URL>/callback` as an
-  authorized redirect URI, and paste both the client ID and the client secret. Google accepts `http`
-  only for `127.0.0.1` and `localhost`.
+  authorized redirect URI, add your Gmail as a **test user**, and paste both the client ID and the
+  client secret. Google accepts `http` only for `127.0.0.1` and `localhost`. Every click and every
+  error: [YouTube Music with your own Google key](youtube-google-key).
 
 Open the page at the same address as `SONGPORT_URL` (`127.0.0.1`, not `localhost`): the service
 sends you back there after the sign-in. Spotify no longer accepts `localhost` at all.

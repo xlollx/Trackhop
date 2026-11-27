@@ -751,11 +751,13 @@
         <item>Opcional: \"User Management\" permite adicionar até 5 outras contas Spotify (nome e e-mail) que podem usar sua chave, por exemplo familiares.</item>
     </string-array>
     <string-array name="setup_steps_youtube">
-        <item>Entre em console.cloud.google.com com sua conta Google e crie um projeto. Qualquer nome serve, por exemplo \"Trackhop\". Aguarde a notificação de que ele foi criado, depois selecione-o.</item>
-        <item>Ative a YouTube Data API v3: o link abre a página dela na biblioteca, toque em \"Enable\".</item>
-        <item>Google Auth Platform, \"Overview\", toque em \"Get started\": nome do app \"Trackhop\", seu e-mail como endereço de suporte, público \"External\", seu e-mail como contato. Aceite e toque em \"Create\".</item>
-        <item>Google Auth Platform, \"Audience\": em \"Test users\" toque em \"Add users\" e adicione seu próprio endereço Gmail, depois salve. Sem esta etapa o Google recusa o login com \"access blocked\".</item>
-        <item>Google Auth Platform, \"Clients\", \"Create client\": tipo de aplicativo \"Desktop app\", qualquer nome. Copie o Client ID e o Client secret aqui. Nada mais para registrar: o app recebe o login em 127.0.0.1.</item>
+        <item>Entre em console.cloud.google.com com a conta Google cujas playlists do YouTube você vai sincronizar (um Gmail pessoal: contas de escola ou trabalho podem estar bloqueadas). Aceite os termos se pedir. Crie um projeto, qualquer nome (por exemplo \"Trackhop\"), espere a notificação, toque em \"Select project\" e confira o nome na barra superior: todas as próximas etapas são dentro desse projeto.</item>
+        <item>Ative a YouTube Data API v3: o link abre a página dela. Confira se o seu projeto aparece no topo, toque em \"Enable\" e espere a página mudar.</item>
+        <item>Google Auth Platform, \"Overview\", toque em \"Get started\": nome do app \"Trackhop\", seu Gmail como suporte, \"Next\"; público \"External\", \"Next\"; seu Gmail como contato, \"Next\"; marque o acordo, \"Continue\", \"Create\".</item>
+        <item>Não pule esta etapa. Google Auth Platform, \"Audience\": em \"Test users\" toque em \"Add users\", digite o mesmo Gmail com que vai entrar e toque em \"Save\". Sem ela o Google responde \"Access blocked: Trackhop has not completed the Google verification process\".</item>
+        <item>Google Auth Platform, \"Clients\", \"Create client\": tipo de aplicativo \"Desktop app\" (nem Android, nem Web), qualquer nome, \"Create\". Copie já aqui o Client ID e o Client secret, sem espaços: o Google mostra o secret só desta vez (perdeu? abra o client e toque em \"Add secret\").</item>
+        <item>Toque em Entrar e escolha o mesmo Gmail. Em \"Google hasn\'t verified this app\" toque em \"Continue\" (o app é seu) e permita o acesso à sua conta do YouTube. Com vários canais, escolha o das suas playlists. Qualquer outro erro: o link abre o guia com cada erro e a solução.</item>
+        <item>Recomendado: enquanto o app estiver \"In testing\", o Google desconecta você a cada 7 dias. Para continuar conectado: \"Audience\", \"Publish app\", \"Confirm\", e entre aqui mais uma vez. O Google só o analisa se mais de 100 pessoas o usarem.</item>
     </string-array>
     <string-array name="setup_steps_tidal">
         <item>Entre em developer.tidal.com com sua conta TIDAL.</item>

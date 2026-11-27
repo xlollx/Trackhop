@@ -23,8 +23,8 @@ website that sees your playlists.
    Spotify's own page, nothing to create; the official route uses a free developer key in your own
    name and the app walks you through it.
 2. **Connect YouTube Music** the same way. The quick route has no daily limit; the official route
-   (YouTube's API) allows roughly 200 added tracks a day, and a bigger playlist carries on by itself
-   the next day.
+   (YouTube's API, with [your own free Google key](youtube-google-key)) allows roughly 200 added
+   tracks a day, and a bigger playlist carries on by itself the next day.
 3. **Create the sync.** *Syncs → New sync*: source *Spotify*, the playlist (or *Liked songs*);
    target *YouTube Music*, *create a new playlist*. Leave the name empty to keep Spotify's.
 4. **Open the preview.** It shows what will be added before anything changes.

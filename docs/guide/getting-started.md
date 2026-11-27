@@ -30,7 +30,8 @@ Android 8.0 or newer.
   On a Deezer **Family** plan the app asks which profile to use right after the sign-in; change it
   later under *Deezer profile* in the same menu.
 - **Official route** (Spotify, YouTube Music, TIDAL, Apple Music): you create a free developer
-  key in your own name; the app walks you through it in about two minutes, step by step.
+  key in your own name; the app walks you through it in a few minutes, step by step (for YouTube,
+  every click and every Google error are also in [this guide](youtube-google-key)).
   Deezer no longer accepts new apps that use its API: its official route is offered only to those
   who already have an app id of their own.
 

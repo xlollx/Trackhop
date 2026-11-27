@@ -16,7 +16,7 @@ limiti del piano gratuito. Trackhop ci mette le canzoni giuste e le tiene aggior
 
 - **YouTube Music** (account gratuito): playlist e brani che ti piacciono, con pubblicità. Nella
   versione GitHub/F-Droid, su Desktop e Docker accedi con il tuo account Google; nelle versioni degli
-  store con la strada ufficiale di Google e una tua chiave.
+  store con la strada ufficiale di Google e una tua chiave ([come crearla](youtube-google-key), in inglese).
 - **Spotify Free**: playlist e brani che ti piacciono, con pubblicità. Per scrivere su Spotify con la
   strada ufficiale serve una chiave sviluppatore, che Spotify dà solo agli account Premium; l'accesso
   rapido della versione GitHub/F-Droid, di Desktop e di Docker funziona con un account gratuito.

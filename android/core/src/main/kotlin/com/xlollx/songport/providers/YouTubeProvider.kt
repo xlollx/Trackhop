@@ -62,6 +62,9 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
             "https://console.cloud.google.com/auth/overview",
             "https://console.cloud.google.com/auth/audience",
             "https://console.cloud.google.com/auth/clients/create",
+            // Signing in: the guide with every Google error and its fix (Play review of 27/11).
+            "https://trackhop.org/guide/youtube-google-key",
+            "https://console.cloud.google.com/auth/audience",
         ),
     )
 
