@@ -110,6 +110,8 @@ body.drawer-open { overflow: hidden; }
 .renamed-note { max-width: 70ch; margin: 22px 0 0; padding: 12px 16px; font-size: 14px; color: var(--ink-2); background: var(--surface-2); border-radius: 12px; }
 .stage { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 1px 8px; border-radius: 999px; background: #c8e6ff; color: #003258; vertical-align: middle; }
 .foot p.support { margin-bottom: 10px; color: var(--ink-2); }
+.foot p.badges { margin: 4px 0 12px; }
+.foot p.badges img { display: inline-block; vertical-align: middle; }
 .foot { border-top: 1px solid var(--line); margin-top: 64px; padding: 28px 16px 40px; text-align: center; color: var(--ink-3); font-size: 14px; }
 .foot div { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
 .foot a { color: var(--ink-2); }
