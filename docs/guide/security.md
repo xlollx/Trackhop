@@ -1,4 +1,5 @@
 ---
+bridge: false
 title: Is Trackhop safe? VirusTotal checks of every download
 description: Every file of every Trackhop release, the Android app and Trackhop Desktop for Windows, macOS and Linux, is checked by the antivirus engines of VirusTotal. The results, the files' SHA-256 and how Trackhop is built.
 ---

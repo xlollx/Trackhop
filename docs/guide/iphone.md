@@ -1,4 +1,5 @@
 ---
+bridge: false
 title: Trackhop on iPhone and iPad
 description: Why there is no Trackhop app for iPhone (Apple's fees, its review rules, no background work) and what works instead - your own Trackhop server, whose page sits on the iPhone's home screen like an app.
 i18n: iphone

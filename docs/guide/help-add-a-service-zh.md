@@ -1,4 +1,5 @@
 ---
+bridge: false
 title: 帮忙把你所在国家的音乐服务加入 Trackhop
 description: Trackhop 的开发者无法登录只在部分国家可用的服务。如何安全地记录这些服务网站的请求，并把文件发过来，让这个服务可以被加入。
 lang: zh

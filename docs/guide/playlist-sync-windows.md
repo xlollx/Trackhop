@@ -1,4 +1,5 @@
 ---
+bridge: false
 title: Playlist sync for Windows
 description: Keep playlists in sync between Spotify, YouTube, TIDAL, Navidrome, Jellyfin and Plex on Windows 10 and 11, with Trackhop Desktop. Free, open source, no account. Install with the MSI, Scoop or a portable ZIP.
 ---

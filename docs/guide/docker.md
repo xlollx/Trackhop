@@ -1,3 +1,6 @@
+---
+bridge: false
+---
 # Trackhop on a server (Docker, beta)
 
 > **Beta.** The server works for everyday use (it has run scheduled syncs for days) but is still

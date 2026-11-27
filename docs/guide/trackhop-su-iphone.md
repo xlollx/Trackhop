@@ -1,4 +1,5 @@
 ---
+bridge: false
 title: Trackhop su iPhone e iPad
 description: Perché non c'è un'app Trackhop per iPhone (i costi di Apple, le sue regole, niente lavoro in background) e cosa funziona al suo posto, il tuo server Trackhop, la cui pagina sta nella schermata Home dell'iPhone come un'app.
 lang: it

@@ -332,7 +332,12 @@
     })();
   </script>
   <main class="{{ page.main_class | default: 'prose' }}">
+{%- if page.url contains '/guide/' and page.bridge != false %}{% capture bridge_card %}</h1>
+{% include bridge-card.html %}{% endcapture %}
+{{ content | replace_first: '</h1>', bridge_card }}
+{%- else %}
 {{ content }}
+{%- endif %}
   </main>
   <footer class="foot">
     <div>

@@ -1,3 +1,6 @@
+---
+bridge: false
+---
 # Release process
 
 1. **Version**: bump `versionCode` and `versionName` in `android/app/build.gradle`. Every version that
