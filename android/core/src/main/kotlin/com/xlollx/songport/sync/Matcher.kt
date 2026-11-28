@@ -29,6 +29,16 @@ object Matcher {
      */
     val REVISION: Int get() = if (Features.v2) 4 else 2
 
+    /**
+     * Like [REVISION], for the misses remembered on a personal server only (the other services keep
+     * theirs): raised when matching against a server's songs changes.
+     * 1 with 2.2.7: titles taken from file names ("06 In the End"), see [fileTitles].
+     */
+    const val SERVER_REVISION = 1
+
+    /** How a personal server's own search ranks its songs: their titles may be file names ([MatchPolicy.fileNames]). */
+    val SERVER_POLICY = MatchPolicy(fileNames = true)
+
     private val BRACKET_NOISE = Regex(
         """\s*[(\[][^)\]]*\b(feat\.?|ft\.?|featuring|remaster\w*|rimasterizzat\w*|version|versione|edit|(?<!re)mix|live|mono|stereo|deluxe|bonus|explicit|clean|official|video|audio|lyrics?|hd|4k|visuali[sz]er|radio|single|album|original|from|soundtrack|ost|anniversary|edition|\d{4})\b[^)\]]*[)\]]""",
         RegexOption.IGNORE_CASE,
@@ -254,7 +264,7 @@ object Matcher {
         val all = LinkedHashMap<String, Track>()
         var good = false
         fun take(tracks: List<Track>) = tracks.forEach { c ->
-            if (all.putIfAbsent(c.id, c) == null && !good) good = scoreN(s, norm(c)) >= REVIEW_THRESHOLD
+            if (all.putIfAbsent(c.id, c) == null && !good) good = scoreN(s, norm(c), SERVER_POLICY) >= REVIEW_THRESHOLD
         }
         take(found)
         for (term in terms.map { it.trim() }.filter { it.isNotEmpty() }.distinctBy { it.lowercase() }) {
@@ -336,8 +346,34 @@ object Matcher {
      * only feeds an extra search: what comes back is still scored against the whole original field.
      */
     fun primaryArtist(artist: String): String? {
-        val first = ARTIST_TAIL.replace(artist, "").split(ARTIST_PARTS).firstOrNull()?.trim().orEmpty()
+        val first = splitArtists(ARTIST_TAIL.replace(artist, ""), ARTIST_PARTS).firstOrNull()?.trim().orEmpty()
         return first.takeIf { it.isNotEmpty() && !it.equals(artist.trim(), ignoreCase = true) }
+    }
+
+    /** One act whose name reads as several ("Of Mice & Men", "Simon & Garfunkel", "Mumford & Sons"): never split. */
+    fun oneAct(name: String): Boolean = normalizeArtist(name) in BANDS
+
+    /**
+     * [field] split where [separators] says, except where the pieces together are [oneAct]: "Of Mice
+     * & Men, Bring Me the Horizon" is two names, not three. Blank pieces are left out.
+     */
+    fun splitArtists(field: String, separators: Regex): List<String> {
+        val pieces = ArrayList<IntRange>()
+        var from = 0
+        for (m in separators.findAll(field)) {
+            if (m.range.isEmpty()) continue
+            pieces += from until m.range.first
+            from = m.range.last + 1
+        }
+        pieces += from until field.length
+        val out = ArrayList<String>()
+        var i = 0
+        while (i < pieces.size) {
+            val j = (pieces.size - 1 downTo i + 1).firstOrNull { j -> oneAct(field.substring(pieces[i].first, pieces[j].last + 1)) } ?: i
+            out += field.substring(pieces[i].first, pieces[j].last + 1).trim()
+            i = j + 1
+        }
+        return out.filter { it.isNotEmpty() }
     }
 
     fun levenshtein(a: String, b: String): Int {
@@ -486,6 +522,8 @@ object Matcher {
         "seals and crofts", "loggins and messina", "captain and tennille", "she and him", "matt and kim", "love and rockets",
         "jorge and mateus", "henrique and juliano", "chitaozinho and xororo", "ze neto and cristiano", "maiara and maraisa",
         "simone and simaria", "matheus and kauan", "bruno and marrone", "zeze di camargo and luciano", "victor and leo",
+        "of mice and men", "dimitri vegas and like mike", "tegan and sara", "axwell and ingrosso", "w and w", "macklemore and ryan lewis",
+        "for king and country", "nina and frederik", "zager and evans", "jan and dean", "chad and jeremy", "flatt and scruggs",
     )
 
     /**
@@ -505,7 +543,7 @@ object Matcher {
                 val parts = piece.split(FIELD_SPLIT).map { it.trim() }.filter { it.isNotEmpty() }
                 val whole = parts.size < 2 || normalizeArtist(piece) in BANDS ||
                     parts.drop(1).any { it.lowercase().startsWith("the ") || it.trimEnd('.').length <= 2 }
-                if (whole) add(piece) else parts.forEach(::add)
+                if (whole) add(piece) else splitArtists(piece, FIELD_SPLIT).forEach(::add)
             }
         }
         t.artists.forEach(::addField)
@@ -628,7 +666,48 @@ object Matcher {
         if (artistKnown && artist < 0.9 && clean >= 1.0) score = otherNames(s, c, title, score, policy)
         // Both name guests, and none is the same: another version, most likely. Never refused for it: checked.
         if (guestsDiffer(s, c)) score = minOf(score, policy.reviewThreshold - 0.01)
-        return if (byConsonants) minOf(score, REVIEW_THRESHOLD - 0.01) else score
+        if (byConsonants) score = minOf(score, REVIEW_THRESHOLD - 0.01)
+        if (policy.fileNames && score < 1.0) fileTitles(c.track.title, s.track.title).takeIf { it.isNotEmpty() && fileNameSafe(s, c) }?.let { titles ->
+            val plain = policy.copy(fileNames = false)
+            for (t in titles) score = max(score, scoreN(s, norm(c.track.copy(title = t)), plain))
+        }
+        return score
+    }
+
+    /** A track number before a title taken from a file's name: "06 In the End", "13 - In the End", "1-06. In the End". */
+    private val TRACK_NUMBER = Regex("""^\d{1,3}(?:-\d{1,3})?(?:\s*[.\-_)]\s*|\s+)""")
+    /** The " 1" iTunes puts after the name of a file it copied twice: "04 - Ide Were Were 1". */
+    private val COPY_ONE = Regex("""\s+1$""")
+
+    /**
+     * The titles a personal server's song [title] may stand for when the server took it from the
+     * file's name (files without tags): without its track number ("06 In the End" → "In the End"),
+     * and without iTunes' " 1" of a second copy, unless the source's [srcTitle] ends in it too.
+     * Empty when it has neither. Only tried where the artist, the album and the length agree
+     * ([fileNameSafe]): "7 Rings", "22", "1999" and "99 Problems" stay what they are.
+     */
+    internal fun fileTitles(title: String, srcTitle: String): List<String> {
+        val t = title.trim()
+        val noNumber = TRACK_NUMBER.find(t)?.let { t.substring(it.range.last + 1).trim() }?.takeIf { normalizeTitle(it).isNotEmpty() }
+        val oneOk = !COPY_ONE.containsMatchIn(srcTitle.trim())
+        fun noOne(x: String) = if (oneOk) COPY_ONE.replace(x, "").trim().takeIf { it != x && normalizeTitle(it).isNotEmpty() } else null
+        return listOfNotNull(noNumber, noNumber?.let(::noOne), noOne(t)).distinct()
+    }
+
+    /**
+     * Nothing tells [c] from the source but its title: the artists agree where both are known, the
+     * albums where both are known, and the lengths within 5 s where both are known; with no length,
+     * the artist and the album must both agree.
+     */
+    private fun fileNameSafe(s: Norm, c: Norm): Boolean {
+        val artistKnown = s.artists.isNotEmpty() && c.artists.isNotEmpty()
+        val artistOk = artistKnown && artistScoreN(s.artists, c.artists) >= 0.9
+        if (artistKnown && !artistOk) return false
+        val albums = s.track.album.isNotBlank() && c.track.album.isNotBlank()
+        val albumOk = albums && sameAlbum(s.track.album, c.track.album)
+        if (albums && !albumOk) return false
+        val a = s.track.durationMs; val b = c.track.durationMs
+        return if (a > 0 && b > 0) abs(a - b) <= 5_000 && (artistOk || albumOk) else artistOk && albumOk
     }
 
     /** A remaster, a clean or explicit edition on either side: its length may differ by a few seconds more. */

@@ -338,12 +338,12 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
         var found = Matcher.searchByTitles(track) { find(it) }
         // Nothing close by name: the library may name the piece another way than the source does (a
         // title in another language, other punctuation), so the artist's own songs are scored too (#57).
-        if (track.artists.isNotEmpty() && found.none { Matcher.score(track, it) >= Matcher.DEFAULT_THRESHOLD }) {
+        if (track.artists.isNotEmpty() && found.none { Matcher.score(track, it, Matcher.SERVER_POLICY) >= Matcher.DEFAULT_THRESHOLD }) {
             val ids = found.mapTo(HashSet()) { it.id }
             found = found + artistSongs(ctx, track.artists).filter { ids.add(it.id) }
         }
         // The closest first: a search by the bare title brings every part of the piece, the right one may be the sixth.
-        return Matcher.byArtist(track, found).sortedByDescending { Matcher.score(track, it) }.take(5)
+        return Matcher.byArtist(track, found).sortedByDescending { Matcher.score(track, it, Matcher.SERVER_POLICY) }.take(5)
     }
 
     /** The songs of the library's artist named like the first of [artists]; none when there is no such artist or the server refuses. */
@@ -404,6 +404,24 @@ open class JellyfinProvider(override val slot: String = "") : CredentialsProvide
     }
 
     override val losesIds: Boolean get() = true
+
+    /**
+     * The later of the end of the last "Scan media library" task (`GET /ScheduledTasks`, key
+     * RefreshLibrary: administrators only) and the newest song's DateCreated (what a real-time watch
+     * adds without that task). Null when the server tells neither.
+     */
+    override suspend fun lastScan(ctx: Env): Long? {
+        val task = runCatching {
+            api(ctx, "GET", "/ScheduledTasks?isHidden=false").arr.filter { it["Key"].str == "RefreshLibrary" }
+                .maxOfOrNull { com.xlollx.songport.sync.Durations.parseInstant(it["LastExecutionResult"]["EndTimeUtc"].str) } ?: 0L
+        }.getOrDefault(0L)
+        val newest = runCatching {
+            com.xlollx.songport.sync.Durations.parseInstant(
+                userItems(ctx, "IncludeItemTypes=Audio&Recursive=true&SortBy=DateCreated&SortOrder=Descending&Limit=1&Fields=DateCreated")["Items"].arr.firstOrNull()["DateCreated"].str,
+            )
+        }.getOrDefault(0L)
+        return maxOf(task, newest).takeIf { it > 0 }
+    }
 
     /** The items the server still lists among [ids], asked in one call: the others are gone. */
     override suspend fun lostIds(ctx: Env, ids: Collection<String>): Set<String> {

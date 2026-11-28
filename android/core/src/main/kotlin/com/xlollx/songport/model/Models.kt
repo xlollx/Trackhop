@@ -298,6 +298,12 @@ data class MatchPolicy(
      * without an album to compare it is a song to check. Off by default.
      */
     val artistsMayDiffer: Boolean = false,
+    /**
+     * The candidates are a personal server's songs, whose titles may be their files' names ("06 In
+     * the End", "13 - In the End"): see [com.xlollx.songport.sync.Matcher.fileTitles]. Set by the
+     * engine for such a target, never saved.
+     */
+    @kotlinx.serialization.Transient val fileNames: Boolean = false,
 ) {
     val acceptThreshold: Double get() = 0.70 + 0.08 * strictness
     val reviewThreshold: Double get() = 0.86 + 0.05 * strictness

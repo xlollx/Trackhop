@@ -532,6 +532,7 @@ class SyncEngine(
         val shrunkFrom = if (interactive && !targetCreated && !(dst.losesIds && dstDeclared > dstTracks.size)) shrunkFrom(job, targetId, dstTracks.size) else 0
         val dstById = dstTracks.associateBy { it.id }
         val index = Matcher.TrackIndex(dstTracks)
+        val matchPolicy = job.policy.on(dst)
 
         // Half of a two-way pair that follows removals (the option is on both halves): the pair's
         // common state tells a track removed on one side from one added on the other.
@@ -605,6 +606,34 @@ class SyncEngine(
         val liveSuspects = ArrayList<MatchReview>()
         // Matches the engine found under an older matching that the current one still finds good: noted under it.
         val checked = LinkedHashMap<String, String>()
+        val uncertain = ArrayList<MatchReview>()
+        // #94: the source track that holds each target song. Two different songs of the source never
+        // share one (YouTube Music has a song as several videos, and both may find the same one): the
+        // better match keeps it, a choice of the user always; the other takes the next best song
+        // nobody holds, or goes to the review. The same song twice in the source shares it, as ever.
+        val holders = HashMap<String, Track>()
+        val contested = ArrayList<Pair<Track, Track>>()
+        fun sameSong(a: Track, b: Track) = a.id == b.id || (a.isrcNorm != null && a.isrcNorm == b.isrcNorm) || Wanted.titleKey(a) == Wanted.titleKey(b)
+        fun chosen(t: Track) = store.hasDecision(src.id, t.id, dstKey)
+        /** What [t] was given so far, taken back: another source track holds its song now. */
+        fun release(t: Track) {
+            val key = FileStore.cacheKey(src.id, t.id, dstKey)
+            newCache.remove(key); unsure.remove(key); checked.remove(key)
+            presentLinks.remove(t.id); addingLinks.remove(t.id)
+            liveSuspects.removeAll { it.source.id == t.id }; uncertain.removeAll { it.source.id == t.id }
+        }
+        /** [s] takes the target's [song]; false when another song of the source keeps it ([s] is then [contested]). */
+        fun claim(s: Track, song: Track): Boolean {
+            val holder = holders[song.id]
+            if (holder == null || direct || sameSong(holder, s)) { holders.putIfAbsent(song.id, s); return true }
+            val mine = chosen(s); val theirs = chosen(holder)
+            if (mine && theirs) return true
+            if (!mine && (theirs || Matcher.score(holder, song, matchPolicy) >= Matcher.score(s, song, matchPolicy))) { contested += s to song; return false }
+            release(holder)
+            contested += holder to song
+            holders[song.id] = s
+            return true
+        }
         // 1) brani gia' presenti nella destinazione
         for (s in srcTracks) {
             val key = FileStore.cacheKey(src.id, s.id, dstKey)
@@ -620,9 +649,10 @@ class SyncEngine(
                 continue
             }
             // On the same account a source track is already a target track: its own id, if the target has it.
-            val found = cachedId?.let { dstById[it] } ?: (if (direct) dstById[s.id] else null) ?: index.best(s, policy = job.policy)
+            val found = cachedId?.let { dstById[it] } ?: (if (direct) dstById[s.id] else null) ?: index.best(s, policy = matchPolicy)
             // The other half of the pair matched these two and the target still lists its one: present.
             val linked = if (found == null) linkedFromSrc[s.id]?.firstOrNull { it in dstById } else null
+            if (found != null && !claim(s, found)) continue
             if (found != null) {
                 matchedDstIds += found.id
                 newCache[key] = found.id
@@ -631,7 +661,7 @@ class SyncEngine(
                     // Found by an older matching: the current one checks it. One it no longer finds sure is
                     // asked about in the review, never removed by itself; the user's own choices are never asked.
                     val stale = store.autoRevision(key)?.let { it < Matcher.REVISION } == true
-                    val score = if (stale || Matcher.liveInPlaceOf(s, found)) Matcher.score(s, found, job.policy) else null
+                    val score = if (stale || Matcher.liveInPlaceOf(s, found)) Matcher.score(s, found, matchPolicy) else null
                     if (score != null && (Matcher.liveInPlaceOf(s, found) || score < job.policy.reviewThreshold)) liveSuspects += MatchReview(s, found, score)
                     else if (stale) checked[key] = found.id
                 }
@@ -672,7 +702,7 @@ class SyncEngine(
         // 2) ricerca dei mancanti
         val toAdd = LinkedHashMap<String, Track>()
         val unmatched = ArrayList<Track>()
-        val uncertain = ArrayList<MatchReview>(liveSuspects)
+        uncertain.addAll(liveSuspects)
         // A suspect one of this sync's last runs already listed and the user has not settled: listed
         // again, but it is no news (no "to review" message on every run).
         val reviewAsked = if (liveSuspects.isEmpty()) emptySet() else {
@@ -681,6 +711,33 @@ class SyncEngine(
             liveSuspects.mapNotNullTo(HashSet()) { it.source.id.takeIf { id -> id in before } }
         }
         var searched = 0
+        /**
+         * [s] matched [found] (null: not found) with [score] (null: remembered); [contest]: unless another
+         * song of the source holds it. [alike]: a target entry like [found] counts as it (not for the
+         * other video a song takes because another song holds the first, #94).
+         */
+        fun take(s: Track, found: Track?, score: Double?, contest: Boolean = true, alike: Boolean = true) {
+            if (found != null) {
+                // The target may hold the same recording under another id (a remaster, the single
+                // edition): by ISRC or by name it counts as present, and nothing is added twice.
+                val present = dstById[found.id] ?: if (found.id in matchedDstIds || unlistedPresent(found.id)) found else if (alike) index.best(found) else null
+                val target = present ?: found
+                if (contest && !claim(s, target)) return
+                // Added by the last run and still not listed: the service took it and shows it
+                // elsewhere, or not at all. Present, not added again (and not counted) on every run.
+                if (present == null) { if (last != null && found.id in last.added) unlistedAfterAdd[found.id] = found else toAdd[found.id] = found }
+                if (found.id in toAdd) addingLinks[s.id] = found.id else presentLinks[s.id] = target.id
+                matchedDstIds += target.id
+                newCache[FileStore.cacheKey(src.id, s.id, dstKey)] = target.id
+                if (s.id in lostSaved) refound++
+                if (score != null && score < job.policy.reviewThreshold) {
+                    uncertain += MatchReview(s, found, score)
+                    if (interactive) unsure += FileStore.cacheKey(src.id, s.id, dstKey)
+                }
+                // Salvataggio progressivo: un errore a meta' strada non butta via le ricerche fatte.
+                if (newCache.size % 100 == 0) store.putMatches(newCache - unsure, auto = true)
+            } else unmatched += s
+        }
         val interrupted = searchMissing(src, dst, targetId, toSearch, job.policy, onProgress, direct) { s, found, score ->
             searched++
             SyncState.item(
@@ -697,25 +754,34 @@ class SyncEngine(
                     uncertain = found != null && score != null && score < job.policy.reviewThreshold,
                 ),
             )
-            if (found != null) {
-                // The target may hold the same recording under another id (a remaster, the single
-                // edition): by ISRC or by name it counts as present, and nothing is added twice.
-                val present = dstById[found.id] ?: if (found.id in matchedDstIds || unlistedPresent(found.id)) found else index.best(found)
-                val target = present ?: found
-                // Added by the last run and still not listed: the service took it and shows it
-                // elsewhere, or not at all. Present, not added again (and not counted) on every run.
-                if (present == null) { if (last != null && found.id in last.added) unlistedAfterAdd[found.id] = found else toAdd[found.id] = found }
-                if (found.id in toAdd) addingLinks[s.id] = found.id else presentLinks[s.id] = target.id
-                matchedDstIds += target.id
-                newCache[FileStore.cacheKey(src.id, s.id, dstKey)] = target.id
-                if (s.id in lostSaved) refound++
-                if (score != null && score < job.policy.reviewThreshold) {
-                    uncertain += MatchReview(s, found, score)
-                    if (interactive) unsure += FileStore.cacheKey(src.id, s.id, dstKey)
-                }
-                // Salvataggio progressivo: un errore a meta' strada non butta via le ricerche fatte.
-                if (newCache.size % 100 == 0) store.putMatches(newCache - unsure, auto = true)
-            } else unmatched += s
+            take(s, found, score)
+        }
+        // #94: a song of the source whose match another one holds: the next best song nobody holds,
+        // searched once; none (or a search that stopped), it keeps that match as before and is asked
+        // about in the review, so it is never left out without a word.
+        val retried = HashSet<String>()
+        var ci = 0
+        while (ci < contested.size) {
+            val (s, song) = contested[ci++]
+            if (s.id in presentLinks || s.id in addingLinks) continue
+            val alt = if (interrupted != null || !retried.add(s.id)) null else try {
+                searchScored(dst, targetId, s, job.policy, exclude = holders.keys.toHashSet())
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                null
+            }
+            if (alt != null) {
+                env.log("engine", "${job.name}: \"$s\" found the same song as \"${holders[song.id] ?: "another track"}\" on ${dst.displayName}: took \"${alt.track}\" instead")
+                take(s, alt.track, alt.score, alike = false)
+            } else {
+                take(s, song, null, contest = false)
+                val key = FileStore.cacheKey(src.id, s.id, dstKey)
+                uncertain.removeAll { it.source.id == s.id }
+                uncertain += MatchReview(s, song, minOf(Matcher.score(s, song, matchPolicy), job.policy.reviewThreshold - 0.01))
+                if (interactive) unsure += key
+                env.log("engine", "${job.name}: \"$s\" found only the song \"${holders[song.id] ?: "another track"}\" holds on ${dst.displayName}: to review")
+            }
         }
         // Il servizio ha smesso di rispondere (limiti, sessione): si applica quanto trovato finora e
         // la prossima esecuzione riparte dalla cache, senza rifare le ricerche.
@@ -1056,6 +1122,9 @@ class SyncEngine(
         // domani non le ripetono (le "non trovate" altrimenti si ricercavano ogni volta).
         val misses = ArrayList<String>()
         fun saveMisses() { store.putMisses(misses); misses.clear() }
+        // A personal server that scanned its library since a song was missed there may have it now
+        // (#103): asked once, only when something was missed before; a failure keeps the misses.
+        val scannedAt = if (!direct && Wanted.isServer(dst.id) && toSearch.any { store.cachedMiss(src.id, it.id, dstKey) }) lastScan(dst) else 0L
         // How each track found its match, for one line of the log when the search ends or stops.
         val tally = MatchTally()
         fun logTally() { tally.line()?.let { env.log("engine", "${dst.displayName}: $it") } }
@@ -1080,7 +1149,7 @@ class SyncEngine(
                         } else if (cached != null) {
                             // Abbinato in passato (o confermato a mano): lo aggiungiamo senza ripetere la ricerca.
                             Result.success<Pair<Track?, Double?>>(dst.rehydrate(s.copy(id = cached, uri = null, itemId = null)) to null)
-                        } else if (store.cachedMiss(src.id, s.id, dstKey)) {
+                        } else if (store.cachedMiss(src.id, s.id, dstKey, scannedAt)) {
                             // Cercato da poco senza esito: resta "non trovato" senza interrogare il servizio.
                             Result.success<Pair<Track?, Double?>>(null to MISS_SCORE)
                         } else {
@@ -1265,13 +1334,29 @@ class SyncEngine(
         return if (ids.isEmpty()) s else s.copy(mbids = ids)
     }
 
-    private suspend fun searchScored(dst: MusicProvider, targetId: String?, source: Track, policy: MatchPolicy): Matcher.Scored? {
+    /** [dst]'s last library scan ([MusicProvider.lastScan]), 0 when it cannot tell or the call fails. */
+    private suspend fun lastScan(dst: MusicProvider): Long = try {
+        dst.lastScan(env)?.also { env.log("engine", "${dst.displayName}: library last scanned ${java.time.Instant.ofEpochMilli(it)}") } ?: 0L
+    } catch (e: kotlinx.coroutines.CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        env.log("engine", "${dst.displayName}: last library scan not read (${e.message?.take(120)}): songs missed before stay missed")
+        0L
+    }
+
+    /** [this] for matching on [dst]: a personal server's titles may be its files' names ([MatchPolicy.fileNames]). */
+    private fun MatchPolicy.on(dst: MusicProvider): MatchPolicy = if (Wanted.isServer(dst.id)) copy(fileNames = true) else this
+
+    private suspend fun searchScored(dst: MusicProvider, targetId: String?, source: Track, given: MatchPolicy, exclude: Set<String> = emptySet()): Matcher.Scored? {
+        val policy = given.on(dst)
         // A show known by its feed (an OPML file) gets its publisher from Apple's directory: the target's shows of one name tell apart by it.
         val s = withMbids(dst, if (source.kind == Track.KIND_PODCAST && dst.serviceId != LocalFilesProvider.serviceId) Podcasts.enrich(env, source) else source)
         var runnerUp: Matcher.Scored? = null
         var sawCandidates = false
         var sawTags = false
-        fun consider(found: List<Track>, against: Track = s): Matcher.Scored? {
+        fun consider(all: List<Track>, against: Track = s): Matcher.Scored? {
+            // Songs another track of the source took already (#94): the next best one, if any.
+            val found = if (exclude.isEmpty()) all else all.filter { it.id !in exclude }
             if (found.isNotEmpty()) sawCandidates = true
             if (found.any { it.mbids.isNotEmpty() }) sawTags = true
             val best = Matcher.bestScored(against, found, 0.0, policy) ?: return null
@@ -1335,7 +1420,7 @@ class SyncEngine(
                 for (name in names) {
                     val other = s.copy(title = name + sub, isrc = null, mbids = emptyList())
                     if (!tried.add(key(other))) continue
-                    val found = dst.searchFor(env, other, targetId)
+                    val found = dst.searchFor(env, other, targetId).filter { it.id !in exclude }
                     if (found.isNotEmpty()) sawCandidates = true
                     val best = Matcher.bestScored(other.copy(isrc = s.isrc, mbids = s.mbids), found, 0.0, policy) ?: continue
                     val sameArtist = Matcher.artistScore(s.artists, best.track.artists) >= 0.9

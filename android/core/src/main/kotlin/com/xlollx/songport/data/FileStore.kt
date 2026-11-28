@@ -181,6 +181,8 @@ data class StoreData(
     val missCache: Map<String, Long> = emptyMap(),
     /** The [Matcher.REVISION] the misses were found under: another one searches them again. */
     val missRevision: Int = 0,
+    /** The [Matcher.SERVER_REVISION] the misses on personal servers were found under: another one searches those again. */
+    val serverMissRevision: Int = 0,
     /**
      * Tracks a service said a playlist holds although its listing leaves them out (Amazon Music
      * answering DUPLICATE_TRACK), key [FileStore.presentKey] -> when (epoch ms): present, not to be
@@ -661,12 +663,19 @@ open class FileStore(dir: File) {
         }
     }
 
-    /** True se questa ricerca e' fallita da poco: inutile ripeterla a ogni esecuzione o ripresa. */
-    fun cachedMiss(srcProvider: String, srcTrackId: String, dstProvider: String): Boolean {
+    /**
+     * True se questa ricerca e' fallita da poco: inutile ripeterla a ogni esecuzione o ripresa.
+     * [scannedAt]: when the target, a personal server, last scanned its library (epoch ms, 0 when
+     * not known): a song missed before that may be there now (#103).
+     */
+    fun cachedMiss(srcProvider: String, srcTrackId: String, dstProvider: String, scannedAt: Long = 0): Boolean {
+        val d = data
         // Missed by an older matching: the new one may find it (#57, the misses kept the fix from showing).
-        if (data.missRevision != Matcher.REVISION) return false
-        val at = data.missCache[cacheKey(srcProvider, srcTrackId, dstProvider)] ?: data.missCache["$srcProvider:$srcTrackId>$dstProvider"] ?: return false
-        return System.currentTimeMillis() - at < MISS_TTL_MS
+        if (d.missRevision != Matcher.REVISION) return false
+        val key = cacheKey(srcProvider, srcTrackId, dstProvider)
+        if (!missValid(d, key)) return false
+        val at = d.missCache[key] ?: d.missCache["$srcProvider:$srcTrackId>$dstProvider"] ?: return false
+        return System.currentTimeMillis() - at < MISS_TTL_MS && at >= scannedAt
     }
 
     /** "Try again" on songs not found: [srcTrackIds] of [job] are searched afresh on its next run. */
@@ -681,10 +690,10 @@ open class FileStore(dir: File) {
         if (keys.isEmpty()) return
         val now = System.currentTimeMillis()
         update { d ->
-            val kept = if (d.missRevision == Matcher.REVISION) d.missCache.filterValues { now - it < MISS_TTL_MS } else emptyMap()
+            val kept = if (d.missRevision == Matcher.REVISION) d.missCache.filter { (k, at) -> now - at < MISS_TTL_MS && missValid(d, k) } else emptyMap()
             var cache = kept + keys.associateWith { now }
             if (cache.size > MAX_CACHE) cache = cache.entries.drop(cache.size - MAX_CACHE).associate { it.key to it.value }
-            d.copy(missCache = cache, missRevision = Matcher.REVISION)
+            d.copy(missCache = cache, missRevision = Matcher.REVISION, serverMissRevision = Matcher.SERVER_REVISION)
         }
     }
 
@@ -787,6 +796,13 @@ open class FileStore(dir: File) {
         const val CONFIRMATION_TTL_MS = 12L * 3_600_000
 
         fun cacheKey(srcProvider: String, srcTrackId: String, dstProvider: String) = "${family(srcProvider)}:$srcTrackId>${family(dstProvider)}"
+
+        /**
+         * A miss under [key] still says something: one on a personal server found under another
+         * [Matcher.SERVER_REVISION] does not (the other services' misses only follow [Matcher.REVISION]).
+         */
+        fun missValid(d: StoreData, key: String): Boolean =
+            d.serverMissRevision == Matcher.SERVER_REVISION || !com.xlollx.songport.sync.Wanted.isServer(family(key.substringAfterLast('>', "")).substringBefore('#'))
 
         /**
          * The target side of a match, the `dstProvider` of [cacheKey]: the service for a playlist or

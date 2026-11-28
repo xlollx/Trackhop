@@ -10,6 +10,9 @@ import java.time.LocalDateTime
  * jingles left out. And whether a moment falls in a radio sync's window. Kotlin puro: coperto dai test.
  */
 object RadioTitles {
+    /** "A, B", "A & B", "A feat. B", "A x B" in a station's title; a band such as "Simon & Garfunkel" stays whole. */
+    private val ARTIST_SEPARATORS = Regex("""\s*(?:,|&| feat\.? | ft\.? | x )\s*""", RegexOption.IGNORE_CASE)
+
 
     private val STREAM_TITLE = Regex("""StreamTitle='(.*?)';""", RegexOption.DOT_MATCHES_ALL)
 
@@ -39,7 +42,7 @@ object RadioTitles {
             .replace(Regex("""\s*\|.*$"""), "").replace(Regex("""\s*\[\d{4}]$"""), "").trim()
         if (artist.isEmpty() || song.isEmpty() || artist.equals(song, ignoreCase = true)) return null
         if (station.isNotBlank() && (artist.equals(station.trim(), ignoreCase = true) || song.equals(station.trim(), ignoreCase = true))) return null
-        return Track(id = "", title = song, artists = artist.split(Regex("""\s*(?:,|&| feat\.? | ft\.? | x )\s*""", RegexOption.IGNORE_CASE)).filter { it.isNotBlank() })
+        return Track(id = "", title = song, artists = Matcher.splitArtists(artist, ARTIST_SEPARATORS))
     }
 
     /**
