@@ -89,6 +89,30 @@ internal fun providerOf(family: String, connected: Boolean = false, ctx: android
         ?: if (connected) null else Providers.all().firstOrNull { FileStore.family(it.id) == fam }
 }
 
+/**
+ * What to call a service of a saved match: its name, or for a multi-sync ("shared", an internal id never
+ * shown) the group's name. [trackKey] is the song's key in the group, to tell groups apart.
+ */
+internal fun serviceName(family: String, ctx: android.content.Context, trackKey: String? = null): String {
+    val fam = family.substringBefore('#')
+    if (fam == com.xlollx.songport.shared.SharedProvider.ID) {
+        val env = ctx.env
+        return com.xlollx.songport.shared.SharedNames.of(
+            env.store.data.groups, trackKey,
+            { g, k -> runCatching { com.xlollx.songport.shared.SharedGroups.load(env, g.id).events.any { it.key == k } }.getOrDefault(false) },
+            ctx.getString(R.string.nway_title),
+        )
+    }
+    return providerOf(family, ctx = ctx)?.displayName ?: family
+}
+
+/** A service's logo; a multi-sync (no connector of its own) wears the multi-sync icon. */
+@Composable
+internal fun FamilyLogo(family: String, name: String, size: androidx.compose.ui.unit.Dp) {
+    val p = providerOf(family, ctx = LocalContext.current)
+    if (p != null) ServiceLogo(p, size) else ServiceLogo(family.substringBefore('#'), null, name, size)
+}
+
 private fun line(t: Track) = listOfNotNull(t.title, t.artistLine.ifBlank { null }).joinToString(" · ")
 
 /**
@@ -198,14 +222,14 @@ private fun SavedTab(snackbar: SnackbarHostState) {
             var menu by remember { mutableStateOf(false) }
             FilterChip(
                 selected = target != null, onClick = { menu = true },
-                label = { Text(target?.let { stringResource(R.string.saved_matches_to, providerOf(it, ctx = ctx)?.displayName ?: it) } ?: stringResource(R.string.saved_matches_to_all)) },
+                label = { Text(target?.let { stringResource(R.string.saved_matches_to, serviceName(it, ctx)) } ?: stringResource(R.string.saved_matches_to_all)) },
                 trailingIcon = { Icon(Icons.Filled.ArrowDropDown, null) },
             )
             DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                 DropdownMenuItem(text = { Text(stringResource(R.string.saved_matches_all_services)) }, onClick = { target = null; menu = false; shown = PAGE })
                 services.forEach { s ->
                     DropdownMenuItem(
-                        text = { Text(providerOf(s, ctx = ctx)?.displayName ?: s) }, leadingIcon = { ServiceLogo(providerOf(s, ctx = ctx), 20.dp) },
+                        text = { Text(serviceName(s, ctx)) }, leadingIcon = { FamilyLogo(s, serviceName(s, ctx), 20.dp) },
                         onClick = { target = s; menu = false; shown = PAGE },
                     )
                 }
@@ -242,26 +266,26 @@ private fun MatchRow(e: SavedMatches.Entry, names: Map<String, Track>, selected:
     val ctx = LocalContext.current
     val src = names[SavedMatches.nameKey(e.source, e.sourceId)]
     val chosen = e.chosenId?.let { names[SavedMatches.nameKey(e.target, it)] }
-    val srcP = providerOf(e.source, ctx = ctx)
-    val dstP = providerOf(e.target, ctx = ctx)
+    val srcName = remember(e.key) { serviceName(e.source, ctx, e.sourceId) }
+    val dstName = remember(e.key) { serviceName(e.target, ctx) }
     Row(
         Modifier.fillMaxWidth().combinedClickable(onClick = onClick, onLongClick = onLongPress, onLongClickLabel = stringResource(R.string.files_select))
             .heightIn(min = 56.dp).padding(start = if (selected != null) 4.dp else 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (selected != null) Checkbox(checked = selected, onCheckedChange = null, modifier = Modifier.padding(horizontal = 6.dp))
-        else ServiceLogo(srcP, 28.dp)
+        else FamilyLogo(e.source, srcName, 28.dp)
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text(src?.let(::line) ?: stringResource(R.string.saved_matches_song_on, srcP?.displayName ?: e.source), style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(src?.let(::line) ?: stringResource(R.string.saved_matches_song_on, srcName), style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("→ ", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                ServiceLogo(dstP, 14.dp)
+                FamilyLogo(e.target, dstName, 14.dp)
                 Spacer(Modifier.width(4.dp))
                 val sub = when (e.kind) {
                     SavedMatches.Kind.NOT_FOUND -> stringResource(R.string.saved_matches_none_found)
                     SavedMatches.Kind.IGNORED -> stringResource(R.string.saved_matches_ignored_line)
-                    else -> chosen?.let(::line) ?: dstP?.displayName ?: e.target
+                    else -> chosen?.let(::line) ?: dstName
                 }
                 Text(sub, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
@@ -291,10 +315,10 @@ private fun MatchSheet(e: SavedMatches.Entry, names: Map<String, Track>, snackba
     val store = remember { Store.get(ctx) }
     val data by store.state.collectAsState()
     var changing by rememberSaveable(e.key) { mutableStateOf(false) }
-    val srcP = providerOf(e.source, ctx = ctx)
     val dstP = providerOf(e.target, ctx = ctx)
+    val srcName = remember(e.key) { serviceName(e.source, ctx, e.sourceId) }
     val dstConnected = providerOf(e.target, connected = true, ctx = ctx)
-    val dstName = dstP?.displayName ?: e.targetService
+    val dstName = remember(e.key) { serviceName(e.targetService, ctx) }
     val srcKey = SavedMatches.nameKey(e.source, e.sourceId)
     val dstKey = e.chosenId?.let { SavedMatches.nameKey(e.target, it) }
     val src = names[srcKey]
@@ -308,12 +332,12 @@ private fun MatchSheet(e: SavedMatches.Entry, names: Map<String, Track>, snackba
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(start = 24.dp, end = 24.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Side(srcP, src?.let(::line) ?: stringResource(R.string.saved_matches_song_on, srcP?.displayName ?: e.source),
-                listOfNotNull(stringResource(R.string.saved_matches_on, srcP?.displayName ?: e.source), src?.durationMs?.let { Durations.format(it).ifBlank { null } }).joinToString(" · "))
+            Side({ FamilyLogo(e.source, srcName, 36.dp) }, src?.let(::line) ?: stringResource(R.string.saved_matches_song_on, srcName),
+                listOfNotNull(stringResource(R.string.saved_matches_on, srcName), src?.durationMs?.let { Durations.format(it).ifBlank { null } }).joinToString(" · "))
             Text(stringResource(R.string.saved_matches_matched_to), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 48.dp))
             val when_ = remember(e.at) { if (e.at > 0) formatDate(e.at) else null }
             Side(
-                dstP,
+                { FamilyLogo(e.target, dstName, 36.dp) },
                 when (e.kind) {
                     SavedMatches.Kind.NOT_FOUND -> stringResource(R.string.saved_matches_none_found)
                     SavedMatches.Kind.IGNORED -> stringResource(R.string.saved_matches_ignored_line)
@@ -370,9 +394,9 @@ private fun MatchSheet(e: SavedMatches.Entry, names: Map<String, Track>, snackba
 }
 
 @Composable
-private fun Side(p: MusicProvider?, title: String, subtitle: String) {
+private fun Side(logo: @Composable () -> Unit, title: String, subtitle: String) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-        ServiceLogo(p, 36.dp)
+        logo()
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
             Text(title, style = MaterialTheme.typography.titleSmall)
