@@ -5,6 +5,9 @@
 # - releases: docs/_data/releases.json (trackhop.org/whats-new and its RSS feeds), from the fastlane
 #   notes, server/CHANGELOG.md and the release tags. Rewritten after each release build and straight
 #   to main when it changed (as the supporters' list is), then the site is rebuilt.
+# - download links: the Desktop links of the README, the site's home page and the Desktop guide, moved
+#   to the newest Desktop release that is out (scripts/download_links.py; every link is checked first),
+#   in the same commit. The app, the Bridge and the badges link to releases/latest and need nothing.
 name: Site data
 
 on:
@@ -53,13 +56,21 @@ jobs:
           ssh-key: ${{ secrets.BOT_DEPLOY_KEY }}
       - name: Release notes
         run: python3 scripts/site_data.py releases
+      - name: Download links
+        # A link that doesn't answer stops only this step: what's new is still published.
+        continue-on-error: true
+        run: python3 scripts/download_links.py
       - name: Publish
         run: |
-          if git diff --quiet -- docs/_data/releases.json; then echo "Nothing new."; exit 0; fi
+          files="docs/_data/releases.json README.md docs/guide/desktop.md docs/_includes/home.html"
+          if git diff --quiet -- $files; then echo "Nothing new."; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/_data/releases.json
-          git commit -m "Site: what's new [skip ci]"
+          git add $files
+          msg="Site: what's new"
+          git diff --cached --quiet -- docs/_data/releases.json && msg="Site: download links"
+          git diff --cached --quiet -- README.md docs/guide/desktop.md docs/_includes/home.html || [ "$msg" = "Site: download links" ] || msg="$msg and download links"
+          git commit -m "$msg [skip ci]"
           for i in 1 2 3; do git pull --rebase -q origin main && git push origin HEAD:main && break; sleep 5; done
           # [skip ci] keeps Build and CodeQL from running on a data commit; the site's build is asked for here.
           gh api -X POST "repos/${{ github.repository }}/pages/builds" > /dev/null || true
