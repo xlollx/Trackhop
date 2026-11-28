@@ -178,4 +178,28 @@ class ItunesLibraryTest {
         assertEquals(0, ItunesLibrary.stars(null))
         assertEquals(0, ItunesLibrary.stars("80", computed = true))
     }
+
+    private fun typed(id: Int, name: String, extra: String) = """
+      <key>$id</key>
+      <dict><key>Track ID</key><integer>$id</integer><key>Name</key><string>$name</string><key>Artist</key><string>X</string>$extra</dict>"""
+
+    @Test fun onlySongsInFilesAreKeptAndTheRestIsCounted() {
+        val xml = """<plist version="1.0"><dict><key>Tracks</key><dict>
+            ${typed(1, "Song", "<key>Track Type</key><string>File</string><key>Location</key><string>file:///m/a.mp3</string>")}
+            ${typed(2, "Deep House Radio", "<key>Track Type</key><string>URL</string><key>Kind</key><string>Internet audio stream</string>")}
+            ${typed(3, "Cloud only", "<key>Track Type</key><string>Remote</string>")}
+            ${typed(4, "Old song", "<key>Location</key><string>file://localhost/m/b.mp3</string>")}
+            ${typed(5, "Old stream", "<key>Location</key><string>http://radio.example/stream</string>")}
+            ${typed(6, "Episode", "<key>Track Type</key><string>File</string><key>Podcast</key><true/>")}
+            ${typed(7, "Clip", "<key>Track Type</key><string>File</string><key>Has Video</key><true/>")}
+            </dict><key>Playlists</key><array>${playlist("Mine", listOf(1, 2, 3, 4, 5, 6, 7))}</array></dict></plist>"""
+        val lib = ItunesLibrary.read(xml)
+        assertEquals(listOf("Song", "Old song"), lib.asOneList().map { it.title })
+        assertEquals(5, lib.leftOut)
+        assertEquals(listOf("Song", "Old song"), lib.tracksOf(lib.choices[0]).map { it.title })
+        var told = -1
+        val tracks = PlaylistFiles.readStream("Library.xml", xml.reader(), onLeftOut = { told = it })
+        assertEquals(2, tracks.size)
+        assertEquals(5, told)
+    }
 }

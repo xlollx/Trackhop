@@ -163,6 +163,7 @@
     <string name="csv_playlists_hint">File playlists live inside the app. Import a file here, then use it as a sync source; or sync any playlist into a file and export it as CSV or M3U.</string>
     <string name="csv_empty">No file playlists yet.</string>
     <string name="csv_imported">Imported %1$d tracks</string>
+    <string name="library_left_out">%1$d entries left out: they are not songs in your files (internet radio, songs only in the cloud, podcasts or videos).</string>
     <string name="csv_exported">File exported</string>
     <string name="log_save_file">Save as file…</string>
     <string name="note_file_target">Saved inside Trackhop: use “Save as file” here, or Tools › File playlists, to get a CSV or M3U.</string>

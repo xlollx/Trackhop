@@ -776,10 +776,10 @@ internal fun FilesCard(
     LaunchedEffect(version, libraryImports) { lists = withContext(Dispatchers.IO) { LocalFilesProvider.playlists(ctx) } }
 
     // "Send to a service" right after the import: the list is there, where should it go?
-    fun offerSend(id: String, name: String, tracks: Int) {
+    fun offerSend(id: String, name: String, tracks: Int, leftOut: Int = 0) {
         scope.launch {
             val res = snackbar.showSnackbar(
-                message = ctx.getString(R.string.csv_imported, tracks),
+                message = ctx.getString(R.string.csv_imported, tracks) + (if (leftOut > 0) "\n" + ctx.getString(R.string.library_left_out, leftOut) else ""),
                 actionLabel = ctx.getString(R.string.files_send_to),
                 duration = SnackbarDuration.Long,
             )
@@ -814,18 +814,19 @@ internal fun FilesCard(
                 LibraryImport.startFile(ctx, uri, name)
                 return@launch
             }
+            var leftOut = 0
             val result = withContext(Dispatchers.IO) {
                 runCatching {
                     // A small one: the same reading, a piece at a time, without the progress. Bytes, not
                     // a UTF-8 reader: a BOM or a Windows-1252 .m3u decodes as written.
                     val input = ctx.contentResolver.openInputStream(uri) ?: error(ctx.getString(R.string.library_cannot_open))
-                    input.use { LocalFilesProvider.importStream(ctx, name, com.xlollx.songport.sync.PlaylistFiles.reader(it)) }
+                    input.use { LocalFilesProvider.importStream(ctx, name, com.xlollx.songport.sync.PlaylistFiles.reader(it), onLeftOut = { n -> leftOut = n }) }
                 }
             }
             onMain {
                 result.onSuccess { pl ->
                     version++
-                    offerSend(pl.id, pl.name, pl.trackCount.coerceAtLeast(0))
+                    offerSend(pl.id, pl.name, pl.trackCount.coerceAtLeast(0), leftOut)
                 }.onFailure {
                     // Cut short: nothing was added, said in the person's language.
                     snackbar.showSnackbar(if (it is com.xlollx.songport.sync.ItunesLibrary.Incomplete) ctx.getString(R.string.file_incomplete) else it.userMessage(ctx))
