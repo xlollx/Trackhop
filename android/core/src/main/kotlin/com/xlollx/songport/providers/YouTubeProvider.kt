@@ -50,21 +50,21 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
     override val listsEveryLike = false
 
     override val setupGuide = SetupGuide(
-        dashboardUrl = "https://console.cloud.google.com/apis/credentials",
+        // Google's "Personal mode" (28/11/2026): project and Desktop client in one page, nothing to verify,
+        // publish or list as test user, no weekly sign-out; only the Gmail that made it signs in with it.
+        dashboardUrl = "https://console.cloud.google.com/auth/overview/personal?clientType=desktop",
         whyName = "setup_why_youtube",
         stepsArrayName = "setup_steps_youtube",
         fieldLabelName = "setup_field_client_id",
         needsSecret = true,
-        // La console ricorda l'ultimo progetto scelto: dopo il primo passo i link si aprono gia' dentro.
         stepUrls = listOf(
-            "https://console.cloud.google.com/projectcreate",
-            "https://console.cloud.google.com/apis/library/youtube.googleapis.com",
-            "https://console.cloud.google.com/auth/overview",
-            "https://console.cloud.google.com/auth/audience",
-            "https://console.cloud.google.com/auth/clients/create",
-            // Signing in: the guide with every Google error and its fix (Play review of 27/11).
+            "https://console.cloud.google.com/auth/overview/personal?clientType=desktop",
+            "https://console.cloud.google.com/flows/enableapi?apiid=youtube.googleapis.com",
+            null,
+            null,
+            "https://www.youtube.com/create_channel",
+            // The long way (a key for several Google accounts) and every Google error with its fix.
             "https://trackhop.org/guide/youtube-google-key",
-            "https://console.cloud.google.com/auth/audience",
         ),
     )
 
