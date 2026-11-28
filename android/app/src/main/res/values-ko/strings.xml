@@ -740,13 +740,11 @@
         <item>선택 사항: “User Management”에서 내 키를 쓸 수 있는 다른 Spotify 계정(이름과 이메일)을 5개까지 추가할 수 있어요. 예를 들어 가족이요.</item>
     </string-array>
     <string-array name="setup_steps_youtube">
-        <item>동기화할 YouTube 재생목록의 Google 계정(개인 Gmail. 학교·회사 계정은 차단될 수 있어요)으로 console.cloud.google.com에 로그인하세요. 약관 동의를 요청하면 동의하세요. 이름은 자유롭게(예: “Trackhop”) 프로젝트를 만들고, 알림을 기다렸다가 “프로젝트 선택”을 누른 뒤 상단 바에서 이름을 확인하세요. 이후 모든 단계는 이 프로젝트 안에서 해요.</item>
-        <item>YouTube Data API v3를 사용 설정하세요. 링크를 열면 해당 페이지가 열려요. 상단에 내 프로젝트가 보이는지 확인하고 “사용”을 누른 뒤 페이지가 바뀔 때까지 기다리세요.</item>
-        <item>Google Auth Platform → “개요”에서 “시작하기”: 앱 이름 “Trackhop”, 지원 이메일은 내 Gmail, “다음”; 대상 “외부”, “다음”; 연락처는 내 Gmail, “다음”; 동의에 체크하고 “계속”, “만들기”.</item>
-        <item>이 단계는 건너뛰지 마세요. Google Auth Platform → “대상”의 “테스트 사용자”에서 “사용자 추가”를 누르고, 로그인할 때 쓸 것과 같은 Gmail을 입력한 뒤 “저장”을 누르세요. 이 단계가 없으면 Google이 “액세스 차단됨: Trackhop에서 Google 인증 절차를 완료하지 않았습니다”라고 해요.</item>
-        <item>Google Auth Platform → “클라이언트” → “클라이언트 만들기”: 애플리케이션 유형 “데스크톱 앱”(Android도 웹도 아님), 이름은 자유, “만들기”. Client ID와 Client secret을 바로 여기에 공백 없이 복사하세요. secret은 이번에만 보여요(잃어버렸다면 클라이언트를 열고 “보안 비밀 추가”). 더 쉬운 방법: 같은 창에서 \"JSON 다운로드\"를 누르고 아래의 \"클라이언트 파일(JSON) 가져오기\"를 사용하세요.</item>
-        <item>로그인을 누르고 같은 Gmail을 고르세요. “Google에서 확인하지 않은 앱” 화면에서는 “계속”을 누르고(내 앱이에요) YouTube 계정 접근을 허용하세요. 채널이 여러 개면 재생목록이 있는 채널을 고르세요. 다른 오류는 링크에서 오류별 해결 방법이 담긴 가이드를 열 수 있어요.</item>
-        <item>권장: 앱이 “테스트 중”인 동안 Google은 7일마다 로그아웃시켜요. 로그인을 유지하려면 “대상” → “앱 게시” → “확인” 후 여기서 한 번 더 로그인하세요. 사용자가 100명을 넘지 않으면 Google은 검토하지 않아요. \"앱 게시\"가 회색이면: \"브랜딩\"에서 홈페이지에 https://trackhop.org, 개인정보처리방침 링크에 https://trackhop.org/privacy-policy, \"승인된 도메인\"에 trackhop.org를 입력하고 \"저장\"한 뒤 돌아오세요.</item>
+        <item>링크로 Google 페이지를 여세요(YouTube 재생목록을 동기화할 Gmail로, 개인 Gmail 권장). 제안된 프로젝트를 그대로 두거나 선택하고, 클라이언트 유형이 \"데스크톱 앱\"인지 확인한 뒤 약관에 동의하고 \"계속\"을 누르세요.</item>
+        <item>그 프로젝트에서 YouTube Data API v3를 사용 설정하세요. 링크로 열고 상단의 프로젝트 이름을 확인한 뒤 \"사용\"을 누르세요.</item>
+        <item>클라이언트 화면으로 돌아와 \"JSON 다운로드\"를 누른 다음 아래의 \"클라이언트 파일(JSON) 가져오기\"를 누르세요. 또는 클라이언트 ID와 클라이언트 보안 비밀을 공백 없이 입력란에 복사하세요.</item>
+        <item>\"저장 후 연결\"을 누르고 같은 Gmail을 선택하세요. 테스트 사용자, 게시가 필요 없고 7일마다 로그아웃되지도 않습니다. 이 키로는 그 Gmail만 로그인할 수 있으니, 다른 Google 계정은 같은 방법으로 키를 하나 더 만드세요.</item>
+        <item>여러 Google 계정에서 키 하나를 쓰거나 다른 컴퓨터에서 Docker 서버를 쓰나요? 링크에서 긴 방법과 모든 Google 오류의 해결법을 볼 수 있습니다.</item>
     </string-array>
     <string-array name="setup_steps_tidal">
         <item>TIDAL 계정으로 developer.tidal.com에 로그인하세요.</item>

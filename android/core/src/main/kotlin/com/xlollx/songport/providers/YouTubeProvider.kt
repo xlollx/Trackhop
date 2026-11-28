@@ -62,7 +62,6 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
             "https://console.cloud.google.com/flows/enableapi?apiid=youtube.googleapis.com",
             null,
             null,
-            "https://www.youtube.com/create_channel",
             // The long way (a key for several Google accounts) and every Google error with its fix.
             "https://trackhop.org/guide/youtube-google-key",
         ),

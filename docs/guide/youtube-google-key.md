@@ -33,10 +33,6 @@ the same way).
    two values into their fields.)
 5. Press **Save and connect** and pick the same Gmail. Done.
 
-**"Channel not found"?** That Google account has no YouTube channel yet (YouTube Music works without one,
-the API doesn't). Open the YouTube app with that Gmail, tap your picture, then **Create a channel**: it
-publishes nothing. Then try again.
-
 The long way below is for a key that **several Google accounts** share, and for the **Docker server** opened
 from another computer (it needs a *Web application* client with a redirect).
 
