@@ -3984,4 +3984,14 @@
     <string name="setup_import_google_file">Импортировать файл клиента (JSON)</string>
     <string name="setup_import_google_ok">Идентификатор клиента и секрет заполнены из файла.</string>
     <string name="setup_import_google_bad">Это не файл клиента Google. В Google Cloud откройте свой клиент и нажмите «Скачать JSON».</string>
+    <string name="library_left_out">%1$d записей пропущено: это не песни в ваших файлах (интернет-радио, песни только в облаке, подкасты или видео).</string>
+    <string name="tools_wanted_show_ticked">Показывать отмеченные тоже (%1$d)</string>
+    <string name="auth_google_test_users">Google заблокировал вход, так как ваш Gmail не в списке тестовых пользователей вашего проекта Google. Откройте Google Auth Platform › Audience, нажмите «Add users» под «Test users», добавьте свой Gmail, сохраните и попробуйте снова.</string>
+    <string name="auth_google_timeout_hint">Нет ответа от браузера. Если Google показал «Access blocked: has not completed the Google verification process», ваш Gmail не в списке тестовых пользователей вашего проекта Google: откройте Audience, нажмите «Add users» под «Test users», добавьте его, сохраните и попробуйте снова.</string>
+    <string name="auth_open_console">Открыть Google</string>
+    <string name="progress_network_retry">Нет соединения с %1$s: пробую снова через %2$d с (попытка %3$d из %4$d)</string>
+    <string name="server_both_down">%1$s не отвечает ни дома, ни вне: он включен? Подключён ли ваш VPN (например, Tailscale)?</string>
+    <string name="error_target_library_changed">Библиотека %1$s изменилась (файлы перемещены или переимпортированы) и плейлист потерял песни. Перестроить?</string>
+    <string name="preview_rebuild_confirm">Перестроить плейлист: добавить его песни снова из источника</string>
+    <string name="web_spotify_web_unavailable">Spotify (web) сейчас не работает на Desktop и Docker из-за изменений на стороне Spotify. Пока используйте Spotify с собственным ключом (Spotify, официальный).</string>
 </resources>

@@ -3746,4 +3746,14 @@
     <string name="setup_import_google_file">Importar o arquivo do cliente (JSON)</string>
     <string name="setup_import_google_ok">ID do cliente e secret preenchidos a partir do arquivo.</string>
     <string name="setup_import_google_bad">Este não é um arquivo de cliente do Google. No Google Cloud abra seu cliente e toque em Baixar JSON.</string>
+    <string name="library_left_out">%1$d entradas faltantes: não são músicas nos seus arquivos (rádio na internet, músicas apenas na nuvem, podcasts ou vídeos).</string>
+    <string name="tools_wanted_show_ticked">Mostre também os marcados (%1$d)</string>
+    <string name="auth_google_test_users">O Google bloqueou o login porque seu Gmail não está na lista de usuários de teste do seu projeto Google. Abra o Google Auth Platform › Audiência, pressione “Adicionar usuários” sob “Usuários de teste”, adicione o Gmail que você faz login com, salve e tente novamente.</string>
+    <string name="auth_google_timeout_hint">Não há resposta no navegador. Se o Google mostrou “Acesso bloqueado: não completou o processo de verificação do Google”, seu Gmail não está na lista de usuários de teste do seu projeto Google: abra Audiência, pressione “Adicionar usuários” sob “Usuários de teste”, adicione, salve e tente novamente.</string>
+    <string name="auth_open_console">Abra Google</string>
+    <string name="progress_network_retry">Não há conexão com %1$s: tentando novamente em %2$d segundos (tentativa %3$d de %4$d)</string>
+    <string name="server_both_down">%1$s não responde em casa ou fora: está ligado? Tem sua VPN (ex: Tailscale) conectada?</string>
+    <string name="error_target_library_changed">A %1$s library mudou (arquivos movidos ou reimportados) e a playlist perdeu as músicas. Reconstrua?</string>
+    <string name="preview_rebuild_confirm">Reconstrua a playlist: adicione suas músicas novamente da fonte</string>
+    <string name="web_spotify_web_unavailable">O Spotify (web) não funciona no Desktop e Docker agora por causa de uma mudança no lado do Spotify. Use o Spotify com sua própria chave (Spotify, oficial) enquanto isso.</string>
 </resources>

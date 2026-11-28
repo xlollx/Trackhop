@@ -3738,4 +3738,14 @@
     <string name="setup_import_google_file">Client-Datei importieren (JSON)</string>
     <string name="setup_import_google_ok">Client-ID und Secret aus der Datei übernommen.</string>
     <string name="setup_import_google_bad">Das ist keine Google-Client-Datei. Öffne in Google Cloud deinen Client und tippe auf JSON herunterladen.</string>
+    <string name="library_left_out">%1$d Einträge übersprungen: sie sind keine Lieder in deinen Dateien (Internetradio, Lieder nur in der Cloud, Podcasts oder Videos).</string>
+    <string name="tools_wanted_show_ticked">Auch ausgewählt anzeigen (%1$d)</string>
+    <string name="auth_google_test_users">Google hat die Anmeldung blockiert, weil deine Gmail nicht auf der Test users Liste deines Google Projekts ist. Öffne Google Auth Platform › Audience, presse \'Add users\' unter \'Test users\', füge die Gmail ein, mit der du dich anmeldest, speichere und versuche es erneut.</string>
+    <string name="auth_google_timeout_hint">Keine Antwort vom Browser. Wenn Google \'Access blocked: has not completed the Google verification process\' anzeigt, ist deine Gmail nicht auf der Test users Liste deines Google Projekts: öffne Audience, presse \'Add users\' unter \'Test users\', füge sie hinzu, speichere und versuche es erneut.</string>
+    <string name="auth_open_console">Öffne Google</string>
+    <string name="progress_network_retry">Keine Verbindung zu %1$s: versuche es erneut in %2$d s (Versuch %3$d von %4$d)</string>
+    <string name="server_both_down">%1$s antwortet nicht zu Hause oder unterwegs: ist es an? Ist deine VPN-Verbindung (z. B. Tailscale) verbunden?</string>
+    <string name="error_target_library_changed">Die %1$s Bibliothek hat sich geändert (Dateien verschoben oder neu importiert) und die Playlist ihre Lieder verloren. Soll ich sie neu aufbauen?</string>
+    <string name="preview_rebuild_confirm">Playlist neu aufbauen: Lieder erneut der Quelle hinzufügen</string>
+    <string name="web_spotify_web_unavailable">Spotify (web) funktioniert derzeit nicht auf Desktop und Docker wegen einer Änderung auf Spotify-Seite. Nutze Spotify mit deinem eigenen Schlüssel (Spotify, official) zwischendurch.</string>
 </resources>

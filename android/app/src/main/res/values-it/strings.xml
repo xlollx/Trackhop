@@ -3738,4 +3738,14 @@
     <string name="setup_import_google_file">Importa il file del client (JSON)</string>
     <string name="setup_import_google_ok">Client ID e secret compilati dal file.</string>
     <string name="setup_import_google_bad">Questo non è un file di client Google. In Google Cloud apri il tuo client e premi Scarica JSON.</string>
+    <string name="library_left_out">%1$d voci escluse: non sono brani nei tuoi file (radio internet, brani solo nel cloud, podcast o video).</string>
+    <string name="tools_wanted_show_ticked">Mostra anche quelli spuntati (%1$d)</string>
+    <string name="auth_google_test_users">Google ha bloccato l\'accesso perché il tuo Gmail non è nell\'elenco Utenti di test del tuo progetto Google. Apri Google Auth Platform › Pubblico, premi “Aggiungi utenti” sotto “Utenti di test”, aggiungi il Gmail con cui accedi, salva e riprova.</string>
+    <string name="auth_google_timeout_hint">Nessuna risposta dal browser. Se Google ha mostrato “Accesso bloccato: il processo di verifica di Google non è stato completato”, il tuo Gmail non è nell\'elenco Utenti di test del tuo progetto Google: apri Pubblico, premi “Aggiungi utenti” sotto “Utenti di test”, aggiungilo, salva e riprova.</string>
+    <string name="auth_open_console">Apri Google</string>
+    <string name="progress_network_retry">Nessuna connessione a %1$s: nuovo tentativo tra %2$d s (tentativo %3$d di %4$d)</string>
+    <string name="server_both_down">%1$s non risponde né in locale né da remoto: è acceso? La tua VPN (ad es. Tailscale) è connessa?</string>
+    <string name="error_target_library_changed">La libreria %1$s è cambiata (file spostati o reimportati) e la playlist ha perso i suoi brani. Ricostruirla?</string>
+    <string name="preview_rebuild_confirm">Ricostruisci la playlist: aggiungi di nuovo i suoi brani dalla sorgente</string>
+    <string name="web_spotify_web_unavailable">Spotify (web) al momento non funziona su Desktop e Docker a causa di una modifica da parte di Spotify. Nel frattempo usa Spotify con la tua chiave (Spotify, ufficiale).</string>
 </resources>
