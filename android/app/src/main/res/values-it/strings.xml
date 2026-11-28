@@ -741,7 +741,7 @@
         <item quantity="other">%d sync configurate</item>
     </plurals>
     <string name="setup_spotify_no_key_route">Senza Premium, accedi invece con \"%1$s\": non serve nessuna chiave.</string>
-    <string name="setup_use_route">Usa %1$s</string>
+    <string name="setup_use_route">Usa %1$s invece</string>
     <string-array name="setup_steps_spotify">
         <item>Accedi a developer.spotify.com con l\'account Spotify che usi tutti i giorni. Spotify richiede che quell\'account abbia Premium; se ti chiede di accettare i termini per sviluppatori, accetta. Se in quella pagina "Web API" è grigio, l\'account non ha Premium e Spotify non gli concede la chiave.</item>
         <item>Premi "Create app". Nome e descrizione sono liberi (per esempio "Trackhop"). Lascia vuoto "Website".</item>
