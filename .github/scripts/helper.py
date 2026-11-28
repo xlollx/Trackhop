@@ -29,7 +29,7 @@ def log(msg):
 
 
 def post(url, headers, body, timeout=180):
-    req = urllib.request.Request(url, data=json.dumps(body).encode(), headers={"Content-Type": "application/json", **headers})
+    req = urllib.request.Request(url, data=json.dumps(body).encode(), headers={"Content-Type": "application/json", "User-Agent": "trackhop-helper/1.0 (+https://github.com/xlollx/Trackhop)", **headers})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return json.load(r)
 
