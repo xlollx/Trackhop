@@ -3624,4 +3624,5 @@
     <string name="error_target_library_changed">%1$s ライブラリが変更されました (ファイルが移動または再インポートされました) そしてプレイリストの楽曲が失われました。再構築しますか?</string>
     <string name="preview_rebuild_confirm">プレイリストを再構築: ソースから楽曲を再度追加します</string>
     <string name="web_spotify_web_unavailable">Spotify (ウェブ) は現在 Desktop と Docker で動作しません。Spotify の側の変更が原因です。Spotify を独自のキー (Spotify, 正式) でご利用ください。</string>
+    <string name="progress_network_retry">%1$s に接続できません: %2$d 秒後に再試行します (%4$d 回中 %3$d 回目)</string>
 </resources>
