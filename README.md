@@ -838,7 +838,10 @@ public issue.
 **Contributors.** Thank you to everyone who made Trackhop better:
 
 - Code: [JPMarcelino](https://github.com/JPMarcelino) (#66, two-way pairs handed to the server),
-  [Doggo785](https://github.com/Doggo785) (#87, Deezer liked songs in the right order).
+  [Doggo785](https://github.com/Doggo785) (#87, Deezer liked songs in the right order),
+  [dazzlejacket](https://github.com/dazzlejacket) (#46 and four fixes from their fork: Apple Music playlists
+  that are filled right after being created, slower searches when a service refuses a burst, ISRC lookups,
+  imported files as the source of a sync).
 - Reports and ideas: [raykai](https://github.com/raykai) (#67, #95, #96, #102, #103), [ingoau](https://github.com/ingoau) (#68, #69),
   [Echo-Phyber](https://github.com/Echo-Phyber) (#94).
 
