@@ -2168,6 +2168,7 @@
     </plurals>
     <string name="tools_wanted_by_album">By album</string>
     <string name="tools_wanted_show_got">Show what I got</string>
+    <string name="tools_wanted_show_ticked">Show ticked ones too (%1$d)</string>
     <string name="tools_wanted_from">From %1$s · since %2$s</string>
     <string name="tools_wanted_no_album">No album</string>
     <string name="tools_wanted_export">Export the list</string>

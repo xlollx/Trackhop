@@ -107,7 +107,13 @@ internal fun Web.wantedPage(r: Web.Req) {
     if (all) body.append("""<input type="hidden" name="all" value="true">""")
     body.append("""<button class="secondary">Show</button></form>""")
     body.append("""<p>${if (byAlbum) """<a href="${h(link(view = null))}">One line per track</a>""" else """<a href="${h(link(view = "albums"))}">By album</a>"""} · """)
-    body.append(if (all) """<a href="${h(link(showAll = false))}">Hide what I got</a>""" else """<a href="${h(link(showAll = true))}">Show what I got too</a>""")
+    // Only the ones ticked as got are added: with none ticked there is nothing to show, so no link, only the count.
+    val ticked = runCatching { wantedList(r.query, true).count { it.got } }.getOrDefault(0)
+    body.append(when {
+        all -> """<a href="${h(link(showAll = false))}">Hide ticked ones ($ticked)</a>"""
+        ticked > 0 -> """<a href="${h(link(showAll = true))}">Show ticked ones too ($ticked)</a>"""
+        else -> """<span class="muted" title="Nothing is ticked as got yet">Show ticked ones too (0)</span>"""
+    })
     body.append("""</p><p class="muted">Download: ${WANTED_FORMATS.joinToString(" · ") { (f, label) -> """<a href="${h(link(format = f.name.lowercase()))}" download>$label</a>""" }}</p>""")
     Api.listKey(env)?.takeIf { env.may(Permissions.API) }?.let { key ->
         body.append("""<p class="muted">Lidarr: Settings › Import Lists › Custom List, List URL <code>${h(env.baseUrl.trimEnd('/'))}/api/v1/wanted?format=lidarr&amp;key=$key</code> (this key opens this list only; a new API token changes it). Lidarr adds the artists whose MusicBrainz id is known.</p>""")
