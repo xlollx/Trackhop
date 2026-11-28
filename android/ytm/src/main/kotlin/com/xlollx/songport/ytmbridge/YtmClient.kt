@@ -422,6 +422,7 @@ class YtmClient(private val host: YtmHost) {
     private fun listing(playlistId: String, wanted: Set<String>?): List<TrackDto> {
         val missing = wanted?.let { HashSet(it) }
         val out = LinkedHashMap<String, TrackDto>()
+        var layout: String? = null
         var resp = call("browse", mapOf("browseId" to browseIdOf(playlistId)))
         // The size the page's header states ("2,084 songs"), to tell a listing cut short from a whole one.
         val declared = declaredCount(resp)
@@ -434,6 +435,7 @@ class YtmClient(private val host: YtmHost) {
                 ?: resp
             for (item in shelf.findAll("musicResponsiveListItemRenderer")) {
                 val t = parseItem(item) ?: continue
+                if (layout == null && wanted == null) layout = layoutOf(item)
                 // The same video can appear twice in a playlist: key by set id when we have one.
                 val key = t.setVideoId ?: t.id
                 if (out.putIfAbsent(key, t) == null) added++
@@ -443,6 +445,13 @@ class YtmClient(private val host: YtmHost) {
             val next = continuationOf(shelf) ?: break
             if (added == 0 || ++pages > 300) break
             resp = continueBrowse(next)
+        }
+        // Rows without album or length (the export of missing songs and the matching need them): the
+        // layout the rows came in, without any title or name, so a changed page can be told from a gap.
+        if (wanted == null && out.size >= 20) {
+            val album = out.values.count { it.album.isNotBlank() }
+            val length = out.values.count { it.durationMs > 0 }
+            if (album * 10 < out.size || length * 10 < out.size) host.log("listing: ${out.size} songs, album on $album, length on $length; row layout: $layout")
         }
         // Under half of what the header states: a page left out or sent in another layout. Returned as
         // is, it would read as an emptied playlist, and a sync would write everything to it again.
@@ -924,6 +933,14 @@ class YtmClient(private val host: YtmHost) {
     }
 
     // ------------------------------------------------------------------ parsing
+
+    /** A row's shape for the log: its keys, its columns and the kinds of links in them; no text of the row. */
+    private fun layoutOf(r: JsonElement): String {
+        val keys = (r as? JsonObject)?.keys?.joinToString(",").orEmpty()
+        val cols = r["flexColumns"].arr.map { c -> c["musicResponsiveListItemFlexColumnRenderer"]["text"]["runs"].arr.map { run -> run["navigationEndpoint"]["browseEndpoint"]["browseId"].str?.take(4) ?: "-" } }
+        val fixed = r["fixedColumns"].arr.size
+        return "keys=[$keys] flex=$cols fixed=$fixed"
+    }
 
     private fun parseItem(r: JsonElement): TrackDto? {
         val videoId = r["playlistItemData"]["videoId"].str
