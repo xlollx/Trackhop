@@ -3736,4 +3736,14 @@
     <string name="setup_import_google_file">İstemci dosyasını içe aktar (JSON)</string>
     <string name="setup_import_google_ok">İstemci kimliği ve gizli anahtar dosyadan dolduruldu.</string>
     <string name="setup_import_google_bad">Bu bir Google istemci dosyası değil. Google Cloud\'da istemcinizi açın ve \"JSON\'u indir\" düğmesine basın.</string>
+    <string name="library_left_out">%1$d girdi dışarıda bırakıldı: dosyalarınızda şarkı değiller (internet radyosu, yalnızca buluttaki şarkılar, podcast\'ler veya videolar).</string>
+    <string name="tools_wanted_show_ticked">İşaretli olanları da göster (%1$d)</string>
+    <string name="auth_google_test_users">Google, Gmail\'iniz Google projenizin Test kullanıcıları listesinde olmadığı için oturum açmayı engelledi. Google Auth Platform › Kitle bölümünü açın, “Test kullanıcıları” altındaki “Kullanıcı ekle” düğmesine basın, oturum açtığınız Gmail\'i ekleyin, kaydedin ve yeniden deneyin.</string>
+    <string name="auth_google_timeout_hint">Tarayıcıdan yanıt yok. Google “Erişim engellendi: Google doğrulama sürecini tamamlamadı” mesajını gösterdiyse, Gmail\'iniz Google projenizin Test kullanıcıları listesinde değildir: Kitle bölümünü açın, “Test kullanıcıları” altındaki “Kullanıcı ekle” düğmesine basın, ekleyin, kaydedin ve yeniden deneyin.</string>
+    <string name="auth_open_console">Google\'ı aç</string>
+    <string name="progress_network_retry">%1$s ile bağlantı yok: %2$d sn içinde yeniden deneniyor (deneme %3$d / %4$d)</string>
+    <string name="server_both_down">%1$s evde de uzakta da yanıt vermiyor: açık mı? VPN\'iniz (ör. Tailscale) bağlı mı?</string>
+    <string name="error_target_library_changed">%1$s kitaplığı değişti (dosyalar taşındı veya yeniden içe aktarıldı) ve çalma listesi şarkılarını kaybetti. Yeniden oluşturulsun mu?</string>
+    <string name="preview_rebuild_confirm">Çalma listesini yeniden oluştur: şarkılarını kaynaktan tekrar ekle</string>
+    <string name="web_spotify_web_unavailable">Spotify (web), Spotify tarafındaki bir değişiklik nedeniyle şu anda Desktop ve Docker\'da çalışmıyor. Bu arada kendi anahtarınızla Spotify\'ı kullanın (Spotify, official).</string>
 </resources>

@@ -3615,4 +3615,13 @@
     <string name="setup_import_google_file">クライアントファイル (JSON) を読み込む</string>
     <string name="setup_import_google_ok">ファイルからクライアント ID とシークレットを入力しました。</string>
     <string name="setup_import_google_bad">Google のクライアントファイルではありません。Google Cloud でクライアントを開き、「JSON をダウンロード」を押してください。</string>
+    <string name="library_left_out">%1$d 件が含まれていません: これはローカルのファイルにある曲ではありません (インターネットラジオ、クラウド上の曲のみ、ポッドキャストまたは動画)。</string>
+    <string name="tools_wanted_show_ticked">チェック済みも表示 (%1$d)</string>
+    <string name="auth_google_test_users">Google がサインインをブロックしたのは、あなたの Gmail があなたの Google プロジェクトの Test users リストに含まれていないためです。Google Auth Platform › Audience へ移動し、Test users の下にある Add users を押して、サインインに使用している Gmail を追加し、保存して、再度試してください。</string>
+    <string name="auth_google_timeout_hint">ブラウザから返答がありません。Google が “Access blocked: has not completed the Google verification process” と表示した場合、あなたの Gmail はあなたの Google プロジェクトの Test users リストに含まれていません: Audience へ移動し、Test users の下にある Add users を押して、追加し、保存して、再度試してください。</string>
+    <string name="auth_open_console">Google を開く</string>
+    <string name="server_both_down">%1$s がホームでも外でも返答しない: オンですか? VPN (例: Tailscale) は接続していますか?</string>
+    <string name="error_target_library_changed">%1$s ライブラリが変更されました (ファイルが移動または再インポートされました) そしてプレイリストの楽曲が失われました。再構築しますか?</string>
+    <string name="preview_rebuild_confirm">プレイリストを再構築: ソースから楽曲を再度追加します</string>
+    <string name="web_spotify_web_unavailable">Spotify (ウェブ) は現在 Desktop と Docker で動作しません。Spotify の側の変更が原因です。Spotify を独自のキー (Spotify, 正式) でご利用ください。</string>
 </resources>

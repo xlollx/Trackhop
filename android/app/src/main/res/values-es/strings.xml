@@ -3746,4 +3746,14 @@
     <string name="setup_import_google_file">Importar el archivo del cliente (JSON)</string>
     <string name="setup_import_google_ok">ID de cliente y secreto rellenados desde el archivo.</string>
     <string name="setup_import_google_bad">Este no es un archivo de cliente de Google. En Google Cloud abre tu cliente y pulsa Descargar JSON.</string>
+    <string name="library_left_out">%1$d entradas excluidas: no son canciones de tus archivos (radio por internet, canciones solo en la nube, podcasts o videos).</string>
+    <string name="tools_wanted_show_ticked">Mostrar también las marcadas (%1$d)</string>
+    <string name="auth_google_test_users">Google bloqueó el inicio de sesión porque tu Gmail no está en la lista de Usuarios de prueba de tu proyecto de Google. Abre Google Auth Platform › Audiencia, presiona “Agregar usuarios” en “Usuarios de prueba”, agrega el Gmail con el que inicias sesión, guarda y vuelve a intentarlo.</string>
+    <string name="auth_google_timeout_hint">El navegador no respondió. Si Google mostró “Acceso bloqueado: no se ha completado el proceso de verificación de Google”, tu Gmail no está en la lista de Usuarios de prueba de tu proyecto de Google: abre Audiencia, presiona “Agregar usuarios” en “Usuarios de prueba”, agrégalo, guarda y vuelve a intentarlo.</string>
+    <string name="auth_open_console">Abrir Google</string>
+    <string name="progress_network_retry">Sin conexión a %1$s: reintentando en %2$d s (intento %3$d de %4$d)</string>
+    <string name="server_both_down">%1$s no responde ni en casa ni fuera: ¿está encendido? ¿Está conectada tu VPN (por ejemplo, Tailscale)?</string>
+    <string name="error_target_library_changed">La biblioteca de %1$s cambió (archivos movidos o reimportados) y la playlist perdió sus canciones. ¿Reconstruirla?</string>
+    <string name="preview_rebuild_confirm">Reconstruir la playlist: agregar sus canciones otra vez desde el origen</string>
+    <string name="web_spotify_web_unavailable">Spotify (web) no funciona en Escritorio y Docker ahora debido a un cambio de Spotify. Usa Spotify con tu propia clave (Spotify, oficial) mientras tanto.</string>
 </resources>

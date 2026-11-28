@@ -3986,4 +3986,14 @@
     <string name="setup_import_google_file">Importuj plik klienta (JSON)</string>
     <string name="setup_import_google_ok">Identyfikator klienta i sekret uzupełnione z pliku.</string>
     <string name="setup_import_google_bad">To nie jest plik klienta Google. W Google Cloud otwórz swojego klienta i naciśnij Pobierz JSON.</string>
+    <string name="library_left_out">%1$d pozycji pominięto: to nie są utwory w Twoich plikach (radio internetowe, utwory tylko w chmurze, podcasty lub wideo).</string>
+    <string name="tools_wanted_show_ticked">Pokaż też zaznaczone (%1$d)</string>
+    <string name="auth_google_test_users">Google zablokowało logowanie, bo Twój Gmail nie jest na liście Użytkowników testowych w Twoim projekcie Google. Otwórz Platformę uwierzytelniania Google › Odbiorcy, naciśnij „Dodaj użytkowników” pod „Użytkownikami testowymi”, dodaj Gmail, którym się logujesz, zapisz i spróbuj ponownie.</string>
+    <string name="auth_google_timeout_hint">Brak odpowiedzi z przeglądarki. Jeśli Google wyświetliło „Dostęp zablokowany: nie ukończono procesu weryfikacji Google”, Twój Gmail nie jest na liście Użytkowników testowych w Twoim projekcie Google: otwórz Odbiorców, naciśnij „Dodaj użytkowników” pod „Użytkownikami testowymi”, dodaj go, zapisz i spróbuj ponownie.</string>
+    <string name="auth_open_console">Otwórz Google</string>
+    <string name="progress_network_retry">Brak połączenia z %1$s: ponowna próba za %2$d s (próba %3$d z %4$d)</string>
+    <string name="server_both_down">%1$s nie odpowiada ani w domu, ani na zewnątrz: czy jest włączone? Czy Twój VPN (np. Tailscale) jest połączony?</string>
+    <string name="error_target_library_changed">Biblioteka %1$s uległa zmianie (przeniesiono pliki lub zaimportowano ponownie) i playlista utraciła utwory. Przebudować ją?</string>
+    <string name="preview_rebuild_confirm">Przebuduj playlistę: dodaj jej utwory ponownie ze źródła</string>
+    <string name="web_spotify_web_unavailable">Spotify (web) nie działa na Desktop i Dockerze ze względu na zmianę po stronie Spotify. Tymczasowo użyj Spotify z własnym kluczem (Spotify, oficjalne).</string>
 </resources>
