@@ -51,12 +51,12 @@ object SavedMatches {
         d.reviewDecisions.entries.sortedByDescending { it.value.at }.forEach { add(it.key) }
         d.matchCache.keys.reversed().forEach(::add)
         val missesValid = d.missRevision == Matcher.REVISION
-        d.missCache.entries.filter { missesValid && now - it.value < FileStore.MISS_TTL_MS }.sortedByDescending { it.value }.forEach { add(it.key) }
+        d.missCache.entries.filter { missesValid && now - it.value < FileStore.MISS_TTL_MS && FileStore.missValid(d, it.key) }.sortedByDescending { it.value }.forEach { add(it.key) }
         d.ignoredTracks.reversed().forEach(::add)
         return all.values.mapNotNull { a ->
             val decision = a.keys.mapNotNull { d.reviewDecisions[it] }.maxByOrNull { it.at }
             val cached = a.keys.firstNotNullOfOrNull { d.matchCache[it] }
-            val missAt = if (missesValid) a.keys.mapNotNull { d.missCache[it] }.maxOrNull()?.takeIf { now - it < FileStore.MISS_TTL_MS } else null
+            val missAt = if (missesValid) a.keys.filter { FileStore.missValid(d, it) }.mapNotNull { d.missCache[it] }.maxOrNull()?.takeIf { now - it < FileStore.MISS_TTL_MS } else null
             val ignored = a.keys.any { it in d.ignoredTracks } || decision?.kind == DecisionKind.IGNORE
             when {
                 ignored -> Entry(a.source, a.id, a.target, Kind.IGNORED, null, decision?.at ?: 0, a.keys)

@@ -311,8 +311,10 @@ open class AppleMusicProvider(override val slot: String = "") : MusicProvider {
 
     /** Apple restituisce un unico campo "artistName" tipo "Daft Punk & Pharrell Williams". */
     private fun splitArtists(s: String?): List<String> =
-        s?.split(Regex("""\s*(,|&|feat\.|ft\.|featuring)\s*""", RegexOption.IGNORE_CASE))
-            ?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
+        s?.let { com.xlollx.songport.sync.Matcher.splitArtists(it, APPLE_ARTIST_SEPARATORS) } ?: emptyList()
+
+    /** "Daft Punk & Pharrell Williams" is two names, "Simon & Garfunkel" one ([com.xlollx.songport.sync.Matcher.oneAct]). */
+    private val APPLE_ARTIST_SEPARATORS = Regex("""\s*(,|&|feat\.|ft\.|featuring)\s*""", RegexOption.IGNORE_CASE)
 
     override suspend fun tracks(ctx: Env, playlistId: String): List<Track> {
         if (playlistId == MusicProvider.LIKED_ID) return favorited(ctx)

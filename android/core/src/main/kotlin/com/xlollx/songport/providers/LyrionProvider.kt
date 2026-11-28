@@ -161,7 +161,7 @@ class LyrionProvider(override val slot: String = "") : CredentialsProvider(), Pl
         // With the full-text search (on by default) artist and title find the song; without it the
         // term is matched against titles alone, so the title follows, as folded and as written, then bare.
         val found = Matcher.searchByTitles(track, listOf(both) + Matcher.titleTerms(track.title)) { find(it) }
-        return Matcher.byArtist(track, found).sortedByDescending { Matcher.score(track, it) }.take(5)
+        return Matcher.byArtist(track, found).sortedByDescending { Matcher.score(track, it, Matcher.SERVER_POLICY) }.take(5)
     }
 
     override suspend fun createPlaylist(ctx: Env, name: String, description: String): Playlist {

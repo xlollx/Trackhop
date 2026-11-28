@@ -232,7 +232,7 @@ open class SubsonicProvider(override val slot: String = "") : CredentialsProvide
         // then the title, as written and bare, while nothing close is found, with the artist's songs first.
         val first = songs(q, 5)
         val found = Matcher.searchByTitles(track, Matcher.titleTerms(track.title).filterNot { it.equals(q, ignoreCase = true) }, first) { songs(it, 20) }
-        return if (found.size == first.size) first else Matcher.byArtist(track, found).sortedByDescending { Matcher.score(track, it) }.take(5)
+        return if (found.size == first.size) first else Matcher.byArtist(track, found).sortedByDescending { Matcher.score(track, it, Matcher.SERVER_POLICY) }.take(5)
     }
 
     /** OpenSubsonic: an empty query lists every song, a page at a time. */
@@ -347,6 +347,16 @@ open class SubsonicProvider(override val slot: String = "") : CredentialsProvide
         toTrack(call(ctx, "getSong", listOf("id" to songId))["song"])
 
     override val losesIds: Boolean get() = true
+
+    /** `getScanStatus`: Navidrome adds `lastScan`, the end of its last scan; other servers leave it out (null). */
+    override suspend fun lastScan(ctx: Env): Long? =
+        scanTime(call(ctx, "getScanStatus", emptyList())["scanStatus"]["lastScan"].str)
+
+    /** "2025-11-26T20:15:03.123456789Z" or with an offset, as epoch ms; null when missing or unreadable. */
+    internal fun scanTime(s: String?): Long? {
+        if (s.isNullOrBlank()) return null
+        return runCatching { java.time.OffsetDateTime.parse(s.trim()).toInstant().toEpochMilli() }.getOrNull()?.takeIf { it > 0 }
+    }
 
     /** `getSong` for each id: error 70, "data not found", is a song the server no longer has. */
     override suspend fun lostIds(ctx: Env, ids: Collection<String>): Set<String> {
