@@ -1,6 +1,6 @@
 ---
 title: YouTube Music with your own Google key, step by step (and every error fixed)
-description: Create the free Google key Trackhop's official YouTube route needs, in about ten minutes, with every click spelled out, and fix "Access blocked: has not completed the Google verification process", "Google hasn't verified this app", redirect_uri_mismatch, invalid_client and being signed out every week.
+description: Create the free Google key Trackhop's official YouTube route needs, in about three minutes with Google's Personal mode, with every click spelled out, and fix "Access blocked: has not completed the Google verification process", "Google hasn't verified this app", redirect_uri_mismatch, invalid_client and being signed out every week.
 ---
 
 # YouTube Music with your own Google key
@@ -14,13 +14,41 @@ one before.
 > normal: the "app" you create is **yours**, used only by **you**, and Google simply hasn't reviewed
 > it, because it doesn't need to. Nothing here costs money, and no credit card is asked.
 
-## What you need
+## The quick way: Google's Personal mode (about 3 minutes)
+
+Since late 2026 Google has a **Personal mode** that makes the project and the key in one page. Nothing to
+verify, no test users, no publishing, and Google does **not** sign you out every 7 days. The only limit:
+**only the Gmail that makes the key can sign in with it** (for a second Google account, make a second key
+the same way).
+
+1. Open [Google's Personal mode page](https://console.cloud.google.com/auth/overview/personal?clientType=desktop)
+   signed in with **the Gmail whose YouTube playlists you'll sync**. If Google opens another of your
+   accounts, switch account at the top right first.
+2. Keep the project it offers (or pick one), check that the client type is **Desktop app**, accept the terms
+   and press **Continue**.
+3. Turn on the API for that project: open [the YouTube Data API v3](https://console.cloud.google.com/flows/enableapi?apiid=youtube.googleapis.com),
+   check the project name at the top and press **Enable**.
+4. Back on the client, press **Download JSON**. In Trackhop open the key screen of YouTube Music (Google API)
+   and press **Import the client file (JSON)**: the Client ID and secret fill in by themselves. (Or copy the
+   two values into their fields.)
+5. Press **Save and connect** and pick the same Gmail. Done.
+
+**"Channel not found"?** That Google account has no YouTube channel yet (YouTube Music works without one,
+the API doesn't). Open the YouTube app with that Gmail, tap your picture, then **Create a channel**: it
+publishes nothing. Then try again.
+
+The long way below is for a key that **several Google accounts** share, and for the **Docker server** opened
+from another computer (it needs a *Web application* client with a redirect).
+
+## The long way
+
+### What you need
 
 - The **Google account (Gmail)** whose YouTube playlists you want to sync. Use the same one in every
   step. A personal Gmail works best: school and work accounts may be blocked by their administrator.
 - A computer is easier than a phone for these pages, but a phone works too.
 
-## Step 1: create a project
+### Step 1: create a project
 
 1. Open [console.cloud.google.com/projectcreate](https://console.cloud.google.com/projectcreate) and
    sign in with **that** Gmail.
@@ -31,13 +59,13 @@ one before.
 5. Check the project's name in the bar at the top of the page: every next step must happen **inside
    this project**.
 
-## Step 2: turn on the YouTube Data API
+### Step 2: turn on the YouTube Data API
 
 1. Open [the YouTube Data API v3 page](https://console.cloud.google.com/apis/library/youtube.googleapis.com).
 2. Check that the bar at the top shows **your project**.
 3. Press **Enable** and wait until the page changes to *API/Service details*.
 
-## Step 3: set up the sign-in screen
+### Step 3: set up the sign-in screen
 
 1. Open [Google Auth Platform › Overview](https://console.cloud.google.com/auth/overview) and press
    **Get started**. (If it shows *Branding* and *Audience* already, someone did this before: go to Step 4.)
@@ -46,7 +74,7 @@ one before.
 4. **Contact information**: your Gmail. Press **Next**.
 5. Tick the box to agree to the policy, press **Continue**, then **Create**.
 
-## Step 4: add yourself as a test user ⚠️ the step people miss
+### Step 4: add yourself as a test user ⚠️ the step people miss
 
 Without it Google answers **"Access blocked: Trackhop has not completed the Google verification
 process"** (Error 403: access_denied).
@@ -57,7 +85,7 @@ process"** (Error 403: access_denied).
 4. Check that it now appears in the *Test users* list. Up to 100 addresses: add your family's too if
    they'll use your key.
 
-## Step 5: create the client and copy it
+### Step 5: create the client and copy it
 
 1. Open [Google Auth Platform › Clients › Create client](https://console.cloud.google.com/auth/clients/create).
 2. **Application type**, depending on where you use Trackhop:
@@ -76,7 +104,7 @@ process"** (Error 403: access_denied).
 5. In Trackhop paste the **Client ID** and the **Client secret** in their fields, with nothing
    before or after (no spaces), and press **Save**.
 
-## Step 6: sign in
+### Step 6: sign in
 
 1. In Trackhop press **Sign in**. Google shows its account chooser: pick the **same Gmail** you added
    in Step 4.
@@ -87,7 +115,7 @@ process"** (Error 403: access_denied).
 4. If your Google account has more than one YouTube channel, pick the one with your playlists.
 5. Back in Trackhop, YouTube shows as connected. Done.
 
-## Step 7 (recommended): stay signed in for good
+### Step 7 (recommended): stay signed in for good
 
 While your app is in **Testing**, Google signs you out **every 7 days**, and syncs to YouTube stop
 until you sign in again. To avoid it:
@@ -118,6 +146,7 @@ until you sign in again. To avoid it:
 | **This app is blocked** / **admin_policy_enforced** | A school or work account whose administrator blocks it | Use a personal Gmail |
 | **Signed out after about a week** | The app is still in *Testing* | Step 7 |
 | **Publish app is grey**: "complete the configuration on the Branding page" | Home page, privacy policy and authorized domain are empty | Step 7, point 1 |
+| **Channel not found** (API 404) | The Google account has no YouTube channel | YouTube app › your picture › **Create a channel**, then try again |
 | **Quota exceeded** | YouTube's daily limit (about 100 searches a day) | Nothing is broken: the sync carries on by itself after midnight Pacific time |
 
 Still stuck? Open an [issue](https://github.com/xlollx/Trackhop/issues/new/choose) with the message
