@@ -238,6 +238,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        com.xlollx.songport.auth.AuthFlow.onAppResumed(this)
         // A radio sync whose window is open listens from here if it could not start in the background.
         runCatching { com.xlollx.songport.sync.RadioPlan.refresh(this, start = true) }
         // Which services are signed in, read once in the background for the editors (a sign-in may have just happened elsewhere).

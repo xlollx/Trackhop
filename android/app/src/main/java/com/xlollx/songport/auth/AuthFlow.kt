@@ -96,7 +96,8 @@ object AuthFlow {
                 tab.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 tab.launchUrl(ctx, Uri.parse(url))
 
-                val params = server.awaitRedirect()
+                if (isGoogle(provider)) { googleWaitingSince = System.currentTimeMillis(); googleHinted = false }
+                val params = try { server.awaitRedirect() } finally { googleWaitingSince = 0 }
                 // Il browser ha ricevuto il redirect: prima di parlare con Google riportiamo l'app in primo
                 // piano. In secondo piano, con risparmio dati o batteria attivi, Android nega la rete e il
                 // DNS fallisce con "Unable to resolve host".
@@ -114,6 +115,7 @@ object AuthFlow {
                 val message = try {
                     when {
                         // Google's "Access blocked" page is its own: the browser never comes back, so a Google sign-in with the person's own key that times out gets the hint too.
+                        params.isEmpty() && isGoogle(provider) && googleHinted -> ctx.getString(R.string.auth_failed, ctx.getString(R.string.auth_timeout))
                         params.isEmpty() && isGoogle(provider) -> { action = GOOGLE_AUDIENCE_URL; ctx.getString(R.string.auth_google_timeout_hint) }
                         params.isEmpty() -> ctx.getString(R.string.auth_failed, ctx.getString(R.string.auth_timeout))
                         params["error"] != null && needsTestUser(provider, params["error"], params["error_description"]) -> { action = GOOGLE_AUDIENCE_URL; ctx.getString(R.string.auth_google_test_users) }
@@ -162,6 +164,23 @@ object AuthFlow {
     }
 
     const val GOOGLE_AUDIENCE_URL = com.xlollx.songport.providers.GoogleSignIn.AUDIENCE_URL
+
+    // A Google sign-in waiting for the browser: since when (0 = none), and whether the hint was shown.
+    @Volatile private var googleWaitingSince = 0L
+    @Volatile private var googleHinted = false
+
+    /**
+     * Back in the app while a Google sign-in still waits: Google's "Access blocked" page never sends
+     * the browser back, so the hint about Test users (with the button to the Audience page) is shown
+     * now, once, instead of when the wait ends minutes later. The wait goes on: a sign-in finished
+     * after this still connects.
+     */
+    fun onAppResumed(ctx: Context) {
+        val since = googleWaitingSince
+        if (since == 0L || googleHinted || System.currentTimeMillis() - since < 5_000) return
+        googleHinted = true
+        AuthEvents.post(ctx.getString(R.string.auth_google_timeout_hint), GOOGLE_AUDIENCE_URL)
+    }
 
     private fun isGoogle(provider: MusicProvider) = provider.authDomain == com.xlollx.songport.providers.GoogleSignIn.DOMAIN
 
