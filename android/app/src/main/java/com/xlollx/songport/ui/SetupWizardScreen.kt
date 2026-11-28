@@ -205,7 +205,7 @@ fun SetupWizardScreen(provider: MusicProvider, onUseRoute: (MusicProvider) -> Un
 
             // Google: the client file from "Download JSON" fills both fields, nothing to copy by hand.
             if (provider.serviceId == YouTubeProvider.SERVICE) {
-                OutlinedButton(onClick = { pickClientFile.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }, modifier = Modifier.fillMaxWidth()) {
+                OutlinedButton(onClick = { pickClientFile.launch(arrayOf("*/*")) }, modifier = Modifier.fillMaxWidth()) {
                     Icon(Icons.Filled.FileOpen, null)
                     Spacer(Modifier.width(8.dp))
                     Text(stringResource(R.string.setup_import_google_file))
