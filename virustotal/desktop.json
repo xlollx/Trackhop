@@ -3,7 +3,7 @@
  "version": "2.2.6",
  "tag": "server-v2.2.6",
  "release": "https://github.com/xlollx/Trackhop/releases/tag/server-v2.2.6",
- "checked": "2026-11-28T08:56:10Z",
+ "checked": "2026-11-28T16:23:01Z",
  "clean": false,
  "files": [
   {
@@ -65,7 +65,7 @@
    "sha256": "4d9b9fcd82ef24d98b77b4fe05936cc5cea6537c390725842674158790f8c1ef",
    "malicious": 1,
    "suspicious": 0,
-   "engines": 56,
+   "engines": 59,
    "flagged_by": {
     "Microsoft": "Trojan:Script/Wacatac.B!ml"
    },
