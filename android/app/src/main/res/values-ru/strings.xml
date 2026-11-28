@@ -3994,4 +3994,5 @@
     <string name="error_target_library_changed">Библиотека %1$s изменилась (файлы перемещены или переимпортированы) и плейлист потерял песни. Перестроить?</string>
     <string name="preview_rebuild_confirm">Перестроить плейлист: добавить его песни снова из источника</string>
     <string name="web_spotify_web_unavailable">Spotify (web) сейчас не работает на Desktop и Docker из-за изменений на стороне Spotify. Пока используйте Spotify с собственным ключом (Spotify, официальный).</string>
+    <string name="auth_google_weekly">%1$s: Google вывел вас из системы, как он делает каждые 7 дней, пока ваш проект Google находится в режиме тестирования. Войдите снова, и чтобы это больше не повторялось, один раз опубликуйте свой проект: в Google Auth Platform › Branding установите домашнюю страницу https://trackhop.org, ссылку на политику конфиденциальности https://trackhop.org/privacy-policy и авторизованный домен trackhop.org, сохраните, затем Audience › Publish app.</string>
 </resources>

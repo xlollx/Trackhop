@@ -3996,4 +3996,5 @@
     <string name="error_target_library_changed">Biblioteka %1$s uległa zmianie (przeniesiono pliki lub zaimportowano ponownie) i playlista utraciła utwory. Przebudować ją?</string>
     <string name="preview_rebuild_confirm">Przebuduj playlistę: dodaj jej utwory ponownie ze źródła</string>
     <string name="web_spotify_web_unavailable">Spotify (web) nie działa na Desktop i Dockerze ze względu na zmianę po stronie Spotify. Tymczasowo użyj Spotify z własnym kluczem (Spotify, oficjalne).</string>
+    <string name="auth_google_weekly">%1$s: Google odlogował Cię, tak jak co 7 dni, gdy Twój projekt w Google jest w testowaniu. Zaloguj się ponownie, i aby na zawsze zatrzymać to, opublikuj swój projekt raz: w Google Auth Platform › Branding ustaw stronę główną https://trackhop.org, link polityki prywatności https://trackhop.org/privacy-policy i uprawnioną domenę trackhop.org, zapisz, potem Audience › Publish app.</string>
 </resources>

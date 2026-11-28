@@ -3625,4 +3625,5 @@
     <string name="error_target_library_changed">%1$s 库已更改（文件移动或重新导入），歌单丢失了歌曲。重建它？</string>
     <string name="preview_rebuild_confirm">重建歌单：从源头重新添加其歌曲</string>
     <string name="web_spotify_web_unavailable">Spotify（网页版）目前在桌面端和 Docker 上无法使用，因为 Spotify 那边有变动。请暂时使用自带密钥的 Spotify（Spotify，官方版）。</string>
+    <string name="auth_google_weekly">%1$s: Google 已将您登出，就像您的 Google 项目处于测试阶段时每 7 天会做的那样。请重新登录，如需永久停止此情况，请发布一次项目：在 Google Auth Platform › Branding 中设置主页 https://trackhop.org、隐私政策链接 https://trackhop.org/privacy-policy 和授权域 trackhop.org，保存，然后 Audience › Publish app。</string>
 </resources>
