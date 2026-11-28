@@ -965,9 +965,12 @@ class YtmClient(private val host: YtmHost) {
         val album = (cols.getOrNull(2)["runs"].arr + runs1)
             .firstOrNull { it["navigationEndpoint"]["browseEndpoint"]["browseId"].str?.startsWith("MPREb") == true }["text"].str
             ?: segments.getOrNull(1)?.takeIf { !DURATION.matches(it) && !COUNT.matches(it) }
+            // Playlist rows now come without links: the third column is the album as plain text.
+            ?: cols.getOrNull(2).runsText()?.trim()?.takeIf { it.isNotEmpty() && !DURATION.matches(it) && !COUNT.matches(it) }
             ?: ""
         val durationText = r["fixedColumns"].arr.firstOrNull()["musicResponsiveListItemFixedColumnRenderer"]["text"].runsText()
             ?: runs1.mapNotNull { it["text"].str?.trim() }.firstOrNull { DURATION.matches(it) }
+            ?: cols.drop(2).mapNotNull { it.runsText()?.trim() }.firstOrNull { DURATION.matches(it) }
         // A greyed-out entry (pulled, blocked in this country) keeps its row but gets this display policy.
         val available = r["musicItemRendererDisplayPolicy"].str != "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT"
         return TrackDto(videoId, title, artists, album, parseDuration(durationText), setId, available = available)

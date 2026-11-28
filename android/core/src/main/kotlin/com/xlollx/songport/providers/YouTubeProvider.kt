@@ -120,6 +120,16 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
         liked["items"].arr.isEmpty() && (liked["pageInfo"]["totalResults"].int ?: 0) == 0
     }.getOrDefault(false)
 
+    /** A Google account without a YouTube channel (404 channelNotFound): it needs one before any playlist. */
+    override fun friendlyApiError(ctx: Env, resp: HttpResponse): String? {
+        if (resp.code != 404) return null
+        val e = runCatching { parseJson(resp.body)["error"] }.getOrNull()
+        val notFound = e["errors"][0]["reason"].str == "channelNotFound" || e["message"].str?.contains("Channel not found", true) == true
+        if (!notFound) return null
+        return runCatching { ctx.text("yt_no_channel", displayName) }.getOrNull()
+            ?: "$displayName: this Google account has no YouTube channel yet. Open youtube.com with it, choose Create a channel, then try again."
+    }
+
     override fun errorMessage(resp: HttpResponse): String {
         val e = runCatching { parseJson(resp.body)["error"] }.getOrNull()
         val reason = e["errors"][0]["reason"].str

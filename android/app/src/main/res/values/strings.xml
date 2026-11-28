@@ -3753,4 +3753,5 @@
     <string name="setup_import_google_ok">Client ID and secret filled in from the file.</string>
     <string name="setup_import_google_bad">This isn\'t a Google client file. In Google Cloud open your client and press Download JSON.</string>
     <string name="auth_google_weekly">%1$s: Google signed you out, as it does every 7 days while your Google project is in Testing. Sign in again, and to stop it for good publish your project once: in Google Auth Platform › Branding set the home page https://trackhop.org, the privacy policy link https://trackhop.org/privacy-policy and the authorized domain trackhop.org, save, then Audience › Publish app.</string>
+    <string name="yt_no_channel">%1$s: this Google account has no YouTube channel yet, so it has no playlists to read or write. Open youtube.com with this account, choose “Create a channel”, then try again.</string>
 </resources>

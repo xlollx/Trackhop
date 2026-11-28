@@ -29,7 +29,9 @@ class LoopbackServer private constructor(private val socket: ServerSocket, priva
     suspend fun awaitRedirect(timeoutMs: Int = 5 * 60 * 1000): Map<String, String> = withContext(Dispatchers.IO) {
         socket.soTimeout = timeoutMs
         socket.use { server ->
-            val client = server.accept()
+            // No answer within the time (Google's "Access blocked" page never sends one back): an empty
+            // answer, never an exception, which would bring the whole app down.
+            val client = try { server.accept() } catch (_: java.net.SocketTimeoutException) { return@withContext emptyMap() } catch (_: java.net.SocketException) { return@withContext emptyMap() }
             client.use { conn ->
                 conn.soTimeout = 15_000
                 val reader = conn.getInputStream().bufferedReader()
