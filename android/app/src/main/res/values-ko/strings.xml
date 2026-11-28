@@ -744,7 +744,7 @@
         <item>YouTube Data API v3를 사용 설정하세요. 링크를 열면 해당 페이지가 열려요. 상단에 내 프로젝트가 보이는지 확인하고 “사용”을 누른 뒤 페이지가 바뀔 때까지 기다리세요.</item>
         <item>Google Auth Platform → “개요”에서 “시작하기”: 앱 이름 “Trackhop”, 지원 이메일은 내 Gmail, “다음”; 대상 “외부”, “다음”; 연락처는 내 Gmail, “다음”; 동의에 체크하고 “계속”, “만들기”.</item>
         <item>이 단계는 건너뛰지 마세요. Google Auth Platform → “대상”의 “테스트 사용자”에서 “사용자 추가”를 누르고, 로그인할 때 쓸 것과 같은 Gmail을 입력한 뒤 “저장”을 누르세요. 이 단계가 없으면 Google이 “액세스 차단됨: Trackhop에서 Google 인증 절차를 완료하지 않았습니다”라고 해요.</item>
-        <item>Google Auth Platform → “클라이언트” → “클라이언트 만들기”: 애플리케이션 유형 “데스크톱 앱”(Android도 웹도 아님), 이름은 자유, “만들기”. Client ID와 Client secret을 바로 여기에 공백 없이 복사하세요. secret은 이번에만 보여요(잃어버렸다면 클라이언트를 열고 “보안 비밀 추가”).</item>
+        <item>Google Auth Platform → “클라이언트” → “클라이언트 만들기”: 애플리케이션 유형 “데스크톱 앱”(Android도 웹도 아님), 이름은 자유, “만들기”. Client ID와 Client secret을 바로 여기에 공백 없이 복사하세요. secret은 이번에만 보여요(잃어버렸다면 클라이언트를 열고 “보안 비밀 추가”). 더 쉬운 방법: 같은 창에서 \"JSON 다운로드\"를 누르고 아래의 \"클라이언트 파일(JSON) 가져오기\"를 사용하세요.</item>
         <item>로그인을 누르고 같은 Gmail을 고르세요. “Google에서 확인하지 않은 앱” 화면에서는 “계속”을 누르고(내 앱이에요) YouTube 계정 접근을 허용하세요. 채널이 여러 개면 재생목록이 있는 채널을 고르세요. 다른 오류는 링크에서 오류별 해결 방법이 담긴 가이드를 열 수 있어요.</item>
         <item>권장: 앱이 “테스트 중”인 동안 Google은 7일마다 로그아웃시켜요. 로그인을 유지하려면 “대상” → “앱 게시” → “확인” 후 여기서 한 번 더 로그인하세요. 사용자가 100명을 넘지 않으면 Google은 검토하지 않아요.</item>
     </string-array>
@@ -3608,4 +3608,10 @@
     <string name="reconnect_renewed">%1$s: 세션을 갱신했습니다. 더 할 일은 없습니다.</string>
     <string name="reconnect_sign_in">%1$s: 세션을 갱신할 수 없습니다. 다시 로그인하세요.</string>
     <string name="reconnect_offline">%1$s: 서비스에 연결할 수 없어 아무것도 바뀌지 않았습니다. 나중에 다시 시도하세요.</string>
+    <string name="official_only_intro">이 버전은 각 서비스의 공식 API로만 연결합니다. Trackhop의 다른 버전은 더 많은 서비스를 지원합니다.</string>
+    <string name="official_only_key">키 설정이 번거로운가요? Trackhop의 다른 버전은 개발자 키 없이 %1$s에 연결합니다.</string>
+    <string name="official_only_link">어떤 버전이 맞을까요?</string>
+    <string name="setup_import_google_file">클라이언트 파일(JSON) 가져오기</string>
+    <string name="setup_import_google_ok">파일에서 클라이언트 ID와 시크릿을 채웠습니다.</string>
+    <string name="setup_import_google_bad">Google 클라이언트 파일이 아닙니다. Google Cloud에서 클라이언트를 열고 JSON 다운로드를 누르세요.</string>
 </resources>

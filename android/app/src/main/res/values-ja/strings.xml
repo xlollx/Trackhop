@@ -745,7 +745,7 @@
         <item>YouTube Data API v3 を有効にします。リンクでそのページが開きます。上部に自分のプロジェクトが表示されていることを確認し、「有効にする」を押してページが切り替わるまで待ちます。</item>
         <item>Google Auth Platform の「概要」で「開始」を押します。アプリ名「Trackhop」、サポートメールに自分の Gmail、「次へ」。対象「外部」、「次へ」。連絡先に自分の Gmail、「次へ」。同意にチェックして「続行」、「作成」。</item>
         <item>この手順は飛ばさないでください。Google Auth Platform の「対象」で、「テストユーザー」の「ユーザーを追加」を押し、ログインに使うのと同じ Gmail を入力して「保存」を押します。これがないと Google は「アクセスをブロック: Trackhop は Google の審査プロセスを完了していません」と表示します。</item>
-        <item>Google Auth Platform の「クライアント」で「クライアントを作成」。アプリケーションの種類は「デスクトップ アプリ」（Android や Web ではありません）、名前は自由で「作成」。クライアント ID とクライアント シークレットをすぐにここへ、空白なしでコピーします。シークレットが表示されるのはこの一度だけです（なくした場合はクライアントを開いて「シークレットを追加」）。</item>
+        <item>Google Auth Platform の「クライアント」で「クライアントを作成」。アプリケーションの種類は「デスクトップ アプリ」（Android や Web ではありません）、名前は自由で「作成」。クライアント ID とクライアント シークレットをすぐにここへ、空白なしでコピーします。シークレットが表示されるのはこの一度だけです（なくした場合はクライアントを開いて「シークレットを追加」）。 もっと簡単に：同じ画面で「JSON をダウンロード」を押し、下の「クライアントファイル (JSON) を読み込む」を使ってください。</item>
         <item>ログインを押し、同じ Gmail を選びます。「このアプリは Google で確認されていません」と出たら「続行」を押し（自分のアプリです）、YouTube アカウントへのアクセスを許可します。チャンネルが複数ある場合はプレイリストのあるものを選びます。それ以外のエラーは、リンクから各エラーと対処法のガイドを開けます。</item>
         <item>おすすめ：アプリが「テスト中」の間、Google は 7 日ごとにログアウトさせます。ログインを保つには「対象」、「アプリを公開」、「確認」の順に押し、ここでもう一度ログインします。利用者が 100 人を超えない限り Google の審査はありません。</item>
     </string-array>
@@ -3609,4 +3609,10 @@
     <string name="reconnect_renewed">%1$s：セッションを更新しました。ほかに必要な操作はありません。</string>
     <string name="reconnect_sign_in">%1$s：セッションを更新できませんでした。もう一度ログインしてください。</string>
     <string name="reconnect_offline">%1$s：サービスに接続できませんでした。何も変更していません。後でもう一度お試しください。</string>
+    <string name="official_only_intro">このバージョンは各サービスの公式 API だけで接続します。Trackhop の他のバージョンはさらに多くのサービスに対応しています。</string>
+    <string name="official_only_key">キーの設定が大変ですか？Trackhop の他のバージョンは開発者キーなしで %1$s に接続できます。</string>
+    <string name="official_only_link">どのバージョンが合っていますか？</string>
+    <string name="setup_import_google_file">クライアントファイル (JSON) を読み込む</string>
+    <string name="setup_import_google_ok">ファイルからクライアント ID とシークレットを入力しました。</string>
+    <string name="setup_import_google_bad">Google のクライアントファイルではありません。Google Cloud でクライアントを開き、「JSON をダウンロード」を押してください。</string>
 </resources>

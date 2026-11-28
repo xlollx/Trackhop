@@ -755,7 +755,7 @@
         <item>YouTube Data API v3\'ü etkinleştirin: bağlantı sayfasını açar. Üstte projenizin göründüğünü kontrol edin, \"Enable\" düğmesine basın ve sayfanın değişmesini bekleyin.</item>
         <item>Google Auth Platform, \"Overview\", \"Get started\" düğmesine basın: uygulama adı \"Trackhop\", destek olarak Gmail adresiniz, \"Next\"; kitle \"External\", \"Next\"; iletişim olarak Gmail adresiniz, \"Next\"; sözleşmeyi işaretleyin, \"Continue\", \"Create\".</item>
         <item>Bu adımı atlamayın. Google Auth Platform, \"Audience\": \"Test users\" altında \"Add users\" düğmesine basın, oturum açacağınız Gmail adresinin aynısını yazın ve \"Save\" düğmesine basın. Bu olmadan Google \"Access blocked: Trackhop has not completed the Google verification process\" der.</item>
-        <item>Google Auth Platform, \"Clients\", \"Create client\": uygulama türü \"Desktop app\" (Android değil, Web değil), herhangi bir ad, \"Create\". Client ID ve Client secret değerlerini hemen, boşluksuz buraya kopyalayın: Google secret\'ı yalnızca bu kez gösterir (kaybettiniz mi? client\'ı açıp \"Add secret\" düğmesine basın).</item>
+        <item>Google Auth Platform, \"Clients\", \"Create client\": uygulama türü \"Desktop app\" (Android değil, Web değil), herhangi bir ad, \"Create\". Client ID ve Client secret değerlerini hemen, boşluksuz buraya kopyalayın: Google secret\'ı yalnızca bu kez gösterir (kaybettiniz mi? client\'ı açıp \"Add secret\" düğmesine basın). Daha kolayı: aynı pencerede \"JSON\'u indir\" düğmesine basın ve aşağıdaki \"İstemci dosyasını içe aktar\" seçeneğini kullanın.</item>
         <item>Oturum aç düğmesine basın ve aynı Gmail\'i seçin. \"Google hasn\'t verified this app\" ekranında \"Continue\" düğmesine basın (uygulama sizin), sonra YouTube hesabınıza erişime izin verin. Birden fazla kanalınız varsa çalma listelerinizin olduğunu seçin. Başka bir hata: bağlantı, her hatayı ve çözümünü içeren kılavuzu açar.</item>
         <item>Önerilir: uygulama \"In testing\" durumundayken Google sizi her 7 günde bir oturumdan çıkarır. Oturumda kalmak için: \"Audience\", \"Publish app\", \"Confirm\", sonra burada bir kez daha oturum açın. Google, 100\'den fazla kişi kullanmadıkça incelemez.</item>
     </string-array>
@@ -3730,4 +3730,10 @@
     <string name="reconnect_renewed">%1$s: oturum yenilendi, başka bir şey yapmaya gerek yok.</string>
     <string name="reconnect_sign_in">%1$s: oturum yenilenemedi. Yeniden giriş yap.</string>
     <string name="reconnect_offline">%1$s: servise ulaşılamadı, hiçbir şey değişmedi. Daha sonra yeniden dene.</string>
+    <string name="official_only_intro">Bu sürüm servislere yalnızca resmi API\'leriyle bağlanır. Trackhop\'un diğer sürümleri daha fazlasını destekler.</string>
+    <string name="official_only_key">Anahtar ayarlamak zor mu geliyor? Trackhop\'un diğer sürümleri %1$s servisine geliştirici anahtarı olmadan bağlanır.</string>
+    <string name="official_only_link">Hangi sürüm size uygun?</string>
+    <string name="setup_import_google_file">İstemci dosyasını içe aktar (JSON)</string>
+    <string name="setup_import_google_ok">İstemci kimliği ve gizli anahtar dosyadan dolduruldu.</string>
+    <string name="setup_import_google_bad">Bu bir Google istemci dosyası değil. Google Cloud\'da istemcinizi açın ve \"JSON\'u indir\" düğmesine basın.</string>
 </resources>
