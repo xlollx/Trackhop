@@ -1,5 +1,5 @@
-# Helper: simple, repetitive project work done by free models (OpenCode Zen's DeepSeek V4.1 Flash free,
-# then OpenRouter's free models, then GitHub Models), so the assistant that maintains Trackhop spends fewer tokens. Started by hand or through the
+# Helper: simple, repetitive project work done by free models (Google's Gemini, OpenCode Zen's DeepSeek
+# V4.1 Flash free, OpenRouter's free models), so the assistant that maintains Trackhop spends fewer tokens. Started by hand or through the
 # API on a working branch (never main):
 #   translate  fills the other 11 app languages for the given string keys (placeholders checked by code);
 #   ask        writes a model's answer to a file (notes, summaries, test data);
@@ -44,7 +44,6 @@ on:
 
 permissions:
   contents: write
-  models: read
 
 concurrency:
   group: helper-${{ inputs.branch }}
@@ -70,9 +69,9 @@ jobs:
           FILES: ${{ inputs.files }}
           OUT_PATH: ${{ inputs.out_path }}
           MODEL: ${{ inputs.model }}
-          GITHUB_TOKEN: ${{ github.token }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           # The script comes from the workflow's own commit (main), not from the working branch.
           git fetch -q --depth 1 origin "$GITHUB_SHA"
@@ -84,9 +83,9 @@ jobs:
           TASK: ${{ inputs.task }}
           FILES: ${{ inputs.files }}
           MODEL: ${{ inputs.model }}
-          GITHUB_TOKEN: ${{ github.token }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           npm install -g --silent opencode-ai@1.19.5
           cfg="$RUNNER_TEMP/opencode.json"
@@ -98,7 +97,7 @@ jobs:
           prompt="$prompt
           Change only what the task needs. Do not touch .github/, Gradle files, signing or secrets. Keep the existing style."
           ok=0
-          for m in ${MODEL:-opencode/deepseek-v4.1-flash-free} opencode/glm-5.3-flash-free openrouter/qwen/qwen3-coder:free; do
+          for m in ${MODEL:-opencode/deepseek-v4.1-flash-free} google/gemini-flash-latest opencode/glm-5.3-flash-free; do
             echo "::group::model $m"
             if timeout 20m opencode run --model "$m" "$prompt"; then echo "::endgroup::"; if [ -n "$(git status --porcelain)" ]; then ok=1; echo "Changes made with $m" >> "$GITHUB_STEP_SUMMARY"; break; fi; else echo "::endgroup::"; fi
             git checkout -- . 2>/dev/null; git clean -fdq -e .github 2>/dev/null

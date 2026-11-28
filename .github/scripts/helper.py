@@ -8,8 +8,8 @@ Modes (env MODE):
              translation that loses a placeholder is retried once, then left out and reported.
   ask        Sends TASK (plus the files listed in FILES) and writes the answer to OUT_PATH.
 
-Models: OpenCode Zen's free DeepSeek V4.1 Flash (secret OPENCODE_API_KEY), then OpenRouter's free models
-(OPENROUTER_API_KEY), then GitHub Models with the workflow token. Nothing here reads user data or secrets other than the model keys.
+Models: Google's Gemini (free key, secret GEMINI_API_KEY), then OpenCode Zen's free DeepSeek V4.1 Flash
+(OPENCODE_API_KEY), then OpenRouter's free models (OPENROUTER_API_KEY). GitHub Models was retired on 30/07/2026. Nothing here reads user data or secrets other than the model keys.
 """
 import json, os, re, sys, time, urllib.request, urllib.error, pathlib
 
@@ -38,6 +38,11 @@ def chat(system, user, want_json=False):
     """One answer from the first free model that replies."""
     model = os.environ.get("MODEL", "").strip()
     tries = []
+    # Google's Gemini API (free key from AI Studio, secret GEMINI_API_KEY), OpenAI-compatible endpoint.
+    gem = os.environ.get("GEMINI_API_KEY")
+    if gem:
+        for m in ([model.split("/", 1)[1]] if model.startswith("gemini/") else []) + ["gemini-flash-latest", "gemini-2.5-flash"]:
+            tries.append(("gemini", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {"Authorization": "Bearer " + gem}, m))
     oc = os.environ.get("OPENCODE_API_KEY")
     if oc:
         oc_models = ([model.split("/", 1)[1]] if model.startswith("opencode/") else []) + ["deepseek-v4.1-flash-free", "glm-5.3-flash-free"]
@@ -47,10 +52,6 @@ def chat(system, user, want_json=False):
     if orkey:
         for m in ([model[len("openrouter/"):]] if model.startswith("openrouter/") and model.count("/") > 1 else []) + ["openrouter/free", "qwen/qwen3-coder:free"]:
             tries.append(("openrouter", "https://openrouter.ai/api/v1/chat/completions", {"Authorization": "Bearer " + orkey, "X-Title": "Trackhop helper"}, m))
-    gh = os.environ.get("GITHUB_TOKEN")
-    if gh:
-        for m in ["openai/gpt-4.1-mini", "openai/gpt-4o-mini"]:
-            tries.append(("github", "https://models.github.ai/inference/chat/completions", {"Authorization": "Bearer " + gh}, m))
     last = None
     for name, url, headers, m in tries:
         body = {"model": m, "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}], "temperature": 0.2}
