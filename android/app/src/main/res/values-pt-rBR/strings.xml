@@ -3757,4 +3757,5 @@
     <string name="preview_rebuild_confirm">Reconstrua a playlist: adicione suas músicas novamente da fonte</string>
     <string name="web_spotify_web_unavailable">O Spotify (web) não funciona no Desktop e Docker agora por causa de uma mudança no lado do Spotify. Use o Spotify com sua própria chave (Spotify, oficial) enquanto isso.</string>
     <string name="auth_google_weekly">%1$s: O Google desconectou você, como faz a cada 7 dias enquanto seu projeto do Google estiver em Teste. Entre novamente e, para resolver isso de vez, publique seu projeto uma vez: em Google Auth Platform › Branding, defina a página inicial https://trackhop.org, o link da política de privacidade https://trackhop.org/privacy-policy e o domínio autorizado trackhop.org, salve e depois em Público › Publicar app.</string>
+    <string name="yt_no_channel">%1$s: esta conta do Google ainda não tem um canal do YouTube, então não há playlists para ler ou gravar. Abra o youtube.com com esta conta, escolha “Criar um canal”, então tente novamente.</string>
 </resources>

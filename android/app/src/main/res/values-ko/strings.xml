@@ -3625,4 +3625,5 @@
     <string name="preview_rebuild_confirm">플레이리스트를 다시 빌드하세요: 소스에서 곡을 다시 추가하세요</string>
     <string name="web_spotify_web_unavailable">Spotify (웹) 현재 데스크톱과 Docker에서 작동하지 않아요. Spotify를 자체 키(Spotify, official)로 사용하세요.</string>
     <string name="auth_google_weekly">%1$s: Google이 사용자를 로그아웃시켰어요. Google 프로젝트가 Testing 상태인 동안 7일마다 이렇게 됩니다. 다시 로그인하고, 더 이상 이런 일이 없도록 하려면 프로젝트를 한 번 게시하세요: Google Auth Platform › Branding에서 홈 페이지 https://trackhop.org, 개인정보 처리방침 링크 https://trackhop.org/privacy-policy, 승인된 도메인 trackhop.org를 설정하고 저장한 다음, Audience › Publish app으로 이동하세요.</string>
+    <string name="yt_no_channel">%1$s: 이 Google 계정은 아직 YouTube 채널이 없어서 읽거나 쓸 플레이리스트가 없어요. 이 계정으로 youtube.com을 열고, “채널 만들기”를 선택한 다음 다시 시도하세요.</string>
 </resources>

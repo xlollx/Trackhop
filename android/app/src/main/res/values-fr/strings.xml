@@ -3757,4 +3757,5 @@
     <string name="preview_rebuild_confirm">Reconstruis la playlist : ajoute à nouveau ses chansons depuis la source</string>
     <string name="web_spotify_web_unavailable">Spotify (web) ne fonctionne pas sur Desktop et Docker pour l\'instant à cause d\'un changement du côté de Spotify. Utilise Spotify avec ta propre clé (Spotify, official) pendant ce temps.</string>
     <string name="auth_google_weekly">%1$s: Google t\'a déconnecté, comme tous les 7 jours tandis que ton projet Google est en test. Reconnecte-toi, et publie ton projet une fois pour arrêter définitivement : dans Google Auth Platform › Marque définis la page d\'accueil https://trackhop.org, le lien de politique de confidentialité https://trackhop.org/privacy-policy et le domaine autorisé trackhop.org, enregistre, puis Public › Publier l\'application.</string>
+    <string name="yt_no_channel">%1$s: ce compte Google n\'a pas encore de chaîne YouTube, donc il n\'a pas de playlists à lire ou à écrire. Ouvre youtube.com avec ce compte, choisis “Créer une chaîne”, puis réessaye.</string>
 </resources>

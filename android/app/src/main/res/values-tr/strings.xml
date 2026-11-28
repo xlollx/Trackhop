@@ -3747,4 +3747,5 @@
     <string name="preview_rebuild_confirm">Çalma listesini yeniden oluştur: şarkılarını kaynaktan tekrar ekle</string>
     <string name="web_spotify_web_unavailable">Spotify (web), Spotify tarafındaki bir değişiklik nedeniyle şu anda Desktop ve Docker\'da çalışmıyor. Bu arada kendi anahtarınızla Spotify\'ı kullanın (Spotify, official).</string>
     <string name="auth_google_weekly">%1$s: Google, her 7 gün bir arada projenin test aşamasında olduğu gibi sizleri dışlatır. Giriş yapın tekrar, ve etekle projenizi bir kez yayınla: Google Auth Platform > Branding\'da main home page\'yi https://trackhop.org, privacy policy link\'i https://trackhop.org/privacy-policy ve authorized domain trackhop.org\'yi, kaydedin, sonra Audience > Publish app\'a gidin.</string>
+    <string name="yt_no_channel">%1$s: bu Google hesabının henüz bir YouTube kanalı yok, bu yüzden okunacak veya yazılacak çalma listesi yok. Bu hesapla youtube.com\'u açın, “Kanal oluştur”u seçin, sonra tekrar deneyin.</string>
 </resources>

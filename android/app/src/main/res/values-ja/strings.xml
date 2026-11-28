@@ -3626,4 +3626,5 @@
     <string name="web_spotify_web_unavailable">Spotify (ウェブ) は現在 Desktop と Docker で動作しません。Spotify の側の変更が原因です。Spotify を独自のキー (Spotify, 正式) でご利用ください。</string>
     <string name="progress_network_retry">%1$s に接続できません: %2$d 秒後に再試行します (%4$d 回中 %3$d 回目)</string>
     <string name="auth_google_weekly">%1$s: Google がサインアウトされました。7日ごとに発生します。Google プロジェクトがテストの場合は、再度サインインしてください。永久に停止させるにはプロジェクトを一度公開してください: in Google Auth Platform › Branding ホームページ https://trackhop.org、プライバシーポリシーのリンク https://trackhop.org/privacy-policy と認可されたドメイン trackhop.org、保存、その後 Audience › Publish app.</string>
+    <string name="yt_no_channel">%1$s: この Google アカウントにはまだ YouTube チャンネルがないため、読み書きできるプレイリストがありません。このアカウントで youtube.com を開き、「チャンネルを作成」を選択してから、もう一度お試しください。</string>
 </resources>
