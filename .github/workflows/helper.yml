@@ -3,7 +3,8 @@
 # API on a working branch (never main):
 #   translate  fills the other 11 app languages for the given string keys (placeholders checked by code);
 #   ask        writes a model's answer to a file (notes, summaries, test data);
-#   code       OpenCode edits the code for a mechanical task (no shell, no network); changes to
+#   code       OpenCode (provider opencode, DeepSeek V4.1 Flash free) edits the code for a mechanical
+#              task (no shell, no network); changes to
 #              .github/, Gradle files and the signing setup are dropped before the commit.
 # The result is committed to the same branch, where it is reviewed, built and tested like any change.
 name: Helper
@@ -38,7 +39,7 @@ on:
         description: 'ask: file to write the answer to'
         default: 'helper-out.md'
       model:
-        description: 'Model id (optional; default: GitHub Models gpt-4.1-mini, then OpenRouter free)'
+        description: 'Model id (optional; code: opencode/deepseek-v4.1-flash-free; others: GitHub Models gpt-4.1-mini, then OpenRouter free)'
         default: ''
 
 permissions:
@@ -80,6 +81,7 @@ jobs:
           MODEL: ${{ inputs.model }}
           GITHUB_TOKEN: ${{ github.token }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         run: |
           npm install -g --silent opencode-ai@1.19.5
           cfg="$RUNNER_TEMP/opencode.json"
@@ -91,7 +93,7 @@ jobs:
           prompt="$prompt
           Change only what the task needs. Do not touch .github/, Gradle files, signing or secrets. Keep the existing style."
           ok=0
-          for m in ${MODEL:-github-models/openai/gpt-4.1} openrouter/qwen/qwen3-coder:free openrouter/deepseek/deepseek-chat-v3-0324:free; do
+          for m in ${MODEL:-opencode/deepseek-v4.1-flash-free} github-models/openai/gpt-4.1 openrouter/qwen/qwen3-coder:free; do
             echo "::group::model $m"
             if timeout 20m opencode run --model "$m" "$prompt"; then echo "::endgroup::"; if ! git diff --quiet; then ok=1; echo "Changes made with $m" >> "$GITHUB_STEP_SUMMARY"; break; fi; else echo "::endgroup::"; fi
             git checkout -- . 2>/dev/null; git clean -fdq -e .github 2>/dev/null
