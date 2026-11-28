@@ -166,9 +166,9 @@ object LocalFilesProvider : MusicProvider {
      * [PlaylistFiles.readStream]). The file is written whole once the reading has ended: a file cut
      * short, a read that fails or one stopped through [cancelled] throws and adds nothing.
      */
-    fun importStream(ctx: Env, fileName: String, reader: java.io.Reader, progress: (Long) -> Unit = {}, cancelled: () -> Boolean = { false }): Playlist {
+    fun importStream(ctx: Env, fileName: String, reader: java.io.Reader, progress: (Long) -> Unit = {}, cancelled: () -> Boolean = { false }, onLeftOut: (Int) -> Unit = {}): Playlist {
         val settings = ctx.store.data.settings
-        val tracks = PlaylistFiles.readStream(fileName, reader, PlaylistFiles.NameLayout.of(settings.fileNameLayout), NamePatterns.compileAll(settings.fileNamePatterns), progress, cancelled)
+        val tracks = PlaylistFiles.readStream(fileName, reader, PlaylistFiles.NameLayout.of(settings.fileNameLayout), NamePatterns.compileAll(settings.fileNamePatterns), progress, cancelled, onLeftOut)
         // Stopped while the last piece was read: still nothing is added.
         if (cancelled()) throw java.util.concurrent.CancellationException("reading stopped")
         val base = CsvCodec.safeName(fileName.substringBeforeLast('.').ifBlank { "playlist" })

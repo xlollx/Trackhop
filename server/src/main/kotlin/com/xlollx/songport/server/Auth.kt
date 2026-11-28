@@ -13,6 +13,9 @@ import java.util.concurrent.ConcurrentHashMap
  * OAuth sign-ins through the browser: the page sends the user to the service, which comes back to
  * `<SONGPORT_URL>/callback` with a code (or, for Deezer, a token in the fragment). PKCE as in the app.
  */
+/** Google blocked the sign-in because the Gmail is not a Test user of the person's project (the page then offers the Audience page). */
+class GoogleTestUserNeeded(message: String) : IllegalStateException(message)
+
 class Auth(private val env: ServerEnv) {
     private class Pending(val providerId: String, val verifier: String, val at: Long)
 
@@ -36,7 +39,11 @@ class Auth(private val env: ServerEnv) {
 
     /** Completes the sign-in the service came back with; returns the connector signed in. */
     suspend fun complete(params: Map<String, String>): MusicProvider {
-        params["error"]?.let { throw IllegalStateException(params["error_description"] ?: it) }
+        params["error"]?.let {
+            val domain = params["state"]?.let { s -> pending[s] }?.providerId?.let { id -> com.xlollx.songport.providers.Providers.byId(id)?.authDomain }
+            if (com.xlollx.songport.providers.GoogleSignIn.needsTestUser(domain, it, params["error_description"])) throw GoogleTestUserNeeded(env.text("auth_google_test_users"))
+            throw IllegalStateException(params["error_description"] ?: it)
+        }
         val state = params["state"]
         val entry = if (state != null) pending.remove(state) ?: throw IllegalStateException(env.text("auth_state_mismatch"))
         // Deezer's implicit flow does not always send the state back: the latest sign-in started is the one.

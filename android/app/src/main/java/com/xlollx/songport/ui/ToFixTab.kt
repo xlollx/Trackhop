@@ -138,7 +138,7 @@ internal fun ToFixTab(items: List<ToFix.Item>, snackbar: SnackbarHostState, onOp
     val selection = items.mapNotNullTo(LinkedHashSet()) { it.key.takeIf { k -> k in picked } }
     val (pickedAccept, pickedLeft) = ToFix.ticked(items, selection)
 
-    fun nameOf(family: String) = providerOf(family, ctx = ctx)?.displayName ?: family
+    fun nameOf(family: String) = serviceName(family, ctx)
 
     /**
      * [work] for each of [rows], one after another, going on if the page is left; then one line for
@@ -313,7 +313,7 @@ internal fun ToFixTab(items: List<ToFix.Item>, snackbar: SnackbarHostState, onOp
         val rows = group.items.take(left)
         left -= rows.size
         Row(Modifier.fillMaxWidth().heightIn(min = 36.dp).semantics(mergeDescendants = true) { heading() }, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            if (byService) ServiceLogo(providerOf(group.id, ctx = ctx), 24.dp)
+            if (byService) FamilyLogo(group.id, nameOf(group.id), 24.dp)
             else data.jobs.firstOrNull { it.id == group.id }?.let { job ->
                 Row(Modifier.clearAndSetSemantics {}, verticalAlignment = Alignment.CenterVertically) {
                     // A multi sync's: the group's source service, not its hub; none when it is not known.

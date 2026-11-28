@@ -26,7 +26,7 @@ when several syncs or services want it: artist, title, album, length, and which 
 since when. Nothing is looked up for the list itself: it is made from what the syncs already did.
 
 - **By album** groups the songs, so you can see that a whole album is missing.
-- **Tick** a song once you got it: it leaves the list (**Show what I got** brings the ticked ones
+- **Tick** a song once you got it: it leaves the list (**Show ticked ones too (N)** brings the ticked ones
   back into view). A song your next sync finds leaves the list by itself.
 - **Export the list** as CSV, M3U, plain "Artist - Title" text or JSON.
 - **List for Lidarr**: the list in the shape of Lidarr's *Custom List*. On Docker and Desktop,

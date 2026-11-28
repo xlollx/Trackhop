@@ -83,7 +83,7 @@ object LibraryImport {
         class Picking(val token: Long, val name: String, val library: ItunesLibrary) : State
         class Adding(val name: String) : State
         /** Done: what was added ([single] when it was one list, to send on to a service). */
-        class Done(val added: List<Pair<String, Int>>, val single: Playlist?, val error: String?) : State
+        class Done(val added: List<Pair<String, Int>>, val single: Playlist?, val error: String?, val leftOut: Int = 0) : State
     }
 
     val state = MutableStateFlow<State>(State.Idle)
@@ -118,12 +118,14 @@ object LibraryImport {
         job?.cancel()
         state.value = State.Reading(name, 0, total, library = false)
         job = scope.launch {
+            var leftOut = 0
             val added = try {
                 val input = app.contentResolver.openInputStream(uri) ?: error(app.getString(R.string.library_cannot_open))
                 input.use { s ->
                     LocalFilesProvider.importStream(
                         app, name, PlaylistFiles.reader(s),
                         progress = { state.value = State.Reading(name, it, total, library = false) }, cancelled = { !isActive },
+                        onLeftOut = { leftOut = it },
                     )
                 }
             } catch (e: java.util.concurrent.CancellationException) {
@@ -134,7 +136,7 @@ object LibraryImport {
                 state.value = State.Done(emptyList(), null, app.getString(R.string.library_failed, e.message ?: e.javaClass.simpleName)); return@launch
             }
             imported.value++
-            state.value = State.Done(listOf(added.id to added.trackCount), added, null)
+            state.value = State.Done(listOf(added.id to added.trackCount), added, null, leftOut)
         }
     }
 
@@ -189,7 +191,7 @@ object LibraryImport {
         }.exceptionOrNull()?.let { it.message ?: it.javaClass.simpleName }
         imported.value++
         val single = added.singleOrNull()?.takeIf { error == null && picked.isEmpty() }?.let { (id, n) -> Playlist(id, id, n) }
-        state.value = State.Done(added, single, error)
+        state.value = State.Done(added, single, error, lib.leftOut)
     }
 
     fun clear() { state.value = State.Idle }
@@ -222,7 +224,7 @@ fun LibraryImportHost(snackbar: SnackbarHostState, onSendTo: (id: String, name: 
                 s.error != null -> ctx.getString(R.string.library_partial, names, s.error)
                 s.single != null -> ctx.getString(R.string.csv_imported, s.single.trackCount)
                 else -> ctx.resources.getQuantityString(R.plurals.library_added, s.added.size, s.added.size, names)
-            }
+            }.let { if (s.leftOut > 0 && s.error == null) it + "\n" + ctx.getString(R.string.library_left_out, s.leftOut) else it }
             scope.launch {
                 val single = s.single
                 val res = snackbar.showSnackbar(

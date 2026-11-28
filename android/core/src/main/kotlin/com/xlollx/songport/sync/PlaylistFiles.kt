@@ -111,6 +111,8 @@ object PlaylistFiles {
         patterns: List<NamePatterns.Pattern> = emptyList(),
         progress: (Long) -> Unit = {},
         cancelled: () -> Boolean = { false },
+        /** Gets how many entries of an iTunes/Music library were left out for not being songs (radio, cloud-only, podcasts, videos). */
+        onLeftOut: (Int) -> Unit = {},
     ): List<Track> {
         val source = CharSource(reader, progress, cancelled)
         val format = detect(fileName, source.head())
@@ -118,7 +120,7 @@ object PlaylistFiles {
         val tracks = when (format) {
             Format.M3U -> readM3u(source, custom)
             Format.PLS -> readPls(source, custom)
-            Format.ITUNES_XML, Format.REKORDBOX_XML -> ItunesLibrary.read(source).asOneList()
+            Format.ITUNES_XML, Format.REKORDBOX_XML -> ItunesLibrary.read(source).let { onLeftOut(it.leftOut); it.asOneList() }
             Format.WPL -> readWpl(source, strict = true)
             Format.XSPF -> readXspf(source, strict = true)
             Format.OPML -> readOpml(source, strict = true)
