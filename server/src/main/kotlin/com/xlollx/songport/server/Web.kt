@@ -305,7 +305,10 @@ class Web(
 
     internal fun notice(r: Req): String =
         (r.query["ok"]?.let { """<div class="card ok">${h(it)}</div>""" } ?: "") +
-            (r.query["err"]?.let { """<div class="card err">${h(it)}</div>""" } ?: "")
+            (r.query["err"]?.let {
+                """<div class="card err">${h(it)}""" +
+                    (if (r.query["fix"] == "google-test-users") """<p><a class="button" href="${h(com.xlollx.songport.providers.GoogleSignIn.chooseAccount(com.xlollx.songport.providers.GoogleSignIn.audienceUrl(r.query["project"]?.takeIf { p -> p.all(Char::isDigit) }?.let { p -> "$p-" })))}" target="_blank" rel="noopener">Open Google's Audience page</a></p>""" else "") + "</div>"
+            } ?: "")
 
     internal fun q(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8)
 
@@ -453,11 +456,15 @@ class Web(
 <div>
 <span class="badge">${h(if (radio != null) com.xlollx.songport.sync.RadioTitles.describe(radio) else com.xlollx.songport.sync.Timing.describe(job))}</span>${if (job.archive) " <span class=\"badge\">keeps every track</span>" else if (job.mirrorRemovals) " <span class=\"badge\">mirror</span>" else ""}${if (job.linkedJobId?.let { env.store.job(it) } != null) " <span class=\"badge\">two-way${if (job.twoWayRemovals) ", removals too" else ""}</span>" else ""}${if (!job.enabled) " <span class=\"badge\">${job.scheduledOn?.let { "off, scheduled on ${h(it)}" } ?: "off"}</span>" else ""}$groups
 <span class="muted">Last run ${Html.date(job.lastRunEpoch)}$next</span>$onAir
-<div class="row"><div>$status</div><div class="actions">${if (isRunning) Html.postButton("/syncs/${q(job.id)}/stop", "Stop", "secondary") else Html.postButton("/syncs/${q(job.id)}/run", if (env.marks.interrupted(RunMarks.SYNC, job.id) != null) "Retry" else "Run now")}${if (!isRunning && last?.targetShrunkFrom?.let { it > 0 } == true) " " + Html.postButton("/syncs/${q(job.id)}/run-anyway", "Sync anyway", "secondary") else ""}$download$moves</div></div></div></div>"""
+<div class="row"><div>$status</div><div class="actions">${if (isRunning) Html.postButton("/syncs/${q(job.id)}/stop", "Stop", "secondary") else Html.postButton("/syncs/${q(job.id)}/run", if (env.marks.interrupted(RunMarks.SYNC, job.id) != null) "Retry" else "Run now")}${if (!isRunning && last?.targetShrunkFrom?.let { it > 0 } == true) " " + Html.postButton("/syncs/${q(job.id)}/run-anyway", if (last?.targetEmptied == true) "Rebuild" else "Sync anyway", "secondary") else ""}$download$moves</div></div></div></div>"""
     }
 
     private fun progressText(jobId: String): String {
         val p = SyncState.running.value[jobId] ?: return """<span class="muted">Starting…</span>"""
+        // The connection, not the service's limit: said in words, the countdown with it.
+        if (p.step == com.xlollx.songport.model.Progress.Step.NETWORK_RETRY) {
+            return """<span>${h(env.text("progress_network_retry", p.label.orEmpty(), (p.total - p.done).coerceAtLeast(0), p.attempt, p.attempts))}</span>"""
+        }
         val step = p.step.name.lowercase().replace('_', ' ').replaceFirstChar { it.uppercase() }
         val count = if (p.total > 0) " ${p.done}/${p.total}" else ""
         val paused = when (SyncState.run(jobId)) {
@@ -962,11 +969,20 @@ $help</div>"""
         if (guide != null) {
             sb.append("""<p>${h(env.text(guide.whyName))}</p><ol>""")
             env.textArray(guide.stepsArrayName).forEachIndexed { i, step ->
-                val link = guide.stepUrls.getOrNull(i)?.let { """ <a href="${h(it)}" target="_blank" rel="noopener">open</a>""" } ?: ""
+                val link = guide.stepUrls.getOrNull(i)?.let { """ <a href="${h(com.xlollx.songport.providers.GoogleSignIn.chooseAccount(it))}" target="_blank" rel="noopener">open</a>""" } ?: ""
                 val text = if (i == 0 && route != null) step + " " + env.text("setup_spotify_no_key_route", route.displayName) else step
                 sb.append("<li>${h(text)}$link</li>")
             }
             sb.append("</ol>")
+            // The way that worked before a quicker one (kept as a fallback; Docker opened from another computer needs it).
+            guide.longStepsArrayName?.let { name ->
+                sb.append("""<details><summary>${h(env.text("setup_long_way_show"))}</summary><ol>""")
+                env.textArray(name).forEachIndexed { i, step ->
+                    val link = guide.longStepUrls.getOrNull(i)?.let { """ <a href="${h(com.xlollx.songport.providers.GoogleSignIn.chooseAccount(it))}" target="_blank" rel="noopener">open</a>""" } ?: ""
+                    sb.append("<li>${h(step)}$link</li>")
+                }
+                sb.append("</ol></details>")
+            }
         }
         val redirect = if (guide?.needsRedirectUrl == true) env.store.data.settings.deezerRedirectUrl.ifBlank { env.redirectUri } else env.redirectUri
         sb.append("""<p>Redirect address for this server: <code>${h(redirect)}</code></p>""")
@@ -987,6 +1003,10 @@ $help</div>"""
         return sb.toString()
     }
 
+    /** "&project=<number>" from a Google client ID (its project's number), for the Audience page link. */
+    private fun projectOf(clientId: String?): String =
+        clientId?.trim()?.let { Regex("""^(\d{6,})-""").find(it)?.groupValues?.get(1) }?.let { "&project=$it" } ?: ""
+
     private fun callback(r: Req) {
         // Deezer puts the token in the fragment, which never reaches a server: the page moves it into the query.
         if (r.query.isEmpty()) {
@@ -1003,7 +1023,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
             redirect(r.ex, "/connectors/${q(p.id)}?ok=${q("Connected.")}")
         }.onFailure { e ->
             env.log("auth", "sign-in failed: ${e.message}")
-            redirect(r.ex, "/connectors?err=${q(e.message ?: e.javaClass.simpleName)}")
+            redirect(r.ex, "/connectors?err=${q(e.message ?: e.javaClass.simpleName)}" + if (e is GoogleTestUserNeeded) "&fix=google-test-users" + projectOf(env.store.data.settings.clientIds[com.xlollx.songport.providers.YouTubeProvider.SERVICE]) else "")
         }
     }
 

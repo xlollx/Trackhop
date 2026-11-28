@@ -773,13 +773,11 @@
         <item>Необязательно: «User Management» позволяет добавить до 5 других аккаунтов Spotify (имя и e-mail), которые могут использовать ваш ключ, например членов семьи.</item>
     </string-array>
     <string-array name="setup_steps_youtube">
-        <item>Войдите на console.cloud.google.com с тем аккаунтом Google, плейлисты YouTube которого будете синхронизировать (личный Gmail: школьные и рабочие аккаунты могут быть заблокированы). Примите условия, если попросят. Создайте проект с любым названием (например, «Trackhop»), дождитесь уведомления, нажмите «Select project» и проверьте название в верхней панели: все следующие шаги выполняйте в этом проекте.</item>
-        <item>Включите YouTube Data API v3: ссылка открывает его страницу. Убедитесь, что вверху ваш проект, нажмите «Enable» и дождитесь смены страницы.</item>
-        <item>Google Auth Platform, «Overview», нажмите «Get started»: название приложения «Trackhop», ваш Gmail как адрес поддержки, «Next»; аудитория «External», «Next»; ваш Gmail как контакт, «Next»; отметьте согласие, «Continue», «Create».</item>
-        <item>Не пропускайте этот шаг. Google Auth Platform, «Audience»: в «Test users» нажмите «Add users», введите тот же Gmail, с которым будете входить, и нажмите «Save». Без него Google отвечает «Access blocked: Trackhop has not completed the Google verification process».</item>
-        <item>Google Auth Platform, «Clients», «Create client»: тип приложения «Desktop app» (не Android и не Web), любое название, «Create». Сразу скопируйте сюда Client ID и Client secret, без пробелов: Google показывает secret только один раз (потеряли? откройте клиент и нажмите «Add secret»).</item>
-        <item>Нажмите «Войти» и выберите тот же Gmail. На экране «Google hasn\'t verified this app» нажмите «Continue» (это ваше приложение), затем разрешите доступ к аккаунту YouTube. Если каналов несколько, выберите тот, где ваши плейлисты. Любая другая ошибка: ссылка открывает руководство со всеми ошибками и решениями.</item>
-        <item>Рекомендуется: пока приложение в статусе «In testing», Google выходит из аккаунта каждые 7 дней. Чтобы оставаться в системе: «Audience», «Publish app», «Confirm», затем войдите здесь ещё раз. Google проверяет его, только если им пользуются больше 100 человек.</item>
+        <item>Откройте страницу Google по ссылке (войдите в Gmail, плейлисты YouTube которого будете синхронизировать; лучше личный). Оставьте предложенный проект или выберите свой, проверьте, что тип клиента — «Приложение для ПК», примите условия и нажмите «Продолжить».</item>
+        <item>Включите YouTube Data API v3 для этого проекта: ссылка открывает её, проверьте название проекта вверху и нажмите «Включить».</item>
+        <item>Вернувшись к клиенту, нажмите «Скачать JSON», затем «Импортировать файл клиента (JSON)» ниже. Или скопируйте идентификатор клиента и секрет в поля, без пробелов.</item>
+        <item>Нажмите «Сохранить и подключить» и выберите тот же Gmail. Без тестовых пользователей, без публикации, без отключения каждые 7 дней. Входить с этим ключом может только этот Gmail: для другого аккаунта Google создайте ещё один ключ так же. Google показывает имя вашего проекта (например, «personal-mode-app» или то, что вы дали), а не Trackhop: это нормально.</item>
+        <item>Страница Google у вас не работает (рабочий или учебный аккаунт, ошибка), или нужен один ключ для нескольких аккаунтов Google или сервер Docker с другого компьютера? Ссылка открывает длинный путь по шагам со всеми ошибками Google и решениями.</item>
     </string-array>
     <string-array name="setup_steps_tidal">
         <item>Войдите на developer.tidal.com с аккаунтом TIDAL.</item>
@@ -3978,4 +3976,33 @@
     <string name="reconnect_renewed">%1$s: сессия обновлена, больше ничего делать не нужно.</string>
     <string name="reconnect_sign_in">%1$s: не удалось обновить сессию. Войдите снова.</string>
     <string name="reconnect_offline">%1$s: сервис недоступен, ничего не изменилось. Попробуйте позже.</string>
+    <string name="official_only_intro">Эта версия подключается к сервисам только через их официальные API. Другие версии Trackhop поддерживают больше.</string>
+    <string name="official_only_key">Настраивать ключ слишком сложно? Другие версии Trackhop подключаются к %1$s без ключа разработчика.</string>
+    <string name="official_only_link">Какая версия вам подходит?</string>
+    <string name="setup_import_google_file">Импортировать файл клиента (JSON)</string>
+    <string name="setup_import_google_ok">Идентификатор клиента и секрет заполнены из файла.</string>
+    <string name="setup_import_google_bad">Это не файл клиента Google. В Google Cloud откройте свой клиент и нажмите «Скачать JSON».</string>
+    <string name="library_left_out">%1$d записей пропущено: это не песни в ваших файлах (интернет-радио, песни только в облаке, подкасты или видео).</string>
+    <string name="tools_wanted_show_ticked">Показывать отмеченные тоже (%1$d)</string>
+    <string name="auth_google_test_users">Google заблокировал вход, так как ваш Gmail не в списке тестовых пользователей вашего проекта Google. Откройте Google Auth Platform › Audience, нажмите «Add users» под «Test users», добавьте свой Gmail, сохраните и попробуйте снова.</string>
+    <string name="auth_google_timeout_hint">Нет ответа от браузера. Если Google показал «Access blocked: has not completed the Google verification process», ваш Gmail не в списке тестовых пользователей вашего проекта Google: откройте Audience, нажмите «Add users» под «Test users», добавьте его, сохраните и попробуйте снова.</string>
+    <string name="auth_open_console">Открыть Google</string>
+    <string name="progress_network_retry">Нет соединения с %1$s: пробую снова через %2$d с (попытка %3$d из %4$d)</string>
+    <string name="server_both_down">%1$s не отвечает ни дома, ни вне: он включен? Подключён ли ваш VPN (например, Tailscale)?</string>
+    <string name="error_target_library_changed">Библиотека %1$s изменилась (файлы перемещены или переимпортированы) и плейлист потерял песни. Перестроить?</string>
+    <string name="preview_rebuild_confirm">Перестроить плейлист: добавить его песни снова из источника</string>
+    <string name="web_spotify_web_unavailable">Spotify (web) сейчас не работает на Desktop и Docker из-за изменений на стороне Spotify. Пока используйте Spotify с собственным ключом (Spotify, официальный).</string>
+    <string name="auth_google_weekly">%1$s: Google вывел вас из системы, как он делает каждые 7 дней, пока ваш проект Google находится в режиме тестирования. Войдите снова, и чтобы это больше не повторялось, один раз опубликуйте свой проект: в Google Auth Platform › Branding установите домашнюю страницу https://trackhop.org, ссылку на политику конфиденциальности https://trackhop.org/privacy-policy и авторизованный домен trackhop.org, сохраните, затем Audience › Publish app.</string>
+    <string name="yt_no_channel">%1$s: этот Google‑аккаунт ещё не имеет YouTube‑канала, и поэтому у него нет плейлистов для чтения или записи. Откройте youtube.com с этим аккаунтом, выберите «Создать канал», затем попробуйте ещё раз.</string>
+    <string-array name="setup_steps_youtube_long">
+        <item>Войдите на console.cloud.google.com с тем аккаунтом Google, плейлисты YouTube которого будете синхронизировать (личный Gmail: школьные и рабочие аккаунты могут быть заблокированы). Примите условия, если попросят. Создайте проект с любым названием (например, «Trackhop»), дождитесь уведомления, нажмите «Select project» и проверьте название в верхней панели: все следующие шаги выполняйте в этом проекте.</item>
+        <item>Включите YouTube Data API v3: ссылка открывает его страницу. Убедитесь, что вверху ваш проект, нажмите «Enable» и дождитесь смены страницы.</item>
+        <item>Google Auth Platform, «Overview», нажмите «Get started»: название приложения «Trackhop», ваш Gmail как адрес поддержки, «Next»; аудитория «External», «Next»; ваш Gmail как контакт, «Next»; отметьте согласие, «Continue», «Create».</item>
+        <item>Не пропускайте этот шаг. Google Auth Platform, «Audience»: в «Test users» нажмите «Add users», введите тот же Gmail, с которым будете входить, и нажмите «Save». Без него Google отвечает «Access blocked: Trackhop has not completed the Google verification process».</item>
+        <item>Google Auth Platform, «Clients», «Create client»: тип приложения «Desktop app» (не Android и не Web), любое название, «Create». Сразу скопируйте сюда Client ID и Client secret, без пробелов: Google показывает secret только один раз (потеряли? откройте клиент и нажмите «Add secret»). Проще: в том же окне нажмите «Скачать JSON» и используйте «Импортировать файл клиента» ниже.</item>
+        <item>Нажмите «Войти» и выберите тот же Gmail. На экране «Google hasn\'t verified this app» нажмите «Continue» (это ваше приложение), затем разрешите доступ к аккаунту YouTube. Если каналов несколько, выберите тот, где ваши плейлисты. Любая другая ошибка: ссылка открывает руководство со всеми ошибками и решениями.</item>
+        <item>Рекомендуется: пока приложение в статусе «In testing», Google выходит из аккаунта каждые 7 дней. Чтобы оставаться в системе: «Audience», «Publish app», «Confirm», затем войдите здесь ещё раз. Google проверяет его, только если им пользуются больше 100 человек. Если «Опубликовать приложение» серая: в «Брендинг» укажите главную страницу https://trackhop.org, ссылку на политику конфиденциальности https://trackhop.org/privacy-policy и в «Авторизованные домены» trackhop.org; «Сохранить», затем вернитесь.</item>
+    </string-array>
+    <string name="setup_long_way_show">Длинный путь (7 шагов, как раньше)</string>
+    <string name="setup_long_way_hide">Скрыть длинный путь</string>
 </resources>

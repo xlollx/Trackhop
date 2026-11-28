@@ -109,6 +109,21 @@ class YtmClientContractTest {
         try { client.tracks(YtmClient.LIKED); fail() } catch (e: BridgeException) { assertTrue(e.message, e.message!!.contains("100 of the 2084")) }
     }
 
+    @Test fun rowsWithoutLinksStillGiveTheAlbum() {
+        // The layout seen on 28/11/2026: three plain columns (title, artist, album), no links, no length column.
+        val plain = """{"musicResponsiveListItemRenderer":{
+            "flexColumns":[{"musicResponsiveListItemFlexColumnRenderer":{"text":{"runs":[{"text":"Kryptonite"}]}}},
+              {"musicResponsiveListItemFlexColumnRenderer":{"text":{"runs":[{"text":"3 Doors Down"}]}}},
+              {"musicResponsiveListItemFlexColumnRenderer":{"text":{"runs":[{"text":"The Better Life"}]}}}],
+            "playlistItemData":{"playlistSetVideoId":"S1","videoId":"k1"}}}"""
+        answer("""{"contents":{"twoColumnBrowseResultsRenderer":{"secondaryContents":{"sectionListRenderer":{"contents":[{"musicPlaylistShelfRenderer":{"playlistId":"PL2",
+            "contents":[$plain]}}]}}}}}""")
+        val t = client.tracks("PL2").single()
+        assertEquals("Kryptonite", t.title)
+        assertEquals(listOf("3 Doors Down"), t.artists)
+        assertEquals("The Better Life", t.album)
+    }
+
     @Test fun aListingCloseToItsHeaderPasses() {
         answer("""{${header("110")}"contents":{"twoColumnBrowseResultsRenderer":{"secondaryContents":{"sectionListRenderer":{"contents":[{"musicPlaylistShelfRenderer":{"playlistId":"LM",
             "contents":[${(0 until 100).joinToString(",") { row("v$it", "S$it") }}]}}]}}}}}""")

@@ -189,6 +189,8 @@ private fun WelcomePage() {
         Column(readable().padding(horizontal = 24.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(stringResource(R.string.onboarding_title), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.semantics { heading() })
             Text(stringResource(R.string.onboarding_intro), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            // Store builds without a connector plugin: which services this version reaches, and where the others are explained.
+            OfficialOnlyNotice(stringResource(R.string.official_only_intro), Modifier.padding(top = 6.dp))
         }
     }
 }

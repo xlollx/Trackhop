@@ -2126,6 +2126,7 @@ internal fun progressText(p: Progress?): String = when (p?.step) {
     Progress.Step.FETCH_TARGET -> stringResource(R.string.progress_fetch_target)
     Progress.Step.MATCHING -> stringResource(R.string.progress_matching, p?.done ?: 0, p?.total ?: 0) + (p?.label?.let { " · $it" } ?: "")
     Progress.Step.WAITING -> stringResource(R.string.progress_waiting, ((p?.total ?: 0) - (p?.done ?: 0)).coerceAtLeast(0))
+    Progress.Step.NETWORK_RETRY -> stringResource(R.string.progress_network_retry, p?.label.orEmpty(), ((p?.total ?: 0) - (p?.done ?: 0)).coerceAtLeast(0), p?.attempt ?: 0, p?.attempts ?: 0)
     Progress.Step.ADDING -> stringResource(R.string.progress_adding, p?.total ?: 0) + (p?.label?.let { " · $it" } ?: "")
     Progress.Step.REMOVING -> stringResource(R.string.progress_removing, p?.total ?: 0) + (p?.label?.let { " · $it" } ?: "")
     Progress.Step.BACKUP -> stringResource(R.string.tools_progress_backup, p?.done ?: 0, p?.total ?: 0)

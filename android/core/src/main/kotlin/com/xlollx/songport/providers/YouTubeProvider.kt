@@ -50,21 +50,31 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
     override val listsEveryLike = false
 
     override val setupGuide = SetupGuide(
-        dashboardUrl = "https://console.cloud.google.com/apis/credentials",
+        // Google's "Personal mode" (28/11/2026): project and Desktop client in one page, nothing to verify,
+        // publish or list as test user, no weekly sign-out; only the Gmail that made it signs in with it.
+        dashboardUrl = "https://console.cloud.google.com/auth/overview/personal?clientType=desktop",
         whyName = "setup_why_youtube",
         stepsArrayName = "setup_steps_youtube",
         fieldLabelName = "setup_field_client_id",
         needsSecret = true,
-        // La console ricorda l'ultimo progetto scelto: dopo il primo passo i link si aprono gia' dentro.
         stepUrls = listOf(
+            "https://console.cloud.google.com/auth/overview/personal?clientType=desktop",
+            "https://console.cloud.google.com/flows/enableapi?apiid=youtube.googleapis.com",
+            null,
+            null,
+            // The long way (a key for several Google accounts, or when Personal mode is not offered) and every Google error with its fix.
+            "https://trackhop.org/guide/youtube-google-key#the-long-way",
+        ),
+        // The seven steps used before Personal mode: still valid, opened under the quick ones.
+        longStepsArrayName = "setup_steps_youtube_long",
+        longStepUrls = listOf(
             "https://console.cloud.google.com/projectcreate",
             "https://console.cloud.google.com/apis/library/youtube.googleapis.com",
             "https://console.cloud.google.com/auth/overview",
             "https://console.cloud.google.com/auth/audience",
             "https://console.cloud.google.com/auth/clients/create",
-            // Signing in: the guide with every Google error and its fix (Play review of 27/11).
-            "https://trackhop.org/guide/youtube-google-key",
-            "https://console.cloud.google.com/auth/audience",
+            "https://trackhop.org/guide/youtube-google-key#the-long-way",
+            "https://console.cloud.google.com/auth/branding",
         ),
     )
 
@@ -119,6 +129,16 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
         val liked = counted(ctx, QuotaMeter.COST_LIST) { api(ctx, "GET", "$API/videos?part=id&myRating=like&maxResults=1") }
         liked["items"].arr.isEmpty() && (liked["pageInfo"]["totalResults"].int ?: 0) == 0
     }.getOrDefault(false)
+
+    /** A Google account without a YouTube channel (404 channelNotFound): it needs one before any playlist. */
+    override fun friendlyApiError(ctx: Env, resp: HttpResponse): String? {
+        if (resp.code != 404) return null
+        val e = runCatching { parseJson(resp.body)["error"] }.getOrNull()
+        val notFound = e["errors"][0]["reason"].str == "channelNotFound" || e["message"].str?.contains("Channel not found", true) == true
+        if (!notFound) return null
+        return runCatching { ctx.text("yt_no_channel", displayName) }.getOrNull()
+            ?: "$displayName: this Google account has no YouTube channel yet. Open youtube.com with it, choose Create a channel, then try again."
+    }
 
     override fun errorMessage(resp: HttpResponse): String {
         val e = runCatching { parseJson(resp.body)["error"] }.getOrNull()

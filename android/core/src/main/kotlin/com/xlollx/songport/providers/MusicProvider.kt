@@ -412,6 +412,13 @@ interface MusicProvider {
     suspend fun lostIds(ctx: Env, ids: Collection<String>): Set<String>? = null
 
     /**
+     * When a personal server last scanned its library or took in new songs (epoch ms), where its API
+     * says so in one light call; null where it cannot tell. A song missed there before that is
+     * searched again (#103). May throw: the engine then keeps its misses as they are.
+     */
+    suspend fun lastScan(ctx: Env): Long? = null
+
+    /**
      * Writes [playlistId] anew with [tracks] alone, in their order: entries that lead to no song any
      * more (a [losesIds] server's old ids) go with it. False where the service cannot.
      */

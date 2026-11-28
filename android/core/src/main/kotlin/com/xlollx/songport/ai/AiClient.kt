@@ -17,6 +17,9 @@ import com.xlollx.songport.sync.PlaylistFiles
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 import okhttp3.Request
 import java.util.concurrent.TimeUnit
 
@@ -296,12 +299,50 @@ object AiClient {
                 }
             }
         }
-        val text = complete(c, system, user)
-        val start = text.indexOf('{'); val end = text.lastIndexOf('}')
-        val j = parseJson(if (start >= 0 && end > start) text.substring(start, end + 1) else text)
-        val match = j["match"].int?.takeIf { it in 1..candidates.size }
-        val queries = j["queries"].arr.mapNotNull { it.str?.trim()?.takeIf { q -> q.isNotEmpty() } }.take(3)
-        return Suggestion(match, queries, j["note"].str.orEmpty())
+        return suggest(candidates, system, user) { sys, usr -> complete(c, sys, usr) }
+    }
+
+    /**
+     * Asks, reads the first JSON object out of the answer (a model may wrap it in words or a code
+     * fence), and if there is none asks once more with a stricter instruction before giving up.
+     */
+    internal suspend fun suggest(candidates: List<Track>, system: String, user: String, ask: suspend (String, String) -> String): Suggestion {
+        var obj = firstJson(ask(system, user), '{') as? JsonObject
+        if (obj == null) {
+            obj = firstJson(ask("$system\nAnswer with JSON only: start with { and end with }, no words before or after, no code fences, no reasoning.", user), '{') as? JsonObject
+        }
+        if (obj == null) throw ProviderException("The AI did not answer in a form Trackhop can read, even after asking again. Try again, or pick another model in the AI settings.")
+        val match = obj["match"].int?.takeIf { it in 1..candidates.size }
+        val queries = obj["queries"].arr.mapNotNull { it.str?.trim()?.takeIf { q -> q.isNotEmpty() } }.take(3)
+        return Suggestion(match, queries, obj["note"].str.orEmpty())
+    }
+
+    /**
+     * The first valid JSON value that starts with [open] ('{' or '[') anywhere in [text], or null.
+     * Brackets inside strings do not count; a start that does not parse (prose such as "{like this}")
+     * is skipped for the next one.
+     */
+    internal fun firstJson(text: String, open: Char): JsonElement? {
+        val close = if (open == '{') '}' else ']'
+        var from = text.indexOf(open)
+        while (from >= 0) {
+            var depth = 0; var inStr = false; var esc = false; var end = -1
+            var i = from
+            while (i < text.length) {
+                val ch = text[i]
+                if (inStr) { if (esc) esc = false else if (ch == '\\') esc = true else if (ch == '"') inStr = false }
+                else if (ch == '"') inStr = true
+                else if (ch == open) depth++
+                else if (ch == close) { depth--; if (depth == 0) { end = i; break } }
+                i++
+            }
+            if (end > from) {
+                val v = runCatching { parseJson(text.substring(from, end + 1)) }.getOrNull()
+                if (v is JsonObject || v is JsonArray) return v
+            }
+            from = text.indexOf(open, from + 1)
+        }
+        return null
     }
 
     /**

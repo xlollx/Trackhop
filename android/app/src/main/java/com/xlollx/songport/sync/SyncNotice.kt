@@ -121,6 +121,7 @@ object SyncNotice {
         Progress.Step.FETCH_TARGET -> ctx.getString(R.string.progress_fetch_target)
         Progress.Step.MATCHING -> ctx.getString(R.string.progress_matching, p.done, p.total) + (p.label?.let { " · $it" } ?: "")
         Progress.Step.WAITING -> ctx.getString(R.string.progress_waiting, (p.total - p.done).coerceAtLeast(0))
+        Progress.Step.NETWORK_RETRY -> ctx.getString(R.string.progress_network_retry, p.label.orEmpty(), (p.total - p.done).coerceAtLeast(0), p.attempt, p.attempts)
         Progress.Step.ADDING -> ctx.getString(R.string.progress_adding, p.total) + (p.label?.let { " · $it" } ?: "")
         Progress.Step.REMOVING -> ctx.getString(R.string.progress_removing, p.total) + (p.label?.let { " · $it" } ?: "")
         else -> ctx.getString(R.string.running)

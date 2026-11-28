@@ -67,7 +67,8 @@ internal fun Web.awayField(value: String = ""): String =
 /** On a connected server: which address the requests go to now, and its second address to set or take away. */
 internal fun Web.addressCard(p: CredentialsProvider): String {
     val away = p.awayAddress(env)
-    val now = p.addressInUse(env)
+    // The one that answered last, never a guess: nothing until one has.
+    val now = p.addressAnswered(env)
     val via = if (away != null && now != null) """<p>${h(env.text(if (now == away) "account_via_away" else "account_via_home", now.removePrefix("https://").removePrefix("http://")))}</p>""" else ""
     return """<form method="post" action="/connectors/${q(p.id)}/address" class="card">$via${awayField(away.orEmpty())}<p><button class="secondary">Save</button></p></form>"""
 }

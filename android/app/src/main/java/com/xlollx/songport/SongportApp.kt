@@ -46,6 +46,8 @@ class SongportApp : Application() {
                 else -> null
             }
         }
+        // Both addresses of a personal server that did not answer: each try, in the sync log.
+        com.xlollx.songport.net.ServerAddresses.log = { com.xlollx.songport.data.Diagnostics.log(this, "server", it) }
         com.xlollx.songport.sync.OfflineQueue.init(this)
         // The web connectors' extra accounts ask the connectors whether they can be added: from anywhere, with the app.
         com.xlollx.songport.providers.WebAccounts.app = this

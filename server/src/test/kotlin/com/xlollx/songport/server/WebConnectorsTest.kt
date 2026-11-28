@@ -163,7 +163,9 @@ class WebConnectorsTest {
         answer = { r -> if (r.host == "open.spotify.com") Answer("<html><body>player</body></html>") else null }
         val e = failure { SpotifyWebServerProvider().connect(env(), "sp_dc=x", null) }
         assertTrue(e is ProviderException)
-        assertTrue(e!!.message, e.message!!.contains("no access token"))
+        // Said plainly, with the way that works meanwhile; the technical line stays with the cause.
+        assertTrue(e!!.message, e.message!!.contains("doesn't work on Desktop and Docker") && e.message!!.contains("your own key"))
+        assertTrue(e.cause?.message.orEmpty().contains("no access token"))
     }
 
     @Test fun spotifyReadsWithThePageBearerAndAHarvestedHash() {

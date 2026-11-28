@@ -218,11 +218,13 @@ internal fun Web.nameChoiceRefused(form: Map<String, String>): String? {
  */
 internal fun Web.importUploaded(fileName: String, input: java.io.InputStream): String {
     val name = fileName.substringAfterLast('/').substringAfterLast('\\')
-    val n = runCatching { LocalFilesProvider.importStream(env, name, PlaylistFiles.reader(input)).trackCount }
+    var leftOut = 0
+    val n = runCatching { LocalFilesProvider.importStream(env, name, PlaylistFiles.reader(input), onLeftOut = { leftOut = it }).trackCount }
         .getOrElse { return "/connectors/csv?err=${q("Nothing was added from $name: ${it.message ?: "could not read the file"}")}" }
     if (n == 0) return "/connectors/csv?err=${q("No tracks found in $name.")}"
     env.log("files", "imported $name: $n tracks")
-    return "/connectors/csv?ok=${q("Added $name: $n tracks.")}"
+    val skipped = if (leftOut > 0) " $leftOut entries were left out: they are not songs in your files (internet radio, songs only in the cloud, podcasts or videos)." else ""
+    return "/connectors/csv?ok=${q("Added $name: $n tracks.$skipped")}"
 }
 
 // ------------------------------------------------------------------ tools

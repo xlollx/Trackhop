@@ -751,13 +751,11 @@
         <item>İsteğe bağlı: \"User Management\", anahtarınızı kullanabilecek en fazla 5 başka Spotify hesabı (ad ve e-posta) eklemenize izin verir, örneğin aile üyeleri.</item>
     </string-array>
     <string-array name="setup_steps_youtube">
-        <item>console.cloud.google.com adresinde, YouTube çalma listelerini eşitleyeceğiniz Google hesabıyla oturum açın (kişisel bir Gmail: okul ve iş hesapları engellenmiş olabilir). İstenirse koşulları kabul edin. Herhangi bir adla bir proje oluşturun (örneğin \"Trackhop\"), bildirimi bekleyin, \"Select project\" düğmesine basın ve üst çubuktaki adı kontrol edin: sonraki tüm adımlar bu projenin içinde yapılır.</item>
-        <item>YouTube Data API v3\'ü etkinleştirin: bağlantı sayfasını açar. Üstte projenizin göründüğünü kontrol edin, \"Enable\" düğmesine basın ve sayfanın değişmesini bekleyin.</item>
-        <item>Google Auth Platform, \"Overview\", \"Get started\" düğmesine basın: uygulama adı \"Trackhop\", destek olarak Gmail adresiniz, \"Next\"; kitle \"External\", \"Next\"; iletişim olarak Gmail adresiniz, \"Next\"; sözleşmeyi işaretleyin, \"Continue\", \"Create\".</item>
-        <item>Bu adımı atlamayın. Google Auth Platform, \"Audience\": \"Test users\" altında \"Add users\" düğmesine basın, oturum açacağınız Gmail adresinin aynısını yazın ve \"Save\" düğmesine basın. Bu olmadan Google \"Access blocked: Trackhop has not completed the Google verification process\" der.</item>
-        <item>Google Auth Platform, \"Clients\", \"Create client\": uygulama türü \"Desktop app\" (Android değil, Web değil), herhangi bir ad, \"Create\". Client ID ve Client secret değerlerini hemen, boşluksuz buraya kopyalayın: Google secret\'ı yalnızca bu kez gösterir (kaybettiniz mi? client\'ı açıp \"Add secret\" düğmesine basın).</item>
-        <item>Oturum aç düğmesine basın ve aynı Gmail\'i seçin. \"Google hasn\'t verified this app\" ekranında \"Continue\" düğmesine basın (uygulama sizin), sonra YouTube hesabınıza erişime izin verin. Birden fazla kanalınız varsa çalma listelerinizin olduğunu seçin. Başka bir hata: bağlantı, her hatayı ve çözümünü içeren kılavuzu açar.</item>
-        <item>Önerilir: uygulama \"In testing\" durumundayken Google sizi her 7 günde bir oturumdan çıkarır. Oturumda kalmak için: \"Audience\", \"Publish app\", \"Confirm\", sonra burada bir kez daha oturum açın. Google, 100\'den fazla kişi kullanmadıkça incelemez.</item>
+        <item>Bağlantıyla Google\'ın sayfasını açın (YouTube oynatma listelerini eşitleyeceğiniz Gmail ile; tercihen kişisel bir Gmail). Önerilen projeyi tutun ya da birini seçin, istemci türünün \"Masaüstü uygulaması\" olduğunu kontrol edin, şartları kabul edip \"Devam\"a basın.</item>
+        <item>O proje için YouTube Data API v3\'ü etkinleştirin: bağlantı onu açar, üstte proje adını kontrol edin ve \"Etkinleştir\"e basın.</item>
+        <item>İstemciye dönünce \"JSON\'u indir\"e, ardından aşağıdaki \"İstemci dosyasını içe aktar (JSON)\" düğmesine basın. Ya da istemci kimliğini ve gizli anahtarı boşluksuz olarak alanlara kopyalayın.</item>
+        <item>\"Kaydet ve bağlan\"a basıp aynı Gmail\'i seçin. Test kullanıcısı yok, yayınlama yok, 7 günde bir oturum kapanması yok. Bu anahtarla yalnızca o Gmail girebilir: başka bir Google hesabı için aynı şekilde bir anahtar daha oluşturun. Google, Trackhop yerine projenizin adını gösterir (ör. \"personal-mode-app\" ya da verdiğiniz ad): bu normaldir.</item>
+        <item>Google\'ın sayfası sizde çalışmıyor mu (iş ya da okul hesabı, bir hata), yoksa birden çok Google hesabı için tek anahtar ya da başka bir bilgisayardan Docker sunucusu mu istiyorsunuz? Bağlantı, uzun yolu adım adım ve her Google hatasının çözümüyle açar.</item>
     </string-array>
     <string-array name="setup_steps_tidal">
         <item>developer.tidal.com adresinde TIDAL hesabınızla oturum açın.</item>
@@ -3730,4 +3728,33 @@
     <string name="reconnect_renewed">%1$s: oturum yenilendi, başka bir şey yapmaya gerek yok.</string>
     <string name="reconnect_sign_in">%1$s: oturum yenilenemedi. Yeniden giriş yap.</string>
     <string name="reconnect_offline">%1$s: servise ulaşılamadı, hiçbir şey değişmedi. Daha sonra yeniden dene.</string>
+    <string name="official_only_intro">Bu sürüm servislere yalnızca resmi API\'leriyle bağlanır. Trackhop\'un diğer sürümleri daha fazlasını destekler.</string>
+    <string name="official_only_key">Anahtar ayarlamak zor mu geliyor? Trackhop\'un diğer sürümleri %1$s servisine geliştirici anahtarı olmadan bağlanır.</string>
+    <string name="official_only_link">Hangi sürüm size uygun?</string>
+    <string name="setup_import_google_file">İstemci dosyasını içe aktar (JSON)</string>
+    <string name="setup_import_google_ok">İstemci kimliği ve gizli anahtar dosyadan dolduruldu.</string>
+    <string name="setup_import_google_bad">Bu bir Google istemci dosyası değil. Google Cloud\'da istemcinizi açın ve \"JSON\'u indir\" düğmesine basın.</string>
+    <string name="library_left_out">%1$d girdi dışarıda bırakıldı: dosyalarınızda şarkı değiller (internet radyosu, yalnızca buluttaki şarkılar, podcast\'ler veya videolar).</string>
+    <string name="tools_wanted_show_ticked">İşaretli olanları da göster (%1$d)</string>
+    <string name="auth_google_test_users">Google, Gmail\'iniz Google projenizin Test kullanıcıları listesinde olmadığı için oturum açmayı engelledi. Google Auth Platform › Kitle bölümünü açın, “Test kullanıcıları” altındaki “Kullanıcı ekle” düğmesine basın, oturum açtığınız Gmail\'i ekleyin, kaydedin ve yeniden deneyin.</string>
+    <string name="auth_google_timeout_hint">Tarayıcıdan yanıt yok. Google “Erişim engellendi: Google doğrulama sürecini tamamlamadı” mesajını gösterdiyse, Gmail\'iniz Google projenizin Test kullanıcıları listesinde değildir: Kitle bölümünü açın, “Test kullanıcıları” altındaki “Kullanıcı ekle” düğmesine basın, ekleyin, kaydedin ve yeniden deneyin.</string>
+    <string name="auth_open_console">Google\'ı aç</string>
+    <string name="progress_network_retry">%1$s ile bağlantı yok: %2$d sn içinde yeniden deneniyor (deneme %3$d / %4$d)</string>
+    <string name="server_both_down">%1$s evde de uzakta da yanıt vermiyor: açık mı? VPN\'iniz (ör. Tailscale) bağlı mı?</string>
+    <string name="error_target_library_changed">%1$s kitaplığı değişti (dosyalar taşındı veya yeniden içe aktarıldı) ve çalma listesi şarkılarını kaybetti. Yeniden oluşturulsun mu?</string>
+    <string name="preview_rebuild_confirm">Çalma listesini yeniden oluştur: şarkılarını kaynaktan tekrar ekle</string>
+    <string name="web_spotify_web_unavailable">Spotify (web), Spotify tarafındaki bir değişiklik nedeniyle şu anda Desktop ve Docker\'da çalışmıyor. Bu arada kendi anahtarınızla Spotify\'ı kullanın (Spotify, official).</string>
+    <string name="auth_google_weekly">%1$s: Google, her 7 gün bir arada projenin test aşamasında olduğu gibi sizleri dışlatır. Giriş yapın tekrar, ve etekle projenizi bir kez yayınla: Google Auth Platform > Branding\'da main home page\'yi https://trackhop.org, privacy policy link\'i https://trackhop.org/privacy-policy ve authorized domain trackhop.org\'yi, kaydedin, sonra Audience > Publish app\'a gidin.</string>
+    <string name="yt_no_channel">%1$s: bu Google hesabının henüz bir YouTube kanalı yok, bu yüzden okunacak veya yazılacak çalma listesi yok. Bu hesapla youtube.com\'u açın, “Kanal oluştur”u seçin, sonra tekrar deneyin.</string>
+    <string-array name="setup_steps_youtube_long">
+        <item>console.cloud.google.com adresinde, YouTube çalma listelerini eşitleyeceğiniz Google hesabıyla oturum açın (kişisel bir Gmail: okul ve iş hesapları engellenmiş olabilir). İstenirse koşulları kabul edin. Herhangi bir adla bir proje oluşturun (örneğin \"Trackhop\"), bildirimi bekleyin, \"Select project\" düğmesine basın ve üst çubuktaki adı kontrol edin: sonraki tüm adımlar bu projenin içinde yapılır.</item>
+        <item>YouTube Data API v3\'ü etkinleştirin: bağlantı sayfasını açar. Üstte projenizin göründüğünü kontrol edin, \"Enable\" düğmesine basın ve sayfanın değişmesini bekleyin.</item>
+        <item>Google Auth Platform, \"Overview\", \"Get started\" düğmesine basın: uygulama adı \"Trackhop\", destek olarak Gmail adresiniz, \"Next\"; kitle \"External\", \"Next\"; iletişim olarak Gmail adresiniz, \"Next\"; sözleşmeyi işaretleyin, \"Continue\", \"Create\".</item>
+        <item>Bu adımı atlamayın. Google Auth Platform, \"Audience\": \"Test users\" altında \"Add users\" düğmesine basın, oturum açacağınız Gmail adresinin aynısını yazın ve \"Save\" düğmesine basın. Bu olmadan Google \"Access blocked: Trackhop has not completed the Google verification process\" der.</item>
+        <item>Google Auth Platform, \"Clients\", \"Create client\": uygulama türü \"Desktop app\" (Android değil, Web değil), herhangi bir ad, \"Create\". Client ID ve Client secret değerlerini hemen, boşluksuz buraya kopyalayın: Google secret\'ı yalnızca bu kez gösterir (kaybettiniz mi? client\'ı açıp \"Add secret\" düğmesine basın). Daha kolayı: aynı pencerede \"JSON\'u indir\" düğmesine basın ve aşağıdaki \"İstemci dosyasını içe aktar\" seçeneğini kullanın.</item>
+        <item>Oturum aç düğmesine basın ve aynı Gmail\'i seçin. \"Google hasn\'t verified this app\" ekranında \"Continue\" düğmesine basın (uygulama sizin), sonra YouTube hesabınıza erişime izin verin. Birden fazla kanalınız varsa çalma listelerinizin olduğunu seçin. Başka bir hata: bağlantı, her hatayı ve çözümünü içeren kılavuzu açar.</item>
+        <item>Önerilir: uygulama \"In testing\" durumundayken Google sizi her 7 günde bir oturumdan çıkarır. Oturumda kalmak için: \"Audience\", \"Publish app\", \"Confirm\", sonra burada bir kez daha oturum açın. Google, 100\'den fazla kişi kullanmadıkça incelemez. \"Uygulamayı yayınla\" griyse: \"Markalama\" bölümünde ana sayfa olarak https://trackhop.org, gizlilik politikası bağlantısı olarak https://trackhop.org/privacy-policy ve \"Yetkili alanlar\" altına trackhop.org yazın; \"Kaydet\", sonra geri dönün.</item>
+    </string-array>
+    <string name="setup_long_way_show">Uzun yol (7 adım, eskisi gibi)</string>
+    <string name="setup_long_way_hide">Uzun yolu gizle</string>
 </resources>

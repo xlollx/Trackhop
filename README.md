@@ -839,7 +839,8 @@ public issue.
 
 - Code: [JPMarcelino](https://github.com/JPMarcelino) (#66, two-way pairs handed to the server),
   [Doggo785](https://github.com/Doggo785) (#87, Deezer liked songs in the right order).
-- Reports and ideas: [raykai](https://github.com/raykai) (#67, #95, #96), [ingoau](https://github.com/ingoau) (#68, #69).
+- Reports and ideas: [raykai](https://github.com/raykai) (#67, #95, #96, #102, #103), [ingoau](https://github.com/ingoau) (#68, #69),
+  [Echo-Phyber](https://github.com/Echo-Phyber) (#94).
 
 ## Formerly Songport
 

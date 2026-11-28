@@ -619,8 +619,8 @@ private fun ProviderCard(
                     }
                 }
             }
-            // A server with two addresses (2.2): which one the requests go to now.
-            val via = remember(p.id) { (p as? com.xlollx.songport.providers.CredentialsProvider)?.takeIf { connected }?.let { c -> runCatching { c.awayAddress(ctx.env)?.let { away -> c.addressInUse(ctx.env)?.let { it to (it == away) } } }.getOrNull() } }
+            // A server with two addresses (2.2): the one that answered last (nothing until one has).
+            val via = remember(p.id) { (p as? com.xlollx.songport.providers.CredentialsProvider)?.takeIf { connected }?.let { c -> runCatching { c.awayAddress(ctx.env)?.let { away -> c.addressAnswered(ctx.env)?.let { it to (it == away) } } }.getOrNull() } }
             via?.let { (address, isAway) ->
                 Spacer(Modifier.height(6.dp))
                 Text(
@@ -636,7 +636,12 @@ private fun ProviderCard(
             }
             if (p.usesOwnCredentials(ctx)) {
                 Spacer(Modifier.height(8.dp))
-                PageNote(stringResource(R.string.setup_using_own), icon = Icons.Filled.Key)
+                // A tap opens the key's screen (the same as the menu's change-key entry): it looks like a row to tap.
+                PageNote(
+                    stringResource(R.string.setup_using_own), icon = Icons.Filled.Key,
+                    modifier = if (p.setupGuide != null && p.slot.isEmpty()) Modifier.clip(RoundedCornerShape(14.dp)).clickable(role = androidx.compose.ui.semantics.Role.Button) { onSetup(p) } else Modifier,
+                    trailing = if (p.setupGuide != null && p.slot.isEmpty()) ({ Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, Modifier.padding(end = 8.dp)) }) else null,
+                )
             } else if (!configured && !connected) {
                 Spacer(Modifier.height(8.dp))
                 PageNote(stringResource(p.notConfiguredRes ?: R.string.not_configured_hint), tone = Tone.Error)
@@ -776,10 +781,10 @@ internal fun FilesCard(
     LaunchedEffect(version, libraryImports) { lists = withContext(Dispatchers.IO) { LocalFilesProvider.playlists(ctx) } }
 
     // "Send to a service" right after the import: the list is there, where should it go?
-    fun offerSend(id: String, name: String, tracks: Int) {
+    fun offerSend(id: String, name: String, tracks: Int, leftOut: Int = 0) {
         scope.launch {
             val res = snackbar.showSnackbar(
-                message = ctx.getString(R.string.csv_imported, tracks),
+                message = ctx.getString(R.string.csv_imported, tracks) + (if (leftOut > 0) "\n" + ctx.getString(R.string.library_left_out, leftOut) else ""),
                 actionLabel = ctx.getString(R.string.files_send_to),
                 duration = SnackbarDuration.Long,
             )
@@ -814,18 +819,19 @@ internal fun FilesCard(
                 LibraryImport.startFile(ctx, uri, name)
                 return@launch
             }
+            var leftOut = 0
             val result = withContext(Dispatchers.IO) {
                 runCatching {
                     // A small one: the same reading, a piece at a time, without the progress. Bytes, not
                     // a UTF-8 reader: a BOM or a Windows-1252 .m3u decodes as written.
                     val input = ctx.contentResolver.openInputStream(uri) ?: error(ctx.getString(R.string.library_cannot_open))
-                    input.use { LocalFilesProvider.importStream(ctx, name, com.xlollx.songport.sync.PlaylistFiles.reader(it)) }
+                    input.use { LocalFilesProvider.importStream(ctx, name, com.xlollx.songport.sync.PlaylistFiles.reader(it), onLeftOut = { n -> leftOut = n }) }
                 }
             }
             onMain {
                 result.onSuccess { pl ->
                     version++
-                    offerSend(pl.id, pl.name, pl.trackCount.coerceAtLeast(0))
+                    offerSend(pl.id, pl.name, pl.trackCount.coerceAtLeast(0), leftOut)
                 }.onFailure {
                     // Cut short: nothing was added, said in the person's language.
                     snackbar.showSnackbar(if (it is com.xlollx.songport.sync.ItunesLibrary.Incomplete) ctx.getString(R.string.file_incomplete) else it.userMessage(ctx))

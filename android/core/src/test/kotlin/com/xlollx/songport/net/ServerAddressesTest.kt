@@ -6,6 +6,7 @@ import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -98,6 +99,43 @@ class ServerAddressesTest {
             assertEquals(true, r.isFailure)
             assertEquals(0, server.requestCount)
         } finally { first.shutdown() }
+    }
+
+    @Test fun homeNetworkAndVpnAddressesGetAShortConnection() {
+        for (h in listOf("192.168.1.20", "10.0.0.5", "172.16.3.4", "172.31.255.1", "100.70.12.3", "100.64.0.1", "127.0.0.1", "localhost", "nas.local", "fd12::3", "::1")) {
+            assertEquals(h, true, ServerAddresses.isLocal(h))
+        }
+        for (h in listOf("music.example.org", "172.32.0.1", "100.128.0.1", "100.63.255.255", "8.8.8.8", "192.169.0.1", "", null)) {
+            assertEquals(h.toString(), false, ServerAddresses.isLocal(h))
+        }
+        assertEquals(ServerAddresses.LOCAL_CONNECT_MS, ServerAddresses.connectTimeoutMs("http://192.168.1.20:8096/Items"))
+        assertEquals(ServerAddresses.LOCAL_CONNECT_MS, ServerAddresses.connectTimeoutMs("http://100.70.1.2:8096"))
+        assertNull(ServerAddresses.connectTimeoutMs("https://jellyfin.example.org/Items"))
+    }
+
+    @Test fun theAddressThatAnsweredLastIsTheOneShownNotTheNetworksGuess() = runBlocking {
+        ServerAddresses.onWifi = { true }
+        ServerAddresses.register(home, away)
+        // On Wi-Fi the home one is tried first, but nothing has answered yet: no "at home".
+        assertEquals(home, ServerAddresses.current(home))
+        assertNull(ServerAddresses.answeredLast(home))
+        server.enqueue(MockResponse().setBody("ok"))
+        Http.send("GET", "$home/System/Info")
+        assertEquals(away, ServerAddresses.answeredLast(home))
+    }
+
+    @Test fun neitherAddressAnsweringSaysBothAndLogsBothTries() = runBlocking {
+        val lines = ArrayList<String>()
+        ServerAddresses.log = { lines += it }
+        ServerAddresses.register(home, "http://127.0.0.1:2", "Jellyfin")
+        ServerAddresses.answered("$home/x")
+        val e = runCatching { Http.send("GET", "$home/Items") }.exceptionOrNull()
+        val down = NetError.bothDown(e)
+        assertEquals("Jellyfin", down?.server)
+        assertEquals(1, lines.size)
+        assertTrue(lines[0], lines[0].startsWith("home 127.0… no answer") && lines[0].contains("away 127.0… no answer"))
+        // Neither answered: the line no longer says where the server was.
+        assertNull(ServerAddresses.answeredLast(home))
     }
 
     @Test fun unregisterForgetsThePair() {

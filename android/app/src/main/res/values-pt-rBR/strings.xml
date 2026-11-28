@@ -751,13 +751,11 @@
         <item>Opcional: \"User Management\" permite adicionar até 5 outras contas Spotify (nome e e-mail) que podem usar sua chave, por exemplo familiares.</item>
     </string-array>
     <string-array name="setup_steps_youtube">
-        <item>Entre em console.cloud.google.com com a conta Google cujas playlists do YouTube você vai sincronizar (um Gmail pessoal: contas de escola ou trabalho podem estar bloqueadas). Aceite os termos se pedir. Crie um projeto, qualquer nome (por exemplo \"Trackhop\"), espere a notificação, toque em \"Select project\" e confira o nome na barra superior: todas as próximas etapas são dentro desse projeto.</item>
-        <item>Ative a YouTube Data API v3: o link abre a página dela. Confira se o seu projeto aparece no topo, toque em \"Enable\" e espere a página mudar.</item>
-        <item>Google Auth Platform, \"Overview\", toque em \"Get started\": nome do app \"Trackhop\", seu Gmail como suporte, \"Next\"; público \"External\", \"Next\"; seu Gmail como contato, \"Next\"; marque o acordo, \"Continue\", \"Create\".</item>
-        <item>Não pule esta etapa. Google Auth Platform, \"Audience\": em \"Test users\" toque em \"Add users\", digite o mesmo Gmail com que vai entrar e toque em \"Save\". Sem ela o Google responde \"Access blocked: Trackhop has not completed the Google verification process\".</item>
-        <item>Google Auth Platform, \"Clients\", \"Create client\": tipo de aplicativo \"Desktop app\" (nem Android, nem Web), qualquer nome, \"Create\". Copie já aqui o Client ID e o Client secret, sem espaços: o Google mostra o secret só desta vez (perdeu? abra o client e toque em \"Add secret\").</item>
-        <item>Toque em Entrar e escolha o mesmo Gmail. Em \"Google hasn\'t verified this app\" toque em \"Continue\" (o app é seu) e permita o acesso à sua conta do YouTube. Com vários canais, escolha o das suas playlists. Qualquer outro erro: o link abre o guia com cada erro e a solução.</item>
-        <item>Recomendado: enquanto o app estiver \"In testing\", o Google desconecta você a cada 7 dias. Para continuar conectado: \"Audience\", \"Publish app\", \"Confirm\", e entre aqui mais uma vez. O Google só o analisa se mais de 100 pessoas o usarem.</item>
+        <item>Abra a página do Google pelo link (use o Gmail cujas playlists do YouTube você vai sincronizar; de preferência um Gmail pessoal). Mantenha o projeto sugerido ou escolha um, confira se o tipo de cliente é \"App para computador\", aceite os termos e toque em \"Continuar\".</item>
+        <item>Ative a YouTube Data API v3 nesse projeto: o link a abre, confira o nome do projeto no topo e toque em \"Ativar\".</item>
+        <item>De volta ao cliente, toque em \"Baixar JSON\" e depois em \"Importar o arquivo do cliente (JSON)\" aqui embaixo. Ou copie o ID do cliente e a chave secreta nos campos, sem espaços.</item>
+        <item>Toque em \"Salvar e conectar\" e escolha o mesmo Gmail. Sem usuários de teste, sem publicar, sem desconexões a cada 7 dias. Só esse Gmail entra com esta chave: para outra conta Google, crie outra chave do mesmo jeito. O Google mostra o nome do seu projeto (por exemplo \"personal-mode-app\" ou o que você deu), não Trackhop: é normal.</item>
+        <item>A página do Google não funciona para você (conta de trabalho ou escola, um erro), ou quer uma chave para várias contas Google ou usa o servidor Docker de outro computador? O link abre o caminho longo, passo a passo, com cada erro do Google e a solução.</item>
     </string-array>
     <string-array name="setup_steps_tidal">
         <item>Entre em developer.tidal.com com sua conta TIDAL.</item>
@@ -3740,4 +3738,33 @@
     <string name="reconnect_renewed">%1$s: sessão renovada, nada mais a fazer.</string>
     <string name="reconnect_sign_in">%1$s: não foi possível renovar a sessão. Entre de novo.</string>
     <string name="reconnect_offline">%1$s: não foi possível acessar o serviço, nada mudou. Tente mais tarde.</string>
+    <string name="official_only_intro">Esta versão se conecta aos serviços só pelas APIs oficiais deles. Outras versões do Trackhop suportam mais.</string>
+    <string name="official_only_key">Configurar uma chave é demais? Outras versões do Trackhop se conectam ao %1$s sem chave de desenvolvedor.</string>
+    <string name="official_only_link">Qual versão é a certa para você?</string>
+    <string name="setup_import_google_file">Importar o arquivo do cliente (JSON)</string>
+    <string name="setup_import_google_ok">ID do cliente e secret preenchidos a partir do arquivo.</string>
+    <string name="setup_import_google_bad">Este não é um arquivo de cliente do Google. No Google Cloud abra seu cliente e toque em Baixar JSON.</string>
+    <string name="library_left_out">%1$d entradas faltantes: não são músicas nos seus arquivos (rádio na internet, músicas apenas na nuvem, podcasts ou vídeos).</string>
+    <string name="tools_wanted_show_ticked">Mostre também os marcados (%1$d)</string>
+    <string name="auth_google_test_users">O Google bloqueou o login porque seu Gmail não está na lista de usuários de teste do seu projeto Google. Abra o Google Auth Platform › Audiência, pressione “Adicionar usuários” sob “Usuários de teste”, adicione o Gmail que você faz login com, salve e tente novamente.</string>
+    <string name="auth_google_timeout_hint">Não há resposta no navegador. Se o Google mostrou “Acesso bloqueado: não completou o processo de verificação do Google”, seu Gmail não está na lista de usuários de teste do seu projeto Google: abra Audiência, pressione “Adicionar usuários” sob “Usuários de teste”, adicione, salve e tente novamente.</string>
+    <string name="auth_open_console">Abra Google</string>
+    <string name="progress_network_retry">Não há conexão com %1$s: tentando novamente em %2$d segundos (tentativa %3$d de %4$d)</string>
+    <string name="server_both_down">%1$s não responde em casa ou fora: está ligado? Tem sua VPN (ex: Tailscale) conectada?</string>
+    <string name="error_target_library_changed">A %1$s library mudou (arquivos movidos ou reimportados) e a playlist perdeu as músicas. Reconstrua?</string>
+    <string name="preview_rebuild_confirm">Reconstrua a playlist: adicione suas músicas novamente da fonte</string>
+    <string name="web_spotify_web_unavailable">O Spotify (web) não funciona no Desktop e Docker agora por causa de uma mudança no lado do Spotify. Use o Spotify com sua própria chave (Spotify, oficial) enquanto isso.</string>
+    <string name="auth_google_weekly">%1$s: O Google desconectou você, como faz a cada 7 dias enquanto seu projeto do Google estiver em Teste. Entre novamente e, para resolver isso de vez, publique seu projeto uma vez: em Google Auth Platform › Branding, defina a página inicial https://trackhop.org, o link da política de privacidade https://trackhop.org/privacy-policy e o domínio autorizado trackhop.org, salve e depois em Público › Publicar app.</string>
+    <string name="yt_no_channel">%1$s: esta conta do Google ainda não tem um canal do YouTube, então não há playlists para ler ou gravar. Abra o youtube.com com esta conta, escolha “Criar um canal”, então tente novamente.</string>
+    <string-array name="setup_steps_youtube_long">
+        <item>Entre em console.cloud.google.com com a conta Google cujas playlists do YouTube você vai sincronizar (um Gmail pessoal: contas de escola ou trabalho podem estar bloqueadas). Aceite os termos se pedir. Crie um projeto, qualquer nome (por exemplo \"Trackhop\"), espere a notificação, toque em \"Select project\" e confira o nome na barra superior: todas as próximas etapas são dentro desse projeto.</item>
+        <item>Ative a YouTube Data API v3: o link abre a página dela. Confira se o seu projeto aparece no topo, toque em \"Enable\" e espere a página mudar.</item>
+        <item>Google Auth Platform, \"Overview\", toque em \"Get started\": nome do app \"Trackhop\", seu Gmail como suporte, \"Next\"; público \"External\", \"Next\"; seu Gmail como contato, \"Next\"; marque o acordo, \"Continue\", \"Create\".</item>
+        <item>Não pule esta etapa. Google Auth Platform, \"Audience\": em \"Test users\" toque em \"Add users\", digite o mesmo Gmail com que vai entrar e toque em \"Save\". Sem ela o Google responde \"Access blocked: Trackhop has not completed the Google verification process\".</item>
+        <item>Google Auth Platform, \"Clients\", \"Create client\": tipo de aplicativo \"Desktop app\" (nem Android, nem Web), qualquer nome, \"Create\". Copie já aqui o Client ID e o Client secret, sem espaços: o Google mostra o secret só desta vez (perdeu? abra o client e toque em \"Add secret\"). Mais fácil: na mesma janela toque em \"Baixar JSON\" e use \"Importar o arquivo do cliente\" aqui embaixo.</item>
+        <item>Toque em Entrar e escolha o mesmo Gmail. Em \"Google hasn\'t verified this app\" toque em \"Continue\" (o app é seu) e permita o acesso à sua conta do YouTube. Com vários canais, escolha o das suas playlists. Qualquer outro erro: o link abre o guia com cada erro e a solução.</item>
+        <item>Recomendado: enquanto o app estiver \"In testing\", o Google desconecta você a cada 7 dias. Para continuar conectado: \"Audience\", \"Publish app\", \"Confirm\", e entre aqui mais uma vez. O Google só o analisa se mais de 100 pessoas o usarem. Se \"Publicar app\" estiver cinza: em \"Branding\" coloque como página inicial https://trackhop.org, como link da política de privacidade https://trackhop.org/privacy-policy e, em \"Domínios autorizados\", trackhop.org; \"Salvar\" e volte.</item>
+    </string-array>
+    <string name="setup_long_way_show">Caminho longo (7 passos, como antes)</string>
+    <string name="setup_long_way_hide">Ocultar o caminho longo</string>
 </resources>

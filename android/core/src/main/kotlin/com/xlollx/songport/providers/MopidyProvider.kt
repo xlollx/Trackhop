@@ -115,7 +115,7 @@ class MopidyProvider(override val slot: String = "") : CredentialsProvider() {
         val artist = track.artists.firstOrNull()?.takeIf { it.isNotBlank() }
         val withArtist = artist?.let { find("track_name" to plain, "artist" to it) }.orEmpty()
         val found = Matcher.searchByTitles(track, listOf(plain) + Matcher.titleTerms(track.title), withArtist) { find("track_name" to it) }
-        return Matcher.byArtist(track, found).sortedByDescending { Matcher.score(track, it) }.take(5)
+        return Matcher.byArtist(track, found).sortedByDescending { Matcher.score(track, it, Matcher.SERVER_POLICY) }.take(5)
     }
 
     override suspend fun createPlaylist(ctx: Env, name: String, description: String): Playlist {

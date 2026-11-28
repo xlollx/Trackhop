@@ -182,6 +182,12 @@ abstract class OAuthProvider : MusicProvider {
                 // The status alone: the answer's text is not logged, nor anything of the tokens.
                 ctx.log(id, "access not renewed (HTTP ${resp.code})")
             }
+            // Google signs out every 7 days a person whose own project is still in Testing (invalid_grant):
+            // said as such, with how to stop it for good, instead of a bare "reconnect".
+            if (resp.code == 400 && authDomain == GoogleSignIn.DOMAIN && usesOwnCredentials(ctx) && resp.body.contains("invalid_grant")) {
+                throw ProviderException(runCatching { ctx.text("auth_google_weekly", displayName) }.getOrNull()
+                    ?: "$displayName: Google signed you out, as it does every 7 days while your Google project is in Testing. Sign in again; to stop it, publish your project once (see the guide).")
+            }
             if (resp.code == 400 || resp.code == 401) throw ProviderException("$displayName: session expired, please reconnect (${resp.code})")
             // An outage or a throttle (5xx, 429): the sign-in stays, the next call tries again.
             throw ProviderException("$displayName: access not renewed (HTTP ${resp.code}), try again later", code = resp.code)

@@ -34,6 +34,7 @@
     <string name="progress_create_target">Creating target playlist…</string>
     <string name="progress_fetch_target">Reading target playlist…</string>
     <string name="progress_matching">Matching tracks %1$d/%2$d…</string>
+    <string name="progress_network_retry">No connection to %1$s: trying again in %2$d s (attempt %3$d of %4$d)</string>
     <string name="progress_waiting">The service is limiting requests: resuming in %1$d s. Normal with large playlists, not an error.</string>
     <string name="progress_adding">Adding %1$d tracks…</string>
     <string name="progress_removing">Removing %1$d tracks…</string>
@@ -163,6 +164,7 @@
     <string name="csv_playlists_hint">File playlists live inside the app. Import a file here, then use it as a sync source; or sync any playlist into a file and export it as CSV or M3U.</string>
     <string name="csv_empty">No file playlists yet.</string>
     <string name="csv_imported">Imported %1$d tracks</string>
+    <string name="library_left_out">%1$d entries left out: they are not songs in your files (internet radio, songs only in the cloud, podcasts or videos).</string>
     <string name="csv_exported">File exported</string>
     <string name="log_save_file">Save as file…</string>
     <string name="note_file_target">Saved inside Trackhop: use “Save as file” here, or Tools › File playlists, to get a CSV or M3U.</string>
@@ -205,6 +207,8 @@
     <string name="note_removals_capped">Removals held back: this run would remove %1$d of the %2$d tracks in the target. Tap the sync\'s status to open the preview and see them; if they really should go, tick “Remove these tracks” there and run it. If the source has not really lost them, the service listed it incompletely and nothing should go.</string>
     <string name="error_target_shrunk">%1$s lists only %2$d tracks, but the last run left %3$d there: probably an incomplete answer. Nothing was changed. Try again later; if the playlist really is that small now, sync it anyway from the preview.</string>
     <string name="note_target_shrunk">%1$s lists only %2$d tracks, but the last run left %3$d there: probably an incomplete answer. Running now would add the missing ones again.</string>
+    <string name="error_target_library_changed">The %1$s library changed (files moved or re-imported) and the playlist lost its songs. Rebuild it?</string>
+    <string name="preview_rebuild_confirm">Rebuild the playlist: add its songs again from the source</string>
     <string name="preview_shrunk_confirm">The playlist really has %1$d tracks now, not %2$d: sync anyway</string>
     <string name="note_unchanged">Nothing changed on either side since the last run: skipped.</string>
     <string name="review_share">Share the list</string>
@@ -237,6 +241,9 @@
     <string name="setup_why_apple">The developer token belongs to your Apple Developer account and expires after six months at most.</string>
     <string name="error_dev_mode_limit">%1$s only allows a handful of users per app. Set up your own credentials: it is free and takes about two minutes.</string>
     <string name="error_network">the phone could not reach the service (DNS failed). Check the connection, any VPN or private DNS, and that Trackhop is allowed to use data in the background, then try again.</string>
+    <string name="auth_google_test_users">Google blocked the sign-in because your Gmail is not on the Test users list of your Google project. Open Google Auth Platform › Audience, press “Add users” under “Test users”, add the Gmail you sign in with, save, and try again.</string>
+    <string name="auth_google_timeout_hint">No answer from the browser. If Google showed “Access blocked: has not completed the Google verification process”, your Gmail is not on the Test users list of your Google project: open Audience, press “Add users” under “Test users”, add it, save, and try again.</string>
+    <string name="auth_open_console">Open Google</string>
     <string name="auth_timeout">no answer from the browser, time is up</string>
 
     <string name="tab_tools">Tools</string>
@@ -753,13 +760,11 @@
         <item>Optional: "User Management" lets you add up to 5 other Spotify accounts (name and e-mail) that may use your key, for example family members.</item>
     </string-array>
     <string-array name="setup_steps_youtube">
-        <item>Sign in to console.cloud.google.com with the Google account whose YouTube playlists you will sync (a personal Gmail: school and work accounts may be blocked). Accept the terms if asked. Create a project, any name (for example \"Trackhop\"), wait for the notification, press \"Select project\" and check its name in the top bar: do every next step inside this project.</item>
-        <item>Enable the YouTube Data API v3: the link opens its page. Check that your project is shown at the top, press \"Enable\" and wait for the page to change.</item>
-        <item>Google Auth Platform, \"Overview\", press \"Get started\": app name \"Trackhop\", your Gmail as support address, \"Next\"; audience \"External\", \"Next\"; your Gmail as contact, \"Next\"; tick the agreement, \"Continue\", \"Create\".</item>
-        <item>Do not skip this one. Google Auth Platform, \"Audience\": under \"Test users\" press \"Add users\", type the same Gmail you will sign in with and press \"Save\". Without it Google answers \"Access blocked: Trackhop has not completed the Google verification process\".</item>
-        <item>Google Auth Platform, \"Clients\", \"Create client\": application type \"Desktop app\" (not Android, not Web), any name, \"Create\". Copy the Client ID and the Client secret here at once, without spaces: Google shows the secret only this time (lost it? open the client and press \"Add secret\").</item>
-        <item>Press Sign in and pick the same Gmail. On \"Google hasn\'t verified this app\" press \"Continue\" (it is your own app), then allow access to your YouTube account. With several channels, pick the one with your playlists. Any other error: the link opens the guide with every error and its fix.</item>
-        <item>Recommended: while your app is \"In testing\", Google signs you out every 7 days. To stay signed in: \"Audience\", \"Publish app\", \"Confirm\", then sign in here once more. Google does not review it unless more than 100 people use it.</item>
+        <item>Open Google\'s page with the link (use the Gmail whose YouTube playlists you will sync; a personal Gmail works best). Keep the project it offers or pick one, check that the client type is \"Desktop app\", accept the terms and press \"Continue\".</item>
+        <item>Turn on the YouTube Data API v3 for that project: the link opens it, check the project name at the top and press \"Enable\".</item>
+        <item>Back on the client\'s page press \"Download JSON\", then \"Import the client file (JSON)\" below. Or copy the Client ID and the Client secret into the fields, without spaces.</item>
+        <item>Press \"Save and connect\" and pick the same Gmail. No test users, no publishing, no sign-out every 7 days. Only that Gmail can sign in with this key: for another Google account, make one more key the same way. Google shows your project\'s name (for example \"personal-mode-app\", or the name you gave it), not Trackhop: that\'s normal.</item>
+        <item>Google\'s page doesn\'t work for you (a work or school account, an error), or you want one key for several Google accounts or the Docker server opened from another computer? The link opens the long way, step by step, with every Google error and its fix.</item>
     </string-array>
     <string-array name="setup_steps_tidal">
         <item>Sign in at developer.tidal.com with your TIDAL account.</item>
@@ -2167,6 +2172,7 @@
     </plurals>
     <string name="tools_wanted_by_album">By album</string>
     <string name="tools_wanted_show_got">Show what I got</string>
+    <string name="tools_wanted_show_ticked">Show ticked ones too (%1$d)</string>
     <string name="tools_wanted_from">From %1$s · since %2$s</string>
     <string name="tools_wanted_no_album">No album</string>
     <string name="tools_wanted_export">Export the list</string>
@@ -2726,6 +2732,7 @@
     <string name="pill_stopped_offline">Stopped: no internet</string>
     <string name="offline_empty">This needs an internet connection. Connect and try again.</string>
     <string name="net_try_again">Try again</string>
+    <string name="web_spotify_web_unavailable">Spotify (web) doesn\'t work on Desktop and Docker right now because of a change on Spotify\'s side. Use Spotify with your own key (Spotify, official) meanwhile.</string>
     <string name="web_err_404_title">Page not found</string>
     <string name="web_err_404_text">This page isn\'t here: the link may be old, or the address mistyped. Nothing is broken.</string>
     <string name="web_err_500_title">Something went wrong</string>
@@ -3632,6 +3639,7 @@
     <string name="login_url_away">Address away from home (optional)</string>
     <string name="login_url_away_hint">Used when the first one doesn\'t answer, for example on mobile data. On Wi-Fi the first one is tried first; the one that worked last is remembered.</string>
     <string name="account_via_home">Now via: %1$s (home)</string>
+    <string name="server_both_down">%1$s doesn\'t answer at home or away: is it on? Is your VPN (e.g. Tailscale) connected?</string>
     <string name="account_via_away">Now via: %1$s (away)</string>
     <string name="why_not_matched_q">Why wasn\'t it matched?</string>
     <string name="why_not_matched">Why wasn\'t it matched?</string>
@@ -3736,4 +3744,23 @@
     <string name="reconnect_renewed">%1$s: session renewed, nothing else to do.</string>
     <string name="reconnect_sign_in">%1$s: the session could not be renewed. Sign in again.</string>
     <string name="reconnect_offline">%1$s: the service could not be reached, nothing changed. Try again later.</string>
+    <string name="official_only_intro">This version connects to services only through their official APIs. Other versions of Trackhop support more of them.</string>
+    <string name="official_only_key">Setting up a key is too much? Other versions of Trackhop connect to %1$s without a developer key.</string>
+    <string name="official_only_link">Which version is right for you?</string>
+    <string name="setup_import_google_file">Import the client file (JSON)</string>
+    <string name="setup_import_google_ok">Client ID and secret filled in from the file.</string>
+    <string name="setup_import_google_bad">This isn\'t a Google client file. In Google Cloud open your client and press Download JSON.</string>
+    <string name="auth_google_weekly">%1$s: Google signed you out, as it does every 7 days while your Google project is in Testing. Sign in again, and to stop it for good publish your project once: in Google Auth Platform › Branding set the home page https://trackhop.org, the privacy policy link https://trackhop.org/privacy-policy and the authorized domain trackhop.org, save, then Audience › Publish app.</string>
+    <string name="yt_no_channel">%1$s: this Google account has no YouTube channel yet, so it has no playlists to read or write. Open youtube.com with this account, choose “Create a channel”, then try again.</string>
+    <string-array name="setup_steps_youtube_long">
+        <item>Sign in to console.cloud.google.com with the Google account whose YouTube playlists you will sync (a personal Gmail: school and work accounts may be blocked). Accept the terms if asked. Create a project, any name (for example \"Trackhop\"), wait for the notification, press \"Select project\" and check its name in the top bar: do every next step inside this project.</item>
+        <item>Enable the YouTube Data API v3: the link opens its page. Check that your project is shown at the top, press \"Enable\" and wait for the page to change.</item>
+        <item>Google Auth Platform, \"Overview\", press \"Get started\": app name \"Trackhop\", your Gmail as support address, \"Next\"; audience \"External\", \"Next\"; your Gmail as contact, \"Next\"; tick the agreement, \"Continue\", \"Create\".</item>
+        <item>Do not skip this one. Google Auth Platform, \"Audience\": under \"Test users\" press \"Add users\", type the same Gmail you will sign in with and press \"Save\". Without it Google answers \"Access blocked: Trackhop has not completed the Google verification process\".</item>
+        <item>Google Auth Platform, \"Clients\", \"Create client\": application type \"Desktop app\" (not Android, not Web), any name, \"Create\". Copy the Client ID and the Client secret here at once, without spaces: Google shows the secret only this time (lost it? open the client and press \"Add secret\"). Easier: press \"Download JSON\" in the same window and use \"Import the client file\" below.</item>
+        <item>Press Sign in and pick the same Gmail. On \"Google hasn\'t verified this app\" press \"Continue\" (it is your own app), then allow access to your YouTube account. With several channels, pick the one with your playlists. Any other error: the link opens the guide with every error and its fix.</item>
+        <item>Recommended: while your app is \"In testing\", Google signs you out every 7 days. To stay signed in: \"Audience\", \"Publish app\", \"Confirm\", then sign in here once more. Google does not review it unless more than 100 people use it. If \"Publish app\" is grey: in \"Branding\" set the home page https://trackhop.org, the privacy policy link https://trackhop.org/privacy-policy and, under \"Authorized domains\", trackhop.org; \"Save\", then come back.</item>
+    </string-array>
+    <string name="setup_long_way_show">The long way (7 steps, as before)</string>
+    <string name="setup_long_way_hide">Hide the long way</string>
 </resources>

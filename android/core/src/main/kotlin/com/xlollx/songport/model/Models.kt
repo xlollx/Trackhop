@@ -298,6 +298,12 @@ data class MatchPolicy(
      * without an album to compare it is a song to check. Off by default.
      */
     val artistsMayDiffer: Boolean = false,
+    /**
+     * The candidates are a personal server's songs, whose titles may be their files' names ("06 In
+     * the End", "13 - In the End"): see [com.xlollx.songport.sync.Matcher.fileTitles]. Set by the
+     * engine for such a target, never saved.
+     */
+    @kotlinx.serialization.Transient val fileNames: Boolean = false,
 ) {
     val acceptThreshold: Double get() = 0.70 + 0.08 * strictness
     val reviewThreshold: Double get() = 0.86 + 0.05 * strictness
@@ -324,6 +330,12 @@ data class SyncReport(
      * size). The preview, or "Sync anyway" on the web page, runs it once regardless.
      */
     val targetShrunkFrom: Int = 0,
+    /**
+     * With [targetShrunkFrom]: the target is on a personal server whose ids change and listed nothing
+     * at all. Its library changed (files moved, imported anew) and the playlist lost its songs; running
+     * anyway rebuilds it.
+     */
+    val targetEmptied: Boolean = false,
     /** The source was read and listed nothing at all (no loved tracks yet, an emptied playlist). */
     val sourceEmpty: Boolean = false,
     val added: Int = 0,
@@ -413,6 +425,8 @@ data class SyncPlan(
      * set only in the preview, where running anyway is a deliberate choice.
      */
     val targetShrunkFrom: Int = 0,
+    /** With [targetShrunkFrom]: emptied by a change of its server's library ([SyncReport.targetEmptied]). */
+    val targetEmptied: Boolean = false,
     /** When the target was read (epoch ms, 0 = not read: created now) and its version just then, where the service has one. */
     val targetReadAt: Long = 0,
     val targetVersion: String? = null,
@@ -466,9 +480,19 @@ data class TargetSearch(val hits: List<Hit>, val album: String? = null, val albu
     fun of(kind: Kind): List<Hit> = hits.filter { it.kind == kind }
 }
 
-data class Progress(val step: Step, val done: Int = 0, val total: Int = 0, val label: String? = null) {
-    /** WAITING: il servizio limita le richieste; done/total = secondi trascorsi/da attendere. */
-    enum class Step { FETCH_SOURCE, CREATE_TARGET, FETCH_TARGET, MATCHING, WAITING, ADDING, REMOVING, BACKUP, DEDUPE }
+data class Progress(
+    val step: Step, val done: Int = 0, val total: Int = 0, val label: String? = null,
+    /** NETWORK_RETRY: this try of [attempts]. */
+    val attempt: Int = 0, val attempts: Int = 0,
+) {
+    /**
+     * WAITING: il servizio limita le richieste; done/total = secondi trascorsi/da attendere.
+     * NETWORK_RETRY: the connection to [label] (the service) failed; done/total as for WAITING, then
+     * try [attempt] of [attempts].
+     */
+    enum class Step { FETCH_SOURCE, CREATE_TARGET, FETCH_TARGET, MATCHING, WAITING, NETWORK_RETRY, ADDING, REMOVING, BACKUP, DEDUPE }
+    /** A wait that passes by itself (the service's limit, or the connection): a pause lets it run on. */
+    val isWait: Boolean get() = step == Step.WAITING || step == Step.NETWORK_RETRY
     /** Percentuale del passo corrente, quando il totale e' noto. */
     val percent: Int? get() = if (total > 0) (done * 100 / total).coerceIn(0, 100) else null
 }

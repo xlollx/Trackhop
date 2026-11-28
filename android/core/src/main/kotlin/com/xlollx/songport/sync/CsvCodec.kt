@@ -115,8 +115,10 @@ object CsvCodec {
         }
     }
 
-    fun splitArtists(s: String): List<String> =
-        s.split(Regex("""\s*[,;/]\s*|\s+&\s+""")).map { it.trim() }.filter { it.isNotEmpty() }
+    /** The names of an artist column: "A, B", "A; B", "A / B", "A & B"; a band such as "Of Mice & Men" stays whole. */
+    fun splitArtists(s: String): List<String> = Matcher.splitArtists(s, ARTIST_SEPARATORS)
+
+    private val ARTIST_SEPARATORS = Regex("""\s*[,;/]\s*|\s+&\s+""")
 
     fun parseDuration(s: String): Long {
         if (s.isBlank()) return 0

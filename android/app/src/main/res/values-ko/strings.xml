@@ -740,13 +740,11 @@
         <item>선택 사항: “User Management”에서 내 키를 쓸 수 있는 다른 Spotify 계정(이름과 이메일)을 5개까지 추가할 수 있어요. 예를 들어 가족이요.</item>
     </string-array>
     <string-array name="setup_steps_youtube">
-        <item>동기화할 YouTube 재생목록의 Google 계정(개인 Gmail. 학교·회사 계정은 차단될 수 있어요)으로 console.cloud.google.com에 로그인하세요. 약관 동의를 요청하면 동의하세요. 이름은 자유롭게(예: “Trackhop”) 프로젝트를 만들고, 알림을 기다렸다가 “프로젝트 선택”을 누른 뒤 상단 바에서 이름을 확인하세요. 이후 모든 단계는 이 프로젝트 안에서 해요.</item>
-        <item>YouTube Data API v3를 사용 설정하세요. 링크를 열면 해당 페이지가 열려요. 상단에 내 프로젝트가 보이는지 확인하고 “사용”을 누른 뒤 페이지가 바뀔 때까지 기다리세요.</item>
-        <item>Google Auth Platform → “개요”에서 “시작하기”: 앱 이름 “Trackhop”, 지원 이메일은 내 Gmail, “다음”; 대상 “외부”, “다음”; 연락처는 내 Gmail, “다음”; 동의에 체크하고 “계속”, “만들기”.</item>
-        <item>이 단계는 건너뛰지 마세요. Google Auth Platform → “대상”의 “테스트 사용자”에서 “사용자 추가”를 누르고, 로그인할 때 쓸 것과 같은 Gmail을 입력한 뒤 “저장”을 누르세요. 이 단계가 없으면 Google이 “액세스 차단됨: Trackhop에서 Google 인증 절차를 완료하지 않았습니다”라고 해요.</item>
-        <item>Google Auth Platform → “클라이언트” → “클라이언트 만들기”: 애플리케이션 유형 “데스크톱 앱”(Android도 웹도 아님), 이름은 자유, “만들기”. Client ID와 Client secret을 바로 여기에 공백 없이 복사하세요. secret은 이번에만 보여요(잃어버렸다면 클라이언트를 열고 “보안 비밀 추가”).</item>
-        <item>로그인을 누르고 같은 Gmail을 고르세요. “Google에서 확인하지 않은 앱” 화면에서는 “계속”을 누르고(내 앱이에요) YouTube 계정 접근을 허용하세요. 채널이 여러 개면 재생목록이 있는 채널을 고르세요. 다른 오류는 링크에서 오류별 해결 방법이 담긴 가이드를 열 수 있어요.</item>
-        <item>권장: 앱이 “테스트 중”인 동안 Google은 7일마다 로그아웃시켜요. 로그인을 유지하려면 “대상” → “앱 게시” → “확인” 후 여기서 한 번 더 로그인하세요. 사용자가 100명을 넘지 않으면 Google은 검토하지 않아요.</item>
+        <item>링크로 Google 페이지를 여세요(YouTube 재생목록을 동기화할 Gmail로, 개인 Gmail 권장). 제안된 프로젝트를 그대로 두거나 선택하고, 클라이언트 유형이 \"데스크톱 앱\"인지 확인한 뒤 약관에 동의하고 \"계속\"을 누르세요.</item>
+        <item>그 프로젝트에서 YouTube Data API v3를 사용 설정하세요. 링크로 열고 상단의 프로젝트 이름을 확인한 뒤 \"사용\"을 누르세요.</item>
+        <item>클라이언트 화면으로 돌아와 \"JSON 다운로드\"를 누른 다음 아래의 \"클라이언트 파일(JSON) 가져오기\"를 누르세요. 또는 클라이언트 ID와 클라이언트 보안 비밀을 공백 없이 입력란에 복사하세요.</item>
+        <item>\"저장 후 연결\"을 누르고 같은 Gmail을 선택하세요. 테스트 사용자, 게시가 필요 없고 7일마다 로그아웃되지도 않습니다. 이 키로는 그 Gmail만 로그인할 수 있으니, 다른 Google 계정은 같은 방법으로 키를 하나 더 만드세요. Google에는 Trackhop 대신 프로젝트 이름(예: \"personal-mode-app\" 또는 직접 붙인 이름)이 표시되며, 정상입니다.</item>
+        <item>Google 페이지가 되지 않거나(직장·학교 계정, 오류), 여러 Google 계정에서 키 하나를 쓰거나 다른 컴퓨터에서 Docker 서버를 쓰나요? 링크에서 긴 방법을 단계별로, 모든 Google 오류의 해결법과 함께 볼 수 있습니다.</item>
     </string-array>
     <string-array name="setup_steps_tidal">
         <item>TIDAL 계정으로 developer.tidal.com에 로그인하세요.</item>
@@ -3608,4 +3606,33 @@
     <string name="reconnect_renewed">%1$s: 세션을 갱신했습니다. 더 할 일은 없습니다.</string>
     <string name="reconnect_sign_in">%1$s: 세션을 갱신할 수 없습니다. 다시 로그인하세요.</string>
     <string name="reconnect_offline">%1$s: 서비스에 연결할 수 없어 아무것도 바뀌지 않았습니다. 나중에 다시 시도하세요.</string>
+    <string name="official_only_intro">이 버전은 각 서비스의 공식 API로만 연결합니다. Trackhop의 다른 버전은 더 많은 서비스를 지원합니다.</string>
+    <string name="official_only_key">키 설정이 번거로운가요? Trackhop의 다른 버전은 개발자 키 없이 %1$s에 연결합니다.</string>
+    <string name="official_only_link">어떤 버전이 맞을까요?</string>
+    <string name="setup_import_google_file">클라이언트 파일(JSON) 가져오기</string>
+    <string name="setup_import_google_ok">파일에서 클라이언트 ID와 시크릿을 채웠습니다.</string>
+    <string name="setup_import_google_bad">Google 클라이언트 파일이 아닙니다. Google Cloud에서 클라이언트를 열고 JSON 다운로드를 누르세요.</string>
+    <string name="library_left_out">%1$d 항목 제외됨: 파일(오프라인)에는 없는 곡들 (인터넷 라디오, 클라우드 전용 곡, 팟캐스트 또는 비디오).</string>
+    <string name="tools_wanted_show_ticked">찍힌 것도 보여 주세요 (%1$d)</string>
+    <string name="auth_google_test_users">Google에서 사인인 시도가 차단되었습니다. Gmail이 Google 프로젝트의 Test users 목록에 포함되어 있지 않아요. Google Auth Platform > Audience 로 이동해 “Add users” 아래 “Test users”에 Gmail을 추가하고 저장한 뒤 다시 시도하세요.</string>
+    <string name="auth_google_timeout_hint">브라우저가 응답하지 않았습니다. Google에서 “Access blocked: has not completed the Google verification process”가 표시되었다면, Gmail이 Google 프로젝트의 Test users 목록에 포함되어 있지 않아요. Audience 로 이동해 “Test users” 아래 “Add users”를 눌러, 추가하고 저장한 뒤 다시 시도하세요.</string>
+    <string name="auth_open_console">Google 열기</string>
+    <string name="progress_network_retry">%1$s와 연결되지 않음: %2$d 초 뒤에 다시 시도 (%3$d 번째 시도 %4$d 번째)</string>
+    <string name="server_both_down">%1$s가 집이나 외부에서 응답하지 않음: 켜져 있나요? VPN (예: Tailscale)은 연결되어 있나요?</string>
+    <string name="error_target_library_changed">%1$s 라이브러리가 변경되었습니다 (파일이 이동하거나 다시 가져왔으며) 재생목록에 곡이 사라졌습니다. 다시 빌드할까요?</string>
+    <string name="preview_rebuild_confirm">플레이리스트를 다시 빌드하세요: 소스에서 곡을 다시 추가하세요</string>
+    <string name="web_spotify_web_unavailable">Spotify (웹) 현재 데스크톱과 Docker에서 작동하지 않아요. Spotify를 자체 키(Spotify, official)로 사용하세요.</string>
+    <string name="auth_google_weekly">%1$s: Google이 사용자를 로그아웃시켰어요. Google 프로젝트가 Testing 상태인 동안 7일마다 이렇게 됩니다. 다시 로그인하고, 더 이상 이런 일이 없도록 하려면 프로젝트를 한 번 게시하세요: Google Auth Platform › Branding에서 홈 페이지 https://trackhop.org, 개인정보 처리방침 링크 https://trackhop.org/privacy-policy, 승인된 도메인 trackhop.org를 설정하고 저장한 다음, Audience › Publish app으로 이동하세요.</string>
+    <string name="yt_no_channel">%1$s: 이 Google 계정은 아직 YouTube 채널이 없어서 읽거나 쓸 플레이리스트가 없어요. 이 계정으로 youtube.com을 열고, “채널 만들기”를 선택한 다음 다시 시도하세요.</string>
+    <string-array name="setup_steps_youtube_long">
+        <item>동기화할 YouTube 재생목록의 Google 계정(개인 Gmail. 학교·회사 계정은 차단될 수 있어요)으로 console.cloud.google.com에 로그인하세요. 약관 동의를 요청하면 동의하세요. 이름은 자유롭게(예: “Trackhop”) 프로젝트를 만들고, 알림을 기다렸다가 “프로젝트 선택”을 누른 뒤 상단 바에서 이름을 확인하세요. 이후 모든 단계는 이 프로젝트 안에서 해요.</item>
+        <item>YouTube Data API v3를 사용 설정하세요. 링크를 열면 해당 페이지가 열려요. 상단에 내 프로젝트가 보이는지 확인하고 “사용”을 누른 뒤 페이지가 바뀔 때까지 기다리세요.</item>
+        <item>Google Auth Platform → “개요”에서 “시작하기”: 앱 이름 “Trackhop”, 지원 이메일은 내 Gmail, “다음”; 대상 “외부”, “다음”; 연락처는 내 Gmail, “다음”; 동의에 체크하고 “계속”, “만들기”.</item>
+        <item>이 단계는 건너뛰지 마세요. Google Auth Platform → “대상”의 “테스트 사용자”에서 “사용자 추가”를 누르고, 로그인할 때 쓸 것과 같은 Gmail을 입력한 뒤 “저장”을 누르세요. 이 단계가 없으면 Google이 “액세스 차단됨: Trackhop에서 Google 인증 절차를 완료하지 않았습니다”라고 해요.</item>
+        <item>Google Auth Platform → “클라이언트” → “클라이언트 만들기”: 애플리케이션 유형 “데스크톱 앱”(Android도 웹도 아님), 이름은 자유, “만들기”. Client ID와 Client secret을 바로 여기에 공백 없이 복사하세요. secret은 이번에만 보여요(잃어버렸다면 클라이언트를 열고 “보안 비밀 추가”). 더 쉬운 방법: 같은 창에서 \"JSON 다운로드\"를 누르고 아래의 \"클라이언트 파일(JSON) 가져오기\"를 사용하세요.</item>
+        <item>로그인을 누르고 같은 Gmail을 고르세요. “Google에서 확인하지 않은 앱” 화면에서는 “계속”을 누르고(내 앱이에요) YouTube 계정 접근을 허용하세요. 채널이 여러 개면 재생목록이 있는 채널을 고르세요. 다른 오류는 링크에서 오류별 해결 방법이 담긴 가이드를 열 수 있어요.</item>
+        <item>권장: 앱이 “테스트 중”인 동안 Google은 7일마다 로그아웃시켜요. 로그인을 유지하려면 “대상” → “앱 게시” → “확인” 후 여기서 한 번 더 로그인하세요. 사용자가 100명을 넘지 않으면 Google은 검토하지 않아요. \"앱 게시\"가 회색이면: \"브랜딩\"에서 홈페이지에 https://trackhop.org, 개인정보처리방침 링크에 https://trackhop.org/privacy-policy, \"승인된 도메인\"에 trackhop.org를 입력하고 \"저장\"한 뒤 돌아오세요.</item>
+    </string-array>
+    <string name="setup_long_way_show">긴 방법(7단계, 기존 방식)</string>
+    <string name="setup_long_way_hide">긴 방법 숨기기</string>
 </resources>

@@ -41,6 +41,5 @@ object TitleParser {
         }
     }
 
-    fun splitArtists(s: String): List<String> =
-        s.split(ARTIST_SPLIT).map { it.trim() }.filter { it.isNotEmpty() }
+    fun splitArtists(s: String): List<String> = Matcher.splitArtists(s, ARTIST_SPLIT)
 }

@@ -463,4 +463,26 @@ class SharedPlaylistTest {
         assertNotNull("expected a refusal", e)
         assertTrue(e.toString(), e is com.xlollx.songport.model.ProviderException)
     }
+
+    /** The group's songs keep their album, length and ISRC all the way to the "Missing on my server" list (a multi-sync as the source). */
+    @Test fun theGroupAsASourceKeepsTheTracksDataInTheMissingList() = runBlocking {
+        group()
+        val server = MemoryService("jellyfin").also { it.lists["t"] = ArrayList() }
+        Providers.testDoubles = listOf(tidal, spotify, deezer, server)
+        for (m in listOf(ana, ben)) {
+            val listed = SharedGroups.listing(m.env, m.group)
+            assertTrue(listed.isNotEmpty() && listed.all { it.album == "Album" && it.durationMs == 200_000L })
+            val job = com.xlollx.songport.model.SyncJob(id = "to-${m.name}", name = "${m.group.name} to Jellyfin",
+                source = PlaylistRef(SharedProvider.ID, m.groupId, m.group.name), target = PlaylistRef("jellyfin", "t", "t"))
+            m.env.store.upsertJob(job)
+            val r = m.engine.run(job)
+            assertEquals(5, r.unmatchedTracks.size)
+            assertTrue(r.unmatchedTracks.toString(), r.unmatchedTracks.all { it.album == "Album" && it.durationMs == 200_000L })
+            val want = com.xlollx.songport.sync.Wanted.list(m.env.store.data)
+            assertEquals(5, want.size)
+            assertTrue(want.all { it.album == "Album" && it.durationMs == 200_000L })
+            // The group's tracks come with the ISRC their first member's service gave.
+            assertTrue(want.all { it.isrc != null })
+        }
+    }
 }

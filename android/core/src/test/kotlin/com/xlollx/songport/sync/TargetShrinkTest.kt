@@ -91,6 +91,29 @@ class TargetShrinkTest {
         assertEquals(40, engine.run(j, unattended = true).targetShrunkFrom)
     }
 
+    /** A personal server whose ids change (Jellyfin after the files moved): the playlist reads empty. */
+    @Test fun aServerPlaylistEmptiedByALibraryChangeSaysSoAndIsRebuiltOnlyWhenConfirmed() = runBlocking {
+        val server = object : MemoryService("mserver") { override val losesIds: Boolean get() = true }
+        server.catalogue += (1..40).map { t("d$it", it) }
+        server.lists["t"] = (1..40).map { t("d$it", it) }.toMutableList()
+        Providers.testDoubles = listOf(src, server)
+        val j = SyncJob(id = "lib", name = "test", source = PlaylistRef("msrc", "p", "p"), target = PlaylistRef("mserver", "t", "t")).also { env.store.upsertJob(it) }
+        assertNull(engine.run(j).error)
+        server.lists["t"] = mutableListOf()
+        val stopped = engine.run(j)
+        assertEquals("error_target_library_changed(mserver)", stopped.error)
+        assertTrue(stopped.targetEmptied)
+        assertEquals(0, server.lists["t"]!!.size)
+        val plan = engine.plan(j, createTarget = false, interactive = true)
+        assertTrue(plan.targetEmptied)
+        assertTrue(plan.notes.toString(), plan.notes.contains("error_target_library_changed(mserver)"))
+        // The rebuild is the run anyway the user confirms.
+        env.store.confirmTargetShrink(j.id)
+        val r = engine.run(j)
+        assertNull(r.error)
+        assertEquals(40, server.lists["t"]!!.size)
+    }
+
     @Test fun smallTargetsAreNotChecked() = runBlocking {
         src.lists["p"] = src.lists["p"]!!.take(10).toMutableList()
         dst.lists["t"] = dst.lists["t"]!!.take(10).toMutableList()

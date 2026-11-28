@@ -741,13 +741,11 @@
         <item>任意：「User Management」で、あなたのキーを使える Spotify アカウント（名前とメールアドレス）を最大5つまで追加できます。家族などに便利です。</item>
     </string-array>
     <string-array name="setup_steps_youtube">
-        <item>同期する YouTube プレイリストの Google アカウント（個人の Gmail。学校や職場のアカウントはブロックされることがあります）で console.cloud.google.com にログインします。規約の同意を求められたら同意します。プロジェクトを作成し（名前は自由、例：「Trackhop」）、通知を待って「プロジェクトを選択」を押し、上部バーの名前を確認します。以降の手順はすべてこのプロジェクト内で行います。</item>
-        <item>YouTube Data API v3 を有効にします。リンクでそのページが開きます。上部に自分のプロジェクトが表示されていることを確認し、「有効にする」を押してページが切り替わるまで待ちます。</item>
-        <item>Google Auth Platform の「概要」で「開始」を押します。アプリ名「Trackhop」、サポートメールに自分の Gmail、「次へ」。対象「外部」、「次へ」。連絡先に自分の Gmail、「次へ」。同意にチェックして「続行」、「作成」。</item>
-        <item>この手順は飛ばさないでください。Google Auth Platform の「対象」で、「テストユーザー」の「ユーザーを追加」を押し、ログインに使うのと同じ Gmail を入力して「保存」を押します。これがないと Google は「アクセスをブロック: Trackhop は Google の審査プロセスを完了していません」と表示します。</item>
-        <item>Google Auth Platform の「クライアント」で「クライアントを作成」。アプリケーションの種類は「デスクトップ アプリ」（Android や Web ではありません）、名前は自由で「作成」。クライアント ID とクライアント シークレットをすぐにここへ、空白なしでコピーします。シークレットが表示されるのはこの一度だけです（なくした場合はクライアントを開いて「シークレットを追加」）。</item>
-        <item>ログインを押し、同じ Gmail を選びます。「このアプリは Google で確認されていません」と出たら「続行」を押し（自分のアプリです）、YouTube アカウントへのアクセスを許可します。チャンネルが複数ある場合はプレイリストのあるものを選びます。それ以外のエラーは、リンクから各エラーと対処法のガイドを開けます。</item>
-        <item>おすすめ：アプリが「テスト中」の間、Google は 7 日ごとにログアウトさせます。ログインを保つには「対象」、「アプリを公開」、「確認」の順に押し、ここでもう一度ログインします。利用者が 100 人を超えない限り Google の審査はありません。</item>
+        <item>リンクから Google のページを開きます（YouTube のプレイリストを同期する Gmail で。個人の Gmail がおすすめです）。提案されたプロジェクトのままか別のものを選び、クライアントの種類が「デスクトップ アプリ」であることを確認して、規約に同意し「続行」を押します。</item>
+        <item>そのプロジェクトで YouTube Data API v3 を有効にします。リンクで開き、上部のプロジェクト名を確認して「有効にする」を押します。</item>
+        <item>クライアントの画面に戻って「JSON をダウンロード」を押し、下の「クライアントファイル (JSON) を読み込む」を押します。または、クライアント ID とクライアント シークレットを空白なしで欄に貼り付けます。</item>
+        <item>「保存して接続」を押し、同じ Gmail を選びます。テストユーザーも公開も不要で、7 日ごとのログアウトもありません。このキーでログインできるのはその Gmail だけです。別の Google アカウントには同じ方法でもう 1 つキーを作ってください。 Google には Trackhop ではなくプロジェクト名（例:「personal-mode-app」や自分で付けた名前）が表示されますが、問題ありません。</item>
+        <item>Google のページがうまくいかない場合（職場・学校のアカウント、エラーなど）や、複数の Google アカウントで 1 つのキーを使いたい場合、別のパソコンから Docker サーバーを使う場合は、リンクから長い手順（ステップごと、すべての Google エラーの対処法付き）を開けます。</item>
     </string-array>
     <string-array name="setup_steps_tidal">
         <item>TIDAL アカウントで developer.tidal.com にログインします。</item>
@@ -3609,4 +3607,33 @@
     <string name="reconnect_renewed">%1$s：セッションを更新しました。ほかに必要な操作はありません。</string>
     <string name="reconnect_sign_in">%1$s：セッションを更新できませんでした。もう一度ログインしてください。</string>
     <string name="reconnect_offline">%1$s：サービスに接続できませんでした。何も変更していません。後でもう一度お試しください。</string>
+    <string name="official_only_intro">このバージョンは各サービスの公式 API だけで接続します。Trackhop の他のバージョンはさらに多くのサービスに対応しています。</string>
+    <string name="official_only_key">キーの設定が大変ですか？Trackhop の他のバージョンは開発者キーなしで %1$s に接続できます。</string>
+    <string name="official_only_link">どのバージョンが合っていますか？</string>
+    <string name="setup_import_google_file">クライアントファイル (JSON) を読み込む</string>
+    <string name="setup_import_google_ok">ファイルからクライアント ID とシークレットを入力しました。</string>
+    <string name="setup_import_google_bad">Google のクライアントファイルではありません。Google Cloud でクライアントを開き、「JSON をダウンロード」を押してください。</string>
+    <string name="library_left_out">%1$d 件が含まれていません: これはローカルのファイルにある曲ではありません (インターネットラジオ、クラウド上の曲のみ、ポッドキャストまたは動画)。</string>
+    <string name="tools_wanted_show_ticked">チェック済みも表示 (%1$d)</string>
+    <string name="auth_google_test_users">Google がサインインをブロックしたのは、あなたの Gmail があなたの Google プロジェクトの Test users リストに含まれていないためです。Google Auth Platform › Audience へ移動し、Test users の下にある Add users を押して、サインインに使用している Gmail を追加し、保存して、再度試してください。</string>
+    <string name="auth_google_timeout_hint">ブラウザから返答がありません。Google が “Access blocked: has not completed the Google verification process” と表示した場合、あなたの Gmail はあなたの Google プロジェクトの Test users リストに含まれていません: Audience へ移動し、Test users の下にある Add users を押して、追加し、保存して、再度試してください。</string>
+    <string name="auth_open_console">Google を開く</string>
+    <string name="server_both_down">%1$s がホームでも外でも返答しない: オンですか? VPN (例: Tailscale) は接続していますか?</string>
+    <string name="error_target_library_changed">%1$s ライブラリが変更されました (ファイルが移動または再インポートされました) そしてプレイリストの楽曲が失われました。再構築しますか?</string>
+    <string name="preview_rebuild_confirm">プレイリストを再構築: ソースから楽曲を再度追加します</string>
+    <string name="web_spotify_web_unavailable">Spotify (ウェブ) は現在 Desktop と Docker で動作しません。Spotify の側の変更が原因です。Spotify を独自のキー (Spotify, 正式) でご利用ください。</string>
+    <string name="progress_network_retry">%1$s に接続できません: %2$d 秒後に再試行します (%4$d 回中 %3$d 回目)</string>
+    <string name="auth_google_weekly">%1$s: Google がサインアウトされました。7日ごとに発生します。Google プロジェクトがテストの場合は、再度サインインしてください。永久に停止させるにはプロジェクトを一度公開してください: in Google Auth Platform › Branding ホームページ https://trackhop.org、プライバシーポリシーのリンク https://trackhop.org/privacy-policy と認可されたドメイン trackhop.org、保存、その後 Audience › Publish app.</string>
+    <string name="yt_no_channel">%1$s: この Google アカウントにはまだ YouTube チャンネルがないため、読み書きできるプレイリストがありません。このアカウントで youtube.com を開き、「チャンネルを作成」を選択してから、もう一度お試しください。</string>
+    <string-array name="setup_steps_youtube_long">
+        <item>同期する YouTube プレイリストの Google アカウント（個人の Gmail。学校や職場のアカウントはブロックされることがあります）で console.cloud.google.com にログインします。規約の同意を求められたら同意します。プロジェクトを作成し（名前は自由、例：「Trackhop」）、通知を待って「プロジェクトを選択」を押し、上部バーの名前を確認します。以降の手順はすべてこのプロジェクト内で行います。</item>
+        <item>YouTube Data API v3 を有効にします。リンクでそのページが開きます。上部に自分のプロジェクトが表示されていることを確認し、「有効にする」を押してページが切り替わるまで待ちます。</item>
+        <item>Google Auth Platform の「概要」で「開始」を押します。アプリ名「Trackhop」、サポートメールに自分の Gmail、「次へ」。対象「外部」、「次へ」。連絡先に自分の Gmail、「次へ」。同意にチェックして「続行」、「作成」。</item>
+        <item>この手順は飛ばさないでください。Google Auth Platform の「対象」で、「テストユーザー」の「ユーザーを追加」を押し、ログインに使うのと同じ Gmail を入力して「保存」を押します。これがないと Google は「アクセスをブロック: Trackhop は Google の審査プロセスを完了していません」と表示します。</item>
+        <item>Google Auth Platform の「クライアント」で「クライアントを作成」。アプリケーションの種類は「デスクトップ アプリ」（Android や Web ではありません）、名前は自由で「作成」。クライアント ID とクライアント シークレットをすぐにここへ、空白なしでコピーします。シークレットが表示されるのはこの一度だけです（なくした場合はクライアントを開いて「シークレットを追加」）。 もっと簡単に：同じ画面で「JSON をダウンロード」を押し、下の「クライアントファイル (JSON) を読み込む」を使ってください。</item>
+        <item>ログインを押し、同じ Gmail を選びます。「このアプリは Google で確認されていません」と出たら「続行」を押し（自分のアプリです）、YouTube アカウントへのアクセスを許可します。チャンネルが複数ある場合はプレイリストのあるものを選びます。それ以外のエラーは、リンクから各エラーと対処法のガイドを開けます。</item>
+        <item>おすすめ：アプリが「テスト中」の間、Google は 7 日ごとにログアウトさせます。ログインを保つには「対象」、「アプリを公開」、「確認」の順に押し、ここでもう一度ログインします。利用者が 100 人を超えない限り Google の審査はありません。 「アプリを公開」がグレーの場合：「ブランディング」でホームページに https://trackhop.org、プライバシー ポリシーのリンクに https://trackhop.org/privacy-policy、「承認済みドメイン」に trackhop.org を入力して「保存」し、戻ってください。</item>
+    </string-array>
+    <string name="setup_long_way_show">長い手順（7 ステップ、従来の方法）</string>
+    <string name="setup_long_way_hide">長い手順を閉じる</string>
 </resources>

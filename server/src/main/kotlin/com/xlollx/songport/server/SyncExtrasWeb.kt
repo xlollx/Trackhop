@@ -69,7 +69,12 @@ private fun Web.previewHtml(job: SyncJob, plan: com.xlollx.songport.model.SyncPl
     }
     val id = q(job.id)
     val held = if (plan.toRemove.isNotEmpty() && plan.removalsNeedConfirmation) """<p class="muted">A run holds these removals back until you confirm them (they are many, or the source changed a lot).</p>""" else ""
-    val shrunk = plan.targetShrunkFrom.takeIf { it > 0 }?.let { """<p class="err">The destination had $it songs at the last run and has ${plan.targetCount} now: a run stops to ask first.</p>""" }.orEmpty()
+    val shrunk = plan.targetShrunkFrom.takeIf { it > 0 }?.let {
+        // The server's library changed: the rebuild is the run anyway, asked for here.
+        if (plan.targetEmptied) """<p class="err">${h(env.text("error_target_library_changed", label(job.target.provider)))}</p>""" +
+            Html.postButton("/syncs/${q(job.id)}/run-anyway", "Rebuild", "secondary")
+        else """<p class="err">The destination had $it songs at the last run and has ${plan.targetCount} now: a run stops to ask first.</p>"""
+    }.orEmpty()
     val nothing = if (plan.toAdd.isEmpty() && plan.toRemove.isEmpty() && plan.unmatched.isEmpty() && plan.uncertain.isEmpty()) """<p class="ok">Nothing to do: the destination is up to date.</p>""" else ""
     return """<div class="card"><h2 style="margin-top:0">${h(job.name)}</h2><p class="muted">${h(label(job.source.provider))}: ${h(job.source.playlistName)} → ${h(label(job.target.provider))}: ${h(job.target.playlistName.ifBlank { "new playlist" })}</p>
 <div class="stats"><p class="stat"><b>${plan.sourceCount}</b><span class="muted">in the source</span></p><p class="stat"><b>${plan.alreadyPresent}</b><span class="muted">already there</span></p><p class="stat"><b>${plan.ignored}</b><span class="muted">ignored</span></p></div>

@@ -64,6 +64,8 @@ fun WantedCard(snackbar: SnackbarHostState) {
     var byAlbum by rememberSaveable { mutableStateOf(false) }
     var showGot by rememberSaveable { mutableStateOf(false) }
     val list = remember(data, showGot) { Wanted.list(data, { MusicBrainz.known(ctx.env, it) }, Wanted.Filter(withGot = showGot)) }
+    // The chip adds only what was ticked as got: with none ticked it would change nothing, so it is off and says how many.
+    val gotCount = remember(data) { Wanted.list(data, { null }, Wanted.Filter(withGot = true)).count { it.got } }
     val hasServer = data.syncs.any { Wanted.isServer(it.target.provider) }
 
     var pending by remember { mutableStateOf<Wanted.Format?>(null) }
@@ -95,7 +97,7 @@ fun WantedCard(snackbar: SnackbarHostState) {
             }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                 FilterChip(selected = byAlbum, onClick = { byAlbum = !byAlbum }, label = { Text(stringResource(R.string.tools_wanted_by_album)) })
-                FilterChip(selected = showGot, onClick = { showGot = !showGot }, label = { Text(stringResource(R.string.tools_wanted_show_got)) })
+                FilterChip(selected = showGot, enabled = gotCount > 0 || showGot, onClick = { showGot = !showGot }, label = { Text(stringResource(R.string.tools_wanted_show_ticked, gotCount)) })
             }
             Spacer(Modifier.height(8.dp))
             val open = list.count { !it.got }

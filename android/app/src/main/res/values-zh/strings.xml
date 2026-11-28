@@ -741,13 +741,11 @@
         <item>可选：在“User Management”中最多可再添加 5 个 Spotify 账号（姓名和电子邮件），让他们也能使用你的密钥，例如家庭成员。</item>
     </string-array>
     <string-array name="setup_steps_youtube">
-        <item>用你要同步其 YouTube 播放列表的 Google 账号（个人 Gmail；学校或工作账号可能被管理员阻止）登录 console.cloud.google.com。如被要求，接受条款。创建一个项目，名称随意（例如“Trackhop”），等待通知后点按“选择项目”（Select project），并在顶部栏确认项目名称：后续所有步骤都在这个项目里完成。</item>
-        <item>启用 YouTube Data API v3：链接会打开它的页面。确认顶部显示的是你的项目，点按“启用”（Enable），等待页面变化。</item>
-        <item>Google Auth Platform →“概览”（Overview），点按“开始”（Get started）：应用名称“Trackhop”，支持邮箱填你的 Gmail，“下一步”；受众群体“外部”（External），“下一步”；联系邮箱填你的 Gmail，“下一步”；勾选同意，“继续”，“创建”。</item>
-        <item>不要跳过这一步。Google Auth Platform →“受众群体”（Audience）：在“测试用户”（Test users）下点按“添加用户”（Add users），填入你登录时要用的同一个 Gmail，点按“保存”。缺少这一步，Google 会显示“已拒绝访问：Trackhop 未完成 Google 验证流程”。</item>
-        <item>Google Auth Platform →“客户端”（Clients）→“创建客户端”（Create client）：应用类型选“桌面应用”（Desktop app，不是 Android，也不是 Web），名称随意，“创建”。立即把 Client ID 和 Client secret 复制到这里，不要带空格：secret 只显示这一次（丢了？打开该客户端，点按“添加密钥”）。</item>
-        <item>点按登录并选择同一个 Gmail。看到“Google 尚未验证此应用”时点按“继续”（这是你自己的应用），然后允许访问你的 YouTube 账号。有多个频道时，选择有你播放列表的那个。遇到其他错误：链接会打开列出每个错误及解决方法的指南。</item>
-        <item>建议：应用处于“测试中”（In testing）时，Google 每 7 天会让你退出登录。要保持登录：“受众群体”，“发布应用”（Publish app），“确认”，然后在这里再登录一次。除非超过 100 人使用，Google 不会审核它。</item>
+        <item>通过链接打开 Google 的页面（使用要同步其 YouTube 播放列表的 Gmail，最好是个人 Gmail）。保留它提供的项目或选择一个，确认客户端类型为“桌面应用”，接受条款并点按“继续”。</item>
+        <item>为该项目启用 YouTube Data API v3：链接会打开它，确认顶部的项目名称后点按“启用”。</item>
+        <item>回到客户端页面，点按“下载 JSON”，再点按下方的“导入客户端文件 (JSON)”。也可以把客户端 ID 和客户端密钥复制到输入框中，不要带空格。</item>
+        <item>点按“保存并连接”，选择同一个 Gmail。无需测试用户，无需发布，也不会每 7 天退出登录。只有这个 Gmail 能用此密钥登录：其他 Google 账号请用同样方法再建一个密钥。 Google 显示的是你的项目名称（例如“personal-mode-app”或你起的名字），而不是 Trackhop：这是正常的。</item>
+        <item>Google 的页面对你不起作用（工作或学校账号、出现错误），或者想让多个 Google 账号共用一个密钥、在另一台电脑上使用 Docker 服务器？链接会打开完整步骤，逐步说明并附上每个 Google 错误的解决方法。</item>
     </string-array>
     <string-array name="setup_steps_tidal">
         <item>使用你的 TIDAL 账号登录 developer.tidal.com。</item>
@@ -3609,4 +3607,33 @@
     <string name="reconnect_renewed">%1$s：会话已续期，无需其他操作。</string>
     <string name="reconnect_sign_in">%1$s：无法续期会话，请重新登录。</string>
     <string name="reconnect_offline">%1$s：无法连接到该服务，未做任何更改。请稍后再试。</string>
+    <string name="official_only_intro">此版本仅通过各服务的官方 API 连接。Trackhop 的其他版本支持更多服务。</string>
+    <string name="official_only_key">设置密钥太麻烦？Trackhop 的其他版本无需开发者密钥即可连接 %1$s。</string>
+    <string name="official_only_link">哪个版本适合你？</string>
+    <string name="setup_import_google_file">导入客户端文件 (JSON)</string>
+    <string name="setup_import_google_ok">已从文件填入客户端 ID 和密钥。</string>
+    <string name="setup_import_google_bad">这不是 Google 客户端文件。请在 Google Cloud 中打开你的客户端并点按下载 JSON。</string>
+    <string name="library_left_out">%1$d 条目被排除：它们不是您文件中的歌曲（网络电台、仅在云端的歌曲、播客或视频）。</string>
+    <string name="tools_wanted_show_ticked">也显示已勾选的 (%1$d)</string>
+    <string name="auth_google_test_users">Google 拦截了登录，因为您的 Gmail 不在 Google 项目的测试用户名单中。打开 Google Auth Platform › 受众群体，在“测试用户”下点击“添加用户”，添加您登录用的 Gmail，保存，然后重试。</string>
+    <string name="auth_google_timeout_hint">浏览器无响应。如果 Google 显示“访问被拦截：未完成 Google 验证流程”，说明您的 Gmail 不在 Google 项目的测试用户名单中：打开受众群体，在“测试用户”下点击“添加用户”，添加后保存，然后重试。</string>
+    <string name="auth_open_console">打开 Google</string>
+    <string name="progress_network_retry">无法连接到 %1$s：%2$d 秒后重试（第 %3$d 次尝试，共 %4$d 次）</string>
+    <string name="server_both_down">%1$s 在本地和远程都无响应：它开着吗？您的 VPN（如 Tailscale）连接了吗？</string>
+    <string name="error_target_library_changed">%1$s 库已更改（文件移动或重新导入），歌单丢失了歌曲。重建它？</string>
+    <string name="preview_rebuild_confirm">重建歌单：从源头重新添加其歌曲</string>
+    <string name="web_spotify_web_unavailable">Spotify（网页版）目前在桌面端和 Docker 上无法使用，因为 Spotify 那边有变动。请暂时使用自带密钥的 Spotify（Spotify，官方版）。</string>
+    <string name="auth_google_weekly">%1$s: Google 已将您登出，就像您的 Google 项目处于测试阶段时每 7 天会做的那样。请重新登录，如需永久停止此情况，请发布一次项目：在 Google Auth Platform › Branding 中设置主页 https://trackhop.org、隐私政策链接 https://trackhop.org/privacy-policy 和授权域 trackhop.org，保存，然后 Audience › Publish app。</string>
+    <string name="yt_no_channel">%1$s: 此 Google 账号尚无 YouTube 频道，因此没有可读写的歌单。请使用此账号打开 youtube.com，选择“创建频道”，然后重试。</string>
+    <string-array name="setup_steps_youtube_long">
+        <item>用你要同步其 YouTube 播放列表的 Google 账号（个人 Gmail；学校或工作账号可能被管理员阻止）登录 console.cloud.google.com。如被要求，接受条款。创建一个项目，名称随意（例如“Trackhop”），等待通知后点按“选择项目”（Select project），并在顶部栏确认项目名称：后续所有步骤都在这个项目里完成。</item>
+        <item>启用 YouTube Data API v3：链接会打开它的页面。确认顶部显示的是你的项目，点按“启用”（Enable），等待页面变化。</item>
+        <item>Google Auth Platform →“概览”（Overview），点按“开始”（Get started）：应用名称“Trackhop”，支持邮箱填你的 Gmail，“下一步”；受众群体“外部”（External），“下一步”；联系邮箱填你的 Gmail，“下一步”；勾选同意，“继续”，“创建”。</item>
+        <item>不要跳过这一步。Google Auth Platform →“受众群体”（Audience）：在“测试用户”（Test users）下点按“添加用户”（Add users），填入你登录时要用的同一个 Gmail，点按“保存”。缺少这一步，Google 会显示“已拒绝访问：Trackhop 未完成 Google 验证流程”。</item>
+        <item>Google Auth Platform →“客户端”（Clients）→“创建客户端”（Create client）：应用类型选“桌面应用”（Desktop app，不是 Android，也不是 Web），名称随意，“创建”。立即把 Client ID 和 Client secret 复制到这里，不要带空格：secret 只显示这一次（丢了？打开该客户端，点按“添加密钥”）。 更简单：在同一窗口点按“下载 JSON”，然后使用下方的“导入客户端文件 (JSON)”。</item>
+        <item>点按登录并选择同一个 Gmail。看到“Google 尚未验证此应用”时点按“继续”（这是你自己的应用），然后允许访问你的 YouTube 账号。有多个频道时，选择有你播放列表的那个。遇到其他错误：链接会打开列出每个错误及解决方法的指南。</item>
+        <item>建议：应用处于“测试中”（In testing）时，Google 每 7 天会让你退出登录。要保持登录：“受众群体”，“发布应用”（Publish app），“确认”，然后在这里再登录一次。除非超过 100 人使用，Google 不会审核它。 如果“发布应用”是灰色的：在“品牌塑造”中把首页设为 https://trackhop.org，隐私权政策链接设为 https://trackhop.org/privacy-policy，并在“已获授权的网域”中添加 trackhop.org；点“保存”后再回来。</item>
+    </string-array>
+    <string name="setup_long_way_show">完整步骤（7 步，以前的方法）</string>
+    <string name="setup_long_way_hide">隐藏完整步骤</string>
 </resources>

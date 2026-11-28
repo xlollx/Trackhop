@@ -167,6 +167,8 @@ private fun Web.routesPage(f: ServiceCatalog.Family): String {
         sb.append("""<div class="card"><div class="who">${Html.logo(m.serviceId, m.brandColor, m.displayName, 40)}<div><b>${h(title)}</b>$badges""")
         m.routeNoteName?.let { sb.append("""<br><span class="muted">${h(env.text(it))}</span>""") }
         sb.append("</div></div>")
+        // Spotify (web) cannot get its token here for now: said before it is added.
+        if (m.serviceId == SpotifyWebServerProvider.SERVICE) sb.append("""<p class="err">${h(env.text(SpotifyWebServerProvider.UNAVAILABLE))}</p>""")
         val value = ServiceChooser.addValue(m)
         if (value == null) {
             val added = Providers.connectors().first { it.serviceId == m.serviceId }

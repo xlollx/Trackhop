@@ -60,6 +60,18 @@ object NetError {
 
     fun isOffline(e: Throwable?): Boolean = kind(e) == Kind.OFFLINE
 
+    /** Neither address of a personal server answered ([ServerAddresses]), looking through [e]'s causes; null otherwise. */
+    fun bothDown(e: Throwable?): BothAddressesDown? {
+        var t: Throwable? = e
+        var depth = 0
+        while (t != null && depth++ < 8) {
+            if (t is BothAddressesDown) return t
+            if (t.cause === t) break
+            t = t.cause
+        }
+        return null
+    }
+
     /** Any transport failure of [kind]: a run waits it out or tries again later, it is not the service's answer. */
     fun isNetwork(e: Throwable?): Boolean = kind(e) != Kind.NONE
 

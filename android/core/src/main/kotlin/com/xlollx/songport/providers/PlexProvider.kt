@@ -148,7 +148,7 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider(), Play
         // title alone (folded, as written, bare while nothing close is found), the artist's songs and the closest first.
         suspend fun find(q: String) = api(ctx, "GET", "/hubs/search?query=${Http.enc(q)}&limit=20&includeGuids=1")["MediaContainer"]["Hub"].arr
             .filter { it["type"].str == "track" }.flatMap { it["Metadata"].arr }.mapNotNull { toTrack(it) }
-        var found = Matcher.byArtist(track, Matcher.searchByTitles(track) { find(it) }).sortedByDescending { Matcher.score(track, it) }.take(20)
+        var found = Matcher.byArtist(track, Matcher.searchByTitles(track) { find(it) }).sortedByDescending { Matcher.score(track, it, Matcher.SERVER_POLICY) }.take(20)
         if (track.mbids.isEmpty() || found.isEmpty()) return found.take(5)
         // Looking for a MusicBrainz recording: where the search left the ids out, the candidates are
         // read once more with them. The one tagged with the recording goes first.
@@ -279,6 +279,11 @@ class PlexProvider(override val slot: String = "") : CredentialsProvider(), Play
     }
 
     override val losesIds: Boolean get() = true
+
+    /** The music libraries' `scannedAt` (`GET /library/sections`, epoch seconds): the latest one. */
+    override suspend fun lastScan(ctx: Env): Long? =
+        api(ctx, "GET", "/library/sections")["MediaContainer"]["Directory"].arr.filter { it["type"].str == "artist" }
+            .mapNotNull { it["scannedAt"].long }.maxOrNull()?.takeIf { it > 0 }?.let { it * 1000 }
 
     /** The items Plex still has among [ids], asked in one call (404 when it has none of them): the others are gone. */
     override suspend fun lostIds(ctx: Env, ids: Collection<String>): Set<String> {

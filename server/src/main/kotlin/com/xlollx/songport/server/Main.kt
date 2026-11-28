@@ -174,6 +174,8 @@ fun launch(
     // Merch and Concerts: the artists' own sites, found beyond MusicBrainz (Wikidata) and read for their shop and dates.
     com.xlollx.songport.sync.ArtistSites.enabled = true
     installServerConnectors(officialOnly)
+    // A personal server's two addresses that both failed: each try, in the log.
+    com.xlollx.songport.net.ServerAddresses.log = { Log.add("server", it) }
     val env = ServerEnv(config.dataDir, Strings.load(config.locale), config.baseUrl, permissions)
     // A first start: the services the server offers are not listed until the user adds them, as in the app.
     if (!env.store.data.settings.connectorsInit) env.store.updateSettings { it.copy(connectorsInit = true) }

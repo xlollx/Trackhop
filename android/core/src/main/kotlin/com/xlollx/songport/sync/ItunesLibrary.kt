@@ -15,6 +15,11 @@ class ItunesLibrary private constructor(
     private val tracks: LinkedHashMap<Int, Info>,
     /** Every playlist of the file, in its order, folders and the library's own lists included. */
     val playlists: List<Playlist>,
+    /**
+     * Entries of the file that are not songs of the person's own files and were left out: internet radio,
+     * songs only in the cloud, podcasts, videos (Track Type other than "File"). 0 for other formats.
+     */
+    val leftOut: Int = 0,
 ) {
     /** A song of the file; [rating] and [albumRating] in stars (0 = none, 1..5), set by hand in iTunes. */
     class Info(val title: String, val artist: String, val album: String, val durationMs: Long, val rating: Int = 0, val albumRating: Int = 0)
@@ -111,6 +116,7 @@ class ItunesLibrary private constructor(
 
     private class Builder : PlistEvents.Sink {
         private val tracks = LinkedHashMap<Int, Info>()
+        private var leftOut = 0
         private class Raw(var key: String, val name: String, val kind: Kind, val parent: String?, val ids: IntArray)
         private val raws = ArrayList<Raw>()
 
@@ -166,6 +172,7 @@ class ItunesLibrary private constructor(
             val id = f["Track ID"]?.trim()?.toIntOrNull() ?: return
             val name = f["Name"]?.trim().orEmpty()
             if (name.isEmpty()) return
+            if (!isSong(f)) { leftOut++; return }
             tracks[id] = Info(
                 title = name,
                 artist = (f["Artist"] ?: f["Album Artist"]).orEmpty().trim(),
@@ -174,6 +181,19 @@ class ItunesLibrary private constructor(
                 rating = stars(f["Rating"], f["Rating Computed"] == "true"),
                 albumRating = stars(f["Album Rating"], f["Album Rating Computed"] == "true"),
             )
+        }
+
+        /**
+         * Only Track Type "File" is a song of the person's own files. Radio ("URL"), cloud-only ("Remote"),
+         * podcasts and videos are left out. Old libraries have no Track Type: they count as songs unless
+         * their Location is something else than a file:// address.
+         */
+        private fun isSong(f: Map<String, String>): Boolean {
+            if (f["Podcast"] == "true" || f["Movie"] == "true" || f["TV Show"] == "true" || f["Has Video"] == "true") return false
+            val type = f["Track Type"]?.trim()
+            if (type != null) return type.equals("File", ignoreCase = true)
+            val loc = f["Location"]?.trim()
+            return loc == null || loc.startsWith("file:", ignoreCase = true)
         }
 
         private fun addPlaylist(f: Map<String, String>) {
@@ -192,7 +212,7 @@ class ItunesLibrary private constructor(
             // nothing is taken from it, rather than a library that silently lacks its end.
             if (kinds.isNotEmpty() || !sawRoot) throw Incomplete()
             val folders = raws.filter { it.kind == Kind.FOLDER }.associate { it.key to it.name }
-            return ItunesLibrary(tracks, raws.map { Playlist(it.key, it.name, it.kind, it.parent?.let(folders::get), it.ids) })
+            return ItunesLibrary(tracks, raws.map { Playlist(it.key, it.name, it.kind, it.parent?.let(folders::get), it.ids) }, leftOut)
         }
     }
 
