@@ -1,7 +1,17 @@
 {
- "checked": "2026-11-27T16:37:42Z",
+ "checked": "2026-11-28T15:28:43Z",
  "unanswered": 0,
  "reviews": [
+  {
+   "id": "85306bc8-b168-404b-9140-c17c6759eab9",
+   "author": "David Spring",
+   "stars": 4,
+   "text": "cool app, a bit flaky, responsive developer -tried setting up as developer and got Access blocked: once I did it 3x it went through 🤷",
+   "language": "en",
+   "version": "2.2.6",
+   "date": "2026-11-28T01:15:53Z",
+   "replied": true
+  },
   {
    "id": "46e49296-ea6d-40fa-88a9-feb3d4af5fd1",
    "author": "C. “Crisis” S.",
