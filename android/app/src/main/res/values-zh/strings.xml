@@ -747,7 +747,7 @@
         <item>不要跳过这一步。Google Auth Platform →“受众群体”（Audience）：在“测试用户”（Test users）下点按“添加用户”（Add users），填入你登录时要用的同一个 Gmail，点按“保存”。缺少这一步，Google 会显示“已拒绝访问：Trackhop 未完成 Google 验证流程”。</item>
         <item>Google Auth Platform →“客户端”（Clients）→“创建客户端”（Create client）：应用类型选“桌面应用”（Desktop app，不是 Android，也不是 Web），名称随意，“创建”。立即把 Client ID 和 Client secret 复制到这里，不要带空格：secret 只显示这一次（丢了？打开该客户端，点按“添加密钥”）。 更简单：在同一窗口点按“下载 JSON”，然后使用下方的“导入客户端文件 (JSON)”。</item>
         <item>点按登录并选择同一个 Gmail。看到“Google 尚未验证此应用”时点按“继续”（这是你自己的应用），然后允许访问你的 YouTube 账号。有多个频道时，选择有你播放列表的那个。遇到其他错误：链接会打开列出每个错误及解决方法的指南。</item>
-        <item>建议：应用处于“测试中”（In testing）时，Google 每 7 天会让你退出登录。要保持登录：“受众群体”，“发布应用”（Publish app），“确认”，然后在这里再登录一次。除非超过 100 人使用，Google 不会审核它。</item>
+        <item>建议：应用处于“测试中”（In testing）时，Google 每 7 天会让你退出登录。要保持登录：“受众群体”，“发布应用”（Publish app），“确认”，然后在这里再登录一次。除非超过 100 人使用，Google 不会审核它。 如果“发布应用”是灰色的：在“品牌塑造”中把首页设为 https://trackhop.org，隐私权政策链接设为 https://trackhop.org/privacy-policy，并在“已获授权的网域”中添加 trackhop.org；点“保存”后再回来。</item>
     </string-array>
     <string-array name="setup_steps_tidal">
         <item>使用你的 TIDAL 账号登录 developer.tidal.com。</item>

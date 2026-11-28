@@ -746,7 +746,7 @@
         <item>이 단계는 건너뛰지 마세요. Google Auth Platform → “대상”의 “테스트 사용자”에서 “사용자 추가”를 누르고, 로그인할 때 쓸 것과 같은 Gmail을 입력한 뒤 “저장”을 누르세요. 이 단계가 없으면 Google이 “액세스 차단됨: Trackhop에서 Google 인증 절차를 완료하지 않았습니다”라고 해요.</item>
         <item>Google Auth Platform → “클라이언트” → “클라이언트 만들기”: 애플리케이션 유형 “데스크톱 앱”(Android도 웹도 아님), 이름은 자유, “만들기”. Client ID와 Client secret을 바로 여기에 공백 없이 복사하세요. secret은 이번에만 보여요(잃어버렸다면 클라이언트를 열고 “보안 비밀 추가”). 더 쉬운 방법: 같은 창에서 \"JSON 다운로드\"를 누르고 아래의 \"클라이언트 파일(JSON) 가져오기\"를 사용하세요.</item>
         <item>로그인을 누르고 같은 Gmail을 고르세요. “Google에서 확인하지 않은 앱” 화면에서는 “계속”을 누르고(내 앱이에요) YouTube 계정 접근을 허용하세요. 채널이 여러 개면 재생목록이 있는 채널을 고르세요. 다른 오류는 링크에서 오류별 해결 방법이 담긴 가이드를 열 수 있어요.</item>
-        <item>권장: 앱이 “테스트 중”인 동안 Google은 7일마다 로그아웃시켜요. 로그인을 유지하려면 “대상” → “앱 게시” → “확인” 후 여기서 한 번 더 로그인하세요. 사용자가 100명을 넘지 않으면 Google은 검토하지 않아요.</item>
+        <item>권장: 앱이 “테스트 중”인 동안 Google은 7일마다 로그아웃시켜요. 로그인을 유지하려면 “대상” → “앱 게시” → “확인” 후 여기서 한 번 더 로그인하세요. 사용자가 100명을 넘지 않으면 Google은 검토하지 않아요. \"앱 게시\"가 회색이면: \"브랜딩\"에서 홈페이지에 https://trackhop.org, 개인정보처리방침 링크에 https://trackhop.org/privacy-policy, \"승인된 도메인\"에 trackhop.org를 입력하고 \"저장\"한 뒤 돌아오세요.</item>
     </string-array>
     <string-array name="setup_steps_tidal">
         <item>TIDAL 계정으로 developer.tidal.com에 로그인하세요.</item>

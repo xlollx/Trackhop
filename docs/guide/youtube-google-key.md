@@ -92,8 +92,16 @@ process"** (Error 403: access_denied).
 While your app is in **Testing**, Google signs you out **every 7 days**, and syncs to YouTube stop
 until you sign in again. To avoid it:
 
-1. Open [Google Auth Platform › Audience](https://console.cloud.google.com/auth/audience).
-2. Under *Publishing status* press **Publish app**, then **Confirm**.
+1. Open [Google Auth Platform › Branding](https://console.cloud.google.com/auth/branding). Google lets you
+   publish only when three more fields are filled in:
+   - **Application home page**: `https://trackhop.org`
+   - **Application privacy policy link**: `https://trackhop.org/privacy-policy`
+   - **Authorized domains**: press **+ Add domain** and type `trackhop.org`
+
+   Press **Save** at the bottom. (Without them **Publish app** stays grey, with "complete the configuration
+   on the Branding page".)
+2. Open [Google Auth Platform › Audience](https://console.cloud.google.com/auth/audience). Under *Publishing
+   status* press **Publish app**, then **Confirm**.
 3. Sign in again in Trackhop once. From now on Google keeps you signed in. Google doesn't review an
    app like this one unless more than 100 people use it; the "hasn't verified" screen in Step 6 stays,
    and that's fine.
@@ -109,6 +117,7 @@ until you sign in again. To avoid it:
 | **YouTube Data API v3 has not been used in project … or it is disabled** | Step 2 was skipped or done in another project | Step 2, with your project selected at the top |
 | **This app is blocked** / **admin_policy_enforced** | A school or work account whose administrator blocks it | Use a personal Gmail |
 | **Signed out after about a week** | The app is still in *Testing* | Step 7 |
+| **Publish app is grey**: "complete the configuration on the Branding page" | Home page, privacy policy and authorized domain are empty | Step 7, point 1 |
 | **Quota exceeded** | YouTube's daily limit (about 100 searches a day) | Nothing is broken: the sync carries on by itself after midnight Pacific time |
 
 Still stuck? Open an [issue](https://github.com/xlollx/Trackhop/issues/new/choose) with the message
