@@ -324,6 +324,12 @@ data class SyncReport(
      * size). The preview, or "Sync anyway" on the web page, runs it once regardless.
      */
     val targetShrunkFrom: Int = 0,
+    /**
+     * With [targetShrunkFrom]: the target is on a personal server whose ids change and listed nothing
+     * at all. Its library changed (files moved, imported anew) and the playlist lost its songs; running
+     * anyway rebuilds it.
+     */
+    val targetEmptied: Boolean = false,
     /** The source was read and listed nothing at all (no loved tracks yet, an emptied playlist). */
     val sourceEmpty: Boolean = false,
     val added: Int = 0,
@@ -413,6 +419,8 @@ data class SyncPlan(
      * set only in the preview, where running anyway is a deliberate choice.
      */
     val targetShrunkFrom: Int = 0,
+    /** With [targetShrunkFrom]: emptied by a change of its server's library ([SyncReport.targetEmptied]). */
+    val targetEmptied: Boolean = false,
     /** When the target was read (epoch ms, 0 = not read: created now) and its version just then, where the service has one. */
     val targetReadAt: Long = 0,
     val targetVersion: String? = null,

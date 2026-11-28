@@ -89,7 +89,7 @@ private const val HINT_THRESHOLD = 0.45
 /** A scheduled run skips an unchanged source for a day at most: then it reads it whole once (see SyncEngine.skippable). */
 private const val FULL_RUN_MS = 24L * 3_600_000
 /** A run stopped by the target's size check ([SyncReport.targetShrunkFrom]): [expected] is what the last run left. */
-class TargetShrunkException(message: String, val expected: Int) : Exception(message)
+class TargetShrunkException(message: String, val expected: Int, val emptied: Boolean = false) : Exception(message)
 
 /** From this many tracks on the target, a listing under half of what the last run left is held suspect. */
 private const val SHRINK_MIN = 20
@@ -270,6 +270,7 @@ class SyncEngine(
             val bothDown = NetError.bothDown(e)?.let { str("server_both_down", it.server) }
             SyncReport(reportId, job.id, job.name, started, System.currentTimeMillis() - started,
                 error = bothDown ?: netText(net) ?: e.message ?: e.javaClass.simpleName, targetShrunkFrom = (e as? TargetShrunkException)?.expected ?: 0,
+                targetEmptied = (e as? TargetShrunkException)?.emptied == true,
                 netError = net.takeIf { it != NetError.Kind.NONE }?.name)
         }
 
@@ -535,6 +536,7 @@ class SyncEngine(
         val targetReadAt = if (targetCreated) 0L else System.currentTimeMillis()
         // Not where the server counts the entries it no longer lists (#95): those are repaired, not a page left out.
         val shrunkFrom = if (interactive && !targetCreated && !(dst.losesIds && dstDeclared > dstTracks.size)) shrunkFrom(job, targetId, dstTracks.size) else 0
+        val targetEmptied = shrunkFrom > 0 && libraryChanged(dst, dstTracks.size)
         val dstById = dstTracks.associateBy { it.id }
         val index = Matcher.TrackIndex(dstTracks)
 
@@ -911,6 +913,7 @@ class SyncEngine(
             heldBackRemovals = heldBack,
             searchInterrupted = interrupted != null,
             targetShrunkFrom = shrunkFrom,
+            targetEmptied = targetEmptied,
         )
     }
 
@@ -949,8 +952,11 @@ class SyncEngine(
             env.log("engine", "${job.name}: ${dst.displayName} counts $declared entries and lists ${best.size}: the others lead to no song any more")
             return best
         }
+        // Not a page left out: the server's library changed (files moved, imported anew) and the
+        // playlist's entries went with the old ids. Said so; running anyway rebuilds it.
+        val emptied = libraryChanged(dst, best.size)
         if (interactive) {
-            notes += str("note_target_shrunk", dst.displayName, best.size, expected)
+            notes += if (emptied) str("error_target_library_changed", dst.displayName) else str("note_target_shrunk", dst.displayName, best.size, expected)
             return best
         }
         if (!unattended && store.takeTargetShrinkConfirmation(job.id)) {
@@ -958,8 +964,12 @@ class SyncEngine(
             return best
         }
         env.log("engine", "${job.name}: stopped, ${dst.displayName} lists ${best.size} tracks twice, the last run left $expected; nothing written")
+        if (emptied) throw TargetShrunkException(str("error_target_library_changed", dst.displayName), expected, emptied = true)
         throw TargetShrunkException(str("error_target_shrunk", dst.displayName, best.size, expected), expected)
     }
+
+    /** A personal server whose ids change lists nothing of a playlist that had songs: its library changed, the songs did not go. */
+    private fun libraryChanged(dst: MusicProvider, listed: Int): Boolean = dst.losesIds && listed == 0
 
     /**
      * A whole listing on [p], noted in [ServiceReads] when its connector reads one playlist at a time:

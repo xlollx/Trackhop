@@ -262,7 +262,10 @@ fun PreviewScreen(job: SyncJob, onClose: () -> Unit, onRun: (SyncJob) -> Unit) {
                             ) {
                                 Checkbox(checked = confirmShrink, onCheckedChange = null)
                                 Spacer(Modifier.width(12.dp))
-                                Text(stringResource(R.string.preview_shrunk_confirm, p.targetCount, p.targetShrunkFrom), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                                Text(
+                                    if (p.targetEmptied) stringResource(R.string.preview_rebuild_confirm) else stringResource(R.string.preview_shrunk_confirm, p.targetCount, p.targetShrunkFrom),
+                                    style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f),
+                                )
                             }
                         }
                     }
