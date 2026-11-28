@@ -1,5 +1,5 @@
-# Helper: simple, repetitive project work done by free models (GitHub Models, then OpenRouter's free
-# models), so the assistant that maintains Trackhop spends fewer tokens. Started by hand or through the
+# Helper: simple, repetitive project work done by free models (OpenCode Zen's DeepSeek V4.1 Flash free,
+# then OpenRouter's free models, then GitHub Models), so the assistant that maintains Trackhop spends fewer tokens. Started by hand or through the
 # API on a working branch (never main):
 #   translate  fills the other 11 app languages for the given string keys (placeholders checked by code);
 #   ask        writes a model's answer to a file (notes, summaries, test data);
@@ -39,7 +39,7 @@ on:
         description: 'ask: file to write the answer to'
         default: 'helper-out.md'
       model:
-        description: 'Model id (optional; code: opencode/deepseek-v4.1-flash-free; others: GitHub Models gpt-4.1-mini, then OpenRouter free)'
+        description: 'Model id (optional; default opencode/deepseek-v4.1-flash-free, then free fallbacks)'
         default: ''
 
 permissions:
@@ -72,6 +72,7 @@ jobs:
           MODEL: ${{ inputs.model }}
           GITHUB_TOKEN: ${{ github.token }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         run: python3 .github/scripts/helper.py
       - name: OpenCode
         if: inputs.mode == 'code'
@@ -93,14 +94,14 @@ jobs:
           prompt="$prompt
           Change only what the task needs. Do not touch .github/, Gradle files, signing or secrets. Keep the existing style."
           ok=0
-          for m in ${MODEL:-opencode/deepseek-v4.1-flash-free} github-models/openai/gpt-4.1 openrouter/qwen/qwen3-coder:free; do
+          for m in ${MODEL:-opencode/deepseek-v4.1-flash-free} opencode/glm-5.3-flash-free openrouter/qwen/qwen3-coder:free; do
             echo "::group::model $m"
-            if timeout 20m opencode run --model "$m" "$prompt"; then echo "::endgroup::"; if ! git diff --quiet; then ok=1; echo "Changes made with $m" >> "$GITHUB_STEP_SUMMARY"; break; fi; else echo "::endgroup::"; fi
+            if timeout 20m opencode run --model "$m" "$prompt"; then echo "::endgroup::"; if [ -n "$(git status --porcelain)" ]; then ok=1; echo "Changes made with $m" >> "$GITHUB_STEP_SUMMARY"; break; fi; else echo "::endgroup::"; fi
             git checkout -- . 2>/dev/null; git clean -fdq -e .github 2>/dev/null
           done
           # Never let a model change the pipeline, the build or the signing.
           for p in .github android/gradle server/gradle $(git diff --name-only -- '*.gradle' '*.gradle.kts' 'gradle.properties' '*.jks' '*.keystore'); do git checkout -- "$p" 2>/dev/null || true; done
-          git diff --stat >> "$GITHUB_STEP_SUMMARY"
+          git status --short >> "$GITHUB_STEP_SUMMARY"
           [ $ok = 1 ] || echo "No model made a change" >> "$GITHUB_STEP_SUMMARY"
       - name: Commit
         env:

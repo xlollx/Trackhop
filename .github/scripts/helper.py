@@ -8,8 +8,8 @@ Modes (env MODE):
              translation that loses a placeholder is retried once, then left out and reported.
   ask        Sends TASK (plus the files listed in FILES) and writes the answer to OUT_PATH.
 
-Models: GitHub Models with the workflow token first, then OpenRouter's free models (secret
-OPENROUTER_API_KEY). Nothing here reads user data or secrets other than the model keys.
+Models: OpenCode Zen's free DeepSeek V4.1 Flash (secret OPENCODE_API_KEY), then OpenRouter's free models
+(OPENROUTER_API_KEY), then GitHub Models with the workflow token. Nothing here reads user data or secrets other than the model keys.
 """
 import json, os, re, sys, time, urllib.request, urllib.error, pathlib
 
@@ -38,14 +38,19 @@ def chat(system, user, want_json=False):
     """One answer from the first free model that replies."""
     model = os.environ.get("MODEL", "").strip()
     tries = []
-    gh = os.environ.get("GITHUB_TOKEN")
-    if gh:
-        for m in ([model] if model and "/" in model and not model.startswith("openrouter") and ":" not in model else []) + ["openai/gpt-4.1-mini", "openai/gpt-4o-mini", "meta/llama-3.3-70b-instruct"]:
-            tries.append(("github", "https://models.github.ai/inference/chat/completions", {"Authorization": "Bearer " + gh}, m))
+    oc = os.environ.get("OPENCODE_API_KEY")
+    if oc:
+        oc_models = ([model.split("/", 1)[1]] if model.startswith("opencode/") else []) + ["deepseek-v4.1-flash-free", "glm-5.3-flash-free"]
+        for m in oc_models:
+            tries.append(("opencode", "https://opencode.ai/zen/v1/chat/completions", {"Authorization": "Bearer " + oc}, m))
     orkey = os.environ.get("OPENROUTER_API_KEY")
     if orkey:
-        for m in ([model] if model and (":" in model or model.startswith("openrouter")) else []) + ["openrouter/free", "deepseek/deepseek-chat-v3-0324:free", "meta-llama/llama-3.3-70b-instruct:free"]:
+        for m in ([model[len("openrouter/"):]] if model.startswith("openrouter/") and model.count("/") > 1 else []) + ["openrouter/free", "qwen/qwen3-coder:free"]:
             tries.append(("openrouter", "https://openrouter.ai/api/v1/chat/completions", {"Authorization": "Bearer " + orkey, "X-Title": "Trackhop helper"}, m))
+    gh = os.environ.get("GITHUB_TOKEN")
+    if gh:
+        for m in ["openai/gpt-4.1-mini", "openai/gpt-4o-mini"]:
+            tries.append(("github", "https://models.github.ai/inference/chat/completions", {"Authorization": "Bearer " + gh}, m))
     last = None
     for name, url, headers, m in tries:
         body = {"model": m, "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}], "temperature": 0.2}
@@ -169,10 +174,13 @@ def translate():
         for attempt in range(2):
             text, used = chat(system, user, want_json=True)
             got = first_json(text)
-            if isinstance(got, dict):
+            if isinstance(got, dict) and not any(k in got for k in keys) and len(got) == 1 and isinstance(next(iter(got.values())), dict):
+                got = next(iter(got.values()))
+            if isinstance(got, dict) and any(k in got for k in keys):
                 break
-        if not isinstance(got, dict):
-            log(f"{lang}: no JSON from the model, skipped")
+            print(f"  {lang}: unusable answer from {used}: {text[:300]!r}", flush=True)
+        if not isinstance(got, dict) or not any(k in got for k in keys):
+            log(f"{lang}: no usable JSON from the model, skipped")
             continue
         s = path.read_text(encoding="utf-8")
         done, bad = [], []
@@ -187,6 +195,7 @@ def translate():
                 elem = f'<string-array name="{k}">\n{body}    </string-array>'
             else:
                 if not isinstance(t, str) or not t.strip() or not same_placeholders(unescape(val), t):
+                    print(f"  {lang} {k}: rejected {t!r:.200}", flush=True)
                     bad.append(k); continue
                 elem = f'<string name="{k}"{attrs}>{escape(t.strip(), keep_tags)}</string>'
             if k in existing:
