@@ -1,0 +1,119 @@
+# Helper: simple, repetitive project work done by free models (GitHub Models, then OpenRouter's free
+# models), so the assistant that maintains Trackhop spends fewer tokens. Started by hand or through the
+# API on a working branch (never main):
+#   translate  fills the other 11 app languages for the given string keys (placeholders checked by code);
+#   ask        writes a model's answer to a file (notes, summaries, test data);
+#   code       OpenCode (provider opencode, DeepSeek V4.1 Flash free) edits the code for a mechanical
+#              task (no shell, no network); changes to
+#              .github/, Gradle files and the signing setup are dropped before the commit.
+# The result is committed to the same branch, where it is reviewed, built and tested like any change.
+name: Helper
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'translate (string keys → 11 languages), ask (task → file) or code (OpenCode edits)'
+        type: choice
+        options: [translate, ask, code]
+        default: translate
+      branch:
+        description: 'Working branch to read and commit to (not main)'
+        required: true
+      keys:
+        description: 'translate: string keys of values/strings.xml, comma or space separated'
+        default: ''
+      langs:
+        description: 'translate: languages (empty = all 11: it es pt-rBR fr de pl ru tr ja ko zh)'
+        default: ''
+      glossary:
+        description: 'translate: extra terms to keep or how to say them (optional)'
+        default: ''
+      task:
+        description: 'ask/code: what to do'
+        default: ''
+      files:
+        description: 'ask: files to give the model; code: files to focus on (comma separated)'
+        default: ''
+      out_path:
+        description: 'ask: file to write the answer to'
+        default: 'helper-out.md'
+      model:
+        description: 'Model id (optional; code: opencode/deepseek-v4.1-flash-free; others: GitHub Models gpt-4.1-mini, then OpenRouter free)'
+        default: ''
+
+permissions:
+  contents: write
+  models: read
+
+concurrency:
+  group: helper-${{ inputs.branch }}
+  cancel-in-progress: false
+
+jobs:
+  helper:
+    if: inputs.branch != 'main' && inputs.branch != 'master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+      - name: Run
+        if: inputs.mode != 'code'
+        env:
+          MODE: ${{ inputs.mode }}
+          KEYS: ${{ inputs.keys }}
+          LANGS: ${{ inputs.langs }}
+          GLOSSARY: ${{ inputs.glossary }}
+          TASK: ${{ inputs.task }}
+          FILES: ${{ inputs.files }}
+          OUT_PATH: ${{ inputs.out_path }}
+          MODEL: ${{ inputs.model }}
+          GITHUB_TOKEN: ${{ github.token }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: python3 .github/scripts/helper.py
+      - name: OpenCode
+        if: inputs.mode == 'code'
+        env:
+          TASK: ${{ inputs.task }}
+          FILES: ${{ inputs.files }}
+          MODEL: ${{ inputs.model }}
+          GITHUB_TOKEN: ${{ github.token }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+        run: |
+          npm install -g --silent opencode-ai@1.19.5
+          cfg="$RUNNER_TEMP/opencode.json"
+          printf '%s' '{"$schema":"https://opencode.ai/config.json","permission":{"edit":"allow","bash":"deny","webfetch":"deny"}}' > "$cfg"
+          export OPENCODE_CONFIG="$cfg"
+          prompt="You work on the Trackhop repository (Android app in android/, server in server/). Task: $TASK"
+          [ -n "$FILES" ] && prompt="$prompt
+          Files to focus on: $FILES"
+          prompt="$prompt
+          Change only what the task needs. Do not touch .github/, Gradle files, signing or secrets. Keep the existing style."
+          ok=0
+          for m in ${MODEL:-opencode/deepseek-v4.1-flash-free} github-models/openai/gpt-4.1 openrouter/qwen/qwen3-coder:free; do
+            echo "::group::model $m"
+            if timeout 20m opencode run --model "$m" "$prompt"; then echo "::endgroup::"; if ! git diff --quiet; then ok=1; echo "Changes made with $m" >> "$GITHUB_STEP_SUMMARY"; break; fi; else echo "::endgroup::"; fi
+            git checkout -- . 2>/dev/null; git clean -fdq -e .github 2>/dev/null
+          done
+          # Never let a model change the pipeline, the build or the signing.
+          for p in .github android/gradle server/gradle $(git diff --name-only -- '*.gradle' '*.gradle.kts' 'gradle.properties' '*.jks' '*.keystore'); do git checkout -- "$p" 2>/dev/null || true; done
+          git diff --stat >> "$GITHUB_STEP_SUMMARY"
+          [ $ok = 1 ] || echo "No model made a change" >> "$GITHUB_STEP_SUMMARY"
+      - name: Commit
+        env:
+          BRANCH: ${{ inputs.branch }}
+          MODE: ${{ inputs.mode }}
+          OUT: ${{ inputs.out_path }}
+          TASK_LINE: ${{ inputs.task }}
+        run: |
+          git config user.name xlollx
+          git config user.email 72248161+xlollx@users.noreply.github.com
+          if [ "$MODE" = code ]; then git add -A -- . ':!.github'; else git add -A android/app/src/main/res; fi
+          if [ "$MODE" = ask ] && [ -f "$OUT" ]; then git add -- "$OUT"; fi
+          if git diff --cached --quiet; then echo "Nothing changed"; exit 0; fi
+          case "$MODE" in translate) msg="Translations of the new strings (helper)";; code) msg="Helper: $(printf '%s' "$TASK_LINE" | head -c 60)";; *) msg="Helper answer";; esac
+          git commit -q -m "$msg"
+          git push -q origin "HEAD:$BRANCH"
