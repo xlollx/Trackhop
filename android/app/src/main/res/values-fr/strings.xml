@@ -754,7 +754,7 @@
         <item>Ouvre la page de Google avec le lien (avec le Gmail dont tu synchroniseras les playlists YouTube ; de préférence un Gmail personnel). Garde le projet proposé ou choisis-en un, vérifie que le type de client est « Application de bureau », accepte les conditions et appuie sur « Continuer ».</item>
         <item>Active la YouTube Data API v3 pour ce projet : le lien l\'ouvre, vérifie le nom du projet en haut et appuie sur « Activer ».</item>
         <item>De retour sur le client, appuie sur « Télécharger le JSON », puis sur « Importer le fichier du client (JSON) » ci-dessous. Ou copie l\'ID client et le code secret dans les champs, sans espaces.</item>
-        <item>Appuie sur « Enregistrer et connecter » et choisis le même Gmail. Pas d\'utilisateurs test, pas de publication, pas de déconnexion tous les 7 jours. Seul ce Gmail peut se connecter avec cette clé : pour un autre compte Google, crée une autre clé de la même façon.</item>
+        <item>Appuie sur « Enregistrer et connecter » et choisis le même Gmail. Pas d\'utilisateurs test, pas de publication, pas de déconnexion tous les 7 jours. Seul ce Gmail peut se connecter avec cette clé : pour un autre compte Google, crée une autre clé de la même façon. Google affiche le nom de ton projet (par exemple « personal-mode-app », ou celui que tu lui as donné), pas Trackhop : c\'est normal.</item>
         <item>Tu veux une clé pour plusieurs comptes Google, ou tu utilises le serveur Docker depuis un autre ordinateur ? Le lien ouvre la méthode longue et chaque erreur de Google avec sa solution.</item>
     </string-array>
     <string-array name="setup_steps_tidal">

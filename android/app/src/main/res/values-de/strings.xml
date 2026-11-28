@@ -754,7 +754,7 @@
         <item>Öffne Googles Seite über den Link (mit dem Gmail, dessen YouTube-Playlists du synchronisierst; am besten ein privates Gmail). Behalte das vorgeschlagene Projekt oder wähle eins, prüfe, dass der Clienttyp „Desktop-App“ ist, akzeptiere die Bedingungen und tippe auf „Weiter“.</item>
         <item>Aktiviere die YouTube Data API v3 für dieses Projekt: Der Link öffnet sie, prüfe oben den Projektnamen und tippe auf „Aktivieren“.</item>
         <item>Zurück beim Client tippe auf „JSON herunterladen“, dann unten auf „Client-Datei importieren (JSON)“. Oder kopiere Client-ID und Clientschlüssel in die Felder, ohne Leerzeichen.</item>
-        <item>Tippe auf „Speichern und verbinden“ und wähle dasselbe Gmail. Keine Testnutzer, kein Veröffentlichen, keine Abmeldung alle 7 Tage. Nur dieses Gmail kann sich mit diesem Schlüssel anmelden: Für ein anderes Google-Konto erstelle auf dieselbe Weise einen weiteren Schlüssel.</item>
+        <item>Tippe auf „Speichern und verbinden“ und wähle dasselbe Gmail. Keine Testnutzer, kein Veröffentlichen, keine Abmeldung alle 7 Tage. Nur dieses Gmail kann sich mit diesem Schlüssel anmelden: Für ein anderes Google-Konto erstelle auf dieselbe Weise einen weiteren Schlüssel. Google zeigt den Namen deines Projekts (zum Beispiel „personal-mode-app“ oder den, den du vergeben hast), nicht Trackhop: Das ist normal.</item>
         <item>Ein Schlüssel für mehrere Google-Konten, oder den Docker-Server von einem anderen Computer aus? Der Link öffnet den langen Weg und jeden Google-Fehler mit Lösung.</item>
     </string-array>
     <string-array name="setup_steps_tidal">

@@ -754,7 +754,7 @@
         <item>Bağlantıyla Google\'ın sayfasını açın (YouTube oynatma listelerini eşitleyeceğiniz Gmail ile; tercihen kişisel bir Gmail). Önerilen projeyi tutun ya da birini seçin, istemci türünün \"Masaüstü uygulaması\" olduğunu kontrol edin, şartları kabul edip \"Devam\"a basın.</item>
         <item>O proje için YouTube Data API v3\'ü etkinleştirin: bağlantı onu açar, üstte proje adını kontrol edin ve \"Etkinleştir\"e basın.</item>
         <item>İstemciye dönünce \"JSON\'u indir\"e, ardından aşağıdaki \"İstemci dosyasını içe aktar (JSON)\" düğmesine basın. Ya da istemci kimliğini ve gizli anahtarı boşluksuz olarak alanlara kopyalayın.</item>
-        <item>\"Kaydet ve bağlan\"a basıp aynı Gmail\'i seçin. Test kullanıcısı yok, yayınlama yok, 7 günde bir oturum kapanması yok. Bu anahtarla yalnızca o Gmail girebilir: başka bir Google hesabı için aynı şekilde bir anahtar daha oluşturun.</item>
+        <item>\"Kaydet ve bağlan\"a basıp aynı Gmail\'i seçin. Test kullanıcısı yok, yayınlama yok, 7 günde bir oturum kapanması yok. Bu anahtarla yalnızca o Gmail girebilir: başka bir Google hesabı için aynı şekilde bir anahtar daha oluşturun. Google, Trackhop yerine projenizin adını gösterir (ör. \"personal-mode-app\" ya da verdiğiniz ad): bu normaldir.</item>
         <item>Birden çok Google hesabı için tek anahtar mı istiyorsunuz, yoksa Docker sunucusunu başka bir bilgisayardan mı kullanıyorsunuz? Bağlantı uzun yolu ve her Google hatasının çözümünü açar.</item>
     </string-array>
     <string-array name="setup_steps_tidal">

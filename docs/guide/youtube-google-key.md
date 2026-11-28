@@ -31,7 +31,8 @@ the same way).
 4. Back on the client, press **Download JSON**. In Trackhop open the key screen of YouTube Music (Google API)
    and press **Import the client file (JSON)**: the Client ID and secret fill in by themselves. (Or copy the
    two values into their fields.)
-5. Press **Save and connect** and pick the same Gmail. Done.
+5. Press **Save and connect** and pick the same Gmail. Google's pages show **your project's name** (for
+   example *personal-mode-app*, or the name you gave it), not "Trackhop": that's normal. Done.
 
 The long way below is for a key that **several Google accounts** share, and for the **Docker server** opened
 from another computer (it needs a *Web application* client with a redirect).
