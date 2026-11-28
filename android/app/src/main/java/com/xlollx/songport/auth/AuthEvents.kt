@@ -16,12 +16,17 @@ object AuthEvents {
     private val _version = MutableStateFlow(0)
     val version: StateFlow<Int> get() = _version
 
-    fun post(text: String) {
+    /** A page the message offers to open (a button on the snackbar), or null. */
+    private val _actionUrl = MutableStateFlow<String?>(null)
+    val actionUrl: StateFlow<String?> get() = _actionUrl
+
+    fun post(text: String, actionUrl: String? = null) {
+        _actionUrl.value = actionUrl
         _message.value = text
         _version.value = _version.value + 1
     }
 
-    fun consume() { _message.value = null }
+    fun consume() { _message.value = null; _actionUrl.value = null }
 }
 
 /**

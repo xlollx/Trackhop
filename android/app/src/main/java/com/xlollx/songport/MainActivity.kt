@@ -6,6 +6,7 @@ import androidx.compose.material3.FloatingActionButton
 import com.xlollx.songport.providers.*
 import android.Manifest
 import android.content.Intent
+import android.net.Uri
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -70,6 +71,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -687,7 +689,16 @@ private fun MainScreen(
     LaunchedEffect(message) { message?.let { if (it.isNotBlank()) snackbar.showSnackbar(it); messages.value = null } }
     // Esiti dei login che non tornano da un'Activity (flusso loopback di Google).
     val authMessage by AuthEvents.message.collectAsState()
-    LaunchedEffect(authMessage) { authMessage?.let { snackbar.showSnackbar(it); AuthEvents.consume() } }
+    val authUrl by AuthEvents.actionUrl.collectAsState()
+    LaunchedEffect(authMessage) {
+        authMessage?.let { text ->
+            val url = authUrl
+            AuthEvents.consume()
+            if (url == null) snackbar.showSnackbar(text)
+            else if (snackbar.showSnackbar(text, actionLabel = ctx.getString(R.string.auth_open_console), duration = SnackbarDuration.Indefinite, withDismissAction = true) == SnackbarResult.ActionPerformed)
+                runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+        }
+    }
     val reviewAsked by com.xlollx.songport.ui.ReviewFocus.request.collectAsState()
     LaunchedEffect(reviewAsked) { reviewAsked?.let { unmatchedReport = it; com.xlollx.songport.ui.ReviewFocus.request.value = null } }
     // A setlist made on setlist.fm's own site in the app: its page (Discover › Setlists) shows it.

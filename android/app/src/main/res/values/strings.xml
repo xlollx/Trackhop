@@ -238,6 +238,9 @@
     <string name="setup_why_apple">The developer token belongs to your Apple Developer account and expires after six months at most.</string>
     <string name="error_dev_mode_limit">%1$s only allows a handful of users per app. Set up your own credentials: it is free and takes about two minutes.</string>
     <string name="error_network">the phone could not reach the service (DNS failed). Check the connection, any VPN or private DNS, and that Trackhop is allowed to use data in the background, then try again.</string>
+    <string name="auth_google_test_users">Google blocked the sign-in because your Gmail is not on the Test users list of your Google project. Open Google Auth Platform › Audience, press “Add users” under “Test users”, add the Gmail you sign in with, save, and try again.</string>
+    <string name="auth_google_timeout_hint">No answer from the browser. If Google showed “Access blocked: has not completed the Google verification process”, your Gmail is not on the Test users list of your Google project: open Audience, press “Add users” under “Test users”, add it, save, and try again.</string>
+    <string name="auth_open_console">Open Google</string>
     <string name="auth_timeout">no answer from the browser, time is up</string>
 
     <string name="tab_tools">Tools</string>

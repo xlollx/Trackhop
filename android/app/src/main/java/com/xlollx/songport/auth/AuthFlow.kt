@@ -110,9 +110,13 @@ object AuthFlow {
                         )
                     }
                 }
+                var action: String? = null
                 val message = try {
                     when {
+                        // Google's "Access blocked" page is its own: the browser never comes back, so a Google sign-in with the person's own key that times out gets the hint too.
+                        params.isEmpty() && isGoogle(provider) -> { action = GOOGLE_AUDIENCE_URL; ctx.getString(R.string.auth_google_timeout_hint) }
                         params.isEmpty() -> ctx.getString(R.string.auth_failed, ctx.getString(R.string.auth_timeout))
+                        params["error"] != null && needsTestUser(provider, params["error"], params["error_description"]) -> { action = GOOGLE_AUDIENCE_URL; ctx.getString(R.string.auth_google_test_users) }
                         params["error"] != null ->
                             ctx.getString(R.string.auth_failed, params["error_description"] ?: params["error"]!!)
                         params["state"] != null && params["state"] != state ->
@@ -131,7 +135,7 @@ object AuthFlow {
                 } catch (e: Exception) {
                     ctx.getString(R.string.auth_failed, friendlyError(ctx, provider, e.message))
                 }
-                AuthEvents.post(message)
+                AuthEvents.post(message, action)
             } finally {
                 server.close()
             }
@@ -157,8 +161,16 @@ object AuthFlow {
         throw last!!
     }
 
+    const val GOOGLE_AUDIENCE_URL = com.xlollx.songport.providers.GoogleSignIn.AUDIENCE_URL
+
+    private fun isGoogle(provider: MusicProvider) = provider.authDomain == com.xlollx.songport.providers.GoogleSignIn.DOMAIN
+
+    private fun needsTestUser(provider: MusicProvider, error: String?, description: String?): Boolean =
+        com.xlollx.songport.providers.GoogleSignIn.needsTestUser(provider.authDomain, error, description)
+
     fun friendlyError(ctx: Context, provider: MusicProvider, raw: String?): String {
         val text = raw.orEmpty()
+        if (needsTestUser(provider, null, text)) return ctx.getString(R.string.auth_google_test_users)
         // No internet at all, or a service too slow to answer: plain words (the line itself is in the log).
         val net = com.xlollx.songport.net.NetError.messageKind(text)
         if (net != com.xlollx.songport.net.NetError.Kind.NONE && com.xlollx.songport.net.Connectivity.isOffline) return ctx.getString(R.string.net_offline)

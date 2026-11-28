@@ -305,7 +305,10 @@ class Web(
 
     internal fun notice(r: Req): String =
         (r.query["ok"]?.let { """<div class="card ok">${h(it)}</div>""" } ?: "") +
-            (r.query["err"]?.let { """<div class="card err">${h(it)}</div>""" } ?: "")
+            (r.query["err"]?.let {
+                """<div class="card err">${h(it)}""" +
+                    (if (r.query["fix"] == "google-test-users") """<p><a class="button" href="${com.xlollx.songport.providers.GoogleSignIn.AUDIENCE_URL}" target="_blank" rel="noopener">Open Google's Audience page</a></p>""" else "") + "</div>"
+            } ?: "")
 
     internal fun q(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8)
 
@@ -1003,7 +1006,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
             redirect(r.ex, "/connectors/${q(p.id)}?ok=${q("Connected.")}")
         }.onFailure { e ->
             env.log("auth", "sign-in failed: ${e.message}")
-            redirect(r.ex, "/connectors?err=${q(e.message ?: e.javaClass.simpleName)}")
+            redirect(r.ex, "/connectors?err=${q(e.message ?: e.javaClass.simpleName)}" + if (e is GoogleTestUserNeeded) "&fix=google-test-users" else "")
         }
     }
 
