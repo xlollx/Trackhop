@@ -1,31 +1,31 @@
 {
- "checked": "2026-11-27T21:40:38Z",
+ "checked": "2026-11-28T08:29:22Z",
  "first_day": "2026-11-01",
- "last_day": "2026-11-18",
- "days": 18,
+ "last_day": "2026-11-22",
+ "days": 22,
  "totals": {
-  "Daily Device Installs": 160,
+  "Daily Device Installs": 345,
   "Daily Device Uninstalls": 0,
-  "Daily User Installs": 160,
-  "Daily User Uninstalls": 97,
-  "Install events": 165,
-  "Update events": 65,
-  "Uninstall events": 102
+  "Daily User Installs": 344,
+  "Daily User Uninstalls": 207,
+  "Install events": 356,
+  "Update events": 144,
+  "Uninstall events": 211
  },
- "active_devices": 72,
+ "active_devices": 0,
  "total_user_installs": 0,
  "last": {
-  "Date": "2026-11-18",
+  "Date": "2026-11-22",
   "Package name": "com.xlollx.songport",
-  "Daily Device Installs": "30",
+  "Daily Device Installs": "51",
   "Daily Device Uninstalls": "0",
   "Daily Device Upgrades": "0",
   "Total User Installs": "0",
-  "Daily User Installs": "32",
-  "Daily User Uninstalls": "13",
-  "Active Device Installs": "72",
-  "Install events": "31",
-  "Update events": "30",
-  "Uninstall events": "14"
+  "Daily User Installs": "51",
+  "Daily User Uninstalls": "35",
+  "Active Device Installs": "0",
+  "Install events": "54",
+  "Update events": "45",
+  "Uninstall events": "35"
  }
 }
