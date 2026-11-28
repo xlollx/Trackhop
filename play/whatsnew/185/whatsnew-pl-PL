@@ -1,0 +1,1 @@
+Trackhop 2.2.7. YouTube Music z własnym kluczem działa szybciej: tryb osobisty Google tworzy klucz na jednej stronie i nie wylogowuje co 7 dni. Na Jellyfin, Navidrome i innych serwerach utwory zaczynające się od numeru są teraz wykrywane, a brakujące szukane ponownie po skanowaniu. Lepsze komunikaty i naprawiony błąd logowania Google.

@@ -5,6 +5,15 @@ released together as `server-v<version>`. The app keeps its own (`v1.x`, `v2.x`)
 server version runs is the app's of the same commit, shown in the page footer. Up to the app's 1.3.8
 the Docker image carried the app's version.
 
+## 2.2.6
+
+Released with the app's 2.2.7.
+
+- **YouTube Music with your own key**: the key's steps start with Google's Personal mode (project and client in one page, no test users, no publishing, no sign-out every 7 days); the long way is still there, under the quick steps, for Docker opened from another computer. Google's pages open through the account chooser, and the "Open Google's Audience page" link opens the project of your own client.
+- **Personal servers**: songs whose titles start with a track number are found; songs not found are searched again after the server rescans its library; band names with "&" stay whole; a playlist emptied because the files moved says so and offers to rebuild it; two addresses (home and away) answer faster, both attempts are logged, and a clear message says when neither answers.
+- **Messages**: a lost connection says so (and gives up after two tries when the address can't be found), instead of "the service limits requests"; a Google account without a YouTube channel gets a clear message; Spotify (web) says plainly that it doesn't work on Desktop and Docker for now (Spotify changed its page) and points to Spotify with your own key.
+- **Fixes**: the Library.xml import leaves out radio streams, cloud-only songs, podcasts and videos and says how many; "Missing on my server" says "Show ticked ones too"; a source track's album reaches the list of missing songs; Saved matches show a multi-sync's name. Thanks to raykai (#102, #103) and Echo-Phyber (#94).
+
 ## 2.2.5
 
 Released with the app's 2.2.6.
