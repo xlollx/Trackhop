@@ -41,7 +41,7 @@ def chat(system, user, want_json=False):
     # Google's Gemini API (free key from AI Studio, secret GEMINI_API_KEY), OpenAI-compatible endpoint.
     gem = os.environ.get("GEMINI_API_KEY")
     if gem:
-        for m in ([model.split("/", 1)[1]] if model.startswith("gemini/") else []) + ["gemini-flash-latest", "gemini-2.5-flash"]:
+        for m in ([model.split("/", 1)[1]] if model.startswith("gemini/") else []) + ["gemini-3.8-flash", "gemini-flash-latest", "gemini-flash-lite-latest"]:
             tries.append(("gemini", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {"Authorization": "Bearer " + gem}, m))
     oc = os.environ.get("OPENCODE_API_KEY")
     if oc:
@@ -65,7 +65,7 @@ def chat(system, user, want_json=False):
                 break
             except urllib.error.HTTPError as e:
                 last = f"{name}:{m} HTTP {e.code} {e.read()[:200]!r}"
-                if e.code == 429 and attempt == 0:
+                if e.code in (429, 503) and attempt == 0:
                     time.sleep(20)
                     continue
                 break

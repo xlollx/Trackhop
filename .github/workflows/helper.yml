@@ -97,7 +97,7 @@ jobs:
           prompt="$prompt
           Change only what the task needs. Do not touch .github/, Gradle files, signing or secrets. Keep the existing style."
           ok=0
-          for m in ${MODEL:-opencode/deepseek-v4.1-flash-free} google/gemini-flash-latest opencode/glm-5.3-flash-free; do
+          for m in ${MODEL:-opencode/deepseek-v4.1-flash-free} google/gemini-3.8-flash opencode/glm-5.3-flash-free; do
             echo "::group::model $m"
             if timeout 20m opencode run --model "$m" "$prompt"; then echo "::endgroup::"; if [ -n "$(git status --porcelain)" ]; then ok=1; echo "Changes made with $m" >> "$GITHUB_STEP_SUMMARY"; break; fi; else echo "::endgroup::"; fi
             git checkout -- . 2>/dev/null; git clean -fdq -e .github 2>/dev/null
