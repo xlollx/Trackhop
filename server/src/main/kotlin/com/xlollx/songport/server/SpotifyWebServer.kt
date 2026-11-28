@@ -267,7 +267,7 @@ class SpotifyWebServerProvider(override val slot: String = "") : CookieConnector
      * The bearer from the player page only: the page is fetched with the cookies (and cached a few
      * minutes by the client), and fetched again when its bearer is about to end or was refused.
      */
-    private inner class Host(ctx: Env, kv: KeyValues, fixed: Tokens? = null) : ServerWebHost(ctx, id, kv, fixed), SpotifyWebClient.Host {
+    private inner class Host(private val env: Env, kv: KeyValues, fixed: Tokens? = null) : ServerWebHost(env, id, kv, fixed), SpotifyWebClient.Host {
         override fun bearer(): String {
             val client = SpotifyWebClient(this)
             var page = client.page()
@@ -276,7 +276,8 @@ class SpotifyWebServerProvider(override val slot: String = "") : CookieConnector
                 page = client.page()
             }
             if (page.isAnonymous) throw BridgeException(EXPIRED)
-            return page.accessToken ?: throw BridgeException(NO_TOKEN)
+            // The page no longer carries it (Spotify's change, 11/2026): said plainly, with the way that works meanwhile.
+            return page.accessToken ?: throw ProviderException(env.text(UNAVAILABLE), BridgeException(NO_TOKEN))
         }
 
         override fun bearerRefused() = SpotifyWebClient.dropPage(cacheScope)
@@ -287,6 +288,8 @@ class SpotifyWebServerProvider(override val slot: String = "") : CookieConnector
         private val DOMAINS = listOf("spotify.com")
         private val LIBRARY = setOf(MusicProvider.LIKED_ID, MusicProvider.ALBUMS_ID, MusicProvider.ARTISTS_ID)
         const val EXPIRED = "the cookies have expired (open.spotify.com answers as a signed-out visitor): paste fresh ones in Services, Spotify (web)"
+        /** What Desktop and Docker say while the player page carries no token (strings.xml). */
+        const val UNAVAILABLE = "web_spotify_web_unavailable"
         const val NO_TOKEN = "open.spotify.com sent no access token with its page (Spotify may have changed the page; the app's hidden browser has other ways to get one, the server has not)"
     }
 }

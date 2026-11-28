@@ -2729,6 +2729,7 @@
     <string name="pill_stopped_offline">Stopped: no internet</string>
     <string name="offline_empty">This needs an internet connection. Connect and try again.</string>
     <string name="net_try_again">Try again</string>
+    <string name="web_spotify_web_unavailable">Spotify (web) doesn\'t work on Desktop and Docker right now because of a change on Spotify\'s side. Use Spotify with your own key (Spotify, official) meanwhile.</string>
     <string name="web_err_404_title">Page not found</string>
     <string name="web_err_404_text">This page isn\'t here: the link may be old, or the address mistyped. Nothing is broken.</string>
     <string name="web_err_500_title">Something went wrong</string>
