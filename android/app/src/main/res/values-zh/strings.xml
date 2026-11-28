@@ -745,7 +745,7 @@
         <item>为该项目启用 YouTube Data API v3：链接会打开它，确认顶部的项目名称后点按“启用”。</item>
         <item>回到客户端页面，点按“下载 JSON”，再点按下方的“导入客户端文件 (JSON)”。也可以把客户端 ID 和客户端密钥复制到输入框中，不要带空格。</item>
         <item>点按“保存并连接”，选择同一个 Gmail。无需测试用户，无需发布，也不会每 7 天退出登录。只有这个 Gmail 能用此密钥登录：其他 Google 账号请用同样方法再建一个密钥。 Google 显示的是你的项目名称（例如“personal-mode-app”或你起的名字），而不是 Trackhop：这是正常的。</item>
-        <item>想让多个 Google 账号共用一个密钥，或在另一台电脑上使用 Docker 服务器？链接会打开完整步骤以及每个 Google 错误的解决方法。</item>
+        <item>Google 的页面对你不起作用（工作或学校账号、出现错误），或者想让多个 Google 账号共用一个密钥、在另一台电脑上使用 Docker 服务器？链接会打开完整步骤，逐步说明并附上每个 Google 错误的解决方法。</item>
     </string-array>
     <string-array name="setup_steps_tidal">
         <item>使用你的 TIDAL 账号登录 developer.tidal.com。</item>

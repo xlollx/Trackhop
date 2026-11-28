@@ -62,8 +62,8 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
             "https://console.cloud.google.com/flows/enableapi?apiid=youtube.googleapis.com",
             null,
             null,
-            // The long way (a key for several Google accounts) and every Google error with its fix.
-            "https://trackhop.org/guide/youtube-google-key",
+            // The long way (a key for several Google accounts, or when Personal mode is not offered) and every Google error with its fix.
+            "https://trackhop.org/guide/youtube-google-key#the-long-way",
         ),
     )
 

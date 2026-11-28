@@ -755,7 +755,7 @@
         <item>O proje için YouTube Data API v3\'ü etkinleştirin: bağlantı onu açar, üstte proje adını kontrol edin ve \"Etkinleştir\"e basın.</item>
         <item>İstemciye dönünce \"JSON\'u indir\"e, ardından aşağıdaki \"İstemci dosyasını içe aktar (JSON)\" düğmesine basın. Ya da istemci kimliğini ve gizli anahtarı boşluksuz olarak alanlara kopyalayın.</item>
         <item>\"Kaydet ve bağlan\"a basıp aynı Gmail\'i seçin. Test kullanıcısı yok, yayınlama yok, 7 günde bir oturum kapanması yok. Bu anahtarla yalnızca o Gmail girebilir: başka bir Google hesabı için aynı şekilde bir anahtar daha oluşturun. Google, Trackhop yerine projenizin adını gösterir (ör. \"personal-mode-app\" ya da verdiğiniz ad): bu normaldir.</item>
-        <item>Birden çok Google hesabı için tek anahtar mı istiyorsunuz, yoksa Docker sunucusunu başka bir bilgisayardan mı kullanıyorsunuz? Bağlantı uzun yolu ve her Google hatasının çözümünü açar.</item>
+        <item>Google\'ın sayfası sizde çalışmıyor mu (iş ya da okul hesabı, bir hata), yoksa birden çok Google hesabı için tek anahtar ya da başka bir bilgisayardan Docker sunucusu mu istiyorsunuz? Bağlantı, uzun yolu adım adım ve her Google hatasının çözümüyle açar.</item>
     </string-array>
     <string-array name="setup_steps_tidal">
         <item>developer.tidal.com adresinde TIDAL hesabınızla oturum açın.</item>

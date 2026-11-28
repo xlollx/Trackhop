@@ -755,7 +755,7 @@
         <item>Ative a YouTube Data API v3 nesse projeto: o link a abre, confira o nome do projeto no topo e toque em \"Ativar\".</item>
         <item>De volta ao cliente, toque em \"Baixar JSON\" e depois em \"Importar o arquivo do cliente (JSON)\" aqui embaixo. Ou copie o ID do cliente e a chave secreta nos campos, sem espaços.</item>
         <item>Toque em \"Salvar e conectar\" e escolha o mesmo Gmail. Sem usuários de teste, sem publicar, sem desconexões a cada 7 dias. Só esse Gmail entra com esta chave: para outra conta Google, crie outra chave do mesmo jeito. O Google mostra o nome do seu projeto (por exemplo \"personal-mode-app\" ou o que você deu), não Trackhop: é normal.</item>
-        <item>Quer uma chave para várias contas Google, ou usa o servidor Docker de outro computador? O link abre o caminho longo e cada erro do Google com a solução.</item>
+        <item>A página do Google não funciona para você (conta de trabalho ou escola, um erro), ou quer uma chave para várias contas Google ou usa o servidor Docker de outro computador? O link abre o caminho longo, passo a passo, com cada erro do Google e a solução.</item>
     </string-array>
     <string-array name="setup_steps_tidal">
         <item>Entre em developer.tidal.com com sua conta TIDAL.</item>

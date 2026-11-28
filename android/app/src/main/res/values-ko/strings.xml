@@ -744,7 +744,7 @@
         <item>그 프로젝트에서 YouTube Data API v3를 사용 설정하세요. 링크로 열고 상단의 프로젝트 이름을 확인한 뒤 \"사용\"을 누르세요.</item>
         <item>클라이언트 화면으로 돌아와 \"JSON 다운로드\"를 누른 다음 아래의 \"클라이언트 파일(JSON) 가져오기\"를 누르세요. 또는 클라이언트 ID와 클라이언트 보안 비밀을 공백 없이 입력란에 복사하세요.</item>
         <item>\"저장 후 연결\"을 누르고 같은 Gmail을 선택하세요. 테스트 사용자, 게시가 필요 없고 7일마다 로그아웃되지도 않습니다. 이 키로는 그 Gmail만 로그인할 수 있으니, 다른 Google 계정은 같은 방법으로 키를 하나 더 만드세요. Google에는 Trackhop 대신 프로젝트 이름(예: \"personal-mode-app\" 또는 직접 붙인 이름)이 표시되며, 정상입니다.</item>
-        <item>여러 Google 계정에서 키 하나를 쓰거나 다른 컴퓨터에서 Docker 서버를 쓰나요? 링크에서 긴 방법과 모든 Google 오류의 해결법을 볼 수 있습니다.</item>
+        <item>Google 페이지가 되지 않거나(직장·학교 계정, 오류), 여러 Google 계정에서 키 하나를 쓰거나 다른 컴퓨터에서 Docker 서버를 쓰나요? 링크에서 긴 방법을 단계별로, 모든 Google 오류의 해결법과 함께 볼 수 있습니다.</item>
     </string-array>
     <string-array name="setup_steps_tidal">
         <item>TIDAL 계정으로 developer.tidal.com에 로그인하세요.</item>

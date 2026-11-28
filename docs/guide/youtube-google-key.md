@@ -34,8 +34,10 @@ the same way).
 5. Press **Save and connect** and pick the same Gmail. Google's pages show **your project's name** (for
    example *personal-mode-app*, or the name you gave it), not "Trackhop": that's normal. Done.
 
-The long way below is for a key that **several Google accounts** share, and for the **Docker server** opened
-from another computer (it needs a *Web application* client with a redirect).
+**If the quick way doesn't work for you** (Google doesn't offer it to your account, for example a work or
+school one, or it ends with an error), use the long way below: it is the way that worked before, and it
+still does. It is also the way for a key that **several Google accounts** share, and for the **Docker
+server** opened from another computer (it needs a *Web application* client with a redirect).
 
 ## The long way
 
