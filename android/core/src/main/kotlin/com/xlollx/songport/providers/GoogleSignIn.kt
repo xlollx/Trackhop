@@ -10,6 +10,15 @@ object GoogleSignIn {
      * its project's number ("123456789012-abc….apps.googleusercontent.com"), and the console opens that
      * project with `?project=<number>` whichever one was open last. Without a client ID, the page as is.
      */
+    /**
+     * A Google Cloud console page through Google's account chooser: the console opens otherwise with the
+     * phone's first Google account, often not the one the key is for. Other addresses are left as they are.
+     */
+    fun chooseAccount(url: String): String =
+        if (url.startsWith("https://console.cloud.google.com/") || url.startsWith("https://console.developers.google.com/"))
+            "https://accounts.google.com/AccountChooser?continue=" + java.net.URLEncoder.encode(url, "UTF-8")
+        else url
+
     fun audienceUrl(clientId: String?): String =
         clientId?.trim()?.let { Regex("""^(\d{6,})-""").find(it)?.groupValues?.get(1) }?.let { "$AUDIENCE_URL?project=$it" } ?: AUDIENCE_URL
 

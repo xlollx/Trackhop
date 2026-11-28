@@ -307,7 +307,7 @@ class Web(
         (r.query["ok"]?.let { """<div class="card ok">${h(it)}</div>""" } ?: "") +
             (r.query["err"]?.let {
                 """<div class="card err">${h(it)}""" +
-                    (if (r.query["fix"] == "google-test-users") """<p><a class="button" href="${h(com.xlollx.songport.providers.GoogleSignIn.audienceUrl(r.query["project"]?.takeIf { p -> p.all(Char::isDigit) }?.let { p -> "$p-" }))}" target="_blank" rel="noopener">Open Google's Audience page</a></p>""" else "") + "</div>"
+                    (if (r.query["fix"] == "google-test-users") """<p><a class="button" href="${h(com.xlollx.songport.providers.GoogleSignIn.chooseAccount(com.xlollx.songport.providers.GoogleSignIn.audienceUrl(r.query["project"]?.takeIf { p -> p.all(Char::isDigit) }?.let { p -> "$p-" })))}" target="_blank" rel="noopener">Open Google's Audience page</a></p>""" else "") + "</div>"
             } ?: "")
 
     internal fun q(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8)

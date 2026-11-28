@@ -24,4 +24,11 @@ class GoogleSignInTest {
         org.junit.Assert.assertEquals(GoogleSignIn.AUDIENCE_URL, GoogleSignIn.audienceUrl(null))
         org.junit.Assert.assertEquals(GoogleSignIn.AUDIENCE_URL, GoogleSignIn.audienceUrl("not-a-google-client"))
     }
+
+    @Test
+    fun consolePagesGoThroughTheAccountChooser() {
+        org.junit.Assert.assertEquals("https://accounts.google.com/AccountChooser?continue=https%3A%2F%2Fconsole.cloud.google.com%2Fauth%2Faudience%3Fproject%3D12345678",
+            GoogleSignIn.chooseAccount("https://console.cloud.google.com/auth/audience?project=12345678"))
+        org.junit.Assert.assertEquals("https://trackhop.org/guide/youtube-google-key", GoogleSignIn.chooseAccount("https://trackhop.org/guide/youtube-google-key"))
+    }
 }

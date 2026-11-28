@@ -154,7 +154,7 @@ fun SetupWizardScreen(provider: MusicProvider, onUseRoute: (MusicProvider) -> Un
             }
 
             OutlinedButton(
-                onClick = { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(guide.dashboardUrl))) },
+                onClick = { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(GoogleSignIn.chooseAccount(guide.dashboardUrl)))) },
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Icon(Icons.Filled.OpenInNew, null)
@@ -172,7 +172,7 @@ fun SetupWizardScreen(provider: MusicProvider, onUseRoute: (MusicProvider) -> Un
                     val link = guide.stepUrls.getOrNull(i)
                     if (link != null) {
                         TextButton(
-                            onClick = { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link))) },
+                            onClick = { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(GoogleSignIn.chooseAccount(link)))) },
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
                         ) { Text(stringResource(R.string.setup_open_step)) }
                     }

@@ -172,7 +172,7 @@ object AuthFlow {
 
     /** The Audience page of the project the person's own client belongs to. */
     private fun audienceOf(ctx: Context, provider: MusicProvider): String =
-        com.xlollx.songport.providers.GoogleSignIn.audienceUrl(com.xlollx.songport.data.Store.get(ctx).data.settings.clientIds[provider.serviceId])
+        com.xlollx.songport.providers.GoogleSignIn.let { g -> g.chooseAccount(g.audienceUrl(com.xlollx.songport.data.Store.get(ctx).data.settings.clientIds[provider.serviceId])) }
 
     /**
      * Back in the app while a Google sign-in still waits: Google's "Access blocked" page never sends
