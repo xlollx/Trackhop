@@ -73,7 +73,11 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-        run: python3 .github/scripts/helper.py
+        run: |
+          # The script comes from the workflow's own commit (main), not from the working branch.
+          git fetch -q --depth 1 origin "$GITHUB_SHA"
+          git show FETCH_HEAD:.github/scripts/helper.py > "$RUNNER_TEMP/helper.py"
+          python3 "$RUNNER_TEMP/helper.py"
       - name: OpenCode
         if: inputs.mode == 'code'
         env:
