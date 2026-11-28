@@ -65,6 +65,17 @@ class YouTubeProvider(override val slot: String = "") : OAuthProvider() {
             // The long way (a key for several Google accounts, or when Personal mode is not offered) and every Google error with its fix.
             "https://trackhop.org/guide/youtube-google-key#the-long-way",
         ),
+        // The seven steps used before Personal mode: still valid, opened under the quick ones.
+        longStepsArrayName = "setup_steps_youtube_long",
+        longStepUrls = listOf(
+            "https://console.cloud.google.com/projectcreate",
+            "https://console.cloud.google.com/apis/library/youtube.googleapis.com",
+            "https://console.cloud.google.com/auth/overview",
+            "https://console.cloud.google.com/auth/audience",
+            "https://console.cloud.google.com/auth/clients/create",
+            "https://trackhop.org/guide/youtube-google-key#the-long-way",
+            "https://console.cloud.google.com/auth/branding",
+        ),
     )
 
     override val defaultClientId: String get() = BuildDefaults["GOOGLE_CLIENT_ID"]

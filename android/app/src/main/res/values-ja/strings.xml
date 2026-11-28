@@ -3625,4 +3625,15 @@
     <string name="progress_network_retry">%1$s に接続できません: %2$d 秒後に再試行します (%4$d 回中 %3$d 回目)</string>
     <string name="auth_google_weekly">%1$s: Google がサインアウトされました。7日ごとに発生します。Google プロジェクトがテストの場合は、再度サインインしてください。永久に停止させるにはプロジェクトを一度公開してください: in Google Auth Platform › Branding ホームページ https://trackhop.org、プライバシーポリシーのリンク https://trackhop.org/privacy-policy と認可されたドメイン trackhop.org、保存、その後 Audience › Publish app.</string>
     <string name="yt_no_channel">%1$s: この Google アカウントにはまだ YouTube チャンネルがないため、読み書きできるプレイリストがありません。このアカウントで youtube.com を開き、「チャンネルを作成」を選択してから、もう一度お試しください。</string>
+    <string-array name="setup_steps_youtube_long">
+        <item>同期する YouTube プレイリストの Google アカウント（個人の Gmail。学校や職場のアカウントはブロックされることがあります）で console.cloud.google.com にログインします。規約の同意を求められたら同意します。プロジェクトを作成し（名前は自由、例：「Trackhop」）、通知を待って「プロジェクトを選択」を押し、上部バーの名前を確認します。以降の手順はすべてこのプロジェクト内で行います。</item>
+        <item>YouTube Data API v3 を有効にします。リンクでそのページが開きます。上部に自分のプロジェクトが表示されていることを確認し、「有効にする」を押してページが切り替わるまで待ちます。</item>
+        <item>Google Auth Platform の「概要」で「開始」を押します。アプリ名「Trackhop」、サポートメールに自分の Gmail、「次へ」。対象「外部」、「次へ」。連絡先に自分の Gmail、「次へ」。同意にチェックして「続行」、「作成」。</item>
+        <item>この手順は飛ばさないでください。Google Auth Platform の「対象」で、「テストユーザー」の「ユーザーを追加」を押し、ログインに使うのと同じ Gmail を入力して「保存」を押します。これがないと Google は「アクセスをブロック: Trackhop は Google の審査プロセスを完了していません」と表示します。</item>
+        <item>Google Auth Platform の「クライアント」で「クライアントを作成」。アプリケーションの種類は「デスクトップ アプリ」（Android や Web ではありません）、名前は自由で「作成」。クライアント ID とクライアント シークレットをすぐにここへ、空白なしでコピーします。シークレットが表示されるのはこの一度だけです（なくした場合はクライアントを開いて「シークレットを追加」）。 もっと簡単に：同じ画面で「JSON をダウンロード」を押し、下の「クライアントファイル (JSON) を読み込む」を使ってください。</item>
+        <item>ログインを押し、同じ Gmail を選びます。「このアプリは Google で確認されていません」と出たら「続行」を押し（自分のアプリです）、YouTube アカウントへのアクセスを許可します。チャンネルが複数ある場合はプレイリストのあるものを選びます。それ以外のエラーは、リンクから各エラーと対処法のガイドを開けます。</item>
+        <item>おすすめ：アプリが「テスト中」の間、Google は 7 日ごとにログアウトさせます。ログインを保つには「対象」、「アプリを公開」、「確認」の順に押し、ここでもう一度ログインします。利用者が 100 人を超えない限り Google の審査はありません。 「アプリを公開」がグレーの場合：「ブランディング」でホームページに https://trackhop.org、プライバシー ポリシーのリンクに https://trackhop.org/privacy-policy、「承認済みドメイン」に trackhop.org を入力して「保存」し、戻ってください。</item>
+    </string-array>
+    <string name="setup_long_way_show">長い手順（7 ステップ、従来の方法）</string>
+    <string name="setup_long_way_hide">長い手順を閉じる</string>
 </resources>

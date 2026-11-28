@@ -969,11 +969,20 @@ $help</div>"""
         if (guide != null) {
             sb.append("""<p>${h(env.text(guide.whyName))}</p><ol>""")
             env.textArray(guide.stepsArrayName).forEachIndexed { i, step ->
-                val link = guide.stepUrls.getOrNull(i)?.let { """ <a href="${h(it)}" target="_blank" rel="noopener">open</a>""" } ?: ""
+                val link = guide.stepUrls.getOrNull(i)?.let { """ <a href="${h(com.xlollx.songport.providers.GoogleSignIn.chooseAccount(it))}" target="_blank" rel="noopener">open</a>""" } ?: ""
                 val text = if (i == 0 && route != null) step + " " + env.text("setup_spotify_no_key_route", route.displayName) else step
                 sb.append("<li>${h(text)}$link</li>")
             }
             sb.append("</ol>")
+            // The way that worked before a quicker one (kept as a fallback; Docker opened from another computer needs it).
+            guide.longStepsArrayName?.let { name ->
+                sb.append("""<details><summary>${h(env.text("setup_long_way_show"))}</summary><ol>""")
+                env.textArray(name).forEachIndexed { i, step ->
+                    val link = guide.longStepUrls.getOrNull(i)?.let { """ <a href="${h(com.xlollx.songport.providers.GoogleSignIn.chooseAccount(it))}" target="_blank" rel="noopener">open</a>""" } ?: ""
+                    sb.append("<li>${h(step)}$link</li>")
+                }
+                sb.append("</ol></details>")
+            }
         }
         val redirect = if (guide?.needsRedirectUrl == true) env.store.data.settings.deezerRedirectUrl.ifBlank { env.redirectUri } else env.redirectUri
         sb.append("""<p>Redirect address for this server: <code>${h(redirect)}</code></p>""")

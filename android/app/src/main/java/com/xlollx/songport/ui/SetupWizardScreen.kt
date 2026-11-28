@@ -184,6 +184,29 @@ fun SetupWizardScreen(provider: MusicProvider, onUseRoute: (MusicProvider) -> Un
                 }
             }
 
+            // The way that worked before (kept as a fallback): closed until asked for.
+            if (guide.longStepsArrayRes != 0) {
+                var longOpen by rememberSaveable { mutableStateOf(false) }
+                TextButton(onClick = { longOpen = !longOpen }, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(if (longOpen) R.string.setup_long_way_hide else R.string.setup_long_way_show), modifier = Modifier.weight(1f))
+                }
+                if (longOpen) {
+                    stringArrayResource(guide.longStepsArrayRes).forEachIndexed { i, step ->
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                            Text("${i + 1}.", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.width(24.dp))
+                            Text(step, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                            val link = guide.longStepUrls.getOrNull(i)
+                            if (link != null) {
+                                TextButton(
+                                    onClick = { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(GoogleSignIn.chooseAccount(link)))) },
+                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                                ) { Text(stringResource(R.string.setup_open_step)) }
+                            }
+                        }
+                    }
+                }
+            }
+
             guide.redirectUri?.let { uri ->
                 Card(Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(12.dp)) {

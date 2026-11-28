@@ -31,4 +31,8 @@ data class SetupGuide(
     val multiline: Boolean = false,
     /** Link diretto per ogni passo (stesso ordine di stepsArrayRes); null dove non serve. */
     val stepUrls: List<String?> = emptyList(),
+    /** The way that worked before a quicker one replaced it, kept as a fallback the screen can open (string-array name). */
+    val longStepsArrayName: String? = null,
+    /** Links of the long way's steps, in the same order. */
+    val longStepUrls: List<String?> = emptyList(),
 )
