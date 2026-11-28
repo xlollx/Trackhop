@@ -307,7 +307,7 @@ class Web(
         (r.query["ok"]?.let { """<div class="card ok">${h(it)}</div>""" } ?: "") +
             (r.query["err"]?.let {
                 """<div class="card err">${h(it)}""" +
-                    (if (r.query["fix"] == "google-test-users") """<p><a class="button" href="${com.xlollx.songport.providers.GoogleSignIn.AUDIENCE_URL}" target="_blank" rel="noopener">Open Google's Audience page</a></p>""" else "") + "</div>"
+                    (if (r.query["fix"] == "google-test-users") """<p><a class="button" href="${h(com.xlollx.songport.providers.GoogleSignIn.audienceUrl(r.query["project"]?.takeIf { p -> p.all(Char::isDigit) }?.let { p -> "$p-" }))}" target="_blank" rel="noopener">Open Google's Audience page</a></p>""" else "") + "</div>"
             } ?: "")
 
     internal fun q(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8)
@@ -994,6 +994,10 @@ $help</div>"""
         return sb.toString()
     }
 
+    /** "&project=<number>" from a Google client ID (its project's number), for the Audience page link. */
+    private fun projectOf(clientId: String?): String =
+        clientId?.trim()?.let { Regex("""^(\d{6,})-""").find(it)?.groupValues?.get(1) }?.let { "&project=$it" } ?: ""
+
     private fun callback(r: Req) {
         // Deezer puts the token in the fragment, which never reaches a server: the page moves it into the query.
         if (r.query.isEmpty()) {
@@ -1010,7 +1014,7 @@ if (location.hash.length > 1) location.replace('/callback?' + location.hash.subs
             redirect(r.ex, "/connectors/${q(p.id)}?ok=${q("Connected.")}")
         }.onFailure { e ->
             env.log("auth", "sign-in failed: ${e.message}")
-            redirect(r.ex, "/connectors?err=${q(e.message ?: e.javaClass.simpleName)}" + if (e is GoogleTestUserNeeded) "&fix=google-test-users" else "")
+            redirect(r.ex, "/connectors?err=${q(e.message ?: e.javaClass.simpleName)}" + if (e is GoogleTestUserNeeded) "&fix=google-test-users" + projectOf(env.store.data.settings.clientIds[com.xlollx.songport.providers.YouTubeProvider.SERVICE]) else "")
         }
     }
 

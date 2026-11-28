@@ -6,6 +6,14 @@ object GoogleSignIn {
     const val DOMAIN = "accounts.google.com"
 
     /**
+     * The Audience page of the project the person's client belongs to: a Google client ID starts with
+     * its project's number ("123456789012-abc….apps.googleusercontent.com"), and the console opens that
+     * project with `?project=<number>` whichever one was open last. Without a client ID, the page as is.
+     */
+    fun audienceUrl(clientId: String?): String =
+        clientId?.trim()?.let { Regex("""^(\d{6,})-""").find(it)?.groupValues?.get(1) }?.let { "$AUDIENCE_URL?project=$it" } ?: AUDIENCE_URL
+
+    /**
      * Google refused the sign-in of a project still in Testing because the person's Gmail is not under
      * "Test users" (access_denied, "has not completed the Google verification process"): the fix is on
      * Google's Audience page, not in the app. [authDomain] is the sign-in page's host.

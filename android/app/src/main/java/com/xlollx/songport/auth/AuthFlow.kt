@@ -96,7 +96,7 @@ object AuthFlow {
                 tab.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 tab.launchUrl(ctx, Uri.parse(url))
 
-                if (isGoogle(provider)) { googleWaitingSince = System.currentTimeMillis(); googleHinted = false }
+                if (isGoogle(provider)) { googleAudience = audienceOf(ctx, provider); googleWaitingSince = System.currentTimeMillis(); googleHinted = false }
                 val params = try { server.awaitRedirect() } finally { googleWaitingSince = 0 }
                 // Il browser ha ricevuto il redirect: prima di parlare con Google riportiamo l'app in primo
                 // piano. In secondo piano, con risparmio dati o batteria attivi, Android nega la rete e il
@@ -116,9 +116,9 @@ object AuthFlow {
                     when {
                         // Google's "Access blocked" page is its own: the browser never comes back, so a Google sign-in with the person's own key that times out gets the hint too.
                         params.isEmpty() && isGoogle(provider) && googleHinted -> ctx.getString(R.string.auth_failed, ctx.getString(R.string.auth_timeout))
-                        params.isEmpty() && isGoogle(provider) -> { action = GOOGLE_AUDIENCE_URL; ctx.getString(R.string.auth_google_timeout_hint) }
+                        params.isEmpty() && isGoogle(provider) -> { action = audienceOf(ctx, provider); ctx.getString(R.string.auth_google_timeout_hint) }
                         params.isEmpty() -> ctx.getString(R.string.auth_failed, ctx.getString(R.string.auth_timeout))
-                        params["error"] != null && needsTestUser(provider, params["error"], params["error_description"]) -> { action = GOOGLE_AUDIENCE_URL; ctx.getString(R.string.auth_google_test_users) }
+                        params["error"] != null && needsTestUser(provider, params["error"], params["error_description"]) -> { action = audienceOf(ctx, provider); ctx.getString(R.string.auth_google_test_users) }
                         params["error"] != null ->
                             ctx.getString(R.string.auth_failed, params["error_description"] ?: params["error"]!!)
                         params["state"] != null && params["state"] != state ->
@@ -168,6 +168,11 @@ object AuthFlow {
     // A Google sign-in waiting for the browser: since when (0 = none), and whether the hint was shown.
     @Volatile private var googleWaitingSince = 0L
     @Volatile private var googleHinted = false
+    @Volatile private var googleAudience = GOOGLE_AUDIENCE_URL
+
+    /** The Audience page of the project the person's own client belongs to. */
+    private fun audienceOf(ctx: Context, provider: MusicProvider): String =
+        com.xlollx.songport.providers.GoogleSignIn.audienceUrl(com.xlollx.songport.data.Store.get(ctx).data.settings.clientIds[provider.serviceId])
 
     /**
      * Back in the app while a Google sign-in still waits: Google's "Access blocked" page never sends
@@ -179,7 +184,7 @@ object AuthFlow {
         val since = googleWaitingSince
         if (since == 0L || googleHinted || System.currentTimeMillis() - since < 5_000) return
         googleHinted = true
-        AuthEvents.post(ctx.getString(R.string.auth_google_timeout_hint), GOOGLE_AUDIENCE_URL)
+        AuthEvents.post(ctx.getString(R.string.auth_google_timeout_hint), googleAudience)
     }
 
     private fun isGoogle(provider: MusicProvider) = provider.authDomain == com.xlollx.songport.providers.GoogleSignIn.DOMAIN

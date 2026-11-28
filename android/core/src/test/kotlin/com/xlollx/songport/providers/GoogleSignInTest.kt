@@ -17,4 +17,11 @@ class GoogleSignInTest {
         assertFalse(GoogleSignIn.needsTestUser("accounts.spotify.com", "access_denied", null))
         assertFalse(GoogleSignIn.needsTestUser(null, "access_denied", null))
     }
+
+    @Test
+    fun theAudiencePageOpensTheClientsProject() {
+        org.junit.Assert.assertEquals("https://console.cloud.google.com/auth/audience?project=123456789012", GoogleSignIn.audienceUrl("123456789012-abc123def.apps.googleusercontent.com"))
+        org.junit.Assert.assertEquals(GoogleSignIn.AUDIENCE_URL, GoogleSignIn.audienceUrl(null))
+        org.junit.Assert.assertEquals(GoogleSignIn.AUDIENCE_URL, GoogleSignIn.audienceUrl("not-a-google-client"))
+    }
 }
