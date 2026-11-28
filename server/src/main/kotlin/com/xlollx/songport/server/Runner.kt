@@ -86,7 +86,7 @@ class Runner(private val env: ServerEnv, private val edition: Html.Edition = Htm
             val engine = SyncEngine(env)
             val report = engine.run(job, unattended = scheduled) { p ->
                 SyncState.progress(job.id, p)
-                if (p.step == Progress.Step.WAITING) SyncState.stopCheck(env, job.id) else SyncState.checkpoint(env, job.id)
+                if (p.isWait) SyncState.stopCheck(env, job.id) else SyncState.checkpoint(env, job.id)
             }
             ended = report
             env.log(

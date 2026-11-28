@@ -34,6 +34,7 @@
     <string name="progress_create_target">Creating target playlist…</string>
     <string name="progress_fetch_target">Reading target playlist…</string>
     <string name="progress_matching">Matching tracks %1$d/%2$d…</string>
+    <string name="progress_network_retry">No connection to %1$s: trying again in %2$d s (attempt %3$d of %4$d)</string>
     <string name="progress_waiting">The service is limiting requests: resuming in %1$d s. Normal with large playlists, not an error.</string>
     <string name="progress_adding">Adding %1$d tracks…</string>
     <string name="progress_removing">Removing %1$d tracks…</string>
@@ -3632,6 +3633,7 @@
     <string name="login_url_away">Address away from home (optional)</string>
     <string name="login_url_away_hint">Used when the first one doesn\'t answer, for example on mobile data. On Wi-Fi the first one is tried first; the one that worked last is remembered.</string>
     <string name="account_via_home">Now via: %1$s (home)</string>
+    <string name="server_both_down">%1$s doesn\'t answer at home or away: is it on? Is your VPN (e.g. Tailscale) connected?</string>
     <string name="account_via_away">Now via: %1$s (away)</string>
     <string name="why_not_matched_q">Why wasn\'t it matched?</string>
     <string name="why_not_matched">Why wasn\'t it matched?</string>

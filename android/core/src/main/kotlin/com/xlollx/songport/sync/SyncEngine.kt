@@ -72,6 +72,9 @@ private const val MBID_PROBE = 20
  */
 internal var NETWORK_RETRY_SECONDS = intArrayOf(5, 15, 30, 60, 120)
 
+/** Tries of a call whose host does not resolve before the run ends as offline (see [NETWORK_RETRY_SECONDS]). */
+internal const val DNS_ATTEMPTS = 2
+
 /** Errori di trasporto che passano da soli: risoluzione del nome, connessione rifiutata o caduta, timeout. */
 fun isTransientNetwork(msg: String?): Boolean {
     val m = msg ?: return false
@@ -263,8 +266,10 @@ class SyncEngine(
             // The connection, not the service: said in plain words (the technical line is in the log
             // just above), and marked so the run is tried again once the connection is back.
             val net = NetError.kind(e)
+            // A personal server at neither of its addresses: said with its name, and what to check.
+            val bothDown = NetError.bothDown(e)?.let { str("server_both_down", it.server) }
             SyncReport(reportId, job.id, job.name, started, System.currentTimeMillis() - started,
-                error = netText(net) ?: e.message ?: e.javaClass.simpleName, targetShrunkFrom = (e as? TargetShrunkException)?.expected ?: 0,
+                error = bothDown ?: netText(net) ?: e.message ?: e.javaClass.simpleName, targetShrunkFrom = (e as? TargetShrunkException)?.expected ?: 0,
                 netError = net.takeIf { it != NetError.Kind.NONE }?.name)
         }
 
@@ -452,7 +457,7 @@ class SyncEngine(
         // it) must stop the sync with its name, not feed a ghost. One list call per side, per run.
         val srcDeclared = checkStillThere(src, srcPlaylistId, job.source.playlistName, isSource = true)
         val dstDeclared = job.target.playlistId?.let { checkStillThere(dst, it, job.target.playlistName, isSource = false) } ?: -1
-        var allSource = listing(job, src, interactive, onWait) { patient(onProgress) { src.tracks(env, srcPlaylistId) } }
+        var allSource = listing(job, src, interactive, onWait) { patient(onProgress, src) { src.tracks(env, srcPlaylistId) } }
         // A sync that removes (mirror): a source that answers well with fewer tracks than the service
         // itself counts for the playlist (a page it did not send) would have every track it left out
         // taken off the target. Read once more; still short, the removals of this run do not happen
@@ -464,7 +469,7 @@ class SyncEngine(
             if (answeredShort(declared, allSource.size)) {
                 env.log("engine", "${job.name}: ${src.displayName} gave ${allSource.size} of the $declared tracks it counts: reading it again")
                 kotlinx.coroutines.delay(shrinkRereadMs)
-                val again = listing(job, src, interactive, onWait) { patient(onProgress) { src.tracks(env, srcPlaylistId) } }
+                val again = listing(job, src, interactive, onWait) { patient(onProgress, src) { src.tracks(env, srcPlaylistId) } }
                 // The count may have changed meanwhile (a track taken out by the person): asked again too.
                 val declaredNow = runCatching { src.playlists(env).firstOrNull { it.id == srcPlaylistId }?.trackCount }.getOrNull()?.takeIf { it >= 0 } ?: declared
                 if (again.size >= allSource.size || again.size >= declaredNow) allSource = again
@@ -930,12 +935,12 @@ class SyncEngine(
         job: SyncJob, dst: MusicProvider, targetId: String, onProgress: (Progress) -> Unit,
         unattended: Boolean, interactive: Boolean, notes: MutableList<String>, declared: Int = -1,
     ): List<Track> {
-        val first = patient(onProgress) { dst.tracks(env, targetId) }
+        val first = patient(onProgress, dst) { dst.tracks(env, targetId) }
         val expected = shrunkFrom(job, targetId, first.size)
         if (expected == 0) return first
         env.log("engine", "${job.name}: ${dst.displayName} lists ${first.size} tracks, the last run left $expected: reading it again")
         kotlinx.coroutines.delay(shrinkRereadMs)
-        val second = patient(onProgress) { dst.tracks(env, targetId) }
+        val second = patient(onProgress, dst) { dst.tracks(env, targetId) }
         val best = if (second.size >= first.size) second else first
         if (shrunkFrom(job, targetId, best.size) == 0) return best
         // A server whose ids change (#95) counts entries that lead to no song since a rescan and lists
@@ -1369,9 +1374,13 @@ class SyncEngine(
      * Esegue una chiamata al servizio rispettando i blocchi che dichiara ("Retry in N s"): aspetta il
      * tempo detto, visibilmente, e riprova, fino al limite; ogni altro errore passa oltre subito.
      */
-    private suspend fun <T> patient(onProgress: (Progress) -> Unit, block: suspend () -> T): T {
+    private suspend fun <T> patient(onProgress: (Progress) -> Unit, service: MusicProvider? = null, block: suspend () -> T): T {
         var blockWaits = 0
         var networkRetries = 0
+        // A name that does not resolve is rarely a blip: after a few tries the run ends as offline, and
+        // the queue (the app's, WorkManager's, the server's retry) starts it again with the connection.
+        // So does a personal server that answers at neither of its addresses (off, or the VPN not on).
+        var dnsFailures = 0
         while (true) {
             try {
                 return block()
@@ -1389,10 +1398,16 @@ class SyncEngine(
                     // servizio, si riprova con attese crescenti.
                     // Not when the device knows it is offline: the run stops at once, and starts again
                     // when the connection is back (the app's queue, WorkManager's or the server's retry).
-                    (isTransientNetwork(e.message) || NetError.isNetwork(e)) && networkRetries < NETWORK_RETRY_SECONDS.size && !NetError.knownOffline() -> {
+                    (isTransientNetwork(e.message) || NetError.isNetwork(e)) && networkRetries < NETWORK_RETRY_SECONDS.size && !NetError.knownOffline() &&
+                        (!givesUpSoon(e) || ++dnsFailures < DNS_ATTEMPTS) -> {
                         val seconds = NETWORK_RETRY_SECONDS[networkRetries++]
-                        env.log("engine", "network hiccup: ${e.message?.take(120)}; retrying in ${seconds}s")
-                        waitVisible(seconds, onProgress)
+                        val attempts = if (givesUpSoon(e)) maxOf(DNS_ATTEMPTS, networkRetries + 1) else NETWORK_RETRY_SECONDS.size + 1
+                        env.log("engine", "network hiccup: ${e.message?.take(120)}; retrying in ${seconds}s (attempt ${networkRetries + 1} of $attempts)")
+                        val name = service?.displayName.orEmpty()
+                        for (s in 1..seconds) {
+                            onProgress(Progress(Progress.Step.NETWORK_RETRY, s, seconds, name, networkRetries + 1, attempts))
+                            kotlinx.coroutines.delay(1000)
+                        }
                     }
                     else -> throw e
                 }
@@ -1409,7 +1424,7 @@ class SyncEngine(
      */
     private suspend fun createOnce(dst: MusicProvider, name: String, description: String, onProgress: (Progress) -> Unit): Playlist {
         val before = try {
-            patient(onProgress) { dst.playlists(env) }.mapTo(HashSet()) { it.id }
+            patient(onProgress, dst) { dst.playlists(env) }.mapTo(HashSet()) { it.id }
         } catch (e: kotlinx.coroutines.CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -1417,7 +1432,7 @@ class SyncEngine(
             null
         }
         var asked = false
-        return patient(onProgress) {
+        return patient(onProgress, dst) {
             if (asked && before != null) {
                 dst.playlists(env).firstOrNull { it.id !in before && it.name.trim() == name.trim() && it.trackCount <= 0 }?.let {
                     env.log("engine", "the playlist was made before the reply was lost: taken, not made again")
@@ -1439,6 +1454,24 @@ class SyncEngine(
     /** Secondi di attesa dichiarati dal servizio ("Retry in N s"), entro limiti ragionevoli; null se non li dichiara. */
     private fun declaredWait(msg: String?): Int? =
         Regex("retry in (\\d+) s", RegexOption.IGNORE_CASE).find(msg ?: "")?.groupValues?.get(1)?.toIntOrNull()?.coerceIn(5, 1800)
+
+    /** A failure tried again only [DNS_ATTEMPTS] times: a name that does not resolve, a server that answers at neither address. */
+    private fun givesUpSoon(e: Throwable): Boolean = isUnresolved(e) || NetError.bothDown(e) != null
+
+    /** The service's name did not resolve (no DNS: the connection is not there yet, or gone). */
+    private fun isUnresolved(e: Throwable): Boolean {
+        var t: Throwable? = e
+        var depth = 0
+        while (t != null && depth++ < 8) {
+            if (t is java.net.UnknownHostException) return true
+            val m = t.message.orEmpty()
+            if (m.contains("Unable to resolve host", true) || m.contains("UnknownHostException", true) ||
+                m.contains("No address associated with hostname", true) || m.contains("Temporary failure in name resolution", true)) return true
+            if (t.cause === t) break
+            t = t.cause
+        }
+        return false
+    }
 
     /** Attesa mostrata all'utente secondo per secondo; lo stop la interrompe, la pausa no. */
     private suspend fun waitVisible(seconds: Int, onProgress: (Progress) -> Unit) {
@@ -1506,7 +1539,7 @@ class SyncEngine(
             val unchanged = plan.targetVersion != null && runCatching { dst.playlistVersion(env, targetId) }.getOrNull() == plan.targetVersion
             if (!unchanged) {
                 onProgress(Progress(Progress.Step.FETCH_TARGET))
-                runCatching { patient(onProgress) { dst.tracks(env, targetId) } }
+                runCatching { patient(onProgress, dst) { dst.tracks(env, targetId) } }
                     .onFailure { if (it is kotlinx.coroutines.CancellationException) throw it; env.log("engine", "${job.name}: target not read again before adding: ${it.message?.take(120)}") }
                     .onSuccess { fresh ->
                         keepEntries(dst, targetId, fresh)
@@ -1809,7 +1842,7 @@ class SyncEngine(
     private suspend fun repairUnlisted(job: SyncJob, dst: MusicProvider, targetId: String, unlisted: Int, notes: MutableList<String>, onProgress: (Progress) -> Unit) {
         try {
             onProgress(Progress(Progress.Step.FETCH_TARGET))
-            val listed = patient(onProgress) { dst.tracks(env, targetId) }
+            val listed = patient(onProgress, dst) { dst.tracks(env, targetId) }
             if (!dst.replaceTracks(env, targetId, listed)) return
             keepEntries(dst, targetId, listed)
             notes += str("note_unlisted_repaired", unlisted, dst.displayName)
@@ -1832,7 +1865,7 @@ class SyncEngine(
     ): Pair<Set<String>, Map<Track, Track>>? {
         try {
             onProgress(Progress(Progress.Step.FETCH_TARGET))
-            val listed = patient(onProgress) { dst.tracks(env, targetId) }
+            val listed = patient(onProgress, dst) { dst.tracks(env, targetId) }
             val ids = listed.mapTo(HashSet()) { it.id }
             val unlisted = added.map { it.id }.filterTo(LinkedHashSet()) { it !in ids }
             if (unlisted.isEmpty()) return null
@@ -1881,7 +1914,7 @@ class SyncEngine(
         suspend fun attempt(block: suspend () -> Unit): Boolean {
             if (failures >= SYSTEMIC_ADD_FAILURES && set == 0) { failures++; return false }
             return try {
-                patient(onProgress) { block() }
+                patient(onProgress, dst) { block() }
                 true
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
@@ -1897,7 +1930,7 @@ class SyncEngine(
         val rated = rated.map { (s, d) ->
             if (d.albumId != null || (s.rating <= 0 && s.albumRating <= 0)) return@map s to d
             val now = asked.getOrPut(d.id) {
-                try { patient(onProgress) { writer.song(env, d.id) } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Exception) { null }
+                try { patient(onProgress, dst) { writer.song(env, d.id) } } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (_: Exception) { null }
             }
             s to (now?.let { d.copy(albumId = it.albumId, rating = it.rating) } ?: d)
         }

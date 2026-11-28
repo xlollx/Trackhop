@@ -466,9 +466,19 @@ data class TargetSearch(val hits: List<Hit>, val album: String? = null, val albu
     fun of(kind: Kind): List<Hit> = hits.filter { it.kind == kind }
 }
 
-data class Progress(val step: Step, val done: Int = 0, val total: Int = 0, val label: String? = null) {
-    /** WAITING: il servizio limita le richieste; done/total = secondi trascorsi/da attendere. */
-    enum class Step { FETCH_SOURCE, CREATE_TARGET, FETCH_TARGET, MATCHING, WAITING, ADDING, REMOVING, BACKUP, DEDUPE }
+data class Progress(
+    val step: Step, val done: Int = 0, val total: Int = 0, val label: String? = null,
+    /** NETWORK_RETRY: this try of [attempts]. */
+    val attempt: Int = 0, val attempts: Int = 0,
+) {
+    /**
+     * WAITING: il servizio limita le richieste; done/total = secondi trascorsi/da attendere.
+     * NETWORK_RETRY: the connection to [label] (the service) failed; done/total as for WAITING, then
+     * try [attempt] of [attempts].
+     */
+    enum class Step { FETCH_SOURCE, CREATE_TARGET, FETCH_TARGET, MATCHING, WAITING, NETWORK_RETRY, ADDING, REMOVING, BACKUP, DEDUPE }
+    /** A wait that passes by itself (the service's limit, or the connection): a pause lets it run on. */
+    val isWait: Boolean get() = step == Step.WAITING || step == Step.NETWORK_RETRY
     /** Percentuale del passo corrente, quando il totale e' noto. */
     val percent: Int? get() = if (total > 0) (done * 100 / total).coerceIn(0, 100) else null
 }

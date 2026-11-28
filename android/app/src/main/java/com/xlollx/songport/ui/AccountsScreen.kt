@@ -619,8 +619,8 @@ private fun ProviderCard(
                     }
                 }
             }
-            // A server with two addresses (2.2): which one the requests go to now.
-            val via = remember(p.id) { (p as? com.xlollx.songport.providers.CredentialsProvider)?.takeIf { connected }?.let { c -> runCatching { c.awayAddress(ctx.env)?.let { away -> c.addressInUse(ctx.env)?.let { it to (it == away) } } }.getOrNull() } }
+            // A server with two addresses (2.2): the one that answered last (nothing until one has).
+            val via = remember(p.id) { (p as? com.xlollx.songport.providers.CredentialsProvider)?.takeIf { connected }?.let { c -> runCatching { c.awayAddress(ctx.env)?.let { away -> c.addressAnswered(ctx.env)?.let { it to (it == away) } } }.getOrNull() } }
             via?.let { (address, isAway) ->
                 Spacer(Modifier.height(6.dp))
                 Text(

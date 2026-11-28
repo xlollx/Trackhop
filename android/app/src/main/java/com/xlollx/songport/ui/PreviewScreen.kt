@@ -337,7 +337,7 @@ private fun PlanSteps(progress: Progress?, waitingFor: ServiceReads.Reader? = nu
     val step = when (progress?.step) {
         null, Progress.Step.FETCH_SOURCE -> 0
         Progress.Step.CREATE_TARGET, Progress.Step.FETCH_TARGET -> 1
-        Progress.Step.WAITING -> -1
+        Progress.Step.WAITING, Progress.Step.NETWORK_RETRY -> -1
         else -> 2
     }
     // A pause asked by the service keeps the step it came in.
@@ -371,6 +371,10 @@ private fun PlanSteps(progress: Progress?, waitingFor: ServiceReads.Reader? = nu
             if (waitingFor != null) PageNote(stringResource(R.string.preview_waiting_read, waitingFor.jobName, waitingFor.service), tone = Tone.Accent)
             if (progress?.step == Progress.Step.WAITING) Text(
                 stringResource(R.string.progress_waiting, (progress.total - progress.done).coerceAtLeast(0)),
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            if (progress?.step == Progress.Step.NETWORK_RETRY) Text(
+                stringResource(R.string.progress_network_retry, progress.label.orEmpty(), (progress.total - progress.done).coerceAtLeast(0), progress.attempt, progress.attempts),
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }

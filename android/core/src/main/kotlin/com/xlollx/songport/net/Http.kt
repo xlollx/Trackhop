@@ -90,15 +90,26 @@ object Http {
             // A request that changes something and got an answer (a redirect) before the failure was
             // received there: never sent again to the other address.
             val answered = java.util.concurrent.atomic.AtomicBoolean(false)
-            val caller = if (method == "GET" || method == "HEAD" || !ServerAddresses.paired(target)) client
-                else client.newBuilder().addNetworkInterceptor { ch -> ch.proceed(ch.request()).also { answered.set(true) } }.build()
+            val paired = ServerAddresses.paired(target)
+            // A server's address at home or on a VPN answers at once or not at all: a short wait to connect.
+            fun clientFor(to: String) = if (!paired) client
+                else ServerAddresses.connectTimeoutMs(to)?.let { client.newBuilder().connectTimeout(it, TimeUnit.MILLISECONDS).build() } ?: client
+            val first = clientFor(target)
+            val caller = if (method == "GET" || method == "HEAD" || !paired) first
+                else first.newBuilder().addNetworkInterceptor { ch -> ch.proceed(ch.request()).also { answered.set(true) } }.build()
             val resp = try {
                 caller.newCall(request(target)).execute()
             } catch (e: java.io.IOException) {
                 if (answered.get()) throw e
                 val other = ServerAddresses.failover(target, e) ?: throw e
+                val tried = target
                 target = other
-                client.newCall(request(target)).execute()
+                try {
+                    clientFor(target).newCall(request(target)).execute()
+                } catch (e2: java.io.IOException) {
+                    // Neither answered: one failure that says both, so the run can say "is it on? is the VPN on?".
+                    throw if (ServerAddresses.unreachable(e2)) ServerAddresses.bothDown(tried, e, target, e2) else e2
+                }
             }
             ServerAddresses.answered(target)
             val text = resp.body?.string() ?: ""

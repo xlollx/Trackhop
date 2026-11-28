@@ -59,6 +59,7 @@ fun netTextId(kind: NetError.Kind): Int? = when (kind) {
  * in time…"), null otherwise. The platform's own line goes to the diagnostic log, where it helps.
  */
 fun netWords(ctx: Context, e: Throwable?): String? {
+    NetError.bothDown(e)?.let { return ctx.getString(R.string.server_both_down, it.server) }
     val id = netTextId(NetError.kind(e)) ?: return null
     runCatching { Diagnostics.log(ctx, "net", "${e?.javaClass?.simpleName}: ${e?.message?.take(200)}") }
     return ctx.getString(id)

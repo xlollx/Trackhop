@@ -458,6 +458,10 @@ class Web(
 
     private fun progressText(jobId: String): String {
         val p = SyncState.running.value[jobId] ?: return """<span class="muted">Starting…</span>"""
+        // The connection, not the service's limit: said in words, the countdown with it.
+        if (p.step == com.xlollx.songport.model.Progress.Step.NETWORK_RETRY) {
+            return """<span>${h(env.text("progress_network_retry", p.label.orEmpty(), (p.total - p.done).coerceAtLeast(0), p.attempt, p.attempts))}</span>"""
+        }
         val step = p.step.name.lowercase().replace('_', ' ').replaceFirstChar { it.uppercase() }
         val count = if (p.total > 0) " ${p.done}/${p.total}" else ""
         val paused = when (SyncState.run(jobId)) {

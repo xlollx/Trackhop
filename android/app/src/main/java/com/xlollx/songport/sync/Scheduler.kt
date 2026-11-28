@@ -93,7 +93,7 @@ class SyncWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
                             // Pausa o stop chiesti dall'utente: qui, fra un passo e l'altro. L'attesa imposta
                             // dal servizio e' tempo che deve passare comunque: in pausa il conto alla rovescia
                             // continua, e' l'abbinamento che si ferma appena l'attesa finisce.
-                            if (p.step == Progress.Step.WAITING) SyncState.stopCheck(ctx, job.id) else SyncState.checkpoint(ctx, job.id)
+                            if (p.isWait) SyncState.stopCheck(ctx, job.id) else SyncState.checkpoint(ctx, job.id)
                         } }
                     } catch (e: kotlinx.coroutines.CancellationException) {
                         // Fermato dal sistema, non dall'utente: WorkManager riprende il lavoro da solo e la

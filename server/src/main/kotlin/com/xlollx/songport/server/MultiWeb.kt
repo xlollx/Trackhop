@@ -385,7 +385,7 @@ private fun Web.phaseLine(run: NwayRun.State?, m: Nway.Member): String {
     val s = run?.services?.firstOrNull { it.member.down.id == m.down.id } ?: return ""
     val text = when (s.phase) {
         NwayRun.Phase.WAITING -> """<span class="muted">Waiting</span>"""
-        NwayRun.Phase.NOW -> """<span>Syncing${s.job?.id?.let { SyncState.running.value[it] }?.let { p -> " · " + h(p.step.name.lowercase().replace('_', ' ')) + (if (p.total > 0) " ${p.done}/${p.total}" else "") }.orEmpty()}</span>"""
+        NwayRun.Phase.NOW -> """<span>Syncing${s.job?.id?.let { SyncState.running.value[it] }?.let { p -> " · " + if (p.step == com.xlollx.songport.model.Progress.Step.NETWORK_RETRY) h(env.text("progress_network_retry", p.label.orEmpty(), (p.total - p.done).coerceAtLeast(0), p.attempt, p.attempts)) else h(p.step.name.lowercase().replace('_', ' ')) + (if (p.total > 0) " ${p.done}/${p.total}" else "") }.orEmpty()}</span>"""
         NwayRun.Phase.DONE -> """<span class="ok">Done${s.result?.takeIf { it.added > 0 || it.removed > 0 }?.let { " +${it.added} −${it.removed}" }.orEmpty()}</span>"""
         NwayRun.Phase.FAILED -> """<span class="err">Failed${s.result?.error?.let { " · " + h(it) }.orEmpty()}</span>"""
         NwayRun.Phase.IDLE -> return ""

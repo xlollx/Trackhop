@@ -57,7 +57,7 @@ abstract class CredentialsProvider : MusicProvider {
         val t = ctx.tokens.get(id) ?: throw ProviderException(ctx.text("error_not_connected", displayName))
         val home = t.extra["url"]
         val away = t.extra[AWAY_URL]
-        if (!home.isNullOrBlank() && !away.isNullOrBlank()) ServerAddresses.register(home, away)
+        if (!home.isNullOrBlank() && !away.isNullOrBlank()) ServerAddresses.register(home, away, displayName)
         return t
     }
 
@@ -79,8 +79,20 @@ abstract class CredentialsProvider : MusicProvider {
         val home = t.extra["url"]?.takeIf { it.isNotBlank() } ?: return null
         val away = t.extra[AWAY_URL]
         if (away.isNullOrBlank()) return home
-        ServerAddresses.register(home, away)
+        ServerAddresses.register(home, away, displayName)
         return ServerAddresses.current(home)
+    }
+
+    /**
+     * The address that answered last: what "at home" / "away" says, never a guess from the kind of
+     * network. Null without a second address, or when neither has answered yet (or the last try reached neither).
+     */
+    fun addressAnswered(ctx: Env): String? {
+        val t = ctx.tokens.get(id) ?: return null
+        val home = t.extra["url"]?.takeIf { it.isNotBlank() } ?: return null
+        val away = t.extra[AWAY_URL]?.takeIf { it.isNotBlank() } ?: return null
+        ServerAddresses.register(home, away, displayName)
+        return ServerAddresses.answeredLast(home)
     }
 
     /** Sets (or, blank, takes away) the account's second address. Nothing is checked: from home the away one may not answer. */
@@ -93,7 +105,7 @@ abstract class CredentialsProvider : MusicProvider {
             ctx.tokens.set(id, t.copy(extra = t.extra - AWAY_URL))
         } else {
             ctx.tokens.set(id, t.copy(extra = t.extra + (AWAY_URL to away)))
-            if (home.isNotEmpty()) ServerAddresses.register(home, away)
+            if (home.isNotEmpty()) ServerAddresses.register(home, away, displayName)
         }
     }
 
@@ -105,7 +117,7 @@ abstract class CredentialsProvider : MusicProvider {
         val a = away?.trim()?.takeIf { it.isNotEmpty() }?.let { normalizeUrl(it) }
         val h = url.takeIf { it.isNotBlank() }?.let { normalizeUrl(it) }
         val before = h?.let { ServerAddresses.awayOf(it) }
-        if (a != null && h != null) ServerAddresses.register(h, a)
+        if (a != null && h != null) ServerAddresses.register(h, a, displayName)
         try {
             if (apiKey != null) loginWithApiKey(ctx, url, apiKey) else login(ctx, url, user, secret)
         } catch (e: Throwable) {
