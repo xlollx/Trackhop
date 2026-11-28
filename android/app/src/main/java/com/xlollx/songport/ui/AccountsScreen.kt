@@ -636,7 +636,12 @@ private fun ProviderCard(
             }
             if (p.usesOwnCredentials(ctx)) {
                 Spacer(Modifier.height(8.dp))
-                PageNote(stringResource(R.string.setup_using_own), icon = Icons.Filled.Key)
+                // A tap opens the key's screen (the same as the menu's change-key entry): it looks like a row to tap.
+                PageNote(
+                    stringResource(R.string.setup_using_own), icon = Icons.Filled.Key,
+                    modifier = if (p.setupGuide != null && p.slot.isEmpty()) Modifier.clip(RoundedCornerShape(14.dp)).clickable(role = androidx.compose.ui.semantics.Role.Button) { onSetup(p) } else Modifier,
+                    trailing = if (p.setupGuide != null && p.slot.isEmpty()) ({ Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, Modifier.padding(end = 8.dp)) }) else null,
+                )
             } else if (!configured && !connected) {
                 Spacer(Modifier.height(8.dp))
                 PageNote(stringResource(p.notConfiguredRes ?: R.string.not_configured_hint), tone = Tone.Error)
